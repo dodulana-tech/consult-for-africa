@@ -1,14 +1,4 @@
-"use client";
-import { useState } from "react";
-
 export default function PartnerCTA() {
-  const [sent, setSent] = useState(false);
-
-  async function handleSubmit(e: any) {
-    e.preventDefault();
-    setSent(true);
-  }
-
   return (
     <section id="contact" className="relative py-24 text-white overflow-hidden">
 
@@ -24,16 +14,16 @@ export default function PartnerCTA() {
             Confidential Engagement
           </p>
 
-          <h2 className="text-3xl md:text-4xl font-semibold leading-tight text-white/80 mb-6">
+          <h2 className="text-3xl md:text-4xl font-semibold leading-tight text-white mb-6">
             Partner With Consult For Africa
           </h2>
 
           <div className="w-16 h-[2px] bg-[var(--brand-secondary)] mb-8" />
 
           <p className="text-white/90 mb-10 max-w-md leading-relaxed">
-            We support hospital operators, investors, and development partners
-            seeking disciplined execution, institutional strengthening, and
-            measurable performance transformation.
+            We support hospital operators, investors, development partners,
+            and institutions seeking disciplined execution, institutional
+            strengthening, and measurable performance transformation.
           </p>
 
           {/* ENGAGEMENT AREAS */}
@@ -78,31 +68,39 @@ export default function PartnerCTA() {
           </div>
 
           <p className="mt-8 text-xs text-white/70">
-            Discreet engagement • NDA available • Response within 48 hours
+            Discreet engagement • NDA available • Executive response within 48 hours
           </p>
         </div>
 
         {/* RIGHT SIDE — EXECUTIVE FORM */}
         <form
-          onSubmit={handleSubmit}
+          action="https://formsubmit.co/hello@consultforafrica.com"
+          method="POST"
           className="bg-white rounded-2xl p-10 shadow-2xl text-gray-900 grid gap-5"
         >
+          {/* FormSubmit helpers */}
+          <input type="hidden" name="_subject" value="New CFA Executive Brief Submission" />
+          <input type="hidden" name="_template" value="table" />
+          <input type="hidden" name="_captcha" value="false" />
+
           <p className="text-sm font-semibold text-gray-900">
             Executive Brief Submission
           </p>
 
           <input
+            name="Organization"
             className="p-3 border rounded"
             placeholder="Organization"
             required
           />
 
           <div className="grid grid-cols-2 gap-4">
-            <input className="p-3 border rounded" placeholder="Country" />
-            <input className="p-3 border rounded" placeholder="Role / Title" />
+            <input name="Country" className="p-3 border rounded" placeholder="Country" />
+            <input name="Role" className="p-3 border rounded" placeholder="Role / Title" />
           </div>
 
           <input
+            name="Email"
             type="email"
             className="p-3 border rounded"
             placeholder="Work Email"
@@ -110,7 +108,7 @@ export default function PartnerCTA() {
           />
 
           {/* PROJECT TYPE */}
-          <select className="p-3 border rounded" required>
+          <select name="Project Type" className="p-3 border rounded" required>
             <option value="">Select Project Type</option>
             <option>Hospital Turnaround</option>
             <option>Performance Improvement</option>
@@ -120,10 +118,11 @@ export default function PartnerCTA() {
             <option>Digital Health & Data Systems</option>
             <option>PPP / Public Sector Transformation</option>
             <option>Strategic Advisory</option>
+            <option>Technology Platform / CTO-as-a-Service</option>
           </select>
 
           {/* BUDGET STAGE */}
-          <select className="p-3 border rounded">
+          <select name="Budget Stage" className="p-3 border rounded">
             <option value="">Budget Stage</option>
             <option>Planning phase</option>
             <option>Budget approved</option>
@@ -132,7 +131,7 @@ export default function PartnerCTA() {
           </select>
 
           {/* TIMELINE */}
-          <select className="p-3 border rounded">
+          <select name="Timeline" className="p-3 border rounded">
             <option value="">Desired Timeline</option>
             <option>Immediate (0–3 months)</option>
             <option>Near term (3–6 months)</option>
@@ -141,24 +140,20 @@ export default function PartnerCTA() {
           </select>
 
           <textarea
+            name="Project Details"
             className="p-3 border rounded h-28"
             placeholder="Brief description of situation or objectives"
           />
 
           <button className="bg-[var(--brand-primary)] text-white py-3 rounded-lg font-semibold hover:shadow-xl transition">
-            Submit Brief
+            Submit Executive Brief
           </button>
-
-          {sent && (
-            <p className="text-green-600 text-sm">
-              Your submission has been received.
-            </p>
-          )}
 
           <p className="text-xs text-gray-500 text-center">
             Information is confidential and reviewed only by senior leadership.
           </p>
         </form>
+
       </div>
     </section>
   );

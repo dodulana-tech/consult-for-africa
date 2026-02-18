@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Hero() {
   return (
@@ -32,13 +33,23 @@ export default function Hero() {
 
           {/* CTA */}
           <div className="mt-10 flex flex-col sm:flex-row gap-4">
-            <button className="px-8 py-3 bg-white text-[var(--brand-primary)] rounded-lg font-semibold hover:shadow-xl hover:scale-[1.02] transition">
-              Request Consultation
-            </button>
 
-            <button className="px-8 py-3 border border-white/70 rounded-lg text-white hover:bg-white/10 transition">
+            {/* Request Consultation → scroll to contact */}
+            <a
+              href="#contact"
+              className="px-8 py-3 bg-white text-[var(--brand-primary)] rounded-lg font-semibold hover:shadow-xl hover:scale-[1.02] transition text-center"
+            >
+              Request Consultation
+            </a>
+
+            {/* View Capabilities → services page */}
+            <Link
+              href="/services"
+              className="px-8 py-3 border border-white/70 rounded-lg text-white hover:bg-white/10 transition text-center"
+            >
               View Capabilities
-            </button>
+            </Link>
+
           </div>
 
           {/* credibility metrics */}

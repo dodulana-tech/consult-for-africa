@@ -96,7 +96,7 @@ export default function Footer() {
                 Partner With Us
               </a>
             </li>
-            <li>Abuja • Lagos</li>
+            <li>Abuja • Lagos • +2349138138553</li>
 
             <li>
               <a
@@ -107,7 +107,7 @@ export default function Footer() {
               </a>
             </li>
 
-            <li>Executive response within 48 hours</li>
+            <li>Response within 48 hours</li>
           </ul>
 
           <p className="mt-6 text-xs text-white/50">
