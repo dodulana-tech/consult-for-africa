@@ -1,0 +1,1010 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  CONSULTANT
+  ENGAGEMENT_MANAGER
+  DIRECTOR
+  PARTNER
+  ADMIN
+}
+
+enum ConsultantTier {
+  ELITE
+  EXPERIENCED
+  STANDARD
+  EMERGING
+}
+
+enum AvailabilityStatus {
+  AVAILABLE
+  PARTIALLY_AVAILABLE
+  UNAVAILABLE
+  ON_LEAVE
+}
+
+enum Currency {
+  USD
+  NGN
+}
+
+enum ClientType {
+  PRIVATE_ELITE
+  PRIVATE_MIDTIER
+  GOVERNMENT
+  DEVELOPMENT
+}
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+  OVERDUE_PAYMENT
+  BLACKLISTED
+}
+
+enum ServiceType {
+  HOSPITAL_OPERATIONS
+  TURNAROUND
+  EMBEDDED_LEADERSHIP
+  CLINICAL_GOVERNANCE
+  DIGITAL_HEALTH
+  HEALTH_SYSTEMS
+  DIASPORA_EXPERTISE
+  EM_AS_SERVICE
+}
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  AT_RISK
+  COMPLETED
+  CANCELLED
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AssignmentStatus {
+  PENDING
+  ACTIVE
+  PAUSED
+  COMPLETED
+  TERMINATED
+}
+
+enum RateType {
+  HOURLY
+  MONTHLY
+  FIXED_PROJECT
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  DELAYED
+  SKIPPED
+}
+
+enum DeliverableStatus {
+  DRAFT
+  SUBMITTED
+  IN_REVIEW
+  NEEDS_REVISION
+  APPROVED
+  DELIVERED_TO_CLIENT
+}
+
+enum TimeEntryStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum UpdateType {
+  GENERAL
+  MILESTONE_COMPLETED
+  ISSUE
+  CLIENT_FEEDBACK
+  TEAM_CHANGE
+}
+
+enum PhaseStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  SKIPPED
+}
+
+enum RiskSeverity {
+  GREEN
+  AMBER
+  RED
+}
+
+enum RiskItemStatus {
+  OPEN
+  MITIGATING
+  RESOLVED
+  ACCEPTED
+}
+
+enum PaymentMilestoneStatus {
+  PENDING
+  INVOICED
+  PAID
+  OVERDUE
+}
+
+enum InteractionType {
+  CALL
+  MEETING
+  EMAIL
+  WORKSHOP
+  SITE_VISIT
+  REPORT_DELIVERY
+}
+
+enum InteractionSentiment {
+  POSITIVE
+  NEUTRAL
+  CONCERNED
+  NEGATIVE
+}
+
+enum CommentAuthorType {
+  INTERNAL
+  CLIENT
+}
+
+enum DeliverableReviewStage {
+  DRAFT
+  PEER_REVIEW
+  INTERNAL_QA
+  CLIENT_REVIEW
+  APPROVED
+  DELIVERED
+}
+
+enum KnowledgeAssetType {
+  INSIGHT
+  FRAMEWORK
+  TEMPLATE
+  CASE_STUDY
+  LESSON_LEARNED
+}
+
+// ─── Core Models ──────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String?
+  role         UserRole @default(CONSULTANT)
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  consultantProfile      ConsultantProfile?
+  engagementManagerProfile EngagementManagerProfile?
+  managedProjects        Project[]         @relation("ProjectEM")
+  assignments            Assignment[]
+  timeEntries            TimeEntry[]
+  sentMessages           Message[]
+  projectUpdates         ProjectUpdate[]
+  reviewedApplications   TalentApplication[] @relation("ApplicationReviewer")
+  referrals              Referral[]
+}
+
+model ConsultantProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title           String
+  bio             String    @db.Text
+  location        String
+  isDiaspora      Boolean   @default(false)
+  expertiseAreas  String[]
+  yearsExperience Int
+  tier            ConsultantTier     @default(STANDARD)
+  hourlyRateUSD   Decimal?  @db.Decimal(10, 2)
+  monthlyRateNGN  Decimal?  @db.Decimal(12, 2)
+  availabilityStatus AvailabilityStatus @default(AVAILABLE)
+  hoursPerWeek    Int?
+  averageRating   Decimal?  @db.Decimal(3, 2)
+  totalProjects   Int       @default(0)
+  bankName        String?
+  accountNumber   String?
+  accountName     String?
+  swiftCode       String?
+  currency        Currency  @default(NGN)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ratings ConsultantRating[]
+}
+
+model EngagementManagerProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title           String
+  bio             String @db.Text
+  yearsExperience Int
+  currentProjects Int    @default(0)
+  maxProjects     Int    @default(5)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Client {
+  id             String       @id @default(cuid())
+  name           String
+  type           ClientType
+  primaryContact String
+  email          String
+  phone          String
+  address        String
+  paymentTerms   Int          @default(30)
+  currency       Currency     @default(NGN)
+  status         ClientStatus @default(ACTIVE)
+  creditScore    Int?         @default(3)
+  notes          String?      @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects  Project[]
+  invoices  Invoice[]
+  contacts  ClientContact[]
+}
+
+model Project {
+  id                  String        @id @default(cuid())
+  clientId            String
+  client              Client        @relation(fields: [clientId], references: [id])
+  engagementManagerId String
+  engagementManager   User          @relation("ProjectEM", fields: [engagementManagerId], references: [id])
+
+  name           String
+  description    String        @db.Text
+  serviceType    ServiceType
+  startDate      DateTime
+  endDate        DateTime
+  status         ProjectStatus @default(PLANNING)
+  budgetAmount   Decimal       @db.Decimal(14, 2)
+  budgetCurrency Currency      @default(NGN)
+  actualSpent    Decimal       @default(0) @db.Decimal(14, 2)
+  healthScore              Int?          @default(5)
+  riskLevel                RiskLevel     @default(LOW)
+  notes                    String?       @db.Text
+  clientSatisfactionScore  Int?
+  methodology              String?
+  methodologyId            String?
+  methodologyTemplate      MethodologyTemplate? @relation("ProjectMethodology", fields: [methodologyId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assignments       Assignment[]
+  milestones        Milestone[]
+  deliverables      Deliverable[]
+  invoices          Invoice[]
+  messages          Message[]
+  updates           ProjectUpdate[]
+  phases            ProjectPhase[]
+  risks             RiskItem[]
+  paymentMilestones PaymentMilestone[]
+  interactions      ClientInteraction[]
+  impactMetrics     ProjectImpactMetric[]
+  knowledgeAssets   KnowledgeAsset[]
+  frameworks        ProjectFramework[]
+}
+
+model Assignment {
+  id           String           @id @default(cuid())
+  projectId    String
+  project      Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  consultantId String
+  consultant   User             @relation(fields: [consultantId], references: [id])
+
+  role             String
+  responsibilities String         @db.Text
+  startDate        DateTime
+  endDate          DateTime?
+  status           AssignmentStatus @default(ACTIVE)
+  rateAmount       Decimal          @db.Decimal(10, 2)
+  rateCurrency     Currency
+  rateType         RateType
+  estimatedHours   Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  timeEntries  TimeEntry[]
+  deliverables Deliverable[]
+}
+
+model Milestone {
+  id             String          @id @default(cuid())
+  projectId      String
+  project        Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  name           String
+  description    String          @db.Text
+  dueDate        DateTime
+  status         MilestoneStatus @default(PENDING)
+  completionDate DateTime?
+  order          Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deliverables Deliverable[]
+}
+
+model Deliverable {
+  id           String            @id @default(cuid())
+  projectId    String
+  project      Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  milestoneId  String?
+  milestone    Milestone?        @relation(fields: [milestoneId], references: [id])
+  assignmentId String?
+  assignment   Assignment?       @relation(fields: [assignmentId], references: [id])
+
+  name          String
+  description   String                 @db.Text
+  fileUrl       String?
+  status        DeliverableStatus      @default(DRAFT)
+  reviewStage   DeliverableReviewStage @default(DRAFT)
+  clientVisible Boolean                @default(false)
+  dueDate       DateTime?
+  submittedAt   DateTime?
+  reviewedAt    DateTime?
+  approvedAt    DateTime?
+  reviewScore   Int?
+  reviewNotes   String?                @db.Text
+  reviewedById  String?
+  version       Int                    @default(1)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  versions     DeliverableVersion[]
+  comments     DeliverableComment[]
+}
+
+model TimeEntry {
+  id           String          @id @default(cuid())
+  assignmentId String
+  assignment   Assignment      @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  consultantId String
+  consultant   User            @relation(fields: [consultantId], references: [id])
+
+  date           DateTime
+  hours          Decimal         @db.Decimal(5, 2)
+  description    String          @db.Text
+  status         TimeEntryStatus @default(PENDING)
+  approvedById   String?
+  approvedAt     DateTime?
+  billableAmount Decimal?        @db.Decimal(10, 2)
+  currency       Currency
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Invoice {
+  id              String        @id @default(cuid())
+  clientId        String
+  client          Client        @relation(fields: [clientId], references: [id])
+  projectId       String?
+  project         Project?      @relation(fields: [projectId], references: [id])
+
+  invoiceNumber   String        @unique
+  subtotal        Decimal       @db.Decimal(14, 2)
+  tax             Decimal       @default(0) @db.Decimal(14, 2)
+  total           Decimal       @db.Decimal(14, 2)
+  currency        Currency      @default(NGN)
+  status          InvoiceStatus @default(DRAFT)
+  issuedDate      DateTime?
+  dueDate         DateTime?
+  paidDate        DateTime?
+  paymentMethod   String?
+  paymentReference String?
+  lineItems       Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProjectUpdate {
+  id        String     @id @default(cuid())
+  projectId String
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  content   String     @db.Text
+  type      UpdateType @default(GENERAL)
+  createdById String
+  createdBy User       @relation(fields: [createdById], references: [id])
+  createdAt DateTime   @default(now())
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id])
+  senderId    String
+  sender      User     @relation(fields: [senderId], references: [id])
+  content     String   @db.Text
+  attachments String[]
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model ConsultantRating {
+  id                String            @id @default(cuid())
+  consultantId      String
+  consultant        ConsultantProfile @relation(fields: [consultantId], references: [id])
+  projectId         String
+  technicalQuality  Int
+  communication     Int
+  timeliness        Int
+  professionalism   Int
+  overallRating     Int
+  feedback          String?           @db.Text
+  ratedById         String
+  createdAt         DateTime          @default(now())
+}
+
+model ConsultantMatchScore {
+  id           String   @id @default(cuid())
+  projectId    String
+  consultantId String
+
+  matchScore        Int
+  rankPosition      Int
+
+  expertiseScore    Decimal  @db.Decimal(4, 3)
+  performanceScore  Decimal  @db.Decimal(4, 3)
+  availabilityScore Decimal  @db.Decimal(4, 3)
+  costScore         Decimal  @db.Decimal(4, 3)
+  fitScore          Decimal  @db.Decimal(4, 3)
+
+  explanation       String   @db.Text
+  confidenceLevel   Decimal  @db.Decimal(4, 3)
+  modelVersion      String   @default("v1")
+  selected          Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@unique([projectId, consultantId])
+  @@index([projectId, rankPosition])
+}
+
+model GeneratedProposal {
+  id          String   @id @default(cuid())
+  clientName  String
+  projectName String?
+  inputData   Json
+  content     Json
+  status      String   @default("draft")
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ─── Founder Dashboard ────────────────────────────────────────────────────────
+
+model FounderProfile {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  startDate    DateTime @default(now())
+  currentPhase String   @default("Phase1_MVP")
+
+  tasks            FounderTask[]
+  milestones       FounderMilestone[]
+  documentViews    FounderDocumentView[]
+  aiConversations  FounderAIConversation[]
+  metrics          FounderMetric[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FounderTask {
+  id          String   @id @default(cuid())
+  founderId   String
+  founder     FounderProfile @relation(fields: [founderId], references: [id], onDelete: Cascade)
+
+  title            String
+  description      String?  @db.Text
+  phase            String
+  week             Int?
+  priority         String   @default("medium")
+  category         String   @default("general")
+
+  dueDate          DateTime?
+  completedAt      DateTime?
+  status           String   @default("pending")
+
+  estimatedMinutes Int?
+  impact           String?  @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([founderId, status])
+  @@index([dueDate])
+}
+
+model FounderMilestone {
+  id          String   @id @default(cuid())
+  founderId   String
+  founder     FounderProfile @relation(fields: [founderId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String   @db.Text
+  phase       String
+  category    String
+
+  targetDate  DateTime
+  achievedAt  DateTime?
+  status      String   @default("pending")
+
+  celebration String?  @db.Text
+  badge       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([founderId, status])
+  @@index([targetDate])
+}
+
+model FounderDocumentView {
+  id          String   @id @default(cuid())
+  founderId   String
+  founder     FounderProfile @relation(fields: [founderId], references: [id], onDelete: Cascade)
+
+  documentName String
+  category     String
+
+  viewedAt         DateTime @default(now())
+  timeSpentSeconds Int?
+
+  @@index([founderId, viewedAt])
+}
+
+model FounderAIConversation {
+  id          String   @id @default(cuid())
+  founderId   String
+  founder     FounderProfile @relation(fields: [founderId], references: [id], onDelete: Cascade)
+
+  question    String   @db.Text
+  answer      String   @db.Text
+  helpful     Boolean?
+
+  createdAt DateTime @default(now())
+
+  @@index([founderId, createdAt])
+}
+
+model FounderMetric {
+  id          String   @id @default(cuid())
+  founderId   String
+  founder     FounderProfile @relation(fields: [founderId], references: [id], onDelete: Cascade)
+
+  metricType  String
+  value       Decimal  @db.Decimal(15, 2)
+  target      Decimal? @db.Decimal(15, 2)
+  unit        String
+
+  period      String
+  periodDate  DateTime
+
+  notes       String?  @db.Text
+
+  createdAt DateTime @default(now())
+
+  @@index([founderId, metricType, periodDate])
+}
+
+// ─── Talent Platform ──────────────────────────────────────────────────────────
+
+enum ReferralType {
+  CLIENT
+  CONSULTANT
+  STAFF
+}
+
+enum ReferralStatus {
+  PENDING
+  CONTACTED
+  CONVERTED
+  REJECTED
+}
+
+model Referral {
+  id           String         @id @default(cuid())
+  referrerId   String
+  referrer     User           @relation(fields: [referrerId], references: [id])
+  type         ReferralType
+  name         String
+  email        String
+  phone        String?
+  organisation String?
+  suggestedRole String?
+  notes        String?        @db.Text
+  status       ReferralStatus @default(PENDING)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([referrerId])
+  @@index([status, createdAt])
+}
+
+enum TalentApplicationStatus {
+  SUBMITTED
+  AI_SCREENED
+  UNDER_REVIEW
+  SHORTLISTED
+  INTERVIEW_SCHEDULED
+  OFFER_EXTENDED
+  HIRED
+  REJECTED
+  WITHDRAWN
+}
+
+enum EngagementType {
+  FULL_TIME
+  PART_TIME
+  PROJECT_BASED
+  INTERIM
+  ADVISORY
+}
+
+model TalentApplication {
+  id String @id @default(cuid())
+
+  // Personal
+  firstName   String
+  lastName    String
+  email       String   @unique
+  phone       String?
+  linkedinUrl String?
+  location    String
+
+  // Professional
+  specialty          String
+  yearsExperience    Int
+  currentRole        String?
+  currentOrg         String?
+  workAuthorization  String   @default("nigerian_citizen")
+
+  // Application
+  cvText            String?  @db.Text
+  coverLetter       String?  @db.Text
+  availableFrom     DateTime?
+  engagementTypes   String[] // array of EngagementType values
+
+  // AI Screening
+  aiScore           Int?     // 0-100
+  aiScoreBreakdown  Json?    // { experience, specialty_fit, leadership, impact, communication }
+  aiSummary         String?  @db.Text
+  aiStrengths       String[] 
+  aiConcerns        String[]
+  aiRecommendation  String?  // STRONG_YES, YES, MAYBE, NO
+
+  // Status
+  status          TalentApplicationStatus @default(SUBMITTED)
+  reviewNotes     String? @db.Text
+  reviewedById    String?
+  reviewedBy      User?   @relation("ApplicationReviewer", fields: [reviewedById], references: [id])
+  reviewedAt      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([specialty])
+  @@index([aiScore])
+}
+
+// ─── Project Delivery Models ───────────────────────────────────────────────────
+
+model ProjectPhase {
+  id          String       @id @default(cuid())
+  projectId   String
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name        String
+  description String?      @db.Text
+  order       Int
+  status      PhaseStatus  @default(PENDING)
+  percentComplete Int      @default(0)
+  startDate   DateTime?
+  endDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  gates       PhaseGate[]
+
+  @@index([projectId, order])
+}
+
+model PhaseGate {
+  id          String       @id @default(cuid())
+  phaseId     String
+  phase       ProjectPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  name        String
+  passed      Boolean      @default(false)
+  passedAt    DateTime?
+  passedById  String?
+  notes       String?      @db.Text
+  createdAt   DateTime     @default(now())
+
+  @@index([phaseId])
+}
+
+model RiskItem {
+  id          String         @id @default(cuid())
+  projectId   String
+  project     Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  description String         @db.Text
+  category    String         @default("Operational")
+  severity    RiskSeverity   @default(AMBER)
+  likelihood  Int            @default(3)
+  impact      Int            @default(3)
+  riskScore   Int            @default(9)
+  ownerId     String?
+  mitigation  String?        @db.Text
+  status      RiskItemStatus @default(OPEN)
+  resolvedAt  DateTime?
+  createdById String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([projectId, severity])
+}
+
+model PaymentMilestone {
+  id        String                 @id @default(cuid())
+  projectId String
+  project   Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name      String
+  amount    Decimal                @db.Decimal(14, 2)
+  currency  Currency               @default(NGN)
+  dueDate   DateTime
+  paidDate  DateTime?
+  status    PaymentMilestoneStatus @default(PENDING)
+  invoiceId String?
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+
+  @@index([projectId, status])
+}
+
+model ClientInteraction {
+  id             String               @id @default(cuid())
+  projectId      String
+  project        Project              @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  type           InteractionType
+  summary        String               @db.Text
+  sentiment      InteractionSentiment @default(NEUTRAL)
+  conductedById  String
+  conductedAt    DateTime
+  nextActionDate DateTime?
+  nextActionNote String?              @db.Text
+  createdAt      DateTime             @default(now())
+
+  @@index([projectId, conductedAt])
+}
+
+model DeliverableVersion {
+  id             String      @id @default(cuid())
+  deliverableId  String
+  deliverable    Deliverable @relation(fields: [deliverableId], references: [id], onDelete: Cascade)
+  versionNumber  Int
+  fileUrl        String?
+  fileName       String?
+  changeNotes    String?     @db.Text
+  submittedById  String
+  submittedAt    DateTime    @default(now())
+
+  @@index([deliverableId, versionNumber])
+}
+
+model DeliverableComment {
+  id            String             @id @default(cuid())
+  deliverableId String
+  deliverable   Deliverable        @relation(fields: [deliverableId], references: [id], onDelete: Cascade)
+  content       String             @db.Text
+  authorId      String
+  authorName    String
+  authorType    CommentAuthorType  @default(INTERNAL)
+  parentId      String?
+  parent        DeliverableComment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies       DeliverableComment[] @relation("CommentReplies")
+  isResolved    Boolean            @default(false)
+  resolvedAt    DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([deliverableId, parentId])
+}
+
+model ProjectImpactMetric {
+  id               String   @id @default(cuid())
+  projectId        String
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  metricName       String
+  baselineValue    String?
+  currentValue     String?
+  unit             String?
+  quantifiedValue  Decimal? @db.Decimal(14, 2)
+  currency         Currency?
+  clientQuote      String?  @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([projectId])
+}
+
+model KnowledgeAsset {
+  id         String             @id @default(cuid())
+  projectId  String?
+  project    Project?           @relation(fields: [projectId], references: [id])
+  title      String
+  content    String             @db.Text
+  assetType  KnowledgeAssetType
+  tags       String[]
+  isReusable Boolean            @default(false)
+  fileUrl    String?
+  authorId   String
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  @@index([projectId])
+  @@index([assetType, isReusable])
+}
+
+model ClientContact {
+  id               String  @id @default(cuid())
+  clientId         String
+  client           Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  name             String
+  email            String  @unique
+  passwordHash     String?
+  title            String?
+  phone            String?
+  isPrimary        Boolean @default(false)
+  isPortalEnabled  Boolean @default(false)
+  lastLoginAt      DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([clientId])
+}
+
+// ─── Methodology Framework Library ────────────────────────────────────────────
+
+enum FrameworkStatus {
+  DRAFT
+  IN_PROGRESS
+  COMPLETED
+  ARCHIVED
+}
+
+model MethodologyTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String   @db.Text
+  category    String   // e.g. "Operations", "Lean", "Quality", "Revenue"
+  serviceTypes String[] // which ServiceType values this applies to
+  estimatedWeeks Int   @default(8)
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  phases      MethodologyPhaseTemplate[]
+  projects    Project[]                  @relation("ProjectMethodology")
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model MethodologyPhaseTemplate {
+  id               String              @id @default(cuid())
+  methodologyId    String
+  methodology      MethodologyTemplate @relation(fields: [methodologyId], references: [id], onDelete: Cascade)
+  name             String
+  description      String?             @db.Text
+  order            Int
+  typicalWeeks     Int                 @default(2)
+  keyActivities    String[]
+  keyDeliverables  String[]
+  createdAt        DateTime            @default(now())
+
+  gates            GateTemplate[]
+
+  @@index([methodologyId, order])
+}
+
+model GateTemplate {
+  id        String                   @id @default(cuid())
+  phaseId   String
+  phase     MethodologyPhaseTemplate @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  name      String
+  criteria  String                   @db.Text
+  order     Int                      @default(0)
+  createdAt DateTime                 @default(now())
+
+  @@index([phaseId])
+}
+
+model FrameworkTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String   @db.Text
+  category    String   // "Strategic Analysis", "Operational", "Financial", "Stakeholder", etc.
+  dimensions  String[] // the axes/sections of this framework
+  guideText   String?  @db.Text
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projectFrameworks ProjectFramework[]
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model ProjectFramework {
+  id          String          @id @default(cuid())
+  projectId   String
+  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  frameworkId String
+  framework   FrameworkTemplate @relation(fields: [frameworkId], references: [id])
+  content     Json            // AI-generated or consultant-filled content keyed by dimension
+  aiGenerated Boolean         @default(false)
+  status      FrameworkStatus @default(DRAFT)
+  notes       String?         @db.Text
+  createdById String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@unique([projectId, frameworkId])
+  @@index([projectId])
+}
