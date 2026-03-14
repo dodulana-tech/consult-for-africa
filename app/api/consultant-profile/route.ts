@@ -1,0 +1,55 @@
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
+import type { AvailabilityStatus } from "@prisma/client";
+
+export async function PATCH(req: NextRequest) {
+  const session = await auth();
+  if (!session) return new Response("Unauthorized", { status: 401 });
+
+  if (session.user.role !== "CONSULTANT") {
+    return new Response("Only consultants can update their own profile", { status: 403 });
+  }
+
+  const {
+    title, bio, location, isDiaspora,
+    expertiseAreas, yearsExperience, hoursPerWeek,
+    availabilityStatus,
+    hourlyRateUSD, monthlyRateNGN,
+    bankName, accountNumber, accountName, swiftCode,
+  } = await req.json();
+
+  const validStatuses: AvailabilityStatus[] = ["AVAILABLE", "PARTIALLY_AVAILABLE", "UNAVAILABLE", "ON_LEAVE"];
+  if (availabilityStatus && !validStatuses.includes(availabilityStatus)) {
+    return new Response("Invalid availability status", { status: 400 });
+  }
+
+  const profile = await prisma.consultantProfile.findUnique({
+    where: { userId: session.user.id },
+    select: { id: true },
+  });
+  if (!profile) return new Response("Profile not found", { status: 404 });
+
+  const data: Record<string, unknown> = {};
+  if (title !== undefined) data.title = title;
+  if (bio !== undefined) data.bio = bio;
+  if (location !== undefined) data.location = location;
+  if (isDiaspora !== undefined) data.isDiaspora = isDiaspora;
+  if (expertiseAreas !== undefined) data.expertiseAreas = expertiseAreas;
+  if (yearsExperience !== undefined) data.yearsExperience = parseInt(yearsExperience);
+  if (hoursPerWeek !== undefined) data.hoursPerWeek = parseInt(hoursPerWeek) || null;
+  if (availabilityStatus !== undefined) data.availabilityStatus = availabilityStatus;
+  if (hourlyRateUSD !== undefined) data.hourlyRateUSD = hourlyRateUSD ? parseFloat(hourlyRateUSD) : null;
+  if (monthlyRateNGN !== undefined) data.monthlyRateNGN = monthlyRateNGN ? parseFloat(monthlyRateNGN) : null;
+  if (bankName !== undefined) data.bankName = bankName || null;
+  if (accountNumber !== undefined) data.accountNumber = accountNumber || null;
+  if (accountName !== undefined) data.accountName = accountName || null;
+  if (swiftCode !== undefined) data.swiftCode = swiftCode || null;
+
+  const updated = await prisma.consultantProfile.update({
+    where: { id: profile.id },
+    data,
+  });
+
+  return Response.json({ ok: true, profile: updated });
+}

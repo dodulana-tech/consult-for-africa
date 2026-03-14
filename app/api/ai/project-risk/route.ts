@@ -1,0 +1,207 @@
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
+import Anthropic from "@anthropic-ai/sdk";
+
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session) return new Response("Unauthorized", { status: 401 });
+
+  const canAnalyze = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  if (!canAnalyze) return new Response("Forbidden", { status: 403 });
+
+  const { projectId } = await req.json();
+  if (!projectId) return new Response("projectId required", { status: 400 });
+
+  // Fetch full project state using separate queries for reliability
+  const [project, assignments, milestones, deliverables, invoices] = await Promise.all([
+    prisma.project.findUnique({
+      where: { id: projectId },
+      include: {
+        client: { select: { name: true, type: true, creditScore: true, status: true } },
+        engagementManager: { select: { name: true } },
+      },
+    }),
+    prisma.assignment.findMany({
+      where: { projectId },
+      include: {
+        consultant: { select: { name: true, consultantProfile: { select: { tier: true, averageRating: true } } } },
+        timeEntries: { select: { hours: true, status: true } },
+        deliverables: { select: { status: true } },
+      },
+    }),
+    prisma.milestone.findMany({
+      where: { projectId },
+      select: { name: true, dueDate: true, status: true },
+    }),
+    prisma.deliverable.findMany({
+      where: { projectId },
+      select: { status: true, version: true },
+    }),
+    prisma.invoice.findMany({
+      where: { projectId },
+      select: { status: true, total: true, dueDate: true },
+    }),
+  ]);
+
+  if (!project) return new Response("Project not found", { status: 404 });
+
+  const now = new Date();
+  const daysUntilEnd = Math.round((new Date(project.endDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  const totalDays = Math.round((new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24));
+  const pctComplete = Math.round(((totalDays - Math.max(0, daysUntilEnd)) / totalDays) * 100);
+
+  const budgetSpentPct = Math.round((Number(project.actualSpent) / Number(project.budgetAmount)) * 100);
+
+  const overdueMilestones = milestones.filter(
+    (m) => m.status !== "COMPLETED" && new Date(m.dueDate) < now
+  );
+
+  const pendingDeliverables = deliverables.filter(
+    (d) => !["APPROVED", "DELIVERED_TO_CLIENT"].includes(d.status)
+  ).length;
+  const approvedDeliverables = deliverables.filter(
+    (d) => ["APPROVED", "DELIVERED_TO_CLIENT"].includes(d.status)
+  ).length;
+
+  const totalHoursLogged = assignments.reduce(
+    (sum, a) => sum + a.timeEntries.reduce((s, te) => s + Number(te.hours), 0),
+    0
+  );
+
+  const needsRevisionCount = deliverables.filter((d) => d.status === "NEEDS_REVISION").length;
+  const highRevisionConsultants = assignments
+    .filter((a) => a.deliverables.filter((d) => d.status === "NEEDS_REVISION").length >= 2)
+    .map((a) => a.consultant.name);
+
+  const overdueInvoices = invoices.filter(
+    (inv) => inv.status !== "PAID" && inv.dueDate && new Date(inv.dueDate) < now
+  );
+
+  const projectData = {
+    name: project.name,
+    status: project.status,
+    currentRiskLevel: project.riskLevel,
+    healthScore: project.healthScore,
+    serviceType: project.serviceType,
+    daysUntilDeadline: daysUntilEnd,
+    timelineProgress: pctComplete,
+    budget: {
+      total: Number(project.budgetAmount),
+      spent: Number(project.actualSpent),
+      spentPercent: budgetSpentPct,
+      currency: project.budgetCurrency,
+    },
+    team: {
+      totalConsultants: assignments.length,
+      consultants: assignments.map((a) => ({
+        name: a.consultant.name,
+        tier: a.consultant.consultantProfile?.tier ?? "STANDARD",
+        rating: a.consultant.consultantProfile?.averageRating
+          ? Number(a.consultant.consultantProfile.averageRating)
+          : null,
+      })),
+    },
+    milestones: {
+      total: milestones.length,
+      overdue: overdueMilestones.length,
+      overdueMilestones: overdueMilestones.map((m) => m.name),
+    },
+    deliverables: {
+      total: deliverables.length,
+      approved: approvedDeliverables,
+      pending: pendingDeliverables,
+      needsRevision: needsRevisionCount,
+      completionRate: deliverables.length > 0
+        ? Math.round((approvedDeliverables / deliverables.length) * 100)
+        : 0,
+    },
+    timesheets: { totalHoursLogged },
+    payment: { overdueInvoices: overdueInvoices.length },
+    client: {
+      name: project.client.name,
+      type: project.client.type,
+      creditScore: project.client.creditScore,
+      status: project.client.status,
+    },
+    qualityConcerns: highRevisionConsultants,
+  };
+
+  const prompt = `You are a senior management consulting risk analyst. Analyze this project's health and predict risks.
+
+PROJECT DATA:
+${JSON.stringify(projectData, null, 2)}
+
+Analyze this data and provide a risk assessment. Be specific and data-driven. No em dashes.
+
+Return ONLY a JSON object with this exact structure:
+{
+  "overallRiskScore": 45,
+  "riskLevel": "MEDIUM",
+  "riskSummary": "2 sentence summary of overall project health",
+  "risks": [
+    {
+      "category": "Budget" | "Timeline" | "Quality" | "Team" | "Client" | "Delivery",
+      "severity": "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
+      "title": "Short risk title",
+      "description": "What is the risk",
+      "likelihood": 70,
+      "impact": 60,
+      "earlyWarningSign": "What to watch for",
+      "recommendedAction": "Specific action to take now"
+    }
+  ],
+  "predictedOutcomes": {
+    "onTimeDelivery": 75,
+    "withinBudget": 80,
+    "clientSatisfaction": 85
+  },
+  "topPriority": "The single most important action to take in the next 7 days",
+  "healthScore": 7
+}
+
+Risk level guide: 0-25=LOW, 26-50=MEDIUM, 51-75=HIGH, 76-100=CRITICAL
+List 3-5 risks maximum. Focus on the most impactful ones.
+overallRiskScore is 0-100 (higher = more risk).
+healthScore is 1-10 (higher = healthier).
+All probability fields (likelihood, impact, predictedOutcomes) are 0-100.`;
+
+  let analysis: {
+    overallRiskScore: number;
+    riskLevel: string;
+    riskSummary: string;
+    risks: Array<{
+      category: string;
+      severity: string;
+      title: string;
+      description: string;
+      likelihood: number;
+      impact: number;
+      earlyWarningSign: string;
+      recommendedAction: string;
+    }>;
+    predictedOutcomes: { onTimeDelivery: number; withinBudget: number; clientSatisfaction: number };
+    topPriority: string;
+    healthScore: number;
+  };
+
+  try {
+    const message = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1200,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const raw = (message.content[0] as { text: string }).text;
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("No JSON");
+    analysis = JSON.parse(jsonMatch[0]);
+  } catch (err) {
+    console.error("AI risk analysis error:", err);
+    return new Response("AI analysis failed. Check ANTHROPIC_API_KEY is configured.", { status: 500 });
+  }
+
+  return Response.json({ analysis, projectId, analyzedAt: new Date().toISOString() });
+}
