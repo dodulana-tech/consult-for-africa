@@ -1,24 +1,33 @@
 export default function OurRole() {
   return (
-    <section className="py-24 bg-[var(--surface-muted)]">
-      <div className="max-w-6xl mx-auto px-6 text-center">
-
-        <p className="uppercase tracking-[0.25em] text-xs text-gray-500 mb-6">
-          Our Role
-        </p>
-
-        <h2 className="text-3xl md:text-4xl font-semibold mb-6">
-          We Strengthen Healthcare Institutions From the Inside
-        </h2>
-
-        <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-          Consult For Africa works alongside healthcare leadership,
-          boards, startups/SMEs, and investors to stabilize operations, strengthen
-          governance, improve financial performance, and build
-          resilient healthcare systems capable of delivering
-          sustainable, high-quality care.
-        </p>
-
+    <section className="py-20 bg-[var(--surface-muted)]">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="grid md:grid-cols-3 gap-8">
+          {[
+            {
+              label: "Hospitals & Health Systems",
+              desc: "Turnaround, restructuring, and performance improvement for private and public hospitals facing financial, operational, or governance challenges.",
+            },
+            {
+              label: "Investors & Boards",
+              desc: "Operational due diligence, performance oversight, and post-acquisition transformation support for healthcare investors and hospital boards.",
+            },
+            {
+              label: "Healthtech & Startups",
+              desc: "CTO and clinical leadership as a service, digital strategy, and go-to-market support for healthtech ventures building in African markets.",
+            },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="bg-white rounded-xl p-7 border"
+              style={{ borderColor: "#e5eaf0" }}
+            >
+              <div className="w-8 h-[2px] mb-4" style={{ background: "#D4AF37" }}/>
+              <h3 className="font-semibold text-gray-900 mb-2">{item.label}</h3>
+              <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

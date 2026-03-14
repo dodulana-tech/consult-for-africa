@@ -18,17 +18,18 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
+    { label: "About",    href: "/about" },
     { label: "Services", href: "/services" },
-    { label: "Process", href: "/#process" },
-    { label: "Network", href: "/#network" },
-    { label: "Partner", href: "/#contact", highlight: true },
+    { label: "Network",  href: "/#network" },
+    { label: "Careers",  href: "/careers" },
+    { label: "Partner",  href: "/#contact", highlight: true },
   ];
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "shadow-md" : ""
-      } bg-white border-b border-gray-200`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 glass-nav ${
+        scrolled ? "shadow-lg shadow-black/[0.06]" : ""
+      }`}
     >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
 
@@ -63,21 +64,31 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* MOBILE BUTTON */}
-        <button
-          className="md:hidden p-2 text-gray-700"
-          aria-label="Toggle menu"
-          onClick={() => setOpen(!open)}
-        >
-          {open ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {/* Login + Mobile */}
+        <div className="flex items-center gap-3">
+          <Link
+            href="/login"
+            className="hidden md:inline-flex items-center px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
+            style={{ color: "var(--brand-primary)", border: "1px solid rgba(15,39,68,0.2)" }}
+          >
+            Login
+          </Link>
+          <button
+            className="md:hidden p-2 text-gray-700"
+            aria-label="Toggle menu"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
       {/* MOBILE MENU */}
       <div
-        className={`md:hidden bg-white border-t border-gray-200 overflow-hidden transition-all duration-300 ${
+        className={`md:hidden overflow-hidden transition-all duration-300 ${
           open ? "max-h-64 py-4" : "max-h-0"
         }`}
+        style={{ borderTop: "1px solid rgba(200,210,220,0.3)" }}
       >
         <div className="px-6 flex flex-col gap-4 text-sm text-gray-700">
           {navLinks.map((link) => (

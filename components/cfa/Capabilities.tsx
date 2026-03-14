@@ -59,9 +59,13 @@ export default function Capabilities() {
   ];
 
   return (
-    <section id="services" className="section">
-      <div className="container">
-        <h2 className="heading-md text-center mb-10">
+    <section
+      id="services"
+      className="py-16 md:py-24 px-6"
+      style={{ background: "linear-gradient(145deg, #0a1e32 0%, #112e4a 100%)" }}
+    >
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-2xl md:text-3xl font-semibold text-center mb-10 text-white">
           Our Capabilities
         </h2>
 
@@ -70,10 +74,10 @@ export default function Capabilities() {
             <Link
               key={title}
               href="/services"
-              className="card card-hover p-6 block"
+              className="glass-card p-6 block"
             >
-              <h3 className="font-semibold mb-3">{title}</h3>
-              <ul className="space-y-1 text-gray-600">
+              <h3 className="font-semibold mb-3 text-white">{title}</h3>
+              <ul className="space-y-1 text-white/60">
                 {items.map((i) => (
                   <li key={i}>• {i}</li>
                 ))}

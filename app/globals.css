@@ -147,6 +147,95 @@
 }
 
 /* =========================================
+   GLASS DESIGN SYSTEM
+========================================= */
+
+/* Dark glass — for use on dark/navy section backgrounds */
+.glass {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+}
+
+.glass:hover {
+  background: rgba(255, 255, 255, 0.11);
+}
+
+/* Glass card — rounded, dark variant with hover lift */
+.glass-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  transform: translateY(-3px);
+}
+
+/* Light glass — for cards on white/light backgrounds */
+.glass-light {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px) saturate(200%);
+  -webkit-backdrop-filter: blur(16px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 1rem;
+  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.glass-light:hover {
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 8px 32px rgba(11, 60, 93, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Navbar */
+.glass-nav {
+  background: #ffffff;
+  border-bottom: 1px solid rgba(11, 60, 93, 0.08);
+  box-shadow: 0 1px 0 rgba(11, 60, 93, 0.04);
+}
+
+/* Form / surface glass — navy-tinted, for dark section forms */
+.glass-surface {
+  background: rgba(6, 20, 38, 0.5);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Glass input field */
+.glass-input {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  width: 100%;
+}
+
+.glass-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.glass-input:focus {
+  border-color: rgba(212, 175, 55, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.glass-input option {
+  background: #0e2540;
+  color: white;
+}
+
+/* =========================================
    TRUST STRIP SCROLL
 ========================================= */
 

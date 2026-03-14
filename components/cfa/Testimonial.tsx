@@ -12,7 +12,7 @@ export default function Testimonial() {
         </p>
 
         <p className="mt-4 text-sm text-gray-500">
-          — Hospital Board Representative
+          Hospital Board Representative
         </p>
       </div>
     </section>
