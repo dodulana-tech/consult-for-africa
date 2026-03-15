@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sparkles, AlertTriangle, AlertCircle, CheckCircle2, TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
 
 type Risk = {
@@ -42,11 +42,23 @@ function OutcomePill({ label, value }: { label: string; value: number }) {
 }
 
 export default function ProjectRiskAnalysis({ projectId, isEM }: { projectId: string; isEM: boolean }) {
+  const CACHE_KEY = `cfa_risk_${projectId}`;
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [error, setError] = useState("");
   const [expandedRisk, setExpandedRisk] = useState<number | null>(null);
   const [analyzedAt, setAnalyzedAt] = useState("");
+
+  useEffect(() => {
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { analysis: a, analyzedAt: t } = JSON.parse(cached);
+        if (a) { setAnalysis(a); setAnalyzedAt(t ?? ""); }
+      }
+    } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
 
   if (!isEM) return null;
 
@@ -73,6 +85,7 @@ export default function ProjectRiskAnalysis({ projectId, isEM }: { projectId: st
       const data = await res.json();
       setAnalysis(data.analysis);
       setAnalyzedAt(data.analyzedAt);
+      try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ analysis: data.analysis, analyzedAt: data.analyzedAt })); } catch {}
     } catch {
       setError("Could not reach Imara. Check your connection and try again.");
     } finally {

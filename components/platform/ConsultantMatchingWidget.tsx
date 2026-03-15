@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Sparkles, Star, Clock, DollarSign, Zap, User, MapPin, ChevronDown, ChevronUp, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 
 type ScoreBreakdown = {
@@ -90,16 +91,34 @@ interface Props {
 }
 
 export default function ConsultantMatchingWidget({ projectId, projectServiceType, projectStartDate, projectEndDate, isEM }: Props) {
+  const router = useRouter();
+  const CACHE_KEY = `cfa_matching_${projectId}`;
+
   const [loading, setLoading] = useState(false);
   const [matches, setMatches] = useState<Match[]>([]);
   const [totalCandidates, setTotalCandidates] = useState(0);
   const [error, setError] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [ran, setRan] = useState(false);
-  const [assigning, setAssigning] = useState<string | null>(null); // consultantId being assigned
+  const [assigning, setAssigning] = useState<string | null>(null);
   const [assignForm, setAssignForm] = useState<Record<string, AssignForm>>({});
   const [assigned, setAssigned] = useState<Set<string>>(new Set());
   const [assignError, setAssignError] = useState<Record<string, string>>({});
+
+  // Restore cached results on mount
+  useEffect(() => {
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { matches: m, totalCandidates: t, assigned: a } = JSON.parse(cached);
+        setMatches(m ?? []);
+        setTotalCandidates(t ?? 0);
+        setAssigned(new Set(a ?? []));
+        if (m?.length > 0) setRan(true);
+      }
+    } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
 
   async function runMatching() {
     setLoading(true);
@@ -116,9 +135,14 @@ export default function ConsultantMatchingWidget({ projectId, projectServiceType
         return;
       }
       const data = await res.json();
-      setMatches(data.matches ?? []);
-      setTotalCandidates(data.totalCandidates ?? 0);
+      const newMatches = data.matches ?? [];
+      const newTotal = data.totalCandidates ?? 0;
+      setMatches(newMatches);
+      setTotalCandidates(newTotal);
       setRan(true);
+      try {
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify({ matches: newMatches, totalCandidates: newTotal, assigned: [] }));
+      } catch {}
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -166,8 +190,19 @@ export default function ConsultantMatchingWidget({ projectId, projectServiceType
         setAssignError((prev) => ({ ...prev, [m.consultantId]: text || "Assignment failed." }));
         return;
       }
-      setAssigned((prev) => new Set(prev).add(m.consultantId));
+      const newAssigned = new Set(assigned).add(m.consultantId);
+      setAssigned(newAssigned);
       setAssigning(null);
+      // Persist updated assigned set
+      try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const data = JSON.parse(cached);
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ...data, assigned: [...newAssigned] }));
+        }
+      } catch {}
+      // Refresh server data so the Team tab shows the new consultant
+      router.refresh();
     } catch {
       setAssignError((prev) => ({ ...prev, [m.consultantId]: "Network error." }));
     } finally {

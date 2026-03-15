@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sparkles, FileText, Plus, X, Copy, CheckCircle2, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 
 type ProposalContent = {
@@ -96,6 +96,13 @@ export default function ProposalGenerator() {
   const [error, setError] = useState("");
   const [result, setResult] = useState<{ content: ProposalContent; metadata: ProposalMetadata } | null>(null);
 
+  useEffect(() => {
+    try {
+      const cached = sessionStorage.getItem("cfa_proposal_result");
+      if (cached) setResult(JSON.parse(cached));
+    } catch {}
+  }, []);
+
   function setField(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
   }
@@ -145,7 +152,9 @@ export default function ProposalGenerator() {
         return;
       }
       const data = await res.json();
-      setResult({ content: data.content, metadata: data.metadata });
+      const newResult = { content: data.content, metadata: data.metadata };
+      setResult(newResult);
+      try { sessionStorage.setItem("cfa_proposal_result", JSON.stringify(newResult)); } catch {}
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -203,7 +212,7 @@ ${content.nextSteps.map((s, i) => `${i + 1}. ${s}`).join("\n")}`;
           <div className="flex gap-2">
             <CopyButton text={fullText} />
             <button
-              onClick={() => setResult(null)}
+              onClick={() => { setResult(null); try { sessionStorage.removeItem("cfa_proposal_result"); } catch {} }}
               className="text-xs px-3 py-1.5 rounded-lg font-medium"
               style={{ background: "#F3F4F6", color: "#374151" }}
             >

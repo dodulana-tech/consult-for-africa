@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sparkles, AlertTriangle, CheckCircle2, RotateCcw, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 
 type CriterionScore = { score: number; feedback: string };
@@ -48,10 +48,30 @@ export default function AIQualityScore({ deliverableId, onScoresLoaded }: {
   deliverableId: string;
   onScoresLoaded?: (scores: Record<string, number>) => void;
 }) {
+  const CACHE_KEY = `cfa_quality_${deliverableId}`;
   const [loading, setLoading] = useState(false);
   const [aiScore, setAiScore] = useState<AIScore | null>(null);
   const [error, setError] = useState("");
   const [expanded, setExpanded] = useState(true);
+
+  useEffect(() => {
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const score = JSON.parse(cached);
+        setAiScore(score);
+        if (onScoresLoaded && score?.scores) {
+          onScoresLoaded({
+            technical: score.scores.technical.score,
+            actionability: score.scores.actionability.score,
+            context: score.scores.nigerianContext.score,
+            clientReady: score.scores.clientReady.score,
+          });
+        }
+      }
+    } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deliverableId]);
 
   async function runScoring() {
     setLoading(true);
@@ -68,8 +88,8 @@ export default function AIQualityScore({ deliverableId, onScoresLoaded }: {
       }
       const data = await res.json();
       setAiScore(data.score);
+      try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(data.score)); } catch {}
 
-      // Auto-populate the EM's rubric scores if callback provided
       if (onScoresLoaded) {
         onScoresLoaded({
           technical: data.score.scores.technical.score,
