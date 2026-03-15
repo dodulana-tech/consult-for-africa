@@ -7,7 +7,6 @@ import ContextImages from "@/components/cfa/ContextImages";
 import WhoWeAre from "@/components/cfa/WhoWeAre";
 import ValueCards from "@/components/cfa/ValueCards";
 import Capabilities from "@/components/cfa/Capabilities";
-import Leadership from "@/components/cfa/Leadership";
 import Process from "@/components/cfa/Process";
 import Credibility from "@/components/cfa/Credibility";
 import Testimonial from "@/components/cfa/Testimonial";
@@ -38,7 +37,6 @@ export default function Page() {
         <WhoWeAre />
         <ValueCards />
         <Capabilities />
-        <Leadership />
         <Process />
         <Credibility />
         <Testimonial />
