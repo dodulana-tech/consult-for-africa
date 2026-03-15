@@ -9,7 +9,7 @@ const EM_FEATURES = [
   {
     icon: Users,
     title: "Consultant Matching",
-    description: "AI ranks the best-fit consultants for any project across expertise, performance, availability, and cost.",
+    description: "Imara ranks the best-fit consultants for any project across expertise, performance, availability, and cost.",
     href: "/projects",
     cta: "Open a project",
   },
@@ -30,7 +30,7 @@ const EM_FEATURES = [
   {
     icon: BarChart2,
     title: "Data Analysis",
-    description: "Upload Excel or CSV hospital data. Claude finds revenue leakage, inefficiencies, and gives actionable recommendations with Nigerian context.",
+    description: "Upload Excel or CSV hospital data. Imara finds revenue leakage, inefficiencies, and gives actionable recommendations with Nigerian context.",
     href: "/ai/data-analysis",
     cta: "Analyze data",
   },
@@ -40,7 +40,7 @@ const CONSULTANT_FEATURES = [
   {
     icon: FileEdit,
     title: "Report Generator",
-    description: "Enter your findings and recommendations. Claude drafts a polished, executive-ready consulting report with Nigerian healthcare context.",
+    description: "Enter your findings and recommendations. Imara drafts a polished, executive-ready consulting report with Nigerian healthcare context.",
     href: "/ai/report-generator",
     cta: "Generate report",
   },
@@ -58,7 +58,7 @@ export default async function AIPage() {
   if (!session) redirect("/login");
 
   const isEM = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  const features = isEM ? [...EM_FEATURES, { icon: FileEdit, title: "Report Generator", description: "Enter your findings and recommendations. Claude drafts a polished, executive-ready consulting report with Nigerian healthcare context.", href: "/ai/report-generator", cta: "Generate report" }] : CONSULTANT_FEATURES;
+  const features = isEM ? [...EM_FEATURES, { icon: FileEdit, title: "Report Generator", description: "Enter your findings and recommendations. Imara drafts a polished, executive-ready consulting report with Nigerian healthcare context.", href: "/ai/report-generator", cta: "Generate report" }] : CONSULTANT_FEATURES;
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
@@ -78,7 +78,7 @@ export default async function AIPage() {
               <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.6)" }}>
                 {isEM
                   ? "CFA's intelligence layer. Match consultants in 5 minutes, write proposals in 20 seconds, predict risks before they become problems."
-                  : "Your AI assistant for drafting reports, analysing data, and getting answers about your engagements."}
+                  : "Your intelligence layer for drafting reports, analysing data, and getting answers about your engagements."}
               </p>
             </div>
           </div>
@@ -118,8 +118,8 @@ export default async function AIPage() {
                 className="rounded-xl p-4 text-xs text-gray-500"
                 style={{ background: "#F9FAFB", border: "1px solid #e5eaf0" }}
               >
-                <p className="font-medium text-gray-700 mb-1">About AI features</p>
-                <p>Powered by Claude (Anthropic). Each AI call uses your API key and costs approximately $0.01-0.05 per request. Features work best when consultant profiles are complete and project data is up to date.</p>
+                <p className="font-medium text-gray-700 mb-1">About Imara</p>
+                <p>Imara is powered by Claude (Anthropic). Features work best when consultant profiles are complete and project data is up to date.</p>
               </div>
             </div>
 

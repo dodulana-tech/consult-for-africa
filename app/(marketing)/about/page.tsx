@@ -142,8 +142,8 @@ export default function AboutPage() {
             {/* Stats */}
             <div className="grid grid-cols-2 gap-4">
               {[
-                ["60+",       "Combined years of leadership experience"],
-                ["21 states", "Healthcare network footprint built"],
+                ["135+",      "Combined years of leadership experience"],
+                ["5 countries", "Active engagements across the continent"],
                 ["$1.1M+",    "Annual savings delivered in a single engagement"],
                 ["15+",       "Years of African health system experience"],
               ].map(([stat, label]) => (

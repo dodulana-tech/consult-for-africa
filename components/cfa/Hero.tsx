@@ -248,6 +248,7 @@ export default function Hero() {
             }}
           >
             Strategy, operations, governance, and capital projects.
+            <br />
             Delivered by people who actually execute.
           </p>
 
@@ -277,7 +278,7 @@ export default function Hero() {
           {/* Metrics */}
           <div className="mt-14 flex flex-wrap gap-2.5">
             {[
-              ["60+ yrs",       "combined leadership"],
+              ["135+ yrs",      "combined leadership"],
               ["Pan-African",   "operational context"],
               ["Execution-led", "embedded operators"],
             ].map(([stat, label]) => (

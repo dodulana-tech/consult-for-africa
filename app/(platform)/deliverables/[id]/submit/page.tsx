@@ -29,6 +29,16 @@ export default async function DeliverableSubmitPage({ params }: { params: Promis
     approvedAt: deliverable.approvedAt?.toISOString() ?? null,
     createdAt: deliverable.createdAt.toISOString(),
     updatedAt: deliverable.updatedAt.toISOString(),
+    assignment: deliverable.assignment
+      ? {
+          ...deliverable.assignment,
+          rateAmount: deliverable.assignment.rateAmount?.toString() ?? null,
+          startDate: deliverable.assignment.startDate?.toISOString() ?? null,
+          endDate: deliverable.assignment.endDate?.toISOString() ?? null,
+          createdAt: deliverable.assignment.createdAt.toISOString(),
+          updatedAt: deliverable.assignment.updatedAt.toISOString(),
+        }
+      : null,
   };
 
   return (

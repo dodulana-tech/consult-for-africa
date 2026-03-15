@@ -1,174 +1,164 @@
-import Image from "next/image";
+const services = [
+  {
+    num: "01",
+    title: "Hospital Turnaround & Financial Recovery",
+    summary:
+      "When cashflow tightens and instability sets in, hospitals need decisive action. We restore financial control, stop revenue leakage, and rebuild operational discipline. Fast.",
+    points: [
+      "Revenue capture and billing integrity",
+      "Cost discipline and procurement control",
+      "Theatre and clinic productivity",
+      "Cashflow stabilisation and financial visibility",
+    ],
+    tag: "Turnaround",
+  },
+  {
+    num: "02",
+    title: "Strategy, Growth & Commercial Performance",
+    summary:
+      "Growth comes from aligning clinical strengths with demand, referral flows, and patient access. Not from adding more services and hoping for the best.",
+    points: [
+      "Service-line and demand alignment",
+      "Referral network and physician engagement",
+      "Commercial and payer strategy",
+      "Revenue diversification and patient experience",
+    ],
+    tag: "Strategy",
+  },
+  {
+    num: "03",
+    title: "Clinical Governance & Accreditation",
+    summary:
+      "Strong quality systems protect patients and build institutional credibility. We strengthen governance structures and prepare institutions for JCI, COHSASA, and SafeCare accreditation.",
+    points: [
+      "Clinical governance frameworks",
+      "Accreditation readiness (JCI, COHSASA, SafeCare)",
+      "Patient safety systems",
+      "Clinical audit and quality monitoring",
+    ],
+    tag: "Governance",
+  },
+  {
+    num: "04",
+    title: "Digital Health & Technology Leadership",
+    summary:
+      "We help healthcare organisations and startups get the technology foundation right, from HIS selection to digital strategy to building the teams that actually run it.",
+    points: [
+      "Executive dashboards and performance intelligence",
+      "HIS/EMR selection and workflow digitisation",
+      "CTO-as-a-Service for healthtech ventures",
+      "Option to convert CTO fees into pre-seed equity",
+    ],
+    tag: "Digital",
+  },
+  {
+    num: "05",
+    title: "Fractional Leadership & Executive Secondments",
+    summary:
+      "Not every hospital needs a full-time C-suite hire. We embed experienced healthcare executives on fixed-term mandates to fill leadership gaps and drive specific transformations.",
+    points: [
+      "Fractional CEO, COO, CMO, and CTO placements",
+      "Interim Hospital Director and Medical Director roles",
+      "Project-embedded clinical and operational leads",
+      "Performance-linked fixed-term mandates",
+    ],
+    tag: "Leadership",
+  },
+  {
+    num: "06",
+    title: "Health Systems & Public Sector Advisory",
+    summary:
+      "We support governments, development partners, and NGOs on health system design, hospital network planning, and policy-to-implementation programmes across African markets.",
+    points: [
+      "Health system design and hospital network planning",
+      "Policy-to-implementation programmes",
+      "Primary healthcare strengthening",
+      "Development partner and NGO advisory",
+    ],
+    tag: "Systems",
+  },
+];
 
 export default function CoreTransformation() {
   return (
-    <section className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-6 space-y-24">
+    <section className="py-24" style={{ background: "#06090f" }}>
+      <div className="max-w-7xl mx-auto px-6">
 
-        {/* HEADER */}
-        <div className="text-center max-w-3xl mx-auto">
-          <p className="uppercase tracking-[0.25em] text-xs text-gray-500 mb-4">
+        {/* Section header */}
+        <div className="max-w-2xl mb-16">
+          <p className="text-xs uppercase tracking-[0.25em] mb-4" style={{ color: "#D4AF37" }}>
             Service Areas
           </p>
-          <h2 className="text-3xl md:text-4xl font-semibold mb-6">
+          <h2
+            className="font-semibold text-white leading-tight"
+            style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)" }}
+          >
             Where We Work
           </h2>
-          <p className="text-lg text-gray-600 leading-relaxed">
+          <p className="mt-4 leading-relaxed" style={{ color: "rgba(255,255,255,0.5)", fontSize: "1.05rem" }}>
             We focus on the operational, financial, clinical, and digital levers
             that determine whether a healthcare institution performs or struggles.
           </p>
         </div>
 
-        {/* 1 - Hospital Turnaround */}
-        <div className="grid md:grid-cols-2 gap-14 items-center">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-[#D4AF37] mb-3">01</p>
-            <h3 className="text-2xl font-semibold mb-4">
-              Hospital Turnaround & Financial Recovery
-            </h3>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              When cashflow tightens and instability sets in, hospitals need decisive action.
-              We restore financial control, stop revenue leakage, and rebuild operational discipline.
-              Fast.
-            </p>
-            <ul className="text-gray-600 space-y-2 text-sm">
-              <li>• Revenue capture and billing integrity</li>
-              <li>• Cost discipline and procurement control</li>
-              <li>• Theatre and clinic productivity</li>
-              <li>• Cashflow stabilization and financial visibility</li>
-            </ul>
-          </div>
-          <Image
-            src="/images/operations.jpg"
-            alt="Hospital operations"
-            width={700}
-            height={500}
-            className="rounded-2xl shadow-lg object-cover"
-          />
-        </div>
+        {/* Service grid */}
+        <div className="grid md:grid-cols-2 gap-px" style={{ background: "rgba(255,255,255,0.06)" }}>
+          {services.map((s) => (
+            <div
+              key={s.num}
+              className="group p-8 transition-colors duration-300 hover:bg-[#0a1320]"
+              style={{ background: "#06090f" }}
+            >
+              <div className="flex items-start justify-between mb-5">
+                <span
+                  className="text-xs font-semibold tracking-[0.2em] tabular-nums"
+                  style={{ color: "#D4AF37" }}
+                >
+                  {s.num}
+                </span>
+                <span
+                  className="text-xs uppercase tracking-widest px-2 py-1 rounded"
+                  style={{
+                    color: "rgba(255,255,255,0.35)",
+                    background: "rgba(255,255,255,0.05)",
+                    letterSpacing: "0.15em",
+                  }}
+                >
+                  {s.tag}
+                </span>
+              </div>
 
-        {/* 2 - Strategy & Growth */}
-        <div className="grid md:grid-cols-2 gap-14 items-center">
-          <Image
-            src="/images/strategy.jpg"
-            alt="Healthcare strategy"
-            width={700}
-            height={500}
-            className="rounded-2xl shadow-lg object-cover"
-          />
-          <div>
-            <p className="text-xs uppercase tracking-widest text-[#D4AF37] mb-3">02</p>
-            <h3 className="text-2xl font-semibold mb-4">
-              Strategy, Growth & Commercial Performance
-            </h3>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              Growth comes from aligning clinical strengths with demand, referral flows, and
-              patient access. Not from adding more services and hoping for the best.
-            </p>
-            <ul className="text-gray-600 space-y-2 text-sm">
-              <li>• Service-line and demand alignment</li>
-              <li>• Referral network and physician engagement</li>
-              <li>• Commercial and payer strategy</li>
-              <li>• Revenue diversification and patient experience</li>
-            </ul>
-          </div>
-        </div>
+              <h3
+                className="font-semibold text-white leading-snug mb-4"
+                style={{ fontSize: "1.15rem" }}
+              >
+                {s.title}
+              </h3>
 
-        {/* 3 - Clinical Governance */}
-        <div className="grid md:grid-cols-2 gap-14 items-center">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-[#D4AF37] mb-3">03</p>
-            <h3 className="text-2xl font-semibold mb-4">
-              Clinical Governance & Accreditation
-            </h3>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              Strong quality systems protect patients and build institutional credibility.
-              We strengthen governance structures and prepare institutions for JCI, COHSASA,
-              and SafeCare accreditation.
-            </p>
-            <ul className="text-gray-600 space-y-2 text-sm">
-              <li>• Clinical governance frameworks</li>
-              <li>• Accreditation readiness</li>
-              <li>• Patient safety systems</li>
-              <li>• Clinical audit and quality monitoring</li>
-            </ul>
-          </div>
-          <Image
-            src="/images/clinical.jpg"
-            alt="Clinical governance"
-            width={700}
-            height={500}
-            className="rounded-2xl shadow-lg object-cover"
-          />
-        </div>
+              <p
+                className="text-sm leading-relaxed mb-6"
+                style={{ color: "rgba(255,255,255,0.5)" }}
+              >
+                {s.summary}
+              </p>
 
-        {/* 4 - Digital Health */}
-        <div className="grid md:grid-cols-2 gap-14 items-center">
-          <Image
-            src="/images/technology.jpg"
-            alt="Digital health technology"
-            width={700}
-            height={500}
-            className="rounded-2xl shadow-lg object-cover"
-          />
-          <div>
-            <p className="text-xs uppercase tracking-widest text-[#D4AF37] mb-3">04</p>
-            <h3 className="text-2xl font-semibold mb-4">
-              Digital Health & Technology Leadership
-            </h3>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              We help healthcare organisations and startups get the technology foundation
-              right - from HIS selection to digital strategy to building the teams that
-              actually run it.
-            </p>
-            <ul className="text-gray-600 space-y-2 text-sm">
-              <li>• Executive dashboards and performance intelligence</li>
-              <li>• HIS/EMR selection and workflow digitization</li>
-              <li>• CTO-as-a-Service for healthtech ventures</li>
-              <li>• Option to convert CTO fees into pre-seed equity</li>
-            </ul>
-          </div>
+              <ul className="space-y-2">
+                {s.points.map((pt) => (
+                  <li
+                    key={pt}
+                    className="flex items-start gap-3 text-sm"
+                    style={{ color: "rgba(255,255,255,0.4)" }}
+                  >
+                    <span style={{ color: "#D4AF37", marginTop: "2px", flexShrink: 0 }}>
+                      &#x2014;
+                    </span>
+                    {pt}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
-
-        {/* 5 - Fractional & Secondments */}
-        <div className="grid md:grid-cols-2 gap-14 items-center">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-[#D4AF37] mb-3">05</p>
-            <h3 className="text-2xl font-semibold mb-4">
-              Fractional Leadership & Executive Secondments
-            </h3>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              Not every hospital needs a full-time C-suite hire. We embed experienced
-              healthcare executives on fixed-term mandates to fill leadership gaps,
-              drive a specific transformation, or hold an organisation together through
-              a critical transition.
-            </p>
-            <ul className="text-gray-600 space-y-2 text-sm">
-              <li>• Fractional CEO, COO, CMO, and CTO placements</li>
-              <li>• Interim Hospital Director and Medical Director roles</li>
-              <li>• Project-embedded clinical and operational leads</li>
-              <li>• Performance-linked fixed-term mandates</li>
-            </ul>
-          </div>
-          <div
-            className="rounded-2xl p-10 flex flex-col justify-center"
-            style={{
-              background: "linear-gradient(135deg, #071626 0%, #0d2540 100%)",
-              minHeight: "320px",
-            }}
-          >
-            <p className="text-white/50 text-xs uppercase tracking-widest mb-4">How it works</p>
-            <p className="text-white text-lg font-semibold leading-snug mb-4">
-              You get a senior operator embedded in your institution, not a consultant
-              working from a slide deck.
-            </p>
-            <p className="text-white/60 text-sm leading-relaxed">
-              Engagements are structured around specific outcomes and milestones.
-              When the mandate is complete, we ensure a clean handover to your team.
-            </p>
-          </div>
-        </div>
-
       </div>
     </section>
   );

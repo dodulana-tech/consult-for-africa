@@ -103,15 +103,26 @@ export default function VersionHistory({
           className="rounded-lg p-4 space-y-3"
           style={{ background: "#F9FAFB", border: "1px solid #e5eaf0" }}
         >
-          <div>
-            <label className="text-xs text-gray-500 mb-1.5 block">Select File</label>
+          {/* Styled file picker */}
+          <label
+            className="flex items-center gap-3 rounded-lg px-4 py-3 cursor-pointer transition-colors hover:border-blue-400"
+            style={{
+              border: "1.5px dashed #d1d5db",
+              background: selectedFile ? "#EFF6FF" : "#fff",
+            }}
+          >
+            <Upload size={15} className={selectedFile ? "text-blue-500" : "text-gray-400"} />
+            <span className={`text-xs ${selectedFile ? "text-blue-700 font-medium" : "text-gray-500"}`}>
+              {selectedFile ? selectedFile.name : "Choose file to upload"}
+            </span>
             <input
               type="file"
               onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png"
-              className="w-full text-xs"
+              className="hidden"
             />
-          </div>
+          </label>
+
           <textarea
             value={changes}
             onChange={(e) => setChanges(e.target.value)}
@@ -124,15 +135,13 @@ export default function VersionHistory({
           <button
             onClick={uploadVersion}
             disabled={!selectedFile || uploading}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-50 transition-opacity"
             style={{ background: "#0F2744", color: "#fff" }}
           >
             {uploading ? (
-              "Uploading..."
+              <><span className="animate-spin inline-block w-3 h-3 border-2 border-white/30 border-t-white rounded-full" /> Uploading...</>
             ) : (
-              <>
-                <Upload size={12} /> Upload v{currentVersion + 1}
-              </>
+              <><Upload size={12} /> Upload v{currentVersion + 1}</>
             )}
           </button>
         </div>

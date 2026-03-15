@@ -15,7 +15,7 @@ export default async function ReportGeneratorPage() {
     <div className="flex flex-col flex-1 overflow-hidden">
       <TopBar
         title="Report Generator"
-        subtitle="AI-assisted consulting reports"
+        subtitle="Imara-assisted consulting reports"
         backHref="/ai"
       />
       <main className="flex-1 overflow-y-auto p-6">
@@ -32,9 +32,9 @@ export default async function ReportGeneratorPage() {
               <FileEdit size={14} className="text-white" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">AI-Powered Report Generation</p>
+              <p className="text-sm font-semibold text-gray-900">Report Generation with Imara</p>
               <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
-                Turn your findings into a polished consulting report in 30 seconds. Enter your raw notes and recommendations, and Claude structures them into an executive-ready document with Nigerian healthcare context, implementation roadmap, and severity-rated findings.
+                Turn your findings into a polished consulting report in 30 seconds. Enter your raw notes and recommendations, and Imara structures them into an executive-ready document with Nigerian healthcare context, implementation roadmap, and severity-rated findings.
               </p>
             </div>
           </div>

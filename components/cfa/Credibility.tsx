@@ -1,9 +1,4 @@
-const stats = [
-  { value: "60+", label: "Combined years of Africa health leadership" },
-  { value: "$1.1M+", label: "Annual savings in a single engagement" },
-  { value: "21 states", label: "Healthcare network built and sold" },
-  { value: "5 countries", label: "Active engagements across the continent" },
-];
+import { prisma } from "@/lib/prisma";
 
 const credentials = [
   {
@@ -24,7 +19,21 @@ const credentials = [
   },
 ];
 
-export default function Credibility() {
+export default async function Credibility() {
+  const [activeEngagements, networkSize] = await Promise.all([
+    prisma.project.count({
+      where: { status: { in: ["ACTIVE", "AT_RISK"] } },
+    }),
+    prisma.consultantProfile.count(),
+  ]);
+
+  const stats = [
+    { value: "135+ yrs", label: "Combined senior leadership across the partner network" },
+    { value: "$1.1M+", label: "Annual savings delivered in a single engagement" },
+    { value: `${networkSize}+`, label: "Senior operators in the CFA network" },
+    { value: `${activeEngagements}`, label: "Active engagements across the continent" },
+  ];
+
   return (
     <section className="py-24 px-6" style={{ background: "#ffffff" }}>
       <div className="max-w-5xl mx-auto">
@@ -37,7 +46,7 @@ export default function Credibility() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-14">
           {stats.map((s) => (
             <div
-              key={s.value}
+              key={s.label}
               className="rounded-xl p-6 text-center"
               style={{ background: "#F8FAFC", border: "1px solid #e5eaf0" }}
             >

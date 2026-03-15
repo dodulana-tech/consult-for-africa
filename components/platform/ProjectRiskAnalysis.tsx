@@ -76,7 +76,7 @@ export default function ProjectRiskAnalysis({ projectId, isEM }: { projectId: st
         if (status === 403) {
           setError("You don't have permission to run risk analysis.");
         } else if (status === 500) {
-          setError("Imara is unavailable right now. This is usually a configuration issue. Please check your AI API key or try again shortly.");
+          setError("Imara is unavailable right now. Please try again shortly or contact support if the issue persists.");
         } else {
           setError("Could not complete the analysis. Please try again.");
         }
@@ -107,7 +107,7 @@ export default function ProjectRiskAnalysis({ projectId, isEM }: { projectId: st
           <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: "#0F2744" }}>
             <TrendingUp size={11} className="text-white" />
           </div>
-          <span className="text-sm font-semibold text-gray-900">AI Risk Analysis</span>
+          <span className="text-sm font-semibold text-gray-900">Imara Risk Analysis</span>
           {analysis && (
             <span
               className="text-[11px] font-bold px-1.5 py-0.5 rounded-full text-white"

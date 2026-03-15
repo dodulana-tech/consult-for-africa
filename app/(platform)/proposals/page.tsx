@@ -14,7 +14,7 @@ export default async function ProposalsPage() {
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       <TopBar
-        title="AI Proposal Generator"
+        title="Proposal Generator"
         subtitle="Generate 80% complete proposals in minutes"
       />
       <main className="flex-1 overflow-y-auto p-6">
@@ -31,9 +31,9 @@ export default async function ProposalsPage() {
               <Sparkles size={14} className="text-white" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">AI-Powered Proposal Generation</p>
+              <p className="text-sm font-semibold text-gray-900">Proposal Generation with Imara</p>
               <p className="text-xs text-gray-500 mt-0.5">
-                Enter discovery call notes and client context. Claude will generate a complete proposal draft in under 20 seconds. You review, customize, and send.
+                Enter discovery call notes and client context. Imara will generate a complete proposal draft in under 20 seconds. You review, customize, and send.
               </p>
             </div>
           </div>
