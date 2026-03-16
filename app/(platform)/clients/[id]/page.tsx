@@ -28,6 +28,24 @@ const PROJECT_STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   CANCELLED: { bg: "#FEE2E2", color: "#991B1B" },
 };
 
+const DELIVERABLE_STATUS_LABELS: Record<string, string> = {
+  DRAFT: "Draft",
+  SUBMITTED: "Submitted",
+  IN_REVIEW: "In Review",
+  NEEDS_REVISION: "Needs Revision",
+  APPROVED: "Approved",
+  DELIVERED_TO_CLIENT: "Delivered",
+};
+
+const DELIVERABLE_STATUS_COLORS: Record<string, { bg: string; color: string }> = {
+  DRAFT: { bg: "#F3F4F6", color: "#6B7280" },
+  SUBMITTED: { bg: "#DBEAFE", color: "#1E40AF" },
+  IN_REVIEW: { bg: "#EDE9FE", color: "#5B21B6" },
+  NEEDS_REVISION: { bg: "#FEF3C7", color: "#92400E" },
+  APPROVED: { bg: "#D1FAE5", color: "#065F46" },
+  DELIVERED_TO_CLIENT: { bg: "#D1FAE5", color: "#065F46" },
+};
+
 const INVOICE_STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   DRAFT:     { bg: "#F3F4F6", color: "#6B7280" },
   SENT:      { bg: "#EFF6FF", color: "#1D4ED8" },
@@ -42,12 +60,26 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 
   const { id } = await params;
 
-  const client = await prisma.client.findUnique({
-    where: { id },
+  const role = session.user.role;
+  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
+  const isEM = role === "ENGAGEMENT_MANAGER";
+  const isConsultant = role === "CONSULTANT";
+
+  // Role-scoped access: consultants only see clients they are assigned to via projects
+  let accessFilter: Record<string, unknown> = { id };
+  if (isEM) {
+    accessFilter = { id, projects: { some: { engagementManagerId: session.user.id } } };
+  } else if (isConsultant) {
+    accessFilter = { id, projects: { some: { assignments: { some: { consultantId: session.user.id } } } } };
+  }
+
+  const client = await prisma.client.findFirst({
+    where: accessFilter,
     include: {
       projects: {
         include: {
           engagementManager: { select: { name: true } },
+          deliverables: { select: { id: true, status: true } },
           _count: { select: { assignments: true, deliverables: true } },
         },
         orderBy: { createdAt: "desc" },
@@ -75,6 +107,15 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   const overdueAmount = client.invoices
     .filter((i) => i.status === "OVERDUE")
     .reduce((s, i) => s + Number(i.total), 0);
+
+  // Deliverable stats across all projects
+  const allDeliverables = client.projects.flatMap((p) => p.deliverables);
+  const deliverableCount = allDeliverables.length;
+  const deliverableBreakdown = allDeliverables.reduce<Record<string, number>>((acc, d) => {
+    acc[d.status] = (acc[d.status] || 0) + 1;
+    return acc;
+  }, {});
+  const completedDeliverables = (deliverableBreakdown["APPROVED"] ?? 0) + (deliverableBreakdown["DELIVERED_TO_CLIENT"] ?? 0);
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
@@ -211,6 +252,61 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                 <p className="text-sm text-gray-400 text-center py-6">No projects yet</p>
               )}
             </div>
+          </div>
+
+          {/* Deliverables Summary */}
+          <div className="rounded-xl bg-white" style={{ border: "1px solid #e5eaf0" }}>
+            <div className="px-5 py-4 flex items-center gap-2" style={{ borderBottom: "1px solid #e5eaf0" }}>
+              <FileText size={15} className="text-gray-400" />
+              <h3 className="text-sm font-semibold text-gray-900">
+                Deliverables ({deliverableCount})
+              </h3>
+            </div>
+
+            {deliverableCount === 0 ? (
+              <div className="p-8 text-center">
+                <FileText size={24} className="mx-auto text-gray-300 mb-2" />
+                <p className="text-sm text-gray-500">No deliverables yet</p>
+              </div>
+            ) : (
+              <div className="p-5">
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(deliverableBreakdown).map(([status, count]) => {
+                    const dStyle = DELIVERABLE_STATUS_COLORS[status] ?? DELIVERABLE_STATUS_COLORS.DRAFT;
+                    return (
+                      <div
+                        key={status}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg"
+                        style={{ background: dStyle.bg }}
+                      >
+                        <span className="text-lg font-bold" style={{ color: dStyle.color }}>
+                          {count}
+                        </span>
+                        <span className="text-xs font-medium" style={{ color: dStyle.color }}>
+                          {DELIVERABLE_STATUS_LABELS[status] ?? status.replace("_", " ")}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-4">
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-1.5">
+                    <span>Completion progress</span>
+                    <span>{completedDeliverables}/{deliverableCount} complete</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{
+                        width: `${(completedDeliverables / deliverableCount) * 100}%`,
+                        background: "#10B981",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Invoices */}
