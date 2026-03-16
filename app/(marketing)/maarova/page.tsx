@@ -10,48 +10,12 @@ export const metadata: Metadata = {
 /* ─── data ────────────────────────────────────────────────────────────────── */
 
 const modules = [
-  {
-    num: "01",
-    name: "Behavioural Style",
-    short: "How they lead",
-    desc: "Communication patterns, decision-making approach, and team dynamics using a validated DISC-based framework calibrated for African healthcare.",
-    icon: "\u2666",
-  },
-  {
-    num: "02",
-    name: "Values & Drivers",
-    short: "Why they lead",
-    desc: "Intrinsic motivators, professional values, and alignment with organisational culture. Predicts long-term engagement and fit.",
-    icon: "\u2605",
-  },
-  {
-    num: "03",
-    name: "Emotional Intelligence",
-    short: "How they connect",
-    desc: "Self-awareness, empathy, social skills. The strongest single predictor of leadership effectiveness in clinical environments.",
-    icon: "\u2764",
-  },
-  {
-    num: "04",
-    name: "Clinical Leadership Transition",
-    short: "Are they ready?",
-    desc: "Our proprietary CILTI measure. Assesses the critical shift from clinical identity to leadership identity. No other tool does this.",
-    icon: "\u2191",
-  },
-  {
-    num: "05",
-    name: "360-Degree Feedback",
-    short: "How others see them",
-    desc: "Multi-rater feedback from peers, reports, supervisors. Benchmarked against our growing normative database of African healthcare leaders.",
-    icon: "\u25CB",
-  },
-  {
-    num: "06",
-    name: "Culture & Team Diagnostics",
-    short: "How the org works",
-    desc: "Map culture, score team effectiveness, identify engagement drivers. From individual insight to full organisational intelligence.",
-    icon: "\u25A0",
-  },
+  { num: "01", name: "Behavioural Style", short: "How they lead", icon: "\u2666" },
+  { num: "02", name: "Values & Drivers", short: "Why they lead", icon: "\u2605" },
+  { num: "03", name: "Emotional Intelligence", short: "How they connect", icon: "\u2764" },
+  { num: "04", name: "Clinical Leadership Transition", short: "Are they ready?", icon: "\u2191" },
+  { num: "05", name: "360-Degree Feedback", short: "How others see them", icon: "\u25CB" },
+  { num: "06", name: "Culture & Team Diagnostics", short: "How the org works", icon: "\u25A0" },
 ];
 
 const journey = [
@@ -66,10 +30,11 @@ const streams = [
   {
     label: "Recruitment Assessment",
     headline: "Hire with science, not gut feel.",
-    body: "Screen every leadership candidate through Maarova before they step into the role. Get side-by-side comparison reports, structured interview guides, and predictive success indicators. Stop gambling on your most important hires.",
+    body: "Screen every leadership candidate through Maarova before they step into the role. Get side-by-side comparison reports, structured interview guides, and predictive success indicators.",
     accent: "#2D9CDB",
+    href: "/maarova/recruitment",
     metrics: [
-      { value: "90%", sub: "12-month retention of Maarova-assessed hires" },
+      { value: "90%", sub: "12-month retention of assessed hires" },
       { value: "<5 min", sub: "Report generation time" },
       { value: "33%", sub: "Reduction in mis-hires" },
     ],
@@ -77,8 +42,9 @@ const streams = [
   {
     label: "Leadership Development",
     headline: "Assess. Coach. Measure. Repeat.",
-    body: "Every leader gets a personalised development roadmap built from their Maarova profile. Matched with an ICF-certified coach who has walked in their shoes. Progress tracked, results measured, improvement quantified.",
+    body: "Every leader gets a personalised development roadmap built from their Maarova profile. Matched with an ICF-certified coach who has walked in their shoes.",
     accent: "#D4A574",
+    href: "/maarova/development",
     metrics: [
       { value: "+0.8 pt", sub: "Average EQ improvement at 6 months" },
       { value: "3 tiers", sub: "Frontline, Middle, Executive programmes" },
@@ -88,8 +54,9 @@ const streams = [
   {
     label: "Organisational Intelligence",
     headline: "See your entire leadership landscape.",
-    body: "Enterprise subscription for hospital groups. Assess 30+ leaders, generate live capability heatmaps, succession risk dashboards, culture diagnostics, and quarterly board reports. The strategic intelligence your board has been asking for.",
+    body: "Enterprise subscription for hospital groups. Assess 30+ leaders, generate live capability heatmaps, succession risk dashboards, and quarterly board reports.",
     accent: "#10B981",
+    href: "/maarova/intelligence",
     metrics: [
       { value: "Live", sub: "Succession risk dashboard" },
       { value: "Quarterly", sub: "Board-ready leadership reports" },
@@ -137,7 +104,6 @@ export default function MaarovaPage() {
         </svg>
 
         <div className="relative max-w-7xl mx-auto px-6 pt-24 md:pt-32 pb-10">
-          {/* Top content row */}
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left: copy */}
             <div>
@@ -170,27 +136,25 @@ export default function MaarovaPage() {
 
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link
-                  href="/#contact"
+                  href="/maarova/demo"
                   className="px-7 py-3.5 rounded-lg text-sm font-semibold transition-all hover:scale-[1.02] hover:shadow-lg"
                   style={{ background: "#D4A574", color: "#06090f" }}
                 >
                   Book a Demo
                 </Link>
-                <a
-                  href="#journey"
+                <Link
+                  href="/maarova/assessment"
                   className="px-7 py-3.5 rounded-lg text-sm font-semibold transition-all"
                   style={{ border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.65)" }}
                 >
-                  See How It Works
-                </a>
+                  Explore the Assessment
+                </Link>
               </div>
             </div>
 
-            {/* Right: platform mockup (light mode) */}
+            {/* Right: platform mockup */}
             <div className="relative hidden md:block">
-              {/* Browser chrome */}
               <div className="rounded-xl overflow-hidden shadow-2xl shadow-black/50" style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
-                {/* Title bar */}
                 <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: "#fff" }}>
                   <div className="flex gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-full" style={{ background: "#EF4444" }} />
@@ -204,9 +168,7 @@ export default function MaarovaPage() {
                   </div>
                 </div>
 
-                {/* Dashboard mockup */}
                 <div className="p-5 space-y-4" style={{ background: "#fff" }}>
-                  {/* Top bar */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -220,7 +182,6 @@ export default function MaarovaPage() {
                     </div>
                   </div>
 
-                  {/* Stat cards */}
                   <div className="grid grid-cols-4 gap-3">
                     {[
                       { label: "Leaders Assessed", value: "142", delta: "+12 this month", color: "#D4A574" },
@@ -236,9 +197,7 @@ export default function MaarovaPage() {
                     ))}
                   </div>
 
-                  {/* Chart area + sidebar */}
                   <div className="grid grid-cols-3 gap-3">
-                    {/* Leadership heatmap mock */}
                     <div className="col-span-2 rounded-lg p-3" style={{ background: "#fff", border: "1px solid #E2E8F0" }}>
                       <p className="text-[9px] font-medium mb-3" style={{ color: "#64748B" }}>Leadership Capability Heatmap</p>
                       <div className="grid grid-cols-6 gap-1">
@@ -261,7 +220,6 @@ export default function MaarovaPage() {
                       </div>
                     </div>
 
-                    {/* Recent assessments */}
                     <div className="rounded-lg p-3" style={{ background: "#fff", border: "1px solid #E2E8F0" }}>
                       <p className="text-[9px] font-medium mb-2" style={{ color: "#64748B" }}>Recent Assessments</p>
                       <div className="space-y-2">
@@ -286,7 +244,6 @@ export default function MaarovaPage() {
                     </div>
                   </div>
 
-                  {/* Bottom row */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-lg p-3" style={{ background: "#fff", border: "1px solid #E2E8F0" }}>
                       <p className="text-[9px] font-medium mb-2" style={{ color: "#64748B" }}>Coaching Pipeline</p>
@@ -317,25 +274,22 @@ export default function MaarovaPage() {
                 </div>
               </div>
 
-              {/* Glow behind mockup */}
               <div className="absolute -inset-6 -z-10 rounded-3xl" style={{
                 background: "radial-gradient(ellipse at center, rgba(212,165,116,0.08) 0%, transparent 70%)",
               }} />
             </div>
           </div>
 
-          {/* Trust line */}
           <p className="mt-14 text-xs tracking-wide text-center md:text-left" style={{ color: "rgba(255,255,255,0.2)" }}>
             Built by Africans, for Africa {"·"} Proprietary technology by Consult for Africa
           </p>
         </div>
       </section>
 
-      {/* ── PROBLEM (compact, punchy) ────────────────────────────────────── */}
+      {/* ── PROBLEM ────────────────────────────────────────────────────── */}
       <section className="py-20 px-6" style={{ background: "#fff" }}>
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-16 items-center">
-            {/* Left: narrative */}
             <div>
               <p className="text-xs uppercase tracking-[0.25em] mb-4" style={{ color: "#D4A574" }}>
                 The workforce crisis
@@ -361,7 +315,6 @@ export default function MaarovaPage() {
               </p>
             </div>
 
-            {/* Right: stat cards */}
             <div className="grid grid-cols-2 gap-4">
               {[
                 { value: "4,193", label: "Doctors left Nigeria in 2024 alone. A 200% surge.", color: "#DC2626" },
@@ -383,7 +336,7 @@ export default function MaarovaPage() {
         </div>
       </section>
 
-      {/* ── JOURNEY (visual pipeline) ────────────────────────────────────── */}
+      {/* ── JOURNEY ────────────────────────────────────────────────────── */}
       <section id="journey" className="py-24 px-6" style={{ background: "#FAF8F5" }}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
@@ -395,7 +348,6 @@ export default function MaarovaPage() {
             </h2>
           </div>
 
-          {/* Pipeline */}
           <div className="hidden md:grid grid-cols-5 gap-4">
             {journey.map((j) => (
               <div
@@ -415,7 +367,6 @@ export default function MaarovaPage() {
             ))}
           </div>
 
-          {/* Mobile version */}
           <div className="md:hidden space-y-3">
             {journey.map((j) => (
               <div key={j.step} className="flex items-start gap-4 p-4 rounded-xl" style={{ background: "#fff", border: "1px solid #e5eaf0" }}>
@@ -435,39 +386,50 @@ export default function MaarovaPage() {
         </div>
       </section>
 
-      {/* ── ASSESSMENT MODULES ───────────────────────────────────────────── */}
+      {/* ── ASSESSMENT MODULES (compact, links to detail) ─────────────── */}
       <section className="py-24 px-6" style={{ background: "#fff" }}>
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-14">
             <p className="text-xs uppercase tracking-[0.25em] mb-4" style={{ color: "#D4A574" }}>
               Six Dimensions
             </p>
-            <h2 className="font-semibold text-gray-900" style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)" }}>
+            <h2 className="font-semibold text-gray-900 mb-4" style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)" }}>
               A complete picture of leadership
             </h2>
+            <p className="text-gray-500 max-w-2xl mx-auto">
+              Maarova combines six validated assessment dimensions into a single 60-minute
+              online assessment. Each dimension provides unique insight. Together, they create
+              the most comprehensive leadership profile available for healthcare leaders in Africa.
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {modules.map((m) => (
               <div
                 key={m.num}
-                className="group rounded-xl p-6 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+                className="rounded-xl p-5 text-center transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
                 style={{ border: "1px solid #e5eaf0" }}
               >
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-2xl" aria-hidden="true">{m.icon}</span>
-                  <span className="text-xs font-semibold tabular-nums" style={{ color: "#D4A574" }}>{m.num}</span>
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-1">{m.name}</h3>
-                <p className="text-xs font-medium mb-3" style={{ color: "#D4A574" }}>{m.short}</p>
-                <p className="text-sm text-gray-500 leading-relaxed">{m.desc}</p>
+                <span className="text-2xl block mb-3" aria-hidden="true">{m.icon}</span>
+                <p className="font-semibold text-gray-900 text-sm mb-1">{m.name}</p>
+                <p className="text-xs" style={{ color: "#D4A574" }}>{m.short}</p>
               </div>
             ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Link
+              href="/maarova/assessment"
+              className="inline-block px-7 py-3 rounded-lg text-sm font-semibold transition-all hover:scale-[1.02]"
+              style={{ background: "#1A3A52", color: "#fff" }}
+            >
+              Explore All Six Dimensions
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ── THREE STREAMS ────────────────────────────────────────────────── */}
+      {/* ── THREE STREAMS (navigation cards) ───────────────────────────── */}
       <section className="py-24 px-6" style={{ background: "#F1F5F9" }}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
@@ -479,14 +441,15 @@ export default function MaarovaPage() {
             </h2>
           </div>
 
-          <div className="space-y-5">
+          <div className="grid md:grid-cols-3 gap-5">
             {streams.map((s, i) => (
-              <div
+              <Link
                 key={s.label}
-                className="rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-lg"
+                href={s.href}
+                className="group rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
                 style={{ background: "#fff", border: "1px solid #e5eaf0" }}
               >
-                <div className="p-8 md:p-10">
+                <div className="p-8">
                   <div className="flex items-center gap-3 mb-5">
                     <span
                       className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
@@ -494,136 +457,43 @@ export default function MaarovaPage() {
                     >
                       {i + 1}
                     </span>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.15em]" style={{ color: s.accent }}>
-                        Stream {i + 1}
-                      </p>
-                      <p className="font-semibold text-gray-900 text-sm">{s.label}</p>
-                    </div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.15em]" style={{ color: s.accent }}>
+                      {s.label}
+                    </p>
                   </div>
 
-                  <h3 className="font-semibold text-gray-900 mb-3" style={{ fontSize: "1.35rem" }}>
+                  <h3 className="font-semibold text-gray-900 mb-3" style={{ fontSize: "1.2rem" }}>
                     {s.headline}
                   </h3>
 
-                  <p className="text-sm leading-relaxed max-w-2xl mb-8 text-gray-500">
+                  <p className="text-sm leading-relaxed text-gray-500 mb-6">
                     {s.body}
                   </p>
 
-                  <div className="grid grid-cols-3 gap-6">
+                  <div className="grid grid-cols-3 gap-4 mb-6">
                     {s.metrics.map((mt) => (
                       <div key={mt.sub}>
-                        <p className="text-xl font-bold" style={{ color: "#1A3A52" }}>{mt.value}</p>
-                        <p className="text-xs mt-1 text-gray-400">{mt.sub}</p>
+                        <p className="text-lg font-bold" style={{ color: "#1A3A52" }}>{mt.value}</p>
+                        <p className="text-[10px] mt-0.5 text-gray-400">{mt.sub}</p>
                       </div>
                     ))}
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* ── HR SERVICE LINES ─────────────────────────────────────────────── */}
-      <section className="py-24 px-6" style={{ background: "#fff" }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-xs uppercase tracking-[0.25em] mb-4" style={{ color: "#D4A574" }}>
-              Full-Spectrum Healthcare HR
-            </p>
-            <h2 className="font-semibold text-gray-900 mb-4" style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)" }}>
-              Nine service lines. One practice.
-            </h2>
-            <p className="max-w-2xl mx-auto text-gray-500">
-              Maarova powers our leadership assessment and coaching. But the HR practice goes
-              far deeper. Every workforce challenge a hospital faces, we solve.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-px rounded-xl overflow-hidden" style={{ background: "#e5eaf0" }}>
-            {[
-              {
-                title: "Physician & Nurse Retention",
-                desc: "Stop the exodus. Maarova identifies flight risks before they resign. Retention coaching for high-performers at risk of leaving.",
-                tag: "Maarova-powered",
-              },
-              {
-                title: "Strategic Workforce Planning",
-                desc: "Maarova capability mapping shows leadership strength and gaps. Build a 3-5 year workforce plan aligned with growth strategy.",
-                tag: "Maarova-powered",
-              },
-              {
-                title: "Executive Search & Selection",
-                desc: "Every finalist assessed through Maarova. Side-by-side comparison reports. Science-based hiring for CMOs, COOs, CNOs, and department heads.",
-                tag: "Maarova-powered",
-              },
-              {
-                title: "Compensation & Benefits",
-                desc: "Market benchmarking, pay equity analysis, total rewards design. Attract better talent without breaking the bank.",
-                tag: "Consulting",
-              },
-              {
-                title: "HR Infrastructure Build",
-                desc: "50+ HR policies, HRIS implementation, and Maarova integration. From no HR function to professional practice in 12-20 weeks.",
-                tag: "Maarova-powered",
-              },
-              {
-                title: "Performance Management",
-                desc: "KPIs for every clinical role. Maarova 360 feedback replaces manual reviews. Coaching for low performers, not just termination.",
-                tag: "Maarova-powered",
-              },
-              {
-                title: "Employee Engagement & Culture",
-                desc: "Maarova culture diagnostics plus engagement surveys. Identify what drives your people and what is driving them away.",
-                tag: "Maarova-powered",
-              },
-              {
-                title: "Leadership Development & Succession",
-                desc: "The flagship use case. Full Maarova assessment suite, ICF-certified coaches, 6-18 month development programmes. Build your leadership bench.",
-                tag: "Flagship",
-              },
-              {
-                title: "HR Compliance & Risk",
-                desc: "Labour law, licensing, contracts, payroll compliance. Identify violations before they become legal exposure. Remediation and training.",
-                tag: "Consulting",
-              },
-            ].map((svc) => (
-              <div
-                key={svc.title}
-                className="p-6 transition-colors duration-200 hover:bg-[#F8FAFC]"
-                style={{ background: "#fff" }}
-              >
-                <div className="flex items-center justify-between mb-3">
                   <span
-                    className="text-[10px] font-semibold uppercase tracking-[0.15em] px-2 py-0.5 rounded"
-                    style={{
-                      color: svc.tag === "Flagship" ? "#92400E" : svc.tag === "Maarova-powered" ? "#1E6FA0" : "#64748B",
-                      background: svc.tag === "Flagship" ? "#FEF3C7" : svc.tag === "Maarova-powered" ? "#DBEAFE" : "#F1F5F9",
-                    }}
+                    className="inline-flex items-center gap-2 text-sm font-semibold transition-all group-hover:gap-3"
+                    style={{ color: s.accent }}
                   >
-                    {svc.tag}
+                    Learn more
+                    <span aria-hidden="true">&rarr;</span>
                   </span>
                 </div>
-                <h3 className="font-semibold text-gray-900 text-sm mb-2">{svc.title}</h3>
-                <p className="text-xs leading-relaxed text-gray-500">{svc.desc}</p>
-              </div>
+              </Link>
             ))}
-          </div>
-
-          <div className="text-center mt-10">
-            <Link
-              href="/#contact"
-              className="inline-block px-7 py-3 rounded-lg text-sm font-semibold transition-all"
-              style={{ background: "#1A3A52", color: "#fff" }}
-            >
-              Discuss Your Workforce Challenges
-            </Link>
           </div>
         </div>
       </section>
 
-      {/* ── DIFFERENTIATORS (bold grid) ──────────────────────────────────── */}
+      {/* ── DIFFERENTIATORS ────────────────────────────────────────────── */}
       <section className="py-24 px-6" style={{ background: "#fff" }}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
@@ -671,7 +541,7 @@ export default function MaarovaPage() {
         </div>
       </section>
 
-      {/* ── PARTNERS STRIP ──────────────────────────────────────────────── */}
+      {/* ── PARTNERS STRIP ─────────────────────────────────────────────── */}
       <section className="py-12 px-6" style={{ background: "#fff", borderTop: "1px solid #e5eaf0" }}>
         <div className="max-w-5xl mx-auto">
           <p className="text-[10px] uppercase tracking-[0.25em] text-center mb-6 text-gray-400">
@@ -695,7 +565,7 @@ export default function MaarovaPage() {
         </div>
       </section>
 
-      {/* ── CTA ──────────────────────────────────────────────────────────── */}
+      {/* ── CTA ────────────────────────────────────────────────────────── */}
       <section className="relative py-24 px-6 overflow-hidden" style={{ background: "#FAF8F5" }}>
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-xs uppercase tracking-[0.25em] mb-5" style={{ color: "#D4A574" }}>
@@ -713,18 +583,18 @@ export default function MaarovaPage() {
 
           <div className="flex flex-wrap justify-center gap-4">
             <Link
-              href="/#contact"
+              href="/maarova/demo"
               className="px-8 py-3.5 rounded-lg text-sm font-semibold transition-all hover:scale-[1.02] hover:shadow-lg"
               style={{ background: "#1A3A52", color: "#fff" }}
             >
               Book a Demo
             </Link>
             <Link
-              href="/services"
+              href="/maarova/assessment"
               className="px-8 py-3.5 rounded-lg text-sm font-semibold transition-all"
               style={{ border: "1px solid #CBD5E1", color: "#64748B" }}
             >
-              View All Services
+              Explore the Assessment
             </Link>
           </div>
 
