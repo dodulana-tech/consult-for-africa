@@ -20,6 +20,7 @@ export default function Navbar() {
   const navLinks = [
     { label: "About",    href: "/about" },
     { label: "Services", href: "/services" },
+    { label: "Insights", href: "/insights" },
     { label: "Maarova\u2122", href: "/maarova" },
     { label: "Network",  href: "/#network" },
     { label: "Careers",  href: "/careers" },

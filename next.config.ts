@@ -17,11 +17,11 @@ const securityHeaders = [
     value: [
       "default-src 'self'",
       // Next.js requires unsafe-inline for styles; unsafe-eval only in dev for HMR
-      `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"}`,
+      `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"} https://*.sanity.io`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://cdn.sanity.io https://images.unsplash.com",
       "font-src 'self' data:",
-      "connect-src 'self'",
+      "connect-src 'self' https://*.sanity.io https://*.api.sanity.io",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

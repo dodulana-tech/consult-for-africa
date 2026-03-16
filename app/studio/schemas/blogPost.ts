@@ -1,62 +1,23 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
 
 export default defineType({
-  name: "publication",
-  title: "Publication",
+  name: "blogPost",
+  title: "Blog Post",
   type: "document",
   fields: [
     defineField({
       name: "title",
+      title: "Title",
       type: "string",
       validation: (Rule) => Rule.required(),
     }),
 
     defineField({
       name: "slug",
+      title: "Slug",
       type: "slug",
       options: { source: "title" },
-    }),
-
-    defineField({
-      name: "summary",
-      type: "text",
-    }),
-
-    defineField({
-      name: "category",
-      type: "string",
-      options: {
-        list: [
-          "Finance & Performance",
-          "Health Systems",
-          "Governance",
-          "Capital Projects",
-        ],
-      },
-    }),
-
-    defineField({
-      name: "featured",
-      type: "boolean",
-      description: "Mark as featured whitepaper",
-    }),
-
-    defineField({
-      name: "featuredImage",
-      type: "image",
-    }),
-
-    defineField({
-      name: "coverImage",
-      title: "Cover Image",
-      type: "image",
-      options: { hotspot: true },
-    }),
-
-    defineField({
-      name: "file",
-      type: "file",
-      title: "PDF File",
+      validation: (Rule) => Rule.required(),
     }),
 
     defineField({
@@ -72,9 +33,17 @@ export default defineType({
     }),
 
     defineField({
-      name: "readingTime",
-      title: "Reading Time (minutes)",
-      type: "number",
+      name: "excerpt",
+      title: "Excerpt",
+      type: "text",
+      description: "Short preview text for listing pages",
+    }),
+
+    defineField({
+      name: "category",
+      title: "Category",
+      type: "reference",
+      to: [{ type: "category" }],
     }),
 
     defineField({
@@ -83,6 +52,13 @@ export default defineType({
       type: "array",
       of: [defineArrayMember({ type: "string" })],
       options: { layout: "tags" },
+    }),
+
+    defineField({
+      name: "coverImage",
+      title: "Cover Image",
+      type: "image",
+      options: { hotspot: true },
     }),
 
     defineField({
@@ -109,5 +85,33 @@ export default defineType({
         }),
       ],
     }),
+
+    defineField({
+      name: "readingTime",
+      title: "Reading Time (minutes)",
+      type: "number",
+    }),
+
+    defineField({
+      name: "featured",
+      title: "Featured",
+      type: "boolean",
+      description: "Feature this post on the insights page",
+    }),
   ],
+
+  preview: {
+    select: {
+      title: "title",
+      author: "author",
+      media: "coverImage",
+    },
+    prepare({ title, author, media }) {
+      return {
+        title,
+        subtitle: author ? `by ${author}` : "",
+        media,
+      };
+    },
+  },
 });
