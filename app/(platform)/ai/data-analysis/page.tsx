@@ -19,7 +19,7 @@ export default async function DataAnalysisPage({ searchParams }: PageProps) {
     <div className="flex flex-col flex-1 overflow-hidden">
       <TopBar
         title="Data Analysis"
-        subtitle="Upload hospital data for Imara analysis"
+        subtitle="Upload hospital data for Nuru analysis"
         backHref="/ai"
       />
       <main className="flex-1 overflow-y-auto p-6">
@@ -37,10 +37,10 @@ export default async function DataAnalysisPage({ searchParams }: PageProps) {
             </div>
             <div>
               <p className="text-sm font-semibold text-gray-900">
-                Hospital Data Analysis with Imara
+                Hospital Data Analysis with Nuru
               </p>
               <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
-                Upload your Excel or CSV file and Imara will identify revenue leakage, operational inefficiencies, and staffing issues. You get specific recommendations with Nigerian healthcare context, including NHIS and HMO benchmarks.
+                Upload your Excel or CSV file and Nuru will identify revenue leakage, operational inefficiencies, and staffing issues. You get specific recommendations with Nigerian healthcare context, including NHIS and HMO benchmarks.
               </p>
               <p className="text-xs text-gray-400 mt-1.5">
                 Supports Excel (.xlsx, .xls) and CSV files up to 5MB.

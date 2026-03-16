@@ -20,17 +20,14 @@ const credentials = [
 ];
 
 export default async function Credibility() {
-  const [activeEngagements, networkSize] = await Promise.all([
-    prisma.project.count({
-      where: { status: { in: ["ACTIVE", "AT_RISK"] } },
-    }),
-    prisma.consultantProfile.count(),
-  ]);
+  const activeEngagements = await prisma.project.count({
+    where: { status: { in: ["ACTIVE", "AT_RISK"] } },
+  });
 
   const stats = [
     { value: "135+ yrs", label: "Combined senior leadership across the partner network" },
     { value: "$1.1M+", label: "Annual savings delivered in a single engagement" },
-    { value: `${networkSize}+`, label: "Senior operators in the CFA network" },
+    { value: "20+", label: "Senior operators in the CFA network" },
     { value: `${activeEngagements}`, label: "Active engagements across the continent" },
   ];
 

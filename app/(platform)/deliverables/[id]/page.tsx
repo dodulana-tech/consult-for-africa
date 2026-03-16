@@ -33,14 +33,17 @@ export default async function DeliverableReviewPage({ params }: { params: Promis
 
   const serialized = {
     ...deliverable,
+    dueDate: deliverable.dueDate?.toISOString() ?? null,
     submittedAt: deliverable.submittedAt?.toISOString() ?? null,
     reviewedAt: deliverable.reviewedAt?.toISOString() ?? null,
     approvedAt: deliverable.approvedAt?.toISOString() ?? null,
     createdAt: deliverable.createdAt.toISOString(),
     updatedAt: deliverable.updatedAt.toISOString(),
+    assignmentId: deliverable.assignmentId,
     assignment: deliverable.assignment
       ? {
           ...deliverable.assignment,
+          id: deliverable.assignment.id,
           rateAmount: deliverable.assignment.rateAmount?.toString() ?? null,
           startDate: deliverable.assignment.startDate?.toISOString() ?? null,
           endDate: deliverable.assignment.endDate?.toISOString() ?? null,

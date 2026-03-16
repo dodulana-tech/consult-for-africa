@@ -5,7 +5,7 @@ import Link from "next/link";
 import TopBar from "@/components/platform/TopBar";
 import StatusBadge from "@/components/platform/StatusBadge";
 import { formatDate, timeAgo } from "@/lib/utils";
-import { FileCheck, Star, ChevronRight } from "lucide-react";
+import { FileCheck, Star, ChevronRight, AlertTriangle, Clock } from "lucide-react";
 
 export default async function DeliverablesPage() {
   const session = await auth();
@@ -15,6 +15,7 @@ export default async function DeliverablesPage() {
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
   const isEM = role === "ENGAGEMENT_MANAGER";
   const isConsultant = role === "CONSULTANT";
+  const canManage = isEM || isElevated;
 
   const deliverableWhere = isElevated
     ? {}
@@ -118,7 +119,7 @@ export default async function DeliverablesPage() {
                 </div>
                 <div className="space-y-2">
                   {group.items.map((d) => {
-                    const reviewLink = isEM ? `/deliverables/${d.id}` : `/deliverables/${d.id}/submit`;
+                    const reviewLink = canManage ? `/deliverables/${d.id}` : `/deliverables/${d.id}/submit`;
                     return (
                       <Link
                         key={d.id}
@@ -140,6 +141,11 @@ export default async function DeliverablesPage() {
                                 {d.reviewScore}/10
                               </span>
                             )}
+                            {d.dueDate && new Date(d.dueDate) < new Date() && d.status !== "APPROVED" && d.status !== "DELIVERED_TO_CLIENT" && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-50 text-red-600 flex items-center gap-0.5">
+                                <AlertTriangle size={9} /> Overdue
+                              </span>
+                            )}
                           </div>
                           <p className="font-medium text-gray-900 text-sm group-hover:text-[#0F2744]">
                             {d.name}
@@ -150,6 +156,20 @@ export default async function DeliverablesPage() {
                               <>
                                 <span>·</span>
                                 <span>{d.assignment.consultant.name}</span>
+                              </>
+                            )}
+                            {!d.assignment && canManage && (
+                              <>
+                                <span>·</span>
+                                <span className="text-amber-500">Unassigned</span>
+                              </>
+                            )}
+                            {d.dueDate && (
+                              <>
+                                <span>·</span>
+                                <span className="flex items-center gap-0.5">
+                                  <Clock size={9} /> Due {formatDate(new Date(d.dueDate))}
+                                </span>
                               </>
                             )}
                             {d.submittedAt && (

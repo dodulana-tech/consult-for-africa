@@ -9,7 +9,7 @@ const EM_FEATURES = [
   {
     icon: Users,
     title: "Consultant Matching",
-    description: "Imara ranks the best-fit consultants for any project across expertise, performance, availability, and cost.",
+    description: "Nuru ranks the best-fit consultants for any project across expertise, performance, availability, and cost.",
     href: "/projects",
     cta: "Open a project",
   },
@@ -30,7 +30,7 @@ const EM_FEATURES = [
   {
     icon: BarChart2,
     title: "Data Analysis",
-    description: "Upload Excel or CSV hospital data. Imara finds revenue leakage, inefficiencies, and gives actionable recommendations with Nigerian context.",
+    description: "Upload Excel or CSV hospital data. Nuru finds revenue leakage, inefficiencies, and gives actionable recommendations with Nigerian context.",
     href: "/ai/data-analysis",
     cta: "Analyze data",
   },
@@ -40,14 +40,14 @@ const CONSULTANT_FEATURES = [
   {
     icon: FileEdit,
     title: "Report Generator",
-    description: "Enter your findings and recommendations. Imara drafts a polished, executive-ready consulting report with Nigerian healthcare context.",
+    description: "Enter your findings and recommendations. Nuru drafts a polished, executive-ready consulting report with Nigerian healthcare context.",
     href: "/ai/report-generator",
     cta: "Generate report",
   },
   {
     icon: BarChart2,
     title: "Data Analysis",
-    description: "Upload hospital data. Imara identifies patterns, inefficiencies, and surfaces actionable recommendations.",
+    description: "Upload hospital data. Nuru identifies patterns, inefficiencies, and surfaces actionable recommendations.",
     href: "/ai/data-analysis",
     cta: "Analyze data",
   },
@@ -58,11 +58,11 @@ export default async function AIPage() {
   if (!session) redirect("/login");
 
   const isEM = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  const features = isEM ? [...EM_FEATURES, { icon: FileEdit, title: "Report Generator", description: "Enter your findings and recommendations. Imara drafts a polished, executive-ready consulting report with Nigerian healthcare context.", href: "/ai/report-generator", cta: "Generate report" }] : CONSULTANT_FEATURES;
+  const features = isEM ? [...EM_FEATURES, { icon: FileEdit, title: "Report Generator", description: "Enter your findings and recommendations. Nuru drafts a polished, executive-ready consulting report with Nigerian healthcare context.", href: "/ai/report-generator", cta: "Generate report" }] : CONSULTANT_FEATURES;
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
-      <TopBar title="Imara" subtitle="CFA Intelligence" />
+      <TopBar title="Nuru" subtitle="CFA Intelligence" />
       <main className="flex-1 overflow-y-auto p-6">
         <div className="max-w-5xl space-y-6">
           {/* Header */}
@@ -74,7 +74,7 @@ export default async function AIPage() {
               <Sparkles size={18} className="text-white" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-white">Imara</h2>
+              <h2 className="text-base font-semibold text-white">Nuru</h2>
               <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.6)" }}>
                 {isEM
                   ? "CFA's intelligence layer. Match consultants in 5 minutes, write proposals in 20 seconds, predict risks before they become problems."
@@ -118,8 +118,8 @@ export default async function AIPage() {
                 className="rounded-xl p-4 text-xs text-gray-500"
                 style={{ background: "#F9FAFB", border: "1px solid #e5eaf0" }}
               >
-                <p className="font-medium text-gray-700 mb-1">About Imara</p>
-                <p>Imara is powered by Claude (Anthropic). Features work best when consultant profiles are complete and project data is up to date.</p>
+                <p className="font-medium text-gray-700 mb-1">About Nuru</p>
+                <p>Nuru is powered by Claude (Anthropic). Features work best when consultant profiles are complete and project data is up to date.</p>
               </div>
             </div>
 
@@ -130,10 +130,10 @@ export default async function AIPage() {
             >
               <div className="flex items-center gap-2 px-4 py-3" style={{ borderBottom: "1px solid #e5eaf0", background: "#F9FAFB" }}>
                 <MessageSquare size={13} className="text-gray-400" />
-                <span className="text-xs font-semibold text-gray-700">Ask Imara</span>
+                <span className="text-xs font-semibold text-gray-700">Ask Nuru</span>
               </div>
               <div className="flex-1">
-                <AskAI />
+                <AskAI isConsultant={!isEM} />
               </div>
             </div>
           </div>

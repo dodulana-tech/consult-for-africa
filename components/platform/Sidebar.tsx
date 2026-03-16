@@ -19,6 +19,9 @@ import {
   Share2,
   BookOpen,
   Library,
+  GraduationCap,
+  Wrench,
+  Radio,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
@@ -29,9 +32,12 @@ const NAV_ITEMS = [
   { label: "Consultants",    href: "/consultants",   icon: Users },
   { label: "Clients",        href: "/clients",       icon: Building2 },
   { label: "Time & Payments",href: "/timesheets",    icon: Clock },
-  { label: "Imara",          href: "/ai",            icon: Sparkles },
+  { label: "Opportunities",  href: "/opportunities", icon: Radio },
+  { label: "Nuru",          href: "/ai",            icon: Sparkles },
   { label: "Knowledge Base", href: "/knowledge",     icon: BookOpen },
   { label: "Methodologies",  href: "/methodology",   icon: Library },
+  { label: "Academy",        href: "/academy",       icon: GraduationCap },
+  { label: "Tools",           href: "/tools",         icon: Wrench },
   { label: "Talent Pipeline",href: "/talent",        icon: UserPlus },
 ];
 
@@ -141,7 +147,7 @@ export default function Sidebar() {
           Settings
         </Link>
         <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={() => { sessionStorage.clear(); signOut({ callbackUrl: "/login" }); }}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
           style={{ color: "#64748B" }}
         >

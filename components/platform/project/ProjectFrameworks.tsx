@@ -64,6 +64,7 @@ function AppliedFrameworkCard({
   const [draft, setDraft] = useState<Record<string, string>>(pf.content);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [filling, setFilling] = useState(false);
 
   const catStyle = categoryColors[pf.framework.category] ?? { bg: "#F3F4F6", color: "#374151" };
   const stStyle = statusColors[pf.status] ?? statusColors.DRAFT;
@@ -103,6 +104,25 @@ function AppliedFrameworkCard({
     }
   }
 
+  const isEmpty = pf.framework.dimensions.every((dim) => !pf.content[dim]);
+
+  async function fillWithAI() {
+    setFilling(true);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/frameworks/${pf.id}/generate`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        const { framework } = await res.json();
+        onUpdate(pf.id, framework);
+        setDraft(framework.content);
+        setExpanded(true);
+      }
+    } finally {
+      setFilling(false);
+    }
+  }
+
   async function remove() {
     setDeleting(true);
     try {
@@ -136,6 +156,18 @@ function AppliedFrameworkCard({
           </div>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
+          {canEdit && pf.status !== "COMPLETED" && isEmpty && !editing && (
+            <button
+              onClick={fillWithAI}
+              disabled={filling}
+              className="flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-lg disabled:opacity-50"
+              style={{ background: "#0F2744", color: "#fff" }}
+              title="Fill with Nuru AI"
+            >
+              {filling ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={9} />}
+              {filling ? "Analyzing..." : "Fill with Nuru"}
+            </button>
+          )}
           {canEdit && pf.status !== "COMPLETED" && !editing && (
             <button
               onClick={() => { setEditing(true); setExpanded(true); setDraft(pf.content); }}

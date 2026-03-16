@@ -653,7 +653,7 @@ export default function ReportGenerator() {
       {/* Findings */}
       <div className="rounded-xl bg-white p-5" style={{ border: "1px solid #e5eaf0" }}>
         <h3 className="text-sm font-semibold text-gray-900 mb-1">Key Findings *</h3>
-        <p className="text-xs text-gray-400 mb-3">Your raw notes from the engagement. Imara will structure and expand these.</p>
+        <p className="text-xs text-gray-400 mb-3">Your raw notes from the engagement. Nuru will structure and expand these.</p>
         <textarea
           value={form.keyFindings}
           onChange={(e) => setField("keyFindings", e.target.value)}
@@ -667,12 +667,12 @@ export default function ReportGenerator() {
       {/* Recommendations */}
       <div className="rounded-xl bg-white p-5" style={{ border: "1px solid #e5eaf0" }}>
         <h3 className="text-sm font-semibold text-gray-900 mb-1">Recommendations *</h3>
-        <p className="text-xs text-gray-400 mb-3">Your core recommendations. Imara will add rationale, action steps, and implementation timeline.</p>
+        <p className="text-xs text-gray-400 mb-3">Your core recommendations. Nuru will add rationale, action steps, and implementation timeline.</p>
         <textarea
           value={form.recommendations}
           onChange={(e) => setField("recommendations", e.target.value)}
           rows={4}
-          placeholder="Your core recommendations. Imara will add rationale, action steps, and implementation timeline."
+          placeholder="Your core recommendations. Nuru will add rationale, action steps, and implementation timeline."
           className={`${inputClass} resize-y`}
           style={inputStyle}
         />
@@ -690,7 +690,7 @@ export default function ReportGenerator() {
 
       {loading && (
         <p className="text-center text-xs text-gray-400">
-          Imara is drafting your report. This takes 20-30 seconds...
+          Nuru is drafting your report. This takes 20-30 seconds...
         </p>
       )}
     </form>

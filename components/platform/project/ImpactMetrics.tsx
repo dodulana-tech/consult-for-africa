@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { TrendingUp, Plus, X, Quote } from "lucide-react";
+import { TrendingUp, Plus, X, Quote, Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 
 interface ImpactMetric {
   id: string;
@@ -36,6 +36,50 @@ export default function ImpactMetrics({
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(defaultForm);
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestions, setSuggestions] = useState<{ metricName: string; baselineValue: string; targetValue: string; unit: string; quantifiedValue: number; rationale: string }[]>([]);
+  const [addingSuggestion, setAddingSuggestion] = useState<number | null>(null);
+  const [addedSuggestions, setAddedSuggestions] = useState<Set<number>>(new Set());
+
+  async function suggestMetrics() {
+    setSuggesting(true);
+    setSuggestions([]);
+    setAddedSuggestions(new Set());
+    try {
+      const res = await fetch(`/api/projects/${projectId}/impact/suggest`, { method: "POST" });
+      if (res.ok) {
+        const { suggestions: data } = await res.json();
+        setSuggestions(data);
+        setShowForm(true);
+      }
+    } finally {
+      setSuggesting(false);
+    }
+  }
+
+  async function addSuggestedMetric(s: typeof suggestions[0], idx: number) {
+    setAddingSuggestion(idx);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/impact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          metricName: s.metricName,
+          baselineValue: s.baselineValue,
+          currentValue: s.baselineValue,
+          unit: s.unit,
+          quantifiedValue: s.quantifiedValue || "",
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMetrics((prev) => [data, ...prev]);
+        setAddedSuggestions((prev) => new Set([...prev, idx]));
+      }
+    } finally {
+      setAddingSuggestion(null);
+    }
+  }
 
   useEffect(() => {
     fetch(`/api/projects/${projectId}/impact`)
@@ -94,19 +138,61 @@ export default function ImpactMetrics({
           )}
         </div>
         {canEdit && (
-          <button
-            onClick={() => setShowForm((v) => !v)}
-            className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors"
-            style={{
-              background: showForm ? "#F3F4F6" : "#0F2744",
-              color: showForm ? "#374151" : "#fff",
-            }}
-          >
-            {showForm ? <X size={12} /> : <Plus size={12} />}
-            {showForm ? "Cancel" : "Add Metric"}
-          </button>
+          <div className="flex items-center gap-2">
+            {metrics.length === 0 && !showForm && (
+              <button
+                onClick={suggestMetrics}
+                disabled={suggesting}
+                className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg disabled:opacity-50"
+                style={{ background: "#0F2744", color: "#fff" }}
+              >
+                {suggesting ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                {suggesting ? "Analyzing..." : "Suggest with Nuru"}
+              </button>
+            )}
+            <button
+              onClick={() => setShowForm((v) => !v)}
+              className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors"
+              style={{
+                background: showForm ? "#F3F4F6" : metrics.length === 0 && !showForm ? "#fff" : "#0F2744",
+                color: showForm ? "#374151" : metrics.length === 0 && !showForm ? "#374151" : "#fff",
+                border: metrics.length === 0 && !showForm ? "1px solid #e5eaf0" : "none",
+              }}
+            >
+              {showForm ? <X size={12} /> : <Plus size={12} />}
+              {showForm ? "Cancel" : "Add Metric"}
+            </button>
+          </div>
         )}
       </div>
+
+      {/* AI Suggestions */}
+      {suggestions.length > 0 && showForm && (
+        <div className="rounded-lg p-4 space-y-2" style={{ background: "#F9FAFB", border: "1px solid #e5eaf0" }}>
+          <p className="text-[10px] text-gray-400">{suggestions.length} metrics suggested by Nuru</p>
+          {suggestions.map((s, i) => (
+            <div key={i} className="flex items-start justify-between gap-2 rounded-lg px-3 py-2" style={{ background: "#fff", border: "1px solid #e5eaf0" }}>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-gray-900">{s.metricName}</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">Baseline: {s.baselineValue} {s.unit} | Target: {s.targetValue} {s.unit}</p>
+                <p className="text-[10px] text-gray-300 mt-0.5">{s.rationale}</p>
+              </div>
+              {addedSuggestions.has(i) ? (
+                <span className="text-[10px] font-semibold text-emerald-600 shrink-0 flex items-center gap-0.5"><CheckCircle2 size={10} /> Added</span>
+              ) : (
+                <button
+                  onClick={() => addSuggestedMetric(s, i)}
+                  disabled={addingSuggestion === i}
+                  className="text-[10px] font-semibold px-2 py-1 rounded-lg shrink-0 disabled:opacity-50"
+                  style={{ background: "#0F2744", color: "#fff" }}
+                >
+                  {addingSuggestion === i ? <Loader2 size={10} className="animate-spin" /> : "Add"}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {showForm && (
         <div

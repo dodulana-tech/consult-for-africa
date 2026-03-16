@@ -5,7 +5,7 @@ import { Sparkles, Send, User, Bot, Loader2 } from "lucide-react";
 
 type Message = { role: "user" | "assistant"; content: string };
 
-const EXAMPLE_QUESTIONS = [
+const EM_QUESTIONS = [
   "Which projects are at risk right now?",
   "Who are our top available consultants?",
   "What's our total budget across active projects?",
@@ -14,7 +14,17 @@ const EXAMPLE_QUESTIONS = [
   "Which consultant has the highest rating?",
 ];
 
-export default function AskAI() {
+const CONSULTANT_QUESTIONS = [
+  "What deliverables do I have pending?",
+  "What feedback did I get on my last submission?",
+  "How many hours have I logged this month?",
+  "What are my upcoming deadlines?",
+  "Help me improve my deliverable score",
+  "Summarize my current assignments",
+];
+
+export default function AskAI({ isConsultant = false }: { isConsultant?: boolean } = {}) {
+  const EXAMPLE_QUESTIONS = isConsultant ? CONSULTANT_QUESTIONS : EM_QUESTIONS;
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -57,7 +67,7 @@ export default function AskAI() {
             <Sparkles size={13} className="text-white" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-900">Ask Imara</p>
+            <p className="text-sm font-semibold text-gray-900">Ask Nuru</p>
             <p className="text-[11px] text-gray-400">Natural language insights from your platform data</p>
           </div>
         </div>
@@ -138,7 +148,7 @@ export default function AskAI() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-            placeholder="Ask Imara about projects, consultants, revenue..."
+            placeholder="Ask Nuru about projects, consultants, revenue..."
             className="flex-1 text-sm px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
             style={{ border: "1px solid #e5eaf0", background: "#F9FAFB" }}
           />

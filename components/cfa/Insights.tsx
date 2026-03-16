@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { getInsights } from "@/sanity/lib/getInsights";
+import WhitepaperGate from "@/components/cfa/WhitepaperGate";
 
 export default async function Insights() {
   const { featured, latest } = await getInsights();
@@ -49,23 +50,10 @@ export default async function Insights() {
                   {featured.summary}
                 </p>
 
-                <div className="mt-5 flex flex-col sm:flex-row gap-3">
-                  <input
-                    type="email"
-                    placeholder="Work email"
-                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--brand-primary)]"
-                  />
-                  <a
-                    href={featured.fileUrl}
-                    target="_blank"
-                    className="px-6 py-2.5 bg-[var(--brand-primary)] text-white rounded-lg text-sm font-semibold hover:shadow-md transition text-center"
-                  >
-                    Download PDF
-                  </a>
-                </div>
+                <WhitepaperGate fileUrl={featured.fileUrl} />
 
                 <p className="text-xs text-gray-400 mt-2">
-                  Executive briefing • PDF • Instant download
+                  Executive briefing • PDF • Work email required
                 </p>
               </div>
             </div>

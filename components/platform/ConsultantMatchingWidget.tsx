@@ -152,6 +152,7 @@ export default function ConsultantMatchingWidget({ projectId, projectServiceType
 
   function startAssign(m: Match) {
     setAssigning(m.consultantId);
+    setExpanded(null); // Collapse details to avoid layout conflict
     setAssignForm((prev) => ({
       ...prev,
       [m.consultantId]: {
@@ -224,7 +225,7 @@ export default function ConsultantMatchingWidget({ projectId, projectServiceType
             <Sparkles size={13} className="text-white" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-gray-900">Imara Consultant Matching</h3>
+            <h3 className="text-sm font-semibold text-gray-900">Nuru Consultant Matching</h3>
             <p className="text-[11px] text-gray-400">Find the best-fit consultants for this project</p>
           </div>
         </div>
@@ -485,7 +486,7 @@ export default function ConsultantMatchingWidget({ projectId, projectServiceType
                       </div>
                     )}
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Imara confidence</span>
+                      <span className="text-gray-400">Nuru confidence</span>
                       <span className="font-medium">{m.confidence}%</span>
                     </div>
                   </div>

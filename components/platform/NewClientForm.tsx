@@ -7,6 +7,8 @@ import { Plus, X } from "lucide-react";
 const CLIENT_TYPES = [
   { value: "PRIVATE_ELITE", label: "Private Elite" },
   { value: "PRIVATE_MIDTIER", label: "Private Mid-Tier" },
+  { value: "STARTUP", label: "Startup" },
+  { value: "SME", label: "SME" },
   { value: "GOVERNMENT", label: "Government" },
   { value: "DEVELOPMENT", label: "Development Organization" },
 ];

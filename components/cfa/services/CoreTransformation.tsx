@@ -77,6 +77,19 @@ const services = [
     ],
     tag: "Systems",
   },
+  {
+    num: "07",
+    title: "Healthcare HR Management",
+    summary:
+      "The workforce crisis is the single biggest threat to African healthcare. We combine consulting with proprietary psychometric technology to help hospitals hire, develop, and retain clinical leaders.",
+    points: [
+      "Physician and nurse retention strategy",
+      "Executive search powered by Maarova\u2122 assessments",
+      "Leadership development and succession planning",
+      "Workforce planning, compensation, and culture",
+    ],
+    tag: "Powered by Maarova\u2122",
+  },
 ];
 
 export default function CoreTransformation() {

@@ -1,12 +1,14 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getConsultantCapacity } from "@/lib/capacity";
 import { redirect } from "next/navigation";
-import { Briefcase, FileCheck, AlertTriangle, Clock, TrendingUp, XCircle } from "lucide-react";
+import { Briefcase, FileCheck, AlertTriangle, Clock, TrendingUp, XCircle, Gauge, Inbox, Sparkles } from "lucide-react";
 import Link from "next/link";
 import TopBar from "@/components/platform/TopBar";
 import StatCard from "@/components/platform/StatCard";
 import ProjectCard from "@/components/platform/ProjectCard";
 import StatusBadge from "@/components/platform/StatusBadge";
+import ConsultantCapacityWidget from "@/components/platform/ConsultantCapacityWidget";
 import { formatDate, timeAgo, budgetUtilization, daysRemaining, timelineProgress } from "@/lib/utils";
 
 export default async function DashboardPage() {
@@ -54,6 +56,23 @@ export default async function DashboardPage() {
       status: "PENDING",
     },
   });
+
+  // ─── Consultant-specific data ────────────────────────────────────────────
+  const pendingAssignments = isConsultant
+    ? await prisma.assignment.findMany({
+        where: { consultantId: userId, status: "PENDING_ACCEPTANCE" },
+        include: {
+          project: { select: { id: true, name: true, serviceType: true, client: { select: { name: true } } } },
+        },
+        orderBy: { createdAt: "desc" },
+      })
+    : [];
+
+  const openOpportunities = isConsultant
+    ? await prisma.staffingRequest.count({ where: { status: "OPEN" } })
+    : 0;
+
+  const capacity = isConsultant ? await getConsultantCapacity(userId) : null;
 
   // ─── Recent updates ───────────────────────────────────────────────────────
   const recentUpdates = await prisma.projectUpdate.findMany({
@@ -175,6 +194,43 @@ export default async function DashboardPage() {
           </div>
         )}
 
+        {/* Consultant: Pending assignment requests */}
+        {isConsultant && pendingAssignments.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 mb-1">
+              <Inbox size={14} className="text-blue-500" />
+              <h2 className="text-sm font-semibold text-gray-900">Assignment Requests</h2>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium">
+                {pendingAssignments.length} pending
+              </span>
+            </div>
+            {pendingAssignments.map((a) => (
+              <Link
+                key={a.id}
+                href={`/projects/${a.project.id}`}
+                className="flex items-center justify-between gap-4 rounded-xl p-4 transition-shadow hover:shadow-sm"
+                style={{ background: "#EFF6FF", border: "1px solid #BFDBFE" }}
+              >
+                <div>
+                  <p className="text-sm font-semibold text-blue-900">{a.role}</p>
+                  <p className="text-xs text-blue-700 mt-0.5">
+                    {a.project.name} · {a.project.client.name}
+                  </p>
+                </div>
+                <span className="text-xs font-semibold text-blue-600 shrink-0">Review &rarr;</span>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Consultant: Capacity + opportunities row */}
+        {isConsultant && capacity && (
+          <ConsultantCapacityWidget
+            capacity={capacity}
+            openOpportunities={openOpportunities}
+          />
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
@@ -183,6 +239,7 @@ export default async function DashboardPage() {
             sub={`${projects.length} total`}
             icon={Briefcase}
             accent="default"
+            href="/projects"
           />
           <StatCard
             label="Pending Reviews"
@@ -190,6 +247,7 @@ export default async function DashboardPage() {
             sub={pendingDeliverables > 0 ? "Needs attention" : "All clear"}
             icon={FileCheck}
             accent={pendingDeliverables > 0 ? "warning" : "success"}
+            href="/projects"
           />
           <StatCard
             label="At Risk"
@@ -197,6 +255,7 @@ export default async function DashboardPage() {
             sub={atRiskProjects > 0 ? "Requires action" : "Portfolio healthy"}
             icon={AlertTriangle}
             accent={atRiskProjects > 0 ? "danger" : "success"}
+            href="/projects"
           />
           <StatCard
             label="Timesheets"
@@ -204,6 +263,7 @@ export default async function DashboardPage() {
             sub="Pending approval"
             icon={Clock}
             accent={pendingTimesheets > 0 ? "warning" : "default"}
+            href="/timesheets"
           />
         </div>
 

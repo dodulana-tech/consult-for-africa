@@ -39,9 +39,9 @@ function ScoreBar({ score }: { score: number }) {
 }
 
 const RECOMMENDATION_CONFIG = {
-  APPROVE: { label: "Imara recommends: Approve", bg: "#ECFDF5", border: "#A7F3D0", color: "#059669", icon: CheckCircle2 },
-  REVISE: { label: "Imara recommends: Request Revision", bg: "#FFFBEB", border: "#FDE68A", color: "#D97706", icon: RotateCcw },
-  NEEDS_WORK: { label: "Imara recommends: Needs Major Work", bg: "#FEF2F2", border: "#FECACA", color: "#DC2626", icon: AlertTriangle },
+  APPROVE: { label: "Nuru recommends: Approve", bg: "#ECFDF5", border: "#A7F3D0", color: "#059669", icon: CheckCircle2 },
+  REVISE: { label: "Nuru recommends: Request Revision", bg: "#FFFBEB", border: "#FDE68A", color: "#D97706", icon: RotateCcw },
+  NEEDS_WORK: { label: "Nuru recommends: Needs Major Work", bg: "#FEF2F2", border: "#FECACA", color: "#DC2626", icon: AlertTriangle },
 };
 
 export default function AIQualityScore({ deliverableId, onScoresLoaded }: {
@@ -115,7 +115,7 @@ export default function AIQualityScore({ deliverableId, onScoresLoaded }: {
           <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: "#0F2744" }}>
             <Sparkles size={11} className="text-white" />
           </div>
-          <span className="text-sm font-semibold text-gray-900">Imara Quality Pre-Score</span>
+          <span className="text-sm font-semibold text-gray-900">Nuru Quality Pre-Score</span>
           {aiScore && (
             <span
               className="text-[11px] font-bold px-1.5 py-0.5 rounded-full text-white"
@@ -209,7 +209,7 @@ export default function AIQualityScore({ deliverableId, onScoresLoaded }: {
           )}
 
           <p className="text-[10px] text-gray-300">
-            Imara assessment based on deliverable description. Use as a starting point, not a final decision.
+            Nuru assessment based on deliverable description. Use as a starting point, not a final decision.
           </p>
         </div>
       )}

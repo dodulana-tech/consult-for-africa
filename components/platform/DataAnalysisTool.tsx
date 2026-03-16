@@ -298,7 +298,7 @@ export default function DataAnalysisTool({ projectId }: { projectId?: string }) 
               Analyzing...
             </>
           ) : (
-            "Analyze with Imara"
+            "Analyze with Nuru"
           )}
         </button>
       </form>
@@ -311,7 +311,7 @@ export default function DataAnalysisTool({ projectId }: { projectId?: string }) 
         >
           <Loader2 size={22} className="animate-spin mx-auto mb-2" style={{ color: "#0F2744" }} />
           <p className="text-sm font-medium text-gray-800">
-            Imara is analyzing your data
+            Nuru is analyzing your data
           </p>
           <p className="text-xs text-gray-500 mt-1">
             This takes 15 to 30 seconds. Please wait.

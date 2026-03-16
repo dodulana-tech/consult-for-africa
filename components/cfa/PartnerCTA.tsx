@@ -43,6 +43,7 @@ export default function PartnerCTA() {
                 <li>• Strategy, service-line & revenue growth</li>
                 <li>• Capital project planning & commissioning</li>
                 <li>• Digital systems & performance dashboards</li>
+                <li>• Healthcare HR & executive coaching (Maarova&#x2122;)</li>
                 <li>• Public sector & PPP transformation</li>
               </ul>
             </div>
@@ -112,8 +113,12 @@ export default function PartnerCTA() {
             <option>Capital Project Commissioning</option>
             <option>Accreditation & Quality Improvement</option>
             <option>Digital Health & Data Systems</option>
+            <option>Healthcare HR & Workforce Strategy</option>
+            <option>Executive Coaching & Leadership Development</option>
+            <option>Executive Search & Selection</option>
             <option>PPP / Public Sector Transformation</option>
             <option>Strategic Advisory</option>
+            <option>Fractional Leadership / Executive Secondment</option>
             <option>Technology Platform / CTO-as-a-Service</option>
           </select>
 

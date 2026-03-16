@@ -45,25 +45,25 @@ export default function AboutServices() {
         </p>
 
         <h1
-          className="font-semibold leading-[1.1] tracking-tight text-white max-w-3xl"
+          className="font-semibold leading-[1.08] tracking-tight text-white max-w-2xl"
           style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
         >
-          Strategy, operations, governance, and capital projects.
+          We fix what{"'"}s broken.
           <br />
-          <span style={{ color: "rgba(255,255,255,0.5)" }}>
-            Delivered by people who actually execute.
+          <span style={{ color: "rgba(255,255,255,0.45)" }}>
+            Then build what{"'"}s next.
           </span>
         </h1>
 
         <div className="mt-6 w-12 h-[2px]" style={{ background: "#D4AF37" }}/>
 
         <p
-          className="mt-6 max-w-2xl leading-relaxed"
-          style={{ fontSize: "clamp(1rem,1.5vw,1.15rem)", color: "rgba(255,255,255,0.6)" }}
+          className="mt-6 max-w-lg leading-relaxed"
+          style={{ fontSize: "clamp(0.95rem,1.4vw,1.1rem)", color: "rgba(255,255,255,0.55)" }}
         >
-          Every engagement is structured around measurable outcomes. We work across
-          the full performance spectrum, from rapid turnarounds to multi-year
-          transformation programmes.
+          Turnarounds. Growth. Governance. Technology.
+          <br />
+          Measurable outcomes, every time.
         </p>
       </div>
     </section>

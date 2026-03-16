@@ -88,12 +88,14 @@ export default async function ConsultantProfilePage({
     .map((a) => ({ id: a.project.id, name: a.project.name }))
     .filter((p, i, arr) => arr.findIndex((x) => x.id === p.id) === i); // dedupe
 
+  const backHref = session.user.role === "CONSULTANT" ? "/dashboard" : "/consultants";
+
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       <TopBar
         title={user.name}
         subtitle={profile.title}
-        backHref="/consultants"
+        backHref={backHref}
       />
       <main className="flex-1 overflow-y-auto p-6">
         <div className="max-w-3xl space-y-6">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, Circle, Clock, Plus, X, SkipForward, Loader2 } from "lucide-react";
+import { CheckCircle2, Circle, Clock, Plus, X, SkipForward, Loader2, Sparkles } from "lucide-react";
 
 interface PhaseGate {
   id: string;
@@ -54,6 +54,10 @@ export default function PhaseTracker({
   const [saving, setSaving] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", description: "", startDate: "", endDate: "" });
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestions, setSuggestions] = useState<{ name: string; description: string; startDate: string; endDate: string }[]>([]);
+  const [addingSuggestion, setAddingSuggestion] = useState<number | null>(null);
+  const [addedIndices, setAddedIndices] = useState<Set<number>>(new Set());
 
   async function createPhase() {
     if (!form.name.trim()) return;
@@ -102,6 +106,47 @@ export default function PhaseTracker({
     });
   }
 
+  async function suggestPhases() {
+    setSuggesting(true);
+    setSuggestions([]);
+    setAddedIndices(new Set());
+    try {
+      const res = await fetch(`/api/projects/${projectId}/phases/suggest`, { method: "POST" });
+      if (res.ok) {
+        const { suggestions: data } = await res.json();
+        setSuggestions(data);
+      }
+    } finally {
+      setSuggesting(false);
+    }
+  }
+
+  async function addSuggestedPhase(s: { name: string; description: string; startDate: string; endDate: string }, idx: number) {
+    setAddingSuggestion(idx);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/phases`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(s),
+      });
+      if (res.ok) {
+        const { phase } = await res.json();
+        setPhases((prev) => [...prev, phase]);
+        setAddedIndices((prev) => new Set([...prev, idx]));
+      }
+    } finally {
+      setAddingSuggestion(null);
+    }
+  }
+
+  async function addAllSuggested() {
+    for (let i = 0; i < suggestions.length; i++) {
+      if (!addedIndices.has(i)) {
+        await addSuggestedPhase(suggestions[i], i);
+      }
+    }
+  }
+
   if (phases.length === 0 && !canEdit) return null;
 
   return (
@@ -116,14 +161,27 @@ export default function PhaseTracker({
           )}
         </div>
         {canEdit && (
-          <button
-            onClick={() => setShowForm((v) => !v)}
-            className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg"
-            style={{ background: showForm ? "#F3F4F6" : "#0F2744", color: showForm ? "#374151" : "#fff" }}
-          >
-            {showForm ? <X size={12} /> : <Plus size={12} />}
-            {showForm ? "Cancel" : "Add Phase"}
-          </button>
+          <div className="flex items-center gap-2">
+            {phases.length === 0 && !showForm && (
+              <button
+                onClick={suggestPhases}
+                disabled={suggesting}
+                className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg disabled:opacity-50"
+                style={{ background: "#0F2744", color: "#fff" }}
+              >
+                {suggesting ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                {suggesting ? "Analyzing..." : "Suggest with Nuru"}
+              </button>
+            )}
+            <button
+              onClick={() => setShowForm((v) => !v)}
+              className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg"
+              style={{ background: showForm ? "#F3F4F6" : phases.length === 0 && !showForm ? "#fff" : "#0F2744", color: showForm ? "#374151" : phases.length === 0 && !showForm ? "#374151" : "#fff", border: phases.length === 0 && !showForm ? "1px solid #e5eaf0" : "none" }}
+            >
+              {showForm ? <X size={12} /> : <Plus size={12} />}
+              {showForm ? "Cancel" : "Add Phase"}
+            </button>
+          </div>
         )}
       </div>
 
@@ -176,8 +234,46 @@ export default function PhaseTracker({
         </div>
       )}
 
-      {phases.length === 0 ? (
-        <p className="text-xs text-gray-400">No phases defined. Add phases to track project methodology.</p>
+      {/* AI Suggestions */}
+      {suggestions.length > 0 && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] text-gray-400">{suggestions.length} phases suggested by Nuru</p>
+            <button
+              onClick={addAllSuggested}
+              disabled={addedIndices.size === suggestions.length}
+              className="text-[10px] font-semibold px-2.5 py-1 rounded-lg disabled:opacity-50"
+              style={{ background: "#0F2744", color: "#fff" }}
+            >
+              Add All
+            </button>
+          </div>
+          {suggestions.map((s, i) => (
+            <div key={i} className="flex items-start justify-between gap-2 rounded-lg px-3 py-2" style={{ background: "#F9FAFB", border: "1px solid #e5eaf0" }}>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-gray-900">{s.name}</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">{s.description}</p>
+                <p className="text-[10px] text-gray-300 mt-0.5">{s.startDate} to {s.endDate}</p>
+              </div>
+              {addedIndices.has(i) ? (
+                <span className="text-[10px] font-semibold text-emerald-600 shrink-0 flex items-center gap-0.5"><CheckCircle2 size={10} /> Added</span>
+              ) : (
+                <button
+                  onClick={() => addSuggestedPhase(s, i)}
+                  disabled={addingSuggestion === i}
+                  className="text-[10px] font-semibold px-2 py-1 rounded-lg shrink-0 disabled:opacity-50"
+                  style={{ background: "#0F2744", color: "#fff" }}
+                >
+                  {addingSuggestion === i ? <Loader2 size={10} className="animate-spin" /> : "Add"}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {phases.length === 0 && suggestions.length === 0 ? (
+        <p className="text-xs text-gray-400">No phases defined. Use "Suggest with Nuru" or add manually.</p>
       ) : (
         <div className="space-y-3">
           {phases.map((phase, i) => {

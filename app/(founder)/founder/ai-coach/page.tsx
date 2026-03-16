@@ -92,7 +92,7 @@ export default function AICoachPage() {
             <Sparkles size={14} style={{ color: "#D4AF37" }} />
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-900">Imara</p>
+            <p className="text-sm font-semibold text-gray-900">Nuru</p>
             <p className="text-[11px] text-gray-400">
               Context-aware: knows your CFA roadmap, current phase, and progress.
             </p>
@@ -111,7 +111,7 @@ export default function AICoachPage() {
               >
                 <Sparkles size={20} style={{ color: "#D4AF37" }} />
               </div>
-              <p className="text-sm font-semibold text-gray-800 mb-1">Imara</p>
+              <p className="text-sm font-semibold text-gray-800 mb-1">Nuru</p>
               <p className="text-xs text-gray-400 max-w-sm mx-auto">
                 Ask anything about your journey, strategy, or this week&apos;s priorities.
               </p>
@@ -209,7 +209,7 @@ export default function AICoachPage() {
                 send();
               }
             }}
-            placeholder="Ask Imara anything..."
+            placeholder="Ask Nuru anything..."
             rows={1}
             className="flex-1 text-sm px-3 py-2.5 rounded-xl resize-none focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
             style={{ border: "1px solid #e5eaf0", background: "#F9FAFB", minHeight: 42, maxHeight: 120 }}

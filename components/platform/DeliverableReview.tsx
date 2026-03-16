@@ -14,6 +14,10 @@ import {
   FileText,
   Calendar,
   Send,
+  Settings,
+  RefreshCw,
+  Save,
+  X,
 } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import AIQualityScore from "./AIQualityScore";
@@ -27,12 +31,16 @@ interface Deliverable {
   description: string;
   status: string;
   version: number;
+  dueDate?: string | null;
   submittedAt: string | null;
   reviewScore: number | null;
   reviewNotes: string | null;
   fileUrl: string | null;
+  clientVisible?: boolean;
   project: { id: string; name: string };
+  assignmentId?: string | null;
   assignment: {
+    id?: string;
     consultant: {
       id: string;
       name: string;
@@ -44,6 +52,16 @@ interface Deliverable {
       } | null;
     };
   } | null;
+}
+
+interface ProjectAssignment {
+  id: string;
+  role: string;
+  consultant: {
+    id: string;
+    name: string;
+    consultantProfile: { title: string; tier: string } | null;
+  };
 }
 
 const RUBRIC = [
@@ -94,6 +112,88 @@ export default function DeliverableReview({
   const [result, setResult] = useState<"approved" | "revision" | "delivered" | null>(null);
   const [error, setError] = useState("");
   const [delivering, setDelivering] = useState(false);
+
+  // Management state
+  const [showManage, setShowManage] = useState(false);
+  const [editName, setEditName] = useState(deliverable.name);
+  const [editDesc, setEditDesc] = useState(deliverable.description);
+  const [editDueDate, setEditDueDate] = useState(deliverable.dueDate?.split("T")[0] ?? "");
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState("");
+
+  // Reassignment state
+  const [showReassign, setShowReassign] = useState(false);
+  const [assignments, setAssignments] = useState<ProjectAssignment[]>([]);
+  const [loadingAssignments, setLoadingAssignments] = useState(false);
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState("");
+  const [reassignReason, setReassignReason] = useState("");
+  const [reassigning, setReassigning] = useState(false);
+
+  async function handleSaveEdits() {
+    setSaving(true);
+    setSaveMsg("");
+    try {
+      const body: Record<string, unknown> = {};
+      if (editName !== deliverable.name) body.name = editName;
+      if (editDesc !== deliverable.description) body.description = editDesc;
+      const dueDateISO = editDueDate ? new Date(editDueDate).toISOString() : null;
+      if (dueDateISO !== (deliverable.dueDate ?? null)) body.dueDate = dueDateISO;
+      if (Object.keys(body).length === 0) {
+        setSaveMsg("No changes to save.");
+        setSaving(false);
+        return;
+      }
+      const res = await fetch(`/api/deliverables/${deliverable.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error("Failed to save");
+      setSaveMsg("Saved.");
+      setTimeout(() => router.refresh(), 800);
+    } catch {
+      setSaveMsg("Failed to save changes.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function loadAssignments() {
+    setLoadingAssignments(true);
+    try {
+      const res = await fetch(`/api/deliverables/${deliverable.id}/assignments`);
+      const data = await res.json();
+      if (res.ok) {
+        setAssignments(data.assignments);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setLoadingAssignments(false);
+    }
+  }
+
+  async function handleReassign() {
+    if (!selectedAssignmentId) return;
+    setReassigning(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/deliverables/${deliverable.id}/reassign`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assignmentId: selectedAssignmentId, reason: reassignReason }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed");
+      setShowReassign(false);
+      setShowManage(false);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to reassign.");
+    } finally {
+      setReassigning(false);
+    }
+  }
 
   const alreadyDelivered = deliverable.status === "DELIVERED_TO_CLIENT";
   const alreadyReviewed = deliverable.status === "APPROVED" || alreadyDelivered;
@@ -242,6 +342,187 @@ export default function DeliverableReview({
             </a>
           )}
         </div>
+
+        {/* Manage deliverable */}
+        {isEM && !result && (
+          <div>
+            <button
+              onClick={() => setShowManage(!showManage)}
+              className="flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg transition-colors"
+              style={{
+                background: showManage ? "#F1F5F9" : "transparent",
+                color: "#64748B",
+              }}
+            >
+              <Settings size={13} />
+              {showManage ? "Hide" : "Manage Deliverable"}
+            </button>
+
+            {showManage && (
+              <div
+                className="mt-3 rounded-xl p-5 space-y-4"
+                style={{ background: "#fff", border: "1px solid #e5eaf0" }}
+              >
+                <h3 className="text-sm font-semibold text-gray-900">Edit Deliverable</h3>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Name</label>
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
+                    style={{ border: "1px solid #e5eaf0", background: "#F9FAFB" }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Description</label>
+                  <textarea
+                    value={editDesc}
+                    onChange={(e) => setEditDesc(e.target.value)}
+                    rows={3}
+                    className="w-full text-sm rounded-lg px-3 py-2 resize-none focus:outline-none"
+                    style={{ border: "1px solid #e5eaf0", background: "#F9FAFB" }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Due Date</label>
+                  <input
+                    type="date"
+                    value={editDueDate}
+                    onChange={(e) => setEditDueDate(e.target.value)}
+                    className="text-sm rounded-lg px-3 py-2 focus:outline-none"
+                    style={{ border: "1px solid #e5eaf0", background: "#F9FAFB" }}
+                  />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleSaveEdits}
+                    disabled={saving}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white disabled:opacity-50"
+                    style={{ background: "#0F2744" }}
+                  >
+                    {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+                    Save Changes
+                  </button>
+                  {saveMsg && (
+                    <span className="text-xs text-gray-500">{saveMsg}</span>
+                  )}
+                </div>
+
+                {/* Reassignment */}
+                <div className="pt-4" style={{ borderTop: "1px solid #f0f0f0" }}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
+                        <RefreshCw size={14} />
+                        Reassign Consultant
+                      </h3>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        Transfer this deliverable to another consultant on the project. Status will reset to Draft.
+                      </p>
+                    </div>
+                    {!showReassign && (
+                      <button
+                        onClick={() => {
+                          setShowReassign(true);
+                          loadAssignments();
+                        }}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                        style={{ background: "#FEF3C7", color: "#D97706", border: "1px solid #FDE68A" }}
+                      >
+                        Reassign
+                      </button>
+                    )}
+                  </div>
+
+                  {showReassign && (
+                    <div className="space-y-3">
+                      {loadingAssignments ? (
+                        <div className="flex items-center gap-2 text-xs text-gray-400 py-2">
+                          <Loader2 size={12} className="animate-spin" /> Loading consultants...
+                        </div>
+                      ) : assignments.length === 0 ? (
+                        <p className="text-xs text-gray-400">No other active consultants on this project.</p>
+                      ) : (
+                        <>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-500 mb-1">
+                              Select Consultant
+                            </label>
+                            <select
+                              value={selectedAssignmentId}
+                              onChange={(e) => setSelectedAssignmentId(e.target.value)}
+                              className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
+                              style={{ border: "1px solid #e5eaf0", background: "#F9FAFB" }}
+                            >
+                              <option value="">Choose a consultant...</option>
+                              {assignments
+                                .filter((a) => a.id !== (deliverable.assignmentId ?? deliverable.assignment?.id))
+                                .map((a) => (
+                                  <option key={a.id} value={a.id}>
+                                    {a.consultant.name}
+                                    {a.consultant.consultantProfile?.title
+                                      ? ` - ${a.consultant.consultantProfile.title}`
+                                      : ""}
+                                    {` (${a.role})`}
+                                  </option>
+                                ))}
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-500 mb-1">
+                              Reason for reassignment
+                            </label>
+                            <textarea
+                              value={reassignReason}
+                              onChange={(e) => setReassignReason(e.target.value)}
+                              placeholder="e.g. Original consultant unable to deliver on time..."
+                              rows={2}
+                              className="w-full text-sm rounded-lg px-3 py-2 resize-none focus:outline-none"
+                              style={{ border: "1px solid #e5eaf0", background: "#F9FAFB" }}
+                            />
+                          </div>
+
+                          <div className="flex gap-2">
+                            <button
+                              onClick={handleReassign}
+                              disabled={reassigning || !selectedAssignmentId}
+                              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white disabled:opacity-50"
+                              style={{ background: "#D97706" }}
+                            >
+                              {reassigning ? (
+                                <Loader2 size={12} className="animate-spin" />
+                              ) : (
+                                <RefreshCw size={12} />
+                              )}
+                              Confirm Reassignment
+                            </button>
+                            <button
+                              onClick={() => {
+                                setShowReassign(false);
+                                setSelectedAssignmentId("");
+                                setReassignReason("");
+                              }}
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-500 hover:bg-gray-50"
+                            >
+                              <X size={12} />
+                              Cancel
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Version history */}
         <VersionHistory

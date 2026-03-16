@@ -402,11 +402,11 @@ ${content.nextSteps.map((s, i) => `${i + 1}. ${s}`).join("\n")}`;
         style={{ background: "#0F2744" }}
       >
         <Sparkles size={14} />
-        {loading ? "Generating Proposal..." : "Generate with Imara"}
+        {loading ? "Generating Proposal..." : "Generate with Nuru"}
       </button>
       {loading && (
         <p className="text-center text-xs text-gray-400">
-          Imara is writing your proposal. This takes 10-20 seconds.
+          Nuru is writing your proposal. This takes 10-20 seconds.
         </p>
       )}
     </form>

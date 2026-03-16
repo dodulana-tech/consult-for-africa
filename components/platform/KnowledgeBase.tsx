@@ -18,7 +18,9 @@ export type KnowledgeAssetType =
   | "FRAMEWORK"
   | "TEMPLATE"
   | "CASE_STUDY"
-  | "LESSON_LEARNED";
+  | "LESSON_LEARNED"
+  | "TOOL"
+  | "GUIDE";
 
 export interface KnowledgeAsset {
   id: string;
@@ -41,6 +43,8 @@ const TYPE_LABELS: Record<KnowledgeAssetType, string> = {
   TEMPLATE: "Template",
   CASE_STUDY: "Case Study",
   LESSON_LEARNED: "Lesson Learned",
+  TOOL: "Tool",
+  GUIDE: "Guide",
 };
 
 const TYPE_COLORS: Record<KnowledgeAssetType, { bg: string; color: string }> = {
@@ -49,6 +53,8 @@ const TYPE_COLORS: Record<KnowledgeAssetType, { bg: string; color: string }> = {
   TEMPLATE: { bg: "#FFF7ED", color: "#EA580C" },
   CASE_STUDY: { bg: "#FAF5FF", color: "#9333EA" },
   LESSON_LEARNED: { bg: "#FFF1F2", color: "#E11D48" },
+  TOOL: { bg: "#F0F9FF", color: "#0891B2" },
+  GUIDE: { bg: "#ECFDF5", color: "#059669" },
 };
 
 const ASSET_TYPES: KnowledgeAssetType[] = [
@@ -57,6 +63,8 @@ const ASSET_TYPES: KnowledgeAssetType[] = [
   "TEMPLATE",
   "CASE_STUDY",
   "LESSON_LEARNED",
+  "TOOL",
+  "GUIDE",
 ];
 
 const defaultForm = {
@@ -84,6 +92,7 @@ export default function KnowledgeBase({
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(defaultForm);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [viewAsset, setViewAsset] = useState<KnowledgeAsset | null>(null);
 
   // Filter
   const filtered = assets.filter((a) => {
@@ -405,8 +414,9 @@ export default function KnowledgeBase({
             return (
               <div
                 key={asset.id}
-                className="rounded-xl p-5 flex flex-col gap-3"
+                className="rounded-xl p-5 flex flex-col gap-3 cursor-pointer transition-shadow hover:shadow-md hover:border-gray-200"
                 style={{ background: "#fff", border: "1px solid #e5eaf0" }}
+                onClick={() => setViewAsset(asset)}
               >
                 {/* Header */}
                 <div className="flex items-start justify-between gap-2">
@@ -509,6 +519,127 @@ export default function KnowledgeBase({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Detail panel overlay */}
+      {viewAsset && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+            onClick={() => setViewAsset(null)}
+          />
+          {/* Panel */}
+          <div
+            className="relative w-full max-w-2xl bg-white shadow-2xl overflow-y-auto"
+            style={{ animation: "slideIn 0.2s ease-out" }}
+          >
+            {/* Header */}
+            <div
+              className="sticky top-0 z-10 flex items-start justify-between gap-4 px-8 py-6"
+              style={{ background: "#fff", borderBottom: "1px solid #e5eaf0" }}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span
+                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                    style={{
+                      background: TYPE_COLORS[viewAsset.assetType].bg,
+                      color: TYPE_COLORS[viewAsset.assetType].color,
+                    }}
+                  >
+                    {TYPE_LABELS[viewAsset.assetType]}
+                  </span>
+                  {viewAsset.isReusable && (
+                    <span
+                      className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                      style={{ background: "#D4AF3720", color: "#B8890A" }}
+                    >
+                      Reusable
+                    </span>
+                  )}
+                </div>
+                <h2 className="text-lg font-semibold" style={{ color: "#0F2744" }}>
+                  {viewAsset.title}
+                </h2>
+                <p className="text-xs text-gray-400">
+                  {new Date(viewAsset.createdAt).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                  {viewAsset.project && (
+                    <> · {viewAsset.project.name}</>
+                  )}
+                </p>
+              </div>
+              <button
+                onClick={() => setViewAsset(null)}
+                className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors"
+              >
+                <X size={16} className="text-gray-500" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="px-8 py-6 space-y-6">
+              <div
+                className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap"
+                style={{ lineHeight: 1.8 }}
+              >
+                {viewAsset.content}
+              </div>
+
+              {/* Tags */}
+              {viewAsset.tags.length > 0 && (
+                <div
+                  className="pt-4"
+                  style={{ borderTop: "1px solid #F3F4F6" }}
+                >
+                  <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-2">Tags</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {viewAsset.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs"
+                        style={{ background: "#F3F4F6", color: "#6B7280" }}
+                      >
+                        <Tag size={9} />
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* File link */}
+              {viewAsset.fileUrl && (
+                <div
+                  className="pt-4"
+                  style={{ borderTop: "1px solid #F3F4F6" }}
+                >
+                  <a
+                    href={viewAsset.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-gray-50"
+                    style={{ border: "1px solid #e5eaf0", color: "#0F2744" }}
+                  >
+                    <ExternalLink size={14} />
+                    Open Attached File
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <style>{`
+            @keyframes slideIn {
+              from { transform: translateX(100%); }
+              to { transform: translateX(0); }
+            }
+          `}</style>
         </div>
       )}
     </div>

@@ -31,9 +31,9 @@ export default async function ProposalsPage() {
               <Sparkles size={14} className="text-white" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">Proposal Generation with Imara</p>
+              <p className="text-sm font-semibold text-gray-900">Proposal Generation with Nuru</p>
               <p className="text-xs text-gray-500 mt-0.5">
-                Enter discovery call notes and client context. Imara will generate a complete proposal draft in under 20 seconds. You review, customize, and send.
+                Enter discovery call notes and client context. Nuru will generate a complete proposal draft in under 20 seconds. You review, customize, and send.
               </p>
             </div>
           </div>

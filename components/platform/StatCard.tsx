@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { LucideIcon } from "lucide-react";
 
 interface StatCardProps {
@@ -6,6 +7,7 @@ interface StatCardProps {
   sub?: string;
   icon: LucideIcon;
   accent?: "default" | "warning" | "danger" | "success";
+  href?: string;
 }
 
 const ACCENT = {
@@ -15,10 +17,10 @@ const ACCENT = {
   danger:  { icon: "#EF4444", bg: "#FEF2F2" },
 };
 
-export default function StatCard({ label, value, sub, icon: Icon, accent = "default" }: StatCardProps) {
+export default function StatCard({ label, value, sub, icon: Icon, accent = "default", href }: StatCardProps) {
   const colors = ACCENT[accent];
-  return (
-    <div className="bg-white rounded-xl p-5 border border-gray-100 flex items-start gap-4">
+  const content = (
+    <>
       <div
         className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
         style={{ background: colors.bg }}
@@ -30,6 +32,23 @@ export default function StatCard({ label, value, sub, icon: Icon, accent = "defa
         <p className="text-sm text-gray-500 mt-0.5">{label}</p>
         {sub && <p className="text-xs mt-1" style={{ color: colors.icon }}>{sub}</p>}
       </div>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className="bg-white rounded-xl p-5 border border-gray-100 flex items-start gap-4 transition-shadow hover:shadow-md hover:border-gray-200"
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-xl p-5 border border-gray-100 flex items-start gap-4">
+      {content}
     </div>
   );
 }

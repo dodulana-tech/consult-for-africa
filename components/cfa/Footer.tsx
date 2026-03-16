@@ -31,18 +31,19 @@ export default function Footer() {
 
           <ul className="space-y-2 text-white/70 text-sm">
             {[
-              "Hospital Turnaround",
-              "Performance Improvement",
-              "Capital Project Development",
-              "Digital Health & Data Systems",
-              "Accreditation Readiness",
+              { label: "Hospital Turnaround", href: "/services" },
+              { label: "Strategy & Growth", href: "/services" },
+              { label: "Clinical Governance", href: "/services" },
+              { label: "Digital Health & Data", href: "/services" },
+              { label: "Healthcare HR (Maarova\u2122)", href: "/maarova" },
+              { label: "Fractional Leadership", href: "/services" },
             ].map((item) => (
-              <li key={item}>
+              <li key={item.label}>
                 <Link
-                  href="/services"
+                  href={item.href}
                   className="hover:text-white transition-colors duration-200"
                 >
-                  {item}
+                  {item.label}
                 </Link>
               </li>
             ))}

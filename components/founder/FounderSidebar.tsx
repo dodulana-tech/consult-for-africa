@@ -21,7 +21,7 @@ const NAV_ITEMS = [
   { label: "Progress",      href: "/founder/progress",   icon: TrendingUp },
   { label: "Knowledge Hub", href: "/founder/knowledge",  icon: BookOpen },
   { label: "Metrics",       href: "/founder/metrics",    icon: BarChart3 },
-  { label: "Imara",         href: "/founder/ai-coach",   icon: Sparkles },
+  { label: "Nuru",         href: "/founder/ai-coach",   icon: Sparkles },
 ];
 
 export default function FounderSidebar() {
@@ -119,7 +119,7 @@ export default function FounderSidebar() {
 
         {/* Sign out */}
         <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={() => { sessionStorage.clear(); signOut({ callbackUrl: "/login" }); }}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
           style={{ color: "rgba(255,255,255,0.45)" }}
         >

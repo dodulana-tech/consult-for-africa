@@ -123,15 +123,17 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       description: d.description,
       status: d.status,
       version: d.version,
+      dueDate: d.dueDate?.toISOString() ?? null,
       reviewScore: d.reviewScore,
       reviewNotes: d.reviewNotes,
+      assignmentId: d.assignmentId,
       submittedAt: d.submittedAt?.toISOString() ?? null,
       reviewedAt: d.reviewedAt?.toISOString() ?? null,
       approvedAt: d.approvedAt?.toISOString() ?? null,
       createdAt: d.createdAt.toISOString(),
       updatedAt: d.updatedAt.toISOString(),
       assignment: d.assignment
-        ? { consultant: { name: d.assignment.consultant.name } }
+        ? { id: d.assignment.id, consultant: { name: d.assignment.consultant.name } }
         : null,
     })),
     updates: project.updates.map((u) => ({
