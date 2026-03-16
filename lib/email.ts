@@ -1,17 +1,36 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY ?? "noop");
-const FROM = "CFA Platform <platform@consultforafrica.com>";
+/** Escape HTML entities in user-supplied values to prevent XSS in emails */
+function esc(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST ?? "smtp.zoho.com",
+  port: Number(process.env.SMTP_PORT ?? 465),
+  secure: true,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
+
+const FROM = process.env.SMTP_FROM ?? "CFA Platform <platform@consultforafrica.com>";
 
 // ─── Send helper ──────────────────────────────────────────────────────────────
 
 async function send(to: string, subject: string, html: string) {
-  if (!process.env.RESEND_API_KEY) {
-    console.log(`[email] To: ${to} | Subject: ${subject}`);
+  if (!process.env.SMTP_USER) {
+    console.log(`[email] SMTP not configured. To: ${to} | Subject: ${subject}`);
     return;
   }
   try {
-    await resend.emails.send({ from: FROM, to, subject, html });
+    await transporter.sendMail({ from: FROM, to, subject, html });
   } catch (err) {
     console.error("[email] send error:", err);
   }
@@ -46,23 +65,24 @@ function layout(content: string) {
 }
 
 function h1(text: string) {
-  return `<h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#0F2744;">${text}</h1>`;
+  return `<h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#0F2744;">${esc(text)}</h1>`;
 }
 function p(text: string) {
-  return `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">${text}</p>`;
+  return `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">${esc(text)}</p>`;
 }
 function infoTable(rows: [string, string][]) {
   const cells = rows
     .map(
       ([k, v]) =>
-        `<tr><td style="padding:8px 12px;font-size:13px;color:#6B7280;border-bottom:1px solid #F3F4F6;">${k}</td>
-             <td style="padding:8px 12px;font-size:13px;font-weight:600;color:#111827;border-bottom:1px solid #F3F4F6;">${v}</td></tr>`
+        `<tr><td style="padding:8px 12px;font-size:13px;color:#6B7280;border-bottom:1px solid #F3F4F6;">${esc(k)}</td>
+             <td style="padding:8px 12px;font-size:13px;font-weight:600;color:#111827;border-bottom:1px solid #F3F4F6;">${esc(v)}</td></tr>`
     )
     .join("");
   return `<table style="width:100%;border-collapse:collapse;border:1px solid #E5E7EB;border-radius:8px;margin:16px 0;">${cells}</table>`;
 }
 function btn(text: string, href: string, color = "#D4AF37") {
-  return `<a href="${href}" style="display:inline-block;margin-top:8px;padding:12px 24px;background:${color};color:${color === "#D4AF37" ? "#06090f" : "#fff"};font-weight:600;font-size:14px;text-decoration:none;border-radius:8px;">${text}</a>`;
+  const safeHref = esc(href);
+  return `<a href="${safeHref}" style="display:inline-block;margin-top:8px;padding:12px 24px;background:${color};color:${color === "#D4AF37" ? "#06090f" : "#fff"};font-weight:600;font-size:14px;text-decoration:none;border-radius:8px;">${esc(text)}</a>`;
 }
 
 // ─── Email functions ──────────────────────────────────────────────────────────
@@ -186,7 +206,7 @@ export async function emailTimesheetApproved({
 }) {
   const formatted = currency === "USD"
     ? `$${totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
-    : `₦${totalAmount.toLocaleString("en-NG")}`;
+    : `\u20A6${totalAmount.toLocaleString("en-NG")}`;
 
   await send(
     consultantEmail,
@@ -198,7 +218,7 @@ export async function emailTimesheetApproved({
         ["Project", projectName],
         ["Hours", `${totalHours}h`],
         ["Amount", formatted],
-        ["Status", "Approved — payment processing"],
+        ["Status", "Approved \u2014 payment processing"],
       ])}
       ${p("Payment will be processed within 5 business days.")}
     `)
@@ -276,7 +296,7 @@ export async function emailPaymentProcessed({
 }) {
   const formatted = currency === "USD"
     ? `$${totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
-    : `₦${totalAmount.toLocaleString("en-NG")}`;
+    : `\u20A6${totalAmount.toLocaleString("en-NG")}`;
 
   await send(
     consultantEmail,

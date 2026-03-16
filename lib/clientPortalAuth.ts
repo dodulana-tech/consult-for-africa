@@ -1,7 +1,11 @@
 import crypto from "crypto";
 import { cookies } from "next/headers";
 
-const SECRET = () => process.env.NEXTAUTH_SECRET ?? "dev-portal-secret";
+const SECRET = () => {
+  const s = process.env.CLIENT_PORTAL_SECRET ?? process.env.NEXTAUTH_SECRET;
+  if (!s) throw new Error("CLIENT_PORTAL_SECRET or NEXTAUTH_SECRET must be set");
+  return s;
+};
 
 function base64url(input: string): string {
   return Buffer.from(input).toString("base64url");
