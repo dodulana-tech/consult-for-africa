@@ -67,6 +67,10 @@ export default function TalentApplicationDetail({ application: app }: Props) {
   const [notes, setNotes] = useState(app.reviewNotes ?? "");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [assessmentLevel, setAssessmentLevel] = useState("STANDARD");
+  const [approving, setApproving] = useState(false);
+  const [approveError, setApproveError] = useState("");
+  const [approveSuccess, setApproveSuccess] = useState(false);
 
   async function save() {
     setSaving(true);
@@ -82,6 +86,31 @@ export default function TalentApplicationDetail({ application: app }: Props) {
       setTimeout(() => setSaved(false), 3000);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function approveAndOnboard() {
+    setApproving(true);
+    setApproveError("");
+    setApproveSuccess(false);
+    try {
+      const res = await fetch(`/api/talent/${app.id}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assessmentLevel }),
+      });
+      if (!res.ok) {
+        const msg = await res.text().catch(() => "Failed to approve");
+        setApproveError(msg);
+        return;
+      }
+      setApproveSuccess(true);
+      setStatus("HIRED");
+      router.refresh();
+    } catch {
+      setApproveError("Network error. Please try again.");
+    } finally {
+      setApproving(false);
     }
   }
 
@@ -319,6 +348,42 @@ export default function TalentApplicationDetail({ application: app }: Props) {
                 {saving ? <Loader2 size={13} className="animate-spin" /> : null}
                 {saving ? "Saving..." : saved ? "Saved" : "Save Review"}
               </button>
+
+              {/* Approve and Onboard */}
+              {status !== "HIRED" && status !== "REJECTED" && (
+                <div className="pt-3 mt-3" style={{ borderTop: "1px solid #e5eaf0" }}>
+                  <label className="text-xs text-gray-500 block mb-1.5">Assessment Level for Onboarding</label>
+                  <select
+                    value={assessmentLevel}
+                    onChange={(e) => setAssessmentLevel(e.target.value)}
+                    className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#0F2744] appearance-none pr-8 mb-3"
+                    style={{ borderColor: "#e5eaf0" }}
+                  >
+                    <option value="LIGHT">Light (profile only)</option>
+                    <option value="STANDARD">Standard (profile + assessment)</option>
+                    <option value="FULL">Full (profile + assessment + Maarova)</option>
+                  </select>
+                  <button
+                    onClick={approveAndOnboard}
+                    disabled={approving}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
+                    style={{ background: "#059669" }}
+                  >
+                    {approving ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle size={13} />}
+                    {approving ? "Creating account..." : "Approve and Onboard"}
+                  </button>
+                  {approveError && (
+                    <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
+                      <AlertTriangle size={11} /> {approveError}
+                    </p>
+                  )}
+                  {approveSuccess && (
+                    <p className="text-xs text-emerald-600 mt-2 flex items-center gap-1">
+                      <CheckCircle size={11} /> Account created and invite sent
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             {app.reviewedBy && (
