@@ -40,6 +40,8 @@ enum Currency {
 enum ClientType {
   PRIVATE_ELITE
   PRIVATE_MIDTIER
+  STARTUP
+  SME
   GOVERNMENT
   DEVELOPMENT
 }
@@ -79,11 +81,13 @@ enum RiskLevel {
 }
 
 enum AssignmentStatus {
-  PENDING
+  PENDING_ACCEPTANCE  // Sent to consultant, awaiting their response
+  PENDING             // Accepted but not yet started
   ACTIVE
   PAUSED
   COMPLETED
   TERMINATED
+  DECLINED            // Consultant declined the assignment
 }
 
 enum RateType {
@@ -195,6 +199,8 @@ enum KnowledgeAssetType {
   TEMPLATE
   CASE_STUDY
   LESSON_LEARNED
+  TOOL
+  GUIDE
 }
 
 // ─── Core Models ──────────────────────────────────────────────────────────────
@@ -218,6 +224,10 @@ model User {
   projectUpdates         ProjectUpdate[]
   reviewedApplications   TalentApplication[] @relation("ApplicationReviewer")
   referrals              Referral[]
+  trainingEnrollments    TrainingEnrollment[]
+  auditLogs              AuditLog[]
+  staffingRequests       StaffingRequest[]    @relation("StaffingRequestCreator")
+  staffingExpressions    StaffingExpression[] @relation("StaffingExpressions")
 }
 
 model ConsultantProfile {
@@ -236,6 +246,9 @@ model ConsultantProfile {
   monthlyRateNGN  Decimal?  @db.Decimal(12, 2)
   availabilityStatus AvailabilityStatus @default(AVAILABLE)
   hoursPerWeek    Int?
+  weeklyCapacityHours Int   @default(40)  // max hours/week consultant is available
+  maxUtilization  Int       @default(85)  // utilization % threshold before warning
+  interests       String[]              // topics consultant wants to work on
   averageRating   Decimal?  @db.Decimal(3, 2)
   totalProjects   Int       @default(0)
   bankName        String?
@@ -285,6 +298,8 @@ model Client {
   projects  Project[]
   invoices  Invoice[]
   contacts  ClientContact[]
+
+  @@index([type, status])
 }
 
 model Project {
@@ -327,6 +342,11 @@ model Project {
   impactMetrics     ProjectImpactMetric[]
   knowledgeAssets   KnowledgeAsset[]
   frameworks        ProjectFramework[]
+  staffingRequests  StaffingRequest[]
+
+  @@index([clientId])
+  @@index([engagementManagerId])
+  @@index([status])
 }
 
 model Assignment {
@@ -340,17 +360,24 @@ model Assignment {
   responsibilities String         @db.Text
   startDate        DateTime
   endDate          DateTime?
-  status           AssignmentStatus @default(ACTIVE)
+  status           AssignmentStatus @default(PENDING_ACCEPTANCE)
   rateAmount       Decimal          @db.Decimal(10, 2)
   rateCurrency     Currency
   rateType         RateType
   estimatedHours   Int?
+  estimatedHoursPerWeek Int?             // weekly commitment for capacity tracking
+  respondedAt      DateTime?            // when consultant accepted/declined
+  declineReason    String?   @db.Text   // reason if declined
+  capacityAtAssignment Int?             // snapshot of utilization % when assigned
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   timeEntries  TimeEntry[]
   deliverables Deliverable[]
+
+  @@index([projectId, status])
+  @@index([consultantId])
 }
 
 model Milestone {
@@ -400,6 +427,9 @@ model Deliverable {
 
   versions     DeliverableVersion[]
   comments     DeliverableComment[]
+
+  @@index([projectId, status])
+  @@index([assignmentId])
 }
 
 model TimeEntry {
@@ -420,6 +450,9 @@ model TimeEntry {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([consultantId])
+  @@index([assignmentId, status])
 }
 
 model Invoice {
@@ -444,6 +477,10 @@ model Invoice {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([projectId])
+  @@index([status])
 }
 
 model ProjectUpdate {
@@ -455,6 +492,8 @@ model ProjectUpdate {
   createdById String
   createdBy User       @relation(fields: [createdById], references: [id])
   createdAt DateTime   @default(now())
+
+  @@index([projectId, createdAt])
 }
 
 model Message {
@@ -467,6 +506,9 @@ model Message {
   attachments String[]
   isRead      Boolean  @default(false)
   createdAt   DateTime @default(now())
+
+  @@index([projectId])
+  @@index([senderId])
 }
 
 model ConsultantRating {
@@ -482,6 +524,9 @@ model ConsultantRating {
   feedback          String?           @db.Text
   ratedById         String
   createdAt         DateTime          @default(now())
+
+  @@index([consultantId])
+  @@index([projectId])
 }
 
 model ConsultantMatchScore {
@@ -1008,4 +1053,245 @@ model ProjectFramework {
 
   @@unique([projectId, frameworkId])
   @@index([projectId])
+}
+
+// ─── Training & Certification Academy ─────────────────────────────────────────
+
+enum TrainingLevel {
+  FOUNDATION
+  SPECIALIST
+  MASTER
+}
+
+enum TrainingModuleStatus {
+  LOCKED
+  AVAILABLE
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum CertificationStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  EXAM_SCHEDULED
+  CERTIFIED
+  EXPIRED
+  REVOKED
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  MULTI_SELECT
+  CASE_STUDY
+  SHORT_ANSWER
+}
+
+model TrainingTrack {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String   @db.Text
+  level       TrainingLevel
+  category    String   // "methodology", "health_economics", "public_health", "tech", "leadership"
+  iconName    String?  // lucide icon name
+  colorHex    String?  // badge color
+  prerequisites String[] // slugs of prerequisite tracks
+  estimatedHours Int   @default(20)
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  modules     TrainingModule[]
+  enrollments TrainingEnrollment[]
+
+  @@index([category, level])
+  @@index([isActive])
+}
+
+model TrainingModule {
+  id          String   @id @default(cuid())
+  trackId     String
+  track       TrainingTrack @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String   @unique
+  description String   @db.Text
+  order       Int
+  estimatedMinutes Int @default(60)
+  content     Json     // structured content: sections, text, examples, exercises
+  videoUrl    String?
+  resources   Json?    // { links: [], files: [], tools: [] }
+  passingScore Int     @default(70) // percentage
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  progress    ModuleProgress[]
+  questions   TrainingQuestion[]
+
+  @@index([trackId, order])
+}
+
+model TrainingQuestion {
+  id          String       @id @default(cuid())
+  moduleId    String
+  module      TrainingModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  type        QuestionType @default(MULTIPLE_CHOICE)
+  question    String       @db.Text
+  options     Json?        // for multiple choice: [{ id, text, isCorrect }]
+  correctAnswer String?    @db.Text // for short answer
+  explanation String?      @db.Text // shown after answering
+  points      Int          @default(1)
+  order       Int          @default(0)
+  caseStudy   Json?        // { scenario, data, exhibits } for case study questions
+  createdAt   DateTime     @default(now())
+
+  answers     QuestionAnswer[]
+
+  @@index([moduleId, order])
+}
+
+model TrainingEnrollment {
+  id          String              @id @default(cuid())
+  userId      String
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trackId     String
+  track       TrainingTrack       @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  status      CertificationStatus @default(NOT_STARTED)
+  enrolledAt  DateTime            @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  certifiedAt DateTime?
+  expiresAt   DateTime?           // certifications expire after 2 years
+  overallScore Int?               // final assessment score
+  certificateUrl String?          // generated PDF certificate
+
+  moduleProgress ModuleProgress[]
+
+  @@unique([userId, trackId])
+  @@index([userId, status])
+  @@index([trackId])
+}
+
+model ModuleProgress {
+  id           String               @id @default(cuid())
+  enrollmentId String
+  enrollment   TrainingEnrollment   @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  moduleId     String
+  module       TrainingModule       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  status       TrainingModuleStatus @default(LOCKED)
+  startedAt    DateTime?
+  completedAt  DateTime?
+  score        Int?                 // quiz score percentage
+  attempts     Int                  @default(0)
+  timeSpentMinutes Int              @default(0)
+  lastAccessedAt   DateTime?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  answers      QuestionAnswer[]
+
+  @@unique([enrollmentId, moduleId])
+  @@index([moduleId])
+}
+
+model QuestionAnswer {
+  id           String          @id @default(cuid())
+  progressId   String
+  progress     ModuleProgress  @relation(fields: [progressId], references: [id], onDelete: Cascade)
+  questionId   String
+  question     TrainingQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answer       String          @db.Text
+  isCorrect    Boolean
+  pointsEarned Int             @default(0)
+  answeredAt   DateTime        @default(now())
+
+  @@index([progressId])
+  @@index([questionId])
+}
+
+// ─── Audit Trail ──────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  action      AuditAction
+  entityType  String   // "Project", "Deliverable", "Risk", "Phase", "Client", etc.
+  entityId    String
+  entityName  String?  // Human-readable name for quick display
+  projectId   String?  // Link to project if applicable
+  details     Json?    // { before: {...}, after: {...}, note: "..." }
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([entityType, entityId])
+  @@index([projectId, createdAt])
+  @@index([action, createdAt])
+}
+
+// ─── Staffing & Opportunity Board ─────────────────────────────────────────────
+
+model StaffingRequest {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User     @relation("StaffingRequestCreator", fields: [createdById], references: [id])
+
+  role              String           // "Lead Consultant", "Analyst", etc.
+  description       String  @db.Text // what the work involves
+  skillsRequired    String[]         // e.g. ["turnaround", "revenue-cycle", "digital-health"]
+  hoursPerWeek      Int              // expected weekly commitment
+  duration          String?          // "8 weeks", "3 months", etc.
+  rateType          RateType
+  rateBudget        Decimal? @db.Decimal(10, 2)  // optional budget hint
+  rateCurrency      Currency @default(NGN)
+  urgency           String   @default("normal")   // "normal", "urgent", "critical"
+  status            String   @default("OPEN")      // OPEN, FILLED, CANCELLED
+  filledAt          DateTime?
+  filledByAssignmentId String?
+
+  expressions StaffingExpression[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([projectId])
+}
+
+model StaffingExpression {
+  id               String          @id @default(cuid())
+  staffingRequestId String
+  staffingRequest  StaffingRequest @relation(fields: [staffingRequestId], references: [id], onDelete: Cascade)
+  consultantId     String
+  consultant       User            @relation("StaffingExpressions", fields: [consultantId], references: [id])
+
+  note             String? @db.Text  // "I have deep turnaround experience..."
+  status           String  @default("INTERESTED") // INTERESTED, SHORTLISTED, SELECTED, PASSED
+  matchScore       Int?    // Nuru AI match score (0-100)
+
+  createdAt DateTime @default(now())
+
+  @@unique([staffingRequestId, consultantId])
+  @@index([consultantId])
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  STATUS_CHANGE
+  SUBMIT
+  APPROVE
+  REJECT
+  ENROLL
+  ASSIGN
+  UPLOAD
+  DOWNLOAD
+  LOGIN
+  AI_GENERATE
 }
