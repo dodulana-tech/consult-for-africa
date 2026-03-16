@@ -254,7 +254,7 @@ export default function DeliverableSubmit({
                   />
                 </div>
                 <p className="text-[11px] text-gray-400 mt-1">
-                  Paste a shareable link to your file. Native upload coming soon.
+                  Paste a shareable link to your file (Google Drive, Dropbox, OneDrive).
                 </p>
               </div>
             </div>

@@ -402,3 +402,54 @@ export async function emailPaymentProcessed({
     `)
   );
 }
+
+export async function emailMaarovaInvite({
+  email,
+  name,
+  organisationName,
+  password,
+}: {
+  email: string;
+  name: string;
+  organisationName: string;
+  password: string;
+}) {
+  const firstName = esc(name.split(" ")[0]);
+  const safeEmail = esc(email);
+  const safePassword = esc(password);
+  const safeOrg = esc(organisationName);
+
+  await send(
+    email,
+    `Your Maarova Assessment Access | Consult for Africa`,
+    layout(`
+      ${h1(`Welcome to Maarova, ${firstName}`)}
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
+        You have been invited by <strong>${safeOrg}</strong> to complete a Maarova leadership assessment through Consult for Africa.
+      </p>
+      <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#6B7280;">
+        Maarova is a psychometric assessment platform built specifically for healthcare leaders in Africa. Over the next 60 minutes, you will complete six assessment dimensions covering behavioural style, values, emotional intelligence, clinical leadership transition, and organisational culture. Your results will generate a personalised leadership profile and development roadmap.
+      </p>
+      <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:20px;margin:16px 0;">
+        <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#9CA3AF;font-weight:600;">Your login credentials</p>
+        <table style="width:100%;border-collapse:collapse;margin-top:12px;">
+          <tr>
+            <td style="padding:6px 0;font-size:13px;color:#6B7280;width:140px;">Email</td>
+            <td style="padding:6px 0;font-size:13px;font-weight:600;color:#111827;"><a href="mailto:${safeEmail}" style="color:#0F2744;">${safeEmail}</a></td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0;font-size:13px;color:#6B7280;">Temporary Password</td>
+            <td style="padding:6px 0;font-size:13px;font-weight:600;color:#111827;font-family:monospace;letter-spacing:0.5px;">${safePassword}</td>
+          </tr>
+        </table>
+      </div>
+      <p style="margin:16px 0;font-size:14px;line-height:1.6;color:#374151;">
+        Please log in and change your password after your first session. The assessment can be completed in one sitting or across multiple sessions within 7 days.
+      </p>
+      ${btn("Start Your Assessment", `${BASE_URL}/maarova/portal/login`)}
+      <p style="margin:20px 0 0;font-size:12px;color:#9CA3AF;line-height:1.5;">
+        If you did not expect this invitation, please disregard this email or contact us at hello@consultforafrica.com.
+      </p>
+    `)
+  );
+}

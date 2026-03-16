@@ -87,7 +87,7 @@ export default function ChangePasswordForm() {
             value={next}
             onChange={(e) => setNext(e.target.value)}
             autoComplete="new-password"
-            placeholder="Minimum 8 characters"
+            placeholder="Minimum 10 characters"
             className={inputClass}
             style={inputStyle}
           />
