@@ -4,6 +4,8 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import ClientPortalLogoutButton from "@/components/client-portal/LogoutButton";
 import ClientProjectNav from "@/components/client-portal/ClientProjectNav";
+import SatisfactionPulse from "@/components/client-portal/SatisfactionPulse";
+import ExpansionCTA from "@/components/client-portal/ExpansionCTA";
 import { Decimal } from "@prisma/client/runtime/library";
 
 /* ─── Style Maps ─────────────────────────────────────────────────────────────── */
@@ -766,12 +768,13 @@ export default async function ClientProjectPage({
                     <div className="flex items-start justify-between gap-4 flex-wrap">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2.5 flex-wrap">
-                          <p
-                            className="text-sm font-medium"
+                          <Link
+                            href={`/client/projects/${id}/deliverables/${d.id}`}
+                            className="text-sm font-medium hover:underline"
                             style={{ color: "#0F2744" }}
                           >
                             {d.name}
-                          </p>
+                          </Link>
                           <span
                             className="text-[10px] px-2 py-0.5 rounded-full font-medium"
                             style={{
@@ -902,6 +905,12 @@ export default async function ClientProjectPage({
               Send Email
             </a>
           </div>
+        </div>
+
+        {/* ── 8. Satisfaction + Expansion ── */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <SatisfactionPulse projectId={id} />
+          <ExpansionCTA projectId={id} />
         </div>
       </main>
     </div>

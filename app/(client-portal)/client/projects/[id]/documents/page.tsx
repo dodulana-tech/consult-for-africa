@@ -3,6 +3,7 @@ import { getClientPortalSession } from "@/lib/clientPortalAuth";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import ClientPortalLogoutButton from "@/components/client-portal/LogoutButton";
+import ClientProjectNav from "@/components/client-portal/ClientProjectNav";
 
 /* ─── Style Maps ─────────────────────────────────────────────────────────────── */
 
@@ -156,6 +157,8 @@ export default async function DocumentsPage({
           </svg>
           Back to project
         </Link>
+
+        <ClientProjectNav projectId={id} current="/documents" />
 
         {/* Header */}
         <div>

@@ -3,6 +3,7 @@ import { getClientPortalSession } from "@/lib/clientPortalAuth";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import ClientPortalLogoutButton from "@/components/client-portal/LogoutButton";
+import ClientProjectNav from "@/components/client-portal/ClientProjectNav";
 import { Decimal } from "@prisma/client/runtime/library";
 
 /* --- Helpers ---------------------------------------------------------------- */
@@ -181,6 +182,7 @@ export default async function ClientExecutiveSummaryPage({
             </svg>
             Back to project
           </Link>
+          <ClientProjectNav projectId={id} current="/report" />
           {/* Print button with inline script */}
           <script
             dangerouslySetInnerHTML={{

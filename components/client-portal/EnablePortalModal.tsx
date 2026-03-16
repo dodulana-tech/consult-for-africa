@@ -26,8 +26,8 @@ export default function EnablePortalModal({
     e.preventDefault();
     setError("");
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{10,}$/.test(password)) {
+      setError("Password must be at least 10 characters with uppercase, lowercase, number, and special character.");
       return;
     }
     if (password !== confirmPassword) {
@@ -137,7 +137,7 @@ export default function EnablePortalModal({
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={8}
-                  placeholder="Minimum 8 characters"
+                  placeholder="Minimum 10 characters"
                   className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none"
                   style={{
                     border: "1px solid #e5eaf0",

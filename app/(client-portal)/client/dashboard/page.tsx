@@ -553,6 +553,31 @@ export default async function ClientDashboardPage() {
             })}
           </div>
         )}
+        {/* Knowledge Library + Expansion CTA */}
+        <div className="grid md:grid-cols-2 gap-4 mt-8">
+          <Link
+            href="/client/knowledge"
+            className="group rounded-2xl bg-white p-6 transition-all hover:shadow-md"
+            style={{ border: "1px solid #e5eaf0" }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold" style={{ color: "#0F2744" }}>Knowledge Library</p>
+                <p className="text-xs text-gray-500 mt-1">Insights, guides, and case studies curated for you</p>
+              </div>
+              <span className="text-gray-300 group-hover:text-gray-500 transition-colors text-lg">&rarr;</span>
+            </div>
+          </Link>
+          <Link
+            href="/#contact-expansion"
+            onClick={(e) => e.preventDefault()}
+            className="rounded-2xl bg-white p-6"
+            style={{ border: "1px solid #e5eaf0" }}
+          >
+            <p className="text-sm font-semibold" style={{ color: "#0F2744" }}>Need additional support?</p>
+            <p className="text-xs text-gray-500 mt-1">Contact your engagement manager to discuss expanding your engagement</p>
+          </Link>
+        </div>
       </main>
 
       {/* Footer */}
