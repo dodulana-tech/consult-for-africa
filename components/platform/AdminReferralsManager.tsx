@@ -51,19 +51,27 @@ export default function AdminReferralsManager({
   const [referrals, setReferrals] = useState(initial);
   const [filter, setFilter] = useState("all");
   const [updating, setUpdating] = useState<string | null>(null);
+  const [convertingId, setConvertingId] = useState<string | null>(null);
+  const [convertLevel, setConvertLevel] = useState("STANDARD");
+  const [convertError, setConvertError] = useState("");
 
   const filtered = filter === "all" ? referrals : referrals.filter((r) => r.status === filter.toUpperCase());
 
-  async function updateStatus(id: string, status: ReferralStatus) {
+  async function updateStatus(id: string, status: ReferralStatus, assessmentLevel?: string) {
     setUpdating(id);
+    setConvertError("");
     try {
       const res = await fetch(`/api/referrals/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, assessmentLevel }),
       });
       if (res.ok) {
         setReferrals((prev) => prev.map((r) => r.id === id ? { ...r, status } : r));
+        setConvertingId(null);
+      } else {
+        const msg = await res.text().catch(() => "Failed");
+        setConvertError(msg);
       }
     } finally {
       setUpdating(null);
@@ -163,19 +171,28 @@ export default function AdminReferralsManager({
                       </div>
 
                       {/* Status selector */}
-                      <div className="relative shrink-0">
-                        <select
-                          value={r.status}
-                          onChange={(e) => updateStatus(r.id, e.target.value as ReferralStatus)}
-                          disabled={updating === r.id}
-                          className="text-[11px] font-semibold rounded-full px-3 py-1 pr-6 appearance-none cursor-pointer focus:outline-none"
-                          style={{ background: statusStyle.bg, color: statusStyle.color, border: "none" }}
-                        >
-                          {STATUS_OPTIONS.map((s) => (
-                            <option key={s} value={s}>{STATUS_STYLES[s].label}</option>
-                          ))}
-                        </select>
-                        <ChevronDown size={10} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: statusStyle.color }} />
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="relative">
+                          <select
+                            value={r.status}
+                            onChange={(e) => {
+                              const newStatus = e.target.value as ReferralStatus;
+                              if (newStatus === "CONVERTED" && r.type === "CONSULTANT" && r.status !== "CONVERTED") {
+                                setConvertingId(r.id);
+                              } else {
+                                updateStatus(r.id, newStatus);
+                              }
+                            }}
+                            disabled={updating === r.id}
+                            className="text-[11px] font-semibold rounded-full px-3 py-1 pr-6 appearance-none cursor-pointer focus:outline-none"
+                            style={{ background: statusStyle.bg, color: statusStyle.color, border: "none" }}
+                          >
+                            {STATUS_OPTIONS.map((s) => (
+                              <option key={s} value={s}>{STATUS_STYLES[s].label}</option>
+                            ))}
+                          </select>
+                          <ChevronDown size={10} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: statusStyle.color }} />
+                        </div>
                       </div>
                     </div>
 
@@ -183,6 +200,45 @@ export default function AdminReferralsManager({
                       <p className="mt-3 text-xs text-gray-600 leading-relaxed p-3 rounded-lg" style={{ background: "#F9FAFB", border: "1px solid #e5eaf0" }}>
                         {r.notes}
                       </p>
+                    )}
+
+                    {/* Convert confirmation for consultant referrals */}
+                    {convertingId === r.id && (
+                      <div className="mt-3 p-3 rounded-lg" style={{ background: "#F0FDF4", border: "1px solid #BBF7D0" }}>
+                        <p className="text-xs font-semibold text-emerald-800 mb-2">Convert to CFA Consultant</p>
+                        <p className="text-[11px] text-emerald-700 mb-3">This will create a platform account, send an invite email, and start the onboarding process.</p>
+                        <label className="text-[11px] text-emerald-700 block mb-1">Assessment Level</label>
+                        <select
+                          value={convertLevel}
+                          onChange={(e) => setConvertLevel(e.target.value)}
+                          className="w-full rounded-lg border px-2 py-1.5 text-xs mb-3 focus:outline-none"
+                          style={{ borderColor: "#BBF7D0" }}
+                        >
+                          <option value="LIGHT">Light (profile only)</option>
+                          <option value="STANDARD">Standard (profile + proctored assessment)</option>
+                          <option value="FULL">Full (profile + assessment + Maarova)</option>
+                        </select>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => updateStatus(r.id, "CONVERTED", convertLevel)}
+                            disabled={updating === r.id}
+                            className="flex-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-60"
+                            style={{ background: "#059669" }}
+                          >
+                            {updating === r.id ? "Creating account..." : "Confirm and Send Invite"}
+                          </button>
+                          <button
+                            onClick={() => { setConvertingId(null); setConvertError(""); }}
+                            className="px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 bg-white"
+                            style={{ border: "1px solid #e5eaf0" }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                        {convertError && (
+                          <p className="text-xs text-red-600 mt-2">{convertError}</p>
+                        )}
+                      </div>
                     )}
 
                     <div className="flex items-center gap-3 mt-2 text-[11px] text-gray-400">

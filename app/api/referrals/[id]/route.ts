@@ -2,6 +2,9 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import type { ReferralStatus } from "@prisma/client";
+import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
+import { sendInvite } from "@/lib/email";
 
 const VALID_STATUSES: ReferralStatus[] = ["PENDING", "CONTACTED", "CONVERTED", "REJECTED"];
 
@@ -16,16 +19,64 @@ export async function PATCH(
   if (!isAdmin) return new Response("Forbidden", { status: 403 });
 
   const { id } = await params;
-  const { status } = await req.json();
+  const { status, assessmentLevel } = await req.json();
 
   if (!status || !VALID_STATUSES.includes(status)) {
     return new Response("Invalid status", { status: 400 });
   }
 
-  const referral = await prisma.referral.update({
+  const referral = await prisma.referral.findUnique({ where: { id } });
+  if (!referral) return new Response("Referral not found", { status: 404 });
+
+  // When converting a CONSULTANT referral, create platform user and send invite
+  if (status === "CONVERTED" && referral.type === "CONSULTANT" && referral.status !== "CONVERTED") {
+    const existing = await prisma.user.findUnique({ where: { email: referral.email } });
+    if (existing) {
+      return new Response("A user with this email already exists", { status: 409 });
+    }
+
+    const tempPassword = randomBytes(12).toString("base64url") + "!1A";
+    const passwordHash = await bcrypt.hash(tempPassword, 12);
+
+    const user = await prisma.user.create({
+      data: {
+        name: referral.name,
+        email: referral.email,
+        role: "CONSULTANT",
+        passwordHash,
+      },
+    });
+
+    await prisma.consultantProfile.create({
+      data: {
+        userId: user.id,
+        title: referral.suggestedRole || "Consultant",
+        bio: "",
+        location: "Nigeria",
+        yearsExperience: 0,
+      },
+    });
+
+    const level = ["LIGHT", "STANDARD", "FULL"].includes(assessmentLevel ?? "") ? assessmentLevel : "STANDARD";
+    await prisma.consultantOnboarding.create({
+      data: {
+        userId: user.id,
+        status: "INVITED",
+        assessmentLevel: level,
+      },
+    });
+
+    try {
+      await sendInvite(referral.email, referral.name, "CONSULTANT", tempPassword);
+    } catch (err) {
+      console.error("Failed to send referral invite:", err);
+    }
+  }
+
+  const updated = await prisma.referral.update({
     where: { id },
     data: { status },
   });
 
-  return Response.json({ ok: true, referral: { ...referral, createdAt: referral.createdAt.toISOString(), updatedAt: referral.updatedAt.toISOString() } });
+  return Response.json({ ok: true, referral: { ...updated, createdAt: updated.createdAt.toISOString(), updatedAt: updated.updatedAt.toISOString() } });
 }
