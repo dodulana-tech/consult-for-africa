@@ -156,6 +156,7 @@ export default function MaarovaAssessmentPage() {
             }}
           >
             Six psychometric dimensions, calibrated for African healthcare.
+            <br />
             Nothing else like it.
           </p>
         </div>
