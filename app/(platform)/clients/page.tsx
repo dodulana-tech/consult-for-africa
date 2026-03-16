@@ -39,7 +39,7 @@ export default async function ClientsPage() {
     // Consultant sees clients on projects they are assigned to
     clientWhere = { projects: { some: { assignments: { some: { consultantId: session.user.id } } } } };
   }
-  // Elevated roles (DIRECTOR/PARTNER/ADMIN) see all — no filter
+  // Elevated roles (DIRECTOR/PARTNER/ADMIN) see all, no filter needed
 
   const clients = await prisma.client.findMany({
     where: clientWhere,

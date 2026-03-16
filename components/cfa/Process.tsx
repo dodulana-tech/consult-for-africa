@@ -17,7 +17,7 @@ const steps = [
   {
     num: "04",
     name: "Deliver",
-    desc: "Measurable outcomes — revenue recovered, costs reduced, governance strengthened.",
+    desc: "Measurable outcomes: revenue recovered, costs reduced, governance strengthened.",
   },
   {
     num: "05",

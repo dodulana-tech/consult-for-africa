@@ -431,7 +431,7 @@ function OverviewTab({
 
       {/* Main 2-column grid */}
       <div className="grid lg:grid-cols-3 gap-5">
-        {/* Left column — 2/3 width */}
+        {/* Left column (2/3 width) */}
         <div className="lg:col-span-2 space-y-5">
           {/* Health + Pipeline side by side */}
           <div className="grid sm:grid-cols-2 gap-5">
@@ -470,7 +470,7 @@ function OverviewTab({
           <ProjectRiskAnalysis projectId={project.id} isEM={isEM} />
         </div>
 
-        {/* Right column — 1/3 width */}
+        {/* Right column (1/3 width) */}
         <div className="space-y-5">
           {/* Team Workload */}
           <TeamWorkload assignments={project.assignments} />

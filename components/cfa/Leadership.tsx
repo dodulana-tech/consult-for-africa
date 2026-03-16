@@ -10,7 +10,7 @@ const credentials = [
 const bullets = [
   "CEO, Cedarcrest Hospitals Abuja",
   "Chief Innovation & Strategy Officer, Evercare Hospital Lekki",
-  "Founder, Doctoora — Africa's first integrated private healthcare network (21 states)",
+  "Founder, Doctoora, Africa's first integrated private healthcare network (21 states)",
   "Led hospital turnarounds restoring financial performance in constrained environments",
 ];
 

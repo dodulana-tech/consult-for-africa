@@ -27,7 +27,7 @@ const PERKS = [
 export default function TalentPage() {
   return (
     <div className="min-h-screen" style={{ background: "#FAFAFA" }}>
-      {/* Hero — matches site visual language */}
+      {/* Hero */}
       <section
         className="relative overflow-hidden text-white"
         style={{ paddingTop: "5rem", minHeight: "60svh" }}

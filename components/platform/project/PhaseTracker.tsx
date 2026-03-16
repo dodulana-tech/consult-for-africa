@@ -286,7 +286,7 @@ export default function PhaseTracker({
               <div key={phase.id}>
                 <div className="rounded-lg p-3" style={{ background: s.bg, border: `1px solid ${s.border}` }}>
                   <div className="flex items-start gap-3">
-                    {/* Status icon — click to cycle */}
+                    {/* Status icon, click to cycle */}
                     <button
                       onClick={() => canEdit && !isUpdating && cycleStatus(phase)}
                       disabled={!canEdit || isUpdating || phase.status === "SKIPPED"}
