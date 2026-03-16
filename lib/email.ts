@@ -218,7 +218,7 @@ export async function emailTimesheetApproved({
         ["Project", projectName],
         ["Hours", `${totalHours}h`],
         ["Amount", formatted],
-        ["Status", "Approved \u2014 payment processing"],
+        ["Status", "Approved, payment processing"],
       ])}
       ${p("Payment will be processed within 5 business days.")}
     `)
@@ -262,19 +262,56 @@ export async function sendInvite(
   tempPassword: string,
 ) {
   const roleLabel = role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const firstName = esc(name.split(" ")[0]);
+  const safeName = esc(name);
+  const safeEmail = esc(email);
+  const safePassword = esc(tempPassword);
+  const safeRole = esc(roleLabel);
+
+  const roleIntro: Record<string, string> = {
+    Consultant: "As a consultant, you will be assigned to client projects, submit deliverables, track your time, and collaborate with engagement managers through the platform.",
+    "Engagement Manager": "As an Engagement Manager, you will oversee project delivery, review deliverables, manage consultant assignments, and ensure client satisfaction across your portfolio.",
+    Director: "As a Director, you will have oversight of practice-level performance, project portfolios, and team capacity across Consult for Africa.",
+    Partner: "As a Partner, you will have full visibility into firm performance, client relationships, financial metrics, and strategic planning tools.",
+    Admin: "As an Administrator, you will have full access to manage users, configure the platform, and oversee all operations.",
+  };
+
+  const intro = roleIntro[roleLabel] ?? "You now have access to project management, collaboration tools, and knowledge resources.";
+
   await send(
     email,
-    "Welcome to Consult For Africa Platform",
+    `Welcome to Consult for Africa, ${name}`,
     layout(`
-      ${h1("You have been invited")}
-      ${p(`Hi ${name}, you have been added to the Consult For Africa engagement platform as a <strong>${roleLabel}</strong>.`)}
-      ${infoTable([
-        ["Email", email],
-        ["Temporary Password", tempPassword],
-        ["Role", roleLabel],
-      ])}
-      ${p("Please log in and change your password immediately. Your temporary password will expire after first use.")}
-      ${btn("Log In Now", `${BASE_URL}/login`)}
+      ${h1(`Welcome, ${firstName}`)}
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
+        You have been invited to join <strong>Consult for Africa</strong>, a specialist management consulting firm focused on healthcare and social impact across Africa.
+      </p>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
+        Your role: <strong>${safeRole}</strong>
+      </p>
+      <p style="margin:0 0 20px;font-size:14px;line-height:1.6;color:#6B7280;">
+        ${esc(intro)}
+      </p>
+      <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:20px;margin:16px 0;">
+        <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#9CA3AF;font-weight:600;">Your login credentials</p>
+        <table style="width:100%;border-collapse:collapse;margin-top:12px;">
+          <tr>
+            <td style="padding:6px 0;font-size:13px;color:#6B7280;width:140px;">Email</td>
+            <td style="padding:6px 0;font-size:13px;font-weight:600;color:#111827;"><a href="mailto:${safeEmail}" style="color:#0F2744;">${safeEmail}</a></td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0;font-size:13px;color:#6B7280;">Temporary Password</td>
+            <td style="padding:6px 0;font-size:13px;font-weight:600;color:#111827;font-family:monospace;letter-spacing:0.5px;">${safePassword}</td>
+          </tr>
+        </table>
+      </div>
+      <p style="margin:16px 0;font-size:14px;line-height:1.6;color:#374151;">
+        Please log in and change your password immediately. Your temporary password should be changed after first use for security.
+      </p>
+      ${btn("Log In to Platform", `${BASE_URL}/login`)}
+      <p style="margin:20px 0 0;font-size:12px;color:#9CA3AF;line-height:1.5;">
+        If you did not expect this invitation, please disregard this email or contact us at hello@consultforafrica.com.
+      </p>
     `)
   );
 }
