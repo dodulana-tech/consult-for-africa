@@ -24,6 +24,7 @@ import {
   Radio,
   Brain,
   ClipboardList,
+  FileSearch,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
@@ -149,6 +150,17 @@ export default function Sidebar() {
             >
               <ClipboardList size={16} style={{ color: pathname.startsWith("/admin/onboarding") ? "#0F2744" : "#94A3B8" }} />
               Onboarding
+            </Link>
+            <Link
+              href="/admin/assessments"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+              style={{
+                background: pathname.startsWith("/admin/assessments") ? "#EFF6FF" : "transparent",
+                color: pathname.startsWith("/admin/assessments") ? "#0F2744" : "#64748B",
+              }}
+            >
+              <FileSearch size={16} style={{ color: pathname.startsWith("/admin/assessments") ? "#0F2744" : "#94A3B8" }} />
+              Assessments
             </Link>
             <Link
               href="/admin/maarova"

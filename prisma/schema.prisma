@@ -231,6 +231,7 @@ model User {
   staffingExpressions    StaffingExpression[] @relation("StaffingExpressions")
   proposals              Proposal[]
   onboarding             ConsultantOnboarding?
+  consultantAssessments  ConsultantAssessment[]
 }
 
 model ConsultantProfile {
@@ -1794,6 +1795,75 @@ model MaarovaNormativeData {
 
   @@unique([moduleType, dimension, subDimension, country, sectorType, roleLevel])
   @@index([moduleType, dimension])
+}
+
+// ─── Consultant Assessment Engine ────────────────────────────────────────────
+
+enum ConsultantAssessmentStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
+}
+
+model ConsultantAssessment {
+  id              String                      @id @default(cuid())
+  userId          String
+  user            User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialty       String                      // ServiceType they applied for
+  status          ConsultantAssessmentStatus  @default(NOT_STARTED)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  expiresAt       DateTime                    // 48hr window
+
+  // Integrity signals
+  tabSwitchCount    Int     @default(0)
+  pasteEventCount   Int     @default(0)
+  suspiciousFlags   Json?   // detailed integrity data
+
+  // AI scoring
+  aiContentScore    Int?    // 0-100 quality of answers
+  aiIntegrityScore  Int?    // 0-100 authenticity assessment
+  aiBreakdown       Json?   // detailed scoring per section
+
+  // Video
+  videoUrl          String?
+  videoDurationSec  Int?
+
+  // Admin review
+  adminScore        Int?
+  adminTier         String? // STANDARD, SENIOR, PRINCIPAL
+  adminNotes        String? @db.Text
+  reviewedById      String?
+  reviewedAt        DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  responses ConsultantAssessmentResponse[]
+
+  @@index([userId, status])
+}
+
+model ConsultantAssessmentResponse {
+  id            String                @id @default(cuid())
+  assessmentId  String
+  assessment    ConsultantAssessment  @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  part          String                // "scenario", "experience", "quickfire", "video"
+  questionId    String                // reference to question
+  questionText  String    @db.Text
+  answer        String    @db.Text
+
+  // Integrity per response
+  timeSpentSec    Int?
+  pasteEvents     Int     @default(0)
+  tabSwitches     Int     @default(0)
+  typingPattern   Json?   // keystroke timing data
+  wordCount       Int?
+
+  answeredAt DateTime @default(now())
+
+  @@index([assessmentId])
 }
 
 // ─── Consultant Onboarding ──────────────────────────────────────────────────

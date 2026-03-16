@@ -17,9 +17,11 @@ const ALLOWED_CONTENT_TYPES: Record<string, string> = {
   "text/csv": "csv",
   "text/plain": "txt",
   "application/zip": "zip",
+  "video/webm": "webm",
+  "video/mp4": "mp4",
 };
 
-const ALLOWED_FOLDERS = ["deliverables", "cvs", "knowledge", "avatars", "documents"] as const;
+const ALLOWED_FOLDERS = ["deliverables", "cvs", "knowledge", "avatars", "documents", "assessments"] as const;
 type Folder = (typeof ALLOWED_FOLDERS)[number];
 
 const MAX_FILE_SIZE_MB = 50;

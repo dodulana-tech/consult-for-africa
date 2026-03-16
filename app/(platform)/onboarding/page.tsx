@@ -596,67 +596,97 @@ export default function OnboardingPage() {
               {level === "FULL" ? (
                 <div>
                   <p className="text-gray-500 text-sm mb-6">
-                    Your onboarding includes a full Maarova leadership assessment. This is a
-                    60-minute psychometric evaluation designed specifically for healthcare leaders in Africa.
+                    Your onboarding includes a proctored skills assessment and a Maarova leadership
+                    assessment. The skills assessment takes about 45 minutes and includes scenario-based
+                    questions plus a short video response.
                   </p>
-                  <div
-                    className="rounded-xl p-6"
-                    style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}
-                  >
-                    <h2 className="text-sm font-semibold mb-2" style={{ color: "#0F2744" }}>
-                      Maarova Assessment Portal
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-4">
-                      You will receive a separate email with credentials to access the Maarova
-                      assessment portal. Complete the assessment within 7 days.
-                    </p>
-                    <a
-                      href="/maarova/portal/login"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
-                      style={{ background: "#0F2744", color: "#fff" }}
+                  <div className="space-y-4">
+                    <div
+                      className="rounded-xl p-6"
+                      style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}
                     >
-                      Open Maarova Portal
-                      <ChevronRight size={14} />
-                    </a>
+                      <h2 className="text-sm font-semibold mb-2" style={{ color: "#0F2744" }}>
+                        1. Skills Assessment
+                      </h2>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Complete a proctored assessment with scenario questions, experience review,
+                        rapid-fire questions, and a video response.
+                      </p>
+                      <button
+                        onClick={() => router.push("/onboarding/assessment/intro")}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
+                        style={{ background: "#0F2744", color: "#fff" }}
+                      >
+                        Start Skills Assessment
+                        <ChevronRight size={14} />
+                      </button>
+                    </div>
+                    <div
+                      className="rounded-xl p-6"
+                      style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}
+                    >
+                      <h2 className="text-sm font-semibold mb-2" style={{ color: "#0F2744" }}>
+                        2. Maarova Assessment Portal
+                      </h2>
+                      <p className="text-sm text-gray-600 mb-4">
+                        You will receive a separate email with credentials to access the Maarova
+                        assessment portal. Complete the assessment within 7 days.
+                      </p>
+                      <a
+                        href="/maarova/portal/login"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
+                        style={{ background: "#0F2744", color: "#fff" }}
+                      >
+                        Open Maarova Portal
+                        <ChevronRight size={14} />
+                      </a>
+                    </div>
                   </div>
                 </div>
               ) : (
                 <div>
                   <p className="text-gray-500 text-sm mb-6">
-                    Rate your proficiency in each of our service areas. Be honest; this helps us
-                    match you to the right projects. 1 = Beginner, 5 = Expert.
+                    Complete a proctored skills assessment. This takes about 45 minutes and includes
+                    scenario-based questions, experience review, rapid-fire questions, and a short
+                    video response. Your responses will be reviewed by our team.
                   </p>
 
-                  <div className="space-y-4">
-                    {SERVICE_TYPES.map((st) => (
-                      <div
-                        key={st.key}
-                        className="flex items-center justify-between gap-4 p-4 rounded-lg"
-                        style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}
-                      >
-                        <span className="text-sm font-medium text-gray-700">{st.label}</span>
-                        <div className="flex gap-1">
-                          {[1, 2, 3, 4, 5].map((n) => (
-                            <button
-                              key={n}
-                              type="button"
-                              onClick={() =>
-                                setScores((prev) => ({ ...prev, [st.key]: n }))
-                              }
-                              className="w-9 h-9 rounded-lg text-xs font-semibold transition-all"
-                              style={{
-                                background: (scores[st.key] ?? 0) >= n ? "#0F2744" : "#E2E8F0",
-                                color: (scores[st.key] ?? 0) >= n ? "#fff" : "#94A3B8",
-                              }}
-                            >
-                              {n}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
+                  <div
+                    className="rounded-xl p-6"
+                    style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}
+                  >
+                    <h2 className="text-sm font-semibold mb-2" style={{ color: "#0F2744" }}>
+                      What to expect
+                    </h2>
+                    <ul className="space-y-2 text-sm text-gray-600 mb-5">
+                      <li className="flex items-start gap-2">
+                        <span className="text-xs text-gray-400 mt-0.5">1.</span>
+                        <span>Scenario response (15 min)</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-xs text-gray-400 mt-0.5">2.</span>
+                        <span>Experience deep-dive (15 min)</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-xs text-gray-400 mt-0.5">3.</span>
+                        <span>Quick-fire questions (10 min)</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-xs text-gray-400 mt-0.5">4.</span>
+                        <span>Video response (5 min)</span>
+                      </li>
+                    </ul>
+
+                    <button
+                      onClick={() => router.push("/onboarding/assessment/intro")}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
+                      style={{ background: "#0F2744", color: "#fff" }}
+                    >
+                      Begin Assessment
+                      <ChevronRight size={14} />
+                    </button>
                   </div>
                 </div>
               )}
