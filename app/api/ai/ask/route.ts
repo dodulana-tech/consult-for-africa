@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { sanitizeForPrompt } from "@/lib/sanitize";
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 
@@ -9,88 +10,160 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
-  const canAsk = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canAsk) return new Response("Forbidden", { status: 403 });
-
   const { question } = await req.json();
   if (!question?.trim()) return new Response("question required", { status: 400 });
 
   const { role, id: userId } = session.user;
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
   const isEM = role === "ENGAGEMENT_MANAGER";
+  const isConsultant = role === "CONSULTANT";
 
-  const projectWhere = isElevated ? {} : isEM ? { engagementManagerId: userId } : {};
+  let context: string;
 
-  // Fetch platform snapshot
-  const [projects, consultants, clients, deliverables, timesheets] = await Promise.all([
-    prisma.project.findMany({
-      where: projectWhere,
-      select: {
-        id: true, name: true, status: true, riskLevel: true, healthScore: true,
-        serviceType: true, budgetAmount: true, actualSpent: true, budgetCurrency: true,
-        startDate: true, endDate: true,
-        client: { select: { name: true, type: true } },
-        engagementManager: { select: { name: true } },
-        assignments: { select: { id: true, status: true } },
-        _count: { select: { deliverables: true, milestones: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 50,
-    }),
-    prisma.consultantProfile.findMany({
-      select: {
-        id: true, title: true, location: true, tier: true,
-        availabilityStatus: true, yearsExperience: true,
-        expertiseAreas: true, averageRating: true, totalProjects: true,
-        user: { select: { name: true } },
-      },
-      orderBy: { averageRating: "desc" },
-      take: 30,
-    }),
-    isElevated
-      ? prisma.client.findMany({
-          select: {
-            name: true, type: true, status: true,
-            _count: { select: { projects: true, invoices: true } },
+  if (isConsultant) {
+    // Scoped context for consultants: only their own assignments, deliverables, timesheets
+    const [myAssignments, myDeliverables, myTimesheets, myProfile] = await Promise.all([
+      prisma.assignment.findMany({
+        where: { consultantId: userId, status: { in: ["ACTIVE", "PENDING"] } },
+        include: {
+          project: {
+            select: { name: true, status: true, startDate: true, endDate: true, client: { select: { name: true } } },
           },
-          take: 20,
-        })
-      : Promise.resolve([] as unknown[]),
-    prisma.deliverable.count({ where: { status: { in: ["SUBMITTED", "IN_REVIEW"] } } }),
-    prisma.timeEntry.count({ where: { status: "PENDING" } }),
-  ]);
+        },
+      }),
+      prisma.deliverable.findMany({
+        where: { assignment: { consultantId: userId } },
+        select: { name: true, status: true, version: true, dueDate: true, submittedAt: true, reviewScore: true, reviewNotes: true, project: { select: { name: true } } },
+        orderBy: { createdAt: "desc" },
+        take: 20,
+      }),
+      prisma.timeEntry.findMany({
+        where: { consultantId: userId },
+        select: { date: true, hours: true, status: true, description: true, assignment: { select: { project: { select: { name: true } } } } },
+        orderBy: { date: "desc" },
+        take: 30,
+      }),
+      prisma.consultantProfile.findFirst({
+        where: { userId },
+        select: { title: true, tier: true, expertiseAreas: true, averageRating: true, totalProjects: true },
+      }),
+    ]);
 
-  // Build context summary
-  const projectSummaries = projects.map((p) => ({
-    name: p.name,
-    client: p.client.name,
-    status: p.status,
-    risk: p.riskLevel,
-    health: p.healthScore,
-    type: p.serviceType.replace(/_/g, " "),
-    budget: Number(p.budgetAmount),
-    spent: Number(p.actualSpent),
-    currency: p.budgetCurrency,
-    spentPct: Math.round((Number(p.actualSpent) / Number(p.budgetAmount)) * 100),
-    team: p.assignments.filter((a) => a.status === "ACTIVE").length,
-    em: p.engagementManager.name,
-    deliverables: p._count.deliverables,
-    endDate: p.endDate.toISOString().split("T")[0],
-  }));
+    const assignmentSummaries = myAssignments.map((a) => ({
+      project: a.project.name,
+      client: a.project.client.name,
+      role: a.role,
+      status: a.project.status,
+      endDate: a.project.endDate.toISOString().split("T")[0],
+    }));
 
-  const consultantSummaries = consultants.map((c) => ({
-    name: c.user.name,
-    title: c.title,
-    tier: c.tier,
-    availability: c.availabilityStatus,
-    location: c.location,
-    yearsExp: c.yearsExperience,
-    expertise: c.expertiseAreas,
-    rating: c.averageRating ? Number(c.averageRating) : null,
-    projects: c.totalProjects,
-  }));
+    const deliverableSummaries = myDeliverables.map((d) => ({
+      name: d.name,
+      project: d.project.name,
+      status: d.status,
+      version: d.version,
+      dueDate: d.dueDate?.toISOString().split("T")[0] ?? null,
+      reviewScore: d.reviewScore,
+      reviewNotes: d.reviewNotes,
+    }));
 
-  const context = `PLATFORM DATA SNAPSHOT (${new Date().toLocaleDateString()}):
+    const timesheetSummaries = myTimesheets.map((t) => ({
+      date: t.date.toISOString().split("T")[0],
+      hours: Number(t.hours),
+      status: t.status,
+      project: t.assignment.project.name,
+    }));
+
+    context = `YOUR DATA SNAPSHOT (${new Date().toLocaleDateString()}):
+
+YOUR PROFILE:
+${JSON.stringify(myProfile, null, 2)}
+
+YOUR ACTIVE ASSIGNMENTS (${myAssignments.length}):
+${JSON.stringify(assignmentSummaries, null, 2)}
+
+YOUR DELIVERABLES (${myDeliverables.length}):
+${JSON.stringify(deliverableSummaries, null, 2)}
+
+YOUR RECENT TIMESHEETS (${myTimesheets.length}):
+${JSON.stringify(timesheetSummaries, null, 2)}
+
+USER CONTEXT:
+- Role: Consultant
+- Viewing: Your own data only`;
+  } else {
+    const projectWhere = isElevated ? {} : isEM ? { engagementManagerId: userId } : {};
+
+    // Fetch platform snapshot
+    const [projects, consultants, clients, deliverables, timesheets] = await Promise.all([
+      prisma.project.findMany({
+        where: projectWhere,
+        select: {
+          id: true, name: true, status: true, riskLevel: true, healthScore: true,
+          serviceType: true, budgetAmount: true, actualSpent: true, budgetCurrency: true,
+          startDate: true, endDate: true,
+          client: { select: { name: true, type: true } },
+          engagementManager: { select: { name: true } },
+          assignments: { select: { id: true, status: true } },
+          _count: { select: { deliverables: true, milestones: true } },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50,
+      }),
+      prisma.consultantProfile.findMany({
+        select: {
+          id: true, title: true, location: true, tier: true,
+          availabilityStatus: true, yearsExperience: true,
+          expertiseAreas: true, averageRating: true, totalProjects: true,
+          user: { select: { name: true } },
+        },
+        orderBy: { averageRating: "desc" },
+        take: 30,
+      }),
+      isElevated
+        ? prisma.client.findMany({
+            select: {
+              name: true, type: true, status: true,
+              _count: { select: { projects: true, invoices: true } },
+            },
+            take: 20,
+          })
+        : Promise.resolve([] as unknown[]),
+      prisma.deliverable.count({ where: { status: { in: ["SUBMITTED", "IN_REVIEW"] } } }),
+      prisma.timeEntry.count({ where: { status: "PENDING" } }),
+    ]);
+
+    // Build context summary
+    const projectSummaries = projects.map((p) => ({
+      name: p.name,
+      client: p.client.name,
+      status: p.status,
+      risk: p.riskLevel,
+      health: p.healthScore,
+      type: p.serviceType.replace(/_/g, " "),
+      budget: Number(p.budgetAmount),
+      spent: Number(p.actualSpent),
+      currency: p.budgetCurrency,
+      spentPct: Math.round((Number(p.actualSpent) / Number(p.budgetAmount)) * 100),
+      team: p.assignments.filter((a) => a.status === "ACTIVE").length,
+      em: p.engagementManager.name,
+      deliverables: p._count.deliverables,
+      endDate: p.endDate.toISOString().split("T")[0],
+    }));
+
+    const consultantSummaries = consultants.map((c) => ({
+      name: c.user.name,
+      title: c.title,
+      tier: c.tier,
+      availability: c.availabilityStatus,
+      location: c.location,
+      yearsExp: c.yearsExperience,
+      expertise: c.expertiseAreas,
+      rating: c.averageRating ? Number(c.averageRating) : null,
+      projects: c.totalProjects,
+    }));
+
+    context = `PLATFORM DATA SNAPSHOT (${new Date().toLocaleDateString()}):
 
 PROJECTS (${projects.length} total):
 ${JSON.stringify(projectSummaries, null, 2)}
@@ -107,8 +180,16 @@ PENDING ACTIONS:
 USER CONTEXT:
 - Role: ${role.replace(/_/g, " ")}
 - Viewing: ${isElevated ? "All projects" : "Assigned projects only"}`;
+  }
 
-  const systemPrompt = `You are an AI assistant for Consult For Africa, an operations management consulting firm in Nigeria. You have access to the platform's real-time data and can answer questions about projects, consultants, clients, deliverables, and performance metrics.
+  const systemPrompt = isConsultant
+    ? `You are Nuru, the AI assistant for Consult For Africa (CFA), an operations management consulting firm in Nigeria. You are helping a consultant on the platform. You can see their assignments, deliverables, timesheets, and profile data.
+
+Help them with: understanding their deliverable feedback, improving their work, tracking deadlines, understanding project context, and general consulting methodology questions.
+
+Be concise, direct, and specific. No em dashes. Do not reveal data about other consultants or projects they are not assigned to.
+If asked something outside their scope, explain that you can only help with their own assignments and work.`
+    : `You are Nuru, the AI assistant for Consult For Africa (CFA), an operations management consulting firm in Nigeria. You have access to the platform's real-time data and can answer questions about projects, consultants, clients, deliverables, and performance metrics.
 
 Be concise, direct, and specific. Use Nigerian Naira (NGN) and USD as appropriate. No em dashes.
 When asked for recommendations, be actionable and specific.
@@ -124,7 +205,7 @@ If asked something outside the data provided, say so honestly rather than guessi
       messages: [
         {
           role: "user",
-          content: `PLATFORM DATA:\n${context}\n\nQUESTION: ${question}`,
+          content: `PLATFORM DATA:\n${context}\n\nQUESTION: ${sanitizeForPrompt(question)}`,
         },
       ],
     });

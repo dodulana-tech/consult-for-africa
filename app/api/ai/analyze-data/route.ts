@@ -1,6 +1,7 @@
 export const runtime = "nodejs";
 
 import { auth } from "@/auth";
+import { sanitizeForPrompt } from "@/lib/sanitize";
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import * as XLSX from "xlsx";
@@ -107,7 +108,7 @@ Return ONLY valid JSON, no markdown, no code fences, no other text.`;
   const userPrompt = `Analyze this hospital/healthcare data.
 
 Analysis Type: ${analysisType}
-${instructions ? `Additional Context: ${instructions}` : ""}
+${instructions ? `Additional Context: ${sanitizeForPrompt(instructions)}` : ""}
 
 DATA:
 ${JSON.stringify(sheets, null, 1).slice(0, 30000)}

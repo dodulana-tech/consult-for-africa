@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { sanitizeForPrompt } from "@/lib/sanitize";
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 
@@ -84,10 +85,10 @@ CLIENT: ${clientName}
 HOSPITAL TYPE: ${hospitalTypeLabel}${projectContext}${timeline ? `\nTIMELINE: ${timeline}` : ""}${budget ? `\nBUDGET CONTEXT: ${budget}` : ""}
 
 CONSULTANT'S KEY FINDINGS:
-${keyFindings}
+${sanitizeForPrompt(keyFindings)}
 
 CONSULTANT'S RECOMMENDATIONS:
-${recommendations}
+${sanitizeForPrompt(recommendations)}
 
 Generate a complete, polished report with this structure as JSON:
 {

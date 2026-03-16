@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
 import { emailTimesheetApproved, emailTimesheetRejected } from "@/lib/email";
 
@@ -57,6 +58,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       reason,
     });
   }
+
+  await logAudit({
+    userId: session.user.id,
+    action: action === "approve" ? "APPROVE" : "REJECT",
+    entityType: "TimeEntry",
+    entityId: id,
+    entityName: `${Number(entry.hours)}h - ${entry.assignment.project.name}`,
+    projectId: entry.assignment.projectId,
+  });
 
   return Response.json({ ok: true });
 }

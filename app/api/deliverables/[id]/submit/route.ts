@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
 import { emailDeliverableSubmitted } from "@/lib/email";
 
@@ -69,6 +70,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     projectName: deliverable.project.name,
     deliverableId: id,
     projectId: deliverable.projectId,
+  });
+
+  await logAudit({
+    userId: session.user.id,
+    action: "SUBMIT",
+    entityType: "Deliverable",
+    entityId: deliverable.id,
+    entityName: deliverable.name,
+    projectId: deliverable.projectId,
+    details: { before: deliverable.status, after: "SUBMITTED" },
   });
 
   return Response.json({ ok: true, deliverable: updated });

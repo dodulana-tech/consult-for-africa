@@ -16,8 +16,9 @@ export async function POST(req: NextRequest) {
   if (!contactId || !password) {
     return new Response("contactId and password required", { status: 400 });
   }
-  if ((password as string).length < 8) {
-    return new Response("Password must be at least 8 characters", { status: 400 });
+  const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{10,}$/;
+  if (!PASSWORD_REGEX.test(password as string)) {
+    return new Response("Password must be at least 10 characters with uppercase, lowercase, number, and special character", { status: 400 });
   }
 
   const contact = await prisma.clientContact.findUnique({

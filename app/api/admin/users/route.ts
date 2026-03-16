@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
@@ -79,6 +80,15 @@ export async function POST(req: NextRequest) {
       console.error("Failed to send invite email:", err);
     }
   }
+
+  await logAudit({
+    userId: session.user.id,
+    action: "CREATE",
+    entityType: "User",
+    entityId: user.id,
+    entityName: user.name,
+    details: { role: user.role, email: user.email },
+  });
 
   // Never return the temp password in the response body
   return Response.json({ ok: true, user: { ...user, createdAt: user.createdAt.toISOString() } }, { status: 201 });

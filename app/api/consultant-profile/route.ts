@@ -51,5 +51,20 @@ export async function PATCH(req: NextRequest) {
     data,
   });
 
-  return Response.json({ ok: true, profile: updated });
+  // Strip sensitive financial data from response
+  const { accountNumber: _an, swiftCode: _sw, bankName: _bn, accountName: _acn, ...safeProfile } = updated;
+
+  return Response.json({
+    ok: true,
+    profile: {
+      ...safeProfile,
+      hourlyRateUSD: safeProfile.hourlyRateUSD ? Number(safeProfile.hourlyRateUSD) : null,
+      monthlyRateNGN: safeProfile.monthlyRateNGN ? Number(safeProfile.monthlyRateNGN) : null,
+      averageRating: safeProfile.averageRating ? Number(safeProfile.averageRating) : null,
+      // Return masked bank info so UI shows status without exposing full numbers
+      hasBankDetails: !!(updated.bankName && updated.accountNumber),
+      bankNameMasked: updated.bankName ? `${updated.bankName.slice(0, 3)}***` : null,
+      accountNumberMasked: updated.accountNumber ? `****${updated.accountNumber.slice(-4)}` : null,
+    },
+  });
 }

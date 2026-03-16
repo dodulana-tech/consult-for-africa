@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
 import { emailDeliverableApproved, emailRevisionRequested } from "@/lib/email";
 
@@ -87,6 +88,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       });
     }
   }
+
+  await logAudit({
+    userId: session.user.id,
+    action: action === "approve" ? "APPROVE" : "REJECT",
+    entityType: "Deliverable",
+    entityId: deliverable.id,
+    entityName: deliverable.name,
+    projectId: deliverable.projectId,
+    details: { before: "SUBMITTED", after: newStatus },
+  });
 
   return Response.json({ ok: true, status: newStatus, deliverableId: deliverable.id });
 }

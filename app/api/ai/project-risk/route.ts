@@ -190,7 +190,7 @@ All probability fields (likelihood, impact, predictedOutcomes) are 0-100.`;
   try {
     const message = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 1200,
+      max_tokens: 2000,
       messages: [{ role: "user", content: prompt }],
     });
 
@@ -198,10 +198,45 @@ All probability fields (likelihood, impact, predictedOutcomes) are 0-100.`;
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("No JSON");
     analysis = JSON.parse(jsonMatch[0]);
-  } catch (err) {
-    console.error("AI risk analysis error:", err);
-    return new Response("AI analysis failed. Check ANTHROPIC_API_KEY is configured.", { status: 500 });
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error("AI risk analysis error:", errMsg, err);
+    return Response.json(
+      { error: "AI analysis failed", detail: errMsg },
+      { status: 500 }
+    );
   }
 
-  return Response.json({ analysis, projectId, analyzedAt: new Date().toISOString() });
+  // Save analysis to project notes
+  const analyzedAt = new Date().toISOString();
+  const riskSummary = `[Nuru Risk Analysis - ${analyzedAt.slice(0, 10)}]\n` +
+    `Risk Level: ${analysis.riskLevel} (Score: ${analysis.overallRiskScore}/100)\n` +
+    `Health Score: ${analysis.healthScore}/10\n\n` +
+    `Summary: ${analysis.riskSummary}\n\n` +
+    `Top Priority: ${analysis.topPriority}\n\n` +
+    `Predicted Outcomes:\n` +
+    `  On-time delivery: ${analysis.predictedOutcomes.onTimeDelivery}%\n` +
+    `  Within budget: ${analysis.predictedOutcomes.withinBudget}%\n` +
+    `  Client satisfaction: ${analysis.predictedOutcomes.clientSatisfaction}%\n\n` +
+    `Risks Identified:\n` +
+    analysis.risks.map((r, i) =>
+      `  ${i + 1}. [${r.severity}] ${r.title}\n     ${r.description}\n     Action: ${r.recommendedAction}`
+    ).join("\n\n");
+
+  const existingNotes = project.notes || "";
+  const updatedNotes = riskSummary + (existingNotes ? "\n\n---\n\n" + existingNotes : "");
+
+  await prisma.project.update({
+    where: { id: projectId },
+    data: {
+      notes: updatedNotes,
+      healthScore: analysis.healthScore,
+      riskLevel: analysis.riskLevel === "CRITICAL" ? "CRITICAL"
+        : analysis.riskLevel === "HIGH" ? "HIGH"
+        : analysis.riskLevel === "MEDIUM" ? "MEDIUM"
+        : "LOW",
+    },
+  });
+
+  return Response.json({ analysis, projectId, analyzedAt });
 }

@@ -1,5 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
+import { canAccessProject } from "@/lib/projectAccess";
 import { NextRequest } from "next/server";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -9,6 +11,10 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
   if (!session) return new Response("Unauthorized", { status: 401 });
 
   const { id: projectId } = await params;
+
+  if (!(await canAccessProject(session.user.id, session.user.role, projectId))) {
+    return new Response("Forbidden", { status: 403 });
+  }
 
   const risks = await prisma.riskItem.findMany({
     where: { projectId },
@@ -74,6 +80,15 @@ export async function POST(req: NextRequest, { params }: Ctx) {
       resolvedAt: true,
       createdAt: true,
     },
+  });
+
+  await logAudit({
+    userId: session.user.id,
+    action: "CREATE",
+    entityType: "Risk",
+    entityId: risk.id,
+    entityName: risk.title,
+    projectId,
   });
 
   return Response.json({ ok: true, risk }, { status: 201 });

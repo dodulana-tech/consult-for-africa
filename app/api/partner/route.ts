@@ -59,7 +59,7 @@ export async function POST(req: Request) {
       console.error("[partner] email send failed", err);
     }
   } else {
-    console.log("[partner]", { organization, email, partnerType, message });
+    console.log("[partner] SMTP not configured, skipping email send");
   }
 
   return NextResponse.json({ success: true });

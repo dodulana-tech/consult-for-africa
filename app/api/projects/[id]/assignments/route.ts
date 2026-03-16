@@ -1,5 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
+import { checkCapacityForAssignment } from "@/lib/capacity";
 import { NextRequest } from "next/server";
 import type { RateType, Currency } from "@prisma/client";
 
@@ -20,7 +22,7 @@ export async function POST(
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },
-    select: { id: true, startDate: true, endDate: true, engagementManagerId: true },
+    select: { id: true, name: true, startDate: true, endDate: true, engagementManagerId: true },
   });
 
   if (!project) return new Response("Project not found", { status: 404 });
@@ -35,6 +37,8 @@ export async function POST(
     rateCurrency,
     rateType,
     estimatedHours,
+    estimatedHoursPerWeek,
+    forceAssign = false, // bypass capacity warning (still blocked if >100%)
   } = await req.json();
 
   if (!consultantId || !role?.trim() || !rateAmount || !rateCurrency || !rateType) {
@@ -50,7 +54,7 @@ export async function POST(
 
   // Check the consultant isn't already on this project
   const existing = await prisma.assignment.findFirst({
-    where: { projectId, consultantId, status: { in: ["ACTIVE", "PENDING"] } },
+    where: { projectId, consultantId, status: { in: ["ACTIVE", "PENDING", "PENDING_ACCEPTANCE"] } },
   });
   if (existing) {
     return new Response("Consultant is already assigned to this project", { status: 409 });
@@ -59,12 +63,36 @@ export async function POST(
   // Verify the consultantId belongs to a CONSULTANT user
   const consultant = await prisma.user.findUnique({
     where: { id: consultantId },
-    select: { id: true, role: true },
+    select: { id: true, name: true, role: true },
   });
   if (!consultant || consultant.role !== "CONSULTANT") {
     return new Response("Invalid consultant", { status: 400 });
   }
 
+  // Capacity check
+  const hoursToAdd = estimatedHoursPerWeek ?? estimatedHours ?? 0;
+  const capacityCheck = await checkCapacityForAssignment(consultantId, hoursToAdd);
+
+  if (!capacityCheck.allowed) {
+    return Response.json(
+      { error: capacityCheck.warning, capacity: capacityCheck.capacity },
+      { status: 422 }
+    );
+  }
+
+  if (capacityCheck.warning && !forceAssign) {
+    return Response.json(
+      {
+        error: "CAPACITY_WARNING",
+        warning: capacityCheck.warning,
+        capacity: capacityCheck.capacity,
+        requiresConfirmation: true,
+      },
+      { status: 409 }
+    );
+  }
+
+  // Create assignment as PENDING_ACCEPTANCE (consultant must accept)
   const assignment = await prisma.assignment.create({
     data: {
       projectId,
@@ -77,10 +105,36 @@ export async function POST(
       rateCurrency,
       rateType,
       estimatedHours: estimatedHours ?? null,
-      status: "ACTIVE",
+      estimatedHoursPerWeek: estimatedHoursPerWeek ?? null,
+      status: "PENDING_ACCEPTANCE",
+      capacityAtAssignment: capacityCheck.capacity.utilizationPercent,
     },
     select: { id: true, role: true, status: true, rateAmount: true, rateCurrency: true, rateType: true },
   });
 
-  return Response.json({ ok: true, assignment }, { status: 201 });
+  // Create project update
+  await prisma.projectUpdate.create({
+    data: {
+      projectId,
+      createdById: session.user.id,
+      type: "TEAM_CHANGE",
+      content: `Assignment request sent to ${consultant.name} for the ${role.trim()} role. Awaiting acceptance.`,
+    },
+  });
+
+  await logAudit({
+    userId: session.user.id,
+    action: "ASSIGN",
+    entityType: "Assignment",
+    entityId: assignment.id,
+    entityName: `${role.trim()} - ${project.name} (pending acceptance)`,
+    projectId,
+  });
+
+  return Response.json({
+    ok: true,
+    assignment,
+    capacityWarning: capacityCheck.warning,
+    message: `Assignment request sent to ${consultant.name}. They will need to accept before the assignment becomes active.`,
+  }, { status: 201 });
 }

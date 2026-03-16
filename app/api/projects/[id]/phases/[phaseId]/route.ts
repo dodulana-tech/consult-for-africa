@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
 
 type Ctx = { params: Promise<{ id: string; phaseId: string }> };
@@ -11,15 +12,19 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   const canManage = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canManage) return new Response("Forbidden", { status: 403 });
 
-  const { phaseId } = await params;
+  const { id: projectId, phaseId } = await params;
   const { name, description, status, percentComplete, startDate, endDate } = await req.json();
 
   const updates: Record<string, unknown> = {};
   if (name?.trim()) updates.name = name.trim();
   if (description !== undefined) updates.description = description;
+
+  let oldStatus: string | undefined;
   if (status) {
     const VALID = ["PENDING", "ACTIVE", "COMPLETED", "SKIPPED"];
     if (!VALID.includes(status)) return new Response("Invalid status", { status: 400 });
+    const existing = await prisma.projectPhase.findUnique({ where: { id: phaseId }, select: { status: true } });
+    oldStatus = existing?.status;
     updates.status = status;
     if (status === "COMPLETED") updates.completedAt = new Date();
   }
@@ -49,6 +54,16 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     },
   });
 
+  await logAudit({
+    userId: session.user.id,
+    action: status ? "STATUS_CHANGE" : "UPDATE",
+    entityType: "Phase",
+    entityId: phase.id,
+    entityName: phase.name,
+    projectId,
+    details: status ? { before: oldStatus, after: status } : undefined,
+  });
+
   return Response.json({
     ok: true,
     phase: {
@@ -69,8 +84,18 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
   const canManage = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canManage) return new Response("Forbidden", { status: 403 });
 
-  const { phaseId } = await params;
+  const { id: projectId, phaseId } = await params;
+  const phase = await prisma.projectPhase.findUnique({ where: { id: phaseId }, select: { name: true } });
   await prisma.projectPhase.delete({ where: { id: phaseId } });
+
+  await logAudit({
+    userId: session.user.id,
+    action: "DELETE",
+    entityType: "Phase",
+    entityId: phaseId,
+    entityName: phase?.name,
+    projectId,
+  });
 
   return Response.json({ ok: true });
 }

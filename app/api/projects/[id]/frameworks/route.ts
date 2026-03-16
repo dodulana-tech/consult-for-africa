@@ -1,5 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
+import { canAccessProject } from "@/lib/projectAccess";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
 
@@ -12,6 +14,10 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
   if (!session) return new Response("Unauthorized", { status: 401 });
 
   const { id: projectId } = await params;
+
+  if (!(await canAccessProject(session.user.id, session.user.role, projectId))) {
+    return new Response("Forbidden", { status: 403 });
+  }
 
   const frameworks = await prisma.projectFramework.findMany({
     where: { projectId },
@@ -127,6 +133,16 @@ Example format:
         select: { id: true, name: true, slug: true, description: true, category: true, dimensions: true },
       },
     },
+  });
+
+  await logAudit({
+    userId: session.user.id,
+    action: "CREATE",
+    entityType: "ProjectFramework",
+    entityId: projectFramework.id,
+    entityName: projectFramework.framework.name,
+    projectId,
+    details: { aiGenerated },
   });
 
   return Response.json({ ok: true, framework: projectFramework }, { status: 201 });

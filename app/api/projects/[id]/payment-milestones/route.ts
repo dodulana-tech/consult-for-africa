@@ -10,6 +10,20 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
 
   const { id: projectId } = await params;
 
+  // Verify user has access to this project
+  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isEM = session.user.role === "ENGAGEMENT_MANAGER";
+  if (!isElevated) {
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { engagementManagerId: true, assignments: { select: { consultantId: true } } },
+    });
+    if (!project) return new Response("Not found", { status: 404 });
+    const isProjectEM = isEM && project.engagementManagerId === session.user.id;
+    const isAssigned = project.assignments.some((a) => a.consultantId === session.user.id);
+    if (!isProjectEM && !isAssigned) return new Response("Forbidden", { status: 403 });
+  }
+
   const milestones = await prisma.paymentMilestone.findMany({
     where: { projectId },
     orderBy: { dueDate: "asc" },

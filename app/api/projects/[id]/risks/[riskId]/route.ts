@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
 
 type Ctx = { params: Promise<{ id: string; riskId: string }> };
@@ -11,7 +12,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   const canManage = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canManage) return new Response("Forbidden", { status: 403 });
 
-  const { riskId } = await params;
+  const { id: projectId, riskId } = await params;
   const { title, description, category, severity, likelihood, impact, mitigation, status } = await req.json();
 
   const updates: Record<string, unknown> = {};
@@ -34,9 +35,13 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     updates.riskScore = l * i;
   }
   if (mitigation !== undefined) updates.mitigation = mitigation;
+
+  let oldStatus: string | undefined;
   if (status) {
     const VALID = ["OPEN", "MITIGATING", "RESOLVED", "ACCEPTED"];
     if (!VALID.includes(status)) return new Response("Invalid status", { status: 400 });
+    const existing = await prisma.riskItem.findUnique({ where: { id: riskId }, select: { status: true } });
+    oldStatus = existing?.status;
     updates.status = status;
     if (status === "RESOLVED") updates.resolvedAt = new Date();
   }
@@ -62,6 +67,16 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     },
   });
 
+  await logAudit({
+    userId: session.user.id,
+    action: status ? "STATUS_CHANGE" : "UPDATE",
+    entityType: "Risk",
+    entityId: risk.id,
+    entityName: risk.title,
+    projectId,
+    details: status ? { before: oldStatus, after: status } : undefined,
+  });
+
   return Response.json({ ok: true, risk });
 }
 
@@ -72,8 +87,18 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
   const canManage = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canManage) return new Response("Forbidden", { status: 403 });
 
-  const { riskId } = await params;
+  const { id: projectId, riskId } = await params;
+  const risk = await prisma.riskItem.findUnique({ where: { id: riskId }, select: { title: true } });
   await prisma.riskItem.delete({ where: { id: riskId } });
+
+  await logAudit({
+    userId: session.user.id,
+    action: "DELETE",
+    entityType: "Risk",
+    entityId: riskId,
+    entityName: risk?.title,
+    projectId,
+  });
 
   return Response.json({ ok: true });
 }
