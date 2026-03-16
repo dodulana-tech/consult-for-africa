@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import TopBar from "@/components/platform/TopBar";
 import Link from "next/link";
+import MaarovaOrgCreateForm from "./MaarovaOrgCreateForm";
 
 export default async function MaarovaOrganisationsPage() {
   const session = await auth();
@@ -26,7 +27,11 @@ export default async function MaarovaOrganisationsPage() {
         backHref="/admin/maarova"
       />
 
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        {/* Create Organisation Form */}
+        <MaarovaOrgCreateForm />
+
+        {/* Organisations Table */}
         <div
           className="rounded-xl overflow-hidden"
           style={{ background: "#fff", border: "1px solid #e5eaf0" }}

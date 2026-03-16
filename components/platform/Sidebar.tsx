@@ -25,6 +25,8 @@ import {
   Brain,
   ClipboardList,
   FileSearch,
+  ArrowUpRight,
+  HeartPulse,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
@@ -50,6 +52,7 @@ export default function Sidebar() {
   const { data: session } = useSession();
   const role = session?.user?.role ?? "";
   const isAdmin = ["PARTNER", "ADMIN"].includes(role);
+  const isDirectorPlus = ["PARTNER", "ADMIN", "DIRECTOR"].includes(role);
   const isConsultant = role === "CONSULTANT";
 
   const visibleNav = NAV_ITEMS.filter(({ href }) => {
@@ -172,6 +175,32 @@ export default function Sidebar() {
             >
               <Brain size={16} style={{ color: pathname.startsWith("/admin/maarova") ? "#0F2744" : "#94A3B8" }} />
               Maarova Admin
+            </Link>
+          </>
+        )}
+        {isDirectorPlus && (
+          <>
+            <Link
+              href="/admin/expansion-requests"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+              style={{
+                background: pathname.startsWith("/admin/expansion-requests") ? "#EFF6FF" : "transparent",
+                color: pathname.startsWith("/admin/expansion-requests") ? "#0F2744" : "#64748B",
+              }}
+            >
+              <ArrowUpRight size={16} style={{ color: pathname.startsWith("/admin/expansion-requests") ? "#0F2744" : "#94A3B8" }} />
+              Expansion Requests
+            </Link>
+            <Link
+              href="/admin/satisfaction"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+              style={{
+                background: pathname.startsWith("/admin/satisfaction") ? "#EFF6FF" : "transparent",
+                color: pathname.startsWith("/admin/satisfaction") ? "#0F2744" : "#64748B",
+              }}
+            >
+              <HeartPulse size={16} style={{ color: pathname.startsWith("/admin/satisfaction") ? "#0F2744" : "#94A3B8" }} />
+              Client Satisfaction
             </Link>
           </>
         )}

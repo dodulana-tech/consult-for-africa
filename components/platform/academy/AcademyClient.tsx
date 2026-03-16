@@ -367,12 +367,13 @@ export default function AcademyClient({
                         <div className="px-5 pb-5">
                           {progress ? (
                             progress.enrollment.status === "CERTIFIED" ? (
-                              <button
-                                className="w-full py-2.5 rounded-lg text-xs font-semibold transition-all"
+                              <a
+                                href="/academy/certificates"
+                                className="block w-full py-2.5 rounded-lg text-xs font-semibold text-center transition-all"
                                 style={{ background: "#ECFDF5", color: "#059669" }}
                               >
                                 View Certificate
-                              </button>
+                              </a>
                             ) : (
                               <a
                                 href={`/academy/${nextModule?.slug ?? track.modules[0]?.slug ?? ""}`}

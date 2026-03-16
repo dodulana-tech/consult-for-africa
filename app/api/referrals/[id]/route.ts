@@ -73,6 +73,53 @@ export async function PATCH(
     }
   }
 
+  // When converting a CLIENT referral, create client record
+  if (status === "CONVERTED" && referral.type === "CLIENT" && referral.status !== "CONVERTED") {
+    const existingClient = await prisma.client.findFirst({ where: { email: referral.email } });
+    if (!existingClient) {
+      await prisma.client.create({
+        data: {
+          name: referral.organisation || referral.name,
+          type: "PRIVATE_ELITE",
+          primaryContact: referral.name,
+          email: referral.email,
+          phone: referral.phone || "",
+          address: "",
+          notes: referral.notes ? `Referred by staff. Notes: ${referral.notes}` : "Created from referral conversion.",
+        },
+      });
+    }
+  }
+
+  // When converting a STAFF referral, create platform user with appropriate role
+  if (status === "CONVERTED" && referral.type === "STAFF" && referral.status !== "CONVERTED") {
+    const existingUser = await prisma.user.findUnique({ where: { email: referral.email } });
+    if (existingUser) {
+      return new Response("A user with this email already exists", { status: 409 });
+    }
+
+    const tempPassword = randomBytes(12).toString("base64url") + "!1A";
+    const passwordHash = await bcrypt.hash(tempPassword, 12);
+    const staffRole = referral.suggestedRole?.toUpperCase().includes("DIRECTOR") ? "DIRECTOR"
+      : referral.suggestedRole?.toUpperCase().includes("PARTNER") ? "PARTNER"
+      : "ENGAGEMENT_MANAGER";
+
+    await prisma.user.create({
+      data: {
+        name: referral.name,
+        email: referral.email,
+        role: staffRole as "ENGAGEMENT_MANAGER" | "DIRECTOR" | "PARTNER",
+        passwordHash,
+      },
+    });
+
+    try {
+      await sendInvite(referral.email, referral.name, staffRole, tempPassword);
+    } catch (err) {
+      console.error("Failed to send staff referral invite:", err);
+    }
+  }
+
   const updated = await prisma.referral.update({
     where: { id },
     data: { status },
