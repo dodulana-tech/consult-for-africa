@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import MaarovaNav from "@/components/cfa/MaarovaNav";
 
 export const metadata: Metadata = {
   title: "The Assessment | Maarova - Six Dimensions of Healthcare Leadership",
@@ -487,6 +488,8 @@ export default function MaarovaAssessmentPage() {
           </div>
         </div>
       </section>
+
+      <MaarovaNav current="/maarova/assessment" />
 
       {/* ── CTA ────────────────────────────────────────────────────────── */}
       <section className="py-24 px-6" style={{ background: "#FAF8F5" }}>

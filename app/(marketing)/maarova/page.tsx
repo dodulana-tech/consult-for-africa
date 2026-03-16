@@ -493,6 +493,36 @@ export default function MaarovaPage() {
         </div>
       </section>
 
+      {/* ── SERVICES LINK ───────────────────────────────────────────── */}
+      <section className="py-16 px-6" style={{ background: "#fff" }}>
+        <div className="max-w-4xl mx-auto">
+          <Link
+            href="/maarova/services"
+            className="group flex items-center justify-between rounded-2xl p-8 transition-all duration-200 hover:shadow-lg"
+            style={{ background: "#FAF8F5", border: "1px solid #e5eaf0" }}
+          >
+            <div>
+              <p className="text-xs uppercase tracking-[0.25em] mb-2" style={{ color: "#D4A574" }}>
+                Full-Spectrum Healthcare HR
+              </p>
+              <h3 className="font-semibold text-gray-900 text-lg mb-1">
+                Nine service lines. One practice.
+              </h3>
+              <p className="text-sm text-gray-500">
+                Maarova powers our leadership assessment and coaching. But the HR practice goes far deeper.
+              </p>
+            </div>
+            <span
+              className="text-2xl transition-transform group-hover:translate-x-1 shrink-0 ml-6"
+              style={{ color: "#D4A574" }}
+              aria-hidden="true"
+            >
+              &rarr;
+            </span>
+          </Link>
+        </div>
+      </section>
+
       {/* ── DIFFERENTIATORS ────────────────────────────────────────────── */}
       <section className="py-24 px-6" style={{ background: "#fff" }}>
         <div className="max-w-6xl mx-auto">

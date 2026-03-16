@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import MaarovaNav from "@/components/cfa/MaarovaNav";
 
 export const metadata: Metadata = {
   title: "Leadership Development | Maarova",
@@ -369,6 +370,8 @@ export default function DevelopmentPage() {
           </div>
         </div>
       </section>
+
+      <MaarovaNav current="/maarova/development" />
 
       {/* ── CTA ──────────────────────────────────────────────────────────── */}
       <section

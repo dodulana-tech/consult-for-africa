@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import MaarovaNav from "@/components/cfa/MaarovaNav";
 
 export const metadata: Metadata = {
   title: "Healthcare HR Services | Maarova by CFA",
@@ -415,6 +416,8 @@ export default function MaarovaServicesPage() {
         </div>
       </section>
 
+      <MaarovaNav current="/maarova/services" />
+
       {/* ── CTA ────────────────────────────────────────────────────────── */}
       <section className="py-24 px-6" style={{ background: "#fff" }}>
         <div className="max-w-3xl mx-auto text-center">
@@ -441,7 +444,7 @@ export default function MaarovaServicesPage() {
               className="px-8 py-3.5 rounded-lg text-sm font-semibold transition-all hover:scale-[1.02] hover:shadow-lg"
               style={{ background: "#D4A574", color: "#06090f" }}
             >
-              Book a Consultation
+              Book a Demo
             </Link>
             <Link
               href="/maarova"
