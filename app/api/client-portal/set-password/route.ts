@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 import { NextRequest } from "next/server";
+import { emailClientPortalInvite } from "@/lib/email";
 
 const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR", "ENGAGEMENT_MANAGER"];
 
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
 
   const contact = await prisma.clientContact.findUnique({
     where: { id: contactId as string },
-    select: { id: true },
+    select: { id: true, name: true, email: true, client: { select: { name: true } } },
   });
 
   if (!contact) return new Response("Contact not found", { status: 404 });
@@ -33,6 +34,13 @@ export async function POST(req: NextRequest) {
   await prisma.clientContact.update({
     where: { id: contactId as string },
     data: { passwordHash, isPortalEnabled: true },
+  });
+
+  await emailClientPortalInvite({
+    contactEmail: contact.email,
+    contactName: contact.name,
+    clientName: contact.client.name,
+    password: password as string,
   });
 
   return Response.json({ ok: true });

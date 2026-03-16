@@ -316,6 +316,57 @@ export async function sendInvite(
   );
 }
 
+export async function emailClientPortalInvite({
+  contactEmail,
+  contactName,
+  clientName,
+  password,
+}: {
+  contactEmail: string;
+  contactName: string;
+  clientName: string;
+  password: string;
+}) {
+  const firstName = esc(contactName.split(" ")[0]);
+  const safeEmail = esc(contactEmail);
+  const safePassword = esc(password);
+  const safeClientName = esc(clientName);
+
+  await send(
+    contactEmail,
+    "Your Client Portal Access | Consult for Africa",
+    layout(`
+      ${h1(`Welcome, ${firstName}`)}
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
+        Your client portal account for <strong>${safeClientName}</strong> is now active on the Consult for Africa platform.
+      </p>
+      <p style="margin:0 0 20px;font-size:14px;line-height:1.6;color:#6B7280;">
+        Through the portal you can track project progress, view deliverables, see milestones, and contact your engagement manager directly.
+      </p>
+      <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:20px;margin:16px 0;">
+        <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#9CA3AF;font-weight:600;">Your login credentials</p>
+        <table style="width:100%;border-collapse:collapse;margin-top:12px;">
+          <tr>
+            <td style="padding:6px 0;font-size:13px;color:#6B7280;width:140px;">Email</td>
+            <td style="padding:6px 0;font-size:13px;font-weight:600;color:#111827;"><a href="mailto:${safeEmail}" style="color:#0F2744;">${safeEmail}</a></td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0;font-size:13px;color:#6B7280;">Password</td>
+            <td style="padding:6px 0;font-size:13px;font-weight:600;color:#111827;font-family:monospace;letter-spacing:0.5px;">${safePassword}</td>
+          </tr>
+        </table>
+      </div>
+      <p style="margin:16px 0;font-size:14px;line-height:1.6;color:#374151;">
+        Please change your password after your first login for security.
+      </p>
+      ${btn("Log In to Portal", `${BASE_URL}/client/login`)}
+      <p style="margin:20px 0 0;font-size:12px;color:#9CA3AF;line-height:1.5;">
+        If you did not expect this email, please disregard it or contact us at hello@consultforafrica.com.
+      </p>
+    `)
+  );
+}
+
 export async function emailPaymentProcessed({
   consultantEmail,
   consultantName,

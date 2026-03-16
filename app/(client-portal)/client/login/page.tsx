@@ -44,12 +44,8 @@ export default function ClientPortalLoginPage() {
       <div className="w-full max-w-md">
         {/* Logo / Brand */}
         <div className="text-center mb-8">
-          <div
-            className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4"
-            style={{ background: "#0F2744" }}
-          >
-            <span className="text-white font-bold text-lg">C</span>
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-cfa.png" alt="Consult for Africa" className="mx-auto mb-4" style={{ height: 48, width: "auto" }} />
           <h1 className="text-2xl font-bold" style={{ color: "#0F2744" }}>
             Client Portal
           </h1>
