@@ -1,5 +1,6 @@
 import Navbar from "@/components/cfa/Navbar";
 import Footer from "@/components/cfa/Footer";
+import NuruChat from "@/components/cfa/NuruChat";
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -7,6 +8,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
       <Navbar />
       {children}
       <Footer />
+      <NuruChat />
     </>
   );
 }
