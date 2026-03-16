@@ -1,0 +1,367 @@
+import { getMaarovaSession } from "@/lib/maarovaAuth";
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
+import Link from "next/link";
+
+const statusConfig: Record<
+  string,
+  { label: string; bg: string; text: string; border: string }
+> = {
+  NOT_STARTED: {
+    label: "Not Started",
+    bg: "rgba(255,255,255,0.05)",
+    text: "rgba(255,255,255,0.4)",
+    border: "rgba(255,255,255,0.08)",
+  },
+  IN_PROGRESS: {
+    label: "In Progress",
+    bg: "rgba(212,165,116,0.1)",
+    text: "#D4A574",
+    border: "rgba(212,165,116,0.3)",
+  },
+  COMPLETED: {
+    label: "Completed",
+    bg: "rgba(16,185,129,0.1)",
+    text: "#10B981",
+    border: "rgba(16,185,129,0.3)",
+  },
+  EXPIRED: {
+    label: "Expired",
+    bg: "rgba(239,68,68,0.1)",
+    text: "#EF4444",
+    border: "rgba(239,68,68,0.3)",
+  },
+};
+
+const moduleIcons: Record<string, React.ReactNode> = {
+  DISC: (
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  ),
+  VALUES_DRIVERS: (
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+    </svg>
+  ),
+  EMOTIONAL_INTEL: (
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+    </svg>
+  ),
+  CILTI: (
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+    </svg>
+  ),
+  THREE_SIXTY: (
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+    </svg>
+  ),
+  CULTURE_TEAM: (
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+  ),
+};
+
+export default async function AssessmentLauncherPage() {
+  const auth = await getMaarovaSession();
+  if (!auth) redirect("/maarova/portal/login");
+
+  // Get active session for this user (most recent non-expired)
+  const session = await prisma.maarovaAssessmentSession.findFirst({
+    where: {
+      userId: auth.sub,
+      status: { in: ["NOT_STARTED", "IN_PROGRESS", "COMPLETED"] },
+      expiresAt: { gt: new Date() },
+    },
+    orderBy: { createdAt: "desc" },
+    include: {
+      moduleResponses: {
+        include: {
+          module: true,
+          itemResponses: { select: { id: true } },
+        },
+        orderBy: { module: { order: "asc" } },
+      },
+    },
+  });
+
+  const completedCount = session
+    ? session.moduleResponses.filter((mr) => mr.status === "COMPLETED").length
+    : 0;
+  const totalModules = session ? session.moduleResponses.length : 0;
+  const progressPercent =
+    totalModules > 0 ? Math.round((completedCount / totalModules) * 100) : 0;
+
+  return (
+    <div className="p-8 max-w-5xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          Leadership Assessment
+        </h1>
+        <p className="text-gray-500 text-sm">
+          Complete all six modules to generate your personalised leadership
+          profile. Modules can be completed in any order.
+        </p>
+      </div>
+
+      {!session ? (
+        /* No session - show begin button */
+        <div
+          className="rounded-2xl p-12 text-center"
+          style={{
+            background: "linear-gradient(135deg, #0f1a2a 0%, #1a2d45 100%)",
+          }}
+        >
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
+            style={{ background: "rgba(212,165,116,0.15)" }}
+          >
+            <svg
+              className="w-8 h-8"
+              style={{ color: "#D4A574" }}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-white mb-3">
+            Ready to begin your assessment?
+          </h2>
+          <p
+            className="mb-8 max-w-md mx-auto text-sm leading-relaxed"
+            style={{ color: "rgba(255,255,255,0.5)" }}
+          >
+            The Maarova Leadership Assessment takes approximately 45 to 60
+            minutes to complete. You have 7 days from when you start, and you
+            can save your progress at any time.
+          </p>
+          <form action="/api/maarova/sessions" method="POST">
+            <BeginAssessmentButton />
+          </form>
+        </div>
+      ) : (
+        <>
+          {/* Progress bar */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">
+                Overall Progress
+              </span>
+              <span className="text-sm text-gray-500">
+                {completedCount} of {totalModules} modules completed
+              </span>
+            </div>
+            <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${progressPercent}%`,
+                  background:
+                    progressPercent === 100
+                      ? "#10B981"
+                      : "linear-gradient(90deg, #D4A574, #e8c9a0)",
+                }}
+              />
+            </div>
+            {session.status === "COMPLETED" && (
+              <div className="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+                <p className="text-sm text-emerald-800 font-medium">
+                  All modules completed. Your leadership report is being
+                  generated.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Module cards */}
+          <div className="grid gap-4">
+            {session.moduleResponses.map((mr) => {
+              const mod = mr.module;
+              const status = statusConfig[mr.status] ?? statusConfig.NOT_STARTED;
+              const isCompleted = mr.status === "COMPLETED";
+              const isInProgress = mr.status === "IN_PROGRESS";
+              const answeredCount = mr.itemResponses.length;
+
+              return (
+                <div
+                  key={mr.id}
+                  className="rounded-xl border p-6 flex items-center gap-5 transition-all hover:shadow-md"
+                  style={{
+                    borderColor: isCompleted
+                      ? "rgba(16,185,129,0.2)"
+                      : "rgba(0,0,0,0.06)",
+                    background: isCompleted
+                      ? "rgba(16,185,129,0.02)"
+                      : "#fff",
+                  }}
+                >
+                  {/* Icon */}
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{
+                      background: isCompleted
+                        ? "rgba(16,185,129,0.1)"
+                        : isInProgress
+                          ? "rgba(212,165,116,0.1)"
+                          : "rgba(0,0,0,0.04)",
+                      color: isCompleted
+                        ? "#10B981"
+                        : isInProgress
+                          ? "#D4A574"
+                          : "#9CA3AF",
+                    }}
+                  >
+                    {moduleIcons[mod.type] ?? (
+                      <svg
+                        className="w-6 h-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle cx="12" cy="12" r="10" strokeWidth={1.5} />
+                      </svg>
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-1">
+                      <h3 className="text-base font-semibold text-gray-900">
+                        {mod.name}
+                      </h3>
+                      <span
+                        className="text-xs font-medium px-2.5 py-0.5 rounded-full"
+                        style={{
+                          background: status.bg,
+                          color: status.text,
+                          border: `1px solid ${status.border}`,
+                        }}
+                      >
+                        {status.label}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-500 mb-1 line-clamp-1">
+                      {mod.description}
+                    </p>
+                    <div className="flex items-center gap-4 text-xs text-gray-400">
+                      <span>{mod.estimatedMinutes} min</span>
+                      {answeredCount > 0 && !isCompleted && (
+                        <span>{answeredCount} answers saved</span>
+                      )}
+                      {isCompleted && mr.completedAt && (
+                        <span>
+                          Completed{" "}
+                          {new Date(mr.completedAt).toLocaleDateString("en-NG", {
+                            day: "numeric",
+                            month: "short",
+                          })}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Action */}
+                  <div className="flex-shrink-0">
+                    {isCompleted ? (
+                      <div className="flex items-center gap-1.5 text-emerald-600 text-sm font-medium">
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        Done
+                      </div>
+                    ) : (
+                      <Link
+                        href={`/maarova/portal/assessment/${mod.slug}`}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all hover:scale-[1.02]"
+                        style={{
+                          background: isInProgress ? "#D4A574" : "#0f1a2a",
+                          color: isInProgress ? "#06090f" : "#fff",
+                        }}
+                      >
+                        {isInProgress ? "Continue" : "Start"}
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Session info */}
+          <div className="mt-8 text-xs text-gray-400 flex items-center gap-4">
+            <span>
+              Session expires:{" "}
+              {new Date(session.expiresAt).toLocaleDateString("en-NG", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            </span>
+            <span>Session ID: {session.id.slice(0, 8)}</span>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* Client component for the begin button (needs form submission via JS) */
+function BeginAssessmentButton() {
+  return (
+    <button
+      type="submit"
+      className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02] hover:shadow-lg"
+      style={{ background: "#D4A574", color: "#06090f" }}
+    >
+      Begin Assessment
+      <svg
+        className="w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M13 7l5 5m0 0l-5 5m5-5H6"
+        />
+      </svg>
+    </button>
+  );
+}
