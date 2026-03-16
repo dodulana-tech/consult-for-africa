@@ -101,7 +101,48 @@ export async function PATCH(req: NextRequest) {
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
   if (!isAdmin) return new Response("Forbidden", { status: 403 });
 
-  const { userId, role } = await req.json();
+  const body = await req.json();
+
+  // Resend invite flow
+  if (body.action === "resend-invite") {
+    const { userId } = body;
+    if (!userId) return new Response("userId required", { status: 400 });
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true, email: true, role: true },
+    });
+    if (!user) return new Response("User not found", { status: 404 });
+
+    const tempPassword = randomBytes(12).toString("base64url") + "!1A";
+    const passwordHash = await bcrypt.hash(tempPassword, 12);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+
+    try {
+      await sendInvite(user.email, user.name, user.role, tempPassword);
+    } catch (err) {
+      console.error("Failed to resend invite email:", err);
+      return new Response("Failed to send email", { status: 500 });
+    }
+
+    await logAudit({
+      userId: session.user.id,
+      action: "UPDATE",
+      entityType: "User",
+      entityId: user.id,
+      entityName: user.name,
+      details: { action: "resend-invite" },
+    });
+
+    return Response.json({ ok: true });
+  }
+
+  // Role change flow
+  const { userId, role } = body;
   if (!userId || !role) return new Response("userId and role required", { status: 400 });
   if (!VALID_ROLES.includes(role)) return new Response("Invalid role", { status: 400 });
 
@@ -114,4 +155,41 @@ export async function PATCH(req: NextRequest) {
   });
 
   return Response.json({ ok: true, user: updated });
+}
+
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  if (!session) return new Response("Unauthorized", { status: 401 });
+
+  const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
+  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+
+  const { userId } = await req.json();
+  if (!userId) return new Response("userId required", { status: 400 });
+
+  if (userId === session.user.id) return new Response("Cannot delete yourself", { status: 400 });
+
+  const target = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, name: true, email: true, role: true },
+  });
+  if (!target) return new Response("User not found", { status: 404 });
+
+  // Prevent deleting other partners/admins unless you are ADMIN
+  if (["PARTNER", "ADMIN"].includes(target.role) && session.user.role !== "ADMIN") {
+    return new Response("Only admins can remove partners or admins", { status: 403 });
+  }
+
+  await prisma.user.delete({ where: { id: userId } });
+
+  await logAudit({
+    userId: session.user.id,
+    action: "DELETE",
+    entityType: "User",
+    entityId: target.id,
+    entityName: target.name,
+    details: { role: target.role, email: target.email },
+  });
+
+  return Response.json({ ok: true });
 }

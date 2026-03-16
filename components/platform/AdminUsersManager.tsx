@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, X, CheckCircle2, AlertCircle, ChevronDown, User, Star, Shield } from "lucide-react";
+import { Plus, X, CheckCircle2, AlertCircle, ChevronDown, User, Star, Shield, Trash2, RotateCw } from "lucide-react";
 
 type UserRow = {
   id: string;
@@ -46,6 +46,9 @@ export default function AdminUsersManager({ users: initialUsers, currentUserId }
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");
   const [changingRole, setChangingRole] = useState<string | null>(null);
+  const [resending, setResending] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   function setField(k: string, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -95,6 +98,52 @@ export default function AdminUsersManager({ users: initialUsers, currentUserId }
       // silent fail
     } finally {
       setChangingRole(null);
+    }
+  }
+
+  async function resendInvite(userId: string) {
+    setResending(userId);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "resend-invite", userId }),
+      });
+      if (!res.ok) {
+        setError(await res.text().catch(() => "Failed to resend invite."));
+        return;
+      }
+      const user = users.find((u) => u.id === userId);
+      setSuccess(`Invite resent to ${user?.name ?? "user"}. A new temporary password has been emailed.`);
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setResending(null);
+    }
+  }
+
+  async function deleteUser(userId: string) {
+    setDeleting(userId);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      if (!res.ok) {
+        setError(await res.text().catch(() => "Failed to delete user."));
+        return;
+      }
+      const user = users.find((u) => u.id === userId);
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+      setSuccess(`${user?.name ?? "User"} has been removed.`);
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setDeleting(null);
+      setConfirmDelete(null);
     }
   }
 
@@ -284,6 +333,46 @@ export default function AdminUsersManager({ users: initialUsers, currentUserId }
                     </select>
                     <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                   </div>
+
+                  {/* Actions */}
+                  {u.id !== currentUserId && (
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => resendInvite(u.id)}
+                        disabled={resending === u.id}
+                        title="Resend invite"
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors disabled:opacity-50"
+                      >
+                        <RotateCw size={13} className={resending === u.id ? "animate-spin" : ""} />
+                      </button>
+
+                      {confirmDelete === u.id ? (
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => deleteUser(u.id)}
+                            disabled={deleting === u.id}
+                            className="px-2 py-1 rounded-lg text-[10px] font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50"
+                          >
+                            {deleting === u.id ? "..." : "Confirm"}
+                          </button>
+                          <button
+                            onClick={() => setConfirmDelete(null)}
+                            className="px-2 py-1 rounded-lg text-[10px] font-medium text-gray-500 bg-gray-100 hover:bg-gray-200"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmDelete(u.id)}
+                          title="Remove user"
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
