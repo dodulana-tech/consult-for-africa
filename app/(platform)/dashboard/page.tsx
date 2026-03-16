@@ -22,6 +22,17 @@ export default async function DashboardPage() {
   const isDirector = role === "DIRECTOR" || role === "PARTNER" || role === "ADMIN";
   const isConsultant = role === "CONSULTANT";
 
+  // Redirect new consultants to onboarding if not yet completed
+  if (isConsultant) {
+    const onboarding = await prisma.consultantOnboarding.findUnique({
+      where: { userId },
+      select: { status: true },
+    });
+    if (onboarding && onboarding.status !== "ACTIVE") {
+      redirect("/onboarding");
+    }
+  }
+
   const projectWhere = isDirector
     ? {}
     : isEM

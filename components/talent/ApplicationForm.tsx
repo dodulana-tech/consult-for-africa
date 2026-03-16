@@ -154,7 +154,7 @@ export default function ApplicationForm() {
         </p>
         {result.aiScore !== null && (
           <div className="inline-block rounded-xl px-6 py-4 mb-6" style={{ background: "#EFF6FF", border: "1px solid #BFDBFE" }}>
-            <p className="text-xs text-blue-600 font-semibold uppercase tracking-wide mb-1">Initial AI Compatibility Score</p>
+            <p className="text-xs text-blue-600 font-semibold uppercase tracking-wide mb-1">Initial Compatibility Score</p>
             <p className="text-3xl font-bold" style={{ color: "#0F2744" }}>{result.aiScore}<span className="text-lg text-gray-400">/100</span></p>
           </div>
         )}
