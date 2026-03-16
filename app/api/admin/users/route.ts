@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
   if (!isAdmin) return new Response("Forbidden", { status: 403 });
 
-  const { name, email, role, sendWelcomeEmail } = await req.json();
+  const { name, email, role, sendWelcomeEmail, assessmentLevel } = await req.json();
 
   if (!name?.trim() || !email?.trim() || !role) {
     return new Response("name, email, and role are required", { status: 400 });
@@ -69,6 +69,15 @@ export async function POST(req: NextRequest) {
         bio: "",
         location: "Nigeria",
         yearsExperience: 0,
+      },
+    });
+
+    const level = ["LIGHT", "STANDARD", "FULL"].includes(assessmentLevel) ? assessmentLevel : "STANDARD";
+    await prisma.consultantOnboarding.create({
+      data: {
+        userId: user.id,
+        status: "INVITED",
+        assessmentLevel: level,
       },
     });
   }

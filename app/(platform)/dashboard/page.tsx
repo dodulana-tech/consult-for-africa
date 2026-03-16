@@ -148,6 +148,16 @@ export default async function DashboardPage() {
     return true;
   });
 
+  // ─── Check onboarding status for consultants ─────────────────────────────
+  const onboarding = isConsultant
+    ? await prisma.consultantOnboarding.findUnique({
+        where: { userId },
+        select: { status: true },
+      })
+    : null;
+
+  const showOnboardingBanner = onboarding && onboarding.status !== "ACTIVE" && onboarding.status !== "REJECTED";
+
   const nameParts = session.user.name?.split(" ") ?? [];
   const TITLES = ["dr.", "mr.", "mrs.", "ms.", "prof.", "sir"];
   const firstName = nameParts.find((p) => !TITLES.includes(p.toLowerCase().replace(",", ""))) ?? "there";
@@ -160,6 +170,30 @@ export default async function DashboardPage() {
       />
 
       <main className="flex-1 overflow-y-auto p-6 space-y-6">
+
+        {/* Onboarding banner */}
+        {showOnboardingBanner && (
+          <Link
+            href="/onboarding"
+            className="flex items-center gap-4 px-5 py-4 rounded-xl transition-shadow hover:shadow-sm"
+            style={{ background: "#EFF6FF", border: "1px solid #BFDBFE" }}
+          >
+            <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#DBEAFE" }}>
+              <Sparkles size={18} className="text-blue-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-blue-900">Complete your onboarding</p>
+              <p className="text-xs text-blue-700 mt-0.5">
+                {onboarding.status === "REVIEW"
+                  ? "Your profile is under review. We will notify you when it is approved."
+                  : "Set up your profile, banking details, and skills assessment to get started."}
+              </p>
+            </div>
+            {onboarding.status !== "REVIEW" && (
+              <span className="text-xs font-semibold text-blue-600 shrink-0">Continue &rarr;</span>
+            )}
+          </Link>
+        )}
 
         {/* Alerts */}
         {uniqueAlerts.length > 0 && (

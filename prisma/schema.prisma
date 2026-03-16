@@ -230,6 +230,7 @@ model User {
   staffingRequests       StaffingRequest[]    @relation("StaffingRequestCreator")
   staffingExpressions    StaffingExpression[] @relation("StaffingExpressions")
   proposals              Proposal[]
+  onboarding             ConsultantOnboarding?
 }
 
 model ConsultantProfile {
@@ -730,6 +731,7 @@ enum TalentApplicationStatus {
   SHORTLISTED
   INTERVIEW_SCHEDULED
   OFFER_EXTENDED
+  APPROVED
   HIRED
   REJECTED
   WITHDRAWN
@@ -763,6 +765,7 @@ model TalentApplication {
 
   // Application
   cvText            String?  @db.Text
+  cvFileUrl         String?
   coverLetter       String?  @db.Text
   availableFrom     DateTime?
   engagementTypes   String[] // array of EngagementType values
@@ -781,6 +784,10 @@ model TalentApplication {
   reviewedById    String?
   reviewedBy      User?   @relation("ApplicationReviewer", fields: [reviewedById], references: [id])
   reviewedAt      DateTime?
+
+  // Onboarding link
+  convertedToUserId String?
+  assessmentLevel   String  @default("STANDARD") // LIGHT, STANDARD, FULL
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1787,4 +1794,34 @@ model MaarovaNormativeData {
 
   @@unique([moduleType, dimension, subDimension, country, sectorType, roleLevel])
   @@index([moduleType, dimension])
+}
+
+// ─── Consultant Onboarding ──────────────────────────────────────────────────
+
+enum OnboardingStatus {
+  INVITED
+  PROFILE_SETUP
+  ASSESSMENT_PENDING
+  ASSESSMENT_COMPLETE
+  REVIEW
+  ACTIVE
+  REJECTED
+}
+
+model ConsultantOnboarding {
+  id                  String           @id @default(cuid())
+  userId              String           @unique
+  user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status              OnboardingStatus @default(INVITED)
+  assessmentLevel     String           @default("STANDARD") // LIGHT, STANDARD, FULL
+  profileCompleted    Boolean          @default(false)
+  assessmentCompleted Boolean          @default(false)
+  reviewedById        String?
+  reviewNotes         String?          @db.Text
+  approvedAt          DateTime?
+  applicationId       String?          // link back to TalentApplication if came from public apply
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  @@index([status])
 }

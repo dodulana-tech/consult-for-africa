@@ -1,31 +1,117 @@
 import { auth } from "@/auth";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { NextRequest } from "next/server";
+import { generateUploadUrl, generateDownloadUrl, buildKey, getPublicUrl } from "@/lib/r2";
 
+const ALLOWED_CONTENT_TYPES: Record<string, string> = {
+  "application/pdf": "pdf",
+  "application/msword": "doc",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+  "application/vnd.ms-excel": "xls",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+  "application/vnd.ms-powerpoint": "ppt",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation": "pptx",
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/gif": "gif",
+  "image/webp": "webp",
+  "text/csv": "csv",
+  "text/plain": "txt",
+  "application/zip": "zip",
+};
+
+const ALLOWED_FOLDERS = ["deliverables", "cvs", "knowledge", "avatars", "documents"] as const;
+type Folder = (typeof ALLOWED_FOLDERS)[number];
+
+const MAX_FILE_SIZE_MB = 50;
+
+/**
+ * POST: Generate a presigned upload URL for authenticated users.
+ */
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session?.user) {
+    return new Response("Unauthorized", { status: 401 });
+  }
 
-  const formData = await req.formData();
-  const file = formData.get("file") as File | null;
-  if (!file) return new Response("No file", { status: 400 });
+  let body: { filename?: string; contentType?: string; folder?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return new Response("Invalid JSON body", { status: 400 });
+  }
 
-  const MAX_BYTES = 50 * 1024 * 1024;
-  if (file.size > MAX_BYTES) return new Response("File too large (max 50MB)", { status: 413 });
+  const { filename, contentType, folder } = body;
 
-  const ALLOWED_EXTENSIONS = ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "jpg", "jpeg", "png"];
-  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
-  if (!ALLOWED_EXTENSIONS.includes(ext)) return new Response("File type not allowed", { status: 415 });
+  if (!filename || !contentType || !folder) {
+    return Response.json(
+      { error: "filename, contentType, and folder are required" },
+      { status: 400 }
+    );
+  }
 
-  const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-  const uniqueName = `${Date.now()}-${Math.random().toString(36).slice(2)}-${safeName}`;
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
-  await mkdir(uploadDir, { recursive: true });
-  const filePath = path.join(uploadDir, uniqueName);
+  if (!ALLOWED_FOLDERS.includes(folder as Folder)) {
+    return Response.json(
+      { error: `Invalid folder. Allowed: ${ALLOWED_FOLDERS.join(", ")}` },
+      { status: 400 }
+    );
+  }
 
-  const bytes = await file.arrayBuffer();
-  await writeFile(filePath, Buffer.from(bytes));
+  if (!ALLOWED_CONTENT_TYPES[contentType]) {
+    return Response.json(
+      { error: "File type not allowed" },
+      { status: 415 }
+    );
+  }
 
-  return Response.json({ url: `/uploads/${uniqueName}` });
+  const key = buildKey(folder, filename);
+
+  try {
+    const uploadUrl = await generateUploadUrl(key, contentType);
+    const publicUrl = getPublicUrl(key);
+
+    return Response.json({
+      uploadUrl,
+      key,
+      publicUrl,
+      maxSizeMB: MAX_FILE_SIZE_MB,
+    });
+  } catch (err) {
+    console.error("[upload] Failed to generate presigned URL", err);
+    return Response.json(
+      { error: "Failed to generate upload URL" },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * GET: Generate a presigned download URL for authenticated users.
+ */
+export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  const key = req.nextUrl.searchParams.get("key");
+  if (!key) {
+    return Response.json({ error: "key query parameter is required" }, { status: 400 });
+  }
+
+  // Validate the key starts with an allowed folder
+  const folder = key.split("/")[0];
+  if (!ALLOWED_FOLDERS.includes(folder as Folder)) {
+    return Response.json({ error: "Invalid file key" }, { status: 400 });
+  }
+
+  try {
+    const downloadUrl = await generateDownloadUrl(key);
+    return Response.json({ downloadUrl });
+  } catch (err) {
+    console.error("[upload] Failed to generate download URL", err);
+    return Response.json(
+      { error: "Failed to generate download URL" },
+      { status: 500 }
+    );
+  }
 }

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import { timeAgo } from "@/lib/utils";
+import FileUpload from "@/components/shared/FileUpload";
 
 interface Deliverable {
   id: string;
@@ -237,11 +238,22 @@ export default function DeliverableSubmit({
                 />
               </div>
 
+              <FileUpload
+                folder="deliverables"
+                label="Upload a file"
+                onUpload={({ url }) => setFileUrl(url)}
+              />
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                  <div className="w-full" style={{ borderTop: "1px solid #e5eaf0" }} />
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-white px-3 text-[11px] text-gray-400">Or paste a link</span>
+                </div>
+              </div>
+
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1.5">
-                  File URL
-                  <span className="text-gray-400 ml-1">(Google Drive, Dropbox, etc.)</span>
-                </label>
                 <div className="relative">
                   <Upload size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input

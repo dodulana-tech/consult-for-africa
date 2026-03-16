@@ -23,6 +23,7 @@ import {
   Wrench,
   Radio,
   Brain,
+  ClipboardList,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
@@ -137,6 +138,17 @@ export default function Sidebar() {
             >
               <Share2 size={16} style={{ color: pathname === "/admin/referrals" ? "#0F2744" : "#94A3B8" }} />
               Referrals
+            </Link>
+            <Link
+              href="/admin/onboarding"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+              style={{
+                background: pathname.startsWith("/admin/onboarding") ? "#EFF6FF" : "transparent",
+                color: pathname.startsWith("/admin/onboarding") ? "#0F2744" : "#64748B",
+              }}
+            >
+              <ClipboardList size={16} style={{ color: pathname.startsWith("/admin/onboarding") ? "#0F2744" : "#94A3B8" }} />
+              Onboarding
             </Link>
             <Link
               href="/admin/maarova"

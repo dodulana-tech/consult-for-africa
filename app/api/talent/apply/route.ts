@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   const {
     firstName, lastName, email, phone, linkedinUrl, location,
     specialty, yearsExperience, currentRole, currentOrg,
-    workAuthorization, cvText, coverLetter, availableFrom,
+    workAuthorization, cvText, cvFileUrl, coverLetter, availableFrom,
     engagementTypes,
   } = body;
 
@@ -138,6 +138,7 @@ Return ONLY valid JSON matching this exact structure:
       currentOrg: currentOrg ?? null,
       workAuthorization: workAuthorization ?? "nigerian_citizen",
       cvText: cvText ?? null,
+      cvFileUrl: cvFileUrl ?? null,
       coverLetter: coverLetter ?? null,
       availableFrom: availableFrom ? new Date(availableFrom) : null,
       engagementTypes: engagementTypes ?? [],

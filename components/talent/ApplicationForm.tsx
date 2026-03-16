@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CheckCircle, ChevronDown, Loader2 } from "lucide-react";
+import FileUpload from "@/components/shared/FileUpload";
 
 const SPECIALTIES = [
   "Hospital Operations Management",
@@ -58,6 +59,7 @@ export default function ApplicationForm() {
     engagementTypes: [] as string[],
     availableFrom: "",
     cvText: "",
+    cvFileUrl: "",
     coverLetter: "",
   });
 
@@ -103,8 +105,8 @@ export default function ApplicationForm() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.cvText && !form.coverLetter) {
-      setError("Please paste your CV text or write a cover letter.");
+    if (!form.cvText && !form.cvFileUrl && !form.coverLetter) {
+      setError("Please upload your CV, paste CV text, or write a cover letter.");
       return;
     }
     setError("");
@@ -117,6 +119,7 @@ export default function ApplicationForm() {
           ...form,
           yearsExperience: Number(form.yearsExperience),
           availableFrom: form.availableFrom || undefined,
+          cvFileUrl: form.cvFileUrl || undefined,
         }),
       });
       if (!res.ok) {
@@ -267,8 +270,16 @@ export default function ApplicationForm() {
                   <select value={form.yearsExperience} onChange={(e) => set("yearsExperience", e.target.value)}
                     className={`${inputClass} appearance-none pr-8`} style={inputStyle}>
                     <option value="">Select range</option>
-                    {["1-3", "3-5", "5-8", "8-12", "12-15", "15-20", "20+"].map((r) => (
-                      <option key={r} value={r.replace("+", "")}>{r} years</option>
+                    {[
+                      { label: "1-3 years", value: "1" },
+                      { label: "3-5 years", value: "3" },
+                      { label: "5-8 years", value: "5" },
+                      { label: "8-12 years", value: "8" },
+                      { label: "12-15 years", value: "12" },
+                      { label: "15-20 years", value: "15" },
+                      { label: "20+ years", value: "20" },
+                    ].map((r) => (
+                      <option key={r.value} value={r.value}>{r.label}</option>
                     ))}
                   </select>
                   <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -313,9 +324,27 @@ export default function ApplicationForm() {
         {/* Step 3: Application */}
         {step === 3 && (
           <div className="space-y-4">
+            <FileUpload
+              folder="cvs"
+              isPublic
+              accept=".pdf,.doc,.docx"
+              label="Upload your CV"
+              maxSizeMB={10}
+              onUpload={({ url }) => set("cvFileUrl", url)}
+            />
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                <div className="w-full" style={{ borderTop: "1px solid #E5E7EB" }} />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-white px-3 text-[11px] text-gray-400">Or paste your CV text below</span>
+              </div>
+            </div>
+
             <div>
-              <label className={labelClass}>CV / Resume (paste text) <span className="text-red-400">*</span></label>
-              <p className="text-xs text-gray-400 mb-2">Paste the text content of your CV. Our AI uses this to assess your experience.</p>
+              <label className={labelClass}>CV / Resume (paste text)</label>
+              <p className="text-xs text-gray-400 mb-2">Copy and paste the text content of your CV.</p>
               <textarea
                 value={form.cvText}
                 onChange={(e) => set("cvText", e.target.value)}

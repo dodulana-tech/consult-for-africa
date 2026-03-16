@@ -1,0 +1,101 @@
+import { NextRequest } from "next/server";
+import { generateUploadUrl, buildKey, getPublicUrl } from "@/lib/r2";
+
+const ALLOWED_CONTENT_TYPES: Record<string, string> = {
+  "application/pdf": "pdf",
+  "application/msword": "doc",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+  "text/plain": "txt",
+};
+
+const PUBLIC_FOLDERS = ["cvs", "documents"] as const;
+type PublicFolder = (typeof PUBLIC_FOLDERS)[number];
+
+const MAX_FILE_SIZE_MB = 10;
+
+// Simple in-memory rate limiter (per IP, 10 requests per minute)
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 10;
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+
+  entry.count++;
+  if (entry.count > RATE_LIMIT_MAX) return true;
+  return false;
+}
+
+/**
+ * POST: Generate a presigned upload URL for public users (no auth).
+ * Restricted to CVs and documents, max 10MB, rate-limited.
+ */
+export async function POST(req: NextRequest) {
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    req.headers.get("x-real-ip") ??
+    "unknown";
+
+  if (isRateLimited(ip)) {
+    return Response.json(
+      { error: "Too many requests. Please try again in a minute." },
+      { status: 429 }
+    );
+  }
+
+  let body: { filename?: string; contentType?: string; folder?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return new Response("Invalid JSON body", { status: 400 });
+  }
+
+  const { filename, contentType, folder } = body;
+
+  if (!filename || !contentType || !folder) {
+    return Response.json(
+      { error: "filename, contentType, and folder are required" },
+      { status: 400 }
+    );
+  }
+
+  if (!PUBLIC_FOLDERS.includes(folder as PublicFolder)) {
+    return Response.json(
+      { error: `Invalid folder. Allowed: ${PUBLIC_FOLDERS.join(", ")}` },
+      { status: 400 }
+    );
+  }
+
+  if (!ALLOWED_CONTENT_TYPES[contentType]) {
+    return Response.json(
+      { error: "File type not allowed. Accepted: PDF, DOC, DOCX, TXT" },
+      { status: 415 }
+    );
+  }
+
+  const key = buildKey(folder, filename);
+
+  try {
+    const uploadUrl = await generateUploadUrl(key, contentType);
+    const publicUrl = getPublicUrl(key);
+
+    return Response.json({
+      uploadUrl,
+      key,
+      publicUrl,
+      maxSizeMB: MAX_FILE_SIZE_MB,
+    });
+  } catch (err) {
+    console.error("[upload/public] Failed to generate presigned URL", err);
+    return Response.json(
+      { error: "Failed to generate upload URL" },
+      { status: 500 }
+    );
+  }
+}
