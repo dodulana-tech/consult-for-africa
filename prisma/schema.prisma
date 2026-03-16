@@ -295,9 +295,10 @@ model Client {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  projects  Project[]
-  invoices  Invoice[]
-  contacts  ClientContact[]
+  projects          Project[]
+  invoices          Invoice[]
+  contacts          ClientContact[]
+  expansionRequests ClientExpansionRequest[]
 
   @@index([type, status])
 }
@@ -342,7 +343,9 @@ model Project {
   impactMetrics     ProjectImpactMetric[]
   knowledgeAssets   KnowledgeAsset[]
   frameworks        ProjectFramework[]
-  staffingRequests  StaffingRequest[]
+  staffingRequests       StaffingRequest[]
+  satisfactionPulses     ClientSatisfactionPulse[]
+  recommendations        ClientRecommendation[]
 
   @@index([clientId])
   @@index([engagementManagerId])
@@ -932,14 +935,63 @@ model KnowledgeAsset {
   content    String             @db.Text
   assetType  KnowledgeAssetType
   tags       String[]
-  isReusable Boolean            @default(false)
-  fileUrl    String?
-  authorId   String
-  createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
+  isReusable    Boolean            @default(false)
+  clientVisible Boolean            @default(false)
+  fileUrl       String?
+  authorId      String
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
 
   @@index([projectId])
   @@index([assetType, isReusable])
+}
+
+// ─── Client Portal: Expansion & Satisfaction ──────────────────────────────────
+
+model ClientExpansionRequest {
+  id          String       @id @default(cuid())
+  clientId    String
+  client      Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  contactId   String
+  projectId   String?
+  serviceType ServiceType?
+  description String       @db.Text
+  urgency     String       @default("normal")
+  status      String       @default("NEW")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([clientId, status])
+}
+
+model ClientSatisfactionPulse {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  contactId String
+  score     Int
+  feedback  String?  @db.Text
+  period    String
+  createdAt DateTime @default(now())
+
+  @@unique([projectId, contactId, period])
+  @@index([projectId])
+}
+
+model ClientRecommendation {
+  id              String       @id @default(cuid())
+  projectId       String
+  project         Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title           String
+  description     String       @db.Text
+  serviceType     ServiceType?
+  estimatedImpact String?
+  status          String       @default("SUGGESTED")
+  clientResponse  String?      @db.Text
+  createdAt       DateTime     @default(now())
+  respondedAt     DateTime?
+
+  @@index([projectId, status])
 }
 
 model ClientContact {
