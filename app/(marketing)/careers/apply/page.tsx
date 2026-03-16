@@ -25,7 +25,7 @@ export default function ApplyPage() {
           </h1>
           <p className="text-gray-500 text-sm leading-relaxed">
             Complete the form below to apply to CFA's exclusive consultant network.
-            Applications are reviewed by AI and our leadership team within 5 business days.
+            Applications are reviewed by our team within 5 business days.
           </p>
         </div>
 
