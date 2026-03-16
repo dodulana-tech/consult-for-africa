@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import TopBar from "@/components/platform/TopBar";
 import EditConsultantProfile from "@/components/platform/EditConsultantProfile";
 import ChangePasswordForm from "@/components/platform/ChangePasswordForm";
+import NotificationPreferences from "@/components/platform/NotificationPreferences";
 import { User, Lock, Bell, Building2 } from "lucide-react";
 
 export default async function SettingsPage() {
@@ -119,30 +120,7 @@ export default async function SettingsPage() {
               <Bell size={15} className="text-gray-400" />
               <h2 className="text-sm font-semibold text-gray-900">Notifications</h2>
             </div>
-            <div className="space-y-3">
-              {[
-                { label: "Deliverable submitted", sub: "When a consultant submits a deliverable for review" },
-                { label: "Deliverable approved/revised", sub: "When your deliverable is reviewed by an EM" },
-                { label: "Timesheet approved", sub: "When your time entries are approved" },
-                { label: "Payment processed", sub: "When a payment is marked as paid" },
-              ].map((n) => (
-                <div key={n.label} className="flex items-center justify-between py-2 border-b last:border-b-0" style={{ borderColor: "#F3F4F6" }}>
-                  <div>
-                    <p className="text-sm text-gray-700">{n.label}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{n.sub}</p>
-                  </div>
-                  <div
-                    className="w-9 h-5 rounded-full relative"
-                    style={{ background: "#10B981" }}
-                  >
-                    <div className="absolute right-0.5 top-0.5 w-4 h-4 rounded-full bg-white shadow-sm" />
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p className="mt-3 text-xs text-gray-400">
-              Email notifications are active. Granular control coming in a future update.
-            </p>
+            <NotificationPreferences />
           </div>
 
           {/* Admin: Platform info */}

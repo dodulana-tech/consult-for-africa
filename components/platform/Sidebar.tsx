@@ -22,6 +22,7 @@ import {
   GraduationCap,
   Wrench,
   Radio,
+  Brain,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
@@ -29,6 +30,7 @@ const NAV_ITEMS = [
   { label: "Dashboard",      href: "/dashboard",     icon: LayoutDashboard },
   { label: "Projects",       href: "/projects",      icon: Briefcase },
   { label: "Deliverables",   href: "/deliverables",  icon: FileCheck },
+  { label: "Proposals",      href: "/proposals",     icon: FileCheck },
   { label: "Consultants",    href: "/consultants",   icon: Users },
   { label: "Clients",        href: "/clients",       icon: Building2 },
   { label: "Time & Payments",href: "/timesheets",    icon: Clock },
@@ -49,7 +51,7 @@ export default function Sidebar() {
   const isConsultant = role === "CONSULTANT";
 
   const visibleNav = NAV_ITEMS.filter(({ href }) => {
-    if (isConsultant && (href === "/consultants" || href === "/clients" || href === "/talent")) return false;
+    if (isConsultant && (href === "/consultants" || href === "/clients" || href === "/talent" || href === "/proposals")) return false;
     return true;
   });
 
@@ -135,6 +137,17 @@ export default function Sidebar() {
             >
               <Share2 size={16} style={{ color: pathname === "/admin/referrals" ? "#0F2744" : "#94A3B8" }} />
               Referrals
+            </Link>
+            <Link
+              href="/admin/maarova"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+              style={{
+                background: pathname.startsWith("/admin/maarova") ? "#EFF6FF" : "transparent",
+                color: pathname.startsWith("/admin/maarova") ? "#0F2744" : "#64748B",
+              }}
+            >
+              <Brain size={16} style={{ color: pathname.startsWith("/admin/maarova") ? "#0F2744" : "#94A3B8" }} />
+              Maarova Admin
             </Link>
           </>
         )}
