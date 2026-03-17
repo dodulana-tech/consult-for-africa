@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Video, Square, RotateCcw, Loader2, Camera, AlertTriangle } from "lucide-react";
+import { Video, Square, RotateCcw, Loader2, Camera, AlertTriangle, Settings, RefreshCw } from "lucide-react";
 
 interface VideoRecorderProps {
   onRecorded: (blob: Blob) => void;
@@ -9,7 +9,7 @@ interface VideoRecorderProps {
   allowRerecord?: boolean;
 }
 
-type RecorderState = "idle" | "requesting" | "ready" | "recording" | "recorded" | "error";
+type RecorderState = "idle" | "requesting" | "checking" | "ready" | "recording" | "recorded" | "denied" | "error";
 
 export default function VideoRecorder({
   onRecorded,
@@ -22,6 +22,7 @@ export default function VideoRecorder({
   const [rerecordUsed, setRerecordUsed] = useState(false);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [supported, setSupported] = useState(true);
+  const [permissionState, setPermissionState] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const playbackRef = useRef<HTMLVideoElement>(null);
@@ -31,10 +32,23 @@ export default function VideoRecorder({
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number>(0);
 
-  // Check browser support
+  // Check browser support and permission status
   useEffect(() => {
-    if (typeof window !== "undefined" && !window.MediaRecorder) {
+    if (typeof window === "undefined") return;
+
+    if (!window.MediaRecorder) {
       setSupported(false);
+      return;
+    }
+
+    // Check permission state (non-blocking)
+    if (navigator.permissions) {
+      navigator.permissions.query({ name: "camera" as PermissionName }).then((result) => {
+        setPermissionState(result.state);
+        result.onchange = () => setPermissionState(result.state);
+      }).catch(() => {
+        // permissions API not supported for camera in this browser
+      });
     }
   }, []);
 
@@ -55,7 +69,6 @@ export default function VideoRecorder({
     }
   }, []);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       stopStream();
@@ -67,36 +80,52 @@ export default function VideoRecorder({
     setState("requesting");
     setError("");
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 1280, max: 1280 },
-          height: { ideal: 720, max: 720 },
-          facingMode: "user",
-        },
-        audio: true,
-      });
+    // Try progressive resolution: high -> medium -> low -> audio-only
+    const attempts = [
+      { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" }, audio: true },
+      { video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" }, audio: true },
+      { video: true, audio: true },
+    ];
 
-      streamRef.current = stream;
+    for (const constraints of attempts) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        streamRef.current = stream;
 
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.muted = true;
-        await videoRef.current.play();
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.muted = true;
+          await videoRef.current.play();
+        }
+
+        setState("ready");
+        return;
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "NotAllowedError") {
+          setState("denied");
+          setPermissionState("denied");
+          return;
+        }
+        if (err instanceof DOMException && err.name === "NotFoundError") {
+          setError("No camera or microphone found on this device.");
+          setState("error");
+          return;
+        }
+        // Try next resolution
+        continue;
       }
-
-      setState("ready");
-    } catch (err) {
-      const message =
-        err instanceof DOMException && err.name === "NotAllowedError"
-          ? "Camera access was denied. Please allow camera and microphone access in your browser settings, then refresh the page."
-          : err instanceof DOMException && err.name === "NotFoundError"
-            ? "No camera or microphone found. Please connect a camera and microphone."
-            : "Could not access camera. Please check your device permissions.";
-      setError(message);
-      setState("error");
     }
+
+    setError("Could not access camera with any settings. Please check your device.");
+    setState("error");
   }, []);
+
+  // Auto-request camera on mount if permission is already granted
+  useEffect(() => {
+    if (permissionState === "granted" && state === "idle") {
+      requestCamera();
+    }
+  }, [permissionState, state, requestCamera]);
 
   const startRecording = useCallback(() => {
     if (!streamRef.current) return;
@@ -104,7 +133,6 @@ export default function VideoRecorder({
     chunksRef.current = [];
     setElapsed(0);
 
-    // Pick a supported MIME type
     const mimeTypes = [
       "video/webm;codecs=vp9,opus",
       "video/webm;codecs=vp8,opus",
@@ -121,7 +149,7 @@ export default function VideoRecorder({
 
     const recorder = new MediaRecorder(streamRef.current, {
       ...(selectedMime ? { mimeType: selectedMime } : {}),
-      videoBitsPerSecond: 1_000_000, // 1 Mbps for lower bandwidth
+      videoBitsPerSecond: 1_000_000,
     });
 
     recorder.ondataavailable = (e) => {
@@ -139,13 +167,12 @@ export default function VideoRecorder({
       stopStream();
       setState("recorded");
 
-      // Set playback
       if (playbackRef.current) {
         playbackRef.current.src = URL.createObjectURL(blob);
       }
     };
 
-    recorder.start(1000); // collect data every second
+    recorder.start(1000);
     mediaRecorderRef.current = recorder;
 
     startTimeRef.current = Date.now();
@@ -230,39 +257,67 @@ export default function VideoRecorder({
           }}
         />
 
-        {/* Idle / requesting / error overlay */}
-        {(state === "idle" || state === "requesting" || state === "error") && (
+        {/* Idle overlay */}
+        {state === "idle" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-            {state === "requesting" ? (
-              <>
-                <Loader2 size={32} className="animate-spin mb-3 text-gray-300" />
-                <p className="text-sm text-gray-300">Requesting camera access...</p>
-              </>
-            ) : state === "error" ? (
-              <>
-                <AlertTriangle size={32} className="mb-3 text-amber-400" />
-                <p className="text-sm text-amber-200 text-center max-w-xs px-4">{error}</p>
-                <button
-                  onClick={requestCamera}
-                  className="mt-4 px-4 py-2 rounded-lg text-sm font-medium transition-all"
-                  style={{ background: "rgba(255,255,255,0.15)" }}
-                >
-                  Try Again
-                </button>
-              </>
-            ) : (
-              <>
-                <Camera size={40} className="mb-3 text-gray-400" />
-                <p className="text-sm text-gray-400 mb-4">Camera preview will appear here</p>
-                <button
-                  onClick={requestCamera}
-                  className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
-                  style={{ background: "#D4AF37", color: "#0F2744" }}
-                >
-                  Enable Camera
-                </button>
-              </>
-            )}
+            <Camera size={40} className="mb-3 text-gray-400" />
+            <p className="text-sm text-gray-400 mb-4">Camera preview will appear here</p>
+            <button
+              onClick={requestCamera}
+              className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
+              style={{ background: "#D4AF37", color: "#0F2744" }}
+            >
+              Enable Camera
+            </button>
+          </div>
+        )}
+
+        {/* Requesting overlay */}
+        {state === "requesting" && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+            <Loader2 size={32} className="animate-spin mb-3 text-gray-300" />
+            <p className="text-sm text-gray-300">Requesting camera access...</p>
+            <p className="text-xs text-gray-500 mt-2">A browser popup should appear. Click "Allow".</p>
+          </div>
+        )}
+
+        {/* Permission denied overlay - detailed instructions */}
+        {state === "denied" && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-6">
+            <Settings size={32} className="mb-3 text-amber-400" />
+            <p className="text-sm font-semibold text-amber-200 mb-3 text-center">Camera permission needed</p>
+            <div className="text-xs text-gray-300 space-y-2 text-center max-w-sm">
+              <p>Your browser has blocked camera access for this site. To fix:</p>
+              <div className="text-left space-y-1.5 bg-white/10 rounded-lg p-3">
+                <p><strong>Chrome / Edge:</strong> Click the lock or tune icon in the address bar. Set Camera and Microphone to "Allow". Refresh.</p>
+                <p><strong>Firefox:</strong> Click the permissions icon (camera with X) in the address bar. Remove the block. Refresh.</p>
+                <p><strong>Safari:</strong> Go to Safari &gt; Settings &gt; Websites &gt; Camera. Set this site to "Allow".</p>
+                <p><strong>Mobile:</strong> Go to browser Settings &gt; Site Settings &gt; Camera. Find this site and allow.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+              style={{ background: "#D4AF37", color: "#0F2744" }}
+            >
+              <RefreshCw size={14} />
+              Refresh Page
+            </button>
+          </div>
+        )}
+
+        {/* Error overlay */}
+        {state === "error" && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+            <AlertTriangle size={32} className="mb-3 text-amber-400" />
+            <p className="text-sm text-amber-200 text-center max-w-xs px-4">{error}</p>
+            <button
+              onClick={requestCamera}
+              className="mt-4 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+              style={{ background: "rgba(255,255,255,0.15)" }}
+            >
+              Try Again
+            </button>
           </div>
         )}
 
