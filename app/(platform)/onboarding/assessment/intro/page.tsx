@@ -94,10 +94,29 @@ export default function AssessmentIntroPage() {
   const [cameraReady, setCameraReady] = useState(false);
   const [specialty, setSpecialty] = useState("");
   const [profileSpecialty, setProfileSpecialty] = useState<string | null>(null);
+  const [activeAssessment, setActiveAssessment] = useState<{ id: string; status: string; expiresAt: string } | null>(null);
+  const [checkingActive, setCheckingActive] = useState(true);
 
-  // Auto-detect specialty from consultant profile
+  // Check for existing active assessment + auto-detect specialty
   useEffect(() => {
-    async function fetchProfile() {
+    async function init() {
+      // Check active assessment
+      try {
+        const res = await fetch("/api/consultant-assessment");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.assessment && ["NOT_STARTED", "IN_PROGRESS"].includes(data.assessment.status)) {
+            const expiry = new Date(data.assessment.expiresAt);
+            if (expiry > new Date()) {
+              setActiveAssessment(data.assessment);
+            }
+          }
+        }
+      } catch {
+        // Silent
+      }
+
+      // Fetch profile for specialty
       try {
         const res = await fetch("/api/consultant-profile");
         if (res.ok) {
@@ -109,11 +128,56 @@ export default function AssessmentIntroPage() {
           }
         }
       } catch {
-        // Silent - user will pick manually
+        // Silent
       }
+
+      setCheckingActive(false);
     }
-    fetchProfile();
+    init();
   }, []);
+
+  function handleContinue() {
+    if (activeAssessment) {
+      router.push(`/onboarding/assessment?id=${activeAssessment.id}`);
+    }
+  }
+
+  async function handleRestart() {
+    if (!monitoringAcknowledged || !cameraReady || !specialty) return;
+    setLoading(true);
+    setError("");
+
+    try {
+      // Expire the active assessment first
+      if (activeAssessment) {
+        await fetch(`/api/consultant-assessment/${activeAssessment.id}/abandon`, {
+          method: "POST",
+        });
+      }
+
+      // Create new assessment
+      const assessmentSpecialty = SPECIALTY_TO_ASSESSMENT[specialty] ?? "HOSPITAL_OPERATIONS";
+      const res = await fetch("/api/consultant-assessment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ specialty: assessmentSpecialty }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        setError(data?.error ?? "Failed to create assessment session. Please try again.");
+        return;
+      }
+
+      const data = await res.json();
+      setActiveAssessment(null);
+      router.push(`/onboarding/assessment?id=${data.assessment.id}`);
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function handleStart() {
     if (!monitoringAcknowledged || !cameraReady || !specialty) return;
@@ -122,7 +186,6 @@ export default function AssessmentIntroPage() {
     setError("");
 
     try {
-      // Map consultant specialty to assessment question bank specialty
       const assessmentSpecialty = SPECIALTY_TO_ASSESSMENT[specialty] ?? "HOSPITAL_OPERATIONS";
 
       const res = await fetch("/api/consultant-assessment", {
@@ -146,7 +209,7 @@ export default function AssessmentIntroPage() {
     }
   }
 
-  if (sessionStatus === "loading") {
+  if (sessionStatus === "loading" || checkingActive) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="animate-spin text-gray-400" size={32} />
@@ -318,6 +381,43 @@ export default function AssessmentIntroPage() {
           </label>
         </div>
 
+        {/* Active assessment banner */}
+        {activeAssessment && (
+          <div
+            className="mb-6 rounded-xl p-5"
+            style={{ background: "#EFF6FF", border: "1px solid #BFDBFE" }}
+          >
+            <h3 className="text-sm font-semibold text-blue-900 mb-2">You have an active assessment</h3>
+            <p className="text-xs text-blue-700 mb-1">
+              Status: {activeAssessment.status === "IN_PROGRESS" ? "In progress" : "Not yet started"}
+            </p>
+            <p className="text-xs text-blue-600 mb-4">
+              Expires: {new Date(activeAssessment.expiresAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleContinue}
+                className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold"
+                style={{ background: "#0F2744", color: "#fff" }}
+              >
+                <CheckCircle size={16} />
+                Continue Assessment
+              </button>
+              <button
+                onClick={handleRestart}
+                disabled={loading || !monitoringAcknowledged || !cameraReady || !specialty}
+                className="px-5 py-3 rounded-xl text-sm font-medium transition-all disabled:opacity-40"
+                style={{ background: "#FEF2F2", color: "#991B1B", border: "1px solid #FECACA" }}
+              >
+                {loading ? <Loader2 size={14} className="animate-spin" /> : "Restart Fresh"}
+              </button>
+            </div>
+            <p className="text-[10px] text-blue-500 mt-2">
+              Restarting will discard your current attempt and generate new questions.
+            </p>
+          </div>
+        )}
+
         {/* Error */}
         {error && (
           <div
@@ -329,29 +429,33 @@ export default function AssessmentIntroPage() {
           </div>
         )}
 
-        {/* Start button */}
-        <button
-          onClick={handleStart}
-          disabled={!monitoringAcknowledged || !cameraReady || !specialty || loading}
-          className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ background: "#0F2744", color: "#fff" }}
-        >
-          {loading ? (
-            <>
-              <Loader2 size={16} className="animate-spin" />
-              Creating assessment session...
-            </>
-          ) : (
-            <>
-              <CheckCircle size={16} />
-              Start Assessment
-            </>
-          )}
-        </button>
+        {/* Start button (only show if no active assessment) */}
+        {!activeAssessment && (
+          <>
+            <button
+              onClick={handleStart}
+              disabled={!monitoringAcknowledged || !cameraReady || !specialty || loading}
+              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ background: "#0F2744", color: "#fff" }}
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Creating assessment session...
+                </>
+              ) : (
+                <>
+                  <CheckCircle size={16} />
+                  Start Assessment
+                </>
+              )}
+            </button>
 
-        <p className="text-xs text-gray-400 text-center mt-3">
-          By clicking Start Assessment, you confirm you have read and understood the above.
-        </p>
+            <p className="text-xs text-gray-400 text-center mt-3">
+              By clicking Start Assessment, you confirm you have read and understood the above.
+            </p>
+          </>
+        )}
       </div>
     </div>
   );
