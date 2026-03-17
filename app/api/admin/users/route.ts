@@ -19,7 +19,7 @@ export async function GET() {
   const users = await prisma.user.findMany({
     select: {
       id: true, name: true, email: true, role: true, createdAt: true,
-      consultantProfile: { select: { tier: true, availabilityStatus: true, totalProjects: true } },
+      consultantProfile: { select: { tier: true, availabilityStatus: true, totalProjects: true, averageRating: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -28,6 +28,14 @@ export async function GET() {
     users: users.map((u) => ({
       ...u,
       createdAt: u.createdAt.toISOString(),
+      consultantProfile: u.consultantProfile
+        ? {
+            ...u.consultantProfile,
+            averageRating: u.consultantProfile.averageRating
+              ? Number(u.consultantProfile.averageRating)
+              : null,
+          }
+        : null,
     })),
   });
 }

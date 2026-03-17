@@ -74,7 +74,7 @@ export default function AdminUsersManager({ users: initialUsers, currentUserId }
       }
       const data = await res.json();
       setUsers((prev) => [data.user, ...prev]);
-      setSuccess(`${form.name} invited successfully. Temporary password: ${data.tempPassword}`);
+      setSuccess(`${form.name} invited successfully. Login credentials have been sent to ${form.email}.`);
       setForm({ name: "", email: "", role: "CONSULTANT" });
       setShowInvite(false);
     } catch {

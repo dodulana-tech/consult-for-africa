@@ -65,7 +65,8 @@ export async function PATCH(req: NextRequest) {
   if (hourlyRateUSD !== undefined) data.hourlyRateUSD = hourlyRateUSD ? parseFloat(hourlyRateUSD) : null;
   if (monthlyRateNGN !== undefined) data.monthlyRateNGN = monthlyRateNGN ? parseFloat(monthlyRateNGN) : null;
   if (bankName !== undefined) data.bankName = bankName || null;
-  if (accountNumber !== undefined) data.accountNumber = accountNumber || null;
+  // Skip if masked value (starts with ****)
+  if (accountNumber !== undefined && !accountNumber?.startsWith("****")) data.accountNumber = accountNumber || null;
   if (accountName !== undefined) data.accountName = accountName || null;
   if (swiftCode !== undefined) data.swiftCode = swiftCode || null;
 
