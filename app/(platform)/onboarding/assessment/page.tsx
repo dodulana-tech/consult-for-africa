@@ -1204,7 +1204,7 @@ function AssessmentPage() {
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <button
                   onClick={handleSubmit}
-                  disabled={submitLoading || (!videoUrl && !videoBlob)}
+                  disabled={submitLoading}
                   className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                   style={{ background: "#D4AF37", color: "#0F2744" }}
                 >
@@ -1222,8 +1222,8 @@ function AssessmentPage() {
                 </button>
 
                 {!videoUrl && !videoBlob && (
-                  <p className="text-xs text-gray-400 text-center mt-2">
-                    Please record your video before submitting.
+                  <p className="text-xs text-amber-600 text-center mt-2">
+                    Video is optional. You can submit without it, but a video response strengthens your application.
                   </p>
                 )}
               </div>
