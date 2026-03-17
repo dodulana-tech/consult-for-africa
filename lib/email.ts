@@ -514,6 +514,165 @@ export async function email360RaterInvite({
   );
 }
 
+export async function emailWeeklyDigest({
+  email,
+  name,
+  role,
+  activeProjects,
+  atRiskProjects,
+  completedThisWeek,
+  overdueDeliverables,
+  pendingTimesheets,
+  hoursSubmittedThisWeek,
+  deliverablesSubmitted,
+  deliverablesApproved,
+  deliverablesNeedingRevision,
+  totalConsultants,
+  avgUtilization,
+  invoicesSentThisWeek,
+  invoicesSentAmount,
+  outstandingAmount,
+  collectedThisWeek,
+  newReferrals,
+  proposalsSent,
+  newApplications,
+  consultantsOnboarded,
+  avgSatisfaction,
+  expansionRequests,
+  nuruInsight,
+}: {
+  email: string;
+  name: string;
+  role: string;
+  activeProjects: number;
+  atRiskProjects: number;
+  completedThisWeek: number;
+  overdueDeliverables: number;
+  pendingTimesheets: number;
+  hoursSubmittedThisWeek: number;
+  deliverablesSubmitted: number;
+  deliverablesApproved: number;
+  deliverablesNeedingRevision: number;
+  totalConsultants: number;
+  avgUtilization: number;
+  invoicesSentThisWeek: number;
+  invoicesSentAmount: number;
+  outstandingAmount: number;
+  collectedThisWeek: number;
+  newReferrals: number;
+  proposalsSent: number;
+  newApplications: number;
+  consultantsOnboarded: number;
+  avgSatisfaction: number | null;
+  expansionRequests: number;
+  nuruInsight: string;
+}) {
+  const firstName = esc(name.split(" ")[0]);
+  const isDirectorPlus = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
+  const fmt = (n: number) => n.toLocaleString("en-NG");
+
+  // Stat card helper
+  const stat = (label: string, value: string, accent = false) =>
+    `<td style="padding:12px;text-align:center;${accent ? "background:#FFFBEB;" : ""}">
+      <p style="margin:0;font-size:20px;font-weight:700;color:${accent ? "#92400E" : "#0F2744"};">${value}</p>
+      <p style="margin:4px 0 0;font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:0.05em;">${label}</p>
+    </td>`;
+
+  // Project pulse row
+  const projectRow = `<table style="width:100%;border-collapse:collapse;border:1px solid #E5E7EB;border-radius:8px;margin:16px 0;">
+    <tr>
+      ${stat("Active Projects", String(activeProjects))}
+      ${stat("At Risk", String(atRiskProjects), atRiskProjects > 0)}
+      ${stat("Completed", String(completedThisWeek))}
+      ${stat("Overdue", String(overdueDeliverables), overdueDeliverables > 0)}
+    </tr>
+  </table>`;
+
+  // Deliverables & timesheets
+  const deliverableRow = `<table style="width:100%;border-collapse:collapse;border:1px solid #E5E7EB;border-radius:8px;margin:16px 0;">
+    <tr>
+      ${stat("Submitted", String(deliverablesSubmitted))}
+      ${stat("Approved", String(deliverablesApproved))}
+      ${stat("Needs Revision", String(deliverablesNeedingRevision), deliverablesNeedingRevision > 0)}
+      ${stat("Hours Logged", `${fmt(hoursSubmittedThisWeek)}h`)}
+    </tr>
+  </table>`;
+
+  // Pending action
+  const pendingSection = pendingTimesheets > 0
+    ? `<div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:12px 16px;margin:16px 0;">
+        <p style="margin:0;font-size:13px;color:#92400E;font-weight:600;">${pendingTimesheets} timesheet${pendingTimesheets > 1 ? "s" : ""} awaiting your approval</p>
+      </div>`
+    : "";
+
+  // Revenue (Director+)
+  const revenueSection = isDirectorPlus
+    ? `<h2 style="margin:24px 0 8px;font-size:14px;font-weight:700;color:#0F2744;text-transform:uppercase;letter-spacing:0.05em;">Revenue & Pipeline</h2>
+      <table style="width:100%;border-collapse:collapse;border:1px solid #E5E7EB;border-radius:8px;margin:8px 0;">
+        <tr>
+          ${stat("Invoiced", `\u20A6${fmt(invoicesSentAmount)}`)}
+          ${stat("Collected", `\u20A6${fmt(collectedThisWeek)}`)}
+          ${stat("Outstanding", `\u20A6${fmt(outstandingAmount)}`, outstandingAmount > 0)}
+          ${stat("Invoices Sent", String(invoicesSentThisWeek))}
+        </tr>
+      </table>`
+    : "";
+
+  // Growth (Director+)
+  const growthSection = isDirectorPlus
+    ? `<h2 style="margin:24px 0 8px;font-size:14px;font-weight:700;color:#0F2744;text-transform:uppercase;letter-spacing:0.05em;">Growth & Talent</h2>
+      <table style="width:100%;border-collapse:collapse;border:1px solid #E5E7EB;border-radius:8px;margin:8px 0;">
+        <tr>
+          ${stat("Referrals", String(newReferrals))}
+          ${stat("Proposals Sent", String(proposalsSent))}
+          ${stat("Applications", String(newApplications))}
+          ${stat("Onboarded", String(consultantsOnboarded))}
+        </tr>
+      </table>
+      <table style="width:100%;border-collapse:collapse;border:1px solid #E5E7EB;border-radius:8px;margin:8px 0;">
+        <tr>
+          ${stat("Consultants", String(totalConsultants))}
+          ${stat("Utilization", `${avgUtilization}%`)}
+          ${stat("Satisfaction", avgSatisfaction ? `${avgSatisfaction}/5` : "N/A")}
+          ${stat("Expansion Asks", String(expansionRequests))}
+        </tr>
+      </table>`
+    : "";
+
+  // Nuru insight
+  const insightSection = nuruInsight
+    ? `<div style="background:#0F2744;border-radius:8px;padding:16px 20px;margin:24px 0;">
+        <p style="margin:0 0 4px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#D4AF37;font-weight:600;">Nuru Insight</p>
+        <p style="margin:0;font-size:14px;line-height:1.6;color:rgba(255,255,255,0.9);font-style:italic;">${esc(nuruInsight)}</p>
+      </div>`
+    : "";
+
+  const weekEnding = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+
+  await send(
+    email,
+    `Your Week at CFA | ${weekEnding}`,
+    layout(`
+      ${h1(`Hi ${firstName}`)}
+      <p style="margin:0 0 4px;font-size:13px;color:#6B7280;">Week ending ${esc(weekEnding)}</p>
+      <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#374151;">Here is your weekly snapshot from the CFA platform.</p>
+
+      <h2 style="margin:0 0 8px;font-size:14px;font-weight:700;color:#0F2744;text-transform:uppercase;letter-spacing:0.05em;">Project Pulse</h2>
+      ${projectRow}
+      ${pendingSection}
+
+      <h2 style="margin:24px 0 8px;font-size:14px;font-weight:700;color:#0F2744;text-transform:uppercase;letter-spacing:0.05em;">Deliverables & Time</h2>
+      ${deliverableRow}
+
+      ${revenueSection}
+      ${growthSection}
+      ${insightSection}
+
+      ${btn("Open Dashboard", `${BASE_URL}/dashboard`, "#0F2744")}
+    `)
+  );
+}
+
 export async function emailMaarovaInvite({
   email,
   name,
