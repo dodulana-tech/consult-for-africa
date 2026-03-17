@@ -47,6 +47,9 @@ export interface DigestData {
   avgSatisfaction: number | null;
   expansionRequests: number;
 
+  // Referral updates
+  referralUpdates: { name: string; status: string }[];
+
   // Nuru insight (generated)
   nuruInsight: string;
 }
@@ -217,6 +220,17 @@ export async function getDigestForUser(userId: string): Promise<DigestData | nul
     expansionRequests = weekExpansion;
   }
 
+  // Referral momentum for the user
+  const referralUpdates = await prisma.referral.findMany({
+    where: {
+      referrerId: userId,
+      updatedAt: { gte: weekAgo },
+      status: { in: ["CONTACTED", "CONVERTED"] },
+    },
+    select: { name: true, status: true },
+    take: 5,
+  });
+
   // Generate Nuru AI insight
   const nuruInsight = await generateNuruInsight({
     role: user.role,
@@ -268,6 +282,7 @@ export async function getDigestForUser(userId: string): Promise<DigestData | nul
     satisfactionRatings,
     avgSatisfaction,
     expansionRequests,
+    referralUpdates,
     nuruInsight,
   };
 }

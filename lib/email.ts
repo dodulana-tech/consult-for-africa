@@ -539,6 +539,7 @@ export async function emailWeeklyDigest({
   consultantsOnboarded,
   avgSatisfaction,
   expansionRequests,
+  referralUpdates,
   nuruInsight,
 }: {
   email: string;
@@ -565,6 +566,7 @@ export async function emailWeeklyDigest({
   consultantsOnboarded: number;
   avgSatisfaction: number | null;
   expansionRequests: number;
+  referralUpdates: { name: string; status: string }[];
   nuruInsight: string;
 }) {
   const firstName = esc(name.split(" ")[0]);
@@ -666,6 +668,11 @@ export async function emailWeeklyDigest({
 
       ${revenueSection}
       ${growthSection}
+      ${referralUpdates.length > 0 ? `
+      <h2 style="margin:24px 0 8px;font-size:14px;font-weight:700;color:#0F2744;text-transform:uppercase;letter-spacing:0.05em;">Your Referrals</h2>
+      ${referralUpdates.map((r) => `<div style="padding:8px 12px;border-left:3px solid ${r.status === "CONVERTED" ? "#10B981" : "#3B82F6"};background:#F9FAFB;border-radius:0 6px 6px 0;margin:6px 0;">
+        <p style="margin:0;font-size:13px;color:#374151;"><strong>${esc(r.name)}</strong> has been ${r.status === "CONVERTED" ? "onboarded" : "contacted"}.</p>
+      </div>`).join("")}` : ""}
       ${insightSection}
 
       ${btn("Open Dashboard", `${BASE_URL}/dashboard`, "#0F2744")}

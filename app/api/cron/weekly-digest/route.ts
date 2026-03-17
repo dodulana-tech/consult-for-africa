@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
         consultantsOnboarded: digest.consultantsOnboarded,
         avgSatisfaction: digest.avgSatisfaction,
         expansionRequests: digest.expansionRequests,
+        referralUpdates: digest.referralUpdates,
         nuruInsight: digest.nuruInsight,
       });
 

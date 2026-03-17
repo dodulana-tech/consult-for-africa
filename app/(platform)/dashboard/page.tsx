@@ -10,6 +10,7 @@ import ProjectCard from "@/components/platform/ProjectCard";
 import StatusBadge from "@/components/platform/StatusBadge";
 import ConsultantCapacityWidget from "@/components/platform/ConsultantCapacityWidget";
 import { formatDate, timeAgo, budgetUtilization, daysRemaining, timelineProgress } from "@/lib/utils";
+import { getDashboardInsights, getPersonalImpact } from "@/lib/dashboardInsights";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -159,6 +160,10 @@ export default async function DashboardPage() {
     return true;
   });
 
+  // ─── Smart insights from Nuru ────────────────────────────────────────────
+  const insights = await getDashboardInsights(userId, role);
+  const impact = isConsultant ? await getPersonalImpact(userId) : null;
+
   // ─── Check onboarding status for consultants ─────────────────────────────
   const onboarding = isConsultant
     ? await prisma.consultantOnboarding.findUnique({
@@ -236,6 +241,71 @@ export default async function DashboardPage() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Nuru insights */}
+        {insights.length > 0 && (
+          <div className="space-y-2">
+            {insights.map((insight, i) => {
+              const accentStyles: Record<string, { bg: string; border: string }> = {
+                gold: { bg: "#FFFBEB", border: "#FDE68A" },
+                blue: { bg: "#EFF6FF", border: "#BFDBFE" },
+                green: { bg: "#ECFDF5", border: "#A7F3D0" },
+                amber: { bg: "#FEF3C7", border: "#FDE68A" },
+                purple: { bg: "#F5F3FF", border: "#DDD6FE" },
+              };
+              const s = accentStyles[insight.accent] ?? accentStyles.blue;
+              const cardStyle = { background: s.bg, border: `1px solid ${s.border}` };
+              const cardClass = "flex items-start gap-3 px-4 py-3 rounded-xl transition-shadow hover:shadow-sm";
+
+              const content = (
+                <>
+                  <span className="text-base shrink-0 mt-0.5">{insight.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900">{insight.title}</p>
+                    <p className="text-xs text-gray-600 mt-0.5">{insight.message}</p>
+                  </div>
+                </>
+              );
+
+              return insight.href ? (
+                <Link key={i} href={insight.href} className={cardClass} style={cardStyle}>{content}</Link>
+              ) : (
+                <div key={i} className={cardClass} style={cardStyle}>{content}</div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Personal impact counter (consultants) */}
+        {impact && (
+          <div className="rounded-xl p-4 flex items-center gap-6" style={{ background: "#0F2744" }}>
+            <div className="text-center">
+              <p className="text-xl font-bold text-white">{impact.projectsContributed}</p>
+              <p className="text-[10px] text-white/50 uppercase tracking-wide">Projects</p>
+            </div>
+            <div className="w-px h-8 bg-white/15" />
+            <div className="text-center">
+              <p className="text-xl font-bold text-white">{impact.deliverablesApproved}</p>
+              <p className="text-[10px] text-white/50 uppercase tracking-wide">Deliverables</p>
+            </div>
+            <div className="w-px h-8 bg-white/15" />
+            <div className="text-center">
+              <p className="text-xl font-bold" style={{ color: "#D4AF37" }}>{impact.totalHours}h</p>
+              <p className="text-[10px] text-white/50 uppercase tracking-wide">Hours</p>
+            </div>
+            {impact.avgClientSatisfaction && (
+              <>
+                <div className="w-px h-8 bg-white/15" />
+                <div className="text-center">
+                  <p className="text-xl font-bold text-white">{impact.avgClientSatisfaction}/5</p>
+                  <p className="text-[10px] text-white/50 uppercase tracking-wide">Rating</p>
+                </div>
+              </>
+            )}
+            <div className="flex-1" />
+            <p className="text-[10px] text-white/40">Your CFA Impact</p>
           </div>
         )}
 

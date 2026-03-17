@@ -435,6 +435,7 @@ model Deliverable {
   reviewScore   Int?
   reviewNotes   String?                @db.Text
   reviewedById  String?
+  microFeedback String?                // quick EM reaction: "great work", "well structured", etc.
   version       Int                    @default(1)
 
   createdAt DateTime @default(now())

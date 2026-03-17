@@ -108,6 +108,7 @@ export default function DeliverableReview({
     clientReady: 0,
   });
   const [notes, setNotes] = useState(deliverable.reviewNotes ?? "");
+  const [microFeedback, setMicroFeedback] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<"approved" | "revision" | "delivered" | null>(null);
   const [error, setError] = useState("");
@@ -229,7 +230,7 @@ export default function DeliverableReview({
       const res = await fetch(`/api/deliverables/${deliverable.id}/review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, scores: allScored ? scores : null, notes }),
+        body: JSON.stringify({ action, scores: allScored ? scores : null, notes, microFeedback: action === "approve" ? microFeedback || null : null }),
       });
       if (!res.ok) throw new Error("Failed");
       setResult(action === "approve" ? "approved" : "revision");
@@ -663,19 +664,38 @@ export default function DeliverableReview({
                 )}
                 Request Revision
               </button>
-              <button
-                onClick={() => submit("approve")}
-                disabled={submitting}
-                className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
-                style={{ background: "#10B981", color: "#fff" }}
-              >
-                {submitting ? (
-                  <Loader2 size={15} className="animate-spin" />
-                ) : (
-                  <CheckCircle size={15} />
-                )}
-                Approve
-              </button>
+              <div className="flex-1 space-y-2">
+                <div className="flex gap-1.5 flex-wrap">
+                  {["Great work", "Well structured", "Thorough analysis", "Strong delivery"].map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => setMicroFeedback(microFeedback === tag ? "" : tag)}
+                      className="px-2 py-1 rounded-full text-[10px] font-medium transition-all"
+                      style={{
+                        background: microFeedback === tag ? "#10B981" : "#F0FDF4",
+                        color: microFeedback === tag ? "#fff" : "#065F46",
+                        border: microFeedback === tag ? "1px solid #10B981" : "1px solid #BBF7D0",
+                      }}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => submit("approve")}
+                  disabled={submitting}
+                  className="w-full py-2.5 rounded-xl text-sm font-semibold transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+                  style={{ background: "#10B981", color: "#fff" }}
+                >
+                  {submitting ? (
+                    <Loader2 size={15} className="animate-spin" />
+                  ) : (
+                    <CheckCircle size={15} />
+                  )}
+                  Approve{microFeedback ? ` + "${microFeedback}"` : ""}
+                </button>
+              </div>
             </div>
           </>
         )}

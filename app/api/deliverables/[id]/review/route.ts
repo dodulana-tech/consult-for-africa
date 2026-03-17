@@ -9,7 +9,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!session) return new Response("Unauthorized", { status: 401 });
 
   const { id } = await params;
-  const { action, scores, notes } = await req.json();
+  const { action, scores, notes, microFeedback } = await req.json();
 
   const canReview = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canReview) return new Response("Forbidden", { status: 403 });
@@ -40,6 +40,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       reviewNotes: notes ?? null,
       reviewedById: session.user.id,
       reviewedAt: new Date(),
+      microFeedback: action === "approve" && microFeedback ? microFeedback : null,
       ...(action === "approve" ? { approvedAt: new Date() } : {}),
     },
     include: {
