@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
@@ -47,16 +47,49 @@ const PARTS = [
   },
 ];
 
+const SPECIALTIES = [
+  { value: "HOSPITAL_OPERATIONS", label: "Hospital Operations" },
+  { value: "TURNAROUND", label: "Turnaround Management" },
+  { value: "CLINICAL_GOVERNANCE", label: "Clinical Governance" },
+  { value: "DIGITAL_HEALTH", label: "Digital Health" },
+  { value: "HEALTH_SYSTEMS", label: "Health Systems" },
+];
+
 export default function AssessmentIntroPage() {
-  const { data: session, status: sessionStatus } = useSession();
+  const { status: sessionStatus } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [monitoringAcknowledged, setMonitoringAcknowledged] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
+  const [specialty, setSpecialty] = useState("");
+  const [profileSpecialty, setProfileSpecialty] = useState<string | null>(null);
+
+  // Auto-detect specialty from consultant profile
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const res = await fetch("/api/consultant-profile");
+        if (res.ok) {
+          const data = await res.json();
+          const areas = data.expertiseAreas ?? [];
+          if (areas.length > 0) {
+            const primary = areas[0];
+            if (SPECIALTIES.some((s) => s.value === primary)) {
+              setSpecialty(primary);
+              setProfileSpecialty(primary);
+            }
+          }
+        }
+      } catch {
+        // Silent - user will pick manually
+      }
+    }
+    fetchProfile();
+  }, []);
 
   async function handleStart() {
-    if (!monitoringAcknowledged || !cameraReady) return;
+    if (!monitoringAcknowledged || !cameraReady || !specialty) return;
 
     setLoading(true);
     setError("");
@@ -65,6 +98,7 @@ export default function AssessmentIntroPage() {
       const res = await fetch("/api/consultant-assessment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ specialty }),
       });
 
       if (!res.ok) {
@@ -73,8 +107,8 @@ export default function AssessmentIntroPage() {
         return;
       }
 
-      const { id } = await res.json();
-      router.push(`/onboarding/assessment?id=${id}`);
+      const data = await res.json();
+      router.push(`/onboarding/assessment?id=${data.assessment.id}`);
     } catch {
       setError("Network error. Please check your connection and try again.");
     } finally {
@@ -110,6 +144,29 @@ export default function AssessmentIntroPage() {
             experience review, rapid-fire responses, and a short video. It typically takes
             around 45 minutes.
           </p>
+        </div>
+
+        {/* Specialty selector */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Assessment Specialty
+          </label>
+          <select
+            value={specialty}
+            onChange={(e) => setSpecialty(e.target.value)}
+            className="w-full text-sm rounded-xl px-4 py-3 focus:outline-none"
+            style={{ border: "1px solid #E2E8F0", background: "#F8FAFC" }}
+          >
+            <option value="">Select your primary specialty</option>
+            {SPECIALTIES.map((s) => (
+              <option key={s.value} value={s.value}>{s.label}</option>
+            ))}
+          </select>
+          {profileSpecialty && specialty === profileSpecialty && (
+            <p className="text-xs text-gray-400 mt-1">
+              Auto-selected from your profile. You can change it if needed.
+            </p>
+          )}
         </div>
 
         {/* Parts breakdown */}
@@ -236,7 +293,7 @@ export default function AssessmentIntroPage() {
         {/* Start button */}
         <button
           onClick={handleStart}
-          disabled={!monitoringAcknowledged || !cameraReady || loading}
+          disabled={!monitoringAcknowledged || !cameraReady || !specialty || loading}
           className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           style={{ background: "#0F2744", color: "#fff" }}
         >

@@ -403,6 +403,117 @@ export async function emailPaymentProcessed({
   );
 }
 
+export async function emailPlatformPasswordReset({
+  email,
+  name,
+  resetUrl,
+}: {
+  email: string;
+  name: string;
+  resetUrl: string;
+}) {
+  const firstName = esc(name.split(" ")[0]);
+
+  await send(
+    email,
+    "Password Reset | Consult for Africa Platform",
+    layout(`
+      ${h1("Password Reset")}
+      ${p(`Hi ${firstName}, we received a request to reset your Consult for Africa platform password.`)}
+      ${btn("Reset Password", resetUrl, "#0F2744")}
+      <p style="margin:16px 0;font-size:13px;color:#6B7280;line-height:1.6;">
+        This link will expire in 1 hour. If you did not request a password reset, you can safely ignore this email.
+      </p>
+    `)
+  );
+}
+
+export async function emailMaarovaPasswordReset({
+  email,
+  name,
+  resetUrl,
+}: {
+  email: string;
+  name: string;
+  resetUrl: string;
+}) {
+  const firstName = esc(name.split(" ")[0]);
+
+  await send(
+    email,
+    "Password Reset | Maarova Assessment Portal",
+    layout(`
+      ${h1("Password Reset")}
+      ${p(`Hi ${firstName}, we received a request to reset your Maarova assessment portal password.`)}
+      ${btn("Reset Password", resetUrl, "#0F2744")}
+      <p style="margin:16px 0;font-size:13px;color:#6B7280;line-height:1.6;">
+        This link will expire in 1 hour. If you did not request a password reset, you can safely ignore this email.
+      </p>
+    `)
+  );
+}
+
+export async function emailClientPortalPasswordReset({
+  email,
+  name,
+  resetUrl,
+}: {
+  email: string;
+  name: string;
+  resetUrl: string;
+}) {
+  const firstName = esc(name.split(" ")[0]);
+
+  await send(
+    email,
+    "Password Reset | Consult for Africa Client Portal",
+    layout(`
+      ${h1(`Password Reset`)}
+      ${p(`Hi ${firstName}, we received a request to reset your Client Portal password.`)}
+      ${btn("Reset Password", resetUrl, "#0F2744")}
+      <p style="margin:16px 0;font-size:13px;color:#6B7280;line-height:1.6;">
+        This link will expire in 1 hour. If you did not request a password reset, you can safely ignore this email.
+      </p>
+    `)
+  );
+}
+
+export async function email360RaterInvite({
+  raterEmail,
+  raterName,
+  subjectName,
+  role,
+  token,
+}: {
+  raterEmail: string;
+  raterName: string;
+  subjectName: string;
+  role: string;
+  token: string;
+}) {
+  const firstName = esc(raterName.split(" ")[0]);
+  const safeSubject = esc(subjectName);
+  const roleLabel = role.replace(/_/g, " ").toLowerCase();
+
+  await send(
+    raterEmail,
+    `360 Feedback Request | Consult for Africa`,
+    layout(`
+      ${h1(`Hi ${firstName}`)}
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
+        You have been invited to provide <strong>360-degree feedback</strong> for <strong>${safeSubject}</strong> as part of their Maarova leadership assessment.
+      </p>
+      <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#6B7280;">
+        Your role in this assessment: <strong>${esc(roleLabel)}</strong>. Your responses are confidential and will be aggregated with other raters to produce a development profile. The feedback takes approximately 10 to 15 minutes to complete.
+      </p>
+      ${btn("Provide Feedback", `${BASE_URL}/maarova/portal/three-sixty/rate/${esc(token)}`)}
+      <p style="margin:20px 0 0;font-size:12px;color:#9CA3AF;line-height:1.5;">
+        If you do not recognise the person named above, please disregard this email or contact us at hello@consultforafrica.com.
+      </p>
+    `)
+  );
+}
+
 export async function emailMaarovaInvite({
   email,
   name,

@@ -11,7 +11,7 @@ export default async function MaarovaAdminPage() {
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
   if (!isAdmin) redirect("/dashboard");
 
-  const [orgCount, userCount, sessionCounts, coachingCount] = await Promise.all([
+  const [orgCount, userCount, sessionCounts, coachingCount, totalSessions, recentCompletions] = await Promise.all([
     prisma.maarovaOrganisation.count(),
     prisma.maarovaUser.count(),
     prisma.maarovaAssessmentSession.groupBy({
@@ -21,10 +21,24 @@ export default async function MaarovaAdminPage() {
     prisma.maarovaCoachingMatch.count({
       where: { status: { in: ["ACTIVE", "MATCHED"] } },
     }),
+    prisma.maarovaAssessmentSession.count(),
+    prisma.maarovaAssessmentSession.findMany({
+      where: { status: "COMPLETED" },
+      orderBy: { completedAt: "desc" },
+      take: 10,
+      include: {
+        user: { select: { name: true, email: true } },
+      },
+    }),
   ]);
 
   const completedSessions =
     sessionCounts.find((s) => s.status === "COMPLETED")?._count.id ?? 0;
+  const inProgressSessions =
+    sessionCounts.find((s) => s.status === "IN_PROGRESS")?._count.id ?? 0;
+  const notStarted = userCount - totalSessions;
+
+  const completionRate = userCount > 0 ? Math.round((completedSessions / userCount) * 100) : 0;
 
   const recentOrgs = await prisma.maarovaOrganisation.findMany({
     take: 10,
@@ -62,6 +76,76 @@ export default async function MaarovaAdminPage() {
               </p>
             </div>
           ))}
+        </div>
+
+        {/* Analytics Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Completion Funnel */}
+          <div
+            className="rounded-xl p-5"
+            style={{ background: "#fff", border: "1px solid #e5eaf0" }}
+          >
+            <h2 className="text-sm font-semibold mb-4" style={{ color: "#0F2744" }}>
+              Assessment Funnel
+            </h2>
+            <div className="space-y-3">
+              {[
+                { label: "Not Started", value: Math.max(0, notStarted), color: "#E5E7EB", pct: userCount > 0 ? Math.max(0, notStarted) / userCount : 0 },
+                { label: "In Progress", value: inProgressSessions, color: "#FCD34D", pct: userCount > 0 ? inProgressSessions / userCount : 0 },
+                { label: "Completed", value: completedSessions, color: "#10B981", pct: userCount > 0 ? completedSessions / userCount : 0 },
+              ].map((row) => (
+                <div key={row.label}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-gray-600">{row.label}</span>
+                    <span className="text-xs font-semibold text-gray-800">{row.value} ({Math.round(row.pct * 100)}%)</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{ width: `${Math.round(row.pct * 100)}%`, background: row.color }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 pt-3 flex items-center justify-between" style={{ borderTop: "1px solid #F3F4F6" }}>
+              <span className="text-xs text-gray-400">Overall completion rate</span>
+              <span className="text-lg font-bold" style={{ color: "#0F2744" }}>{completionRate}%</span>
+            </div>
+          </div>
+
+          {/* Recent Completions */}
+          <div
+            className="rounded-xl p-5"
+            style={{ background: "#fff", border: "1px solid #e5eaf0" }}
+          >
+            <h2 className="text-sm font-semibold mb-4" style={{ color: "#0F2744" }}>
+              Recent Completions
+            </h2>
+            {recentCompletions.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-8">No completions yet</p>
+            ) : (
+              <div className="space-y-2">
+                {recentCompletions.map((s) => (
+                  <div
+                    key={s.id}
+                    className="flex items-center justify-between py-2"
+                    style={{ borderBottom: "1px solid #F3F4F6" }}
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{s.user.name}</p>
+                      <p className="text-xs text-gray-400">{s.user.email}</p>
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      {s.completedAt
+                        ? new Date(s.completedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+                        : ""}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Quick Actions */}

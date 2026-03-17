@@ -36,11 +36,15 @@ export default async function TimesheetsPage() {
   const serialized = entries.map((e) => ({
     ...e,
     hours: Number(e.hours),
+    hoursWorked: e.hoursWorked ? Number(e.hoursWorked) : null,
     billableAmount: e.billableAmount ? Number(e.billableAmount) : null,
     date: e.date.toISOString(),
     approvedAt: e.approvedAt?.toISOString() ?? null,
     createdAt: e.createdAt.toISOString(),
     updatedAt: e.updatedAt.toISOString(),
+    rejectionReason: e.rejectionReason ?? null,
+    periodMonth: e.periodMonth ?? null,
+    periodYear: e.periodYear ?? null,
     assignment: {
       ...e.assignment,
       rateAmount: Number((e.assignment as any).rateAmount ?? 0),
@@ -55,6 +59,7 @@ export default async function TimesheetsPage() {
     ...a,
     rateAmount: Number(a.rateAmount),
     estimatedHours: a.estimatedHours ?? null,
+    estimatedDays: a.estimatedDays ?? null,
     startDate: a.startDate.toISOString(),
     endDate: a.endDate?.toISOString() ?? null,
     createdAt: a.createdAt.toISOString(),

@@ -92,6 +92,7 @@ enum AssignmentStatus {
 
 enum RateType {
   HOURLY
+  DAILY
   MONTHLY
   FIXED_PROJECT
 }
@@ -213,6 +214,8 @@ model User {
   role         UserRole @default(CONSULTANT)
   avatarUrl    String?
   notificationPreferences Json @default("{}")
+  resetToken       String?
+  resetTokenExpiry DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -373,6 +376,7 @@ model Assignment {
   rateCurrency     Currency
   rateType         RateType
   estimatedHours   Int?
+  estimatedDays    Int?                  // for DAILY rate type
   estimatedHoursPerWeek Int?             // weekly commitment for capacity tracking
   respondedAt      DateTime?            // when consultant accepted/declined
   declineReason    String?   @db.Text   // reason if declined
@@ -449,12 +453,17 @@ model TimeEntry {
 
   date           DateTime
   hours          Decimal         @db.Decimal(5, 2)
+  hoursWorked    Decimal?        @db.Decimal(5, 2)   // user-entered hours (HOURLY)
   description    String          @db.Text
   status         TimeEntryStatus @default(PENDING)
   approvedById   String?
   approvedAt     DateTime?
   billableAmount Decimal?        @db.Decimal(10, 2)
   currency       Currency
+  periodMonth    Int?            // for MONTHLY rate type
+  periodYear     Int?            // for MONTHLY rate type
+  isForBilling   Boolean         @default(true)
+  rejectionReason String?        @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1017,6 +1026,8 @@ model ClientContact {
   isPrimary        Boolean @default(false)
   isPortalEnabled  Boolean @default(false)
   lastLoginAt      DateTime?
+  resetToken       String?
+  resetTokenExpiry DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -1497,6 +1508,8 @@ model MaarovaUser {
   isPortalEnabled    Boolean  @default(false)
   lastLoginAt        DateTime?
   invitedAt          DateTime?
+  resetToken         String?
+  resetTokenExpiry   DateTime?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 

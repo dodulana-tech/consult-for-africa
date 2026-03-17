@@ -20,11 +20,10 @@ export default function Navbar() {
   const navLinks = [
     { label: "About",    href: "/about" },
     { label: "Services", href: "/services" },
-    { label: "Insights", href: "/insights" },
     { label: "Maarova\u2122", href: "/maarova" },
-    { label: "Network",  href: "/#network" },
+    { label: "Insights", href: "/insights" },
     { label: "Careers",  href: "/careers" },
-    { label: "Partner",  href: "/#contact", highlight: true },
+    { label: "Contact",  href: "/contact", highlight: true },
   ];
 
   return (
@@ -88,7 +87,7 @@ export default function Navbar() {
       {/* MOBILE MENU */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-300 ${
-          open ? "max-h-64 py-4" : "max-h-0"
+          open ? "max-h-72 py-4" : "max-h-0"
         }`}
         style={{ borderTop: "1px solid rgba(200,210,220,0.3)" }}
       >
@@ -107,6 +106,14 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          <Link
+            href="/login"
+            onClick={() => setOpen(false)}
+            className="font-medium"
+            style={{ color: "var(--brand-primary)" }}
+          >
+            Login
+          </Link>
         </div>
       </div>
     </header>

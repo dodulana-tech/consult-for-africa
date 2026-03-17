@@ -4,36 +4,6 @@ Items that are known gaps, stubs, or "coming soon" placeholders. Ordered by impa
 
 ---
 
-## File Storage
-- **Native file upload** for deliverable submissions (currently URL-only: Google Drive, Dropbox, OneDrive)
-  - Files: `components/platform/DeliverableSubmit.tsx`, `components/platform/DeliverableReview.tsx`
-  - Needs: S3/Cloudflare R2 bucket, signed upload endpoint, progress indicator
-  - Affects: all deliverable submissions across all user types
-
----
-
-## Notifications
-- **Granular notification preferences** in Settings
-  - File: `app/(platform)/settings/page.tsx` (line ~130)
-  - Toggles are hardcoded "on" with no backend state
-  - Needs: `notificationPreferences` field on User model (JSON or separate table), PATCH API, wired toggles
-
----
-
-## Timesheets (MECE Redesign Required)
-- **Rate-type aware timesheet model** -- current model uses `estimatedHours` from assignment as per-session hours, which is conceptually wrong
-  - Four rate types need different UX: HOURLY (user enters hours), DAILY (logs 1 day), MONTHLY (selects period), FIXED_PROJECT (activity-only)
-  - Schema changes needed: add `DAILY` to `RateType` enum, add `hoursWorked`, `periodMonth`, `periodYear`, `isForBilling`, `rejectionReason` to `TimeEntry`, add `estimatedDays` to `Assignment`
-  - Files: `components/platform/TimesheetManager.tsx`, `app/api/time-entries/route.ts`, `app/(platform)/timesheets/page.tsx`
-
----
-
-## Proposals
-- Proposal Generator in Nuru links to `/proposals` which has no full implementation beyond the AI draft
-- Needs: Proposal model in schema, CRUD pages, PDF export
-
----
-
 ## Director / Partner Management System (Backlogged Feature)
 - Full Director onboarding portal (5-step wizard)
 - Director dashboard with practice-level P&L
@@ -44,9 +14,6 @@ Items that are known gaps, stubs, or "coming soon" placeholders. Ordered by impa
 
 ## Maarova Portal (Next Steps)
 - Expand question bank (currently ~5 per module, needs 20-30+ per module for production)
-- PDF report generation (currently placeholder button)
-- Maarova admin pages in CFA platform (org management, user provisioning, analytics)
-- 360 rater email invitations (records created, emails not yet sent)
 - Coach matching AI integration (placeholder API exists)
 - WhatsApp notification integration for assessment reminders
 
@@ -55,11 +22,35 @@ Items that are known gaps, stubs, or "coming soon" placeholders. Ordered by impa
 ## Minor UX Gaps
 - **Talent Pipeline page** -- exists but content depth unknown, needs audit
 - **Knowledge Hub** -- component exists but integration depth unknown
-- **Client portal password reset** -- no forgot password mechanism
 
 ---
 
 ## Completed (2026-03-16)
+
+### Security & API Hardening (2026-03-17)
+- ~~**Deliverable IDOR vulnerability**~~ -- Fixed: PATCH/DELETE now verify project ownership, EMs scoped to their projects
+- ~~**Invoice race condition**~~ -- Fixed: invoice number generation now uses existence check + retry loop
+- ~~**Missing invoice GET endpoint**~~ -- Built: GET /api/invoices with clientId/projectId/status filters, EM scoped
+- ~~**Missing consultant ratings GET**~~ -- Built: GET /api/consultant-ratings with role-based scoping, consultants see own
+- ~~**Invoice financial validation**~~ -- Fixed: quantity must be > 0, unitPrice must be >= 0
+- ~~**Timesheet hours validation**~~ -- Fixed: minimum 0.25h enforced (was allowing 0)
+- ~~**Password regex inconsistency**~~ -- Fixed: unified to `[^a-zA-Z0-9]` across all 8 validation points
+- ~~**Platform forgot password**~~ -- Built: /forgot-password, /reset-password, API routes, email template
+- ~~**Maarova forgot password**~~ -- Built: /maarova/portal/forgot-password, reset-password, API routes, email template
+- ~~**Client contact edit**~~ -- Built: PATCH endpoint on /api/clients/[id]/contacts, inline edit UI
+- ~~**Footer broken links**~~ -- Fixed: all anchors replaced with real page routes, MECE structure
+- ~~**Navbar/Footer not MECE**~~ -- Fixed: Navbar (About, Services, Maarova, Insights, Careers, Contact), Footer (Services, Company, Contact)
+- ~~**SEO metadata missing**~~ -- Built: OG tags, Twitter cards, title template, web manifest, PWA icons, apple-touch-icon
+
+### Infrastructure & Core Systems
+- ~~**Native file upload**~~ -- Built: Cloudflare R2 integration (`lib/r2.ts`), presigned upload API, drag-and-drop FileUpload component, wired into DeliverableSubmit
+- ~~**Notification preferences**~~ -- Built: `notificationPreferences` JSON field on User, GET/PATCH API at `/api/settings/notifications`, toggle UI component wired to DB
+- ~~**Timesheet model redesign**~~ -- Built: `DAILY` rate type, `hoursWorked`/`periodMonth`/`periodYear`/`isForBilling`/`rejectionReason` on TimeEntry, `estimatedDays` on Assignment, rate-type-aware logging UX
+- ~~**Proposal system**~~ -- Built: Proposal model with CRUD, AI generation via Nuru, status transitions (Draft > Review > Sent > Accepted/Rejected), PDF export, list/detail/filter UI
+- ~~**Client portal password reset**~~ -- Built: forgot-password + reset-password pages, token-based flow with 1-hour expiry, email template
+- ~~**Maarova 360 rater emails**~~ -- Built: invitation emails sent automatically when raters are added
+- ~~**Maarova admin analytics**~~ -- Built: completion funnel, score distribution, avg completion time, org detail user management enhancements
+- ~~**Maarova PDF report**~~ -- Built: client-side PDF export for assessment results
 
 ### Platform Fixes
 - ~~**POST `/api/time-entries`** has no role guard~~ -- Fixed: guards to CONSULTANT + EM only
@@ -121,4 +112,4 @@ Items that are known gaps, stubs, or "coming soon" placeholders. Ordered by impa
 
 ---
 
-*Last updated: 2026-03-16*
+*Last updated: 2026-03-17*

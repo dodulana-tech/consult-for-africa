@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
@@ -109,6 +110,12 @@ export default function LoginPage() {
                 {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             </div>
+          </div>
+
+          <div className="flex justify-end">
+            <Link href="/forgot-password" className="text-xs font-medium hover:underline" style={{ color: "#0F2744" }}>
+              Forgot password?
+            </Link>
           </div>
 
           {/* Error */}

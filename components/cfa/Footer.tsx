@@ -19,11 +19,11 @@ export default function Footer() {
           </p>
 
           <p className="mt-6 text-sm text-white/60">
-            Pan-African operations • Global partnerships
+            Pan-African operations · Global partnerships
           </p>
         </div>
 
-        {/* SERVICES */}
+        {/* SERVICES — each links to the services page */}
         <div>
           <p className="font-semibold mb-4 text-sm uppercase tracking-wide">
             Services
@@ -31,7 +31,7 @@ export default function Footer() {
 
           <ul className="space-y-2 text-white/70 text-sm">
             {[
-              { label: "Hospital Turnaround", href: "/services" },
+              { label: "Hospital Turnaround", href: "/turnaround" },
               { label: "Strategy & Growth", href: "/services" },
               { label: "Clinical Governance", href: "/services" },
               { label: "Digital Health & Data", href: "/services" },
@@ -50,37 +50,37 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* NETWORK */}
+        {/* COMPANY — real pages, no dead anchors */}
         <div>
           <p className="font-semibold mb-4 text-sm uppercase tracking-wide">
-            Network
+            Company
           </p>
 
           <ul className="space-y-2 text-white/70 text-sm">
             <li>
-              <a href="#network" className="hover:text-white transition-colors">
-                Partner Hospitals
-              </a>
+              <Link href="/about" className="hover:text-white transition-colors">
+                About CFA
+              </Link>
             </li>
             <li>
-              <a href="#network" className="hover:text-white transition-colors">
-                Clinical & Diaspora Experts
-              </a>
+              <Link href="/insights" className="hover:text-white transition-colors">
+                Insights & Research
+              </Link>
             </li>
             <li>
-              <a href="#network" className="hover:text-white transition-colors">
-                Development Partners
-              </a>
+              <Link href="/careers" className="hover:text-white transition-colors">
+                Careers
+              </Link>
             </li>
             <li>
-              <a href="#network" className="hover:text-white transition-colors">
-                Investor Network
-              </a>
+              <Link href="/maarova" className="hover:text-white transition-colors">
+                Maarova Platform
+              </Link>
             </li>
             <li>
-              <a href="#insights" className="hover:text-white transition-colors">
-                Knowledge & Insights
-              </a>
+              <Link href="/contact" className="hover:text-white transition-colors">
+                Partner With Us
+              </Link>
             </li>
           </ul>
         </div>
@@ -88,17 +88,10 @@ export default function Footer() {
         {/* CONTACT */}
         <div>
           <p className="font-semibold mb-4 text-sm uppercase tracking-wide">
-            Contact
+            Get in Touch
           </p>
 
           <ul className="space-y-2 text-white/70 text-sm">
-            <li>
-              <a href="#contact" className="hover:text-white transition-colors">
-                Partner With Us
-              </a>
-            </li>
-            <li>Abuja • Lagos • +2349138138553</li>
-
             <li>
               <a
                 href="mailto:hello@consultforafrica.com"
@@ -107,12 +100,17 @@ export default function Footer() {
                 hello@consultforafrica.com
               </a>
             </li>
-
-            <li>Response within 48 hours</li>
+            <li>
+              <a href="tel:+2349138138553" className="hover:text-white transition-colors">
+                +234 913 813 8553
+              </a>
+            </li>
+            <li>Abuja · Lagos</li>
+            <li className="pt-1 text-white/50">Response within 48 hours</li>
           </ul>
 
           <p className="mt-6 text-xs text-white/50">
-            Confidential engagements • NDA available upon request
+            Confidential engagements · NDA available upon request
           </p>
         </div>
       </div>
@@ -122,25 +120,22 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm text-white/60 gap-4">
 
           <div className="text-center md:text-left">
-            © {new Date().getFullYear()} Consult For Africa. All rights reserved.
+            &copy; {new Date().getFullYear()} Consult For Africa. All rights reserved.
           </div>
 
           <div className="flex flex-wrap justify-center md:justify-end gap-6">
+            <Link href="/about" className="hover:text-white transition">
+              About
+            </Link>
             <Link href="/services" className="hover:text-white transition">
               Services
             </Link>
-
-            <a href="#process" className="hover:text-white transition">
-              Process
-            </a>
-
-            <a href="#network" className="hover:text-white transition">
-              Network
-            </a>
-
-            <a href="#contact" className="hover:text-white transition">
-              Partner
-            </a>
+            <Link href="/insights" className="hover:text-white transition">
+              Insights
+            </Link>
+            <Link href="/contact" className="hover:text-white transition">
+              Contact
+            </Link>
           </div>
         </div>
       </div>

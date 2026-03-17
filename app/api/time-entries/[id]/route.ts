@@ -33,6 +33,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       status: action === "approve" ? "APPROVED" : "REJECTED",
       approvedById: session.user.id,
       approvedAt: new Date(),
+      ...(action === "reject" && reason ? { rejectionReason: reason } : {}),
     },
     include: {
       consultant: { select: { name: true, email: true } },

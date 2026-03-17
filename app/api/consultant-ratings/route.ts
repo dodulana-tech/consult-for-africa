@@ -2,6 +2,61 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
+export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session) return new Response("Unauthorized", { status: 401 });
+
+  const { searchParams } = new URL(req.url);
+  const consultantUserId = searchParams.get("consultantUserId");
+  const projectId = searchParams.get("projectId");
+
+  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isEM = session.user.role === "ENGAGEMENT_MANAGER";
+
+  // Consultants can only see their own ratings
+  const where: Record<string, unknown> = {};
+  if (session.user.role === "CONSULTANT") {
+    where.consultant = { userId: session.user.id };
+  } else if (!isElevated && !isEM) {
+    return new Response("Forbidden", { status: 403 });
+  }
+
+  if (consultantUserId && (isElevated || isEM)) {
+    where.consultant = { userId: consultantUserId };
+  }
+  if (projectId) where.projectId = projectId;
+
+  const ratings = await prisma.consultantRating.findMany({
+    where,
+    include: {
+      consultant: { select: { id: true, user: { select: { id: true, name: true } } } },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 100,
+  });
+
+  // Enrich with project names and rater names
+  const projectIds = [...new Set(ratings.map((r) => r.projectId))];
+  const raterIds = [...new Set(ratings.map((r) => r.ratedById))];
+
+  const [projects, raters] = await Promise.all([
+    prisma.project.findMany({ where: { id: { in: projectIds } }, select: { id: true, name: true } }),
+    prisma.user.findMany({ where: { id: { in: raterIds } }, select: { id: true, name: true } }),
+  ]);
+
+  const projectMap = Object.fromEntries(projects.map((p) => [p.id, p.name]));
+  const raterMap = Object.fromEntries(raters.map((r) => [r.id, r.name]));
+
+  return Response.json(
+    ratings.map((r) => ({
+      ...r,
+      projectName: projectMap[r.projectId] ?? null,
+      ratedByName: raterMap[r.ratedById] ?? null,
+      createdAt: r.createdAt.toISOString(),
+    }))
+  );
+}
+
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });

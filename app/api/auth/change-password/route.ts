@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&\-_#^]).{10,}$/;
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{10,}$/;
 
 export async function POST(req: NextRequest) {
   const session = await auth();

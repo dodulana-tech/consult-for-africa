@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function ClientPortalLoginPage() {
   const router = useRouter();
@@ -140,6 +141,16 @@ export default function ClientPortalLoginPage() {
                   (e.currentTarget.style.borderColor = "#e5eaf0")
                 }
               />
+            </div>
+
+            <div className="flex justify-end">
+              <Link
+                href="/client/forgot-password"
+                className="text-xs font-medium hover:underline"
+                style={{ color: "#0F2744" }}
+              >
+                Forgot password?
+              </Link>
             </div>
 
             <button

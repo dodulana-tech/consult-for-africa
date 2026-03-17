@@ -15,6 +15,7 @@ import {
   AlertCircle,
   Sparkles,
   Eye,
+  Download,
 } from "lucide-react";
 import ProposalGenerator from "@/components/platform/ProposalGenerator";
 
@@ -260,6 +261,52 @@ export default function ProposalsList() {
 
     const actions = nextActions[detail.status] ?? [];
 
+    function exportPDF() {
+      if (!detail) return;
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) return;
+
+      const challengesHtml = detail.challenges.length > 0
+        ? `<div style="margin-bottom:24px;"><h3 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Challenges</h3><ul style="padding-left:20px;margin:0;">${detail.challenges.map(c => `<li style="margin-bottom:4px;font-size:14px;color:#374151;">${c}</li>`).join("")}</ul></div>`
+        : "";
+
+      const objectivesHtml = detail.objectives.length > 0
+        ? `<div style="margin-bottom:24px;"><h3 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Objectives</h3><ul style="padding-left:20px;margin:0;">${detail.objectives.map(o => `<li style="margin-bottom:4px;font-size:14px;color:#374151;">${o}</li>`).join("")}</ul></div>`
+        : "";
+
+      const metaRows = [
+        detail.serviceType ? `<tr><td style="padding:6px 12px;font-size:13px;color:#6B7280;">Service</td><td style="padding:6px 12px;font-size:13px;font-weight:600;color:#111827;">${SERVICE_LABELS[detail.serviceType] ?? detail.serviceType}</td></tr>` : "",
+        detail.budgetRange ? `<tr><td style="padding:6px 12px;font-size:13px;color:#6B7280;">Budget</td><td style="padding:6px 12px;font-size:13px;font-weight:600;color:#111827;">${detail.budgetRange}</td></tr>` : "",
+        detail.timeline ? `<tr><td style="padding:6px 12px;font-size:13px;color:#6B7280;">Timeline</td><td style="padding:6px 12px;font-size:13px;font-weight:600;color:#111827;">${detail.timeline}</td></tr>` : "",
+        `<tr><td style="padding:6px 12px;font-size:13px;color:#6B7280;">Date</td><td style="padding:6px 12px;font-size:13px;font-weight:600;color:#111827;">${formatDate(detail.createdAt)}</td></tr>`,
+        detail.clientContact ? `<tr><td style="padding:6px 12px;font-size:13px;color:#6B7280;">Contact</td><td style="padding:6px 12px;font-size:13px;font-weight:600;color:#111827;">${detail.clientContact}</td></tr>` : "",
+      ].filter(Boolean).join("");
+
+      printWindow.document.write(`<!DOCTYPE html>
+<html><head><title>${detail.title}</title>
+<style>
+  @media print { body { margin: 0; } @page { margin: 20mm 15mm; } }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #111827; max-width: 700px; margin: 0 auto; padding: 40px 20px; }
+</style></head><body>
+  <div style="background:#0F2744;padding:24px 32px;border-radius:8px 8px 0 0;margin-bottom:0;">
+    <span style="color:#D4AF37;font-weight:700;font-size:18px;">Consult For Africa</span>
+    <span style="color:rgba(255,255,255,0.45);font-size:12px;margin-left:8px;">Proposal</span>
+  </div>
+  <div style="border:1px solid #e5eaf0;border-top:none;padding:32px;border-radius:0 0 8px 8px;">
+    <h1 style="margin:0 0 4px;font-size:22px;font-weight:700;color:#0F2744;">${detail.title}</h1>
+    <p style="margin:0 0 20px;font-size:15px;color:#6B7280;">Prepared for ${detail.clientName}</p>
+    <table style="width:100%;border-collapse:collapse;border:1px solid #E5E7EB;border-radius:6px;margin-bottom:24px;">${metaRows}</table>
+    ${challengesHtml}${objectivesHtml}
+    <div style="white-space:pre-wrap;font-size:14px;line-height:1.7;color:#374151;">${detail.content}</div>
+    <div style="margin-top:40px;padding-top:16px;border-top:1px solid #e5eaf0;font-size:11px;color:#9CA3AF;">
+      Consult For Africa | Confidential | Generated ${formatDate(detail.createdAt)}
+    </div>
+  </div>
+</body></html>`);
+      printWindow.document.close();
+      setTimeout(() => printWindow.print(), 300);
+    }
+
     return (
       <div className="max-w-3xl">
         <button onClick={() => setView("list")} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-4">
@@ -342,6 +389,13 @@ export default function ProposalsList() {
                   {action.label}
                 </button>
               ))}
+              <button
+                onClick={exportPDF}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium"
+                style={{ background: "#F0F4FF", color: "#0F2744" }}
+              >
+                <Download size={11} /> Export PDF
+              </button>
               {detail.status === "DRAFT" && (
                 <button
                   onClick={deleteProposal}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function MaarovaLoginPage() {
   const router = useRouter();
@@ -119,6 +120,12 @@ export default function MaarovaLoginPage() {
                 placeholder="Enter your password"
               />
             </div>
+          </div>
+
+          <div className="flex justify-end">
+            <Link href="/maarova/portal/forgot-password" className="text-xs font-medium hover:underline" style={{ color: "#D4A574" }}>
+              Forgot password?
+            </Link>
           </div>
 
           <button
