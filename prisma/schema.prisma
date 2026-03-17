@@ -246,7 +246,10 @@ model ConsultantProfile {
   bio             String    @db.Text
   location        String
   isDiaspora      Boolean   @default(false)
-  expertiseAreas  String[]
+  expertiseAreas       String[]   // ServiceType values (project-level matching)
+  specialties          String[]   // ConsultantSpecialty values (granular skills)
+  specialtyCategory    String?    // Primary specialty category
+  primarySpecialty     String?    // Primary ConsultantSpecialty value
   yearsExperience Int
   tier            ConsultantTier     @default(STANDARD)
   hourlyRateUSD   Decimal?  @db.Decimal(10, 2)

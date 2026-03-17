@@ -3,6 +3,29 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import type { AvailabilityStatus } from "@prisma/client";
 
+export async function GET() {
+  const session = await auth();
+  if (!session) return new Response("Unauthorized", { status: 401 });
+
+  const profile = await prisma.consultantProfile.findUnique({
+    where: { userId: session.user.id },
+  });
+
+  if (!profile) return new Response("Profile not found", { status: 404 });
+
+  return Response.json({
+    ...profile,
+    hourlyRateUSD: profile.hourlyRateUSD ? Number(profile.hourlyRateUSD) : null,
+    monthlyRateNGN: profile.monthlyRateNGN ? Number(profile.monthlyRateNGN) : null,
+    averageRating: profile.averageRating ? Number(profile.averageRating) : null,
+    createdAt: profile.createdAt.toISOString(),
+    updatedAt: profile.updatedAt.toISOString(),
+    // Mask sensitive banking data
+    accountNumber: profile.accountNumber ? `****${profile.accountNumber.slice(-4)}` : null,
+    swiftCode: undefined,
+  });
+}
+
 export async function PATCH(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });

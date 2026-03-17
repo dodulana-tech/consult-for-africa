@@ -47,13 +47,43 @@ const PARTS = [
   },
 ];
 
-const SPECIALTIES = [
-  { value: "HOSPITAL_OPERATIONS", label: "Hospital Operations" },
-  { value: "TURNAROUND", label: "Turnaround Management" },
-  { value: "CLINICAL_GOVERNANCE", label: "Clinical Governance" },
-  { value: "DIGITAL_HEALTH", label: "Digital Health" },
-  { value: "HEALTH_SYSTEMS", label: "Health Systems" },
-];
+import { SPECIALTY_CATEGORIES } from "@/lib/specialties";
+
+// Map consultant specialties to assessment question bank specialties
+const SPECIALTY_TO_ASSESSMENT: Record<string, string> = {
+  // Clinical -> CLINICAL_GOVERNANCE
+  MEDICINE: "CLINICAL_GOVERNANCE", NURSING: "CLINICAL_GOVERNANCE", PHARMACY: "CLINICAL_GOVERNANCE",
+  LABORATORY: "CLINICAL_GOVERNANCE", RADIOLOGY: "CLINICAL_GOVERNANCE", PHYSIOTHERAPY: "CLINICAL_GOVERNANCE",
+  // Operations -> HOSPITAL_OPERATIONS
+  OPERATIONS_MANAGEMENT: "HOSPITAL_OPERATIONS", PROCESS_ENGINEERING: "HOSPITAL_OPERATIONS",
+  SUPPLY_CHAIN: "HOSPITAL_OPERATIONS", FACILITIES_MANAGEMENT: "HOSPITAL_OPERATIONS",
+  BIOMEDICAL_ENGINEERING: "HOSPITAL_OPERATIONS",
+  // Finance -> HOSPITAL_OPERATIONS
+  FINANCIAL_MANAGEMENT: "HOSPITAL_OPERATIONS", ACCOUNTING: "HOSPITAL_OPERATIONS",
+  REVENUE_CYCLE: "HOSPITAL_OPERATIONS", HEALTH_INSURANCE: "HOSPITAL_OPERATIONS",
+  // People -> EMBEDDED_LEADERSHIP
+  HUMAN_RESOURCES: "EMBEDDED_LEADERSHIP", TRAINING_DEVELOPMENT: "EMBEDDED_LEADERSHIP",
+  CHANGE_MANAGEMENT: "EMBEDDED_LEADERSHIP",
+  // Strategy -> HEALTH_SYSTEMS
+  STRATEGY: "HEALTH_SYSTEMS", BUSINESS_DEVELOPMENT: "HEALTH_SYSTEMS", RESEARCH_ANALYTICS: "HEALTH_SYSTEMS",
+  // Technology -> DIGITAL_HEALTH
+  HEALTH_INFORMATICS: "DIGITAL_HEALTH", SOFTWARE_ENGINEERING: "DIGITAL_HEALTH", DATA_SCIENCE: "DIGITAL_HEALTH",
+  // Governance -> CLINICAL_GOVERNANCE
+  LEGAL_COMPLIANCE: "CLINICAL_GOVERNANCE", QUALITY_SAFETY: "CLINICAL_GOVERNANCE",
+  RISK_MANAGEMENT: "CLINICAL_GOVERNANCE", INTERNAL_AUDIT: "CLINICAL_GOVERNANCE",
+  // Communications -> TURNAROUND
+  MARKETING: "TURNAROUND", GRAPHIC_DESIGN: "TURNAROUND", CONTENT_COPYWRITING: "TURNAROUND",
+  // Infrastructure -> HOSPITAL_OPERATIONS
+  ARCHITECTURE: "HOSPITAL_OPERATIONS", INTERIOR_DESIGN: "HOSPITAL_OPERATIONS",
+  PROJECT_MANAGEMENT_CAPITAL: "HOSPITAL_OPERATIONS",
+  // Public Health -> HEALTH_SYSTEMS
+  EPIDEMIOLOGY: "HEALTH_SYSTEMS", HEALTH_POLICY: "HEALTH_SYSTEMS",
+  COMMUNITY_HEALTH: "HEALTH_SYSTEMS", MONITORING_EVALUATION: "HEALTH_SYSTEMS",
+};
+
+const ALL_SPECIALTIES = SPECIALTY_CATEGORIES.flatMap((c) =>
+  c.specialties.map((s) => ({ value: s.key, label: s.label, category: c.label }))
+);
 
 export default function AssessmentIntroPage() {
   const { status: sessionStatus } = useSession();
@@ -72,13 +102,10 @@ export default function AssessmentIntroPage() {
         const res = await fetch("/api/consultant-profile");
         if (res.ok) {
           const data = await res.json();
-          const areas = data.expertiseAreas ?? [];
-          if (areas.length > 0) {
-            const primary = areas[0];
-            if (SPECIALTIES.some((s) => s.value === primary)) {
-              setSpecialty(primary);
-              setProfileSpecialty(primary);
-            }
+          const primary = data.primarySpecialty;
+          if (primary && ALL_SPECIALTIES.some((s) => s.value === primary)) {
+            setSpecialty(primary);
+            setProfileSpecialty(primary);
           }
         }
       } catch {
@@ -95,10 +122,13 @@ export default function AssessmentIntroPage() {
     setError("");
 
     try {
+      // Map consultant specialty to assessment question bank specialty
+      const assessmentSpecialty = SPECIALTY_TO_ASSESSMENT[specialty] ?? "HOSPITAL_OPERATIONS";
+
       const res = await fetch("/api/consultant-assessment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ specialty }),
+        body: JSON.stringify({ specialty: assessmentSpecialty }),
       });
 
       if (!res.ok) {
@@ -149,7 +179,7 @@ export default function AssessmentIntroPage() {
         {/* Specialty selector */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Assessment Specialty
+            Your Primary Specialty
           </label>
           <select
             value={specialty}
@@ -158,13 +188,22 @@ export default function AssessmentIntroPage() {
             style={{ border: "1px solid #E2E8F0", background: "#F8FAFC" }}
           >
             <option value="">Select your primary specialty</option>
-            {SPECIALTIES.map((s) => (
-              <option key={s.value} value={s.value}>{s.label}</option>
+            {SPECIALTY_CATEGORIES.map((cat) => (
+              <optgroup key={cat.key} label={cat.label}>
+                {cat.specialties.map((s) => (
+                  <option key={s.key} value={s.key}>{s.label}</option>
+                ))}
+              </optgroup>
             ))}
           </select>
           {profileSpecialty && specialty === profileSpecialty && (
             <p className="text-xs text-gray-400 mt-1">
               Auto-selected from your profile. You can change it if needed.
+            </p>
+          )}
+          {specialty && (
+            <p className="text-xs text-gray-400 mt-1">
+              Your scenario questions will be tailored to this specialty.
             </p>
           )}
         </div>

@@ -7,6 +7,7 @@ import {
   CheckCircle,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
   Loader2,
   User,
   CreditCard,
@@ -14,6 +15,7 @@ import {
   PartyPopper,
   Sparkles,
 } from "lucide-react";
+import { SPECIALTY_CATEGORIES, getServiceTypesForSpecialties } from "@/lib/specialties";
 
 interface OnboardingData {
   status: string;
@@ -21,17 +23,6 @@ interface OnboardingData {
   profileCompleted: boolean;
   assessmentCompleted: boolean;
 }
-
-const SERVICE_TYPES = [
-  { key: "HOSPITAL_OPERATIONS", label: "Hospital Operations" },
-  { key: "TURNAROUND", label: "Turnaround Management" },
-  { key: "EMBEDDED_LEADERSHIP", label: "Embedded Leadership" },
-  { key: "CLINICAL_GOVERNANCE", label: "Clinical Governance" },
-  { key: "DIGITAL_HEALTH", label: "Digital Health" },
-  { key: "HEALTH_SYSTEMS", label: "Health Systems Strengthening" },
-  { key: "DIASPORA_EXPERTISE", label: "Diaspora Expertise" },
-  { key: "EM_AS_SERVICE", label: "EM-as-a-Service" },
-];
 
 const LOCATIONS = [
   "Lagos, Nigeria",
@@ -62,10 +53,12 @@ export default function OnboardingPage() {
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
   const [customLocation, setCustomLocation] = useState("");
-  const [expertiseAreas, setExpertiseAreas] = useState<string[]>([]);
+  const [specialties, setSpecialties] = useState<string[]>([]);
+  const [primarySpecialty, setPrimarySpecialty] = useState("");
   const [yearsExperience, setYearsExperience] = useState("");
   const [isDiaspora, setIsDiaspora] = useState(false);
   const [hoursPerWeek, setHoursPerWeek] = useState("40");
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   // Banking fields
   const [bankName, setBankName] = useState("");
@@ -148,7 +141,9 @@ export default function OnboardingPage() {
           title,
           bio,
           location: location === "Other" ? customLocation : location,
-          expertiseAreas,
+          specialties,
+          primarySpecialty: primarySpecialty || specialties[0] || null,
+          expertiseAreas: getServiceTypesForSpecialties(specialties),
           yearsExperience: Number(yearsExperience),
           isDiaspora,
           hoursPerWeek: Number(hoursPerWeek),
@@ -447,32 +442,85 @@ export default function OnboardingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Areas of expertise</label>
-                  <div className="flex flex-wrap gap-2">
-                    {SERVICE_TYPES.map((st) => {
-                      const selected = expertiseAreas.includes(st.key);
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Specialties</label>
+                  <p className="text-xs text-gray-400 mb-3">Select all that apply. Pick your primary specialty below.</p>
+                  <div className="space-y-2">
+                    {SPECIALTY_CATEGORIES.map((cat) => {
+                      const isExpanded = expandedCategories.has(cat.key);
+                      const selectedInCat = cat.specialties.filter((s) => specialties.includes(s.key));
                       return (
-                        <button
-                          key={st.key}
-                          type="button"
-                          onClick={() =>
-                            setExpertiseAreas((prev) =>
-                              selected ? prev.filter((k) => k !== st.key) : [...prev, st.key]
-                            )
-                          }
-                          className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
-                          style={{
-                            background: selected ? "#0F2744" : "#F1F5F9",
-                            color: selected ? "#fff" : "#64748B",
-                            border: selected ? "1px solid #0F2744" : "1px solid #E2E8F0",
-                          }}
-                        >
-                          {st.label}
-                        </button>
+                        <div key={cat.key} className="rounded-lg" style={{ border: "1px solid #E2E8F0" }}>
+                          <button
+                            type="button"
+                            onClick={() => setExpandedCategories((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(cat.key)) next.delete(cat.key); else next.add(cat.key);
+                              return next;
+                            })}
+                            className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium text-left"
+                            style={{ color: "#0F2744" }}
+                          >
+                            <span>
+                              {cat.label}
+                              {selectedInCat.length > 0 && (
+                                <span className="ml-2 text-xs font-normal px-1.5 py-0.5 rounded-full" style={{ background: "#EFF6FF", color: "#1D4ED8" }}>
+                                  {selectedInCat.length}
+                                </span>
+                              )}
+                            </span>
+                            <ChevronDown size={14} className={`text-gray-400 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                          </button>
+                          {isExpanded && (
+                            <div className="px-3 pb-3 flex flex-wrap gap-1.5">
+                              {cat.specialties.map((s) => {
+                                const selected = specialties.includes(s.key);
+                                return (
+                                  <button
+                                    key={s.key}
+                                    type="button"
+                                    onClick={() => {
+                                      setSpecialties((prev) =>
+                                        selected ? prev.filter((k) => k !== s.key) : [...prev, s.key]
+                                      );
+                                      if (selected && primarySpecialty === s.key) setPrimarySpecialty("");
+                                    }}
+                                    className="px-2.5 py-1 rounded-full text-xs font-medium transition-all"
+                                    style={{
+                                      background: selected ? "#0F2744" : "#F1F5F9",
+                                      color: selected ? "#fff" : "#64748B",
+                                      border: selected ? "1px solid #0F2744" : "1px solid #E2E8F0",
+                                    }}
+                                  >
+                                    {s.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
                       );
                     })}
                   </div>
                 </div>
+
+                {specialties.length > 1 && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Primary specialty</label>
+                    <select
+                      value={primarySpecialty}
+                      onChange={(e) => setPrimarySpecialty(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 bg-white"
+                    >
+                      <option value="">Select primary</option>
+                      {specialties.map((key) => {
+                        const cat = SPECIALTY_CATEGORIES.find((c) => c.specialties.some((s) => s.key === key));
+                        const spec = cat?.specialties.find((s) => s.key === key);
+                        return <option key={key} value={key}>{spec?.label ?? key}</option>;
+                      })}
+                    </select>
+                    <p className="text-xs text-gray-400 mt-1">Used for your skills assessment scenario</p>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>

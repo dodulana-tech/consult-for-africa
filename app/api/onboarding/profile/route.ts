@@ -22,12 +22,19 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const {
-    title, bio, location, expertiseAreas, yearsExperience,
-    isDiaspora, availabilityStatus, hoursPerWeek, interests,
+    title, bio, location, expertiseAreas, specialties, primarySpecialty,
+    yearsExperience, isDiaspora, availabilityStatus, hoursPerWeek, interests,
   } = body;
 
   if (!title?.trim() || !location?.trim() || !yearsExperience) {
     return new Response("title, location, and yearsExperience are required", { status: 400 });
+  }
+
+  // Derive specialty category from primary specialty
+  let specialtyCategory: string | null = null;
+  if (primarySpecialty) {
+    const { getSpecialtyCategory } = await import("@/lib/specialties");
+    specialtyCategory = getSpecialtyCategory(primarySpecialty)?.key ?? null;
   }
 
   // Upsert consultant profile
@@ -40,6 +47,9 @@ export async function POST(req: NextRequest) {
       location: location.trim(),
       isDiaspora: isDiaspora ?? false,
       expertiseAreas: Array.isArray(expertiseAreas) ? expertiseAreas : [],
+      specialties: Array.isArray(specialties) ? specialties : [],
+      primarySpecialty: primarySpecialty ?? null,
+      specialtyCategory,
       yearsExperience: Number(yearsExperience),
       availabilityStatus: availabilityStatus ?? "AVAILABLE",
       hoursPerWeek: hoursPerWeek ? Number(hoursPerWeek) : null,
@@ -51,6 +61,9 @@ export async function POST(req: NextRequest) {
       location: location.trim(),
       isDiaspora: isDiaspora ?? false,
       expertiseAreas: Array.isArray(expertiseAreas) ? expertiseAreas : [],
+      specialties: Array.isArray(specialties) ? specialties : [],
+      primarySpecialty: primarySpecialty ?? null,
+      specialtyCategory,
       yearsExperience: Number(yearsExperience),
       availabilityStatus: availabilityStatus ?? "AVAILABLE",
       hoursPerWeek: hoursPerWeek ? Number(hoursPerWeek) : null,
