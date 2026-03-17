@@ -30,7 +30,6 @@ export async function POST(
   }
 
   if (assessment.status === "EXPIRED" || assessment.expiresAt <= new Date()) {
-    // Mark as expired if not already
     if (assessment.status !== "EXPIRED") {
       await prisma.consultantAssessment.update({
         where: { id },
@@ -40,85 +39,79 @@ export async function POST(
     return Response.json({ error: "Assessment has expired" }, { status: 400 });
   }
 
-  const {
-    part,
-    questionId,
-    questionText,
-    answer,
-    timeSpentSec,
-    pasteEvents,
-    tabSwitches,
-    typingPattern,
-    wordCount,
-  } = await req.json();
+  const body = await req.json();
 
-  if (!part || !questionId || !questionText || !answer) {
-    return Response.json(
-      { error: "part, questionId, questionText, and answer are required" },
-      { status: 400 }
-    );
-  }
+  // Support both batch { responses: [...] } and single { part, questionId, ... }
+  const items: Array<{
+    part: string;
+    questionId: string;
+    questionText: string;
+    answer: string;
+    timeSpentSec?: number;
+    pasteEvents?: number;
+    tabSwitches?: number;
+    typingPattern?: unknown;
+    wordCount?: number;
+  }> = Array.isArray(body.responses) ? body.responses : [body];
 
   const validParts = ["scenario", "experience", "quickfire", "video"];
-  if (!validParts.includes(part)) {
-    return Response.json({ error: "Invalid part" }, { status: 400 });
-  }
+  const results = [];
 
-  // Upsert: allow overwriting during the assessment
-  const existing = await prisma.consultantAssessmentResponse.findFirst({
-    where: {
-      assessmentId: id,
-      questionId,
-    },
-  });
+  for (const item of items) {
+    if (!item.part || !item.questionId || !item.answer) continue;
+    if (!validParts.includes(item.part)) continue;
 
-  let response;
-  if (existing) {
-    response = await prisma.consultantAssessmentResponse.update({
-      where: { id: existing.id },
-      data: {
-        answer,
-        timeSpentSec: timeSpentSec ?? null,
-        pasteEvents: pasteEvents ?? 0,
-        tabSwitches: tabSwitches ?? 0,
-        typingPattern: typingPattern ?? null,
-        wordCount: wordCount ?? null,
-        answeredAt: new Date(),
-      },
+    const existing = await prisma.consultantAssessmentResponse.findFirst({
+      where: { assessmentId: id, questionId: item.questionId },
     });
-  } else {
-    response = await prisma.consultantAssessmentResponse.create({
-      data: {
-        assessmentId: id,
-        part,
-        questionId,
-        questionText,
-        answer,
-        timeSpentSec: timeSpentSec ?? null,
-        pasteEvents: pasteEvents ?? 0,
-        tabSwitches: tabSwitches ?? 0,
-        typingPattern: typingPattern ?? null,
-        wordCount: wordCount ?? null,
-      },
+
+    let response;
+    if (existing) {
+      response = await prisma.consultantAssessmentResponse.update({
+        where: { id: existing.id },
+        data: {
+          answer: item.answer,
+          timeSpentSec: item.timeSpentSec ?? null,
+          pasteEvents: item.pasteEvents ?? 0,
+          tabSwitches: item.tabSwitches ?? 0,
+          typingPattern: item.typingPattern ? JSON.parse(JSON.stringify(item.typingPattern)) : undefined,
+          wordCount: item.wordCount ?? null,
+          answeredAt: new Date(),
+        },
+      });
+    } else {
+      response = await prisma.consultantAssessmentResponse.create({
+        data: {
+          assessmentId: id,
+          part: item.part,
+          questionId: item.questionId,
+          questionText: item.questionText ?? "",
+          answer: item.answer,
+          timeSpentSec: item.timeSpentSec ?? null,
+          pasteEvents: item.pasteEvents ?? 0,
+          tabSwitches: item.tabSwitches ?? 0,
+          typingPattern: item.typingPattern ? JSON.parse(JSON.stringify(item.typingPattern)) : undefined,
+          wordCount: item.wordCount ?? null,
+        },
+      });
+    }
+
+    results.push({
+      id: response.id,
+      part: response.part,
+      questionId: response.questionId,
+      wordCount: response.wordCount,
+      answeredAt: response.answeredAt,
     });
   }
 
   // Move to IN_PROGRESS if this is the first response
-  if (assessment.status === "NOT_STARTED") {
+  if (assessment.status === "NOT_STARTED" && results.length > 0) {
     await prisma.consultantAssessment.update({
       where: { id },
       data: { status: "IN_PROGRESS", startedAt: new Date() },
     });
   }
 
-  return Response.json({
-    ok: true,
-    response: {
-      id: response.id,
-      part: response.part,
-      questionId: response.questionId,
-      wordCount: response.wordCount,
-      answeredAt: response.answeredAt,
-    },
-  });
+  return Response.json({ ok: true, saved: results.length });
 }

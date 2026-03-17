@@ -32,7 +32,8 @@ export async function POST(
     );
   }
 
-  const { tabSwitchCount, pasteEventCount, suspiciousFlags } = await req.json();
+  const body = await req.json();
+  const { tabSwitchCount, pasteEventCount, largePasteCount, typingPatterns, suspiciousGaps, suspiciousFlags } = body;
 
   const data: Record<string, unknown> = {};
 
@@ -44,15 +45,15 @@ export async function POST(
     data.pasteEventCount = pasteEventCount;
   }
 
-  if (suspiciousFlags !== undefined) {
-    // Merge with existing flags
-    const existingFlags = (assessment.suspiciousFlags as Record<string, unknown>) || {};
-    data.suspiciousFlags = {
-      ...existingFlags,
-      ...(typeof suspiciousFlags === "object" ? suspiciousFlags : {}),
-      lastUpdated: new Date().toISOString(),
-    };
-  }
+  // Merge all integrity signals into suspiciousFlags JSON
+  const existingFlags = (assessment.suspiciousFlags as Record<string, unknown>) || {};
+  const newFlags: Record<string, unknown> = { ...existingFlags };
+  if (typeof largePasteCount === "number") newFlags.largePasteCount = largePasteCount;
+  if (typingPatterns) newFlags.typingPatterns = typingPatterns;
+  if (typeof suspiciousGaps === "number") newFlags.suspiciousGaps = suspiciousGaps;
+  if (suspiciousFlags && typeof suspiciousFlags === "object") Object.assign(newFlags, suspiciousFlags);
+  newFlags.lastUpdated = new Date().toISOString();
+  data.suspiciousFlags = newFlags;
 
   if (Object.keys(data).length === 0) {
     return Response.json({ error: "No valid fields provided" }, { status: 400 });
