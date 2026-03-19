@@ -6,7 +6,7 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST() {
   const session = await getMaarovaSession();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   // Fetch the user's latest completed report
   const report = await prisma.maarovaReport.findFirst({
@@ -22,9 +22,9 @@ export async function POST() {
   });
 
   if (!report) {
-    return new Response(
-      "No completed assessment report found. Complete your assessment first.",
-      { status: 400 }
+    return Response.json(
+      { error: "No completed assessment report found. Complete your assessment first." },
+      { status: 400 },
     );
   }
 
@@ -81,8 +81,9 @@ ${existingGoals.map((g) => `- ${g.title} (${g.dimension})`).join("\n") || "None"
     return Response.json(parsed);
   } catch (err) {
     console.error("AI goal suggestion error:", err);
-    return new Response("Failed to generate suggestions. Please try again.", {
-      status: 500,
-    });
+    return Response.json(
+      { error: "Failed to generate suggestions. Please try again." },
+      { status: 500 },
+    );
   }
 }

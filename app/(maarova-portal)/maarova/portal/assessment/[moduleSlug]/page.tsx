@@ -43,18 +43,30 @@ interface ModuleData {
 
 /* ─── Helpers ────────────────────────────────────────────────────────────── */
 
-function useSessionId(): string | null {
+function useSessionId(): { sessionId: string | null; sessionError: string | null } {
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionError, setSessionError] = useState<string | null>(null);
   useEffect(() => {
-    // Fetch active session ID
     fetch("/api/maarova/sessions", { method: "POST" })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.session?.id) setSessionId(data.session.id);
+      .then(async (r) => {
+        if (!r.ok) {
+          const body = await r.json().catch(() => null);
+          throw new Error(body?.error ?? `Session request failed (${r.status})`);
+        }
+        return r.json();
       })
-      .catch(() => {});
+      .then((data) => {
+        if (data.session?.id) {
+          setSessionId(data.session.id);
+        } else {
+          setSessionError("Could not create assessment session. Please try again.");
+        }
+      })
+      .catch((err) => {
+        setSessionError(err.message ?? "Failed to start session. Please try again.");
+      });
   }, []);
-  return sessionId;
+  return { sessionId, sessionError };
 }
 
 /* ─── Main Component ─────────────────────────────────────────────────────── */
@@ -66,10 +78,18 @@ export default function AssessmentModulePage({
 }) {
   const router = useRouter();
   const [moduleSlug, setModuleSlug] = useState<string>("");
-  const sessionId = useSessionId();
+  const { sessionId, sessionError } = useSessionId();
   const [data, setData] = useState<ModuleData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Surface session errors
+  useEffect(() => {
+    if (sessionError) {
+      setError(sessionError);
+      setLoading(false);
+    }
+  }, [sessionError]);
   const [answers, setAnswers] = useState<Record<string, unknown>>({});
   const [saving, setSaving] = useState(false);
   const [completing, setCompleting] = useState(false);

@@ -4,7 +4,7 @@ import { NextRequest } from "next/server";
 
 export async function GET() {
   const session = await getMaarovaSession();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const goals = await prisma.maarovaDevelopmentGoal.findMany({
     where: { userId: session.sub },
@@ -16,15 +16,16 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const session = await getMaarovaSession();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
   const { title, description, dimension, targetDate, aiGenerated } = body;
 
   if (!title?.trim() || !description?.trim() || !dimension?.trim()) {
-    return new Response("title, description, and dimension are required", {
-      status: 400,
-    });
+    return Response.json(
+      { error: "title, description, and dimension are required" },
+      { status: 400 },
+    );
   }
 
   const goal = await prisma.maarovaDevelopmentGoal.create({

@@ -159,11 +159,10 @@ Return ONLY the JSON object, no other text.`;
     reportData = JSON.parse(jsonMatch[0]);
   } catch (err) {
     console.error("Maarova report generation error:", err);
-    // Reset report status on failure
-    await prisma.maarovaReport.update({
+    // Delete failed report so user can retry
+    await prisma.maarovaReport.delete({
       where: { id: reportRecord.id },
-      data: { status: "GENERATING" },
-    });
+    }).catch(() => {});
     return NextResponse.json(
       { error: "Failed to generate report. Please try again." },
       { status: 500 }

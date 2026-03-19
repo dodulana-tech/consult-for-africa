@@ -95,12 +95,19 @@ export default function VideoRecorder({
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.muted = true;
-          await videoRef.current.play();
+          // play() can fail on hidden elements or without user gesture;
+          // the stream is valid regardless, so don't treat play failure as fatal
+          try {
+            await videoRef.current.play();
+          } catch {
+            // Playback will resume when element becomes visible
+          }
         }
 
         setState("ready");
         return;
       } catch (err) {
+        // Only getUserMedia errors reach here (play errors caught above)
         if (err instanceof DOMException && err.name === "NotAllowedError") {
           setState("denied");
           setPermissionState("denied");
@@ -126,6 +133,13 @@ export default function VideoRecorder({
       requestCamera();
     }
   }, [permissionState, state, requestCamera]);
+
+  // Ensure video plays when element becomes visible (state = ready)
+  useEffect(() => {
+    if (state === "ready" && videoRef.current && videoRef.current.paused && streamRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  }, [state]);
 
   const startRecording = useCallback(() => {
     if (!streamRef.current) return;
@@ -277,7 +291,7 @@ export default function VideoRecorder({
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
             <Loader2 size={32} className="animate-spin mb-3 text-gray-300" />
             <p className="text-sm text-gray-300">Requesting camera access...</p>
-            <p className="text-xs text-gray-500 mt-2">A browser popup should appear. Click "Allow".</p>
+            <p className="text-xs text-gray-500 mt-2">A browser popup should appear. Click &quot;Allow&quot;.</p>
           </div>
         )}
 
@@ -289,9 +303,9 @@ export default function VideoRecorder({
             <div className="text-xs text-gray-300 space-y-2 text-center max-w-sm">
               <p>Your browser has blocked camera access for this site. To fix:</p>
               <div className="text-left space-y-1.5 bg-white/10 rounded-lg p-3">
-                <p><strong>Chrome / Edge:</strong> Click the lock or tune icon in the address bar. Set Camera and Microphone to "Allow". Refresh.</p>
+                <p><strong>Chrome / Edge:</strong> Click the lock or tune icon in the address bar. Set Camera and Microphone to &quot;Allow&quot;. Refresh.</p>
                 <p><strong>Firefox:</strong> Click the permissions icon (camera with X) in the address bar. Remove the block. Refresh.</p>
-                <p><strong>Safari:</strong> Go to Safari &gt; Settings &gt; Websites &gt; Camera. Set this site to "Allow".</p>
+                <p><strong>Safari:</strong> Go to Safari &gt; Settings &gt; Websites &gt; Camera. Set this site to &quot;Allow&quot;.</p>
                 <p><strong>Mobile:</strong> Go to browser Settings &gt; Site Settings &gt; Camera. Find this site and allow.</p>
               </div>
             </div>

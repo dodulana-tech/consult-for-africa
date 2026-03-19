@@ -7,7 +7,7 @@ export async function PATCH(
   { params }: { params: Promise<{ goalId: string }> }
 ) {
   const session = await getMaarovaSession();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { goalId } = await params;
 
@@ -17,7 +17,7 @@ export async function PATCH(
   });
 
   if (!existing) {
-    return new Response("Goal not found", { status: 404 });
+    return Response.json({ error: "Goal not found" }, { status: 404 });
   }
 
   const body = await req.json();
@@ -35,7 +35,7 @@ export async function PATCH(
   if (body.status !== undefined) {
     const validStatuses = ["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "DEFERRED"];
     if (!validStatuses.includes(body.status)) {
-      return new Response("Invalid status", { status: 400 });
+      return Response.json({ error: "Invalid status" }, { status: 400 });
     }
     updates.status = body.status;
     if (body.status === "COMPLETED") {

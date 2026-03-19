@@ -67,7 +67,11 @@ export default async function MaarovaOrgDetailPage({ params }: Props) {
     <div className="flex flex-col flex-1 overflow-hidden">
       <TopBar
         title={org.name}
-        subtitle={`${org.type} - ${org.stream}`}
+        subtitle={`${
+          { private_hospital: "Private Hospital", hospital_group: "Hospital Group", government: "Government", ngo: "NGO" }[org.type] ?? org.type
+        } - ${
+          { RECRUITMENT: "Recruitment", DEVELOPMENT: "Development", INTELLIGENCE: "Intelligence" }[org.stream] ?? org.stream
+        }`}
         backHref="/admin/maarova/organisations"
       />
       <MaarovaOrgDetail org={serializedOrg} users={serializedUsers} />
