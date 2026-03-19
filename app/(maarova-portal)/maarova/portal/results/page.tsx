@@ -324,7 +324,7 @@ export default async function MaarovaResultsPage() {
           ) : (
             <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
               <p className="text-sm text-gray-500 mb-4">
-                All core modules complete. Generate your comprehensive AI-powered leadership report.
+                All core modules complete. Generate your comprehensive leadership report.
               </p>
               <Link
                 href={`/maarova/portal/results/${assessmentSession.id}`}

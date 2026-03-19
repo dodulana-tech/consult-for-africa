@@ -32,7 +32,7 @@ export function scoreCulture(
   config?: CultureScoringConfig
 ): CultureResult {
   const maxLikert = config?.maxLikert ?? 5;
-  const teamDims = new Set(config?.teamDimensions ?? ["teamEffectiveness"]);
+  const teamDims = new Set(config?.teamDimensions ?? ["teamEffectiveness", "team_effectiveness"]);
   const engagementDims = new Set(
     config?.engagementDimensions ?? [
       "autonomy",

@@ -423,7 +423,7 @@ export default function DevelopmentClient({
                 className="text-sm px-4 py-2 rounded-lg border font-medium transition-colors disabled:opacity-50"
                 style={{ borderColor: "#D4A574", color: "#D4A574" }}
               >
-                {suggestingGoals ? "Generating..." : "AI Suggest Goals"}
+                {suggestingGoals ? "Generating..." : "Suggest Goals"}
               </button>
             )}
             <button
@@ -444,7 +444,7 @@ export default function DevelopmentClient({
               style={{ backgroundColor: "#D4A574" + "08", borderColor: "#D4A574" + "30" }}
             >
               <p className="text-sm font-semibold" style={{ color: "#0F2744" }}>
-                AI-Suggested Goals
+                Suggested Goals
               </p>
               {suggestedGoals.map((sg, i) => (
                 <div
@@ -573,7 +573,7 @@ export default function DevelopmentClient({
           {localGoals.length === 0 ? (
             <div className="text-center py-10">
               <p className="text-gray-500">
-                No development goals yet. Add your first goal or use AI suggestions
+                No development goals yet. Add your first goal or get suggestions
                 based on your assessment results.
               </p>
             </div>
