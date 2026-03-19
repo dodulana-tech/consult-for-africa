@@ -71,16 +71,15 @@ interface SessionData {
   moduleResponses: ModuleResponse[];
 }
 
-// ─── Radar Chart ──────────────────────────────────────────────────────────────
+// ─── Radar Chart (FIFA-style) ─────────────────────────────────────────────────
 
-// Short labels for radar chart readability
 const RADAR_LABELS: Record<string, string> = {
-  "Behavioural Style (DISC)": "Behavioural Style",
-  "Values and Motivational Drivers": "Values & Drivers",
-  "Emotional Intelligence": "Emotional Intelligence",
-  "Clinical Leadership and Team Impact": "Clinical Leadership",
-  "Culture and Team Dynamics": "Culture & Team",
-  "360-Degree Feedback": "360 Feedback",
+  "Behavioural Style (DISC)": "Behavioural\nStyle",
+  "Values and Motivational Drivers": "Values &\nDrivers",
+  "Emotional Intelligence": "Emotional\nIntelligence",
+  "Clinical Leadership and Team Impact": "Clinical\nLeadership",
+  "Culture and Team Dynamics": "Culture\n& Team",
+  "360-Degree Feedback": "360\nFeedback",
 };
 
 function RadarChart({
@@ -88,119 +87,109 @@ function RadarChart({
 }: {
   data: { dimension: string; score: number; benchmark: number }[];
 }) {
-  const size = 500;
+  const size = 600;
   const cx = size / 2;
   const cy = size / 2;
-  const maxRadius = 160;
+  const maxRadius = 180;
   const levels = 5;
+  const n = data.length;
+  const angleSlice = (Math.PI * 2) / n;
 
-  const angleSlice = (Math.PI * 2) / data.length;
-
-  function polarToCartesian(angle: number, radius: number) {
+  function polar(angle: number, radius: number) {
     const a = angle - Math.PI / 2;
-    return {
-      x: cx + radius * Math.cos(a),
-      y: cy + radius * Math.sin(a),
-    };
+    return { x: cx + radius * Math.cos(a), y: cy + radius * Math.sin(a) };
   }
 
-  // Grid circles
-  const gridCircles = Array.from({ length: levels }, (_, i) => {
-    const r = (maxRadius / levels) * (i + 1);
+  // Polygon grid (not circles - FIFA style)
+  const gridPolygons = Array.from({ length: levels }, (_, lvl) => {
+    const r = (maxRadius / levels) * (lvl + 1);
+    const points = Array.from({ length: n }, (__, i) => {
+      const p = polar(angleSlice * i, r);
+      return `${p.x},${p.y}`;
+    }).join(" ");
     return (
-      <circle
-        key={i}
-        cx={cx}
-        cy={cy}
-        r={r}
-        fill="none"
-        stroke="#e5e7eb"
-        strokeWidth={1}
-        strokeDasharray={i < levels - 1 ? "2,3" : "none"}
+      <polygon
+        key={lvl}
+        points={points}
+        fill={lvl === levels - 1 ? "rgba(15,39,68,0.03)" : "none"}
+        stroke={lvl === levels - 1 ? "rgba(15,39,68,0.15)" : "rgba(15,39,68,0.06)"}
+        strokeWidth={lvl === levels - 1 ? 1.5 : 0.75}
       />
     );
   });
 
-  // Axis lines and labels
-  const axes = data.map((d, i) => {
-    const angle = angleSlice * i;
-    const end = polarToCartesian(angle, maxRadius);
-    const labelPos = polarToCartesian(angle, maxRadius + 40);
-    const label = RADAR_LABELS[d.dimension] ?? d.dimension;
+  // Axis lines
+  const axisLines = data.map((_, i) => {
+    const end = polar(angleSlice * i, maxRadius);
+    return (
+      <line
+        key={i}
+        x1={cx} y1={cy} x2={end.x} y2={end.y}
+        stroke="rgba(15,39,68,0.08)"
+        strokeWidth={0.75}
+      />
+    );
+  });
 
-    // Adjust text-anchor based on position
+  // Benchmark polygon
+  const benchmarkPts = data.map((d, i) => {
+    const p = polar(angleSlice * i, (d.benchmark / 100) * maxRadius);
+    return `${p.x},${p.y}`;
+  }).join(" ");
+
+  // Score polygon
+  const scorePts = data.map((d, i) => {
+    const p = polar(angleSlice * i, (d.score / 100) * maxRadius);
+    return `${p.x},${p.y}`;
+  }).join(" ");
+
+  // Score vertex dots and score labels
+  const vertices = data.map((d, i) => {
+    const angle = angleSlice * i;
+    const r = (d.score / 100) * maxRadius;
+    const p = polar(angle, r);
+    // Label position: outside the max radius
+    const labelR = maxRadius + 55;
+    const lp = polar(angle, labelR);
+    // Score badge position: just outside the score point
+    const scoreR = Math.max(r + 18, maxRadius * 0.15);
+    const sp = polar(angle, scoreR);
+    const label = RADAR_LABELS[d.dimension] ?? d.dimension;
+    const lines = label.split("\n");
+
+    // Text anchor based on angle
     const normAngle = angle - Math.PI / 2;
     const cosA = Math.cos(normAngle);
-    const anchor = cosA < -0.1 ? "end" : cosA > 0.1 ? "start" : "middle";
+    const anchor = Math.abs(cosA) < 0.15 ? "middle" : cosA < 0 ? "end" : "start";
 
     return (
       <g key={i}>
-        <line
-          x1={cx}
-          y1={cy}
-          x2={end.x}
-          y2={end.y}
-          stroke="#d1d5db"
-          strokeWidth={1}
-        />
+        {/* Vertex dot */}
+        <circle cx={p.x} cy={p.y} r={5} fill="#D4A574" stroke="#fff" strokeWidth={2.5} />
+
+        {/* Score number near vertex */}
         <text
-          x={labelPos.x}
-          y={labelPos.y}
-          textAnchor={anchor}
-          dominantBaseline="middle"
-          className="text-[11px] font-medium"
-          fill="#374151"
+          x={sp.x} y={sp.y}
+          textAnchor="middle" dominantBaseline="middle"
+          fill="#0F2744" fontWeight="700" fontSize="14"
         >
-          {label}
+          {d.score}
         </text>
+
+        {/* Dimension label outside */}
+        {lines.map((line, li) => (
+          <text
+            key={li}
+            x={lp.x}
+            y={lp.y + (li - (lines.length - 1) / 2) * 14}
+            textAnchor={anchor}
+            dominantBaseline="middle"
+            fill="#374151" fontWeight="600" fontSize="12"
+          >
+            {line}
+          </text>
+        ))}
       </g>
-    );
-  });
-
-  // Score polygon (gold)
-  const scorePoints = data
-    .map((d, i) => {
-      const angle = angleSlice * i;
-      const r = (d.score / 100) * maxRadius;
-      const p = polarToCartesian(angle, r);
-      return `${p.x},${p.y}`;
-    })
-    .join(" ");
-
-  // Benchmark polygon (gray)
-  const benchmarkPoints = data
-    .map((d, i) => {
-      const angle = angleSlice * i;
-      const r = (d.benchmark / 100) * maxRadius;
-      const p = polarToCartesian(angle, r);
-      return `${p.x},${p.y}`;
-    })
-    .join(" ");
-
-  // Score dots
-  const scoreDots = data.map((d, i) => {
-    const angle = angleSlice * i;
-    const r = (d.score / 100) * maxRadius;
-    const p = polarToCartesian(angle, r);
-    return (
-      <circle key={i} cx={p.x} cy={p.y} r={4} fill="#D4A574" stroke="#fff" strokeWidth={2} />
-    );
-  });
-
-  // Level labels (0, 20, 40, 60, 80, 100)
-  const levelLabels = Array.from({ length: levels }, (_, i) => {
-    const val = ((i + 1) / levels) * 100;
-    const r = (maxRadius / levels) * (i + 1);
-    return (
-      <text
-        key={i}
-        x={cx + 4}
-        y={cy - r - 2}
-        className="text-[9px]"
-        fill="#9ca3af"
-      >
-        {val}
-      </text>
     );
   });
 
@@ -208,49 +197,55 @@ function RadarChart({
     <div className="flex flex-col items-center">
       <svg
         viewBox={`0 0 ${size} ${size}`}
-        className="w-full max-w-[420px]"
+        className="w-full max-w-[520px]"
         role="img"
-        aria-label="Leadership profile radar chart"
+        aria-label="Leadership fingerprint"
       >
-        {gridCircles}
-        {levelLabels}
-        {axes}
+        <defs>
+          <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#D4A574" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#D4A574" stopOpacity="0.08" />
+          </linearGradient>
+          <linearGradient id="benchGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0F2744" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="#0F2744" stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+
+        {gridPolygons}
+        {axisLines}
 
         {/* Benchmark area */}
         <polygon
-          points={benchmarkPoints}
-          fill="rgba(156, 163, 175, 0.12)"
-          stroke="#9ca3af"
-          strokeWidth={1.5}
-          strokeDasharray="4,3"
+          points={benchmarkPts}
+          fill="url(#benchGrad)"
+          stroke="#0F2744"
+          strokeWidth={1}
+          strokeDasharray="6,4"
+          strokeOpacity={0.2}
         />
 
-        {/* Score area */}
+        {/* Score area - the hero */}
         <polygon
-          points={scorePoints}
-          fill="rgba(212, 165, 116, 0.2)"
+          points={scorePts}
+          fill="url(#scoreGrad)"
           stroke="#D4A574"
-          strokeWidth={2.5}
+          strokeWidth={3}
+          strokeLinejoin="round"
         />
 
-        {scoreDots}
+        {vertices}
       </svg>
 
       {/* Legend */}
-      <div className="flex items-center gap-6 mt-3">
+      <div className="flex items-center gap-6 mt-4">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-0.5 rounded" style={{ backgroundColor: "#D4A574" }} />
-          <span className="text-xs text-gray-600">Your Score</span>
+          <div className="w-5 h-3 rounded-sm" style={{ backgroundColor: "rgba(212,165,116,0.3)", border: "2px solid #D4A574" }} />
+          <span className="text-xs font-medium text-gray-600">Your Pattern</span>
         </div>
         <div className="flex items-center gap-2">
-          <div
-            className="w-4 h-0.5 rounded"
-            style={{
-              backgroundColor: "#9ca3af",
-              borderTop: "1px dashed #9ca3af",
-            }}
-          />
-          <span className="text-xs text-gray-600">Benchmark</span>
+          <div className="w-5 h-3 rounded-sm" style={{ backgroundColor: "rgba(15,39,68,0.05)", border: "1.5px dashed rgba(15,39,68,0.2)" }} />
+          <span className="text-xs font-medium text-gray-600">Typical Pattern</span>
         </div>
       </div>
     </div>
