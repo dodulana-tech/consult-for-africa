@@ -2,6 +2,7 @@ import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import DevelopmentClient from "./DevelopmentClient";
+import CoachingSection from "./CoachingSection";
 
 export default async function DevelopmentPage() {
   const session = await getMaarovaSession();
@@ -53,12 +54,29 @@ export default async function DevelopmentPage() {
     }),
   ]);
 
+  const serializedMatch = coachingMatch ? JSON.parse(JSON.stringify(coachingMatch)) : null;
+
   return (
-    <DevelopmentClient
-      coachingMatch={coachingMatch ? JSON.parse(JSON.stringify(coachingMatch)) : null}
-      goals={goals.map((g) => JSON.parse(JSON.stringify(g)))}
-      hasReport={!!reports}
-      userName={session.name}
-    />
+    <div className="p-8 max-w-5xl mx-auto space-y-6">
+      <div className="mb-2">
+        <h1 className="text-2xl font-bold text-gray-900">Development</h1>
+        <p className="text-gray-500 text-sm mt-1">
+          Your coaching engagement and development goals
+        </p>
+      </div>
+
+      <CoachingSection
+        existingMatch={serializedMatch}
+        hasReport={!!reports}
+        userName={session.name}
+      />
+
+      <DevelopmentClient
+        coachingMatch={serializedMatch}
+        goals={goals.map((g) => JSON.parse(JSON.stringify(g)))}
+        hasReport={!!reports}
+        userName={session.name}
+      />
+    </div>
   );
 }
