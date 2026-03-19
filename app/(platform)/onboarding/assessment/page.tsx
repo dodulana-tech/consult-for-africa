@@ -16,6 +16,7 @@ import {
   Eye,
 } from "lucide-react";
 import VideoRecorder from "@/components/shared/VideoRecorder";
+import AudioRecorder from "@/components/shared/AudioRecorder";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -179,8 +180,11 @@ function AssessmentPage() {
     Array(10).fill("")
   );
   const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoUploading, setVideoUploading] = useState(false);
+  const [responseMode, setResponseMode] = useState<"video" | "audio" | "written">("audio");
+  const [writtenResponse, setWrittenResponse] = useState("");
 
   // Integrity
   const [integrity, setIntegrity] = useState<IntegrityData>({
@@ -734,6 +738,45 @@ function AssessmentPage() {
     }
   }
 
+  async function handleAudioRecorded(blob: Blob) {
+    setAudioBlob(blob);
+    setVideoUploading(true);
+
+    try {
+      const ext = blob.type.includes("mp4") ? "m4a" : "webm";
+      const filename = `assessment-audio-${assessmentId}.${ext}`;
+
+      const presignRes = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename,
+          contentType: blob.type || "audio/webm",
+          folder: "assessments",
+        }),
+      });
+
+      if (presignRes.ok) {
+        const { uploadUrl, publicUrl } = await presignRes.json();
+        await fetch(uploadUrl, {
+          method: "PUT",
+          headers: { "Content-Type": blob.type || "audio/webm" },
+          body: blob,
+        });
+        await fetch(`/api/consultant-assessment/${assessmentId}/video`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ videoUrl: publicUrl }),
+        });
+        setVideoUrl(publicUrl);
+      }
+    } catch {
+      // Audio will be saved on retry
+    } finally {
+      setVideoUploading(false);
+    }
+  }
+
   // -----------------------------------------------------------------------
   // Submit
   // -----------------------------------------------------------------------
@@ -752,6 +795,15 @@ function AssessmentPage() {
           responses: buildResponsePayload(),
         }),
       });
+
+      // Save written response if that mode was used
+      if (responseMode === "written" && writtenResponse.length >= 100) {
+        await fetch(`/api/consultant-assessment/${assessmentId}/video`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ videoUrl: `written:${writtenResponse}` }),
+        });
+      }
 
       // Send final integrity
       await fetch(`/api/consultant-assessment/${assessmentId}/integrity`, {
@@ -1148,15 +1200,15 @@ function AssessmentPage() {
             </div>
           )}
 
-          {/* ---- Part 4: Video Response ---- */}
+          {/* ---- Part 4: Response (Video / Audio / Written) ---- */}
           {part === 4 && (
             <div>
               <h2 className="text-lg font-bold mb-1" style={{ color: "#0F2744" }}>
-                Video Response
+                Your Response
               </h2>
               <p className="text-xs text-gray-400 mb-6">
-                Record a short video (under 2 minutes) summarising your approach to the
-                scenario from Part 1.
+                Summarise your approach to the scenario from Part 1. Choose your
+                preferred format below. Video gives the strongest impression.
               </p>
 
               <div
@@ -1168,35 +1220,92 @@ function AssessmentPage() {
                 </p>
               </div>
 
-              {videoUrl && !videoBlob ? (
+              {/* Already submitted */}
+              {videoUrl && !videoBlob && !audioBlob && (
                 <div
                   className="rounded-xl p-5 mb-6 flex items-center gap-3"
                   style={{ background: "#F0FDF4", border: "1px solid #BBF7D0" }}
                 >
                   <CheckCircle size={18} className="text-emerald-600 shrink-0" />
                   <p className="text-sm text-emerald-700">
-                    Video already recorded and uploaded.
+                    Response already recorded and uploaded.
                   </p>
                 </div>
-              ) : (
-                <VideoRecorder
-                  onRecorded={handleVideoRecorded}
-                  maxDurationSec={120}
-                  allowRerecord={true}
-                />
+              )}
+
+              {/* Response format selector */}
+              {!videoUrl && (
+                <>
+                  <div className="flex gap-2 mb-6">
+                    {(["video", "audio", "written"] as const).map((mode) => (
+                      <button
+                        key={mode}
+                        onClick={() => setResponseMode(mode)}
+                        className="flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all text-center"
+                        style={{
+                          background: responseMode === mode ? "#0F2744" : "#F8FAFC",
+                          color: responseMode === mode ? "#fff" : "#6B7280",
+                          border: responseMode === mode ? "1px solid #0F2744" : "1px solid #E2E8F0",
+                        }}
+                      >
+                        {mode === "video" && "Video (Recommended)"}
+                        {mode === "audio" && "Audio"}
+                        {mode === "written" && "Written"}
+                      </button>
+                    ))}
+                  </div>
+
+                  {responseMode === "video" && (
+                    <VideoRecorder
+                      onRecorded={handleVideoRecorded}
+                      maxDurationSec={120}
+                      allowRerecord={true}
+                    />
+                  )}
+
+                  {responseMode === "audio" && (
+                    <AudioRecorder
+                      onRecorded={handleAudioRecorded}
+                      maxDurationSec={120}
+                      allowRerecord={true}
+                    />
+                  )}
+
+                  {responseMode === "written" && (
+                    <div>
+                      <textarea
+                        value={writtenResponse}
+                        onChange={(e) => setWrittenResponse(e.target.value)}
+                        rows={8}
+                        maxLength={3000}
+                        placeholder="Write your response here (minimum 100 characters)..."
+                        className="w-full px-4 py-3 rounded-xl text-sm border focus:outline-none focus:ring-2 focus:ring-blue-200 resize-none"
+                        style={{ borderColor: "#E2E8F0", color: "#0F2744" }}
+                      />
+                      <div className="flex justify-between mt-1.5">
+                        <p className="text-xs text-gray-400">
+                          {writtenResponse.length < 100
+                            ? `${100 - writtenResponse.length} more characters needed`
+                            : "Ready to submit"}
+                        </p>
+                        <p className="text-xs text-gray-400">{writtenResponse.length}/3000</p>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
 
               {videoUploading && (
                 <div className="flex items-center gap-2 mt-4">
                   <Loader2 size={14} className="animate-spin text-gray-400" />
-                  <span className="text-sm text-gray-500">Uploading video...</span>
+                  <span className="text-sm text-gray-500">Uploading...</span>
                 </div>
               )}
 
-              {videoUrl && (
+              {videoUrl && !videoUploading && (
                 <div className="flex items-center gap-2 mt-4">
                   <CheckCircle size={14} className="text-emerald-500" />
-                  <span className="text-sm text-emerald-600">Video uploaded successfully</span>
+                  <span className="text-sm text-emerald-600">Response uploaded successfully</span>
                 </div>
               )}
 
@@ -1204,7 +1313,7 @@ function AssessmentPage() {
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <button
                   onClick={handleSubmit}
-                  disabled={submitLoading || (!videoUrl && !videoBlob)}
+                  disabled={submitLoading || (!videoUrl && !videoBlob && !audioBlob && writtenResponse.length < 100)}
                   className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                   style={{ background: "#D4AF37", color: "#0F2744" }}
                 >
@@ -1220,12 +1329,6 @@ function AssessmentPage() {
                     </>
                   )}
                 </button>
-
-                {!videoUrl && !videoBlob && (
-                  <p className="text-xs text-gray-400 text-center mt-2">
-                    Please record your video before submitting. If your camera was denied, click the lock icon in the address bar, allow camera and microphone, then refresh the page.
-                  </p>
-                )}
               </div>
             </div>
           )}

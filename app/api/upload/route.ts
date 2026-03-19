@@ -19,6 +19,10 @@ const ALLOWED_CONTENT_TYPES: Record<string, string> = {
   "application/zip": "zip",
   "video/webm": "webm",
   "video/mp4": "mp4",
+  "audio/webm": "webm",
+  "audio/mp4": "m4a",
+  "audio/ogg": "ogg",
+  "audio/mpeg": "mp3",
 };
 
 const ALLOWED_FOLDERS = ["deliverables", "cvs", "knowledge", "avatars", "documents", "assessments"] as const;
