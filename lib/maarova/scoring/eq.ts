@@ -45,16 +45,31 @@ export function scoreEQ(
     dimScores[dim] = [];
   }
 
+  // Map snake_case dimension names to camelCase
+  const dimMap: Record<string, string> = {
+    self_awareness: "selfAwareness",
+    selfAwareness: "selfAwareness",
+    empathy: "empathy",
+    social_skills: "socialSkills",
+    socialSkills: "socialSkills",
+    emotional_regulation: "emotionalRegulation",
+    emotionalRegulation: "emotionalRegulation",
+  };
+
   for (const resp of responses) {
     const answer = resp.answer as {
       selectedOption?: string;
+      selectedIndex?: number;
+      weight?: number;
       ratings?: Record<string, number>;
       dimension?: string;
     } | null;
     if (!answer || typeof answer !== "object") continue;
 
-    // Determine the dimension for this question
-    const dim = answer.dimension;
+    // Determine the dimension for this question (normalise to camelCase)
+    const rawDim = answer.dimension;
+    if (!rawDim) continue;
+    const dim = dimMap[rawDim];
     if (!dim || !EQ_DIMENSIONS.includes(dim as (typeof EQ_DIMENSIONS)[number])) continue;
 
     // Score via consensus weights if available
@@ -67,8 +82,6 @@ export function scoreEQ(
       for (const [optionKey, rating] of Object.entries(answer.ratings)) {
         if (typeof rating !== "number") continue;
         const consensusVal = qWeights?.[optionKey] ?? 0;
-        // Score = how close the rating matches the consensus
-        // Using absolute deviation method: max - |rating - consensus|
         const maxRating = 4;
         const deviation = Math.abs(rating - consensusVal);
         totalScore += maxRating - deviation;
@@ -77,11 +90,18 @@ export function scoreEQ(
       if (totalMaxScore > 0) {
         dimScores[dim].push((totalScore / totalMaxScore) * 100);
       }
+    } else if (typeof answer.weight === "number") {
+      // Weight saved directly from question options (1-5 scale)
+      const maxWeight = 5;
+      dimScores[dim].push(((answer.weight - 1) / (maxWeight - 1)) * 100);
     } else if (answer.selectedOption !== undefined) {
-      // Single selected option
+      // Legacy: single selected option with consensus lookup
       const weight = qWeights?.[answer.selectedOption] ?? 0;
-      // Consensus weights expected on 0-4 scale, normalise to 0-100
       dimScores[dim].push((weight / 4) * 100);
+    } else if (typeof answer.selectedIndex === "number") {
+      // Fallback: selectedIndex without weight - can't score accurately
+      // Score as 0 to avoid masking the issue
+      dimScores[dim].push(0);
     }
   }
 

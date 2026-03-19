@@ -642,6 +642,7 @@ function ScenarioInput({
           onClick={() =>
             onAnswer({
               selectedIndex: i,
+              weight: opt.weight,
               dimension: question.dimension ?? opt.eqDimension,
             })
           }
