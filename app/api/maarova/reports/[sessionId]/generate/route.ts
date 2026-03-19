@@ -46,9 +46,14 @@ export async function POST(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  if (assessmentSession.status !== "COMPLETED") {
+  // Check that all core modules (excluding 360) are completed
+  const coreModules = assessmentSession.moduleResponses.filter(
+    (mr) => mr.module.type !== "THREE_SIXTY"
+  );
+  const coreIncomplete = coreModules.filter((mr) => mr.status !== "COMPLETED");
+  if (coreIncomplete.length > 0) {
     return NextResponse.json(
-      { error: "Assessment must be completed before generating a report" },
+      { error: `Complete all core modules before generating a report. ${coreIncomplete.length} module(s) remaining.` },
       { status: 400 }
     );
   }

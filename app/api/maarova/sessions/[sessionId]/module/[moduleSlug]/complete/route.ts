@@ -129,21 +129,27 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
     },
   });
 
-  // Check if ALL modules in the session are now completed
+  // Check if all CORE modules (excluding 360) are now completed
   const allModuleResponses = await prisma.maarovaModuleResponse.findMany({
     where: { sessionId },
+    include: { module: { select: { type: true } } },
   });
 
+  const coreModules = allModuleResponses.filter(
+    (mr) => mr.module.type !== "THREE_SIXTY"
+  );
+  const coreCompleted = coreModules.every((mr) => mr.status === "COMPLETED");
   const allCompleted = allModuleResponses.every((mr) => mr.status === "COMPLETED");
 
-  if (allCompleted) {
+  // Mark session complete when all 5 core modules are done (360 is async/optional)
+  if (coreCompleted && session.status !== "COMPLETED") {
     await prisma.maarovaAssessmentSession.update({
       where: { id: sessionId },
       data: {
         status: "COMPLETED",
         completedAt: new Date(),
         totalTimeMinutes: Math.round(
-          allModuleResponses.reduce(
+          coreModules.reduce(
             (sum, mr) => sum + (mr.timeSpentSeconds ?? 0),
             0
           ) / 60
@@ -156,6 +162,7 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
     status: "COMPLETED",
     rawScores,
     scaledScores,
+    coreModulesComplete: coreCompleted,
     allModulesComplete: allCompleted,
     moduleType: module.type,
   });

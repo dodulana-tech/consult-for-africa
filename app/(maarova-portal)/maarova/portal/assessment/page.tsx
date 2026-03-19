@@ -89,12 +89,16 @@ export default async function AssessmentLauncherPage() {
     },
   });
 
-  const completedCount = session
-    ? session.moduleResponses.filter((mr) => mr.status === "COMPLETED").length
-    : 0;
-  const totalModules = session ? session.moduleResponses.length : 0;
+  const coreResponses = session
+    ? session.moduleResponses.filter((mr) => mr.module.type !== "THREE_SIXTY")
+    : [];
+  const threeSixtyResponse = session
+    ? session.moduleResponses.find((mr) => mr.module.type === "THREE_SIXTY")
+    : null;
+  const completedCount = coreResponses.filter((mr) => mr.status === "COMPLETED").length;
+  const totalCoreModules = coreResponses.length;
   const progressPercent =
-    totalModules > 0 ? Math.round((completedCount / totalModules) * 100) : 0;
+    totalCoreModules > 0 ? Math.round((completedCount / totalCoreModules) * 100) : 0;
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
@@ -104,8 +108,8 @@ export default async function AssessmentLauncherPage() {
           Leadership Assessment
         </h1>
         <p className="text-gray-500 text-sm">
-          Complete all six modules to generate your personalised leadership
-          profile. Modules can be completed in any order.
+          Complete the five core modules to generate your leadership profile.
+          Results are available after each module. 360 Feedback runs separately.
         </p>
       </div>
 
@@ -160,7 +164,7 @@ export default async function AssessmentLauncherPage() {
                 Overall Progress
               </span>
               <span className="text-sm text-gray-500">
-                {completedCount} of {totalModules} modules completed
+                {completedCount} of {totalCoreModules} core modules completed
               </span>
             </div>
             <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
@@ -178,16 +182,28 @@ export default async function AssessmentLauncherPage() {
             {session.status === "COMPLETED" && (
               <div className="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200">
                 <p className="text-sm text-emerald-800 font-medium">
-                  All modules completed. Your leadership report is being
-                  generated.
+                  Core assessment complete. Your comprehensive leadership report
+                  is ready.
                 </p>
+                <Link
+                  href="/maarova/portal/results"
+                  className="inline-flex items-center gap-1.5 mt-2 text-sm font-semibold text-emerald-700 hover:text-emerald-900"
+                >
+                  View Results
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               </div>
             )}
           </div>
 
-          {/* Module cards */}
+          {/* Core module cards */}
           <div className="grid gap-4">
-            {session.moduleResponses.map((mr) => {
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+              Core Assessment ({totalCoreModules} modules)
+            </h2>
+            {coreResponses.map((mr) => {
               const mod = mr.module;
               const status = statusConfig[mr.status] ?? statusConfig.NOT_STARTED;
               const isCompleted = mr.status === "COMPLETED";
@@ -275,22 +291,16 @@ export default async function AssessmentLauncherPage() {
                   {/* Action */}
                   <div className="flex-shrink-0">
                     {isCompleted ? (
-                      <div className="flex items-center gap-1.5 text-emerald-600 text-sm font-medium">
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
+                      <Link
+                        href={`/maarova/portal/results#module-${mod.type}`}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-emerald-50"
+                        style={{ color: "#10B981" }}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        Done
-                      </div>
+                        View Scores
+                      </Link>
                     ) : (
                       <Link
                         href={`/maarova/portal/assessment/${mod.slug}`}
@@ -301,18 +311,8 @@ export default async function AssessmentLauncherPage() {
                         }}
                       >
                         {isInProgress ? "Continue" : "Start"}
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </Link>
                     )}
@@ -321,6 +321,56 @@ export default async function AssessmentLauncherPage() {
               );
             })}
           </div>
+
+          {/* 360 Feedback - Separate Track */}
+          {threeSixtyResponse && (
+            <div className="grid gap-4 mt-8">
+              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                360 Feedback (Separate Track)
+              </h2>
+              {(() => {
+                const mr = threeSixtyResponse;
+                const mod = mr.module;
+                const status = statusConfig[mr.status] ?? statusConfig.NOT_STARTED;
+                const isCompleted = mr.status === "COMPLETED";
+                return (
+                  <div
+                    className="rounded-xl border p-6 flex items-start gap-5"
+                    style={{ borderColor: "rgba(0,0,0,0.06)", background: "#FAFBFC" }}
+                  >
+                    <div
+                      className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                      style={{
+                        background: isCompleted ? "rgba(16,185,129,0.1)" : "rgba(0,0,0,0.04)",
+                        color: isCompleted ? "#10B981" : "#9CA3AF",
+                      }}
+                    >
+                      {moduleIcons[mod.type]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-1">
+                        <h3 className="text-base font-semibold text-gray-900">{mod.name}</h3>
+                        <span
+                          className="text-xs font-medium px-2.5 py-0.5 rounded-full"
+                          style={{ background: status.bg, color: status.text, border: `1px solid ${status.border}` }}
+                        >
+                          {status.label}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-500 mb-1">{mod.description}</p>
+                      <p className="text-xs text-gray-400">
+                        This module runs separately. Invite raters from the{" "}
+                        <Link href="/maarova/portal/three-sixty" className="underline hover:text-gray-600">
+                          360 Feedback
+                        </Link>{" "}
+                        page. Results will enrich your comprehensive report when available.
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
 
           {/* Session info */}
           <div className="mt-8 text-xs text-gray-400 flex items-center gap-4">
