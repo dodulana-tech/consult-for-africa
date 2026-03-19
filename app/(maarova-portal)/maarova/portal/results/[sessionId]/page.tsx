@@ -854,19 +854,15 @@ export default function MaarovaResultDetailPage() {
               </div>
             )}
 
-          {/* Download PDF (placeholder) */}
+          {/* Download PDF */}
           <div className="flex justify-end">
-            <button
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors border"
+            <a
+              href={`/api/maarova/reports/${sessionId}/pdf`}
+              download
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors border hover:bg-gray-50"
               style={{
                 borderColor: "#0F2744",
                 color: "#0F2744",
-              }}
-              onClick={() => {
-                // Placeholder for PDF download
-                alert(
-                  "PDF download will be available soon. Your report is saved and accessible from this page."
-                );
               }}
             >
               <svg
@@ -883,7 +879,7 @@ export default function MaarovaResultDetailPage() {
                 />
               </svg>
               Download PDF
-            </button>
+            </a>
           </div>
         </div>
       )}
