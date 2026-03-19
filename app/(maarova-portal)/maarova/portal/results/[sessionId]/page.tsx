@@ -57,21 +57,30 @@ interface SessionData {
 
 // ─── Radar Chart ──────────────────────────────────────────────────────────────
 
+// Short labels for radar chart readability
+const RADAR_LABELS: Record<string, string> = {
+  "Behavioural Style (DISC)": "Behavioural Style",
+  "Values and Motivational Drivers": "Values & Drivers",
+  "Emotional Intelligence": "Emotional Intelligence",
+  "Clinical Leadership and Team Impact": "Clinical Leadership",
+  "Culture and Team Dynamics": "Culture & Team",
+  "360-Degree Feedback": "360 Feedback",
+};
+
 function RadarChart({
   data,
 }: {
   data: { dimension: string; score: number; benchmark: number }[];
 }) {
-  const size = 400;
+  const size = 500;
   const cx = size / 2;
   const cy = size / 2;
-  const maxRadius = 150;
+  const maxRadius = 160;
   const levels = 5;
 
   const angleSlice = (Math.PI * 2) / data.length;
 
   function polarToCartesian(angle: number, radius: number) {
-    // Start from top (subtract PI/2)
     const a = angle - Math.PI / 2;
     return {
       x: cx + radius * Math.cos(a),
@@ -100,13 +109,13 @@ function RadarChart({
   const axes = data.map((d, i) => {
     const angle = angleSlice * i;
     const end = polarToCartesian(angle, maxRadius);
-    const labelPos = polarToCartesian(angle, maxRadius + 28);
+    const labelPos = polarToCartesian(angle, maxRadius + 40);
+    const label = RADAR_LABELS[d.dimension] ?? d.dimension;
 
-    // Truncate long dimension names
-    const label =
-      d.dimension.length > 20
-        ? d.dimension.slice(0, 18) + "..."
-        : d.dimension;
+    // Adjust text-anchor based on position
+    const normAngle = angle - Math.PI / 2;
+    const cosA = Math.cos(normAngle);
+    const anchor = cosA < -0.1 ? "end" : cosA > 0.1 ? "start" : "middle";
 
     return (
       <g key={i}>
@@ -121,10 +130,10 @@ function RadarChart({
         <text
           x={labelPos.x}
           y={labelPos.y}
-          textAnchor="middle"
+          textAnchor={anchor}
           dominantBaseline="middle"
-          className="text-[10px]"
-          fill="#6b7280"
+          className="text-[11px] font-medium"
+          fill="#374151"
         >
           {label}
         </text>
