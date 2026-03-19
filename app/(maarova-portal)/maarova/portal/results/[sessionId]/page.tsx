@@ -254,28 +254,39 @@ function RadarChart({
 
 // ─── Score Bar ────────────────────────────────────────────────────────────────
 
+// Readable label for dimension keys
+const DIM_LABELS: Record<string, string> = {
+  D: "Dominance", I: "Influence", S: "Steadiness", C: "Conscientiousness",
+  theoretical: "Theoretical", economic: "Economic", aesthetic: "Aesthetic",
+  social: "Social", political: "Political", regulatory: "Regulatory",
+  selfAwareness: "Self-Awareness", empathy: "Empathy",
+  socialSkills: "Social Skills", emotionalRegulation: "Emotional Regulation",
+  overallEQ: "Overall EQ",
+  clinicalIdentity: "Clinical Identity", leadershipIdentity: "Leadership Identity",
+  transitionReadiness: "Transition Readiness", identityFriction: "Identity Friction",
+  ciltiComposite: "CILTI Composite",
+  collaborate: "Collaborate", create: "Create", compete: "Compete", control: "Control",
+  teamEffectiveness: "Team Effectiveness",
+};
+
 function ScoreBar({ label, score }: { label: string; score: number }) {
-  const colour =
-    score >= 70 ? "#22c55e" : score >= 40 ? "#f59e0b" : "#ef4444";
-  const bgColour =
-    score >= 70
-      ? "rgba(34,197,94,0.1)"
-      : score >= 40
-        ? "rgba(245,158,11,0.1)"
-        : "rgba(239,68,68,0.1)";
+  // Gold intensity gradient based on score (no red/green)
+  const intensity = Math.min(1, Math.max(0.3, score / 100));
+  const barColor = `rgba(212, 165, 116, ${0.4 + intensity * 0.6})`;
+  const displayLabel = DIM_LABELS[label] ?? label.replace(/([A-Z])/g, " $1").trim();
 
   return (
     <div className="mb-3">
       <div className="flex justify-between items-center mb-1">
-        <span className="text-sm text-gray-700">{label}</span>
-        <span className="text-sm font-semibold" style={{ color: colour }}>
-          {score}
+        <span className="text-sm text-gray-700">{displayLabel}</span>
+        <span className="text-sm font-semibold" style={{ color: "#0F2744" }}>
+          {Math.round(score)}
         </span>
       </div>
-      <div className="w-full h-2.5 rounded-full" style={{ backgroundColor: bgColour }}>
+      <div className="w-full h-2.5 rounded-full" style={{ backgroundColor: "rgba(15,39,68,0.06)" }}>
         <div
           className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${score}%`, backgroundColor: colour }}
+          style={{ width: `${score}%`, backgroundColor: barColor }}
         />
       </div>
     </div>
@@ -590,13 +601,14 @@ export default function MaarovaResultDetailPage() {
                 {session.moduleResponses.map((mr) => {
                   const scores = mr.scaledScores;
                   if (!scores) return null;
-                  const values = Object.values(scores);
-                  const avg =
-                    values.length > 0
-                      ? Math.round(
-                          values.reduce((a, b) => a + b, 0) / values.length
-                        )
-                      : 0;
+                  const numericEntries = Object.entries(scores).filter(
+                    ([k, v]) => typeof v === "number" && !["error", "answeredCount"].includes(k)
+                  ) as [string, number][];
+                  if (numericEntries.length === 0) return null;
+                  const avg = Math.round(
+                    numericEntries.reduce((a, [, v]) => a + v, 0) / numericEntries.length
+                  );
+                  const zone = scoreZone(avg);
 
                   const interpretation =
                     fullContent?.dimensionInterpretations?.[mr.moduleName];
@@ -610,27 +622,17 @@ export default function MaarovaResultDetailPage() {
                         <h3 className="font-semibold text-gray-900">
                           {mr.moduleName}
                         </h3>
-                        <div className="flex items-center gap-2">
-                          <span
-                            className="text-xl font-bold"
-                            style={{
-                              color:
-                                avg >= 70
-                                  ? "#22c55e"
-                                  : avg >= 40
-                                    ? "#f59e0b"
-                                    : "#ef4444",
-                            }}
-                          >
-                            {avg}
-                          </span>
-                          <span className="text-sm text-gray-400">/100</span>
-                        </div>
+                        <span
+                          className="text-xs font-medium px-2.5 py-1 rounded-full"
+                          style={{ background: zone.bg, color: zone.color }}
+                        >
+                          {zone.label}
+                        </span>
                       </div>
 
                       {/* Sub-dimension bars */}
                       <div className="pl-1">
-                        {Object.entries(scores).map(([dim, score]) => (
+                        {numericEntries.map(([dim, score]) => (
                           <ScoreBar key={dim} label={dim} score={score} />
                         ))}
                       </div>
