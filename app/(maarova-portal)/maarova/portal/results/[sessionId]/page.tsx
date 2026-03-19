@@ -25,6 +25,12 @@ interface CoachingPriority {
   timeframe: string;
 }
 
+interface SignatureStrength {
+  dimension: string;
+  title: string;
+  description: string;
+}
+
 interface ReportData {
   id: string;
   status: string;
@@ -35,15 +41,25 @@ interface ReportData {
   executiveSummary: string | null;
   strengthsAnalysis: string | null;
   developmentAreas: string | null;
+  nextLeadershipEdge: string | null;
   blindSpotAnalysis: string | null;
   coachingPriorities: CoachingPriority[] | null;
   leadershipArchetype: string | null;
+  archetypeNarrative: string | null;
+  signatureStrengths: SignatureStrength[] | null;
   fullReportContent: {
     archetypeDescription?: string;
     dimensionInterpretations?: Record<string, string>;
   } | null;
   generatedAt: string | null;
   pdfUrl: string | null;
+}
+
+function scoreZone(score: number): { label: string; color: string; bg: string } {
+  if (score >= 80) return { label: "Signature Strength", color: "#92400E", bg: "#FEF3C7" };
+  if (score >= 60) return { label: "Natural Strength", color: "#065F46", bg: "#D1FAE5" };
+  if (score >= 40) return { label: "Developing", color: "#1E40AF", bg: "#DBEAFE" };
+  return { label: "Emerging", color: "#6B7280", bg: "#F3F4F6" };
 }
 
 interface SessionData {
@@ -490,43 +506,49 @@ export default function MaarovaResultDetailPage() {
       {/* Report content */}
       {reportReady && report && (
         <div className="space-y-6">
-          {/* Top summary row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Overall Score */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
-              <p className="text-xs uppercase tracking-wider text-gray-500 mb-2">
-                Overall Score
+          {/* Hero: Leadership Archetype */}
+          <div
+            className="rounded-2xl p-8 text-center"
+            style={{ background: "linear-gradient(135deg, #0f1a2a 0%, #1a2d45 100%)" }}
+          >
+            <p className="text-xs uppercase tracking-wider mb-4" style={{ color: "#D4A574" }}>
+              Your Leadership Archetype
+            </p>
+            <h2 className="text-3xl font-bold text-white mb-4">
+              {report.leadershipArchetype ?? "Leadership Profile"}
+            </h2>
+            {report.archetypeNarrative ? (
+              <p className="text-sm leading-relaxed max-w-2xl mx-auto" style={{ color: "rgba(255,255,255,0.7)" }}>
+                {report.archetypeNarrative}
               </p>
-              <p
-                className="text-5xl font-bold"
-                style={{ color: "#0F2744" }}
-              >
-                {report.overallScore ?? "--"}
+            ) : fullContent?.archetypeDescription ? (
+              <p className="text-sm leading-relaxed max-w-2xl mx-auto" style={{ color: "rgba(255,255,255,0.7)" }}>
+                {fullContent.archetypeDescription}
               </p>
-              <p className="text-sm text-gray-400 mt-1">out of 100</p>
-            </div>
-
-            {/* Leadership Archetype */}
-            <div
-              className="bg-white rounded-xl border border-gray-200 p-6 text-center col-span-1 md:col-span-2"
-              style={{ borderLeft: "4px solid #D4A574" }}
-            >
-              <p className="text-xs uppercase tracking-wider text-gray-500 mb-2">
-                Leadership Archetype
-              </p>
-              <p
-                className="text-2xl font-bold mb-2"
-                style={{ color: "#D4A574" }}
-              >
-                {report.leadershipArchetype ?? "Not classified"}
-              </p>
-              {fullContent?.archetypeDescription && (
-                <p className="text-sm text-gray-600 max-w-lg mx-auto">
-                  {fullContent.archetypeDescription}
-                </p>
-              )}
-            </div>
+            ) : null}
           </div>
+
+          {/* Signature Strengths */}
+          {report.signatureStrengths && report.signatureStrengths.length > 0 && (
+            <div>
+              <h2 className="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-3">
+                Your Signature Strengths
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {report.signatureStrengths.map((s: SignatureStrength, i: number) => (
+                  <div
+                    key={i}
+                    className="bg-white rounded-xl p-5"
+                    style={{ borderLeft: "4px solid #D4A574", border: "1px solid #e5eaf0", borderLeftWidth: "4px", borderLeftColor: "#D4A574" }}
+                  >
+                    <p className="text-xs text-gray-400 mb-1">{s.dimension}</p>
+                    <p className="text-sm font-bold mb-1.5" style={{ color: "#0F2744" }}>{s.title}</p>
+                    <p className="text-xs text-gray-600 leading-relaxed">{s.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Radar Chart */}
           {report.radarChartData && report.radarChartData.length > 0 && (
@@ -535,7 +557,7 @@ export default function MaarovaResultDetailPage() {
                 className="text-lg font-bold mb-4"
                 style={{ color: "#0F2744" }}
               >
-                Leadership Profile
+                Your Leadership Fingerprint
               </h2>
               <RadarChart data={report.radarChartData} />
             </div>
@@ -672,16 +694,17 @@ export default function MaarovaResultDetailPage() {
               </div>
             )}
 
-            {/* Development Areas */}
-            {report.developmentAreas && (
+            {/* Next Leadership Edge */}
+            {(report.nextLeadershipEdge ?? report.developmentAreas) && (
               <div className="bg-white rounded-xl border border-gray-200 p-6">
                 <div className="flex items-center gap-2 mb-3">
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: "rgba(245,158,11,0.1)" }}
+                    style={{ backgroundColor: "rgba(212,165,116,0.1)" }}
                   >
                     <svg
-                      className="w-4 h-4 text-amber-600"
+                      className="w-4 h-4"
+                      style={{ color: "#D4A574" }}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -698,11 +721,11 @@ export default function MaarovaResultDetailPage() {
                     className="text-lg font-bold"
                     style={{ color: "#0F2744" }}
                   >
-                    Development Areas
+                    Your Next Leadership Edge
                   </h2>
                 </div>
                 <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
-                  {report.developmentAreas.split("\n\n").map((p, i) => (
+                  {(report.nextLeadershipEdge ?? report.developmentAreas ?? "").split("\n\n").map((p: string, i: number) => (
                     <p key={i} className="mb-3 last:mb-0">
                       {p}
                     </p>

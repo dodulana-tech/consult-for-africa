@@ -110,7 +110,7 @@ export async function POST(
     .filter(Boolean)
     .join("\n");
 
-  const systemPrompt = `You are a senior organisational psychologist at Consult for Africa generating a Maarova leadership profile report for an African healthcare leader. Your reports are psychometrically grounded, contextually sensitive to African healthcare, actionable, written in formal British English, and empathetic but honest. Never use em dashes in your writing. Use commas, semicolons, colons, or separate sentences instead.`;
+  const systemPrompt = `You are a senior organisational psychologist at Consult for Africa generating a Maarova leadership profile report for an African healthcare leader. Your reports are psychometrically grounded, contextually sensitive to African healthcare (referencing Ubuntu, communal leadership, and African health system realities), actionable, written in formal British English, and empathetic but honest. Never use em dashes in your writing. Use commas, semicolons, colons, or separate sentences instead. Never use deficit language like "weakness" or "below average". Frame growth areas as "emerging capabilities" or "next leadership edge". Do not produce an overall composite score.`;
 
   const userPrompt = `Generate a comprehensive leadership profile report for the following healthcare leader.
 
@@ -124,10 +124,19 @@ ${scoreLines.join("\n")}
 Based on these assessment results, generate a detailed leadership profile report as JSON with this exact structure:
 
 {
-  "executiveSummary": "A 3-4 paragraph executive summary of the leader's overall profile. Lead with their dominant strengths, then contextualise within African healthcare leadership. Be specific about what the scores reveal.",
-  "strengthsAnalysis": "A 3-4 paragraph analysis of the leader's key strengths based on their highest-scoring dimensions. Reference specific scores and explain how these strengths manifest in healthcare leadership contexts.",
-  "developmentAreas": "A 3-4 paragraph analysis of the leader's development areas based on their lowest-scoring dimensions. Be constructive, specific, and contextualise within African healthcare settings.",
-  "blindSpotAnalysis": "A 2-3 paragraph analysis of potential blind spots. Look for discrepancies between self-perception and capability scores, or areas where high scores in one domain may mask weaknesses in another.",
+  "leadershipArchetype": "A concise 2-4 word archetype name grounded in leadership identity (e.g., 'The Strategic Clinician', 'The Empathetic Transformer', 'The Systems Builder', 'The Bridge-Builder')",
+  "archetypeNarrative": "A 3-4 sentence narrative in second person that describes how this leader's community experiences their leadership. Begin with 'Your leadership serves your community through...' Frame relationally, not evaluatively. Reference their strongest dimensions.",
+  "signatureStrengths": [
+    {
+      "dimension": "The dimension name (e.g., Emotional Intelligence, Values Alignment)",
+      "title": "A memorable 3-5 word strength label (e.g., 'Deep Emotional Attunement', 'Unwavering Ethical Compass')",
+      "description": "One sentence describing how this strength manifests in their healthcare leadership context"
+    }
+  ],
+  "executiveSummary": "A 3-4 paragraph executive summary. Lead with their archetype and signature strengths. Contextualise within African healthcare leadership. Reference how their profile serves their teams and communities. Do not mention numerical scores.",
+  "strengthsAnalysis": "A 3-4 paragraph analysis of what this leader does well. Describe observable behaviours, not scores. Use 'others experience your leadership as...' framing.",
+  "nextLeadershipEdge": "A 3-4 paragraph analysis framed as 'where focused growth would have the most catalytic impact on your leadership and your community'. Be constructive, specific, and contextualise within African healthcare. Use strengths-based language throughout.",
+  "blindSpotAnalysis": "A 2-3 paragraph analysis of areas where others may experience the leader differently from how they see themselves. Use the Hogan 'overused strengths' frame: high scores can tip into overextension under stress.",
   "coachingPriorities": [
     {
       "priority": 1,
@@ -137,17 +146,12 @@ Based on these assessment results, generate a detailed leadership profile report
       "timeframe": "30 days or 60 days or 90 days"
     }
   ],
-  "leadershipArchetype": "A concise 2-4 word archetype name (e.g., 'The Strategic Clinician', 'The Empathetic Transformer', 'The Systems Builder')",
-  "archetypeDescription": "A 2-3 sentence description of what this archetype means for the leader's style and approach.",
   "dimensionInterpretations": {
-    "Dimension Name": "A 1-2 sentence interpretation of this specific score in context"
-  },
-  "overallScore": 75
+    "Dimension Name": "A 2-3 sentence interpretation of this dimension in context. Include what it means, how it shows up in their leadership, and one developmental angle. Never state the raw number."
+  }
 }
 
-Provide exactly 3-5 coaching priorities, ordered by urgency. The overallScore should be a weighted composite (0-100). The dimensionInterpretations should have one entry per dimension from the scores above.
-
-Return ONLY the JSON object, no other text.`;
+Provide exactly 3 signature strengths (the top 3 scoring dimensions). Provide 3-5 coaching priorities ordered by impact. The dimensionInterpretations should have one entry per dimension from the scores above. Return ONLY the JSON object, no other text.`;
 
   let reportData: Record<string, unknown>;
   try {
@@ -200,15 +204,17 @@ Return ONLY the JSON object, no other text.`;
     where: { id: reportRecord.id },
     data: {
       status: "READY",
-      overallScore: (reportData.overallScore as number) ?? null,
       dimensionScores,
       radarChartData,
       executiveSummary: (reportData.executiveSummary as string) ?? null,
       strengthsAnalysis: (reportData.strengthsAnalysis as string) ?? null,
-      developmentAreas: (reportData.developmentAreas as string) ?? null,
+      nextLeadershipEdge: (reportData.nextLeadershipEdge as string) ?? null,
+      developmentAreas: (reportData.nextLeadershipEdge as string) ?? null, // backwards compat
       blindSpotAnalysis: (reportData.blindSpotAnalysis as string) ?? null,
       coachingPriorities: reportData.coachingPriorities ? JSON.parse(JSON.stringify(reportData.coachingPriorities)) : undefined,
       leadershipArchetype: (reportData.leadershipArchetype as string) ?? null,
+      archetypeNarrative: (reportData.archetypeNarrative as string) ?? null,
+      signatureStrengths: reportData.signatureStrengths ? JSON.parse(JSON.stringify(reportData.signatureStrengths)) : undefined,
       fullReportContent: JSON.parse(JSON.stringify(reportData)),
       generatedAt: new Date(),
     },

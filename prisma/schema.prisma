@@ -1718,9 +1718,12 @@ model MaarovaReport {
   executiveSummary    String?  @db.Text
   strengthsAnalysis   String?  @db.Text
   developmentAreas    String?  @db.Text
+  nextLeadershipEdge  String?  @db.Text
   blindSpotAnalysis   String?  @db.Text
   coachingPriorities  Json?
   leadershipArchetype String?
+  archetypeNarrative  String?  @db.Text
+  signatureStrengths  Json?
 
   fullReportContent Json?
 
