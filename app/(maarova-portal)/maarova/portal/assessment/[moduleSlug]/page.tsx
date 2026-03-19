@@ -494,19 +494,16 @@ function ForcedChoiceInput({
   answer: unknown;
   onAnswer: (val: unknown) => void;
 }) {
-  const options = question.options as {
-    statements?: { key: string; text: string }[];
-  };
-  const statements = options?.statements ?? [];
+  // DB stores: [{ label, dimension }]
+  const rawOptions = Array.isArray(question.options) ? question.options as { label: string; dimension: string }[] : [];
   const current = (answer as { most?: string; least?: string }) ?? {};
 
-  function select(type: "most" | "least", key: string) {
-    const updated = { ...current, [type]: key };
-    // Cannot select same for most and least
-    if (type === "most" && updated.least === key) {
+  function select(type: "most" | "least", dimension: string) {
+    const updated = { ...current, [type]: dimension };
+    if (type === "most" && updated.least === dimension) {
       updated.least = undefined;
     }
-    if (type === "least" && updated.most === key) {
+    if (type === "least" && updated.most === dimension) {
       updated.most = undefined;
     }
     onAnswer(updated);
@@ -519,66 +516,44 @@ function ForcedChoiceInput({
         <span className="text-xs text-gray-400 text-center">Most</span>
         <span className="text-xs text-gray-400 text-center">Least</span>
       </div>
-      {statements.map((s) => (
+      {rawOptions.map((opt, i) => (
         <div
-          key={s.key}
+          key={`${opt.dimension}-${i}`}
           className="grid grid-cols-[1fr_72px_72px] gap-2 items-center py-2.5 border-b border-gray-50 last:border-0"
         >
-          <span className="text-sm text-gray-700">{s.text}</span>
+          <span className="text-sm text-gray-700">{opt.label}</span>
           <div className="flex justify-center">
             <button
-              onClick={() => select("most", s.key)}
+              onClick={() => select("most", opt.dimension)}
               className="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all"
               style={{
                 borderColor:
-                  current.most === s.key ? "#D4A574" : "rgba(0,0,0,0.12)",
+                  current.most === opt.dimension ? "#D4A574" : "rgba(0,0,0,0.12)",
                 background:
-                  current.most === s.key ? "#D4A574" : "transparent",
+                  current.most === opt.dimension ? "#D4A574" : "transparent",
               }}
             >
-              {current.most === s.key && (
-                <svg
-                  className="w-4 h-4 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={3}
-                    d="M5 13l4 4L19 7"
-                  />
+              {current.most === opt.dimension && (
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
               )}
             </button>
           </div>
           <div className="flex justify-center">
             <button
-              onClick={() => select("least", s.key)}
+              onClick={() => select("least", opt.dimension)}
               className="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all"
               style={{
                 borderColor:
-                  current.least === s.key ? "#EF4444" : "rgba(0,0,0,0.12)",
+                  current.least === opt.dimension ? "#EF4444" : "rgba(0,0,0,0.12)",
                 background:
-                  current.least === s.key
-                    ? "rgba(239,68,68,0.1)"
-                    : "transparent",
+                  current.least === opt.dimension ? "rgba(239,68,68,0.1)" : "transparent",
               }}
             >
-              {current.least === s.key && (
-                <svg
-                  className="w-4 h-4 text-red-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={3}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+              {current.least === opt.dimension && (
+                <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               )}
             </button>
@@ -600,47 +575,43 @@ function RankingInput({
   answer: unknown;
   onAnswer: (val: unknown) => void;
 }) {
-  const options = question.options as {
-    items?: { key: string; text: string }[];
-  };
-  const items = options?.items ?? [];
+  // DB stores: [{ label, dimension }]
+  const rawOptions = Array.isArray(question.options) ? question.options as { label: string; dimension: string }[] : [];
   const current = (answer as { rankings?: Record<string, number> }) ?? {};
   const rankings = current.rankings ?? {};
 
-  function setRank(key: string, rank: number) {
+  function setRank(dimension: string, rank: number) {
     const updated = { ...rankings };
-    // Remove this rank from any other item
     for (const k of Object.keys(updated)) {
       if (updated[k] === rank) delete updated[k];
     }
-    updated[key] = rank;
+    updated[dimension] = rank;
     onAnswer({ rankings: updated });
   }
 
   return (
     <div className="space-y-2">
       <p className="text-xs text-gray-400 mb-3">
-        Rank from 1 (most important) to {items.length} (least important)
+        Rank from 1 (most important) to {rawOptions.length} (least important)
       </p>
-      {items.map((item) => (
+      {rawOptions.map((opt, i) => (
         <div
-          key={item.key}
+          key={`${opt.dimension}-${i}`}
           className="flex items-center gap-3 py-2 px-3 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors"
         >
           <select
-            value={rankings[item.key] ?? ""}
-            onChange={(e) => setRank(item.key, parseInt(e.target.value))}
+            value={rankings[opt.dimension] ?? ""}
+            onChange={(e) => setRank(opt.dimension, parseInt(e.target.value))}
             className="w-14 h-9 rounded-lg border border-gray-200 text-center text-sm font-semibold bg-white focus:outline-none focus:ring-2"
-            style={{ focusRingColor: "#D4A574" } as React.CSSProperties}
           >
             <option value="">-</option>
-            {items.map((_, i) => (
-              <option key={i + 1} value={i + 1}>
-                {i + 1}
+            {rawOptions.map((_, idx) => (
+              <option key={idx + 1} value={idx + 1}>
+                {idx + 1}
               </option>
             ))}
           </select>
-          <span className="text-sm text-gray-700 flex-1">{item.text}</span>
+          <span className="text-sm text-gray-700 flex-1">{opt.label}</span>
         </div>
       ))}
     </div>
@@ -658,99 +629,35 @@ function ScenarioInput({
   answer: unknown;
   onAnswer: (val: unknown) => void;
 }) {
-  const options = question.options as {
-    scenario?: string;
-    responseOptions?: { key: string; text: string }[];
-    ratingScale?: boolean;
-  };
-  const responseOptions = options?.responseOptions ?? [];
-  const current = (answer as {
-    selectedOption?: string;
-    ratings?: Record<string, number>;
-    dimension?: string;
-  }) ?? {};
+  // DB stores: [{ label, weight, eqDimension }]
+  const rawOptions = Array.isArray(question.options) ? question.options as { label: string; weight?: number; eqDimension?: string }[] : [];
+  const current = (answer as { selectedIndex?: number; dimension?: string }) ?? {};
 
-  if (options?.ratingScale) {
-    // Rate each option on effectiveness
-    const ratings = current.ratings ?? {};
-    return (
-      <div className="space-y-3">
-        {options.scenario && (
-          <div className="p-4 rounded-lg bg-gray-50 text-sm text-gray-600 leading-relaxed mb-4 italic">
-            {options.scenario}
-          </div>
-        )}
-        <p className="text-xs text-gray-400">
-          Rate each response from 1 (very ineffective) to 4 (very effective)
-        </p>
-        {responseOptions.map((opt) => (
-          <div key={opt.key} className="py-2">
-            <p className="text-sm text-gray-700 mb-2">{opt.text}</p>
-            <div className="flex gap-2">
-              {[1, 2, 3, 4].map((val) => (
-                <button
-                  key={val}
-                  onClick={() =>
-                    onAnswer({
-                      ...current,
-                      ratings: { ...ratings, [opt.key]: val },
-                      dimension: question.dimension,
-                    })
-                  }
-                  className="w-10 h-10 rounded-lg border-2 text-sm font-semibold transition-all"
-                  style={{
-                    borderColor:
-                      ratings[opt.key] === val
-                        ? "#D4A574"
-                        : "rgba(0,0,0,0.08)",
-                    background:
-                      ratings[opt.key] === val
-                        ? "#D4A574"
-                        : "transparent",
-                    color:
-                      ratings[opt.key] === val ? "#fff" : "#6B7280",
-                  }}
-                >
-                  {val}
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  // Single choice
   return (
     <div className="space-y-2">
-      {options?.scenario && (
-        <div className="p-4 rounded-lg bg-gray-50 text-sm text-gray-600 leading-relaxed mb-4 italic">
-          {options.scenario}
-        </div>
-      )}
-      {responseOptions.map((opt) => (
+      <p className="text-xs text-gray-400 mb-2">Choose the response that best describes what you would do:</p>
+      {rawOptions.map((opt, i) => (
         <button
-          key={opt.key}
+          key={i}
           onClick={() =>
             onAnswer({
-              selectedOption: opt.key,
-              dimension: question.dimension,
+              selectedIndex: i,
+              dimension: question.dimension ?? opt.eqDimension,
             })
           }
           className="w-full text-left p-3.5 rounded-lg border-2 text-sm transition-all"
           style={{
             borderColor:
-              current.selectedOption === opt.key
+              current.selectedIndex === i
                 ? "#D4A574"
                 : "rgba(0,0,0,0.06)",
             background:
-              current.selectedOption === opt.key
+              current.selectedIndex === i
                 ? "rgba(212,165,116,0.06)"
                 : "#fff",
           }}
         >
-          {opt.text}
+          {opt.label}
         </button>
       ))}
     </div>
