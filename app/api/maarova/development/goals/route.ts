@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  const { title, description, dimension, targetDate, aiGenerated } = body;
+  const { title, description, dimension, targetDate, aiGenerated, source, sourceNote } = body;
 
   if (!title?.trim() || !description?.trim() || !dimension?.trim()) {
     return Response.json(
@@ -27,6 +27,9 @@ export async function POST(req: NextRequest) {
       { status: 400 },
     );
   }
+
+  const validSources = ["self", "assessment", "coach", "manager"];
+  const goalSource = validSources.includes(source) ? source : (aiGenerated ? "assessment" : "self");
 
   const goal = await prisma.maarovaDevelopmentGoal.create({
     data: {
@@ -36,6 +39,8 @@ export async function POST(req: NextRequest) {
       dimension: dimension.trim(),
       targetDate: targetDate ? new Date(targetDate) : null,
       aiGenerated: aiGenerated === true,
+      source: goalSource,
+      sourceNote: sourceNote?.trim() || null,
     },
   });
 

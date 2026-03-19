@@ -58,6 +58,8 @@ interface DevelopmentGoal {
   progress: number;
   milestones: Milestone[] | null;
   aiGenerated: boolean;
+  source: string;
+  sourceNote: string | null;
   coachNotes: string | null;
   completedAt: string | null;
   createdAt: string;
@@ -172,7 +174,7 @@ export default function DevelopmentClient({
       const res = await fetch("/api/maarova/development/goals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...suggestion, aiGenerated: true }),
+        body: JSON.stringify({ ...suggestion, aiGenerated: true, source: "assessment" }),
       });
       if (!res.ok) throw new Error("Failed");
       const goal = await res.json();
@@ -608,9 +610,15 @@ export default function DevelopmentClient({
                         >
                           {st.label}
                         </span>
-                        {goal.aiGenerated && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 font-medium">
-                            AI suggested
+                        {(goal.source || (goal.aiGenerated ? "assessment" : "self")) !== "self" && (
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                            {
+                              assessment: "bg-blue-50 text-blue-700",
+                              coach: "bg-purple-50 text-purple-700",
+                              manager: "bg-amber-50 text-amber-700",
+                            }[(goal.source as string) || "assessment"] ?? "bg-gray-50 text-gray-600"
+                          }`}>
+                            {{ assessment: "Assessment suggested", coach: "Coach recommended", manager: "Manager assigned" }[(goal.source as string) || "assessment"] ?? goal.source}
                           </span>
                         )}
                         <span

@@ -1789,6 +1789,8 @@ model MaarovaDevelopmentGoal {
   status      MaarovaDevelopmentGoalStatus     @default(NOT_STARTED)
   progress    Int                             @default(0)
   milestones  Json?
+  source      String                          @default("self") // self | assessment | coach | manager
+  sourceNote  String?                         // e.g. coach name, manager name
   aiGenerated Boolean                         @default(false)
   coachNotes  String?                         @db.Text
   completedAt DateTime?
