@@ -107,9 +107,22 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
     rawScores = { error: "Scoring error", answeredCount };
   }
 
-  // Compute scaled scores (normalised form for storage)
-  // For most modules, raw scores are already normalised 0-100
-  const scaledScores = { ...rawScores };
+  // Compute scaled scores (normalised, flat form for storage and display)
+  let scaledScores: Record<string, unknown> = { ...rawScores };
+
+  // Flatten Culture & Team nested structure for consistent display
+  if (module.type === "CULTURE_TEAM" && rawScores.culture && typeof rawScores.culture === "object") {
+    const culture = rawScores.culture as Record<string, unknown>;
+    scaledScores = {
+      collaborate: culture.collaborate,
+      create: culture.create,
+      compete: culture.compete,
+      control: culture.control,
+      dominant: culture.dominant,
+      teamEffectiveness: rawScores.teamEffectiveness,
+      engagementDrivers: rawScores.engagementDrivers,
+    };
+  }
 
   // Calculate time spent
   const startedAt = moduleResponse.startedAt ?? session.startedAt ?? new Date();
