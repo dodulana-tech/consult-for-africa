@@ -1200,139 +1200,294 @@ function AssessmentPage() {
             </div>
           )}
 
-          {/* ---- Part 4: Response (Video / Audio / Written) ---- */}
+          {/* ---- Part 4: Smart Response Cascade ---- */}
           {part === 4 && (
+            <Part4Response
+              assessment={assessment}
+              videoUrl={videoUrl}
+              videoBlob={videoBlob}
+              audioBlob={audioBlob}
+              videoUploading={videoUploading}
+              submitLoading={submitLoading}
+              writtenResponse={writtenResponse}
+              responseMode={responseMode}
+              onResponseModeChange={setResponseMode}
+              onWrittenChange={setWrittenResponse}
+              onVideoRecorded={handleVideoRecorded}
+              onAudioRecorded={handleAudioRecorded}
+              onSubmit={handleSubmit}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Part 4: Smart Response Cascade ─────────────────────────────────────── */
+
+function Part4Response({
+  assessment,
+  videoUrl,
+  videoBlob,
+  audioBlob,
+  videoUploading,
+  submitLoading,
+  writtenResponse,
+  responseMode,
+  onResponseModeChange,
+  onWrittenChange,
+  onVideoRecorded,
+  onAudioRecorded,
+  onSubmit,
+}: {
+  assessment: { videoPrompt?: string };
+  videoUrl: string | null;
+  videoBlob: Blob | null;
+  audioBlob: Blob | null;
+  videoUploading: boolean;
+  submitLoading: boolean;
+  writtenResponse: string;
+  responseMode: "video" | "audio" | "written";
+  onResponseModeChange: (mode: "video" | "audio" | "written") => void;
+  onWrittenChange: (val: string) => void;
+  onVideoRecorded: (blob: Blob) => void;
+  onAudioRecorded: (blob: Blob) => void;
+  onSubmit: () => void;
+}) {
+  const [detecting, setDetecting] = useState(true);
+  const [cameraAvailable, setCameraAvailable] = useState(false);
+  const [micAvailable, setMicAvailable] = useState(false);
+  const [detectionDone, setDetectionDone] = useState(false);
+
+  // Auto-detect available hardware on mount
+  useEffect(() => {
+    async function detect() {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const hasCamera = devices.some((d) => d.kind === "videoinput");
+        const hasMic = devices.some((d) => d.kind === "audioinput");
+        setCameraAvailable(hasCamera);
+        setMicAvailable(hasMic);
+
+        // Set best available mode
+        if (hasCamera) {
+          onResponseModeChange("video");
+        } else if (hasMic) {
+          onResponseModeChange("audio");
+        } else {
+          onResponseModeChange("written");
+        }
+      } catch {
+        // Can't enumerate - default to video attempt
+        setCameraAvailable(true);
+        setMicAvailable(true);
+        onResponseModeChange("video");
+      }
+      setDetecting(false);
+      setDetectionDone(true);
+    }
+    detect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const hasResponse = !!videoUrl || !!videoBlob || !!audioBlob || writtenResponse.length >= 100;
+  const prompt = assessment.videoPrompt || "In under 2 minutes, summarise your approach to the scenario from Part 1. Explain your key recommendations and why you chose that approach.";
+
+  return (
+    <div>
+      <h2 className="text-lg font-bold mb-1" style={{ color: "#0F2744" }}>
+        Your Response
+      </h2>
+      <p className="text-xs text-gray-400 mb-6">
+        Record your response to the prompt below. Video makes the strongest impression,
+        but audio and written responses are also accepted.
+      </p>
+
+      <div
+        className="rounded-xl p-5 mb-6"
+        style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}
+      >
+        <p className="text-sm text-gray-600 leading-relaxed">
+          <strong>Prompt:</strong> {prompt}
+        </p>
+      </div>
+
+      {/* Already uploaded */}
+      {videoUrl && !videoBlob && !audioBlob && (
+        <div
+          className="rounded-xl p-5 mb-6 flex items-center gap-3"
+          style={{ background: "#F0FDF4", border: "1px solid #BBF7D0" }}
+        >
+          <CheckCircle size={18} className="text-emerald-600 shrink-0" />
+          <p className="text-sm text-emerald-700">Response recorded and uploaded.</p>
+        </div>
+      )}
+
+      {/* Detection spinner */}
+      {detecting && (
+        <div className="flex items-center justify-center gap-3 py-8">
+          <Loader2 size={20} className="animate-spin text-gray-400" />
+          <p className="text-sm text-gray-500">Checking your camera and microphone...</p>
+        </div>
+      )}
+
+      {/* Main recorder area */}
+      {!detecting && !videoUrl && detectionDone && (
+        <>
+          {/* Active recorder */}
+          {responseMode === "video" && (
             <div>
-              <h2 className="text-lg font-bold mb-1" style={{ color: "#0F2744" }}>
-                Your Response
-              </h2>
-              <p className="text-xs text-gray-400 mb-6">
-                Summarise your approach to the scenario from Part 1. Choose your
-                preferred format below. Video gives the strongest impression.
-              </p>
-
-              <div
-                className="rounded-xl p-5 mb-6"
-                style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}
-              >
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  <strong>Prompt:</strong> {assessment.videoPrompt || "In under 2 minutes, summarise your approach to the scenario from Part 1. Explain your key recommendations and why you chose that approach."}
-                </p>
-              </div>
-
-              {/* Already submitted */}
-              {videoUrl && !videoBlob && !audioBlob && (
-                <div
-                  className="rounded-xl p-5 mb-6 flex items-center gap-3"
-                  style={{ background: "#F0FDF4", border: "1px solid #BBF7D0" }}
-                >
-                  <CheckCircle size={18} className="text-emerald-600 shrink-0" />
-                  <p className="text-sm text-emerald-700">
-                    Response already recorded and uploaded.
-                  </p>
-                </div>
-              )}
-
-              {/* Response format selector */}
-              {!videoUrl && (
-                <>
-                  <div className="flex gap-2 mb-6">
-                    {(["video", "audio", "written"] as const).map((mode) => (
-                      <button
-                        key={mode}
-                        onClick={() => setResponseMode(mode)}
-                        className="flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all text-center"
-                        style={{
-                          background: responseMode === mode ? "#0F2744" : "#F8FAFC",
-                          color: responseMode === mode ? "#fff" : "#6B7280",
-                          border: responseMode === mode ? "1px solid #0F2744" : "1px solid #E2E8F0",
-                        }}
-                      >
-                        {mode === "video" && "Video (Recommended)"}
-                        {mode === "audio" && "Audio"}
-                        {mode === "written" && "Written"}
-                      </button>
-                    ))}
-                  </div>
-
-                  {responseMode === "video" && (
-                    <VideoRecorder
-                      onRecorded={handleVideoRecorded}
-                      maxDurationSec={120}
-                      allowRerecord={true}
-                    />
-                  )}
-
-                  {responseMode === "audio" && (
-                    <AudioRecorder
-                      onRecorded={handleAudioRecorded}
-                      maxDurationSec={120}
-                      allowRerecord={true}
-                    />
-                  )}
-
-                  {responseMode === "written" && (
-                    <div>
-                      <textarea
-                        value={writtenResponse}
-                        onChange={(e) => setWrittenResponse(e.target.value)}
-                        rows={8}
-                        maxLength={3000}
-                        placeholder="Write your response here (minimum 100 characters)..."
-                        className="w-full px-4 py-3 rounded-xl text-sm border focus:outline-none focus:ring-2 focus:ring-blue-200 resize-none"
-                        style={{ borderColor: "#E2E8F0", color: "#0F2744" }}
-                      />
-                      <div className="flex justify-between mt-1.5">
-                        <p className="text-xs text-gray-400">
-                          {writtenResponse.length < 100
-                            ? `${100 - writtenResponse.length} more characters needed`
-                            : "Ready to submit"}
-                        </p>
-                        <p className="text-xs text-gray-400">{writtenResponse.length}/3000</p>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {videoUploading && (
-                <div className="flex items-center gap-2 mt-4">
-                  <Loader2 size={14} className="animate-spin text-gray-400" />
-                  <span className="text-sm text-gray-500">Uploading...</span>
-                </div>
-              )}
-
-              {videoUrl && !videoUploading && (
-                <div className="flex items-center gap-2 mt-4">
-                  <CheckCircle size={14} className="text-emerald-500" />
-                  <span className="text-sm text-emerald-600">Response uploaded successfully</span>
-                </div>
-              )}
-
-              {/* Submit button */}
-              <div className="mt-8 pt-6 border-t border-gray-200">
+              <VideoRecorder
+                onRecorded={onVideoRecorded}
+                maxDurationSec={120}
+                allowRerecord={true}
+              />
+              {/* Fallback options */}
+              <div className="mt-4 flex items-center gap-3 justify-center">
+                <span className="text-xs text-gray-400">Camera not working?</span>
+                {micAvailable && (
+                  <button
+                    onClick={() => onResponseModeChange("audio")}
+                    className="text-xs font-medium underline transition-colors"
+                    style={{ color: "#0F2744" }}
+                  >
+                    Switch to audio
+                  </button>
+                )}
                 <button
-                  onClick={handleSubmit}
-                  disabled={submitLoading || (!videoUrl && !videoBlob && !audioBlob && writtenResponse.length < 100)}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ background: "#D4AF37", color: "#0F2744" }}
+                  onClick={() => onResponseModeChange("written")}
+                  className="text-xs font-medium underline transition-colors"
+                  style={{ color: "#0F2744" }}
                 >
-                  {submitLoading ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin" />
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle size={16} />
-                      Submit Assessment
-                    </>
-                  )}
+                  Type your response
                 </button>
               </div>
             </div>
           )}
+
+          {responseMode === "audio" && (
+            <div>
+              {cameraAvailable && (
+                <div
+                  className="rounded-lg px-4 py-3 mb-4 flex items-center justify-between"
+                  style={{ background: "#FFFBEB", border: "1px solid #FDE68A" }}
+                >
+                  <p className="text-xs text-amber-700">
+                    Recording audio. Video makes a stronger impression.
+                  </p>
+                  <button
+                    onClick={() => onResponseModeChange("video")}
+                    className="text-xs font-semibold underline text-amber-800"
+                  >
+                    Switch to video
+                  </button>
+                </div>
+              )}
+              <AudioRecorder
+                onRecorded={onAudioRecorded}
+                maxDurationSec={120}
+                allowRerecord={true}
+              />
+              <div className="mt-4 flex items-center gap-3 justify-center">
+                <span className="text-xs text-gray-400">Microphone not working?</span>
+                <button
+                  onClick={() => onResponseModeChange("written")}
+                  className="text-xs font-medium underline transition-colors"
+                  style={{ color: "#0F2744" }}
+                >
+                  Type your response
+                </button>
+              </div>
+            </div>
+          )}
+
+          {responseMode === "written" && (
+            <div>
+              {(cameraAvailable || micAvailable) && (
+                <div
+                  className="rounded-lg px-4 py-3 mb-4 flex items-center justify-between"
+                  style={{ background: "#F3F4F6", border: "1px solid #E5E7EB" }}
+                >
+                  <p className="text-xs text-gray-500">
+                    Written responses are accepted, but recorded responses make a stronger impression.
+                  </p>
+                  <div className="flex gap-2">
+                    {cameraAvailable && (
+                      <button
+                        onClick={() => onResponseModeChange("video")}
+                        className="text-xs font-semibold underline text-gray-700"
+                      >
+                        Record video
+                      </button>
+                    )}
+                    {micAvailable && (
+                      <button
+                        onClick={() => onResponseModeChange("audio")}
+                        className="text-xs font-semibold underline text-gray-700"
+                      >
+                        Record audio
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+              <textarea
+                value={writtenResponse}
+                onChange={(e) => onWrittenChange(e.target.value)}
+                rows={8}
+                maxLength={3000}
+                placeholder="Write your response here (minimum 100 characters)..."
+                className="w-full px-4 py-3 rounded-xl text-sm border focus:outline-none focus:ring-2 focus:ring-blue-200 resize-none"
+                style={{ borderColor: "#E2E8F0", color: "#0F2744" }}
+              />
+              <div className="flex justify-between mt-1.5">
+                <p className="text-xs text-gray-400">
+                  {writtenResponse.length < 100
+                    ? `${100 - writtenResponse.length} more characters needed`
+                    : "Ready to submit"}
+                </p>
+                <p className="text-xs text-gray-400">{writtenResponse.length}/3000</p>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {videoUploading && (
+        <div className="flex items-center gap-2 mt-4">
+          <Loader2 size={14} className="animate-spin text-gray-400" />
+          <span className="text-sm text-gray-500">Uploading...</span>
         </div>
+      )}
+
+      {videoUrl && !videoUploading && (
+        <div className="flex items-center gap-2 mt-4">
+          <CheckCircle size={14} className="text-emerald-500" />
+          <span className="text-sm text-emerald-600">Response uploaded successfully</span>
+        </div>
+      )}
+
+      {/* Submit */}
+      <div className="mt-8 pt-6 border-t border-gray-200">
+        <button
+          onClick={onSubmit}
+          disabled={submitLoading || !hasResponse}
+          className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ background: "#D4AF37", color: "#0F2744" }}
+        >
+          {submitLoading ? (
+            <>
+              <Loader2 size={16} className="animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            <>
+              <CheckCircle size={16} />
+              Submit Assessment
+            </>
+          )}
+        </button>
       </div>
     </div>
   );
