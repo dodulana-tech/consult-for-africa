@@ -58,6 +58,18 @@ export function scoreCILTI(
     dimScores[dim] = [];
   }
 
+  // Map snake_case dimension names to camelCase
+  const dimMap: Record<string, string> = {
+    clinical_identity: "clinicalIdentity",
+    clinicalIdentity: "clinicalIdentity",
+    leadership_identity: "leadershipIdentity",
+    leadershipIdentity: "leadershipIdentity",
+    transition_readiness: "transitionReadiness",
+    transitionReadiness: "transitionReadiness",
+    identity_friction: "identityFriction",
+    identityFriction: "identityFriction",
+  };
+
   for (const resp of responses) {
     const answer = resp.answer as {
       value?: number;
@@ -65,7 +77,9 @@ export function scoreCILTI(
     } | null;
     if (!answer || typeof answer !== "object") continue;
 
-    const dim = answer.dimension;
+    const rawDim = answer.dimension;
+    if (!rawDim) continue;
+    const dim = dimMap[rawDim];
     if (!dim || !CILTI_DIMENSIONS.includes(dim as (typeof CILTI_DIMENSIONS)[number])) continue;
 
     let value = answer.value;
