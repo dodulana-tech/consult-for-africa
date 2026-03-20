@@ -468,7 +468,7 @@ function StaffingTab({ staffingRequests, isElevated }: { staffingRequests: Props
                   {" | "}{sr.project.client.name}
                 </p>
                 <div className="flex flex-wrap gap-1 mt-2">
-                  {sr.skills.slice(0, 4).map((s, i) => (
+                  {(sr.skills ?? []).slice(0, 4).map((s, i) => (
                     <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{s}</span>
                   ))}
                 </div>
@@ -518,7 +518,7 @@ function StaffingTab({ staffingRequests, isElevated }: { staffingRequests: Props
                           {p?.expertiseAreas && (
                             <div className="flex flex-wrap gap-1 mt-2">
                               {p.expertiseAreas.slice(0, 4).map((area, i) => (
-                                <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">{area}</span>
+                                <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">{area.replace(/_/g, " ")}</span>
                               ))}
                             </div>
                           )}

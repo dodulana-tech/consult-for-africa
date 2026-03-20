@@ -138,7 +138,7 @@ export default function ExpansionRequestsClient({
                     <td className="px-5 py-3 text-gray-500 text-xs font-mono">
                       {r.contactId.slice(0, 8)}...
                     </td>
-                    <td className="px-5 py-3 text-gray-600">{r.serviceType}</td>
+                    <td className="px-5 py-3 text-gray-600">{r.serviceType?.replace(/_/g, " ") ?? "-"}</td>
                     <td className="px-5 py-3 text-gray-600 max-w-xs truncate">
                       {r.description}
                     </td>

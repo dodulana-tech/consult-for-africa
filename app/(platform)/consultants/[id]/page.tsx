@@ -192,7 +192,7 @@ export default async function ConsultantProfilePage({
                   className="px-3 py-1 rounded-full text-xs"
                   style={{ background: "#F0F4FF", color: "#0F2744" }}
                 >
-                  {area}
+                  {area.replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
                 </span>
               ))}
             </div>

@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
 
@@ -22,6 +23,17 @@ export async function POST(req: NextRequest) {
   if (!deliverableName?.trim()) {
     return Response.json({ error: "deliverableName is required" }, { status: 400 });
   }
+
+  // Fetch latest pricing intelligence if available
+  let historicalContext = "";
+  try {
+    const intel = await prisma.pricingIntelligence.findFirst({ orderBy: { computedAt: "desc" } });
+    if (intel && intel.dataPoints > 0) {
+      const stats = intel.stats as Record<string, unknown>;
+      historicalContext = `\nHISTORICAL PLATFORM DATA (${intel.dataPoints} data points):\n${JSON.stringify(stats, null, 0).substring(0, 1000)}\nUse this data to calibrate your estimates against what has actually been charged on the platform.`;
+    }
+  } catch {}
+
 
   // Budget sensitivity multiplier context
   const sensitivityContext: Record<string, string> = {
@@ -63,6 +75,7 @@ BUDGET SENSITIVITY MULTIPLIERS:
 - BUDGET: 0.4x
 
 Apply the ${budgetSensitivity || "STANDARD"} multiplier to your pricing.
+${historicalContext}
 
 Return ONLY valid JSON:
 {

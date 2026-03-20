@@ -242,6 +242,7 @@ model User {
   internRotations        InternRotation[] @relation("InternRotations")
   supervisedRotations    InternRotation[] @relation("SupervisedRotations")
   internEvaluations      InternEvaluation[] @relation("InternEvaluations")
+  outreachCampaigns      OutreachCampaign[] @relation("CampaignCreator")
 }
 
 model ConsultantProfile {
@@ -2153,4 +2154,59 @@ model InternEvaluation {
   createdAt          DateTime @default(now())
 
   @@index([rotationId])
+}
+
+// ─── Outreach Campaigns (Maarova Growth) ─────────────────────────────────────
+
+model OutreachCampaign {
+  id          String   @id @default(cuid())
+  name        String   // e.g. "March 2026 - Lagos Hospital CEOs"
+  description String?  @db.Text
+  month       String   // e.g. "2026-03"
+  status      String   @default("DRAFT") // DRAFT, ACTIVE, COMPLETED
+  targetCount Int      @default(0)
+  sentCount   Int      @default(0)
+  respondedCount Int   @default(0)
+  assessmentCount Int  @default(0) // how many actually took assessment
+  createdById String
+  createdBy   User     @relation("CampaignCreator", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  targets OutreachTarget[]
+
+  @@index([status])
+  @@index([month])
+}
+
+model OutreachTarget {
+  id           String           @id @default(cuid())
+  campaignId   String
+  campaign     OutreachCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  name         String
+  title        String?          // e.g. "CEO", "Medical Director"
+  organization String?
+  email        String?
+  phone        String?
+  linkedinUrl  String?
+  city         String?
+  source       String?          // LinkedIn, Conference, Referral, MDCN registry, etc.
+  status       String           @default("IDENTIFIED") // IDENTIFIED, INVITED, RESPONDED, ASSESSMENT_STARTED, ASSESSMENT_COMPLETED, DECLINED, NO_RESPONSE
+  invitedAt    DateTime?
+  respondedAt  DateTime?
+  notes        String?          @db.Text
+  maarovaUserId String?         // if they completed assessment, link to MaarovaUser
+  createdAt    DateTime         @default(now())
+
+  @@index([campaignId, status])
+}
+
+// ─── Nuru Pricing Intelligence ───────────────────────────────────────────────
+
+model PricingIntelligence {
+  id             String   @id @default(cuid())
+  computedAt     DateTime @default(now())
+  dataPoints     Int      // how many deliverables/entries were analyzed
+  stats          Json     // aggregated stats: avg fee by deliverable type, avg hours, tier distribution
+  // Format: { deliverableTypes: [{ name, avgFee, avgHours, count, tiers }], ratesByTier: {...}, clientTypeMultipliers: {...} }
 }

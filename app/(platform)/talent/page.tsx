@@ -140,7 +140,7 @@ export default async function TalentPage() {
                       )}
                     </div>
                     <p className="text-xs text-gray-500">
-                      {a.specialty} &middot; {a.yearsExperience}y exp &middot; {a.location}
+                      {a.specialty.replace(/_/g, " ")} &middot; {a.yearsExperience}y exp &middot; {a.location}
                     </p>
                     {a.currentRole && (
                       <p className="text-xs text-gray-400 mt-0.5">

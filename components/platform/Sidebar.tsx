@@ -95,6 +95,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Users",          href: "/admin/users",    icon: ShieldCheck },
       { label: "Onboarding",     href: "/admin/onboarding", icon: ClipboardList },
       { label: "Assessments",    href: "/admin/assessments", icon: FileSearch },
+      { label: "Outreach",       href: "/admin/outreach", icon: Share2 },
       { label: "Maarova",        href: "/admin/maarova",  icon: Brain },
       { label: "Satisfaction",   href: "/admin/satisfaction", icon: HeartPulse },
     ],
