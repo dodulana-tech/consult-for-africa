@@ -160,7 +160,7 @@ export default async function ConsultantProfilePage({
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { icon: Clock, label: "Approved Hrs", value: totalHours.toFixed(1) },
               { icon: Briefcase, label: "Projects", value: profile.totalProjects },
@@ -244,7 +244,7 @@ export default async function ConsultantProfilePage({
                 <DollarSign size={14} />
                 Earnings Summary
               </h2>
-              <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                 <div>
                   <p className="text-lg font-bold text-gray-900">{totalHours.toFixed(0)}h</p>
                   <p className="text-xs text-gray-500">Approved hours</p>

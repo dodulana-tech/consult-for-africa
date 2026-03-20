@@ -141,7 +141,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
           )}
 
           {/* Summary cards */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               {
                 label: "Total Collected",
@@ -330,6 +330,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               {client.invoices.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-6">No invoices yet</p>
               ) : (
+                <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="text-xs text-gray-500 border-b" style={{ borderColor: "#e5eaf0", background: "#F9FAFB" }}>
@@ -374,6 +375,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                     })}
                   </tbody>
                 </table>
+                </div>
               )}
             </div>
           </div>

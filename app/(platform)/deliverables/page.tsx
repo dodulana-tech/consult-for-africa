@@ -85,7 +85,7 @@ export default async function DeliverablesPage() {
       <main className="flex-1 overflow-y-auto p-6">
         <div className="max-w-3xl space-y-6">
           {/* Stats */}
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: "Pending Review", count: pendingCount, color: "#F59E0B" },
               { label: "Needs Revision", count: revisionCount, color: "#EF4444" },

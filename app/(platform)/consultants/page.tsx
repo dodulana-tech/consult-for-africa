@@ -39,7 +39,7 @@ export default async function ConsultantsPage() {
       <main className="flex-1 overflow-y-auto p-6">
         <div className="max-w-4xl space-y-6">
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               { label: "Available Now", value: available, color: "#10B981" },
               { label: "Partially Available", value: partial, color: "#F59E0B" },

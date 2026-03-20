@@ -3,21 +3,11 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import CoachLogoutButton from "./CoachLogoutButton";
+import CoachMobileNav from "./CoachMobileNav";
 
 const navItems = [
-  { label: "Dashboard", href: "/maarova/coach/dashboard", icon: "grid" },
+  { label: "Dashboard", href: "/maarova/coach/dashboard" },
 ];
-
-function NavIcon({ icon }: { icon: string }) {
-  const icons: Record<string, React.ReactNode> = {
-    grid: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-      </svg>
-    ),
-  };
-  return <>{icons[icon] ?? null}</>;
-}
 
 export default async function CoachPortalLayout({
   children,
@@ -31,8 +21,9 @@ export default async function CoachPortalLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <aside className="w-64 flex flex-col" style={{ backgroundColor: "#0f1a2a" }}>
+    <div className="flex h-[100dvh] bg-gray-50">
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex w-64 flex-col flex-shrink-0" style={{ backgroundColor: "#0f1a2a" }}>
         <div className="px-6 py-6 border-b border-white/10">
           <div className="flex items-center gap-3">
             <Image src="/cfa-logo-white.svg" alt="CFA" width={32} height={32} className="rounded" />
@@ -50,7 +41,6 @@ export default async function CoachPortalLayout({
               href={item.href}
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors text-sm font-medium"
             >
-              <NavIcon icon={item.icon} />
               {item.label}
             </Link>
           ))}
@@ -70,7 +60,10 @@ export default async function CoachPortalLayout({
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      {/* Mobile Nav */}
+      <CoachMobileNav userName={session.name} navItems={navItems} />
+
+      <main className="flex-1 overflow-y-auto pt-14 lg:pt-0">{children}</main>
     </div>
   );
 }

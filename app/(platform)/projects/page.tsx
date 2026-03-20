@@ -69,7 +69,7 @@ export default async function ProjectsPage() {
       <main className="flex-1 overflow-y-auto p-6">
         <div className="max-w-4xl space-y-6">
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               { label: "Active", value: active, color: "#10B981" },
               { label: "At Risk", value: atRisk, color: "#F59E0B" },

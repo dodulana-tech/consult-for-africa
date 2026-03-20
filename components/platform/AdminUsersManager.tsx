@@ -169,7 +169,7 @@ export default function AdminUsersManager({ users: initialUsers, currentUserId }
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {ROLES.map((r) => (
             <div
               key={r.value}

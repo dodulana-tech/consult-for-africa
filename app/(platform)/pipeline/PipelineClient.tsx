@@ -185,6 +185,7 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
               <p className="text-xs text-gray-300 mt-1">Leads are created from website enquiries, demo requests, referrals, or manual entry.</p>
             </div>
           ) : (
+            <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
@@ -230,6 +231,7 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}
@@ -247,6 +249,7 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
               )}
             </div>
           ) : (
+            <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
@@ -286,6 +289,7 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}
@@ -298,6 +302,7 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
               <p className="text-gray-400 text-sm">No proposals yet.</p>
             </div>
           ) : (
+            <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
@@ -326,6 +331,7 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}
@@ -343,6 +349,7 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
               <p className="text-gray-400 text-sm">No pending expansion requests.</p>
             </div>
           ) : (
+            <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
@@ -369,6 +376,7 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}

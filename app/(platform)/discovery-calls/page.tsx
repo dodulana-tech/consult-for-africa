@@ -56,6 +56,7 @@ export default async function DiscoveryCallsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-xl border overflow-hidden" style={{ borderColor: "#e5eaf0" }}>
+            <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
@@ -119,6 +120,7 @@ export default async function DiscoveryCallsPage() {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>

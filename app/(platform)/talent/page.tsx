@@ -69,7 +69,7 @@ export default async function TalentPage() {
       <main className="flex-1 overflow-y-auto p-6">
         <div className="max-w-5xl space-y-6">
           {/* Stats */}
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: "Total Applicants", value: total, icon: Users, color: "#3B82F6" },
               { label: "Strong AI Matches", value: strongYes, icon: Star, color: "#D4AF37" },

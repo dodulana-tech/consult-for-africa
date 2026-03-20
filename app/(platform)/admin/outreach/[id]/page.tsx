@@ -175,7 +175,7 @@ export default function CampaignDetailPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-5 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
           {[
             { label: "Targets", value: targets.length, color: "#0F2744" },
             { label: "Invited", value: targets.filter((t) => !["IDENTIFIED"].includes(t.status)).length, color: "#2563EB" },
@@ -231,12 +231,12 @@ export default function CampaignDetailPage() {
         {/* Add form */}
         {showAdd && (
           <form onSubmit={addTarget} className="bg-white rounded-xl border p-4 mb-4 space-y-3" style={{ borderColor: "#e5eaf0" }}>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <input required value={addForm.name} onChange={(e) => setAddForm((p) => ({ ...p, name: e.target.value }))} className={inputClass} style={inputStyle} placeholder="Full name *" />
               <input value={addForm.title} onChange={(e) => setAddForm((p) => ({ ...p, title: e.target.value }))} className={inputClass} style={inputStyle} placeholder="Title (CEO, MD, CMO)" />
               <input value={addForm.organization} onChange={(e) => setAddForm((p) => ({ ...p, organization: e.target.value }))} className={inputClass} style={inputStyle} placeholder="Hospital/Organisation" />
             </div>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <input value={addForm.email} onChange={(e) => setAddForm((p) => ({ ...p, email: e.target.value }))} className={inputClass} style={inputStyle} placeholder="Email" />
               <input value={addForm.linkedinUrl} onChange={(e) => setAddForm((p) => ({ ...p, linkedinUrl: e.target.value }))} className={inputClass} style={inputStyle} placeholder="LinkedIn URL" />
               <input value={addForm.city} onChange={(e) => setAddForm((p) => ({ ...p, city: e.target.value }))} className={inputClass} style={inputStyle} placeholder="City" />

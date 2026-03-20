@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { useState } from "react";
 import {
   LayoutDashboard,
   Briefcase,
@@ -26,6 +27,8 @@ import {
   GraduationCap,
   Radio,
   ClipboardList,
+  Menu,
+  X,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import type { LucideIcon } from "lucide-react";
@@ -107,6 +110,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const role = session?.user?.role ?? "";
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === href;
@@ -124,14 +128,11 @@ export default function Sidebar() {
     return pathname.startsWith(href);
   }
 
-  return (
-    <aside
-      className="fixed left-0 top-0 h-screen w-60 flex flex-col z-40"
-      style={{ background: "#ffffff", borderRight: "1px solid #E2E8F0" }}
-    >
+  const navContent = (
+    <>
       {/* Logo */}
       <div
-        className="flex items-center gap-3 px-5 h-16 shrink-0"
+        className="flex items-center gap-3 px-5 h-14 lg:h-16 shrink-0"
         style={{ borderBottom: "1px solid #E2E8F0" }}
       >
         <Image src="/logo-cfa.png" alt="CFA" width={28} height={28} style={{ mixBlendMode: "multiply" }} />
@@ -144,7 +145,6 @@ export default function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 px-3 py-3 overflow-y-auto">
         {NAV_SECTIONS.map((section) => {
-          // Role check for section visibility
           if (section.roles && !section.roles.includes(role)) return null;
 
           return (
@@ -161,6 +161,7 @@ export default function Sidebar() {
                     <Link
                       key={href}
                       href={href}
+                      onClick={() => setMobileOpen(false)}
                       className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all group"
                       style={{
                         background: active ? "#EFF6FF" : "transparent",
@@ -190,6 +191,7 @@ export default function Sidebar() {
       >
         <Link
           href="/refer"
+          onClick={() => setMobileOpen(false)}
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all"
           style={{
             background: pathname === "/refer" ? "#EFF6FF" : "transparent",
@@ -201,6 +203,7 @@ export default function Sidebar() {
         </Link>
         <Link
           href="/settings"
+          onClick={() => setMobileOpen(false)}
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all"
           style={{ color: "#64748B" }}
         >
@@ -216,6 +219,58 @@ export default function Sidebar() {
           Sign out
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile top bar */}
+      <div
+        className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14"
+        style={{ background: "#fff", borderBottom: "1px solid #E2E8F0" }}
+      >
+        <div className="flex items-center gap-2">
+          <Image src="/logo-cfa.png" alt="CFA" width={24} height={24} style={{ mixBlendMode: "multiply" }} />
+          <span className="font-semibold text-sm" style={{ color: "#0F2744" }}>CFA</span>
+        </div>
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="p-1.5 rounded-lg hover:bg-gray-100"
+          style={{ color: "#64748B" }}
+        >
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-40 bg-black/40" onClick={() => setMobileOpen(false)} />
+      )}
+
+      {/* Desktop sidebar */}
+      <aside
+        className="hidden lg:flex fixed left-0 top-0 h-screen w-60 flex-col z-40"
+        style={{ background: "#ffffff", borderRight: "1px solid #E2E8F0" }}
+      >
+        {navContent}
+      </aside>
+
+      {/* Mobile slide-out */}
+      <aside
+        className={`lg:hidden fixed top-0 right-0 bottom-0 z-50 w-72 flex flex-col transition-transform duration-200 ${
+          mobileOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+        style={{ background: "#ffffff", borderLeft: "1px solid #E2E8F0" }}
+      >
+        <div className="flex items-center justify-end px-4 h-14" style={{ borderBottom: "1px solid #E2E8F0" }}>
+          <button onClick={() => setMobileOpen(false)} className="p-1.5 rounded-lg hover:bg-gray-100" style={{ color: "#64748B" }}>
+            <X size={20} />
+          </button>
+        </div>
+        <div className="flex flex-col flex-1 overflow-hidden">
+          {navContent}
+        </div>
+      </aside>
+    </>
   );
 }

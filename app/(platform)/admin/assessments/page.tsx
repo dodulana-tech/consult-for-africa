@@ -73,6 +73,7 @@ export default async function AdminAssessmentsPage() {
           className="rounded-xl overflow-hidden"
           style={{ background: "#fff", border: "1px solid #e5eaf0" }}
         >
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e5eaf0" }}>
@@ -212,6 +213,7 @@ export default async function AdminAssessmentsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </main>
     </div>

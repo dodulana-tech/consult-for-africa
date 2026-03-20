@@ -106,7 +106,7 @@ export default function OutreachCampaignsPage() {
                     <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>{c.status}</span>
                   </div>
                   {c.description && <p className="text-xs text-gray-500 mb-3">{c.description}</p>}
-                  <div className="grid grid-cols-5 gap-3 text-center">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-center">
                     <div><p className="text-lg font-bold" style={{ color: "#0F2744" }}>{c.targetCount}</p><p className="text-[10px] text-gray-400">Targets</p></div>
                     <div><p className="text-lg font-bold" style={{ color: "#D97706" }}>{c.sentCount}</p><p className="text-[10px] text-gray-400">Invited</p></div>
                     <div><p className="text-lg font-bold" style={{ color: "#2563EB" }}>{c.respondedCount}</p><p className="text-[10px] text-gray-400">Responded</p></div>
