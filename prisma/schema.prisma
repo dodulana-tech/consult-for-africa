@@ -1617,6 +1617,8 @@ model MaarovaUser {
   invitedAt          DateTime?
   resetToken         String?
   resetTokenExpiry   DateTime?
+  outreachCampaignId String?         // which outreach campaign brought this user in (null = org invite)
+  outreachTargetId   String?         // links back to the specific OutreachTarget
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
 
@@ -2196,6 +2198,8 @@ model OutreachTarget {
   respondedAt  DateTime?
   notes        String?          @db.Text
   maarovaUserId String?         // if they completed assessment, link to MaarovaUser
+  inviteToken  String?          @unique // token for self-onboarding link
+  tokenExpiresAt DateTime?      // token expiry (30 days from invite)
   createdAt    DateTime         @default(now())
 
   @@index([campaignId, status])

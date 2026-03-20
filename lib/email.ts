@@ -818,14 +818,16 @@ export async function emailGoalAssigned({
 }
 
 export async function emailOutreachInvite({
-  targetEmail, targetName, targetTitle, targetOrg, campaignName,
+  targetEmail, targetName, targetTitle, targetOrg, campaignName, inviteToken,
 }: {
-  targetEmail: string; targetName: string; targetTitle?: string; targetOrg?: string; campaignName: string;
+  targetEmail: string; targetName: string; targetTitle?: string; targetOrg?: string; campaignName: string; inviteToken: string;
 }) {
   const firstName = targetName.split(" ")[0];
   const personalContext = targetTitle && targetOrg
     ? `As ${esc(targetTitle)} at ${esc(targetOrg)}, you are navigating`
     : "As a senior healthcare leader, you are navigating";
+
+  const onboardUrl = `${BASE_URL}/maarova/onboard/${esc(inviteToken)}`;
 
   await send(targetEmail, `${firstName}, how do Africa's top healthcare leaders compare?`,
     layout(`
@@ -842,7 +844,7 @@ export async function emailOutreachInvite({
         </ul>
       </div>
       ${p(`The assessment takes about 40 minutes. No preparation needed. You can pause and resume within 7 days.`)}
-      ${btn("Take the Assessment", `${BASE_URL}/maarova/portal/login`)}
+      ${btn("Take the Assessment", onboardUrl)}
       <p style="margin:16px 0 0;font-size:13px;color:#6B7280;">
         This is a personal invitation, not a mass email. We select 20-30 leaders each month for this programme. Your results are private and shared only with you.
       </p>

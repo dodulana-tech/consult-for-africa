@@ -307,7 +307,7 @@ export default function PublicRateTokenPage() {
             Rate {data.subjectFirstName}&apos;s Leadership
           </h1>
           <p className="text-gray-300 text-sm mt-1">
-            Welcome, {data.raterName}. Your responses are confidential.
+            Welcome. Your responses are confidential.
           </p>
         </div>
       </header>

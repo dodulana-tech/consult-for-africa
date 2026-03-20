@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { emailOutreachInvite } from "@/lib/email";
+import { randomBytes } from "crypto";
 import { NextRequest } from "next/server";
 
 export async function POST(
@@ -66,10 +67,19 @@ export async function PATCH(
   }
   if (notes !== undefined) updateData.notes = notes?.trim() || null;
 
+  // Generate invite token when marking as INVITED (or reuse existing)
+  if (status === "INVITED") {
+    const existing = await prisma.outreachTarget.findUnique({ where: { id: targetId }, select: { inviteToken: true } });
+    if (!existing?.inviteToken) {
+      updateData.inviteToken = randomBytes(32).toString("base64url");
+    }
+    updateData.tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+  }
+
   const updated = await prisma.outreachTarget.update({ where: { id: targetId }, data: updateData });
 
   // Auto-send invite email when marked as INVITED
-  if (status === "INVITED" && updated.email) {
+  if (status === "INVITED" && updated.email && updated.inviteToken) {
     const campaign = await prisma.outreachCampaign.findUnique({ where: { id }, select: { name: true } });
     emailOutreachInvite({
       targetEmail: updated.email,
@@ -77,6 +87,7 @@ export async function PATCH(
       targetTitle: updated.title ?? undefined,
       targetOrg: updated.organization ?? undefined,
       campaignName: campaign?.name ?? "Maarova Leadership Assessment",
+      inviteToken: updated.inviteToken,
     }).catch((err) => console.error("[outreach] invite email failed:", err));
   }
 
