@@ -88,9 +88,24 @@ export default function CampaignDetailPage() {
     catch {} finally { setAddSaving(false); }
   }
 
-  async function updateTargetStatus(targetId: string, status: string) {
-    await fetch(`/api/admin/outreach/${id}/targets`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ targetId, status }) });
-    await refresh();
+  async function updateTargetStatus(targetId: string, newStatus: string) {
+    // Optimistic UI update
+    if (campaign) {
+      setCampaign({
+        ...campaign,
+        targets: campaign.targets.map((t) =>
+          t.id === targetId ? { ...t, status: newStatus, invitedAt: newStatus === "INVITED" ? (t.invitedAt ?? new Date().toISOString()) : t.invitedAt } : t
+        ),
+      });
+    }
+    try {
+      await fetch(`/api/admin/outreach/${id}/targets`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ targetId, status: newStatus }) });
+      // Background refresh for accurate counts
+      refresh();
+    } catch {
+      // Revert on failure
+      refresh();
+    }
   }
 
   async function updateCampaignStatus(status: string) {
