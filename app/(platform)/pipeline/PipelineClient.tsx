@@ -46,7 +46,7 @@ interface Props {
   staffingRequests: Array<{
     id: string;
     role: string;
-    skills: string[];
+    skillsRequired: string[];
     status: string;
     urgency: string;
     project: { id: string; name: string; client: { name: string } };
@@ -468,7 +468,7 @@ function StaffingTab({ staffingRequests, isElevated }: { staffingRequests: Props
                   {" | "}{sr.project.client.name}
                 </p>
                 <div className="flex flex-wrap gap-1 mt-2">
-                  {(sr.skills ?? []).slice(0, 4).map((s, i) => (
+                  {(sr.skillsRequired ?? []).slice(0, 4).map((s, i) => (
                     <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{s}</span>
                   ))}
                 </div>
