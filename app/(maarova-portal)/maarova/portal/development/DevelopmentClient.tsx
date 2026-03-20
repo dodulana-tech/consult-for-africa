@@ -22,6 +22,8 @@ interface CoachingSession {
   duration: number | null;
   notes: string | null;
   focusAreas: string[];
+  meetingLink: string | null;
+  actionItems: string[];
   status: string;
 }
 
@@ -113,6 +115,7 @@ export default function DevelopmentClient({
   userName,
 }: Props) {
   const [expandedGoal, setExpandedGoal] = useState<string | null>(null);
+  const [expandedSession, setExpandedSession] = useState<string | null>(null);
   const [showNewGoal, setShowNewGoal] = useState(false);
   const [suggestingGoals, setSuggestingGoals] = useState(false);
   const [suggestedGoals, setSuggestedGoals] = useState<
@@ -604,10 +607,16 @@ export default function DevelopmentClient({
           className="bg-white rounded-xl border shadow-sm"
           style={{ borderColor: "#e5eaf0" }}
         >
-          <div className="px-6 py-5 border-b" style={{ borderColor: "#e5eaf0" }}>
+          <div className="px-6 py-5 border-b flex items-center justify-between" style={{ borderColor: "#e5eaf0" }}>
             <h2 className="text-lg font-semibold" style={{ color: "#0F2744" }}>
               Coaching Sessions
             </h2>
+            <div className="flex items-center gap-3 text-xs text-gray-400">
+              <span>{pastSessions.length} completed</span>
+              {upcomingSessions.length > 0 && (
+                <span className="font-medium" style={{ color: "#D4A574" }}>{upcomingSessions.length} upcoming</span>
+              )}
+            </div>
           </div>
           <div className="p-6">
             {/* Upcoming */}
@@ -617,35 +626,115 @@ export default function DevelopmentClient({
                   Upcoming
                 </h3>
                 <div className="space-y-3">
-                  {upcomingSessions.map((s) => (
-                    <div
-                      key={s.id}
-                      className="flex items-start gap-4 p-4 rounded-lg border"
-                      style={{ borderColor: "#D4A574" + "40", backgroundColor: "#D4A574" + "05" }}
-                    >
+                  {upcomingSessions.map((s) => {
+                    const isExpanded = expandedSession === s.id;
+                    return (
                       <div
-                        className="w-3 h-3 rounded-full mt-1.5 shrink-0"
-                        style={{ backgroundColor: "#D4A574" }}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium" style={{ color: "#0F2744" }}>
-                          {formatDateTime(s.scheduledAt)}
-                        </p>
-                        {s.focusAreas.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mt-2">
-                            {s.focusAreas.map((fa) => (
-                              <span
-                                key={fa}
-                                className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700"
+                        key={s.id}
+                        className="rounded-lg border overflow-hidden transition-all cursor-pointer hover:shadow-sm"
+                        style={{ borderColor: "#D4A574" + "40", backgroundColor: "#D4A574" + "05" }}
+                        onClick={() => setExpandedSession(isExpanded ? null : s.id)}
+                      >
+                        <div className="flex items-start gap-4 p-4">
+                          <div
+                            className="w-3 h-3 rounded-full mt-1.5 shrink-0"
+                            style={{ backgroundColor: "#D4A574" }}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium" style={{ color: "#0F2744" }}>
+                                {formatDateTime(s.scheduledAt)}
+                              </p>
+                              <svg
+                                className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24"
                               >
-                                {fa}
-                              </span>
-                            ))}
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
+                            {(s.focusAreas ?? []).length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 mt-2">
+                                {s.focusAreas.map((fa) => (
+                                  <span key={fa} className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                                    {fa}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            {s.meetingLink && !isExpanded && (
+                              <a
+                                href={s.meetingLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline mt-2"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                Join Google Meet
+                              </a>
+                            )}
+                          </div>
+                        </div>
+
+                        {isExpanded && (
+                          <div className="px-4 pb-4 pt-0 ml-7 border-t" style={{ borderColor: "#D4A574" + "20" }}>
+                            <div className="pt-3 space-y-3">
+                              <div className="grid grid-cols-2 gap-4 text-xs">
+                                <div>
+                                  <span className="font-semibold text-gray-500">Status</span>
+                                  <p className="mt-0.5 font-medium" style={{ color: "#D4A574" }}>Scheduled</p>
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-gray-500">Coach</span>
+                                  <p className="mt-0.5 text-gray-700">{coachingMatch.coach.name}</p>
+                                </div>
+                              </div>
+                              {(s.focusAreas ?? []).length > 0 && (
+                                <div>
+                                  <span className="text-xs font-semibold text-gray-500">Focus Areas</span>
+                                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                                    {s.focusAreas.map((fa) => (
+                                      <span key={fa} className="text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-700">
+                                        {fa}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              {s.meetingLink && (
+                                <div>
+                                  <span className="text-xs font-semibold text-gray-500">Meeting</span>
+                                  <a
+                                    href={s.meetingLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1.5 text-sm text-blue-600 hover:underline mt-1"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    Join Google Meet
+                                  </a>
+                                </div>
+                              )}
+                              {s.notes && (
+                                <div>
+                                  <span className="text-xs font-semibold text-gray-500">Pre-session Notes</span>
+                                  <p className="text-sm text-gray-600 mt-1 leading-relaxed">{s.notes}</p>
+                                </div>
+                              )}
+                              {!s.notes && (s.focusAreas ?? []).length === 0 && !s.meetingLink && (
+                                <p className="text-xs text-gray-400 italic">No focus areas or notes set for this session yet.</p>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -657,44 +746,117 @@ export default function DevelopmentClient({
                   Completed
                 </h3>
                 <div className="space-y-3">
-                  {pastSessions.map((s) => (
-                    <div
-                      key={s.id}
-                      className="flex items-start gap-4 p-4 rounded-lg border"
-                      style={{ borderColor: "#e5eaf0" }}
-                    >
-                      <div className="w-3 h-3 rounded-full bg-green-400 mt-1.5 shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <p className="text-sm font-medium" style={{ color: "#0F2744" }}>
-                            {formatDateTime(s.scheduledAt)}
-                          </p>
-                          {s.duration && (
-                            <span className="text-xs text-gray-400">
-                              {s.duration} min
-                            </span>
-                          )}
-                        </div>
-                        {s.focusAreas.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mt-2">
-                            {s.focusAreas.map((fa) => (
-                              <span
-                                key={fa}
-                                className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600"
+                  {pastSessions.map((s) => {
+                    const isExpanded = expandedSession === s.id;
+                    return (
+                      <div
+                        key={s.id}
+                        className="rounded-lg border overflow-hidden transition-all cursor-pointer hover:shadow-sm"
+                        style={{ borderColor: "#e5eaf0" }}
+                        onClick={() => setExpandedSession(isExpanded ? null : s.id)}
+                      >
+                        <div className="flex items-start gap-4 p-4">
+                          <div className="w-3 h-3 rounded-full bg-green-400 mt-1.5 shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3 flex-wrap">
+                                <p className="text-sm font-medium" style={{ color: "#0F2744" }}>
+                                  {formatDateTime(s.scheduledAt)}
+                                </p>
+                                {s.duration && (
+                                  <span className="text-xs text-gray-400">{s.duration} min</span>
+                                )}
+                              </div>
+                              <svg
+                                className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24"
                               >
-                                {fa}
-                              </span>
-                            ))}
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
+                            {!isExpanded && (s.focusAreas ?? []).length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 mt-2">
+                                {s.focusAreas.slice(0, 3).map((fa) => (
+                                  <span key={fa} className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                                    {fa}
+                                  </span>
+                                ))}
+                                {s.focusAreas.length > 3 && (
+                                  <span className="text-xs text-gray-400">+{s.focusAreas.length - 3} more</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {isExpanded && (
+                          <div className="px-4 pb-4 pt-0 ml-7 border-t" style={{ borderColor: "#e5eaf0" }}>
+                            <div className="pt-3 space-y-3">
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
+                                <div>
+                                  <span className="font-semibold text-gray-500">Status</span>
+                                  <p className="mt-0.5 text-green-600 font-medium">Completed</p>
+                                </div>
+                                {s.duration && (
+                                  <div>
+                                    <span className="font-semibold text-gray-500">Duration</span>
+                                    <p className="mt-0.5 text-gray-700">{s.duration} minutes</p>
+                                  </div>
+                                )}
+                                {s.completedAt && (
+                                  <div>
+                                    <span className="font-semibold text-gray-500">Completed</span>
+                                    <p className="mt-0.5 text-gray-700">{formatDate(s.completedAt)}</p>
+                                  </div>
+                                )}
+                              </div>
+
+                              {(s.focusAreas ?? []).length > 0 && (
+                                <div>
+                                  <span className="text-xs font-semibold text-gray-500">Focus Areas</span>
+                                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                                    {s.focusAreas.map((fa) => (
+                                      <span key={fa} className="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">
+                                        {fa}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {s.notes && (
+                                <div
+                                  className="rounded-lg p-3 border"
+                                  style={{ backgroundColor: "#D4A574" + "08", borderColor: "#D4A574" + "25" }}
+                                >
+                                  <span className="text-xs font-semibold" style={{ color: "#D4A574" }}>Session Notes</span>
+                                  <p className="text-sm text-gray-600 mt-1.5 leading-relaxed whitespace-pre-line">{s.notes}</p>
+                                </div>
+                              )}
+
+                              {(s.actionItems ?? []).length > 0 && (
+                                <div>
+                                  <span className="text-xs font-semibold text-gray-500">Action Items</span>
+                                  <ul className="mt-1.5 space-y-1">
+                                    {s.actionItems.map((item: string, i: number) => (
+                                      <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
+                                        <span className="text-gray-300 mt-0.5">-</span>
+                                        {item}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+
+                              {!s.notes && (
+                                <p className="text-xs text-gray-400 italic">No session notes recorded.</p>
+                              )}
+                            </div>
                           </div>
                         )}
-                        {s.notes && (
-                          <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                            {s.notes}
-                          </p>
-                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

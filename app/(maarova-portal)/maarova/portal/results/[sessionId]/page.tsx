@@ -269,16 +269,73 @@ const DIM_LABELS: Record<string, string> = {
   teamEffectiveness: "Team Effectiveness",
 };
 
+const SCORE_EXPLAINERS: Record<string, string> = {
+  dominance: "Your tendency to take charge, drive results, and assert direction in high-pressure situations.",
+  influence: "Your ability to build consensus, inspire others, and communicate vision persuasively.",
+  steadiness: "Your capacity for patience, consistency, and maintaining stability under pressure.",
+  compliance: "Your attention to standards, quality, and systematic approaches to problem-solving.",
+  theoretical: "Your drive to understand, learn, and apply knowledge systematically.",
+  utilitarian: "Your focus on practical outcomes, efficiency, and return on investment.",
+  aesthetic: "Your appreciation for harmony, balance, and the human experience in leadership.",
+  social: "Your motivation to serve others and contribute to community wellbeing.",
+  individualistic: "Your drive for personal achievement, influence, and recognition.",
+  traditional: "Your commitment to established principles, ethics, and institutional values.",
+  selfAwareness: "Your ability to recognise your own emotions, strengths, and development areas.",
+  selfRegulation: "Your capacity to manage impulses, adapt, and maintain composure under stress.",
+  empathy: "Your ability to understand and share the feelings of patients, staff, and stakeholders.",
+  socialSkills: "Your effectiveness in managing relationships, resolving conflict, and building teams.",
+  motivation: "Your intrinsic drive, resilience, and commitment to achieving meaningful goals.",
+  collaboration: "Your ability to work effectively across teams, departments, and disciplines.",
+  innovation: "Your openness to new ideas, creative problem-solving, and driving positive change.",
+  leadership: "Your capacity to guide, develop, and empower others toward shared objectives.",
+  transparency: "Your commitment to honest, open communication and ethical decision-making.",
+  inclusivity: "Your effectiveness in creating environments where diverse perspectives are valued.",
+};
+
 function ScoreBar({ label, score }: { label: string; score: number }) {
+  const [showTooltip, setShowTooltip] = useState(false);
   // Gold intensity gradient based on score (no red/green)
   const intensity = Math.min(1, Math.max(0.3, score / 100));
   const barColor = `rgba(212, 165, 116, ${0.4 + intensity * 0.6})`;
   const displayLabel = DIM_LABELS[label] ?? label.replace(/([A-Z])/g, " $1").trim();
+  const explainer = SCORE_EXPLAINERS[label];
+
+  const zone = scoreZone(score);
 
   return (
-    <div className="mb-3">
+    <div className="mb-3 group">
       <div className="flex justify-between items-center mb-1">
-        <span className="text-sm text-gray-700">{displayLabel}</span>
+        <div className="relative flex items-center gap-1.5">
+          <span
+            className="text-sm text-gray-700 cursor-help"
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+          >
+            {displayLabel}
+          </span>
+          {explainer && (
+            <span
+              className="text-gray-300 cursor-help text-xs"
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+            >
+              &#9432;
+            </span>
+          )}
+          {showTooltip && explainer && (
+            <div className="absolute left-0 top-full mt-1 z-20 w-64 p-3 rounded-lg shadow-lg border text-xs leading-relaxed" style={{ background: "#0F2744", color: "#fff", borderColor: "#1a3a5c" }}>
+              <p>{explainer}</p>
+              <p className="mt-1.5 font-semibold" style={{ color: "#D4A574" }}>
+                Your score: {Math.round(score)} ({zone.label})
+              </p>
+              {score < 60 && (
+                <p className="mt-1 text-gray-300">
+                  A coaching engagement can help strengthen this dimension through targeted development exercises.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
         <span className="text-sm font-semibold" style={{ color: "#0F2744" }}>
           {Math.round(score)}
         </span>

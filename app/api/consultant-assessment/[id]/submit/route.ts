@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getQuestionBank } from "@/lib/consultantAssessment/questions";
+import { emailAssessmentComplete } from "@/lib/email";
 
 const anthropic = new Anthropic();
 
@@ -233,6 +234,12 @@ export async function POST(
       },
     });
 
+    // Update onboarding status
+    await prisma.consultantOnboarding.updateMany({
+      where: { userId: assessment.userId, status: "ASSESSMENT_PENDING" },
+      data: { status: "ASSESSMENT_COMPLETE", assessmentCompleted: true },
+    });
+
     return Response.json({
       ok: true,
       assessment: {
@@ -256,6 +263,31 @@ export async function POST(
       aiBreakdown: JSON.parse(JSON.stringify(scoringResult.breakdown)),
     },
   });
+
+  // Update onboarding status to ASSESSMENT_COMPLETE
+  await prisma.consultantOnboarding.updateMany({
+    where: { userId: assessment.userId, status: "ASSESSMENT_PENDING" },
+    data: { status: "ASSESSMENT_COMPLETE", assessmentCompleted: true },
+  });
+
+  // Notify admins that assessment is ready for review
+  const admins = await prisma.user.findMany({
+    where: { role: { in: ["PARTNER", "ADMIN"] } },
+    select: { email: true },
+  });
+  const candidateUser = await prisma.user.findUnique({
+    where: { id: assessment.userId },
+    select: { name: true },
+  });
+  for (const admin of admins) {
+    emailAssessmentComplete({
+      adminEmail: admin.email,
+      candidateName: candidateUser?.name ?? "Unknown",
+      specialty: assessment.specialty,
+      contentScore: scoringResult.contentScore,
+      integrityScore: scoringResult.integrityScore,
+    }).catch(() => {});
+  }
 
   return Response.json({
     ok: true,

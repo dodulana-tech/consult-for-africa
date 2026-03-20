@@ -202,6 +202,7 @@ export default function TimesheetManager({
       case "MONTHLY":
         return logMonth > 0 && logYear > 0;
       case "FIXED_PROJECT":
+      case "FIXED_DELIVERABLE":
         return true;
       default:
         return false;
@@ -223,7 +224,7 @@ export default function TimesheetManager({
         body.periodMonth = logMonth;
         body.periodYear = logYear;
       }
-      if (rateType === "FIXED_PROJECT" && logHours) body.hours = parseFloat(logHours);
+      if ((rateType === "FIXED_PROJECT" || rateType === "FIXED_DELIVERABLE") && logHours) body.hours = parseFloat(logHours);
 
       const res = await fetch("/api/time-entries", {
         method: "POST",
@@ -255,6 +256,7 @@ export default function TimesheetManager({
       case "DAILY": return "Daily";
       case "MONTHLY": return "Monthly";
       case "FIXED_PROJECT": return "Fixed Project";
+      case "FIXED_DELIVERABLE": return "Per Deliverable";
       default: return rt;
     }
   }
@@ -511,7 +513,7 @@ export default function TimesheetManager({
                     className="w-full text-sm rounded-lg px-3 py-2.5 focus:outline-none"
                     style={{ border: "1px solid #e5eaf0" }}
                   >
-                    {[2025, 2026, 2027].map((y) => (
+                    {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 1 + i).map((y) => (
                       <option key={y} value={y}>{y}</option>
                     ))}
                   </select>
@@ -519,7 +521,7 @@ export default function TimesheetManager({
               </div>
             )}
 
-            {rateType === "FIXED_PROJECT" && (
+            {(rateType === "FIXED_PROJECT" || rateType === "FIXED_DELIVERABLE") && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1.5">Date</label>

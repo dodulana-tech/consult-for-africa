@@ -36,6 +36,7 @@ export async function GET(
     id: user.id,
     name: user.name,
     email: user.email,
+    role: user.role,
     title: user.title,
     department: user.department,
     clinicalBackground: user.clinicalBackground,
@@ -68,7 +69,7 @@ export async function PUT(
   if (!existing) return new Response("User not found", { status: 404 });
 
   const body = await req.json();
-  const { name, email, title, department, clinicalBackground, yearsInHealthcare } = body;
+  const { name, email, title, department, clinicalBackground, yearsInHealthcare, role, managerId } = body;
 
   const data: Record<string, unknown> = {};
   if (name !== undefined) data.name = name.trim();
@@ -85,6 +86,12 @@ export async function PUT(
   if (clinicalBackground !== undefined) data.clinicalBackground = clinicalBackground.trim() || null;
   if (yearsInHealthcare !== undefined) {
     data.yearsInHealthcare = yearsInHealthcare ? parseInt(String(yearsInHealthcare), 10) : null;
+  }
+  if (role !== undefined && ["USER", "MANAGER", "HR_ADMIN"].includes(role)) {
+    data.role = role;
+  }
+  if (managerId !== undefined) {
+    data.managerId = managerId || null;
   }
 
   if (Object.keys(data).length === 0) {

@@ -58,6 +58,7 @@ export default async function AdminAssessmentsPage() {
       totalPastes,
       hasVideo: !!a.videoUrl,
       adminScore: a.adminScore,
+      adminTier: a.adminTier,
     };
   });
 
@@ -181,16 +182,31 @@ export default async function AdminAssessmentsPage() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <Link
-                      href={`/admin/assessments/${row.id}`}
-                      className="inline-block px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
-                      style={{
-                        background: row.adminScore ? "#f1f5f9" : "#0F2744",
-                        color: row.adminScore ? "#64748B" : "#fff",
-                      }}
-                    >
-                      {row.adminScore ? "Reviewed" : "Review"}
-                    </Link>
+                    {row.adminTier === "REJECT" ? (
+                      <Link
+                        href={`/admin/assessments/${row.id}`}
+                        className="inline-block px-3 py-1.5 rounded-lg text-xs font-semibold"
+                        style={{ background: "#fef2f2", color: "#dc2626" }}
+                      >
+                        Rejected
+                      </Link>
+                    ) : row.adminScore ? (
+                      <Link
+                        href={`/admin/assessments/${row.id}`}
+                        className="inline-block px-3 py-1.5 rounded-lg text-xs font-semibold"
+                        style={{ background: "#f0fdf4", color: "#16a34a" }}
+                      >
+                        Approved ({row.adminTier})
+                      </Link>
+                    ) : (
+                      <Link
+                        href={`/admin/assessments/${row.id}`}
+                        className="inline-block px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
+                        style={{ background: "#0F2744" }}
+                      >
+                        Review
+                      </Link>
+                    )}
                   </td>
                 </tr>
               ))}

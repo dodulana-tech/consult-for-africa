@@ -6,8 +6,6 @@ import Image from "next/image";
 import {
   LayoutDashboard,
   Briefcase,
-  FileCheck,
-  Users,
   Building2,
   Clock,
   Settings,
@@ -18,47 +16,112 @@ import {
   UserPlus,
   Share2,
   BookOpen,
-  Library,
-  GraduationCap,
   Wrench,
-  Radio,
   Brain,
-  ClipboardList,
   FileSearch,
-  ArrowUpRight,
   HeartPulse,
+  Users,
+  TrendingUp,
+  FileCheck,
+  GraduationCap,
+  Radio,
+  ClipboardList,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
+import type { LucideIcon } from "lucide-react";
 
-const NAV_ITEMS = [
-  { label: "Dashboard",      href: "/dashboard",     icon: LayoutDashboard },
-  { label: "Projects",       href: "/projects",      icon: Briefcase },
-  { label: "Deliverables",   href: "/deliverables",  icon: FileCheck },
-  { label: "Proposals",      href: "/proposals",     icon: FileCheck },
-  { label: "Consultants",    href: "/consultants",   icon: Users },
-  { label: "Clients",        href: "/clients",       icon: Building2 },
-  { label: "Time & Payments",href: "/timesheets",    icon: Clock },
-  { label: "Opportunities",  href: "/opportunities", icon: Radio },
-  { label: "Nuru",          href: "/ai",            icon: Sparkles },
-  { label: "Knowledge Base", href: "/knowledge",     icon: BookOpen },
-  { label: "Methodologies",  href: "/methodology",   icon: Library },
-  { label: "Academy",        href: "/academy",       icon: GraduationCap },
-  { label: "Tools",           href: "/tools",         icon: Wrench },
-  { label: "Talent Pipeline",href: "/talent",        icon: UserPlus },
+interface NavItem {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+}
+
+interface NavSection {
+  title: string;
+  items: NavItem[];
+  roles?: string[]; // if set, only these roles see the section
+}
+
+// Role-based nav configuration
+// CONSULTANT sees: Dashboard, Projects, Deliverables, Opportunities, Time, Knowledge, Nuru, Academy, Tools
+// EM sees: Above + Clients, Pipeline, Consultants, Talent
+// DIRECTOR+ sees: Above + Admin section
+
+const NAV_SECTIONS: NavSection[] = [
+  {
+    title: "",
+    items: [
+      { label: "Dashboard",      href: "/dashboard",      icon: LayoutDashboard },
+      { label: "Projects",       href: "/projects",       icon: Briefcase },
+      { label: "Deliverables",   href: "/deliverables",   icon: FileCheck },
+    ],
+  },
+  {
+    title: "Pipeline",
+    items: [
+      { label: "Pipeline",       href: "/pipeline",       icon: TrendingUp },
+      { label: "Clients",        href: "/clients",        icon: Building2 },
+    ],
+    roles: ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"],
+  },
+  {
+    title: "opportunities",
+    items: [
+      { label: "Opportunities",  href: "/opportunities",  icon: Radio },
+    ],
+    roles: ["CONSULTANT"],
+  },
+  {
+    title: "Team",
+    items: [
+      { label: "Consultants",    href: "/consultants",    icon: Users },
+      { label: "Talent",         href: "/talent",         icon: UserPlus },
+    ],
+    roles: ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"],
+  },
+  {
+    title: "Operations",
+    items: [
+      { label: "Time & Payments",href: "/timesheets",     icon: Clock },
+      { label: "Knowledge",      href: "/knowledge",      icon: BookOpen },
+      { label: "Academy",        href: "/academy",        icon: GraduationCap },
+      { label: "Nuru",           href: "/ai",             icon: Sparkles },
+      { label: "Tools",          href: "/tools",          icon: Wrench },
+    ],
+  },
+  {
+    title: "Admin",
+    items: [
+      { label: "Users",          href: "/admin/users",    icon: ShieldCheck },
+      { label: "Onboarding",     href: "/admin/onboarding", icon: ClipboardList },
+      { label: "Assessments",    href: "/admin/assessments", icon: FileSearch },
+      { label: "Maarova",        href: "/admin/maarova",  icon: Brain },
+      { label: "Satisfaction",   href: "/admin/satisfaction", icon: HeartPulse },
+    ],
+    roles: ["PARTNER", "ADMIN"],
+  },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const role = session?.user?.role ?? "";
-  const isAdmin = ["PARTNER", "ADMIN"].includes(role);
-  const isDirectorPlus = ["PARTNER", "ADMIN", "DIRECTOR"].includes(role);
-  const isConsultant = role === "CONSULTANT";
 
-  const visibleNav = NAV_ITEMS.filter(({ href }) => {
-    if (isConsultant && (href === "/consultants" || href === "/clients" || href === "/talent" || href === "/proposals")) return false;
-    return true;
-  });
+  function isActive(href: string) {
+    if (href === "/dashboard") return pathname === href;
+    if (href === "/pipeline") {
+      return pathname.startsWith("/pipeline") ||
+        pathname.startsWith("/discovery-calls") ||
+        pathname.startsWith("/proposals") ||
+        pathname.startsWith("/leads") ||
+        pathname.startsWith("/admin/expansion-requests");
+    }
+    if (href === "/knowledge") {
+      return pathname.startsWith("/knowledge") ||
+        pathname.startsWith("/methodology");
+    }
+    return pathname.startsWith(href);
+  }
 
   return (
     <aside
@@ -78,39 +141,55 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {visibleNav.map(({ label, href, icon: Icon }) => {
-          const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+      <nav className="flex-1 px-3 py-3 overflow-y-auto">
+        {NAV_SECTIONS.map((section) => {
+          // Role check for section visibility
+          if (section.roles && !section.roles.includes(role)) return null;
+
           return (
-            <Link
-              key={href}
-              href={href}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all group"
-              style={{
-                background: active ? "#EFF6FF" : "transparent",
-                color: active ? "#0F2744" : "#64748B",
-              }}
-            >
-              <Icon
-                size={16}
-                className="shrink-0 transition-colors"
-                style={{ color: active ? "#0F2744" : "#94A3B8" }}
-              />
-              <span className="flex-1 font-medium">{label}</span>
-              {active && <ChevronRight size={12} style={{ color: "#0F2744" }} />}
-            </Link>
+            <div key={section.title || "main"} className="mb-1">
+              {section.title && section.title !== "opportunities" && (
+                <p className="px-3 pt-4 pb-1.5 text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#94A3B8" }}>
+                  {section.title}
+                </p>
+              )}
+              <div className="space-y-0.5">
+                {section.items.map(({ label, href, icon: Icon }) => {
+                  const active = isActive(href);
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all group"
+                      style={{
+                        background: active ? "#EFF6FF" : "transparent",
+                        color: active ? "#0F2744" : "#64748B",
+                      }}
+                    >
+                      <Icon
+                        size={16}
+                        className="shrink-0 transition-colors"
+                        style={{ color: active ? "#0F2744" : "#94A3B8" }}
+                      />
+                      <span className="flex-1 font-medium">{label}</span>
+                      {active && <ChevronRight size={12} style={{ color: "#0F2744" }} />}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           );
         })}
       </nav>
 
       {/* Bottom */}
       <div
-        className="px-3 py-4 space-y-0.5"
+        className="px-3 py-3 space-y-0.5"
         style={{ borderTop: "1px solid #E2E8F0" }}
       >
         <Link
           href="/refer"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all"
           style={{
             background: pathname === "/refer" ? "#EFF6FF" : "transparent",
             color: pathname === "/refer" ? "#0F2744" : "#64748B",
@@ -119,94 +198,9 @@ export default function Sidebar() {
           <Share2 size={16} style={{ color: pathname === "/refer" ? "#0F2744" : "#94A3B8" }} />
           Refer & Invite
         </Link>
-        {isAdmin && (
-          <>
-            <Link
-              href="/admin/users"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
-              style={{
-                background: pathname === "/admin/users" ? "#EFF6FF" : "transparent",
-                color: pathname === "/admin/users" ? "#0F2744" : "#64748B",
-              }}
-            >
-              <ShieldCheck size={16} style={{ color: pathname === "/admin/users" ? "#0F2744" : "#94A3B8" }} />
-              User Management
-            </Link>
-            <Link
-              href="/admin/referrals"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
-              style={{
-                background: pathname === "/admin/referrals" ? "#EFF6FF" : "transparent",
-                color: pathname === "/admin/referrals" ? "#0F2744" : "#64748B",
-              }}
-            >
-              <Share2 size={16} style={{ color: pathname === "/admin/referrals" ? "#0F2744" : "#94A3B8" }} />
-              Referrals
-            </Link>
-            <Link
-              href="/admin/onboarding"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
-              style={{
-                background: pathname.startsWith("/admin/onboarding") ? "#EFF6FF" : "transparent",
-                color: pathname.startsWith("/admin/onboarding") ? "#0F2744" : "#64748B",
-              }}
-            >
-              <ClipboardList size={16} style={{ color: pathname.startsWith("/admin/onboarding") ? "#0F2744" : "#94A3B8" }} />
-              Onboarding
-            </Link>
-            <Link
-              href="/admin/assessments"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
-              style={{
-                background: pathname.startsWith("/admin/assessments") ? "#EFF6FF" : "transparent",
-                color: pathname.startsWith("/admin/assessments") ? "#0F2744" : "#64748B",
-              }}
-            >
-              <FileSearch size={16} style={{ color: pathname.startsWith("/admin/assessments") ? "#0F2744" : "#94A3B8" }} />
-              Assessments
-            </Link>
-            <Link
-              href="/admin/maarova"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
-              style={{
-                background: pathname.startsWith("/admin/maarova") ? "#EFF6FF" : "transparent",
-                color: pathname.startsWith("/admin/maarova") ? "#0F2744" : "#64748B",
-              }}
-            >
-              <Brain size={16} style={{ color: pathname.startsWith("/admin/maarova") ? "#0F2744" : "#94A3B8" }} />
-              Maarova Admin
-            </Link>
-          </>
-        )}
-        {isDirectorPlus && (
-          <>
-            <Link
-              href="/admin/expansion-requests"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
-              style={{
-                background: pathname.startsWith("/admin/expansion-requests") ? "#EFF6FF" : "transparent",
-                color: pathname.startsWith("/admin/expansion-requests") ? "#0F2744" : "#64748B",
-              }}
-            >
-              <ArrowUpRight size={16} style={{ color: pathname.startsWith("/admin/expansion-requests") ? "#0F2744" : "#94A3B8" }} />
-              Expansion Requests
-            </Link>
-            <Link
-              href="/admin/satisfaction"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
-              style={{
-                background: pathname.startsWith("/admin/satisfaction") ? "#EFF6FF" : "transparent",
-                color: pathname.startsWith("/admin/satisfaction") ? "#0F2744" : "#64748B",
-              }}
-            >
-              <HeartPulse size={16} style={{ color: pathname.startsWith("/admin/satisfaction") ? "#0F2744" : "#94A3B8" }} />
-              Client Satisfaction
-            </Link>
-          </>
-        )}
         <Link
           href="/settings"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all"
           style={{ color: "#64748B" }}
         >
           <Settings size={16} style={{ color: "#94A3B8" }} />
@@ -214,7 +208,7 @@ export default function Sidebar() {
         </Link>
         <button
           onClick={() => { sessionStorage.clear(); signOut({ callbackUrl: "/login" }); }}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all"
           style={{ color: "#64748B" }}
         >
           <LogOut size={16} style={{ color: "#94A3B8" }} />

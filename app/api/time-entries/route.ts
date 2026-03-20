@@ -97,14 +97,15 @@ export async function POST(req: NextRequest) {
       billableAmount = Number(assignment.rateAmount);
       break;
     }
-    case "FIXED_PROJECT": {
+    case "FIXED_PROJECT":
+    case "FIXED_DELIVERABLE": {
       hours = inputHours ? Number(inputHours) : 0;
       billableAmount = null;
       break;
     }
     default: {
       hours = assignment.estimatedHours ?? 0;
-      billableAmount = assignment.rateType === "HOURLY" ? Number(assignment.rateAmount) * hours : null;
+      billableAmount = null;
     }
   }
 

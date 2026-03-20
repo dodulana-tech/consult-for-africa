@@ -45,6 +45,7 @@ export default function ApplicationForm() {
   const [result, setResult] = useState<{ aiScore: number | null; message: string } | null>(null);
 
   const [form, setForm] = useState({
+    track: "CONSULTANT",
     firstName: "",
     lastName: "",
     email: "",
@@ -61,6 +62,11 @@ export default function ApplicationForm() {
     cvText: "",
     cvFileUrl: "",
     coverLetter: "",
+    // Intern-specific
+    university: "",
+    programme: "",
+    yearOfStudy: "",
+    siwesEligible: false,
   });
 
   function set(key: string, value: string) {
@@ -200,6 +206,26 @@ export default function ApplicationForm() {
         {/* Step 1: Personal */}
         {step === 1 && (
           <div className="space-y-4">
+            {/* Track selection */}
+            <div>
+              <label className={labelClass}>I am applying as</label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-1">
+                {[
+                  { value: "CONSULTANT", label: "Consultant", desc: "Experienced professional" },
+                  { value: "INTERN", label: "Intern", desc: "Student placement" },
+                  { value: "SIWES", label: "SIWES Student", desc: "IT/SIWES placement" },
+                  { value: "FELLOWSHIP", label: "Fellow", desc: "Graduate programme" },
+                ].map((t) => (
+                  <button key={t.value} type="button" onClick={() => setForm((f) => ({ ...f, track: t.value }))}
+                    className="text-left rounded-lg border p-3 transition-all text-xs"
+                    style={{ borderColor: form.track === t.value ? "#0F2744" : "#E5E7EB", background: form.track === t.value ? "#EFF6FF" : "white" }}>
+                    <p className="font-semibold" style={{ color: form.track === t.value ? "#0F2744" : "#374151" }}>{t.label}</p>
+                    <p className="text-gray-400 mt-0.5">{t.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>First Name <span className="text-red-400">*</span></label>
@@ -240,16 +266,69 @@ export default function ApplicationForm() {
         {/* Step 2: Professional */}
         {step === 2 && (
           <div className="space-y-4">
+            {/* Intern-specific fields */}
+            {(form.track === "INTERN" || form.track === "SIWES") && (
+              <div className="rounded-lg border p-4 space-y-3" style={{ borderColor: "#D4AF37" + "40", background: "#D4AF37" + "08" }}>
+                <p className="text-xs font-semibold" style={{ color: "#0F2744" }}>
+                  {form.track === "SIWES" ? "SIWES Placement Details" : "Internship Details"}
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={labelClass}>University / Institution <span className="text-red-400">*</span></label>
+                    <input value={form.university} onChange={(e) => set("university", e.target.value)}
+                      className={inputClass} style={inputStyle} placeholder="e.g. University of Lagos" />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Programme <span className="text-red-400">*</span></label>
+                    <select value={form.programme} onChange={(e) => set("programme", e.target.value)}
+                      className={inputClass} style={inputStyle}>
+                      <option value="">Select programme...</option>
+                      <option value="Health Administration">Health Administration</option>
+                      <option value="Public Health">Public Health</option>
+                      <option value="Hospital Management">Hospital Management</option>
+                      <option value="Health Information Management">Health Information Management</option>
+                      <option value="Nursing Administration">Nursing Administration</option>
+                      <option value="Health Economics">Health Economics</option>
+                      <option value="Business Administration (Healthcare)">Business Administration (Healthcare)</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={labelClass}>Year of Study</label>
+                    <select value={form.yearOfStudy} onChange={(e) => set("yearOfStudy", e.target.value)}
+                      className={inputClass} style={inputStyle}>
+                      <option value="">Select...</option>
+                      <option value="200-level">200 Level</option>
+                      <option value="300-level">300 Level</option>
+                      <option value="400-level">400 Level</option>
+                      <option value="500-level">500 Level</option>
+                      <option value="Postgraduate">Postgraduate</option>
+                      <option value="Recent Graduate">Recent Graduate</option>
+                    </select>
+                  </div>
+                  {form.track === "SIWES" && (
+                    <div className="flex items-center gap-2 pt-5">
+                      <input type="checkbox" checked={form.siwesEligible} onChange={(e) => setForm((f) => ({ ...f, siwesEligible: e.target.checked }))}
+                        className="rounded border-gray-300" />
+                      <label className="text-xs text-gray-600">I confirm I am eligible for SIWES through my institution</label>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>Current Role / Title</label>
+                <label className={labelClass}>{form.track === "INTERN" || form.track === "SIWES" ? "Current Role (if any)" : "Current Role / Title"}</label>
                 <input type="text" value={form.currentRole} onChange={(e) => set("currentRole", e.target.value)}
-                  className={inputClass} style={inputStyle} placeholder="Chief Medical Director" />
+                  className={inputClass} style={inputStyle} placeholder={form.track === "INTERN" || form.track === "SIWES" ? "e.g. Student, Class Representative" : "Chief Medical Director"} />
               </div>
               <div>
-                <label className={labelClass}>Current Organisation</label>
+                <label className={labelClass}>{form.track === "INTERN" || form.track === "SIWES" ? "University" : "Current Organisation"}</label>
                 <input type="text" value={form.currentOrg} onChange={(e) => set("currentOrg", e.target.value)}
-                  className={inputClass} style={inputStyle} placeholder="Lagos University Teaching Hospital" />
+                  className={inputClass} style={inputStyle} placeholder={form.track === "INTERN" || form.track === "SIWES" ? "Same as above or different" : "Lagos University Teaching Hospital"} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -355,16 +434,31 @@ export default function ApplicationForm() {
               />
             </div>
             <div>
-              <label className={labelClass}>Cover Letter / Statement of Interest</label>
-              <p className="text-xs text-gray-400 mb-2">Tell us why you want to join the CFA network and what you bring to the table.</p>
+              <label className={labelClass}>Cover Letter / Statement of Interest <span className="text-red-400">*</span></label>
+              <p className="text-xs text-gray-500 mb-1">
+                Written communication is a core consulting competency. This letter is evaluated as a writing sample.
+              </p>
+              <p className="text-xs text-gray-400 mb-3">
+                In 400-800 words, articulate: (1) your specific expertise and how it maps to healthcare challenges in Africa,
+                (2) a concrete example of institutional impact you have driven, and (3) why CFA specifically.
+                Avoid generic statements. Write as you would for a hospital CEO or board audience.
+              </p>
               <textarea
                 value={form.coverLetter}
                 onChange={(e) => set("coverLetter", e.target.value)}
-                rows={6}
-                placeholder="What draws you to healthcare management consulting in Africa? What impact do you want to make?"
+                rows={12}
+                placeholder={"Dear CFA Selection Committee,\n\nI am writing to express my interest in joining the Consult For Africa network as a...\n\nIn my current role as..., I led...\n\nThe specific value I would bring to CFA engagements is..."}
                 className={`${inputClass} resize-none`}
                 style={inputStyle}
               />
+              <div className="flex items-center justify-between mt-1.5">
+                <p className="text-[10px] text-gray-300">
+                  {form.coverLetter ? `${form.coverLetter.split(/\s+/).filter(Boolean).length} words` : "0 words"}
+                </p>
+                {form.coverLetter && form.coverLetter.split(/\s+/).filter(Boolean).length < 200 && (
+                  <p className="text-[10px] text-amber-500">We recommend at least 400 words for a strong submission</p>
+                )}
+              </div>
             </div>
           </div>
         )}

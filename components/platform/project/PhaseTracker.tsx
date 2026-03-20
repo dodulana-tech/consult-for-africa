@@ -365,22 +365,59 @@ export default function PhaseTracker({
                       )}
 
                       {/* Gates */}
-                      {phase.gates.length > 0 && (
-                        <div className="mt-2 flex gap-2 flex-wrap">
-                          {phase.gates.map((gate) => (
-                            <span
-                              key={gate.id}
-                              className="text-[10px] px-2 py-0.5 rounded-full font-medium"
-                              style={{
-                                background: gate.passed ? "#ECFDF5" : "#FFF7ED",
-                                color: gate.passed ? "#059669" : "#EA580C",
-                              }}
-                            >
-                              {gate.name} {gate.passed ? "✓" : "pending"}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                      <div className="mt-2 flex gap-2 flex-wrap items-center">
+                        {phase.gates.map((gate) => (
+                          <button
+                            key={gate.id}
+                            onClick={async () => {
+                              try {
+                                const res = await fetch(`/api/projects/${projectId}/phases/${phase.id}/gates/${gate.id}`, {
+                                  method: "PATCH",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ passed: !gate.passed }),
+                                });
+                                if (res.ok) {
+                                  setPhases((prev) => prev.map((p) => p.id === phase.id
+                                    ? { ...p, gates: p.gates.map((g) => g.id === gate.id ? { ...g, passed: !gate.passed, passedAt: !gate.passed ? new Date().toISOString() : null } : g) }
+                                    : p
+                                  ));
+                                }
+                              } catch {}
+                            }}
+                            className="text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors cursor-pointer hover:opacity-80"
+                            style={{
+                              background: gate.passed ? "#ECFDF5" : "#FFF7ED",
+                              color: gate.passed ? "#059669" : "#EA580C",
+                            }}
+                            title={gate.passed ? "Click to unmark" : "Click to mark as passed"}
+                          >
+                            {gate.name} {gate.passed ? "✓" : "pending"}
+                          </button>
+                        ))}
+                        <button
+                          onClick={async () => {
+                            const name = prompt("Gate name (e.g. Client sign-off, QA review):");
+                            if (!name?.trim()) return;
+                            try {
+                              const res = await fetch(`/api/projects/${projectId}/phases/${phase.id}/gates`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ name: name.trim() }),
+                              });
+                              if (res.ok) {
+                                const { gate } = await res.json();
+                                setPhases((prev) => prev.map((p) => p.id === phase.id
+                                  ? { ...p, gates: [...p.gates, gate] }
+                                  : p
+                                ));
+                              }
+                            } catch {}
+                          }}
+                          className="text-[10px] px-2 py-0.5 rounded-full border border-dashed border-gray-300 text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-colors"
+                        >
+                          + gate
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

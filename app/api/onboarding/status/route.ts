@@ -12,6 +12,13 @@ export async function GET() {
       assessmentLevel: true,
       profileCompleted: true,
       assessmentCompleted: true,
+      user: {
+        select: {
+          consultantProfile: {
+            select: { bankName: true },
+          },
+        },
+      },
     },
   });
 
@@ -19,5 +26,9 @@ export async function GET() {
     return new Response("No onboarding record", { status: 404 });
   }
 
-  return Response.json(onboarding);
+  return Response.json({
+    ...onboarding,
+    bankingCompleted: !!onboarding.user?.consultantProfile?.bankName,
+    user: undefined,
+  });
 }

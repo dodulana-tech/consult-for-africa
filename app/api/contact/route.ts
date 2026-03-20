@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { prisma } from "@/lib/prisma";
 
 const resend = new Resend(process.env.RESEND_API_KEY ?? "noop");
 
@@ -27,6 +28,26 @@ export async function POST(req: Request) {
 
   // Truncate message to prevent abuse
   const safeMessage = String(message).substring(0, 2000);
+
+  // Save to Lead table
+  try {
+    await prisma.lead.create({
+      data: {
+        source: "WEBSITE_CONTACT",
+        status: "NEW",
+        organizationName: String(organization).trim(),
+        contactName: String(role ?? "Unknown").trim(),
+        contactEmail: String(email).trim().toLowerCase(),
+        contactRole: role ? String(role).trim() : null,
+        country: country ? String(country).trim() : null,
+        inboundMessage: safeMessage,
+        inboundProjectType: projectType ? String(projectType).trim() : null,
+      },
+    });
+  } catch (err) {
+    console.error("[contact] lead creation failed", err);
+    // Don't block form submission if lead creation fails
+  }
 
   const html = `
     <div style="font-family:sans-serif;max-width:600px;margin:0 auto">

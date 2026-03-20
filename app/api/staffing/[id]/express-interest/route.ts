@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
+import { emailStaffingInterest } from "@/lib/email";
 import { NextRequest } from "next/server";
 
 // POST: Consultant expresses interest in a staffing request
@@ -51,6 +52,24 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     entityName: `Interest in ${request.role}`,
     projectId: request.projectId,
   });
+
+  // Notify the EM who created the staffing request
+  const staffingReq = await prisma.staffingRequest.findUnique({
+    where: { id: staffingRequestId },
+    select: { createdById: true, role: true, project: { select: { name: true } } },
+  });
+  if (staffingReq) {
+    const em = await prisma.user.findUnique({ where: { id: staffingReq.createdById }, select: { email: true } });
+    if (em) {
+      emailStaffingInterest({
+        emEmail: em.email,
+        consultantName: session.user.name ?? "Consultant",
+        role: staffingReq.role,
+        projectName: staffingReq.project.name,
+        note: note?.trim() || undefined,
+      }).catch(() => {});
+    }
+  }
 
   return Response.json({ ok: true, expression }, { status: 201 });
 }

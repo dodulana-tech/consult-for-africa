@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
     department,
     clinicalBackground,
     yearsInHealthcare,
+    role,
   } = body;
 
   if (!organisationId?.trim() || !name?.trim() || !email?.trim()) {
@@ -56,6 +57,7 @@ export async function POST(req: NextRequest) {
       department: department?.trim() || null,
       clinicalBackground: clinicalBackground?.trim() || null,
       yearsInHealthcare: yearsInHealthcare ? parseInt(String(yearsInHealthcare), 10) : null,
+      role: role && ["USER", "MANAGER", "HR_ADMIN"].includes(role) ? role : "USER",
       isPortalEnabled: true,
       invitedAt: new Date(),
     },

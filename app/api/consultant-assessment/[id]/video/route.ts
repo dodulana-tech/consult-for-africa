@@ -25,11 +25,8 @@ export async function POST(
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  if (assessment.status === "COMPLETED") {
-    return Response.json({ error: "Assessment already completed" }, { status: 400 });
-  }
-
-  if (assessment.status === "EXPIRED" || assessment.expiresAt <= new Date()) {
+  // Allow video save even after completion (handles race condition where upload finishes after submit)
+  if (assessment.status === "EXPIRED" || (assessment.status !== "COMPLETED" && assessment.expiresAt <= new Date())) {
     if (assessment.status !== "EXPIRED") {
       await prisma.consultantAssessment.update({
         where: { id },

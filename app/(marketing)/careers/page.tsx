@@ -112,6 +112,57 @@ export default function TalentPage() {
         </div>
       </section>
 
+      {/* Intern & Fellowship Tracks */}
+      <section className="py-16 px-6" style={{ background: "#FFFBEB" }}>
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold text-center mb-3" style={{ color: "#0F2744" }}>
+            Early Career Programmes
+          </h2>
+          <p className="text-center text-gray-500 text-sm mb-10 max-w-xl mx-auto">
+            Building the next generation of African healthcare leaders. Our structured programmes offer hands-on experience inside real hospital engagements.
+          </p>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                title: "SIWES Placement",
+                duration: "6 months",
+                who: "Health Admin, Public Health, Hospital Management students (300-500 level)",
+                what: "Data collection, process mapping, gap analysis, research support on active CFA engagements",
+              },
+              {
+                title: "Summer Internship",
+                duration: "8-12 weeks",
+                who: "Medical students, MPH students, health admin students seeking practical exposure",
+                what: "Embedded in hospital operations projects, producing a mini consulting report on a real problem",
+              },
+              {
+                title: "Graduate Fellowship",
+                duration: "12 months",
+                who: "Fresh MPH, MBA, MHA graduates ready for a structured entry into healthcare consulting",
+                what: "3 rotations across CFA service lines, capstone insight publication, guaranteed interview for Associate Consultant",
+              },
+            ].map((prog) => (
+              <div key={prog.title} className="bg-white rounded-xl p-6" style={{ border: "1px solid #e5eaf0" }}>
+                <h3 className="font-semibold text-gray-900 mb-1">{prog.title}</h3>
+                <p className="text-xs font-medium mb-3" style={{ color: "#D4AF37" }}>{prog.duration}</p>
+                <p className="text-xs text-gray-500 mb-2"><span className="font-medium text-gray-700">Who:</span> {prog.who}</p>
+                <p className="text-xs text-gray-500"><span className="font-medium text-gray-700">What:</span> {prog.what}</p>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link
+              href="/careers/apply"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm"
+              style={{ background: "#0F2744", color: "#fff" }}
+            >
+              Apply for a Programme
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Why CFA */}
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">

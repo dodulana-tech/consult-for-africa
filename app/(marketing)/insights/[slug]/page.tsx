@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { getBlogPostBySlug } from "@/sanity/lib/getBlogPosts";
 import CopyUrlButton from "./CopyUrlButton";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 interface Props {

@@ -15,6 +15,30 @@ const VALID_SERVICE_TYPES = [
 
 const VALID_URGENCY = ["normal", "urgent"] as const;
 
+export async function GET() {
+  const session = await getClientPortalSession();
+  if (!session) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const requests = await prisma.clientExpansionRequest.findMany({
+    where: { clientId: session.clientId },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return Response.json({
+    requests: requests.map((r) => ({
+      id: r.id,
+      serviceType: r.serviceType,
+      description: r.description,
+      urgency: r.urgency,
+      status: r.status,
+      projectId: r.projectId,
+      createdAt: r.createdAt.toISOString(),
+    })),
+  });
+}
+
 export async function POST(req: NextRequest) {
   const session = await getClientPortalSession();
   if (!session) {

@@ -4,13 +4,23 @@ import Link from "next/link";
 import Image from "next/image";
 import MaarovaLogoutButton from "./MaarovaLogoutButton";
 
-const navItems = [
+const baseNavItems = [
   { label: "Dashboard", href: "/maarova/portal/dashboard", icon: "grid" },
   { label: "Assessment", href: "/maarova/portal/assessment", icon: "clipboard" },
   { label: "Results", href: "/maarova/portal/results", icon: "bar-chart" },
   { label: "Development", href: "/maarova/portal/development", icon: "target" },
   { label: "360 Feedback", href: "/maarova/portal/three-sixty", icon: "users" },
   { label: "Profile", href: "/maarova/portal/profile", icon: "user" },
+];
+
+const managerNavItems = [
+  { label: "Team", href: "/maarova/portal/team", icon: "people" },
+];
+
+const hrNavItems = [
+  { label: "Org Dashboard", href: "/maarova/portal/org", icon: "building" },
+  { label: "People", href: "/maarova/portal/org/users", icon: "people" },
+  { label: "Org Goals", href: "/maarova/portal/org/goals", icon: "flag" },
 ];
 
 function NavIcon({ icon }: { icon: string }) {
@@ -45,6 +55,21 @@ function NavIcon({ icon }: { icon: string }) {
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
       </svg>
     ),
+    people: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+      </svg>
+    ),
+    building: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+    ),
+    flag: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+      </svg>
+    ),
   };
   return <>{icons[icon] ?? null}</>;
 }
@@ -59,6 +84,10 @@ export default async function MaarovaPortalLayout({
   if (!session) {
     redirect("/maarova/portal/login");
   }
+
+  const role = session.role ?? "USER";
+  const isManager = role === "MANAGER" || role === "HR_ADMIN";
+  const isHR = role === "HR_ADMIN";
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -85,7 +114,7 @@ export default async function MaarovaPortalLayout({
 
         {/* Navigation */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {navItems.map((item) => (
+          {baseNavItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -95,6 +124,48 @@ export default async function MaarovaPortalLayout({
               {item.label}
             </Link>
           ))}
+
+          {/* Manager section */}
+          {isManager && (
+            <>
+              <div className="pt-4 pb-2 px-3">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">
+                  Management
+                </p>
+              </div>
+              {managerNavItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors text-sm font-medium"
+                >
+                  <NavIcon icon={item.icon} />
+                  {item.label}
+                </Link>
+              ))}
+            </>
+          )}
+
+          {/* HR Admin section */}
+          {isHR && (
+            <>
+              <div className="pt-4 pb-2 px-3">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">
+                  Organisation
+                </p>
+              </div>
+              {hrNavItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors text-sm font-medium"
+                >
+                  <NavIcon icon={item.icon} />
+                  {item.label}
+                </Link>
+              ))}
+            </>
+          )}
         </nav>
 
         {/* User section */}

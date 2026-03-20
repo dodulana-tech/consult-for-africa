@@ -15,8 +15,14 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     include: {
       client: true,
       engagementManager: { select: { id: true, name: true, email: true } },
+      staffingRequests: {
+        orderBy: { createdAt: "desc" },
+        include: {
+          _count: { select: { expressions: true } },
+        },
+      },
       assignments: {
-        where: { status: { in: ["ACTIVE", "PENDING"] } },
+        where: { status: { in: ["ACTIVE", "PENDING", "PENDING_ACCEPTANCE"] } },
         include: {
           consultant: { include: { consultantProfile: true } },
           deliverables: { select: { status: true } },
@@ -46,6 +52,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       },
       risks: {
         orderBy: [{ severity: "desc" }, { createdAt: "desc" }],
+      },
+      interactions: {
+        orderBy: { conductedAt: "desc" },
       },
     },
   });
@@ -163,6 +172,32 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         passedAt: g.passedAt?.toISOString() ?? null,
         notes: g.notes,
       })),
+    })),
+    interactions: project.interactions.map((i) => ({
+      id: i.id,
+      type: i.type,
+      summary: i.summary,
+      sentiment: i.sentiment,
+      conductedById: i.conductedById,
+      conductedAt: i.conductedAt.toISOString(),
+      nextActionDate: i.nextActionDate?.toISOString() ?? null,
+      nextActionNote: i.nextActionNote,
+      createdAt: i.createdAt.toISOString(),
+    })),
+    staffingRequests: project.staffingRequests.map((sr) => ({
+      id: sr.id,
+      role: sr.role,
+      description: sr.description,
+      skillsRequired: sr.skillsRequired,
+      hoursPerWeek: sr.hoursPerWeek,
+      duration: sr.duration,
+      rateType: sr.rateType,
+      rateBudget: sr.rateBudget ? Number(sr.rateBudget) : null,
+      rateCurrency: sr.rateCurrency,
+      urgency: sr.urgency,
+      status: sr.status,
+      expressionCount: sr._count.expressions,
+      createdAt: sr.createdAt.toISOString(),
     })),
     risks: project.risks.map((r) => ({
       id: r.id,

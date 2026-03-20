@@ -54,13 +54,15 @@ export async function POST(req: NextRequest, { params }: Props) {
   });
 
   // Update onboarding status
+  // On approve: move to ACTIVE (assessment review IS the final gate)
+  // On reject: move to REJECTED
   const newOnboardingStatus =
-    action === "approve" ? "ASSESSMENT_COMPLETE" : "REJECTED";
+    action === "approve" ? "ACTIVE" : "REJECTED";
 
   await prisma.consultantOnboarding.updateMany({
     where: { userId: assessment.userId },
     data: {
-      status: newOnboardingStatus as "ASSESSMENT_COMPLETE" | "REJECTED",
+      status: newOnboardingStatus as "ACTIVE" | "REJECTED",
       reviewedById: session.user.id,
       reviewNotes: adminNotes ?? null,
       ...(action === "approve" ? { approvedAt: new Date(), assessmentCompleted: true } : {}),

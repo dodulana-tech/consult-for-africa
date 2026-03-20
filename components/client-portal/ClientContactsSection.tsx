@@ -352,14 +352,29 @@ export default function ClientContactsSection({
 
                   {/* Edit button */}
                   {canAdd && (
-                    <button
-                      onClick={() => startEdit(contact)}
-                      className="shrink-0 text-xs font-medium px-2 py-1.5 rounded-lg transition-colors flex items-center gap-1"
-                      style={{ border: "1px solid #e5eaf0", color: "#6B7280", background: "#fff" }}
-                      title="Edit contact"
-                    >
-                      <Pencil size={11} />
-                    </button>
+                    <>
+                      <button
+                        onClick={() => startEdit(contact)}
+                        className="shrink-0 text-xs font-medium px-2 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                        style={{ border: "1px solid #e5eaf0", color: "#6B7280", background: "#fff" }}
+                        title="Edit contact"
+                      >
+                        <Pencil size={11} />
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (!confirm(`Remove ${contact.name}?`)) return;
+                          try {
+                            await fetch(`/api/clients/${clientId}/contacts/${contact.id}`, { method: "DELETE" });
+                            setContacts((prev) => prev.filter((c) => c.id !== contact.id));
+                          } catch {}
+                        }}
+                        className="shrink-0 text-xs px-2 py-1.5 rounded-lg transition-colors text-gray-300 hover:text-red-500"
+                        title="Remove contact"
+                      >
+                        <X size={11} />
+                      </button>
+                    </>
                   )}
 
                   {/* Portal action */}

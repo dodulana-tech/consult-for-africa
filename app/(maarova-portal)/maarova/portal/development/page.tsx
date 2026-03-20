@@ -37,6 +37,8 @@ export default async function DevelopmentPage() {
             duration: true,
             notes: true,
             focusAreas: true,
+            meetingLink: true,
+            actionItems: true,
             status: true,
           },
         },

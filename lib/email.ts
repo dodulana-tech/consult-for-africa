@@ -730,3 +730,89 @@ export async function emailMaarovaInvite({
     `)
   );
 }
+
+// ─── Project & Team Notifications ─────────────────────────────────────────────
+
+export async function emailEMChanged({
+  oldEMEmail, oldEMName, newEMEmail, newEMName, projectName, changedByName,
+}: {
+  oldEMEmail: string; oldEMName: string; newEMEmail: string; newEMName: string; projectName: string; changedByName: string;
+}) {
+  await send(oldEMEmail, `Project reassigned: ${projectName}`,
+    layout(`${h1("Project Reassigned")}${p(`You have been removed as Engagement Manager for ${projectName}.`)}${infoTable([["Project", projectName], ["New EM", newEMName], ["Changed by", changedByName]])}${p("If you believe this is an error, please contact the project director.")}`)
+  );
+  await send(newEMEmail, `New project assignment: ${projectName}`,
+    layout(`${h1("You've Been Assigned as EM")}${p(`You have been assigned as the Engagement Manager for ${projectName}.`)}${infoTable([["Project", projectName], ["Previous EM", oldEMName], ["Assigned by", changedByName]])}${btn("View Project", `${BASE_URL}/projects`)}`)
+  );
+}
+
+export async function emailAssignmentCreated({
+  consultantEmail, consultantName, projectName, role, rateType, rateAmount, currency,
+}: {
+  consultantEmail: string; consultantName: string; projectName: string; role: string; rateType: string; rateAmount: string; currency: string;
+}) {
+  await send(consultantEmail, `Assignment request: ${role} on ${projectName}`,
+    layout(`${h1("New Assignment Request")}${p(`You have been requested for a role on a CFA engagement. Please review and respond.`)}${infoTable([["Project", projectName], ["Role", role], ["Rate", `${currency} ${rateAmount} (${rateType})`]])}${p("You will need to accept this assignment before it becomes active.")}${btn("Review Assignment", `${BASE_URL}/opportunities`)}`)
+  );
+}
+
+export async function emailAssignmentResponse({
+  emEmail, consultantName, projectName, role, accepted, reason,
+}: {
+  emEmail: string; consultantName: string; projectName: string; role: string; accepted: boolean; reason?: string;
+}) {
+  await send(emEmail, `${consultantName} ${accepted ? "accepted" : "declined"}: ${role}`,
+    layout(`${h1(`Assignment ${accepted ? "Accepted" : "Declined"}`)}${p(`${consultantName} has ${accepted ? "accepted" : "declined"} the ${role} role on ${projectName}.`)}${!accepted && reason ? p(`Reason: ${reason}`) : ""}${btn("View Project", `${BASE_URL}/projects`)}`)
+  );
+}
+
+export async function emailStaffingInterest({
+  emEmail, consultantName, role, projectName, note,
+}: {
+  emEmail: string; consultantName: string; role: string; projectName: string; note?: string;
+}) {
+  await send(emEmail, `${consultantName} interested in: ${role}`,
+    layout(`${h1("Staffing Interest Received")}${p(`${consultantName} has expressed interest in the ${role} role on ${projectName}.`)}${note ? p(`Note: "${note}"`) : ""}${btn("Review in Pipeline", `${BASE_URL}/pipeline`)}`)
+  );
+}
+
+export async function emailAssessmentComplete({
+  adminEmail, candidateName, specialty, contentScore, integrityScore,
+}: {
+  adminEmail: string; candidateName: string; specialty: string; contentScore: number | null; integrityScore: number | null;
+}) {
+  await send(adminEmail, `Assessment complete: ${candidateName}`,
+    layout(`${h1("Assessment Ready for Review")}${p(`${candidateName} has completed their consultant assessment.`)}${infoTable([["Candidate", candidateName], ["Specialty", specialty], ["Content Score", contentScore !== null ? `${contentScore}/100` : "Pending"], ["Integrity Score", integrityScore !== null ? `${integrityScore}/100` : "Pending"]])}${btn("Review Assessment", `${BASE_URL}/admin/assessments`)}`)
+  );
+}
+
+export async function emailLeadConverted({
+  emEmail, organizationName, projectName, convertedBy,
+}: {
+  emEmail: string; organizationName: string; projectName: string; convertedBy: string;
+}) {
+  await send(emEmail, `New client: ${organizationName}`,
+    layout(`${h1("Lead Converted to Client")}${p(`${organizationName} has been converted from a lead to an active client.`)}${infoTable([["Client", organizationName], ["Project", projectName], ["Converted by", convertedBy]])}${btn("View Client", `${BASE_URL}/clients`)}`)
+  );
+}
+
+export async function emailCoachingSessionScheduled({
+  coacheeEmail, coacheeName, coachName, scheduledAt, meetingLink,
+}: {
+  coacheeEmail: string; coacheeName: string; coachName: string; scheduledAt: string; meetingLink?: string;
+}) {
+  const dateStr = new Date(scheduledAt).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  await send(coacheeEmail, `Coaching session: ${dateStr}`,
+    layout(`${h1("Session Scheduled")}${p(`Your coaching session with ${coachName} has been scheduled.`)}${infoTable([["Date", dateStr], ["Coach", coachName]])}${meetingLink ? btn("Join Google Meet", meetingLink) : ""}`)
+  );
+}
+
+export async function emailGoalAssigned({
+  userEmail, userName, goalTitle, assignedBy, source,
+}: {
+  userEmail: string; userName: string; goalTitle: string; assignedBy: string; source: string;
+}) {
+  await send(userEmail, `New goal: ${goalTitle}`,
+    layout(`${h1("Development Goal Assigned")}${p(`A new development goal has been assigned to you by ${assignedBy}.`)}${infoTable([["Goal", goalTitle], ["Source", source]])}${btn("View Goals", `${BASE_URL}/maarova/portal/development`)}`)
+  );
+}

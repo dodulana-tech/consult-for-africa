@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
       organisationId: true,
       name: true,
       email: true,
+      role: true,
       passwordHash: true,
       isPortalEnabled: true,
     },
@@ -35,6 +36,7 @@ export async function POST(req: NextRequest) {
     organisationId: user.organisationId,
     name: user.name,
     email: user.email,
+    role: user.role,
   });
 
   const cookieStore = await cookies();

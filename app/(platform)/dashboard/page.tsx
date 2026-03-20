@@ -29,7 +29,7 @@ export default async function DashboardPage() {
       where: { userId },
       select: { status: true },
     });
-    if (onboarding && onboarding.status !== "ACTIVE") {
+    if (onboarding && !["ACTIVE", "ASSESSMENT_COMPLETE"].includes(onboarding.status)) {
       redirect("/onboarding");
     }
   }

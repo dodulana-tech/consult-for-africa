@@ -113,6 +113,8 @@ export default function AssessmentReviewClient({
   const experienceResponses = assessment.responses.filter((r) => r.part === "experience");
   const quickfireResponses = assessment.responses.filter((r) => r.part === "quickfire");
 
+  const [reviewAction, setReviewAction] = useState<string | null>(assessment.adminTier === "REJECT" ? "reject" : assessment.adminScore ? "approve" : null);
+
   async function handleSubmit(action: "approve" | "reject") {
     setSaving(true);
     setError(null);
@@ -136,6 +138,7 @@ export default function AssessmentReviewClient({
       }
 
       setSaved(true);
+      setReviewAction(action);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
@@ -545,10 +548,28 @@ export default function AssessmentReviewClient({
             </button>
           </div>
 
-          {saved && (
-            <p className="text-sm font-medium" style={{ color: "#16a34a" }}>
-              Review saved successfully.
-            </p>
+          {saved && reviewAction === "approve" && (
+            <div className="rounded-lg p-4 border" style={{ background: "#f0fdf4", borderColor: "#bbf7d0" }}>
+              <p className="text-sm font-semibold text-green-800">Consultant Approved</p>
+              <p className="text-xs text-green-700 mt-1">
+                {assessment.user.name} has been approved as a {adminTier} consultant and their account is now active.
+                They can log in and start receiving assignments.
+              </p>
+              <a
+                href="/admin/onboarding"
+                className="inline-block mt-2 text-xs font-medium text-green-700 hover:underline"
+              >
+                View onboarding status
+              </a>
+            </div>
+          )}
+          {saved && reviewAction === "reject" && (
+            <div className="rounded-lg p-4 border" style={{ background: "#fef2f2", borderColor: "#fecaca" }}>
+              <p className="text-sm font-semibold text-red-800">Consultant Rejected</p>
+              <p className="text-xs text-red-700 mt-1">
+                {assessment.user.name} has been rejected. Their portal access has been revoked.
+              </p>
+            </div>
           )}
           {error && (
             <p className="text-sm font-medium" style={{ color: "#dc2626" }}>

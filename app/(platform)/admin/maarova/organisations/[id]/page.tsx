@@ -55,6 +55,7 @@ export default async function MaarovaOrgDetailPage({ params }: Props) {
     id: u.id,
     name: u.name,
     email: u.email,
+    role: u.role,
     title: u.title,
     department: u.department,
     isPortalEnabled: u.isPortalEnabled,

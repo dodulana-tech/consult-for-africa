@@ -82,7 +82,7 @@ export default function VideoRecorder({
 
     // Try progressive resolution: high -> medium -> low -> audio-only
     const attempts = [
-      { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" }, audio: true },
+      { video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user", frameRate: { ideal: 24 } }, audio: true },
       { video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" }, audio: true },
       { video: true, audio: true },
     ];
@@ -163,7 +163,7 @@ export default function VideoRecorder({
 
     const recorder = new MediaRecorder(streamRef.current, {
       ...(selectedMime ? { mimeType: selectedMime } : {}),
-      videoBitsPerSecond: 1_000_000,
+      videoBitsPerSecond: 1_500_000, // 1.5Mbps for clear video at 480p
     });
 
     recorder.ondataavailable = (e) => {

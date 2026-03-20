@@ -61,7 +61,11 @@ export default function OnboardingPage() {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   // Banking fields
+  const [banks, setBanks] = useState<{ name: string; code: string }[]>([]);
+  const [bankCode, setBankCode] = useState("");
   const [bankName, setBankName] = useState("");
+  const [resolving, setResolving] = useState(false);
+  const [resolveError, setResolveError] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [accountName, setAccountName] = useState("");
   const [swiftCode, setSwiftCode] = useState("");
@@ -88,11 +92,21 @@ export default function OnboardingPage() {
       }
       setOnboarding(data);
 
-      // Resume at the right step
-      if (data.profileCompleted && data.assessmentCompleted) {
+      // Resume at the right step based on onboarding status
+      // Priority: assessmentCompleted flag is the most reliable signal
+      if (data.assessmentCompleted) {
+        // Assessment done, show confirmation (last step)
         setStep(getStepCount(data.assessmentLevel) - 1);
+      } else if (data.status === "ASSESSMENT_PENDING" || data.bankingCompleted) {
+        // Banking done, assessment pending - go to assessment step
+        // For LIGHT level (no assessment), this is the confirmation step
+        if (data.assessmentLevel === "LIGHT") {
+          setStep(getStepCount(data.assessmentLevel) - 1);
+        } else {
+          setStep(3); // Assessment step
+        }
       } else if (data.profileCompleted) {
-        // If assessment needed, jump to banking or assessment
+        // Profile done, go to banking
         setStep(2);
       }
     } catch {
@@ -110,6 +124,35 @@ export default function OnboardingPage() {
     }
     fetchOnboarding();
   }, [session, sessionStatus, router, fetchOnboarding]);
+
+  // Load bank list
+  useEffect(() => {
+    fetch("/api/paystack/banks")
+      .then((r) => r.json())
+      .then((data) => setBanks(data.banks ?? []))
+      .catch(() => {});
+  }, []);
+
+  // Resolve account name when bank + account number are set
+  useEffect(() => {
+    if (!bankCode || !accountNumber || accountNumber.length < 10) return;
+    setResolving(true);
+    setResolveError("");
+    const timeout = setTimeout(() => {
+      fetch(`/api/paystack/resolve?account_number=${accountNumber}&bank_code=${bankCode}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.accountName) {
+            setAccountName(data.accountName);
+          } else {
+            setResolveError(data.error || "Could not verify account");
+          }
+        })
+        .catch(() => setResolveError("Could not verify account"))
+        .finally(() => setResolving(false));
+    }, 500); // debounce
+    return () => clearTimeout(timeout);
+  }, [bankCode, accountNumber]);
 
   function getStepCount(level: string) {
     // Welcome, Profile, Banking, Assessment (if needed), Confirmation
@@ -583,37 +626,88 @@ export default function OnboardingPage() {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Bank name</label>
-                  <input
-                    type="text"
-                    value={bankName}
-                    onChange={(e) => setBankName(e.target.value)}
-                    placeholder="e.g. Guaranty Trust Bank"
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
-                  />
-                </div>
+                {currency === "NGN" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Bank</label>
+                    <select
+                      value={bankCode}
+                      onChange={(e) => {
+                        setBankCode(e.target.value);
+                        const selected = banks.find((b) => b.code === e.target.value);
+                        setBankName(selected?.name ?? "");
+                        setAccountName("");
+                        setResolveError("");
+                      }}
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
+                    >
+                      <option value="">Select your bank...</option>
+                      {banks.map((b) => (
+                        <option key={b.code} value={b.code}>{b.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {currency === "USD" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Bank name</label>
+                    <input
+                      type="text"
+                      value={bankName}
+                      onChange={(e) => setBankName(e.target.value)}
+                      placeholder="e.g. Chase Bank, Wise"
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Account number</label>
                   <input
                     type="text"
                     value={accountNumber}
-                    onChange={(e) => setAccountNumber(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                      setAccountNumber(val);
+                      if (val.length < 10) {
+                        setAccountName("");
+                        setResolveError("");
+                      }
+                    }}
                     placeholder="0123456789"
+                    maxLength={10}
                     className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
                   />
+                  {currency === "NGN" && accountNumber.length === 10 && !bankCode && (
+                    <p className="text-xs text-amber-600 mt-1">Select a bank to verify your account</p>
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Account name</label>
-                  <input
-                    type="text"
-                    value={accountName}
-                    onChange={(e) => setAccountName(e.target.value)}
-                    placeholder="Full name as shown on your bank account"
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
-                  />
+                  {resolving ? (
+                    <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-400">
+                      <div className="w-4 h-4 border-2 border-gray-200 border-t-gray-500 rounded-full animate-spin" />
+                      Verifying account...
+                    </div>
+                  ) : (
+                    <input
+                      type="text"
+                      value={accountName}
+                      onChange={(e) => setAccountName(e.target.value)}
+                      placeholder={currency === "NGN" ? "Auto-filled when bank and account number are set" : "Full name on your bank account"}
+                      readOnly={currency === "NGN" && !!accountName && !resolveError}
+                      className={`w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 ${
+                        currency === "NGN" && accountName && !resolveError ? "bg-green-50 border-green-200 text-green-800 font-medium" : "border-gray-200"
+                      }`}
+                    />
+                  )}
+                  {resolveError && (
+                    <p className="text-xs text-red-500 mt-1">{resolveError}. You can enter the account name manually.</p>
+                  )}
+                  {currency === "NGN" && accountName && !resolveError && !resolving && (
+                    <p className="text-xs text-green-600 mt-1">Account verified</p>
+                  )}
                 </div>
 
                 {currency === "USD" && (

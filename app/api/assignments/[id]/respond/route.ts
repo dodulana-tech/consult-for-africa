@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
+import { emailAssignmentResponse } from "@/lib/email";
 import { NextRequest } from "next/server";
 
 /**
@@ -71,6 +72,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       projectId: assignment.projectId,
     });
 
+    // Email EM
+    const em = await prisma.user.findUnique({ where: { id: assignment.project.engagementManagerId }, select: { email: true } });
+    if (em) {
+      emailAssignmentResponse({ emEmail: em.email, consultantName: assignment.consultant.name, projectName: assignment.project.name, role: assignment.role, accepted: true }).catch(() => {});
+    }
+
     return Response.json({ ok: true, status: "ACTIVE" });
   }
 
@@ -106,6 +113,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     entityName: `${assignment.role} - ${assignment.project.name} (declined)`,
     projectId: assignment.projectId,
   });
+
+  // Email EM
+  const emForDecline = await prisma.user.findUnique({ where: { id: assignment.project.engagementManagerId }, select: { email: true } });
+  if (emForDecline) {
+    emailAssignmentResponse({ emEmail: emForDecline.email, consultantName: assignment.consultant.name, projectName: assignment.project.name, role: assignment.role, accepted: false, reason: reason.trim() }).catch(() => {});
+  }
 
   return Response.json({ ok: true, status: "DECLINED" });
 }

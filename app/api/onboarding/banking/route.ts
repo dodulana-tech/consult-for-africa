@@ -38,5 +38,13 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // Move onboarding to ASSESSMENT_PENDING if still in PROFILE_SETUP
+  if (onboarding.status === "PROFILE_SETUP") {
+    await prisma.consultantOnboarding.update({
+      where: { userId },
+      data: { status: "ASSESSMENT_PENDING" },
+    });
+  }
+
   return Response.json({ ok: true });
 }

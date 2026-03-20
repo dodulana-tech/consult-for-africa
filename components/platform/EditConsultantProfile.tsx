@@ -226,32 +226,70 @@ export default function EditConsultantProfile({ initialProfile }: { initialProfi
               style={inputStyle}
             />
           </div>
-          <div>
-            <label className={labelClass}>Hourly Rate (USD)</label>
-            <input
-              type="number"
-              min="0"
-              step="5"
-              value={form.hourlyRateUSD ?? ""}
-              onChange={(e) => set("hourlyRateUSD", e.target.value ? parseFloat(e.target.value) : null)}
-              placeholder="e.g. 150"
-              className={inputClass}
-              style={inputStyle}
-            />
+        </div>
+
+        {/* Payment currency + rate */}
+        <div className="mt-4">
+          <label className={labelClass}>Payment Currency</label>
+          <div className="flex gap-3 mb-3">
+            {(["NGN", "USD"] as const).map((c) => {
+              const isSelected = c === "NGN" ? !!form.monthlyRateNGN || !form.hourlyRateUSD : !!form.hourlyRateUSD;
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => {
+                    if (c === "NGN") {
+                      set("hourlyRateUSD", null);
+                    } else {
+                      set("monthlyRateNGN", null);
+                    }
+                  }}
+                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                  style={{
+                    background: isSelected ? "#0F2744" : "#F1F5F9",
+                    color: isSelected ? "#fff" : "#64748B",
+                    border: `1px solid ${isSelected ? "#0F2744" : "#E2E8F0"}`,
+                  }}
+                >
+                  {c === "NGN" ? "Nigerian Naira (NGN)" : "US Dollar (USD)"}
+                </button>
+              );
+            })}
           </div>
-          <div>
-            <label className={labelClass}>Monthly Rate (NGN)</label>
-            <input
-              type="number"
-              min="0"
-              step="100000"
-              value={form.monthlyRateNGN ?? ""}
-              onChange={(e) => set("monthlyRateNGN", e.target.value ? parseFloat(e.target.value) : null)}
-              placeholder="e.g. 2500000"
-              className={inputClass}
-              style={inputStyle}
-            />
-          </div>
+
+          {/* Show relevant rate field based on currency */}
+          {(!form.hourlyRateUSD || form.monthlyRateNGN) ? (
+            <div>
+              <label className={labelClass}>Your Monthly Rate (NGN)</label>
+              <input
+                type="number"
+                min="0"
+                step="100000"
+                value={form.monthlyRateNGN ?? ""}
+                onChange={(e) => set("monthlyRateNGN", e.target.value ? parseFloat(e.target.value) : null)}
+                placeholder="e.g. 2,500,000"
+                className={inputClass}
+                style={inputStyle}
+              />
+              <p className="text-[10px] text-gray-400 mt-1">This is your full-time monthly engagement rate. Hourly and daily rates will be derived from this.</p>
+            </div>
+          ) : (
+            <div>
+              <label className={labelClass}>Your Hourly Rate (USD)</label>
+              <input
+                type="number"
+                min="0"
+                step="5"
+                value={form.hourlyRateUSD ?? ""}
+                onChange={(e) => set("hourlyRateUSD", e.target.value ? parseFloat(e.target.value) : null)}
+                placeholder="e.g. 150"
+                className={inputClass}
+                style={inputStyle}
+              />
+              <p className="text-[10px] text-gray-400 mt-1">Standard rate for diaspora and international consultants. Billed in USD.</p>
+            </div>
+          )}
         </div>
       </div>
 

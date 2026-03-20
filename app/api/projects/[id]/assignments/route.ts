@@ -2,10 +2,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { checkCapacityForAssignment } from "@/lib/capacity";
+import { emailAssignmentCreated } from "@/lib/email";
 import { NextRequest } from "next/server";
 import type { RateType, Currency } from "@prisma/client";
 
-const VALID_RATE_TYPES: RateType[] = ["HOURLY", "MONTHLY", "FIXED_PROJECT"];
+const VALID_RATE_TYPES: RateType[] = ["HOURLY", "DAILY", "MONTHLY", "FIXED_PROJECT", "FIXED_DELIVERABLE"];
 const VALID_CURRENCIES: Currency[] = ["NGN", "USD"];
 
 export async function POST(
@@ -63,7 +64,7 @@ export async function POST(
   // Verify the consultantId belongs to a CONSULTANT user
   const consultant = await prisma.user.findUnique({
     where: { id: consultantId },
-    select: { id: true, name: true, role: true },
+    select: { id: true, name: true, email: true, role: true },
   });
   if (!consultant || consultant.role !== "CONSULTANT") {
     return new Response("Invalid consultant", { status: 400 });
@@ -131,9 +132,20 @@ export async function POST(
     projectId,
   });
 
+  // Email the consultant
+  emailAssignmentCreated({
+    consultantEmail: consultant.email,
+    consultantName: consultant.name,
+    projectName: project.name,
+    role: role.trim(),
+    rateType,
+    rateAmount: String(rateAmount),
+    currency: rateCurrency,
+  }).catch((err) => console.error("[email] assignment notification failed:", err));
+
   return Response.json({
     ok: true,
-    assignment,
+    assignment: { ...assignment, rateAmount: Number(assignment.rateAmount) },
     capacityWarning: capacityCheck.warning,
     message: `Assignment request sent to ${consultant.name}. They will need to accept before the assignment becomes active.`,
   }, { status: 201 });

@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
     data: {
       userId: session.sub,
       coachId: coach.id,
-      status: "MATCHED",
+      status: "PENDING_MATCH",
       programme: selectedProgramme,
       startDate,
       endDate,
@@ -117,7 +117,18 @@ export async function POST(req: NextRequest) {
     },
     include: {
       coach: {
-        select: { id: true, name: true, title: true, specialisms: true },
+        select: {
+          id: true,
+          name: true,
+          title: true,
+          bio: true,
+          specialisms: true,
+          certifications: true,
+          country: true,
+          city: true,
+          yearsExperience: true,
+          avatarUrl: true,
+        },
       },
     },
   });

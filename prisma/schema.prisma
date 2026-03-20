@@ -23,6 +23,7 @@ enum ConsultantTier {
   EXPERIENCED
   STANDARD
   EMERGING
+  INTERN
 }
 
 enum AvailabilityStatus {
@@ -95,6 +96,7 @@ enum RateType {
   DAILY
   MONTHLY
   FIXED_PROJECT
+  FIXED_DELIVERABLE
 }
 
 enum MilestoneStatus {
@@ -235,6 +237,11 @@ model User {
   proposals              Proposal[]
   onboarding             ConsultantOnboarding?
   consultantAssessments  ConsultantAssessment[]
+  discoveryCalls         DiscoveryCall[]
+  ownedLeads             Lead[]         @relation("LeadOwner")
+  internRotations        InternRotation[] @relation("InternRotations")
+  supervisedRotations    InternRotation[] @relation("SupervisedRotations")
+  internEvaluations      InternEvaluation[] @relation("InternEvaluations")
 }
 
 model ConsultantProfile {
@@ -310,6 +317,9 @@ model Client {
   contacts          ClientContact[]
   expansionRequests ClientExpansionRequest[]
   proposals         Proposal[]
+  discoveryCalls    DiscoveryCall[]
+  leadsFrom         Lead[]         @relation("LeadFromClient")
+  leadsConverted    Lead[]         @relation("LeadConverted")
 
   @@index([type, status])
 }
@@ -357,6 +367,7 @@ model Project {
   staffingRequests       StaffingRequest[]
   satisfactionPulses     ClientSatisfactionPulse[]
   recommendations        ClientRecommendation[]
+  internRotations        InternRotation[]
 
   @@index([clientId])
   @@index([engagementManagerId])
@@ -731,11 +742,73 @@ model Referral {
   suggestedRole String?
   notes        String?        @db.Text
   status       ReferralStatus @default(PENDING)
+  leadId       String?
+  lead         Lead?          @relation(fields: [leadId], references: [id])
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
   @@index([referrerId])
   @@index([status, createdAt])
+}
+
+model Lead {
+  id                 String   @id @default(cuid())
+  source             String   // WEBSITE_CONTACT, MAAROVA_DEMO, REFERRAL, EVENT, COLD_OUTREACH, EXISTING_CLIENT
+  status             String   @default("NEW") // NEW, RESEARCHING, OUTREACH, RESPONDED, DISCOVERY_SCHEDULED, PROPOSAL_SENT, CONVERTED, LOST
+
+  // Contact info
+  organizationName   String
+  contactName        String
+  contactEmail       String?
+  contactPhone       String?
+  contactRole        String?
+  organizationType   String?
+  country            String?
+  city               String?
+
+  // Inbound context (from forms)
+  inboundMessage     String?  @db.Text  // message from contact/demo form
+  inboundProjectType String?            // projectType from contact form
+  maarovaStream      String?            // streamInterest from demo form
+  maarovaLeaderCount Int?               // numberOfLeaders from demo form
+  maarovaTimeline    String?            // timeline from demo form
+
+  // Target research (for cold outreach and pre-call prep)
+  decisionMakers     Json?              // [{name, role, linkedin}]
+  knownPainPoints    String[]
+  recentNews         String?  @db.Text
+  competitorPresence String?  @db.Text  // who else is consulting for them
+  estimatedSize      String?            // SMALL, MEDIUM, LARGE, ENTERPRISE
+  serviceLineHook    String?            // which CFA service line is the angle
+
+  // Outreach tracking
+  outreachAttempts   Json?              // [{date, channel, notes, response}]
+  outreachStrategy   String?  @db.Text  // opening angle, connection path
+
+  // Qualification
+  qualificationScore String?  // HOT, WARM, COLD, NOT_FIT
+  qualificationNotes String?  @db.Text
+  lostReason         String?  @db.Text
+
+  // Ownership
+  assignedToId       String?
+  assignedTo         User?    @relation("LeadOwner", fields: [assignedToId], references: [id])
+
+  // Links
+  existingClientId   String?
+  existingClient     Client?  @relation("LeadFromClient", fields: [existingClientId], references: [id])
+  convertedToClientId String?
+  convertedToClient  Client?  @relation("LeadConverted", fields: [convertedToClientId], references: [id])
+
+  referrals          Referral[]
+  discoveryCalls     DiscoveryCall[]
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([source, status])
+  @@index([assignedToId])
+  @@index([status])
 }
 
 enum TalentApplicationStatus {
@@ -777,12 +850,21 @@ model TalentApplication {
   currentOrg         String?
   workAuthorization  String   @default("nigerian_citizen")
 
+  // Track
+  track             String   @default("CONSULTANT") // CONSULTANT, INTERN, FELLOWSHIP, SIWES
+
   // Application
   cvText            String?  @db.Text
   cvFileUrl         String?
   coverLetter       String?  @db.Text
   availableFrom     DateTime?
   engagementTypes   String[] // array of EngagementType values
+
+  // Intern-specific fields
+  university        String?
+  programme         String?  // Health Admin, Public Health, etc.
+  yearOfStudy       String?  // e.g. "300-level", "Final year"
+  siwesEligible     Boolean  @default(false)
 
   // AI Screening
   aiScore           Int?     // 0-100
@@ -1457,6 +1539,12 @@ enum MaarovaDevelopmentGoalStatus {
   DEFERRED
 }
 
+enum MaarovaUserRole {
+  USER
+  MANAGER
+  HR_ADMIN
+}
+
 enum MaarovaRaterRole {
   SELF
   SUPERVISOR
@@ -1498,24 +1586,28 @@ model MaarovaOrganisation {
 }
 
 model MaarovaUser {
-  id                 String   @id @default(cuid())
+  id                 String          @id @default(cuid())
   organisationId     String
   organisation       MaarovaOrganisation @relation(fields: [organisationId], references: [id])
-  email              String   @unique
+  email              String          @unique
   name               String
   passwordHash       String?
+  role               MaarovaUserRole @default(USER)
   title              String?
   department         String?
   yearsInRole        Int?
   yearsInHealthcare  Int?
   clinicalBackground String?
-  isPortalEnabled    Boolean  @default(false)
+  managerId          String?
+  manager            MaarovaUser?    @relation("ManagerReports", fields: [managerId], references: [id])
+  directReports      MaarovaUser[]   @relation("ManagerReports")
+  isPortalEnabled    Boolean         @default(false)
   lastLoginAt        DateTime?
   invitedAt          DateTime?
   resetToken         String?
   resetTokenExpiry   DateTime?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 
   sessions           MaarovaAssessmentSession[]
   reports            MaarovaReport[]
@@ -1525,6 +1617,7 @@ model MaarovaUser {
   threeSixtyRequests Maarova360Request[]
 
   @@index([organisationId])
+  @@index([managerId])
 }
 
 model MaarovaCoach {
@@ -1542,10 +1635,13 @@ model MaarovaCoach {
   yearsExperience Int
   maxClients      Int      @default(8)
   activeClients   Int      @default(0)
-  isActive        Boolean  @default(true)
-  avatarUrl       String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  isActive         Boolean  @default(true)
+  avatarUrl        String?
+  passwordHash     String?
+  isPortalEnabled  Boolean  @default(false)
+  lastLoginAt      DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   matches MaarovaCoachingMatch[]
 
@@ -1772,6 +1868,8 @@ model MaarovaCoachingSession {
   duration    Int?
   notes       String?              @db.Text
   focusAreas  String[]
+  meetingLink String?
+  actionItems String[]
   status      String               @default("SCHEDULED")
   createdAt   DateTime             @default(now())
 
@@ -1779,25 +1877,43 @@ model MaarovaCoachingSession {
 }
 
 model MaarovaDevelopmentGoal {
-  id          String                          @id @default(cuid())
-  userId      String
-  user        MaarovaUser                     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  dimension   String
-  title       String
-  description String                          @db.Text
-  targetDate  DateTime?
-  status      MaarovaDevelopmentGoalStatus     @default(NOT_STARTED)
-  progress    Int                             @default(0)
-  milestones  Json?
-  source      String                          @default("self") // self | assessment | coach | manager
-  sourceNote  String?                         // e.g. coach name, manager name
-  aiGenerated Boolean                         @default(false)
-  coachNotes  String?                         @db.Text
-  completedAt DateTime?
-  createdAt   DateTime                        @default(now())
-  updatedAt   DateTime                        @updatedAt
+  id                 String                          @id @default(cuid())
+  userId             String
+  user               MaarovaUser                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dimension          String
+  title              String
+  description        String                          @db.Text
+  targetDate         DateTime?
+  status             MaarovaDevelopmentGoalStatus     @default(NOT_STARTED)
+  progress           Int                             @default(0)
+  milestones         Json?
+  source             String                          @default("self") // self | assessment | coach | manager
+  sourceNote         String?                         // e.g. coach name, manager name
+  aiGenerated        Boolean                         @default(false)
+  coachNotes         String?                         @db.Text
+  managerValidated   Boolean                         @default(false)
+  managerValidatedAt DateTime?
+  completedAt        DateTime?
+  createdAt          DateTime                        @default(now())
+  updatedAt          DateTime                        @updatedAt
+
+  ratings MaarovaGoalRating[]
 
   @@index([userId, status])
+}
+
+model MaarovaGoalRating {
+  id        String                 @id @default(cuid())
+  goalId    String
+  goal      MaarovaDevelopmentGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  ratedById String
+  raterType String                 // "self" | "coach" | "manager"
+  score     Int                    // 0-100
+  note      String?                @db.Text
+  createdAt DateTime               @default(now())
+
+  @@index([goalId, raterType])
+  @@index([ratedById])
 }
 
 model MaarovaNormativeData {
@@ -1916,4 +2032,115 @@ model ConsultantOnboarding {
   updatedAt           DateTime         @updatedAt
 
   @@index([status])
+}
+
+model DiscoveryCall {
+  id                 String   @id @default(cuid())
+  organizationName   String
+  contactName        String
+  contactEmail       String?
+  contactPhone       String?
+  organizationType   String?
+  scheduledAt        DateTime?
+  conductedAt        DateTime?
+  duration           Int?
+  status             String   @default("SCHEDULED")
+
+  // Structured notes
+  rawNotes           String?  @db.Text
+  problemsIdentified String[]
+  goalsStated        String[]
+  stakeholders       String[]
+  budgetSignals      String?  @db.Text
+  urgencyLevel       String?
+  currentState       String?  @db.Text
+
+  // Nuru AI outputs
+  aiSummary          String?  @db.Text
+  aiServiceLineMatch String[]
+  aiSuggestedScope   String?  @db.Text
+  aiFollowUpActions  String[]
+  aiRedFlags         String[]
+
+  // Conversion tracking
+  convertedToClientId String?
+  convertedToClient   Client? @relation(fields: [convertedToClientId], references: [id])
+  proposalId          String?
+  leadId              String?
+  lead                Lead?   @relation(fields: [leadId], references: [id])
+
+  // Meta
+  conductedById      String
+  conductedBy        User    @relation(fields: [conductedById], references: [id])
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([conductedById])
+  @@index([status])
+}
+
+// ─── Intern & Talent Pipeline ────────────────────────────────────────────────
+
+model InternCohort {
+  id          String   @id @default(cuid())
+  name        String   // e.g. "SIWES Cohort 1 - Q3 2026"
+  track       String   // SIWES, SUMMER, FELLOWSHIP
+  startDate   DateTime
+  endDate     DateTime
+  maxInterns  Int      @default(5)
+  status      String   @default("PLANNED") // PLANNED, ACTIVE, COMPLETED
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  rotations   InternRotation[]
+
+  @@index([status])
+}
+
+model InternRotation {
+  id           String       @id @default(cuid())
+  cohortId     String
+  cohort       InternCohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  internId     String       // User ID of the intern
+  intern       User         @relation("InternRotations", fields: [internId], references: [id])
+  projectId    String?
+  project      Project?     @relation(fields: [projectId], references: [id])
+  supervisorId String?
+  supervisor   User?        @relation("SupervisedRotations", fields: [supervisorId], references: [id])
+  startDate    DateTime
+  endDate      DateTime
+  status       String       @default("ACTIVE") // ACTIVE, COMPLETED, TERMINATED
+  notes        String?      @db.Text
+  createdAt    DateTime     @default(now())
+
+  evaluations  InternEvaluation[]
+
+  @@index([internId])
+  @@index([cohortId])
+}
+
+model InternEvaluation {
+  id           String         @id @default(cuid())
+  rotationId   String
+  rotation     InternRotation @relation(fields: [rotationId], references: [id], onDelete: Cascade)
+  evaluatorId  String
+  evaluator    User           @relation("InternEvaluations", fields: [evaluatorId], references: [id])
+  period       String         // e.g. "Month 1", "Final"
+
+  // Scoring (1-5 each)
+  technicalSkills    Int
+  communication      Int
+  professionalism    Int
+  initiative         Int
+  teamwork           Int
+  overallScore       Int      // calculated average
+
+  strengths          String[]
+  areasForDevelopment String[]
+  supervisorComments String?  @db.Text
+  recommendPromotion Boolean  @default(false) // recommend for EMERGING tier
+  createdAt          DateTime @default(now())
+
+  @@index([rotationId])
 }

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import TopBar from "@/components/platform/TopBar";
 import StatusBadge from "@/components/platform/StatusBadge";
+import TierChanger from "./TierChanger";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import {
   MapPin,
@@ -82,6 +83,7 @@ export default async function ConsultantProfilePage({
   const tierStyle = TIER_COLORS[profile.tier] ?? TIER_COLORS.STANDARD;
 
   const canRate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   // Only show projects where this consultant was assigned
   const rateableProjects = user.assignments
     .filter((a) => ["ACTIVE", "COMPLETED"].includes(a.status))
@@ -117,6 +119,9 @@ export default async function ConsultantProfilePage({
                   >
                     {profile.tier}
                   </span>
+                  {isElevated && (
+                    <TierChanger profileId={profile.id} currentTier={profile.tier} />
+                  )}
                   <StatusBadge status={profile.availabilityStatus} />
                   {profile.isDiaspora && (
                     <span className="text-[10px] text-blue-500 font-medium">Diaspora</span>

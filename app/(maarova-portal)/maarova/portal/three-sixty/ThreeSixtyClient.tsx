@@ -452,7 +452,8 @@ export default function ThreeSixtyClient({ request, userName }: Props) {
                         <th className="pb-3 pr-4">Email</th>
                         <th className="pb-3 pr-4">Role</th>
                         <th className="pb-3 pr-4">Status</th>
-                        <th className="pb-3">Completed</th>
+                        <th className="pb-3 pr-4">Completed</th>
+                        <th className="pb-3">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -488,10 +489,37 @@ export default function ThreeSixtyClient({ request, userName }: Props) {
                                 {badge.label}
                               </span>
                             </td>
-                            <td className="py-3 text-xs text-gray-500">
+                            <td className="py-3 pr-4 text-xs text-gray-500">
                               {invite.completedAt
                                 ? formatDate(invite.completedAt)
                                 : "-"}
+                            </td>
+                            <td className="py-3">
+                              {invite.status === "INVITED" && (
+                                <button
+                                  onClick={async () => {
+                                    try {
+                                      const res = await fetch("/api/maarova/three-sixty/resend", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ inviteId: invite.id }),
+                                      });
+                                      if (res.ok) {
+                                        alert(`Invite resent to ${invite.raterEmail}`);
+                                      } else {
+                                        const data = await res.json();
+                                        alert(data.error || "Failed to resend");
+                                      }
+                                    } catch {
+                                      alert("Failed to resend invite");
+                                    }
+                                  }}
+                                  className="text-xs font-medium px-2.5 py-1 rounded-lg border transition-colors hover:bg-gray-50"
+                                  style={{ borderColor: "#e5eaf0", color: "#0F2744" }}
+                                >
+                                  Resend
+                                </button>
+                              )}
                             </td>
                           </tr>
                         );

@@ -11,6 +11,7 @@ export const metadata: Metadata = {
     "Perspectives on hospital performance, governance, capital projects, and health system strengthening across Africa.",
 };
 
+export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 export default async function InsightsPage() {

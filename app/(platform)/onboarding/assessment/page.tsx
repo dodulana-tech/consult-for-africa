@@ -1455,9 +1455,12 @@ function Part4Response({
       )}
 
       {videoUploading && (
-        <div className="flex items-center gap-2 mt-4">
-          <Loader2 size={14} className="animate-spin text-gray-400" />
-          <span className="text-sm text-gray-500">Uploading...</span>
+        <div className="mt-4 space-y-2">
+          <div className="flex items-center gap-2">
+            <Loader2 size={14} className="animate-spin text-gray-400" />
+            <span className="text-sm text-gray-500">Uploading your response...</span>
+          </div>
+          <p className="text-xs text-gray-400">This may take a moment depending on your connection. Do not close this page.</p>
         </div>
       )}
 
@@ -1472,7 +1475,7 @@ function Part4Response({
       <div className="mt-8 pt-6 border-t border-gray-200">
         <button
           onClick={onSubmit}
-          disabled={submitLoading || !hasResponse}
+          disabled={submitLoading || videoUploading || !hasResponse}
           className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           style={{ background: "#D4AF37", color: "#0F2744" }}
         >
@@ -1480,6 +1483,11 @@ function Part4Response({
             <>
               <Loader2 size={16} className="animate-spin" />
               Submitting...
+            </>
+          ) : videoUploading ? (
+            <>
+              <Loader2 size={16} className="animate-spin" />
+              Uploading response... please wait
             </>
           ) : (
             <>

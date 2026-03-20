@@ -25,6 +25,7 @@ import {
   Plus,
   X,
   Sparkles,
+  Phone,
 } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import ConsultantMatchingWidget from "./ConsultantMatchingWidget";
@@ -50,7 +51,7 @@ import {
   healthColor,
 } from "@/lib/utils";
 
-type Tab = "overview" | "team" | "deliverables" | "timeline";
+type Tab = "overview" | "team" | "deliverables" | "timeline" | "calls";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -176,6 +177,36 @@ interface Project {
   updates: ProjectUpdate[];
   phases: Phase[];
   risks: RiskItem[];
+  interactions: Interaction[];
+  staffingRequests: StaffingRequestItem[];
+}
+
+interface StaffingRequestItem {
+  id: string;
+  role: string;
+  description: string;
+  skillsRequired: string[];
+  hoursPerWeek: number;
+  duration: string | null;
+  rateType: string;
+  rateBudget: number | null;
+  rateCurrency: string;
+  urgency: string;
+  status: string;
+  expressionCount: number;
+  createdAt: string;
+}
+
+interface Interaction {
+  id: string;
+  type: string;
+  summary: string;
+  sentiment: string;
+  conductedById: string;
+  conductedAt: string;
+  nextActionDate: string | null;
+  nextActionNote: string | null;
+  createdAt: string;
 }
 
 export default function ProjectTabs({
@@ -199,6 +230,7 @@ export default function ProjectTabs({
     { key: "team", label: "Team", icon: Users },
     { key: "deliverables", label: "Deliverables", icon: FileCheck },
     { key: "timeline", label: "Timeline", icon: Flag },
+    { key: "calls", label: "Calls", icon: Phone },
   ];
 
   const budgetPct = budgetUtilization(project.actualSpent, project.budgetAmount);
@@ -314,6 +346,12 @@ export default function ProjectTabs({
           />
         )}
         {tab === "timeline" && <TimelineTab project={project} />}
+        {tab === "calls" && (
+          <CallsTab
+            project={project}
+            isEM={["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(userRole)}
+          />
+        )}
       </main>
     </div>
   );
@@ -356,6 +394,28 @@ function OverviewTab({
   isEM: boolean;
   userRole: string;
 }) {
+  const isDirectorPlus = ["DIRECTOR", "PARTNER", "ADMIN"].includes(userRole);
+  const [showChangeEM, setShowChangeEM] = useState(false);
+  const [newEMId, setNewEMId] = useState("");
+  const [emList, setEmList] = useState<{ id: string; name: string }[]>([]);
+  const [changingEM, setChangingEM] = useState(false);
+
+  async function handleChangeEM() {
+    if (!newEMId) return;
+    setChangingEM(true);
+    try {
+      const res = await fetch(`/api/projects/${project.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ engagementManagerId: newEMId }),
+      });
+      if (res.ok) {
+        window.location.reload();
+      }
+    } catch {}
+    finally { setChangingEM(false); }
+  }
+
   const deliverablesPct =
     project.deliverables.length > 0
       ? Math.round((completedDeliverables / project.deliverables.length) * 100)
@@ -383,7 +443,35 @@ function OverviewTab({
             <span className="text-xs text-gray-300">|</span>
             <span className="text-xs text-gray-500">
               {project.client.name} · EM: {project.engagementManager.name}
+              {isDirectorPlus && (
+                <button
+                  onClick={() => {
+                    setShowChangeEM(!showChangeEM);
+                    if (emList.length === 0) {
+                      fetch("/api/users?emEligible=true")
+                        .then((r) => r.json())
+                        .then((data) => setEmList(data.users ?? []))
+                        .catch(() => {});
+                    }
+                  }}
+                  className="ml-1.5 text-[10px] text-blue-600 hover:underline"
+                >
+                  (change)
+                </button>
+              )}
             </span>
+            {showChangeEM && isDirectorPlus && (
+              <div className="flex items-center gap-2 mt-1">
+                <select value={newEMId} onChange={(e) => setNewEMId(e.target.value)} className="text-xs border rounded px-2 py-1" style={{ borderColor: "#e5eaf0" }}>
+                  <option value="">Select new EM...</option>
+                  {emList.map((em) => <option key={em.id} value={em.id}>{em.name}</option>)}
+                </select>
+                <button onClick={handleChangeEM} disabled={!newEMId || changingEM} className="text-[10px] px-2 py-1 rounded text-white disabled:opacity-50" style={{ background: "#0F2744" }}>
+                  {changingEM ? "..." : "Assign"}
+                </button>
+                <button onClick={() => setShowChangeEM(false)} className="text-[10px] text-gray-400">Cancel</button>
+              </div>
+            )}
           </div>
           <p className="text-sm text-gray-600 mt-2 leading-relaxed max-w-3xl">{project.description}</p>
         </div>
@@ -577,6 +665,161 @@ function OverviewTab({
 function TeamTab({ project, isEM }: { project: Project; isEM: boolean }) {
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [assignments, setAssignments] = useState(project.assignments);
+  const [showStaffingForm, setShowStaffingForm] = useState(false);
+  const [staffingForm, setStaffingForm] = useState({
+    role: "", description: "", skillsRequired: "", hoursPerWeek: "20",
+    duration: "", rateType: "MONTHLY", rateBudget: "", urgency: "normal",
+  });
+  const [staffingSaving, setStaffingSaving] = useState(false);
+  const [staffingSuccess, setStaffingSuccess] = useState<string | null>(null);
+  const [skillInput, setSkillInput] = useState("");
+  const [skillSuggestions, setSkillSuggestions] = useState<string[]>([]);
+  const [nuruSuggesting, setNuruSuggesting] = useState(false);
+  const [nuruBuildingProfiles, setNuruBuildingProfiles] = useState(false);
+  const [nuruProfiles, setNuruProfiles] = useState<Array<{ role: string; description: string; skills: string[]; hoursPerWeek: number; rateType: string; rationale: string }>>([]);
+  const [localStaffingRequests, setLocalStaffingRequests] = useState(project.staffingRequests);
+  const [creatingProfileIdx, setCreatingProfileIdx] = useState<number | null>(null);
+
+  // All available skills from taxonomy
+  const ALL_SKILLS = [
+    "Hospital Operations", "Revenue Cycle", "Clinical Governance", "Patient Safety", "Quality Improvement",
+    "Financial Management", "Health Insurance (NHIS/HMO)", "Supply Chain", "Pharmacy Management",
+    "Digital Health", "EMR/HIS", "Data Analytics", "Change Management", "HR Management",
+    "Strategy & Planning", "Business Development", "Process Engineering", "Facilities Management",
+    "Nursing Leadership", "Medical Director", "Health Policy", "M&E", "Epidemiology",
+    "Marketing", "Legal & Compliance", "Risk Management", "Internal Audit", "Training & Development",
+    "Capital Projects", "Architecture", "Biomedical Engineering", "Community Health",
+  ];
+
+  function handleSkillInput(value: string) {
+    setSkillInput(value);
+    if (value.length > 1) {
+      setSkillSuggestions(ALL_SKILLS.filter((s) => s.toLowerCase().includes(value.toLowerCase()) && !staffingForm.skillsRequired.includes(s)).slice(0, 5));
+    } else {
+      setSkillSuggestions([]);
+    }
+  }
+
+  function addSkill(skill: string) {
+    const current = staffingForm.skillsRequired ? staffingForm.skillsRequired.split(",").map((s) => s.trim()).filter(Boolean) : [];
+    if (!current.includes(skill)) {
+      setStaffingForm((p) => ({ ...p, skillsRequired: [...current, skill].join(", ") }));
+    }
+    setSkillInput("");
+    setSkillSuggestions([]);
+  }
+
+  async function nuruSuggestStaffing() {
+    setNuruSuggesting(true);
+    try {
+      const res = await fetch("/api/ai/suggest-staffing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectName: project.name,
+          serviceType: project.serviceType,
+          description: project.description,
+          existingTeam: project.assignments.map((a) => `${a.consultant.name} (${a.role})`),
+        }),
+      });
+      if (res.ok) {
+        const { suggestion } = await res.json();
+        if (suggestion) {
+          setStaffingForm((p) => ({
+            ...p,
+            role: suggestion.role || p.role,
+            description: suggestion.description || p.description,
+            skillsRequired: Array.isArray(suggestion.skills) ? suggestion.skills.join(", ") : p.skillsRequired,
+            hoursPerWeek: suggestion.hoursPerWeek?.toString() || p.hoursPerWeek,
+            rateType: suggestion.rateType || p.rateType,
+          }));
+        }
+      }
+    } catch {}
+    finally { setNuruSuggesting(false); }
+  }
+
+  async function nuruBuildTeamProfiles() {
+    setNuruBuildingProfiles(true);
+    setNuruProfiles([]);
+    try {
+      const res = await fetch("/api/ai/suggest-team", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectName: project.name,
+          serviceType: project.serviceType,
+          description: project.description,
+          deliverables: project.deliverables.map((d) => d.name),
+          phases: project.phases.map((p) => p.name),
+          existingTeam: project.assignments.map((a) => `${a.consultant.name} (${a.role})`),
+          existingRequests: localStaffingRequests.map((sr) => sr.role),
+        }),
+      });
+      if (res.ok) {
+        const { profiles } = await res.json();
+        setNuruProfiles(Array.isArray(profiles) ? profiles : []);
+      }
+    } catch {}
+    finally { setNuruBuildingProfiles(false); }
+  }
+
+  async function createFromProfile(profile: typeof nuruProfiles[0], idx: number) {
+    setCreatingProfileIdx(idx);
+    try {
+      await fetch("/api/staffing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId: project.id,
+          role: profile.role,
+          description: profile.description,
+          skillsRequired: profile.skills,
+          hoursPerWeek: profile.hoursPerWeek,
+          rateType: profile.rateType || "MONTHLY",
+          urgency: "normal",
+        }),
+      });
+      setStaffingSuccess(`Staffing request posted: ${profile.role}`);
+      setNuruProfiles((prev) => prev.filter((_, i) => i !== idx));
+      // Refresh requests
+      const refreshRes = await fetch(`/api/staffing?projectId=${project.id}`);
+      if (refreshRes.ok) {
+        // Will show on next page load
+      }
+      setTimeout(() => setStaffingSuccess(null), 3000);
+    } catch {}
+    finally { setCreatingProfileIdx(null); }
+  }
+
+  async function createStaffingRequest(e: React.FormEvent) {
+    e.preventDefault();
+    setStaffingSaving(true);
+    setStaffingSuccess(null);
+    try {
+      const res = await fetch("/api/staffing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId: project.id,
+          role: staffingForm.role,
+          description: staffingForm.description,
+          skillsRequired: staffingForm.skillsRequired.split(",").map((s) => s.trim()).filter(Boolean),
+          hoursPerWeek: parseInt(staffingForm.hoursPerWeek, 10),
+          duration: staffingForm.duration || null,
+          rateType: staffingForm.rateType,
+          rateBudget: staffingForm.rateBudget ? parseFloat(staffingForm.rateBudget) : null,
+          urgency: staffingForm.urgency,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to create staffing request");
+      setStaffingSuccess("Staffing request created. Consultants will be notified.");
+      setStaffingForm({ role: "", description: "", skillsRequired: "", hoursPerWeek: "20", duration: "", rateType: "MONTHLY", rateBudget: "", urgency: "normal" });
+      setShowStaffingForm(false);
+      setTimeout(() => setStaffingSuccess(null), 5000);
+    } catch {}
+    finally { setStaffingSaving(false); }
+  }
 
   async function removeConsultant(assignmentId: string) {
     if (!confirm("Remove this consultant from the project?")) return;
@@ -703,6 +946,233 @@ function TeamTab({ project, isEM }: { project: Project; isEM: boolean }) {
         })
       )}
 
+      {/* Staffing Request */}
+      {isEM && (
+        <div className="space-y-3">
+          {staffingSuccess && (
+            <div className="p-3 rounded-lg bg-green-50 text-green-700 text-sm">{staffingSuccess}</div>
+          )}
+
+          {!showStaffingForm ? (
+            <button
+              onClick={() => setShowStaffingForm(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all hover:scale-[1.01]"
+              style={{ background: "#D4AF37", color: "#06090f" }}
+            >
+              <Plus size={14} />
+              Post Staffing Request
+            </button>
+          ) : (
+            <form
+              onSubmit={createStaffingRequest}
+              className="rounded-xl p-5 space-y-4"
+              style={{ background: "#fff", border: "1px solid #e5eaf0" }}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-semibold" style={{ color: "#0F2744" }}>New Staffing Request</h3>
+                  <p className="text-xs text-gray-400">Describe the role needed. Matching consultants will be notified and can express interest.</p>
+                </div>
+                <button
+                  onClick={nuruSuggestStaffing}
+                  disabled={nuruSuggesting}
+                  className="text-xs px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5 shrink-0 disabled:opacity-50"
+                  style={{ background: "#D4AF37" + "15", color: "#92400E", border: "1px solid " + "#D4AF37" + "40" }}
+                >
+                  <Sparkles size={12} />
+                  {nuruSuggesting ? "Thinking..." : "Nuru: Auto-fill"}
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Role *</label>
+                  <input required value={staffingForm.role} onChange={(e) => setStaffingForm((p) => ({ ...p, role: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ borderColor: "#e5eaf0" }} placeholder="e.g. Senior Operations Consultant" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Urgency</label>
+                  <select value={staffingForm.urgency} onChange={(e) => setStaffingForm((p) => ({ ...p, urgency: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ borderColor: "#e5eaf0" }}>
+                    <option value="low">Low</option>
+                    <option value="normal">Normal</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Description *</label>
+                <textarea required value={staffingForm.description} onChange={(e) => setStaffingForm((p) => ({ ...p, description: e.target.value }))} rows={3} className="w-full border rounded-lg px-3 py-2 text-sm resize-none" style={{ borderColor: "#e5eaf0" }} placeholder="What will this person do on the engagement?" />
+              </div>
+
+              <div className="relative">
+                <label className="block text-xs font-medium text-gray-600 mb-1">Skills Required</label>
+                {/* Skill tags */}
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {staffingForm.skillsRequired.split(",").map((s) => s.trim()).filter(Boolean).map((skill, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full" style={{ background: "#0F2744" + "10", color: "#0F2744" }}>
+                      {skill}
+                      <button onClick={() => setStaffingForm((p) => ({ ...p, skillsRequired: p.skillsRequired.split(",").map((s) => s.trim()).filter((s) => s !== skill).join(", ") }))} className="text-gray-400 hover:text-red-400">x</button>
+                    </span>
+                  ))}
+                </div>
+                <input
+                  value={skillInput}
+                  onChange={(e) => handleSkillInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" && skillInput.trim()) { e.preventDefault(); addSkill(skillInput.trim()); } }}
+                  className="w-full border rounded-lg px-3 py-2 text-sm"
+                  style={{ borderColor: "#e5eaf0" }}
+                  placeholder="Type to search skills..."
+                />
+                {skillSuggestions.length > 0 && (
+                  <div className="absolute z-10 mt-1 w-full bg-white border rounded-lg shadow-lg" style={{ borderColor: "#e5eaf0" }}>
+                    {skillSuggestions.map((s) => (
+                      <button key={s} onClick={() => addSkill(s)} className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors">
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Hours/Week *</label>
+                  <input required type="number" value={staffingForm.hoursPerWeek} onChange={(e) => setStaffingForm((p) => ({ ...p, hoursPerWeek: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ borderColor: "#e5eaf0" }} min="5" max="60" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Rate Type *</label>
+                  <select value={staffingForm.rateType} onChange={(e) => setStaffingForm((p) => ({ ...p, rateType: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ borderColor: "#e5eaf0" }}>
+                    <option value="HOURLY">Hourly</option>
+                    <option value="DAILY">Daily</option>
+                    <option value="MONTHLY">Monthly</option>
+                    <option value="FIXED_PROJECT">Fixed Project</option>
+                    <option value="FIXED_DELIVERABLE">Per Deliverable</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Budget (NGN)</label>
+                  <input type="number" value={staffingForm.rateBudget} onChange={(e) => setStaffingForm((p) => ({ ...p, rateBudget: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ borderColor: "#e5eaf0" }} placeholder="Optional" />
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button type="submit" disabled={staffingSaving} className="px-4 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-50" style={{ background: "#0F2744" }}>
+                  {staffingSaving ? "Creating..." : "Post Request"}
+                </button>
+                <button type="button" onClick={() => setShowStaffingForm(false)} className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 border" style={{ borderColor: "#e5eaf0" }}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      )}
+
+      {/* Existing Staffing Requests */}
+      {localStaffingRequests.length > 0 && (
+        <div className="rounded-xl" style={{ border: "1px solid #e5eaf0" }}>
+          <div className="px-5 py-3 flex items-center justify-between" style={{ background: "#F9FAFB", borderBottom: "1px solid #e5eaf0" }}>
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              Staffing Requests ({localStaffingRequests.length})
+            </h3>
+          </div>
+          <div className="divide-y" style={{ borderColor: "#F3F4F6" }}>
+            {localStaffingRequests.map((sr) => {
+              const statusColors: Record<string, { bg: string; text: string }> = {
+                OPEN: { bg: "bg-blue-50", text: "text-blue-700" },
+                IN_PROGRESS: { bg: "bg-amber-50", text: "text-amber-700" },
+                FILLED: { bg: "bg-green-50", text: "text-green-700" },
+                CANCELLED: { bg: "bg-gray-100", text: "text-gray-500" },
+              };
+              const st = statusColors[sr.status] ?? statusColors.OPEN;
+              return (
+                <div key={sr.id} className="px-5 py-3 bg-white">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium" style={{ color: "#0F2744" }}>{sr.role}</span>
+                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>{sr.status}</span>
+                      {sr.expressionCount > 0 && (
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">
+                          {sr.expressionCount} interested
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-gray-400">
+                      {sr.hoursPerWeek}h/wk | {sr.rateType.replace(/_/g, " ")}
+                      {sr.rateBudget ? ` | ${sr.rateCurrency} ${sr.rateBudget.toLocaleString()}` : ""}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 line-clamp-1">{sr.description}</p>
+                  {sr.skillsRequired.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      {sr.skillsRequired.slice(0, 5).map((s, i) => (
+                        <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{s}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Nuru Team Builder */}
+      {isEM && (
+        <div className="rounded-xl" style={{ border: "1px solid #D4AF37" + "40", background: "#D4AF37" + "05" }}>
+          <div className="px-5 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles size={16} style={{ color: "#D4AF37" }} />
+                <div>
+                  <h3 className="text-sm font-semibold" style={{ color: "#0F2744" }}>Nuru Team Builder</h3>
+                  <p className="text-[10px] text-gray-400">Analyzes your deliverables, phases, and existing team to suggest all roles needed</p>
+                </div>
+              </div>
+              <button
+                onClick={nuruBuildTeamProfiles}
+                disabled={nuruBuildingProfiles}
+                className="text-xs px-4 py-2 rounded-lg font-semibold text-white disabled:opacity-50"
+                style={{ background: "#D4AF37" }}
+              >
+                {nuruBuildingProfiles ? "Analyzing Project..." : "Build Team Profiles"}
+              </button>
+            </div>
+
+            {nuruProfiles.length > 0 && (
+              <div className="mt-4 space-y-3">
+                <p className="text-xs text-gray-500">{nuruProfiles.length} roles suggested. Click to post as staffing requests.</p>
+                {nuruProfiles.map((profile, idx) => (
+                  <div key={idx} className="bg-white rounded-lg border p-4" style={{ borderColor: "#e5eaf0" }}>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-sm font-semibold" style={{ color: "#0F2744" }}>{profile.role}</p>
+                        <p className="text-xs text-gray-500 mt-1">{profile.description}</p>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {profile.skills.map((s, i) => (
+                            <span key={i} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "#0F2744" + "10", color: "#0F2744" }}>{s}</span>
+                          ))}
+                        </div>
+                        <p className="text-[10px] text-gray-400 mt-1.5">{profile.hoursPerWeek}h/wk | {profile.rateType} | {profile.rationale}</p>
+                      </div>
+                      <button
+                        onClick={() => createFromProfile(profile, idx)}
+                        disabled={creatingProfileIdx === idx}
+                        className="text-xs px-3 py-1.5 rounded-lg text-white font-medium shrink-0 disabled:opacity-50"
+                        style={{ background: "#0F2744" }}
+                      >
+                        {creatingProfileIdx === idx ? "Posting..." : "Post Request"}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* AI Matching */}
       <ConsultantMatchingWidget
         projectId={project.id}
@@ -733,6 +1203,37 @@ function DeliverablesTab({
   const [newDeliv, setNewDeliv] = useState({ name: "", description: "", dueDate: "", assignmentId: "" });
   const [extraDeliverables, setExtraDeliverables] = useState<Deliverable[]>([]);
   const [suggesting, setSuggesting] = useState(false);
+  const [pricingLoading, setPricingLoading] = useState(false);
+  const [pricingSuggestion, setPricingSuggestion] = useState<{
+    estimatedHours: number;
+    complexityLevel: string;
+    suggestedPriceNGN: { low: number; mid: number; high: number };
+    suggestedPriceUSD: { low: number; mid: number; high: number };
+    recommendedTier: string;
+    rationale: string;
+  } | null>(null);
+
+  async function getPricing() {
+    if (!newDeliv.name.trim()) return;
+    setPricingLoading(true);
+    setPricingSuggestion(null);
+    try {
+      const res = await fetch("/api/ai/price-deliverable", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deliverableName: newDeliv.name,
+          description: newDeliv.description,
+          serviceType: project.serviceType,
+        }),
+      });
+      if (res.ok) {
+        const { pricing } = await res.json();
+        setPricingSuggestion(pricing);
+      }
+    } catch {}
+    finally { setPricingLoading(false); }
+  }
   const [suggestions, setSuggestions] = useState<{ name: string; description: string }[]>([]);
   const [addingSuggestion, setAddingSuggestion] = useState<number | null>(null);
   const [addedSuggestions, setAddedSuggestions] = useState<Set<number>>(new Set());
@@ -937,14 +1438,42 @@ function DeliverablesTab({
               </select>
             </div>
           </div>
-          <button
-            onClick={createDeliverable}
-            disabled={!newDeliv.name.trim() || saving}
-            className="px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-50"
-            style={{ background: "#0F2744", color: "#fff" }}
-          >
-            {saving ? "Creating..." : "Create Deliverable"}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={createDeliverable}
+              disabled={!newDeliv.name.trim() || saving}
+              className="px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-50"
+              style={{ background: "#0F2744", color: "#fff" }}
+            >
+              {saving ? "Creating..." : "Create Deliverable"}
+            </button>
+            <button
+              onClick={getPricing}
+              disabled={!newDeliv.name.trim() || pricingLoading}
+              className="px-3 py-2 rounded-lg text-xs font-medium disabled:opacity-50 flex items-center gap-1.5"
+              style={{ background: "#D4AF37" + "15", color: "#92400E", border: "1px solid " + "#D4AF37" + "40" }}
+            >
+              <Sparkles size={12} />
+              {pricingLoading ? "Analyzing..." : "Nuru: Suggest Pricing"}
+            </button>
+          </div>
+
+          {/* Pricing suggestion */}
+          {pricingSuggestion && (
+            <div className="mt-3 rounded-lg p-4" style={{ background: "#D4AF37" + "08", border: "1px solid " + "#D4AF37" + "25" }}>
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles size={12} style={{ color: "#D4AF37" }} />
+                <span className="text-xs font-semibold" style={{ color: "#0F2744" }}>Nuru Pricing Suggestion</span>
+              </div>
+              <div className="grid grid-cols-4 gap-3 mb-2">
+                <div><p className="text-[10px] text-gray-500">Hours Est.</p><p className="text-sm font-bold" style={{ color: "#0F2744" }}>{pricingSuggestion.estimatedHours}h</p></div>
+                <div><p className="text-[10px] text-gray-500">Complexity</p><p className="text-sm font-bold" style={{ color: "#0F2744" }}>{pricingSuggestion.complexityLevel}</p></div>
+                <div><p className="text-[10px] text-gray-500">NGN Range</p><p className="text-xs font-medium" style={{ color: "#0F2744" }}>{"\u20A6"}{pricingSuggestion.suggestedPriceNGN.low.toLocaleString()} - {"\u20A6"}{pricingSuggestion.suggestedPriceNGN.high.toLocaleString()}</p></div>
+                <div><p className="text-[10px] text-gray-500">Rec. Tier</p><p className="text-sm font-bold" style={{ color: "#0F2744" }}>{pricingSuggestion.recommendedTier}</p></div>
+              </div>
+              <p className="text-xs text-gray-500 leading-relaxed">{pricingSuggestion.rationale}</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -980,9 +1509,15 @@ function DeliverablesTab({
                 <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{d.description}</p>
                 <div className="flex items-center gap-3 mt-2 text-xs text-gray-400 flex-wrap">
                   {d.assignment ? (
-                    <span>{d.assignment.consultant.name}</span>
+                    <span className="inline-flex items-center gap-1">
+                      {d.assignment.consultant.name}
+                      <AssignDeliverableDropdown deliverableId={d.id} projectId={project.id} assignments={project.assignments} currentAssignmentId={d.assignment?.id ?? null} onAssigned={() => window.location.reload()} />
+                    </span>
                   ) : (
-                    <span className="text-amber-500">Unassigned</span>
+                    <span className="inline-flex items-center gap-1 text-amber-500">
+                      Unassigned
+                      <AssignDeliverableDropdown deliverableId={d.id} projectId={project.id} assignments={project.assignments} currentAssignmentId={null} onAssigned={() => window.location.reload()} />
+                    </span>
                   )}
                   {d.dueDate && (
                     <>
@@ -1058,15 +1593,61 @@ function DeliverablesTab({
 function TimelineTab({ project }: { project: Project }) {
   const startDate = new Date(project.startDate);
   const endDate = new Date(project.endDate);
-  const totalDays = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / 86400000));
+  const [milestones, setMilestones] = useState(project.milestones);
+  const [showAdd, setShowAdd] = useState(false);
+  const [addForm, setAddForm] = useState({ name: "", description: "", dueDate: "" });
+  const [addSaving, setAddSaving] = useState(false);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  async function addMilestone(e: React.FormEvent) {
+    e.preventDefault();
+    setAddSaving(true);
+    try {
+      const res = await fetch(`/api/projects/${project.id}/milestones`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(addForm),
+      });
+      if (res.ok) {
+        const { milestone } = await res.json();
+        setMilestones((prev) => [...prev, milestone].sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()));
+        setAddForm({ name: "", description: "", dueDate: "" });
+        setShowAdd(false);
+      }
+    } catch {}
+    finally { setAddSaving(false); }
+  }
+
+  async function cycleStatus(milestoneId: string, currentStatus: string) {
+    const next: Record<string, string> = { PENDING: "IN_PROGRESS", IN_PROGRESS: "COMPLETED", COMPLETED: "PENDING", DELAYED: "COMPLETED", SKIPPED: "PENDING" };
+    const newStatus = next[currentStatus] ?? "PENDING";
+    setUpdatingId(milestoneId);
+    try {
+      const res = await fetch(`/api/projects/${project.id}/milestones/${milestoneId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        const { milestone } = await res.json();
+        setMilestones((prev) => prev.map((m) => m.id === milestoneId ? milestone : m));
+      }
+    } catch {}
+    finally { setUpdatingId(null); }
+  }
+
+  async function deleteMilestone(milestoneId: string) {
+    if (!confirm("Delete this milestone?")) return;
+    try {
+      await fetch(`/api/projects/${project.id}/milestones/${milestoneId}`, { method: "DELETE" });
+      setMilestones((prev) => prev.filter((m) => m.id !== milestoneId));
+    } catch {}
+  }
 
   return (
     <div className="max-w-2xl space-y-6">
       {/* Progress bar */}
-      <div
-        className="rounded-xl p-5"
-        style={{ background: "#fff", border: "1px solid #e5eaf0" }}
-      >
+      <div className="rounded-xl p-5" style={{ background: "#fff", border: "1px solid #e5eaf0" }}>
         <div className="flex justify-between text-xs text-gray-500 mb-3">
           <span>{formatDate(startDate)}</span>
           <span className="font-medium text-gray-700">Today</span>
@@ -1077,39 +1658,55 @@ function TimelineTab({ project }: { project: Project }) {
             const pct = timelineProgress(startDate, endDate);
             return (
               <>
-                <div
-                  className="absolute h-full rounded-full"
-                  style={{ width: `${pct}%`, background: "#0F2744" }}
-                />
-                <div
-                  className="absolute w-3 h-3 rounded-full -mt-0.5 border-2 border-white shadow-sm"
-                  style={{ left: `calc(${pct}% - 6px)`, background: "#D4AF37" }}
-                />
+                <div className="absolute h-full rounded-full" style={{ width: `${pct}%`, background: "#0F2744" }} />
+                <div className="absolute w-3 h-3 rounded-full -mt-0.5 border-2 border-white shadow-sm" style={{ left: `calc(${pct}% - 6px)`, background: "#D4AF37" }} />
               </>
             );
           })()}
         </div>
       </div>
 
+      {/* Add milestone */}
+      <div className="flex justify-end">
+        <button onClick={() => setShowAdd(!showAdd)} className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white" style={{ background: "#0F2744" }}>
+          {showAdd ? "Cancel" : "Add Milestone"}
+        </button>
+      </div>
+
+      {showAdd && (
+        <form onSubmit={addMilestone} className="rounded-xl p-5 space-y-3" style={{ background: "#fff", border: "1px solid #e5eaf0" }}>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Name *</label>
+              <input required value={addForm.name} onChange={(e) => setAddForm((p) => ({ ...p, name: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ borderColor: "#e5eaf0" }} placeholder="e.g. Phase 1 Complete" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Due Date *</label>
+              <input required type="date" value={addForm.dueDate} onChange={(e) => setAddForm((p) => ({ ...p, dueDate: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ borderColor: "#e5eaf0" }} />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
+            <input value={addForm.description} onChange={(e) => setAddForm((p) => ({ ...p, description: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ borderColor: "#e5eaf0" }} placeholder="Brief description" />
+          </div>
+          <button type="submit" disabled={addSaving} className="text-xs px-3 py-1.5 rounded-lg text-white font-medium disabled:opacity-50" style={{ background: "#D4AF37" }}>
+            {addSaving ? "Adding..." : "Add"}
+          </button>
+        </form>
+      )}
+
       {/* Milestones */}
-      <div
-        className="rounded-xl overflow-hidden"
-        style={{ border: "1px solid #e5eaf0" }}
-      >
-        {project.milestones.length === 0 ? (
+      <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #e5eaf0" }}>
+        {milestones.length === 0 ? (
           <div className="bg-white p-10 text-center">
             <Flag size={28} className="text-gray-300 mx-auto mb-2" />
             <p className="text-gray-500 text-sm">No milestones defined yet.</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-50 bg-white">
-            {project.milestones.map((m, i) => {
+            {milestones.map((m, i) => {
               const due = new Date(m.dueDate);
               const overdue = due < new Date() && m.status !== "COMPLETED" && m.status !== "SKIPPED";
-              const milestonePos = Math.min(
-                100,
-                Math.max(0, ((due.getTime() - startDate.getTime()) / (endDate.getTime() - startDate.getTime())) * 100)
-              );
 
               const iconMap: Record<string, typeof CheckCircle2> = {
                 COMPLETED: CheckCircle2,
@@ -1118,7 +1715,7 @@ function TimelineTab({ project }: { project: Project }) {
                 IN_PROGRESS: Circle,
                 PENDING: Circle,
               };
-              const Icon = iconMap[m.status] ?? Circle;
+              const MIcon = iconMap[m.status] ?? Circle;
               const iconColor =
                 m.status === "COMPLETED"
                   ? "#10B981"
@@ -1129,17 +1726,27 @@ function TimelineTab({ project }: { project: Project }) {
                   : "#D1D5DB";
 
               return (
-                <div key={m.id} className="flex items-start gap-4 px-5 py-4">
+                <div key={m.id} className="flex items-start gap-4 px-5 py-4 group">
                   <div className="flex flex-col items-center gap-1 shrink-0">
-                    <Icon size={18} style={{ color: iconColor }} />
-                    {i < project.milestones.length - 1 && (
+                    <button
+                      onClick={() => cycleStatus(m.id, m.status)}
+                      disabled={updatingId === m.id}
+                      className="transition-transform hover:scale-110 disabled:opacity-50"
+                      title="Click to cycle status"
+                    >
+                      <MIcon size={18} style={{ color: iconColor }} />
+                    </button>
+                    {i < milestones.length - 1 && (
                       <div className="w-0.5 h-6 bg-gray-100" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-sm font-medium text-gray-900">{m.name}</p>
-                      <StatusBadge status={m.status} />
+                      <div className="flex items-center gap-2">
+                        <StatusBadge status={m.status} />
+                        <button onClick={() => deleteMilestone(m.id)} className="text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs">x</button>
+                      </div>
                     </div>
                     <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{m.description}</p>
                     <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
@@ -1162,6 +1769,85 @@ function TimelineTab({ project }: { project: Project }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ─── Assign Deliverable Dropdown ──────────────────────────────────────────────
+
+function AssignDeliverableDropdown({
+  deliverableId,
+  projectId,
+  assignments,
+  currentAssignmentId,
+  onAssigned,
+}: {
+  deliverableId: string;
+  projectId: string;
+  assignments: Assignment[];
+  currentAssignmentId: string | null;
+  onAssigned: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  async function assign(assignmentId: string | null) {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/deliverables/${deliverableId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assignmentId }),
+      });
+      if (res.ok) {
+        setOpen(false);
+        onAssigned();
+      }
+    } catch {}
+    finally { setSaving(false); }
+  }
+
+  return (
+    <div className="relative inline-block">
+      <button
+        onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
+        className="text-[10px] text-blue-600 hover:underline"
+      >
+        {currentAssignmentId ? "(reassign)" : "(assign)"}
+      </button>
+      {open && (
+        <div className="absolute z-20 left-0 top-full mt-1 bg-white border rounded-lg shadow-lg min-w-[180px]" style={{ borderColor: "#e5eaf0" }}>
+          {assignments.length === 0 ? (
+            <p className="px-3 py-2 text-xs text-gray-400">No consultants assigned to this project</p>
+          ) : (
+            <>
+              {assignments.map((a) => (
+                <button
+                  key={a.id}
+                  onClick={() => assign(a.id)}
+                  disabled={saving || a.id === currentAssignmentId}
+                  className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors disabled:opacity-40 ${a.id === currentAssignmentId ? "bg-blue-50 font-medium" : ""}`}
+                >
+                  {a.consultant.name} <span className="text-gray-400">({a.role})</span>
+                </button>
+              ))}
+              {currentAssignmentId && (
+                <button
+                  onClick={() => assign(null)}
+                  disabled={saving}
+                  className="w-full text-left px-3 py-2 text-xs text-red-500 hover:bg-red-50 border-t transition-colors"
+                  style={{ borderColor: "#F3F4F6" }}
+                >
+                  Unassign
+                </button>
+              )}
+            </>
+          )}
+          <button onClick={() => setOpen(false)} className="w-full text-left px-3 py-1.5 text-[10px] text-gray-400 border-t" style={{ borderColor: "#F3F4F6" }}>
+            Cancel
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -1228,6 +1914,166 @@ function BudgetBar({
         <span>{formatCompactCurrency(spent, currency)}</span>
         <span>{formatCompactCurrency(total, currency)}</span>
       </div>
+    </div>
+  );
+}
+
+// ─── Calls Tab ───────────────────────────────────────────────────────────────
+
+function CallsTab({ project, isEM }: { project: Project; isEM: boolean }) {
+  const [interactions, setInteractions] = useState(project.interactions);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ type: "CALL", summary: "", sentiment: "NEUTRAL", conductedAt: "", nextActionDate: "", nextActionNote: "" });
+  const [saving, setSaving] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/projects/${project.id}/interactions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error("Failed");
+      const data = await res.json();
+      setInteractions((prev) => [data.interaction, ...prev]);
+      setForm({ type: "CALL", summary: "", sentiment: "NEUTRAL", conductedAt: "", nextActionDate: "", nextActionNote: "" });
+      setShowForm(false);
+    } catch {}
+    finally { setSaving(false); }
+  }
+
+  const TYPE_ICONS: Record<string, string> = {
+    CALL: "phone",
+    MEETING: "users",
+    EMAIL: "mail",
+    WORKSHOP: "presentation",
+    SITE_VISIT: "building",
+    REPORT_DELIVERY: "file",
+  };
+
+  const SENTIMENT_STYLES: Record<string, { bg: string; text: string }> = {
+    POSITIVE: { bg: "bg-green-50", text: "text-green-700" },
+    NEUTRAL: { bg: "bg-gray-100", text: "text-gray-600" },
+    CONCERNED: { bg: "bg-amber-50", text: "text-amber-700" },
+    NEGATIVE: { bg: "bg-red-50", text: "text-red-700" },
+  };
+
+  return (
+    <div className="space-y-6 max-w-4xl">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold" style={{ color: "#0F2744" }}>
+          Client Interactions ({interactions.length})
+        </h2>
+        {isEM && (
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="text-sm font-semibold px-4 py-2 rounded-lg text-white"
+            style={{ background: "#0F2744" }}
+          >
+            {showForm ? "Cancel" : "Record Interaction"}
+          </button>
+        )}
+      </div>
+
+      {showForm && (
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border p-5 space-y-4" style={{ borderColor: "#e5eaf0" }}>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Type</label>
+              <select value={form.type} onChange={(e) => setForm((p) => ({ ...p, type: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ borderColor: "#e5eaf0" }}>
+                <option value="CALL">Call</option>
+                <option value="MEETING">Meeting</option>
+                <option value="EMAIL">Email</option>
+                <option value="WORKSHOP">Workshop</option>
+                <option value="SITE_VISIT">Site Visit</option>
+                <option value="REPORT_DELIVERY">Report Delivery</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Sentiment</label>
+              <select value={form.sentiment} onChange={(e) => setForm((p) => ({ ...p, sentiment: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ borderColor: "#e5eaf0" }}>
+                <option value="POSITIVE">Positive</option>
+                <option value="NEUTRAL">Neutral</option>
+                <option value="CONCERNED">Concerned</option>
+                <option value="NEGATIVE">Negative</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
+              <input type="datetime-local" value={form.conductedAt} onChange={(e) => setForm((p) => ({ ...p, conductedAt: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ borderColor: "#e5eaf0" }} />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Summary *</label>
+            <textarea required value={form.summary} onChange={(e) => setForm((p) => ({ ...p, summary: e.target.value }))} rows={4} className="w-full border rounded-lg px-3 py-2 text-sm resize-none" style={{ borderColor: "#e5eaf0" }} placeholder="Key discussion points, decisions made, client feedback..." />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Next Action Date</label>
+              <input type="date" value={form.nextActionDate} onChange={(e) => setForm((p) => ({ ...p, nextActionDate: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ borderColor: "#e5eaf0" }} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Next Action</label>
+              <input value={form.nextActionNote} onChange={(e) => setForm((p) => ({ ...p, nextActionNote: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ borderColor: "#e5eaf0" }} placeholder="Follow-up action..." />
+            </div>
+          </div>
+          <button type="submit" disabled={saving} className="text-sm px-4 py-2 rounded-lg text-white font-medium disabled:opacity-50" style={{ background: "#0F2744" }}>
+            {saving ? "Saving..." : "Record"}
+          </button>
+        </form>
+      )}
+
+      {interactions.length === 0 ? (
+        <div className="bg-white rounded-xl border p-10 text-center" style={{ borderColor: "#e5eaf0" }}>
+          <p className="text-gray-400">No client interactions recorded yet.</p>
+          {isEM && <p className="text-xs text-gray-300 mt-1">Record calls, meetings, and emails to track the client relationship.</p>}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {interactions.map((i) => {
+            const sentStyle = SENTIMENT_STYLES[i.sentiment] ?? SENTIMENT_STYLES.NEUTRAL;
+            const hasNextAction = i.nextActionDate || i.nextActionNote;
+            const isOverdue = i.nextActionDate && new Date(i.nextActionDate) < new Date();
+
+            return (
+              <div key={i.id} className="bg-white rounded-xl border p-5" style={{ borderColor: "#e5eaf0" }}>
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-medium px-2.5 py-1 rounded-lg" style={{ background: "#0F2744" + "08", color: "#0F2744" }}>
+                      {i.type.replace(/_/g, " ")}
+                    </span>
+                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${sentStyle.bg} ${sentStyle.text}`}>
+                      {i.sentiment}
+                    </span>
+                  </div>
+                  <span className="text-xs text-gray-400">
+                    {new Date(i.conductedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </div>
+
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{i.summary}</p>
+
+                {hasNextAction && (
+                  <div className={`mt-3 pt-3 border-t flex items-start gap-2 ${isOverdue ? "text-red-600" : "text-gray-500"}`} style={{ borderColor: "#e5eaf0" }}>
+                    <span className="text-xs font-semibold">Next:</span>
+                    <div className="text-xs">
+                      {i.nextActionNote && <span>{i.nextActionNote}</span>}
+                      {i.nextActionDate && (
+                        <span className="ml-1">
+                          (by {new Date(i.nextActionDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                          {isOverdue && " - overdue"})
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
