@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import MaarovaLogoutButton from "./MaarovaLogoutButton";
+import MaarovaMobileNav from "./MaarovaMobileNav";
 
 const baseNavItems = [
   { label: "Dashboard", href: "/maarova/portal/dashboard", icon: "grid" },
@@ -89,10 +90,16 @@ export default async function MaarovaPortalLayout({
   const isManager = role === "MANAGER" || role === "HR_ADMIN";
   const isHR = role === "HR_ADMIN";
 
+  const allNavItems = [
+    ...baseNavItems,
+    ...(isManager ? managerNavItems : []),
+    ...(isHR ? hrNavItems : []),
+  ];
+
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="w-64 flex flex-col" style={{ backgroundColor: "#0f1a2a" }}>
+    <div className="flex h-[100dvh] bg-gray-50">
+      {/* Desktop Sidebar - hidden on mobile */}
+      <aside className="hidden lg:flex w-64 flex-col flex-shrink-0" style={{ backgroundColor: "#0f1a2a" }}>
         {/* Brand */}
         <div className="px-6 py-6 border-b border-white/10">
           <div className="flex items-center gap-3">
@@ -185,8 +192,15 @@ export default async function MaarovaPortalLayout({
         </div>
       </aside>
 
+      {/* Mobile Header + Nav */}
+      <MaarovaMobileNav
+        userName={session.name}
+        userEmail={session.email}
+        navItems={allNavItems}
+      />
+
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto pt-14 lg:pt-0">
         {children}
       </main>
     </div>

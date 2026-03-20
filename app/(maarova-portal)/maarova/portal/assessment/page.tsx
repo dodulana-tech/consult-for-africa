@@ -101,9 +101,9 @@ export default async function AssessmentLauncherPage() {
     totalCoreModules > 0 ? Math.round((completedCount / totalCoreModules) * 100) : 0;
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">
           Leadership Assessment
         </h1>
@@ -116,7 +116,7 @@ export default async function AssessmentLauncherPage() {
       {!session ? (
         /* No session - show begin button */
         <div
-          className="rounded-2xl p-12 text-center"
+          className="rounded-2xl p-6 sm:p-12 text-center"
           style={{
             background: "linear-gradient(135deg, #0f1a2a 0%, #1a2d45 100%)",
           }}
@@ -144,7 +144,7 @@ export default async function AssessmentLauncherPage() {
             Ready to begin your assessment?
           </h2>
           <p
-            className="mb-8 max-w-md mx-auto text-sm leading-relaxed"
+            className="mb-5 sm:mb-8 max-w-md mx-auto text-sm leading-relaxed"
             style={{ color: "rgba(255,255,255,0.5)" }}
           >
             The Maarova Leadership Assessment takes approximately 45 to 60
@@ -158,12 +158,12 @@ export default async function AssessmentLauncherPage() {
       ) : (
         <>
           {/* Progress bar */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
+          <div className="mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-1">
               <span className="text-sm font-medium text-gray-700">
                 Overall Progress
               </span>
-              <span className="text-sm text-gray-500">
+              <span className="text-xs sm:text-sm text-gray-500">
                 {completedCount} of {totalCoreModules} core modules completed
               </span>
             </div>
@@ -213,7 +213,7 @@ export default async function AssessmentLauncherPage() {
               return (
                 <div
                   key={mr.id}
-                  className="rounded-xl border p-6 flex items-center gap-5 transition-all hover:shadow-md"
+                  className="rounded-xl border p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5 transition-all hover:shadow-md"
                   style={{
                     borderColor: isCompleted
                       ? "rgba(16,185,129,0.2)"
@@ -271,7 +271,7 @@ export default async function AssessmentLauncherPage() {
                     <p className="text-sm text-gray-500 mb-1 line-clamp-1">
                       {mod.description}
                     </p>
-                    <div className="flex items-center gap-4 text-xs text-gray-400">
+                    <div className="flex items-center gap-2 sm:gap-4 text-xs text-gray-400">
                       <span>{mod.estimatedMinutes} min</span>
                       {answeredCount > 0 && !isCompleted && (
                         <span>{answeredCount} answers saved</span>
@@ -289,7 +289,7 @@ export default async function AssessmentLauncherPage() {
                   </div>
 
                   {/* Action */}
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 w-full sm:w-auto">
                     {isCompleted ? (
                       <Link
                         href={`/maarova/portal/results#module-${mod.type}`}
@@ -335,7 +335,7 @@ export default async function AssessmentLauncherPage() {
                 const isCompleted = mr.status === "COMPLETED";
                 return (
                   <div
-                    className="rounded-xl border p-6 flex items-start gap-5"
+                    className="rounded-xl border p-4 sm:p-6 flex flex-col sm:flex-row items-start gap-3 sm:gap-5"
                     style={{ borderColor: "rgba(0,0,0,0.06)", background: "#FAFBFC" }}
                   >
                     <div
@@ -373,7 +373,7 @@ export default async function AssessmentLauncherPage() {
           )}
 
           {/* Session info */}
-          <div className="mt-8 text-xs text-gray-400 flex items-center gap-4">
+          <div className="mt-6 sm:mt-8 text-xs text-gray-400 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
             <span>
               Session expires:{" "}
               {new Date(session.expiresAt).toLocaleDateString("en-NG", {

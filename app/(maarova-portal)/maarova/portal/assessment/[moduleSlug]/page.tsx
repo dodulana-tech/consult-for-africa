@@ -258,40 +258,40 @@ export default function AssessmentModulePage({
           borderColor: "rgba(0,0,0,0.06)",
         }}
       >
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="max-w-4xl mx-auto px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
             <Link
               href="/maarova/portal/assessment"
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </Link>
-            <div>
-              <h1 className="text-base font-semibold text-gray-900">
+            <div className="min-w-0">
+              <h1 className="text-sm sm:text-base font-semibold text-gray-900 truncate">
                 {data.module.name}
               </h1>
-              <p className="text-xs text-gray-400">
+              <p className="text-[11px] sm:text-xs text-gray-400">
                 Group {currentGroupIndex + 1} of {totalGroups}
                 {currentGroup.name ? ` \u00b7 ${currentGroup.name}` : ""}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
             {saving && (
-              <span className="text-xs text-gray-400 flex items-center gap-1">
+              <span className="text-[11px] sm:text-xs text-gray-400 flex items-center gap-1">
                 <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" />
                   <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" />
                 </svg>
-                Saving...
+                <span className="hidden sm:inline">Saving...</span>
               </span>
             )}
             <div className="text-right">
-              <span className="text-xs text-gray-500">
-                {answeredCount}/{totalQuestions} answered
+              <span className="text-[11px] sm:text-xs text-gray-500">
+                {answeredCount}/{totalQuestions}
               </span>
             </div>
           </div>
@@ -311,7 +311,7 @@ export default function AssessmentModulePage({
 
       {/* Error banner */}
       {error && (
-        <div className="max-w-4xl mx-auto px-6 mt-4">
+        <div className="max-w-4xl mx-auto px-3 sm:px-6 mt-4">
           <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-center justify-between">
             <span>{error}</span>
             <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600">
@@ -324,11 +324,11 @@ export default function AssessmentModulePage({
       )}
 
       {/* Questions */}
-      <div className="flex-1 max-w-4xl mx-auto px-6 py-8 w-full">
+      <div className="flex-1 max-w-4xl mx-auto px-3 sm:px-6 py-4 sm:py-8 w-full">
         {/* Group context */}
         {currentGroup.context && (
           <div
-            className="mb-8 p-5 rounded-xl border"
+            className="mb-4 sm:mb-8 p-3 sm:p-5 rounded-xl border"
             style={{
               background: "rgba(212,165,116,0.04)",
               borderColor: "rgba(212,165,116,0.15)",
@@ -344,7 +344,7 @@ export default function AssessmentModulePage({
           <p className="text-sm text-gray-500 mb-6">{currentGroup.description}</p>
         )}
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {currentGroup.questions.map((q, qi) => (
             <QuestionCard
               key={q.id}
@@ -362,13 +362,13 @@ export default function AssessmentModulePage({
         className="sticky bottom-0 border-t bg-white"
         style={{ borderColor: "rgba(0,0,0,0.06)" }}
       >
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <button
             onClick={() => setCurrentGroupIndex((i) => Math.max(0, i - 1))}
             disabled={currentGroupIndex === 0}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="px-3 sm:px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
-            Previous
+            Prev
           </button>
 
           <div className="flex gap-1.5">
@@ -439,7 +439,7 @@ function QuestionCard({
   onAnswer: (val: unknown) => void;
 }) {
   return (
-    <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-gray-100 bg-white p-3 sm:p-6 shadow-sm">
       <p className="text-sm font-medium text-gray-900 mb-4">
         <span className="text-gray-300 mr-2">{index + 1}.</span>
         {question.text}
@@ -511,7 +511,7 @@ function ForcedChoiceInput({
 
   return (
     <div className="space-y-0">
-      <div className="grid grid-cols-[1fr_72px_72px] gap-2 mb-2">
+      <div className="grid grid-cols-[1fr_56px_56px] sm:grid-cols-[1fr_72px_72px] gap-1 sm:gap-2 mb-2">
         <span className="text-xs text-gray-400 pl-1">Statement</span>
         <span className="text-xs text-gray-400 text-center">Most</span>
         <span className="text-xs text-gray-400 text-center">Least</span>
@@ -519,7 +519,7 @@ function ForcedChoiceInput({
       {rawOptions.map((opt, i) => (
         <div
           key={`${opt.dimension}-${i}`}
-          className="grid grid-cols-[1fr_72px_72px] gap-2 items-center py-2.5 border-b border-gray-50 last:border-0"
+          className="grid grid-cols-[1fr_56px_56px] sm:grid-cols-[1fr_72px_72px] gap-1 sm:gap-2 items-center py-2.5 border-b border-gray-50 last:border-0"
         >
           <span className="text-sm text-gray-700">{opt.label}</span>
           <div className="flex justify-center">
@@ -646,7 +646,7 @@ function ScenarioInput({
               dimension: question.dimension ?? opt.eqDimension,
             })
           }
-          className="w-full text-left p-3.5 rounded-lg border-2 text-sm transition-all"
+          className="w-full text-left p-2.5 sm:p-3.5 rounded-lg border-2 text-sm transition-all"
           style={{
             borderColor:
               current.selectedIndex === i
@@ -699,7 +699,7 @@ function LikertInput({
 
   return (
     <div>
-      <div className="flex justify-between gap-1">
+      <div className="grid grid-cols-5 sm:flex sm:justify-between gap-1">
         {labels.map((label, i) => {
           const val = i + 1;
           const isSelected = current.value === val;
@@ -709,7 +709,7 @@ function LikertInput({
               onClick={() =>
                 onAnswer({ value: val, dimension: question.dimension })
               }
-              className="flex-1 flex flex-col items-center gap-2 py-3 px-1 rounded-lg transition-all"
+              className="flex flex-col items-center gap-1 sm:gap-2 py-2 sm:py-3 px-1 rounded-lg transition-all sm:flex-1"
               style={{
                 background: isSelected
                   ? "rgba(212,165,116,0.1)"
@@ -717,7 +717,7 @@ function LikertInput({
               }}
             >
               <div
-                className="w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-semibold transition-all"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 flex items-center justify-center text-xs sm:text-sm font-semibold transition-all"
                 style={{
                   borderColor: isSelected ? "#D4A574" : "rgba(0,0,0,0.1)",
                   background: isSelected ? "#D4A574" : "transparent",
@@ -727,7 +727,7 @@ function LikertInput({
                 {val}
               </div>
               <span
-                className="text-[10px] leading-tight text-center"
+                className="text-[9px] sm:text-[10px] leading-tight text-center hidden sm:block"
                 style={{ color: isSelected ? "#D4A574" : "#9CA3AF" }}
               >
                 {label}
@@ -735,6 +735,11 @@ function LikertInput({
             </button>
           );
         })}
+      </div>
+      {/* Mobile labels: just show endpoints */}
+      <div className="flex justify-between mt-1 sm:hidden">
+        <span className="text-[9px] text-gray-400">{labels[0]}</span>
+        <span className="text-[9px] text-gray-400">{labels[labels.length - 1]}</span>
       </div>
     </div>
   );
@@ -756,7 +761,7 @@ function FrequencyInput({
 
   return (
     <div>
-      <div className="flex justify-between gap-1">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-1 sm:gap-1">
         {labels.map((label, i) => {
           const val = i + 1;
           const isSelected = current.value === val;
@@ -766,7 +771,7 @@ function FrequencyInput({
               onClick={() =>
                 onAnswer({ value: val, dimension: question.dimension })
               }
-              className="flex-1 py-3 px-2 rounded-lg border-2 text-center transition-all"
+              className="py-2 sm:py-3 px-1 sm:px-2 rounded-lg border-2 text-center transition-all"
               style={{
                 borderColor: isSelected ? "#D4A574" : "rgba(0,0,0,0.06)",
                 background: isSelected
@@ -775,7 +780,7 @@ function FrequencyInput({
               }}
             >
               <span
-                className="text-sm font-medium block"
+                className="text-xs sm:text-sm font-medium block"
                 style={{ color: isSelected ? "#D4A574" : "#6B7280" }}
               >
                 {label}

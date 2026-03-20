@@ -59,9 +59,9 @@ export default async function MaarovaDashboardPage() {
   const assessmentComplete = assessmentSession?.status === "COMPLETED";
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-5xl mx-auto">
       {/* Greeting */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl font-bold text-gray-900">
           Welcome back, {firstName}
         </h1>
@@ -75,7 +75,7 @@ export default async function MaarovaDashboardPage() {
       {/* ── Hero: Archetype card (when report is ready) ──────────────── */}
       {hasReport && report?.leadershipArchetype && (
         <div
-          className="rounded-2xl p-8 mb-6"
+          className="rounded-2xl p-5 sm:p-8 mb-6"
           style={{ background: "linear-gradient(135deg, #0f1a2a 0%, #1a2d45 100%)" }}
         >
           <p className="text-xs uppercase tracking-wider mb-3" style={{ color: "#D4A574" }}>
@@ -120,10 +120,10 @@ export default async function MaarovaDashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
 
         {/* ── Assessment Status ──────────────────────────────────────── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 lg:col-span-2">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-gray-900">Assessment Progress</h2>
             {assessmentComplete && (
@@ -251,7 +251,7 @@ export default async function MaarovaDashboardPage() {
         </div>
 
         {/* ── Coaching ───────────────────────────────────────────────── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
           <h2 className="text-base font-semibold text-gray-900 mb-4">Coaching</h2>
           {coachingMatch ? (
             <div>
@@ -295,7 +295,7 @@ export default async function MaarovaDashboardPage() {
         </div>
 
         {/* ── Development Goals ──────────────────────────────────────── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-gray-900">Development Goals</h2>
             {developmentGoals.length > 0 && (
@@ -343,7 +343,7 @@ export default async function MaarovaDashboardPage() {
         </div>
 
         {/* ── Quick Links ────────────────────────────────────────────── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 lg:col-span-2">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 lg:col-span-2">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { href: "/maarova/portal/assessment", label: "Assessment", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
@@ -354,7 +354,7 @@ export default async function MaarovaDashboardPage() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex flex-col items-center gap-2 px-4 py-4 rounded-xl transition-all hover:bg-gray-50 hover:shadow-sm"
+                className="flex flex-col items-center gap-2 px-3 py-3 sm:px-4 sm:py-4 rounded-xl transition-all hover:bg-gray-50 hover:shadow-sm"
                 style={{ border: "1px solid #e5eaf0" }}
               >
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
