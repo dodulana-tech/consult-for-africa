@@ -144,7 +144,7 @@ export default function Contact() {
               >
                 <h2 className="text-base font-semibold" style={{ color: "#0F2744" }}>Send us a message</h2>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1.5">Your Name</label>
                     <input
