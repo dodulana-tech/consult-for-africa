@@ -687,6 +687,31 @@ function TeamTab({ project, isEM }: { project: Project; isEM: boolean }) {
   const [nuruProfiles, setNuruProfiles] = useState<Array<{ role: string; description: string; skills: string[]; hoursPerWeek: number; rateType: string; rationale: string }>>([]);
   const [localStaffingRequests, setLocalStaffingRequests] = useState(project.staffingRequests);
   const [creatingProfileIdx, setCreatingProfileIdx] = useState<number | null>(null);
+  const [expandedRequestId, setExpandedRequestId] = useState<string | null>(null);
+  const [expressions, setExpressions] = useState<Array<{ id: string; note: string | null; status: string; consultant: { id: string; name: string; email: string; profile: { title: string; location: string; tier: string; yearsExperience: number } | null } }>>([]);
+  const [loadingExpressions, setLoadingExpressions] = useState(false);
+  const [actioningExpression, setActioningExpression] = useState<string | null>(null);
+
+  async function toggleExpressions(requestId: string) {
+    if (expandedRequestId === requestId) { setExpandedRequestId(null); return; }
+    setExpandedRequestId(requestId);
+    setLoadingExpressions(true);
+    try {
+      const res = await fetch(`/api/staffing/${requestId}/expressions`);
+      if (res.ok) { const data = await res.json(); setExpressions(data.expressions ?? []); }
+    } catch {}
+    finally { setLoadingExpressions(false); }
+  }
+
+  async function handleExpressionAction(requestId: string, expressionId: string, action: string) {
+    setActioningExpression(expressionId);
+    try {
+      await fetch(`/api/staffing/${requestId}/expressions`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ expressionId, action }) });
+      const res = await fetch(`/api/staffing/${requestId}/expressions`);
+      if (res.ok) { const data = await res.json(); setExpressions(data.expressions ?? []); }
+    } catch {}
+    finally { setActioningExpression(null); }
+  }
 
   // All available skills from taxonomy
   const ALL_SKILLS = [
@@ -1094,29 +1119,77 @@ function TeamTab({ project, isEM }: { project: Project; isEM: boolean }) {
                 CANCELLED: { bg: "bg-gray-100", text: "text-gray-500" },
               };
               const st = statusColors[sr.status] ?? statusColors.OPEN;
+              const isExpanded = expandedRequestId === sr.id;
               return (
-                <div key={sr.id} className="px-5 py-3 bg-white">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium" style={{ color: "#0F2744" }}>{sr.role}</span>
-                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>{sr.status}</span>
-                      {sr.expressionCount > 0 && (
-                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">
-                          {sr.expressionCount} interested
-                        </span>
-                      )}
+                <div key={sr.id} className="bg-white">
+                  <button
+                    onClick={() => sr.expressionCount > 0 ? toggleExpressions(sr.id) : undefined}
+                    className={`w-full text-left px-5 py-3 ${sr.expressionCount > 0 ? "cursor-pointer hover:bg-gray-50" : ""} transition-colors`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium" style={{ color: "#0F2744" }}>{sr.role}</span>
+                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>{sr.status}</span>
+                        {sr.expressionCount > 0 && (
+                          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">
+                            {sr.expressionCount} interested {isExpanded ? "▾" : "▸"}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-gray-400">
+                        {sr.hoursPerWeek}h/wk | {sr.rateType.replace(/_/g, " ")}
+                        {sr.rateBudget ? ` | ${sr.rateCurrency} ${sr.rateBudget.toLocaleString()}` : ""}
+                      </span>
                     </div>
-                    <span className="text-[10px] text-gray-400">
-                      {sr.hoursPerWeek}h/wk | {sr.rateType.replace(/_/g, " ")}
-                      {sr.rateBudget ? ` | ${sr.rateCurrency} ${sr.rateBudget.toLocaleString()}` : ""}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-500 line-clamp-1">{sr.description}</p>
-                  {sr.skillsRequired.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      {sr.skillsRequired.slice(0, 5).map((s, i) => (
-                        <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{s}</span>
-                      ))}
+                    <p className="text-xs text-gray-500 line-clamp-1">{sr.description}</p>
+                    {sr.skillsRequired.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {sr.skillsRequired.slice(0, 5).map((s, i) => (
+                          <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{s}</span>
+                        ))}
+                      </div>
+                    )}
+                  </button>
+
+                  {/* Expressions review (inline) */}
+                  {isExpanded && (
+                    <div className="px-5 pb-4 border-t" style={{ borderColor: "#e5eaf0" }}>
+                      {loadingExpressions ? (
+                        <div className="flex items-center justify-center py-4">
+                          <div className="w-4 h-4 border-2 border-gray-200 border-t-gray-600 rounded-full animate-spin" />
+                        </div>
+                      ) : expressions.length === 0 ? (
+                        <p className="text-xs text-gray-400 py-3">No expressions loaded.</p>
+                      ) : (
+                        <div className="space-y-2 pt-3">
+                          {expressions.map((exp) => (
+                            <div key={exp.id} className="rounded-lg border p-3" style={{ borderColor: "#e5eaf0" }}>
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <p className="text-sm font-medium" style={{ color: "#0F2744" }}>{exp.consultant.name}</p>
+                                  <p className="text-[10px] text-gray-400">
+                                    {exp.consultant.profile?.title ?? exp.consultant.email}
+                                    {exp.consultant.profile ? ` | ${exp.consultant.profile.location} | ${exp.consultant.profile.tier} | ${exp.consultant.profile.yearsExperience}yr` : ""}
+                                  </p>
+                                </div>
+                                <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${exp.status === "INTERESTED" ? "bg-blue-50 text-blue-700" : exp.status === "SHORTLISTED" ? "bg-amber-50 text-amber-700" : exp.status === "SELECTED" ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                                  {exp.status}
+                                </span>
+                              </div>
+                              {exp.note && <p className="text-xs text-gray-600 mt-1.5 bg-gray-50 rounded p-2">{exp.note}</p>}
+                              {(exp.status === "INTERESTED" || exp.status === "SHORTLISTED") && (
+                                <div className="flex gap-2 mt-2">
+                                  {exp.status === "INTERESTED" && (
+                                    <button onClick={() => handleExpressionAction(sr.id, exp.id, "SHORTLISTED")} disabled={actioningExpression === exp.id} className="text-[10px] font-medium px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 disabled:opacity-50">Shortlist</button>
+                                  )}
+                                  <button onClick={() => handleExpressionAction(sr.id, exp.id, "SELECTED")} disabled={actioningExpression === exp.id} className="text-[10px] font-medium px-2 py-1 rounded bg-green-50 text-green-700 hover:bg-green-100 disabled:opacity-50">Select & Assign</button>
+                                  <button onClick={() => handleExpressionAction(sr.id, exp.id, "PASSED")} disabled={actioningExpression === exp.id} className="text-[10px] text-gray-400 hover:text-gray-600 disabled:opacity-50">Pass</button>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1791,6 +1864,9 @@ function DeliverableFeeEditor({ deliverable, projectServiceType, budgetSensitivi
   const [fee, setFee] = useState(deliverable.fee?.toString() ?? "");
   const [currency, setCurrency] = useState(deliverable.feeCurrency ?? "NGN");
   const [saving, setSaving] = useState(false);
+  const [savedFee, setSavedFee] = useState(deliverable.fee);
+  const [savedCurrency, setSavedCurrency] = useState(deliverable.feeCurrency ?? "NGN");
+  const [savedPaidAt, setSavedPaidAt] = useState(deliverable.feePaidAt);
   const [nuruPricing, setNuruPricing] = useState(false);
   const [suggestion, setSuggestion] = useState<{ suggestedPriceNGN?: { mid: number }; suggestedPriceUSD?: { mid: number }; estimatedHours?: number; rationale?: string } | null>(null);
 
@@ -1817,22 +1893,22 @@ function DeliverableFeeEditor({ deliverable, projectServiceType, budgetSensitivi
   }
 
   // Don't show if deliverable is already paid
-  if (deliverable.feePaidAt) {
+  if (savedPaidAt) {
     return (
       <div className="mt-2 flex items-center gap-2 text-xs">
         <span className="px-2 py-0.5 rounded-full bg-green-50 text-green-700 font-medium">
-          Paid: {currency === "USD" ? "$" : "\u20A6"}{Number(deliverable.fee).toLocaleString()}
+          Paid: {savedCurrency === "USD" ? "$" : "\u20A6"}{Number(savedFee).toLocaleString()}
         </span>
       </div>
     );
   }
 
   // Show fee if set but not editing
-  if (deliverable.fee && !editing) {
+  if (savedFee && !editing) {
     return (
       <div className="mt-2 flex items-center gap-2 text-xs">
         <span className="font-medium" style={{ color: "#0F2744" }}>
-          Fee: {currency === "USD" ? "$" : "\u20A6"}{Number(deliverable.fee).toLocaleString()}
+          Fee: {savedCurrency === "USD" ? "$" : "\u20A6"}{Number(savedFee).toLocaleString()}
         </span>
         <button onClick={() => setEditing(true)} className="text-blue-600 hover:underline text-[10px]">(edit)</button>
       </div>
@@ -1842,13 +1918,16 @@ function DeliverableFeeEditor({ deliverable, projectServiceType, budgetSensitivi
   async function saveFee() {
     setSaving(true);
     try {
-      await fetch(`/api/deliverables/${deliverable.id}`, {
+      const res = await fetch(`/api/deliverables/${deliverable.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fee: parseFloat(fee) || null, feeCurrency: currency }),
       });
-      setEditing(false);
-      window.location.reload();
+      if (res.ok) {
+        setSavedFee(parseFloat(fee) || null);
+        setSavedCurrency(currency);
+        setEditing(false);
+      }
     } catch {}
     finally { setSaving(false); }
   }
