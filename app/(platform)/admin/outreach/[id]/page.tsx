@@ -289,6 +289,14 @@ export default function CampaignDetailPage() {
                           Skip
                         </button>
                       )}
+                      {(t.status === "INVITED" || t.status === "NO_RESPONSE") && t.email && (
+                        <button
+                          onClick={() => updateTargetStatus(t.id, "INVITED")}
+                          className="text-xs px-2 py-1.5 rounded-lg text-blue-600 hover:bg-blue-50"
+                        >
+                          Resend Invite
+                        </button>
+                      )}
                       {t.status === "INVITED" && (
                         <button
                           onClick={() => updateTargetStatus(t.id, "DECLINED")}

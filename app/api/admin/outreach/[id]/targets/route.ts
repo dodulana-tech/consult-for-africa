@@ -74,6 +74,8 @@ export async function PATCH(
     emailOutreachInvite({
       targetEmail: updated.email,
       targetName: updated.name,
+      targetTitle: updated.title ?? undefined,
+      targetOrg: updated.organization ?? undefined,
       campaignName: campaign?.name ?? "Maarova Leadership Assessment",
     }).catch((err) => console.error("[outreach] invite email failed:", err));
   }

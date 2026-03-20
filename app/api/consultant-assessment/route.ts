@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { getQuestionBank } from "@/lib/consultantAssessment/questions";
+import { getQuestionBank, getAssessmentExpiry } from "@/lib/consultantAssessment/questions";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -15,7 +15,15 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Specialty is required" }, { status: 400 });
   }
 
-  const questionBank = getQuestionBank(specialty);
+  // Get the candidate's track from their talent application
+  const talentApp = await prisma.talentApplication.findFirst({
+    where: { convertedToUserId: session.user.id },
+    select: { track: true },
+    orderBy: { createdAt: "desc" },
+  });
+  const track = talentApp?.track ?? "CONSULTANT";
+
+  const questionBank = getQuestionBank(specialty, track);
   if (!questionBank) {
     return Response.json({ error: "Invalid specialty" }, { status: 400 });
   }
@@ -46,7 +54,7 @@ export async function POST(req: NextRequest) {
     data: { status: "EXPIRED" },
   });
 
-  const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
+  const expiresAt = new Date(Date.now() + getAssessmentExpiry(track));
 
   const assessment = await prisma.consultantAssessment.create({
     data: {

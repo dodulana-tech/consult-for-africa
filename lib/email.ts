@@ -506,7 +506,7 @@ export async function email360RaterInvite({
       <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#6B7280;">
         Your role in this assessment: <strong>${esc(roleLabel)}</strong>. Your responses are confidential and will be aggregated with other raters to produce a development profile. The feedback takes approximately 10 to 15 minutes to complete.
       </p>
-      ${btn("Provide Feedback", `${BASE_URL}/maarova/portal/three-sixty/rate/${esc(token)}`)}
+      ${btn("Provide Feedback", `${BASE_URL}/maarova/rate/${esc(token)}`)}
       <p style="margin:20px 0 0;font-size:12px;color:#9CA3AF;line-height:1.5;">
         If you do not recognise the person named above, please disregard this email or contact us at hello@consultforafrica.com.
       </p>
@@ -818,26 +818,37 @@ export async function emailGoalAssigned({
 }
 
 export async function emailOutreachInvite({
-  targetEmail, targetName, campaignName,
+  targetEmail, targetName, targetTitle, targetOrg, campaignName,
 }: {
-  targetEmail: string; targetName: string; campaignName: string;
+  targetEmail: string; targetName: string; targetTitle?: string; targetOrg?: string; campaignName: string;
 }) {
-  await send(targetEmail, `Free Leadership Assessment from Consult For Africa`,
+  const firstName = targetName.split(" ")[0];
+  const personalContext = targetTitle && targetOrg
+    ? `As ${esc(targetTitle)} at ${esc(targetOrg)}, you are navigating`
+    : "As a senior healthcare leader, you are navigating";
+
+  await send(targetEmail, `${firstName}, how do Africa's top healthcare leaders compare?`,
     layout(`
-      ${h1("Complimentary Leadership Assessment")}
-      ${p(`Dear ${esc(targetName)},`)}
-      ${p(`You have been identified as a senior healthcare leader whose insights would be valuable to the African healthcare community.`)}
-      ${p(`Consult For Africa's Maarova platform offers a complimentary leadership assessment that provides:`)}
-      <ul style="margin:0 0 16px;padding-left:20px;color:#374151;font-size:14px;line-height:1.8;">
-        <li>Your leadership archetype and style profile</li>
-        <li>Emotional intelligence and cultural leadership scores</li>
-        <li>Personalised development recommendations</li>
-        <li>Benchmark against healthcare leaders across Africa</li>
-      </ul>
-      ${p(`The assessment takes approximately 45 minutes and can be completed at your convenience within 7 days.`)}
-      ${btn("Take Your Free Assessment", `${BASE_URL}/maarova/portal/login`)}
-      ${p(`This invitation is part of our ${esc(campaignName)} initiative. No obligation or commitment required.`)}
-      <p style="margin:20px 0 0;font-size:12px;color:#9CA3AF;">If you have questions, reply to this email or contact us at hello@consultforafrica.com.</p>
+      ${h1(`${esc(firstName)}, where do you rank?`)}
+      ${p(`${personalContext} one of the most complex leadership environments in the world: African healthcare.`)}
+      ${p(`We built Maarova to answer a question most healthcare leaders never get objective data on: what are my actual leadership strengths, and where are my blind spots?`)}
+      <div style="margin:16px 0;padding:16px 20px;background:#F9FAFB;border-radius:8px;border-left:4px solid #D4AF37;">
+        <p style="margin:0;font-size:14px;color:#0F2744;font-weight:600;">What you get (completely free):</p>
+        <ul style="margin:8px 0 0;padding-left:16px;color:#374151;font-size:13px;line-height:1.8;">
+          <li>Your leadership archetype (how you lead under pressure)</li>
+          <li>Emotional intelligence profile scored against African healthcare benchmarks</li>
+          <li>Your top 3 signature strengths and 2 development edges</li>
+          <li>How you compare to 100+ healthcare leaders across the continent</li>
+        </ul>
+      </div>
+      ${p(`The assessment takes about 40 minutes. No preparation needed. You can pause and resume within 7 days.`)}
+      ${btn("Take the Assessment", `${BASE_URL}/maarova/portal/login`)}
+      <p style="margin:16px 0 0;font-size:13px;color:#6B7280;">
+        This is a personal invitation, not a mass email. We select 20-30 leaders each month for this programme. Your results are private and shared only with you.
+      </p>
+      <p style="margin:12px 0 0;font-size:12px;color:#9CA3AF;">
+        Dr. Debo Odulana, Founding Partner<br/>Consult For Africa | hello@consultforafrica.com
+      </p>
     `)
   );
 }

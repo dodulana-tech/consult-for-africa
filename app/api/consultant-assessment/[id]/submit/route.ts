@@ -37,7 +37,9 @@ async function scoreWithAI(
     tabSwitchCount: number;
     pasteEventCount: number;
     suspiciousFlags: unknown;
-  }
+  },
+  candidateTrack: string,
+  candidateYears: number
 ): Promise<ScoringResult> {
   const questionBank = getQuestionBank(specialty);
 
@@ -45,14 +47,23 @@ async function scoreWithAI(
   const experienceResponses = responses.filter((r) => r.part === "experience");
   const quickfireResponses = responses.filter((r) => r.part === "quickfire");
 
-  const prompt = `You are an expert assessor for Consult for Africa (CFA), an African healthcare consulting firm. You are evaluating a consultant applicant for the ${specialty} specialty.
+  const isJunior = ["INTERN", "SIWES", "FELLOWSHIP"].includes(candidateTrack);
+  const trackCalibration = isJunior
+    ? `\nIMPORTANT CALIBRATION: This is a ${candidateTrack} candidate with ${candidateYears} years experience. Score relative to their track level, NOT against experienced consultants. A 60+ score for an intern shows strong potential. Focus on: analytical thinking, communication clarity, genuine interest in healthcare, and willingness to learn. Do NOT penalise for lack of professional experience.`
+    : candidateYears > 10
+      ? `\nCALIBRATION: Experienced candidate (${candidateYears} years). Expect deep domain knowledge, strategic thinking, and specific examples with measurable outcomes.`
+      : "";
 
+  const prompt = `You are an expert assessor for Consult for Africa (CFA), an African healthcare consulting firm. You are evaluating a ${candidateTrack} applicant for the ${specialty} specialty.
+${trackCalibration}
 Evaluate the following assessment responses and provide scoring. Be rigorous but fair. This is a vetting assessment, not a training exercise.
 
 ASSESSMENT DATA:
 ================
 
 SPECIALTY: ${specialty}
+CANDIDATE TRACK: ${candidateTrack}
+YEARS OF EXPERIENCE: ${candidateYears}
 
 PART 1 - SCENARIO RESPONSE (15 min allowed):
 ${scenarioResponses
@@ -111,9 +122,11 @@ SCORING INSTRUCTIONS:
    - Consider: someone who knows the material should answer quick-fire questions confidently within 60 seconds
 
 3. Recommended Tier:
-   - PRINCIPAL: Exceptional depth, clear senior experience, strategic thinking, 80+ content score
-   - SENIOR: Strong answers, demonstrated experience, good market knowledge, 60-79 content score
-   - STANDARD: Adequate but not exceptional, may need development, 40-59 content score
+   - ELITE: Exceptional depth, clear senior experience, strategic thinking, 80+ content score
+   - EXPERIENCED: Strong answers, demonstrated experience, good market knowledge, 65-79 content score
+   - STANDARD: Solid competence, good fundamentals, 50-64 content score
+   - EMERGING: Shows potential, developing skills, 35-49 content score (good for junior tracks)
+   - INTERN: Learning stage, basic understanding demonstrated, 20-34 (acceptable for INTERN/SIWES track)
    - Below 40: Not recommended for engagement
 
 Return your evaluation as a JSON object with this exact structure:
@@ -127,7 +140,7 @@ Return your evaluation as a JSON object with this exact structure:
     "overall": "<3-4 sentence summary>",
     "strengths": ["<strength 1>", "<strength 2>", ...],
     "concerns": ["<concern 1>", "<concern 2>", ...],
-    "recommendedTier": "STANDARD" | "SENIOR" | "PRINCIPAL" | "NOT_RECOMMENDED"
+    "recommendedTier": "INTERN" | "EMERGING" | "STANDARD" | "EXPERIENCED" | "ELITE" | "NOT_RECOMMENDED"
   }
 }
 
@@ -187,6 +200,15 @@ export async function POST(
     return Response.json({ error: "Assessment already completed" }, { status: 400 });
   }
 
+  // Get candidate track for calibrated scoring
+  const talentApp = await prisma.talentApplication.findFirst({
+    where: { convertedToUserId: assessment.userId },
+    select: { track: true, yearsExperience: true },
+    orderBy: { createdAt: "desc" },
+  });
+  const candidateTrack = talentApp?.track ?? "CONSULTANT";
+  const candidateYears = talentApp?.yearsExperience ?? 0;
+
   if (assessment.status === "EXPIRED" || assessment.expiresAt <= new Date()) {
     await prisma.consultantAssessment.update({
       where: { id },
@@ -221,7 +243,9 @@ export async function POST(
         tabSwitchCount: assessment.tabSwitchCount,
         pasteEventCount: assessment.pasteEventCount,
         suspiciousFlags: assessment.suspiciousFlags,
-      }
+      },
+      candidateTrack,
+      candidateYears
     );
   } catch (error) {
     console.error("AI scoring failed:", error);

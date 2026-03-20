@@ -635,9 +635,75 @@ const ALL_SPECIALTIES = [
 
 export type AssessmentSpecialty = (typeof ALL_SPECIALTIES)[number];
 
-export function getQuestionBank(specialty: string): SpecialtyQuestionBank | null {
+// ─── Intern/Junior Track Questions (simpler, more learning-focused) ───────────
+
+const internExperienceQuestions: AssessmentQuestion[] = [
+  {
+    id: "intern-exp-1",
+    part: "experience",
+    text: "Describe a group project or academic exercise where you had to solve a real-world problem. What was your role and what did you contribute?",
+    timeLimitSec: 300,
+  },
+  {
+    id: "intern-exp-2",
+    part: "experience",
+    text: "What interests you most about healthcare management (as opposed to purely clinical work)? Give a specific example of a healthcare operations problem you'd like to work on.",
+    timeLimitSec: 300,
+  },
+  {
+    id: "intern-exp-3",
+    part: "experience",
+    text: "Describe a situation where you had to learn something new quickly under pressure. How did you approach it?",
+    timeLimitSec: 300,
+  },
+];
+
+const internScenarioQuestions: Record<string, AssessmentQuestion[]> = {
+  HOSPITAL_OPERATIONS: [
+    {
+      id: "intern-scenario-ops-1",
+      part: "scenario",
+      text: "A 50-bed private hospital in Lagos has long patient wait times in the outpatient department (average 3 hours from arrival to seeing a doctor). The Medical Director asks you to investigate. How would you approach understanding the problem? What data would you collect? Suggest 3 practical improvements you think could help.",
+      timeLimitSec: 600, // 10 min (vs 15 for senior)
+    },
+  ],
+  // Default for other specialties
+  DEFAULT: [
+    {
+      id: "intern-scenario-default-1",
+      part: "scenario",
+      text: "A mid-size hospital is losing patients to a newer competitor that opened nearby. The CEO wants to understand why patients are leaving and what can be done. You've been asked to help investigate. How would you approach this? What questions would you ask? What information would you gather?",
+      timeLimitSec: 600,
+    },
+  ],
+};
+
+const internVideoPrompt: AssessmentQuestion[] = [
+  {
+    id: "intern-video-1",
+    part: "video",
+    text: "In under 2 minutes, tell us: why do you want to work in healthcare consulting in Africa? What unique perspective or skill do you bring?",
+    timeLimitSec: 120,
+  },
+];
+
+// ─── Question Bank Factory ───────────────────────────────────────────────────
+
+export function getQuestionBank(specialty: string, track?: string): SpecialtyQuestionBank | null {
   if (!ALL_SPECIALTIES.includes(specialty as AssessmentSpecialty)) {
     return null;
+  }
+
+  const isJuniorTrack = ["INTERN", "SIWES", "FELLOWSHIP"].includes(track ?? "");
+
+  if (isJuniorTrack) {
+    return {
+      specialty,
+      scenario: internScenarioQuestions[specialty] || internScenarioQuestions.DEFAULT || [],
+      experience: internExperienceQuestions,
+      quickfire: (quickfireQuestions[specialty] || []).slice(0, 5), // fewer quickfire for juniors
+      video: internVideoPrompt,
+    };
   }
 
   return {
@@ -651,6 +717,19 @@ export function getQuestionBank(specialty: string): SpecialtyQuestionBank | null
 
 export function getAllSpecialties(): string[] {
   return [...ALL_SPECIALTIES];
+}
+
+// Assessment expiry by track
+export function getAssessmentExpiry(track?: string): number {
+  switch (track) {
+    case "INTERN":
+    case "SIWES":
+      return 72 * 60 * 60 * 1000; // 72 hours for interns (more time, less pressure)
+    case "FELLOWSHIP":
+      return 48 * 60 * 60 * 1000; // 48 hours
+    default:
+      return 48 * 60 * 60 * 1000; // 48 hours for consultants
+  }
 }
 
 export { experienceQuestions, videoPrompt, scenarioQuestions, quickfireQuestions };
