@@ -140,7 +140,7 @@ export default function ThreeSixtyClient({ request, userName }: Props) {
   const isComplete = localRequest?.status === "COMPLETE";
 
   return (
-    <div className="p-6 lg:p-10 max-w-5xl mx-auto space-y-8">
+    <div className="p-4 sm:p-6 lg:p-10 max-w-5xl mx-auto space-y-6 sm:space-y-8">
       {/* Page header */}
       <div>
         <h1 className="text-2xl font-bold" style={{ color: "#0F2744" }}>
@@ -226,7 +226,7 @@ export default function ThreeSixtyClient({ request, userName }: Props) {
                 {isComplete ? "Complete" : "Collecting responses"}
               </span>
             </div>
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="text-center">
                   <p className="text-2xl font-bold" style={{ color: "#0F2744" }}>
@@ -321,7 +321,7 @@ export default function ThreeSixtyClient({ request, userName }: Props) {
                 </button>
               )}
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4">
               {/* Add rater form */}
               {showAddRater && (
                 <form

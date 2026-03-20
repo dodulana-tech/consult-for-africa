@@ -67,8 +67,8 @@ export default async function MaarovaResultsPage() {
 
   if (!assessmentSession) {
     return (
-      <div className="p-8 max-w-5xl mx-auto">
-        <div className="mb-8">
+      <div className="p-4 sm:p-8 max-w-5xl mx-auto">
+        <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl font-bold tracking-tight" style={{ color: "#0F2744" }}>
             Assessment Results
           </h1>
@@ -114,9 +114,9 @@ export default async function MaarovaResultsPage() {
   }
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl font-bold tracking-tight" style={{ color: "#0F2744" }}>
           Assessment Results
         </h1>
@@ -128,9 +128,9 @@ export default async function MaarovaResultsPage() {
       </div>
 
       {/* Profile completeness + radar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {/* Completeness card */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Profile Completeness</p>
           <div className="flex items-end gap-2 mb-4">
             <span className="text-4xl font-bold" style={{ color: "#0F2744" }}>
@@ -152,7 +152,7 @@ export default async function MaarovaResultsPage() {
         </div>
 
         {/* Radar-like dimension overview */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6">
+        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-4">Dimension Scores</p>
           {radarPoints.length === 0 ? (
             <p className="text-sm text-gray-400">Complete a module to see your scores.</p>
@@ -196,7 +196,7 @@ export default async function MaarovaResultsPage() {
       </div>
 
       {/* Per-module score cards */}
-      <div className="space-y-4 mb-8">
+      <div className="space-y-4 mb-6 sm:mb-8">
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
           Module Results
         </h2>
@@ -210,7 +210,7 @@ export default async function MaarovaResultsPage() {
             <div
               key={mr.id}
               id={`module-${mod.type}`}
-              className="bg-white rounded-xl border p-6"
+              className="bg-white rounded-xl border p-4 sm:p-6"
               style={{ borderColor: isCompleted ? "rgba(16,185,129,0.2)" : "rgba(0,0,0,0.06)" }}
             >
               <div className="flex items-center justify-between mb-4">
@@ -280,7 +280,7 @@ export default async function MaarovaResultsPage() {
             Comprehensive Leadership Report
           </h2>
           {hasReport ? (
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-3 mb-2">
@@ -322,7 +322,7 @@ export default async function MaarovaResultsPage() {
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 text-center">
               <p className="text-sm text-gray-500 mb-4">
                 All core modules complete. Generate your comprehensive leadership report.
               </p>

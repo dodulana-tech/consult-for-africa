@@ -316,11 +316,11 @@ export default function PublicRateTokenPage() {
         className="sticky top-0 z-10 bg-white border-b shadow-sm"
         style={{ borderColor: "#e5eaf0" }}
       >
-        <div className="max-w-3xl mx-auto px-6 py-3 flex items-center justify-between">
-          <span className="text-xs text-gray-500">
-            {answeredCount} of {totalQuestions} questions answered
+        <div className="max-w-3xl mx-auto px-3 sm:px-6 py-3 flex items-center justify-between">
+          <span className="text-[11px] sm:text-xs text-gray-500">
+            {answeredCount}/{totalQuestions} answered
           </span>
-          <div className="w-48 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+          <div className="w-24 sm:w-48 h-1.5 bg-gray-100 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-300"
               style={{

@@ -14,7 +14,7 @@ export default async function ReportDetailPage({
   const { userId } = await params;
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-5xl mx-auto">
       <ReportGoalsClient userId={userId} />
     </div>
   );

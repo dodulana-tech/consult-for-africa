@@ -17,18 +17,18 @@ export default async function MaarovaProfilePage() {
   if (!user) redirect("/maarova/portal/login");
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
-      <div className="mb-8">
+    <div className="p-4 sm:p-8 max-w-3xl mx-auto">
+      <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
         <p className="text-gray-500 mt-1">Your account information</p>
       </div>
 
       {/* Personal Information */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-6">
           Personal Information
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-gray-400 mb-1">
               Full Name
@@ -67,11 +67,11 @@ export default async function MaarovaProfilePage() {
       </div>
 
       {/* Professional Background */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-6">
           Professional Background
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-gray-400 mb-1">
               Clinical Background
@@ -104,7 +104,7 @@ export default async function MaarovaProfilePage() {
       </div>
 
       {/* Change Password */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-6">
           Change Password
         </h2>

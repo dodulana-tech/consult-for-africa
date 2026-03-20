@@ -87,10 +87,10 @@ function RadarChart({
 }: {
   data: { dimension: string; score: number; benchmark: number }[];
 }) {
-  const size = 600;
+  const size = 400;
   const cx = size / 2;
   const cy = size / 2;
-  const maxRadius = 180;
+  const maxRadius = 140;
   const levels = 5;
   const n = data.length;
   const angleSlice = (Math.PI * 2) / n;
@@ -149,7 +149,7 @@ function RadarChart({
     const r = (d.score / 100) * maxRadius;
     const p = polar(angle, r);
     // Label position: outside the max radius
-    const labelR = maxRadius + 55;
+    const labelR = maxRadius + 45;
     const lp = polar(angle, labelR);
     // Score badge position: just outside the score point
     const scoreR = Math.max(r + 18, maxRadius * 0.15);
@@ -197,7 +197,7 @@ function RadarChart({
     <div className="flex flex-col items-center">
       <svg
         viewBox={`0 0 ${size} ${size}`}
-        className="w-full max-w-[520px]"
+        className="w-full max-w-[400px]"
         role="img"
         aria-label="Leadership fingerprint"
       >
@@ -238,7 +238,7 @@ function RadarChart({
       </svg>
 
       {/* Legend */}
-      <div className="flex items-center gap-6 mt-4">
+      <div className="flex items-center gap-4 sm:gap-6 mt-4">
         <div className="flex items-center gap-2">
           <div className="w-5 h-3 rounded-sm" style={{ backgroundColor: "rgba(212,165,116,0.3)", border: "2px solid #D4A574" }} />
           <span className="text-xs font-medium text-gray-600">Your Pattern</span>
@@ -411,7 +411,7 @@ export default function MaarovaResultDetailPage() {
 
   if (loading) {
     return (
-      <div className="p-8 max-w-5xl mx-auto">
+      <div className="p-4 sm:p-8 max-w-5xl mx-auto">
         <div className="animate-pulse space-y-6">
           <div className="h-8 bg-gray-200 rounded w-64" />
           <div className="h-4 bg-gray-200 rounded w-96" />
@@ -423,8 +423,8 @@ export default function MaarovaResultDetailPage() {
 
   if (error && !session) {
     return (
-      <div className="p-8 max-w-5xl mx-auto">
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+      <div className="p-4 sm:p-8 max-w-5xl mx-auto">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 sm:p-6 text-center">
           <p className="text-red-700">{error}</p>
         </div>
       </div>
@@ -438,9 +438,9 @@ export default function MaarovaResultDetailPage() {
   } | null;
 
   return (
-    <div className="p-8 max-w-5xl mx-auto pb-20">
+    <div className="p-4 sm:p-8 max-w-5xl mx-auto pb-20">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <div className="flex items-center gap-3 mb-1">
           <a
             href="/maarova/portal/results"
@@ -616,7 +616,7 @@ export default function MaarovaResultDetailPage() {
 
           {/* Radar Chart */}
           {report.radarChartData && report.radarChartData.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
               <h2
                 className="text-lg font-bold mb-4"
                 style={{ color: "#0F2744" }}
@@ -629,7 +629,7 @@ export default function MaarovaResultDetailPage() {
 
           {/* Executive Summary */}
           {report.executiveSummary && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
               <h2
                 className="text-lg font-bold mb-3"
                 style={{ color: "#0F2744" }}
@@ -648,7 +648,7 @@ export default function MaarovaResultDetailPage() {
 
           {/* Dimension Breakdown */}
           {session?.moduleResponses && session.moduleResponses.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
               <h2
                 className="text-lg font-bold mb-5"
                 style={{ color: "#0F2744" }}
@@ -709,10 +709,10 @@ export default function MaarovaResultDetailPage() {
           )}
 
           {/* Strengths and Development Areas */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {/* Strengths */}
             {report.strengthsAnalysis && (
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-3">
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -751,7 +751,7 @@ export default function MaarovaResultDetailPage() {
 
             {/* Next Leadership Edge */}
             {(report.nextLeadershipEdge ?? report.developmentAreas) && (
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-3">
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -793,7 +793,7 @@ export default function MaarovaResultDetailPage() {
           {/* Blind Spot Analysis */}
           {report.blindSpotAnalysis && (
             <div
-              className="bg-white rounded-xl border border-gray-200 p-6"
+              className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6"
               style={{ borderLeft: "4px solid #0F2744" }}
             >
               <div className="flex items-center gap-2 mb-3">
@@ -842,7 +842,7 @@ export default function MaarovaResultDetailPage() {
           {/* Coaching Priorities */}
           {report.coachingPriorities &&
             report.coachingPriorities.length > 0 && (
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
                 <h2
                   className="text-lg font-bold mb-5"
                   style={{ color: "#0F2744" }}
