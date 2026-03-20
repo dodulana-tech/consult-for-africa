@@ -28,7 +28,7 @@ interface Campaign {
 }
 
 const TARGET_STATUSES = [
-  { value: "IDENTIFIED", label: "Identified", color: "#6B7280", bg: "#F3F4F6", next: "INVITED", nextLabel: "Mark Invited" },
+  { value: "IDENTIFIED", label: "Identified", color: "#6B7280", bg: "#F3F4F6", next: "INVITED", nextLabel: "Send Invite" },
   { value: "INVITED", label: "Invited", color: "#2563EB", bg: "#EFF6FF", next: "RESPONDED", nextLabel: "Mark Responded" },
   { value: "RESPONDED", label: "Responded", color: "#059669", bg: "#F0FDF4", next: "ASSESSMENT_STARTED", nextLabel: "Assessment Started" },
   { value: "ASSESSMENT_STARTED", label: "Assessment Started", color: "#D97706", bg: "#FFFBEB", next: "ASSESSMENT_COMPLETED", nextLabel: "Assessment Done" },

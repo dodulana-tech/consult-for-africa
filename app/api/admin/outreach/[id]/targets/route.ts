@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { emailOutreachInvite } from "@/lib/email";
 import { NextRequest } from "next/server";
 
 export async function POST(
@@ -66,6 +67,16 @@ export async function PATCH(
   if (notes !== undefined) updateData.notes = notes?.trim() || null;
 
   const updated = await prisma.outreachTarget.update({ where: { id: targetId }, data: updateData });
+
+  // Auto-send invite email when marked as INVITED
+  if (status === "INVITED" && updated.email) {
+    const campaign = await prisma.outreachCampaign.findUnique({ where: { id }, select: { name: true } });
+    emailOutreachInvite({
+      targetEmail: updated.email,
+      targetName: updated.name,
+      campaignName: campaign?.name ?? "Maarova Leadership Assessment",
+    }).catch((err) => console.error("[outreach] invite email failed:", err));
+  }
 
   // Recompute campaign counts
   const counts = await prisma.outreachTarget.groupBy({

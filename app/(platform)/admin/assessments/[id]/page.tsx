@@ -26,7 +26,7 @@ export default async function AdminAssessmentDetailPage({ params }: Props) {
           name: true,
           email: true,
           consultantProfile: {
-            select: { location: true, yearsExperience: true, title: true },
+            select: { location: true, yearsExperience: true, title: true, tier: true },
           },
         },
       },
@@ -37,6 +37,12 @@ export default async function AdminAssessmentDetailPage({ params }: Props) {
   });
 
   if (!assessment) notFound();
+
+  // Get the talent application to show track
+  const talentApp = await prisma.talentApplication.findFirst({
+    where: { convertedToUserId: assessment.userId },
+    select: { track: true, yearsExperience: true },
+  });
 
   const integrityReport = analyseIntegrity(assessment);
 
@@ -66,6 +72,7 @@ export default async function AdminAssessmentDetailPage({ params }: Props) {
       email: assessment.user.email,
       profile: assessment.user.consultantProfile,
     },
+    track: talentApp?.track ?? "CONSULTANT",
     responses: assessment.responses.map((r) => ({
       id: r.id,
       part: r.part,

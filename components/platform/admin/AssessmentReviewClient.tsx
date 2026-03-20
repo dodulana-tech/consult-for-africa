@@ -42,8 +42,10 @@ interface AssessmentData {
       location: string;
       yearsExperience: number;
       title: string;
+      tier: string;
     } | null;
   };
+  track: string;
   responses: ResponseData[];
   integrityReport: IntegrityReport;
 }
@@ -180,6 +182,22 @@ export default function AssessmentReviewClient({
             <p className="font-medium text-gray-900">
               {assessment.user.profile?.location ?? "N/A"}
             </p>
+          </div>
+          <div>
+            <p className="text-gray-400 text-xs mb-0.5">Track</p>
+            <p className="font-medium text-gray-900">
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                assessment.track === "INTERN" || assessment.track === "SIWES" ? "bg-green-50 text-green-700" :
+                assessment.track === "FELLOWSHIP" ? "bg-purple-50 text-purple-700" :
+                "bg-blue-50 text-blue-700"
+              }`}>
+                {(assessment.track ?? "CONSULTANT").replace(/_/g, " ")}
+              </span>
+            </p>
+          </div>
+          <div>
+            <p className="text-gray-400 text-xs mb-0.5">Current Tier</p>
+            <p className="font-medium text-gray-900">{assessment.user.profile?.tier ?? "N/A"}</p>
           </div>
           <div>
             <p className="text-gray-400 text-xs mb-0.5">Completed</p>
@@ -506,9 +524,11 @@ export default function AssessmentReviewClient({
               className="px-3 py-2 rounded-lg text-sm border"
               style={{ borderColor: "#e5eaf0" }}
             >
+              <option value="INTERN">Intern</option>
+              <option value="EMERGING">Emerging</option>
               <option value="STANDARD">Standard</option>
-              <option value="SENIOR">Senior</option>
-              <option value="PRINCIPAL">Principal</option>
+              <option value="EXPERIENCED">Experienced</option>
+              <option value="ELITE">Elite</option>
               <option value="REJECT">Reject</option>
             </select>
           </div>

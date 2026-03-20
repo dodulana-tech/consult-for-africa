@@ -26,9 +26,9 @@ export async function POST(req: NextRequest, { params }: Props) {
     return new Response("adminScore must be 1-10", { status: 400 });
   }
 
-  const validTiers = ["STANDARD", "SENIOR", "PRINCIPAL", "REJECT"];
+  const validTiers = ["INTERN", "EMERGING", "STANDARD", "EXPERIENCED", "ELITE", "REJECT"];
   if (!validTiers.includes(adminTier)) {
-    return new Response("adminTier must be STANDARD, SENIOR, PRINCIPAL, or REJECT", {
+    return new Response("adminTier must be INTERN, EMERGING, STANDARD, EXPERIENCED, ELITE, or REJECT", {
       status: 400,
     });
   }
@@ -68,6 +68,14 @@ export async function POST(req: NextRequest, { params }: Props) {
       ...(action === "approve" ? { approvedAt: new Date(), assessmentCompleted: true } : {}),
     },
   });
+
+  // Update ConsultantProfile.tier to match the admin's tier assignment
+  if (action === "approve" && adminTier !== "REJECT") {
+    await prisma.consultantProfile.updateMany({
+      where: { userId: assessment.userId },
+      data: { tier: adminTier as "INTERN" | "EMERGING" | "STANDARD" | "EXPERIENCED" | "ELITE" },
+    });
+  }
 
   await logAudit({
     userId: session.user.id,

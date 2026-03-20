@@ -816,3 +816,28 @@ export async function emailGoalAssigned({
     layout(`${h1("Development Goal Assigned")}${p(`A new development goal has been assigned to you by ${assignedBy}.`)}${infoTable([["Goal", goalTitle], ["Source", source]])}${btn("View Goals", `${BASE_URL}/maarova/portal/development`)}`)
   );
 }
+
+export async function emailOutreachInvite({
+  targetEmail, targetName, campaignName,
+}: {
+  targetEmail: string; targetName: string; campaignName: string;
+}) {
+  await send(targetEmail, `Free Leadership Assessment from Consult For Africa`,
+    layout(`
+      ${h1("Complimentary Leadership Assessment")}
+      ${p(`Dear ${esc(targetName)},`)}
+      ${p(`You have been identified as a senior healthcare leader whose insights would be valuable to the African healthcare community.`)}
+      ${p(`Consult For Africa's Maarova platform offers a complimentary leadership assessment that provides:`)}
+      <ul style="margin:0 0 16px;padding-left:20px;color:#374151;font-size:14px;line-height:1.8;">
+        <li>Your leadership archetype and style profile</li>
+        <li>Emotional intelligence and cultural leadership scores</li>
+        <li>Personalised development recommendations</li>
+        <li>Benchmark against healthcare leaders across Africa</li>
+      </ul>
+      ${p(`The assessment takes approximately 45 minutes and can be completed at your convenience within 7 days.`)}
+      ${btn("Take Your Free Assessment", `${BASE_URL}/maarova/portal/login`)}
+      ${p(`This invitation is part of our ${esc(campaignName)} initiative. No obligation or commitment required.`)}
+      <p style="margin:20px 0 0;font-size:12px;color:#9CA3AF;">If you have questions, reply to this email or contact us at hello@consultforafrica.com.</p>
+    `)
+  );
+}
