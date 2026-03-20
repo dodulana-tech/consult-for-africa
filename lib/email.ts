@@ -30,9 +30,12 @@ async function send(to: string, subject: string, html: string) {
     return;
   }
   try {
+    console.log(`[email] sending to ${to}: ${subject}`);
     await transporter.sendMail({ from: FROM, to, subject, html });
+    console.log(`[email] sent to ${to}`);
   } catch (err) {
-    console.error("[email] send error:", err);
+    console.error(`[email] send error to ${to}:`, err);
+    throw err; // re-throw so callers can catch
   }
 }
 
@@ -827,7 +830,7 @@ export async function emailOutreachInvite({
     ? `As ${esc(targetTitle)} at ${esc(targetOrg)}, you are navigating`
     : "As a senior healthcare leader, you are navigating";
 
-  const onboardUrl = `${BASE_URL}/maarova/onboard/${esc(inviteToken)}`;
+  const onboardUrl = `${BASE_URL}/maarova/onboard/${inviteToken}`;
 
   await send(targetEmail, `${firstName}, how do Africa's top healthcare leaders compare?`,
     layout(`
