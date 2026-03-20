@@ -343,6 +343,11 @@ model Project {
   healthScore              Int?          @default(5)
   riskLevel                RiskLevel     @default(LOW)
   notes                    String?       @db.Text
+  budgetSensitivity        String?       // PREMIUM, STANDARD, VALUE, BUDGET
+  consultantTierMin        String?       // INTERN, EMERGING, STANDARD, EXPERIENCED, ELITE
+  consultantTierMax        String?       // INTERN, EMERGING, STANDARD, EXPERIENCED, ELITE
+  internEligible           Boolean       @default(false)
+  pricingNotes             String?       @db.Text
   clientSatisfactionScore  Int?
   methodology              String?
   methodologyId            String?
@@ -448,6 +453,11 @@ model Deliverable {
   reviewedById  String?
   microFeedback String?                // quick EM reaction: "great work", "well structured", etc.
   version       Int                    @default(1)
+
+  // Deliverable-based pricing (for FIXED_DELIVERABLE rate type)
+  fee           Decimal?               @db.Decimal(12, 2)
+  feeCurrency   Currency?
+  feePaidAt     DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

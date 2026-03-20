@@ -108,6 +108,9 @@ interface Deliverable {
   version: number;
   assignmentId?: string | null;
   assignment: { id?: string; consultant: { name: string } } | null;
+  fee: number | null;
+  feeCurrency: string | null;
+  feePaidAt: string | null;
 }
 
 interface ProjectUpdate {
@@ -179,6 +182,11 @@ interface Project {
   risks: RiskItem[];
   interactions: Interaction[];
   staffingRequests: StaffingRequestItem[];
+  budgetSensitivity: string | null;
+  consultantTierMin: string | null;
+  consultantTierMax: string | null;
+  internEligible: boolean;
+  pricingNotes: string | null;
 }
 
 interface StaffingRequestItem {
@@ -1540,6 +1548,9 @@ function DeliverablesTab({
                     {d.reviewNotes}
                   </p>
                 )}
+
+                {/* Deliverable fee */}
+                <DeliverableFeeEditor deliverable={d} projectServiceType={project.serviceType} budgetSensitivity={project.budgetSensitivity} consultantTierMin={project.consultantTierMin} consultantTierMax={project.consultantTierMax} />
               </div>
 
               <div className="flex flex-col items-end gap-1.5 shrink-0">
@@ -1769,6 +1780,119 @@ function TimelineTab({ project }: { project: Project }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ─── Deliverable Fee Editor ───────────────────────────────────────────────────
+
+function DeliverableFeeEditor({ deliverable, projectServiceType, budgetSensitivity, consultantTierMin, consultantTierMax }: { deliverable: Deliverable; projectServiceType?: string; budgetSensitivity?: string | null; consultantTierMin?: string | null; consultantTierMax?: string | null }) {
+  const [editing, setEditing] = useState(false);
+  const [fee, setFee] = useState(deliverable.fee?.toString() ?? "");
+  const [currency, setCurrency] = useState(deliverable.feeCurrency ?? "NGN");
+  const [saving, setSaving] = useState(false);
+  const [nuruPricing, setNuruPricing] = useState(false);
+  const [suggestion, setSuggestion] = useState<{ suggestedPriceNGN?: { mid: number }; suggestedPriceUSD?: { mid: number }; estimatedHours?: number; rationale?: string } | null>(null);
+
+  async function askNuru() {
+    setNuruPricing(true);
+    try {
+      const res = await fetch("/api/ai/price-deliverable", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deliverableName: deliverable.name, description: deliverable.description, serviceType: projectServiceType, budgetSensitivity, consultantTierMin, consultantTierMax }),
+      });
+      if (res.ok) {
+        const { pricing } = await res.json();
+        setSuggestion(pricing);
+        // Auto-fill the suggested price
+        if (currency === "NGN" && pricing.suggestedPriceNGN?.mid) {
+          setFee(pricing.suggestedPriceNGN.mid.toString());
+        } else if (currency === "USD" && pricing.suggestedPriceUSD?.mid) {
+          setFee(pricing.suggestedPriceUSD.mid.toString());
+        }
+      }
+    } catch {}
+    finally { setNuruPricing(false); }
+  }
+
+  // Don't show if deliverable is already paid
+  if (deliverable.feePaidAt) {
+    return (
+      <div className="mt-2 flex items-center gap-2 text-xs">
+        <span className="px-2 py-0.5 rounded-full bg-green-50 text-green-700 font-medium">
+          Paid: {currency === "USD" ? "$" : "\u20A6"}{Number(deliverable.fee).toLocaleString()}
+        </span>
+      </div>
+    );
+  }
+
+  // Show fee if set but not editing
+  if (deliverable.fee && !editing) {
+    return (
+      <div className="mt-2 flex items-center gap-2 text-xs">
+        <span className="font-medium" style={{ color: "#0F2744" }}>
+          Fee: {currency === "USD" ? "$" : "\u20A6"}{Number(deliverable.fee).toLocaleString()}
+        </span>
+        <button onClick={() => setEditing(true)} className="text-blue-600 hover:underline text-[10px]">(edit)</button>
+      </div>
+    );
+  }
+
+  async function saveFee() {
+    setSaving(true);
+    try {
+      await fetch(`/api/deliverables/${deliverable.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fee: parseFloat(fee) || null, feeCurrency: currency }),
+      });
+      setEditing(false);
+      window.location.reload();
+    } catch {}
+    finally { setSaving(false); }
+  }
+
+  return (
+    <div className="mt-2">
+      {!editing ? (
+        <button onClick={() => setEditing(true)} className="text-[10px] text-blue-600 hover:underline flex items-center gap-1">
+          + Set deliverable fee
+        </button>
+      ) : (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="text-[10px] border rounded px-1.5 py-1" style={{ borderColor: "#e5eaf0" }}>
+              <option value="NGN">NGN</option>
+              <option value="USD">USD</option>
+            </select>
+          <input
+            type="number"
+            value={fee}
+            onChange={(e) => setFee(e.target.value)}
+            placeholder="Amount"
+            className="w-24 text-xs border rounded px-2 py-1"
+            style={{ borderColor: "#e5eaf0" }}
+          />
+          <button onClick={saveFee} disabled={saving || !fee} className="text-[10px] px-2 py-1 rounded text-white disabled:opacity-50" style={{ background: "#0F2744" }}>
+            {saving ? "..." : "Save"}
+          </button>
+          <button onClick={askNuru} disabled={nuruPricing} className="text-[10px] px-2 py-1 rounded font-medium disabled:opacity-50 flex items-center gap-1" style={{ background: "#D4AF37" + "15", color: "#92400E" }}>
+            <Sparkles size={9} />
+            {nuruPricing ? "..." : "Nuru"}
+          </button>
+          <button onClick={() => { setEditing(false); setSuggestion(null); }} className="text-[10px] text-gray-400">Cancel</button>
+          </div>
+          {suggestion && (
+            <div className="text-[10px] text-gray-500 bg-amber-50 rounded px-2 py-1.5">
+              <span className="font-medium" style={{ color: "#92400E" }}>Nuru suggests: </span>
+              {currency === "NGN" ? `\u20A6${suggestion.suggestedPriceNGN?.mid?.toLocaleString() ?? "N/A"}` : `$${suggestion.suggestedPriceUSD?.mid?.toLocaleString() ?? "N/A"}`}
+              {suggestion.estimatedHours ? ` (${suggestion.estimatedHours}h est.)` : ""}
+              {suggestion.rationale ? ` - ${suggestion.rationale}` : ""}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -54,5 +54,29 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // Update project actualSpent for each affected project
+  try {
+    const entries = await prisma.timeEntry.findMany({
+      where: { id: { in: entryIds }, billableAmount: { not: null } },
+      select: { billableAmount: true, assignment: { select: { projectId: true } } },
+    });
+    // Group by project
+    const projectSpend = new Map<string, number>();
+    for (const entry of entries) {
+      const pid = entry.assignment.projectId;
+      const amount = Number(entry.billableAmount ?? 0);
+      projectSpend.set(pid, (projectSpend.get(pid) ?? 0) + amount);
+    }
+    // Increment actualSpent per project
+    for (const [projectId, amount] of projectSpend) {
+      await prisma.project.update({
+        where: { id: projectId },
+        data: { actualSpent: { increment: amount } },
+      });
+    }
+  } catch (err) {
+    console.error("[payments/mark-paid] actualSpent update failed:", err);
+  }
+
   return Response.json({ ok: true, updated: entryIds.length });
 }

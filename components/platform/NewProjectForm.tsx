@@ -49,6 +49,11 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
     startDate: "",
     endDate: "",
     methodologyId: "",
+    budgetSensitivity: "STANDARD",
+    consultantTierMin: "STANDARD",
+    consultantTierMax: "EXPERIENCED",
+    internEligible: false,
+    pricingNotes: "",
   });
 
   // Fetch methodologies when modal opens
@@ -299,6 +304,47 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
                     className={`${inputClass} resize-none`}
                     style={inputStyle}
                   />
+                </div>
+
+                {/* Pricing & Staffing Constraints */}
+                <div className="col-span-2 pt-2 border-t" style={{ borderColor: "#e5eaf0" }}>
+                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Pricing & Staffing</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 block mb-1">Budget Sensitivity</label>
+                      <select value={form.budgetSensitivity} onChange={(e) => set("budgetSensitivity", e.target.value)} className={inputClass} style={inputStyle}>
+                        <option value="PREMIUM">Premium (full rates)</option>
+                        <option value="STANDARD">Standard</option>
+                        <option value="VALUE">Value (competitive)</option>
+                        <option value="BUDGET">Budget (lean team)</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-3 pt-4">
+                      <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
+                        <input type="checkbox" checked={form.internEligible} onChange={(e) => setForm((f) => ({ ...f, internEligible: e.target.checked }))} className="rounded border-gray-300" />
+                        Intern/Emerging eligible
+                      </label>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 block mb-1">Min Consultant Tier</label>
+                      <select value={form.consultantTierMin} onChange={(e) => set("consultantTierMin", e.target.value)} className={inputClass} style={inputStyle}>
+                        <option value="INTERN">Intern</option>
+                        <option value="EMERGING">Emerging</option>
+                        <option value="STANDARD">Standard</option>
+                        <option value="EXPERIENCED">Experienced</option>
+                        <option value="ELITE">Elite</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 block mb-1">Max Consultant Tier</label>
+                      <select value={form.consultantTierMax} onChange={(e) => set("consultantTierMax", e.target.value)} className={inputClass} style={inputStyle}>
+                        <option value="EMERGING">Emerging</option>
+                        <option value="STANDARD">Standard</option>
+                        <option value="EXPERIENCED">Experienced</option>
+                        <option value="ELITE">Elite</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
 

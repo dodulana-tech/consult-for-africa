@@ -24,6 +24,11 @@ export async function POST(req: NextRequest) {
     riskLevel,
     notes,
     methodologyId,
+    budgetSensitivity,
+    consultantTierMin,
+    consultantTierMax,
+    internEligible,
+    pricingNotes,
   } = await req.json();
 
   if (!clientId || !name || !serviceType) {
@@ -63,6 +68,11 @@ export async function POST(req: NextRequest) {
       healthScore: 5,
       actualSpent: 0,
       notes: notes ?? null,
+      budgetSensitivity: budgetSensitivity ?? null,
+      consultantTierMin: consultantTierMin ?? null,
+      consultantTierMax: consultantTierMax ?? null,
+      internEligible: !!internEligible,
+      pricingNotes: pricingNotes ?? null,
       ...(methodologyId ? { methodologyTemplate: { connect: { id: methodologyId } } } : {}),
     },
     include: {

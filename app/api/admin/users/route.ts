@@ -197,7 +197,23 @@ export async function DELETE(req: NextRequest) {
     return new Response("Only admins can remove partners or admins", { status: 403 });
   }
 
-  await prisma.user.delete({ where: { id: userId } });
+  // Delete related records that aren't cascade-deleted
+  try {
+    await prisma.$transaction([
+      prisma.timeEntry.deleteMany({ where: { consultantId: userId } }),
+      prisma.staffingExpression.deleteMany({ where: { consultantId: userId } }),
+      prisma.assignment.deleteMany({ where: { consultantId: userId } }),
+      prisma.consultantAssessment.deleteMany({ where: { userId } }),
+      prisma.consultantOnboarding.deleteMany({ where: { userId } }),
+      prisma.consultantProfile.deleteMany({ where: { userId } }),
+      prisma.referral.deleteMany({ where: { referrerId: userId } }),
+      prisma.auditLog.deleteMany({ where: { userId } }),
+      prisma.user.delete({ where: { id: userId } }),
+    ]);
+  } catch (err) {
+    console.error("[admin/users] delete failed:", err);
+    return Response.json({ error: "Could not delete user. They may have active assignments or project dependencies." }, { status: 500 });
+  }
 
   await logAudit({
     userId: session.user.id,

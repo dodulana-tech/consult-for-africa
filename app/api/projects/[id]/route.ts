@@ -101,6 +101,14 @@ export async function PATCH(
     if (!isNaN(score)) updateData.healthScore = score;
   }
   if (body.notes !== undefined) updateData.notes = body.notes?.trim() || null;
+  if (body.budgetSensitivity !== undefined) {
+    const valid = ["PREMIUM", "STANDARD", "VALUE", "BUDGET"];
+    if (valid.includes(body.budgetSensitivity) || body.budgetSensitivity === null) updateData.budgetSensitivity = body.budgetSensitivity;
+  }
+  if (body.consultantTierMin !== undefined) updateData.consultantTierMin = body.consultantTierMin || null;
+  if (body.consultantTierMax !== undefined) updateData.consultantTierMax = body.consultantTierMax || null;
+  if (body.internEligible !== undefined) updateData.internEligible = !!body.internEligible;
+  if (body.pricingNotes !== undefined) updateData.pricingNotes = body.pricingNotes?.trim() || null;
 
   if (Object.keys(updateData).length === 0) {
     return Response.json({ error: "No valid fields to update" }, { status: 400 });

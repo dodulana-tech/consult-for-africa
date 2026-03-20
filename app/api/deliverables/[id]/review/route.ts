@@ -47,11 +47,41 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       project: { select: { id: true, name: true } },
       assignment: {
         include: {
-          consultant: { select: { name: true, email: true } },
+          consultant: { select: { id: true, name: true, email: true } },
         },
       },
     },
   });
+
+  // Auto-create time entry for FIXED_DELIVERABLE when approved with a fee
+  if (action === "approve" && deliverable.fee && deliverable.assignment) {
+    try {
+      await prisma.timeEntry.create({
+        data: {
+          assignmentId: deliverable.assignment.id,
+          consultantId: deliverable.assignment.consultant.id,
+          date: new Date(),
+          hours: 0,
+          description: `Deliverable payment: ${deliverable.name}`,
+          status: "APPROVED",
+          approvedById: session.user.id,
+          approvedAt: new Date(),
+          billableAmount: deliverable.fee,
+          currency: deliverable.feeCurrency ?? "NGN",
+          isForBilling: true,
+        },
+      });
+
+      // Mark deliverable fee as triggered
+      await prisma.deliverable.update({
+        where: { id },
+        data: { feePaidAt: new Date() },
+      });
+    } catch (err) {
+      console.error("[deliverable/review] auto-payment creation failed:", err);
+      // Don't block the approval if payment creation fails
+    }
+  }
 
   await prisma.projectUpdate.create({
     data: {

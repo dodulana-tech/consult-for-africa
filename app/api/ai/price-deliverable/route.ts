@@ -17,44 +17,62 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { deliverableName, description, serviceType, consultantTier, rateType } = body;
+  const { deliverableName, description, serviceType, consultantTier, rateType, budgetSensitivity, consultantTierMin, consultantTierMax, clientType } = body;
 
   if (!deliverableName?.trim()) {
     return Response.json({ error: "deliverableName is required" }, { status: 400 });
   }
 
-  const prompt = `You are Nuru, CFA's internal intelligence system. An Engagement Manager needs pricing guidance for a consulting deliverable.
+  // Budget sensitivity multiplier context
+  const sensitivityContext: Record<string, string> = {
+    PREMIUM: "Client expects premium service and can pay full rates. Price at CFA's full rate card.",
+    STANDARD: "Standard engagement. Price competitively but maintain CFA quality positioning.",
+    VALUE: "Client is price-conscious. Use standard-tier consultants where possible, keep estimates lean.",
+    BUDGET: "Tight budget. Use emerging/intern talent where possible. Minimize hours. Focus on templates and existing frameworks rather than bespoke work.",
+  };
+
+  const prompt = `You are Nuru, CFA's internal intelligence system. Help price a consulting deliverable for the Nigerian healthcare market.
+
+IMPORTANT CONTEXT: CFA is an African healthcare consulting firm positioned as affordable premium: below Big 4 rates, above freelancers, with embedded execution as the differentiator. We are NOT McKinsey. Our pricing must be realistic for the Nigerian market.
 
 DELIVERABLE: ${deliverableName.trim()}
 ${description ? `DESCRIPTION: ${description.trim()}` : ""}
 ${serviceType ? `SERVICE LINE: ${serviceType}` : ""}
-${consultantTier ? `CONSULTANT TIER: ${consultantTier}` : ""}
-${rateType ? `RATE TYPE: ${rateType}` : ""}
+${clientType ? `CLIENT TYPE: ${clientType}` : ""}
+${budgetSensitivity ? `BUDGET SENSITIVITY: ${budgetSensitivity} - ${sensitivityContext[budgetSensitivity] || ""}` : ""}
+${consultantTierMin ? `CONSULTANT TIER RANGE: ${consultantTierMin} to ${consultantTierMax || "EXPERIENCED"}` : ""}
 
-CFA RATE BENCHMARKS (Nigerian healthcare consulting market):
-- INTERN: N30,000-50,000/month (stipend, not billed to client)
-- EMERGING (0-2yr): N150,000-300,000/month or N5,000-10,000/hour
-- STANDARD (3-7yr): N500,000-1,000,000/month or N15,000-30,000/hour
-- EXPERIENCED (7-15yr): N1,000,000-2,000,000/month or N30,000-60,000/hour
-- ELITE (15yr+): N2,000,000-4,000,000/month or N60,000-120,000/hour
-- Diaspora consultants: $100-250/hour USD
+CFA RATE CARD (Nigerian market, 2026):
+- EMERGING (0-2yr): N5,000-8,000/hr | N150-250K/month
+- STANDARD (3-7yr): N10,000-18,000/hr | N350-600K/month
+- EXPERIENCED (7-15yr): N20,000-35,000/hr | N700K-1.2M/month
+- ELITE (15yr+): N35,000-50,000/hr | N1.2-1.8M/month
+- Diaspora: $50-150/hr USD
 
-Estimate the effort and suggest pricing. Consider:
-1. Technical complexity (how specialized is the skill needed?)
-2. Time required (research, analysis, drafting, review cycles)
-3. Client-facing vs internal work
-4. Risk/liability (clinical governance work requires more senior oversight)
-5. Market positioning (CFA is premium, not budget consulting)
+DELIVERABLE COMPLEXITY GUIDE (be realistic with hours):
+- Template/Checklist/SLA (adapt existing framework): 4-10 hours
+- Analysis/Assessment/Gap review: 8-20 hours
+- Strategy document/Plan: 15-30 hours
+- Complex multi-stakeholder (full diagnostic): 25-50 hours
+- Do NOT inflate hours. Most deliverables should be 8-20 hours.
+
+BUDGET SENSITIVITY MULTIPLIERS:
+- PREMIUM: 1.0x (full rates)
+- STANDARD: 0.75x
+- VALUE: 0.55x
+- BUDGET: 0.4x
+
+Apply the ${budgetSensitivity || "STANDARD"} multiplier to your pricing.
 
 Return ONLY valid JSON:
 {
-  "estimatedHours": <number>,
+  "estimatedHours": <number - be conservative>,
   "complexityLevel": "<LOW | MEDIUM | HIGH | VERY_HIGH>",
   "suggestedPriceNGN": { "low": <number>, "mid": <number>, "high": <number> },
   "suggestedPriceUSD": { "low": <number>, "mid": <number>, "high": <number> },
   "recommendedTier": "<EMERGING | STANDARD | EXPERIENCED | ELITE>",
-  "rationale": "<2-3 sentences explaining the pricing logic>",
-  "comparables": "<what similar deliverables typically cost in the market>"
+  "rationale": "<1-2 sentences, concise>",
+  "comparables": "<brief market reference>"
 }`;
 
   try {

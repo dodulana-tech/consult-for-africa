@@ -32,6 +32,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (body.assignmentId !== undefined) data.assignmentId = body.assignmentId || null;
   if (body.status !== undefined) data.status = body.status;
   if (body.clientVisible !== undefined) data.clientVisible = body.clientVisible;
+  if (body.fee !== undefined) data.fee = body.fee ? parseFloat(String(body.fee)) : null;
+  if (body.feeCurrency !== undefined) data.feeCurrency = body.feeCurrency || null;
 
   const deliverable = await prisma.deliverable.update({
     where: { id },
