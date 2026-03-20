@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getNuruContext } from "@/lib/nuruContext";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
 
@@ -49,6 +50,8 @@ CFA SERVICE LINES:
 5. Fractional Leadership & Executive Secondments
 6. Health Systems & Public Sector Advisory
 7. Healthcare HR Management (Maarova)
+
+${await getNuruContext()}
 
 Return ONLY valid JSON:
 {

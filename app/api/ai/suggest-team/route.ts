@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { getNuruContext } from "@/lib/nuruContext";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
 
@@ -36,6 +37,7 @@ CFA operates as embedded execution teams inside hospitals. Teams are lean (2-5 p
 4. CFA engagement model: Lead Consultant + 1-3 specialists + optional analyst
 
 Suggest 2-5 additional roles needed (excluding what's already assigned or requested).
+${await getNuruContext()}
 
 Return ONLY valid JSON:
 {

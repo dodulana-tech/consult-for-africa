@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { getNuruContext } from "@/lib/nuruContext";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
 
@@ -25,6 +26,8 @@ ${Array.isArray(existingTeam) && existingTeam.length > 0 ? `EXISTING TEAM:\n${ex
 Based on this project context, suggest the next consultant role needed. Consider what skills are missing from the existing team.
 
 CFA SKILL TAXONOMY: Hospital Operations, Revenue Cycle, Clinical Governance, Patient Safety, Quality Improvement, Financial Management, Health Insurance (NHIS/HMO), Supply Chain, Pharmacy Management, Digital Health, EMR/HIS, Data Analytics, Change Management, HR Management, Strategy & Planning, Business Development, Process Engineering, Facilities Management, Nursing Leadership, Medical Director, Health Policy, M&E, Epidemiology, Marketing, Legal & Compliance, Risk Management, Internal Audit, Training & Development
+
+${await getNuruContext()}
 
 Return ONLY valid JSON:
 {

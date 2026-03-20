@@ -48,6 +48,43 @@ export default function CampaignDetailPage() {
   const [addSaving, setAddSaving] = useState(false);
   const [bulkText, setBulkText] = useState("");
   const [showBulk, setShowBulk] = useState(false);
+  const [nuruSuggesting, setNuruSuggesting] = useState(false);
+  const [nuruTargets, setNuruTargets] = useState<Array<{ name: string; title: string; organization: string; city: string; source: string; outreachAngle: string }>>([]);
+  const [nuruTip, setNuruTip] = useState("");
+
+  async function askNuruForTargets() {
+    setNuruSuggesting(true);
+    setNuruTargets([]);
+    try {
+      const res = await fetch("/api/ai/suggest-outreach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          campaignName: campaign?.name,
+          existingTargets: campaign?.targets.map((t) => t.name) ?? [],
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setNuruTargets(data.targets ?? []);
+        setNuruTip(data.messagingTip ?? "");
+      }
+    } catch {}
+    finally { setNuruSuggesting(false); }
+  }
+
+  async function addNuruTarget(target: typeof nuruTargets[0], idx: number) {
+    try {
+      await fetch(`/api/admin/outreach/${id}/targets`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: target.name, title: target.title, organization: target.organization, city: target.city, source: target.source }),
+      });
+      setNuruTargets((prev) => prev.filter((_, i) => i !== idx));
+      const refreshRes = await fetch(`/api/admin/outreach/${id}`);
+      setCampaign((await refreshRes.json()).campaign);
+    } catch {}
+  }
 
   useEffect(() => {
     fetch(`/api/admin/outreach/${id}`).then((r) => r.json()).then((d) => setCampaign(d.campaign)).finally(() => setLoading(false));
@@ -147,7 +184,33 @@ export default function CampaignDetailPage() {
           <button onClick={() => { setShowBulk(!showBulk); setShowAdd(false); }} className="text-xs px-3 py-1.5 rounded-lg border" style={{ borderColor: "#e5eaf0" }}>
             {showBulk ? "Cancel" : "Bulk Import (CSV)"}
           </button>
+          <button onClick={askNuruForTargets} disabled={nuruSuggesting} className="text-xs px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5 disabled:opacity-50" style={{ background: "#D4AF37" + "15", color: "#92400E", border: "1px solid #D4AF37" + "40" }}>
+            {nuruSuggesting ? "Researching..." : "Nuru: Suggest Targets"}
+          </button>
         </div>
+
+        {/* Nuru suggestions */}
+        {nuruTargets.length > 0 && (
+          <div className="bg-white rounded-xl border p-4 mb-4 space-y-3" style={{ borderColor: "#D4AF37" + "40", background: "#D4AF37" + "05" }}>
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold" style={{ color: "#0F2744" }}>Nuru suggests {nuruTargets.length} targets</p>
+              <button onClick={() => setNuruTargets([])} className="text-[10px] text-gray-400">Dismiss</button>
+            </div>
+            {nuruTip && <p className="text-xs text-gray-500 italic bg-amber-50 rounded px-3 py-2">Messaging tip: {nuruTip}</p>}
+            <div className="space-y-2">
+              {nuruTargets.map((t, i) => (
+                <div key={i} className="flex items-start justify-between bg-white rounded-lg border p-3" style={{ borderColor: "#e5eaf0" }}>
+                  <div>
+                    <p className="text-sm font-medium" style={{ color: "#0F2744" }}>{t.name}</p>
+                    <p className="text-xs text-gray-500">{t.title} at {t.organization} | {t.city}</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">{t.outreachAngle}</p>
+                  </div>
+                  <button onClick={() => addNuruTarget(t, i)} className="text-[10px] px-2.5 py-1 rounded-lg text-white shrink-0" style={{ background: "#0F2744" }}>Add</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {showAdd && (
           <form onSubmit={addTarget} className="bg-white rounded-xl border p-4 mb-4 space-y-3" style={{ borderColor: "#e5eaf0" }}>

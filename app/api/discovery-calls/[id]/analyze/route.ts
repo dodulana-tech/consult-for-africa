@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getNuruContext } from "@/lib/nuruContext";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
 
@@ -53,6 +54,8 @@ CFA SERVICE LINES (match problems to these):
 5. Fractional Leadership & Executive Secondments: Interim CEO/COO/CMO/CTO placements (6-18 months)
 6. Health Systems & Public Sector Advisory: Hospital network planning, policy-to-implementation, NGO/development partner work
 7. Healthcare HR Management (Maarova): Physician/nurse retention, executive search, leadership development
+
+${await getNuruContext()}
 
 Return ONLY valid JSON:
 {
