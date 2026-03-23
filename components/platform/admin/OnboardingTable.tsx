@@ -235,7 +235,7 @@ export default function OnboardingTable({ records }: { records: OnboardingRecord
       {/* Reject modal */}
       {rejectId && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-2" style={{ color: "#0F2744" }}>Reject Consultant</h3>
             <p className="text-sm text-gray-500 mb-4">Provide a reason for rejecting this consultant.</p>
             <textarea

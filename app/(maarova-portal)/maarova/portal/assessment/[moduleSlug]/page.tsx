@@ -208,7 +208,7 @@ export default function AssessmentModulePage({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div
             className="w-10 h-10 border-3 rounded-full animate-spin mx-auto mb-4"
@@ -225,7 +225,7 @@ export default function AssessmentModulePage({
 
   if (error && !data) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center max-w-md">
           <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
             <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -267,7 +267,7 @@ export default function Sidebar() {
             <X size={20} />
           </button>
         </div>
-        <div className="flex flex-col flex-1 overflow-hidden">
+        <div className="flex flex-col flex-1 overflow-y-auto">
           {navContent}
         </div>
       </aside>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Users, Shield, CheckCircle, Mail, Phone, Plus, X, Pencil } from "lucide-react";
+import { Users, Shield, CheckCircle, Mail, Phone, Plus, X, Pencil, Send } from "lucide-react";
 import EnablePortalModal from "./EnablePortalModal";
 
 interface Contact {
@@ -40,6 +40,8 @@ export default function ClientContactsSection({
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
+  const [resending, setResending] = useState<string | null>(null);
+  const [resendSuccess, setResendSuccess] = useState<string | null>(null);
 
   function startEdit(contact: Contact) {
     setEditingId(contact.id);
@@ -114,6 +116,25 @@ export default function ClientContactsSection({
     } finally {
       setSaving(false);
     }
+  }
+
+  async function resendInvite(contactId: string) {
+    setResending(contactId);
+    setResendSuccess(null);
+    try {
+      const res = await fetch("/api/client-portal/resend-invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contactId }),
+      });
+      if (res.ok) {
+        setResendSuccess(contactId);
+        // Also mark as portal enabled in UI
+        setEnabledIds((prev) => new Set([...prev, contactId]));
+        setTimeout(() => setResendSuccess(null), 3000);
+      }
+    } catch {}
+    setResending(null);
   }
 
   function formatDate(date: Date | null): string {
@@ -377,20 +398,38 @@ export default function ClientContactsSection({
                     </>
                   )}
 
-                  {/* Portal action */}
+                  {/* Portal actions */}
                   {canEnablePortal && (
-                    <button
-                      onClick={() => setModalContact(contact)}
-                      className="shrink-0 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
-                      style={{
-                        border: "1px solid #e5eaf0",
-                        color: portalEnabled ? "#6B7280" : "#0F2744",
-                        background: "#fff",
-                      }}
-                    >
-                      <Shield size={11} />
-                      {portalEnabled ? "Reset password" : "Enable portal"}
-                    </button>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {portalEnabled && (
+                        <button
+                          onClick={() => resendInvite(contact.id)}
+                          disabled={resending === contact.id}
+                          className="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                          style={{
+                            border: "1px solid #e5eaf0",
+                            color: resendSuccess === contact.id ? "#065F46" : "#6B7280",
+                            background: resendSuccess === contact.id ? "#D1FAE5" : "#fff",
+                          }}
+                          title="Resend login credentials"
+                        >
+                          <Send size={11} />
+                          {resending === contact.id ? "Sending..." : resendSuccess === contact.id ? "Sent!" : "Resend invite"}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => setModalContact(contact)}
+                        className="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+                        style={{
+                          border: "1px solid #e5eaf0",
+                          color: portalEnabled ? "#6B7280" : "#0F2744",
+                          background: "#fff",
+                        }}
+                      >
+                        <Shield size={11} />
+                        {portalEnabled ? "Reset password" : "Enable portal"}
+                      </button>
+                    </div>
                   )}
                 </div>
               );

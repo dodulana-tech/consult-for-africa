@@ -17,7 +17,7 @@ export default async function FounderLayout({
 
   return (
     <SessionProvider session={session}>
-      <div className="flex h-screen overflow-hidden">
+      <div className="flex h-[100dvh] overflow-hidden">
         <FounderSidebar />
         <div className="flex-1 overflow-y-auto bg-gray-50">
           {children}

@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { emailContactAdded } from "@/lib/email";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -16,6 +17,15 @@ export async function POST(req: NextRequest, { params }: Ctx) {
 
   if (!name?.trim() || !email?.trim()) {
     return new Response("name and email are required", { status: 400 });
+  }
+
+  // Check for duplicate email within this client's contacts
+  const normalizedEmail = email.trim().toLowerCase();
+  const existingContact = await prisma.clientContact.findFirst({
+    where: { clientId, email: normalizedEmail },
+  });
+  if (existingContact) {
+    return new Response("A contact with this email already exists for this client.", { status: 409 });
   }
 
   // If marking as primary, unset others
@@ -48,6 +58,16 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     },
   });
 
+  // Send notification email to new contact
+  const client = await prisma.client.findUnique({ where: { id: clientId }, select: { name: true } });
+  if (client) {
+    emailContactAdded({
+      contactEmail: contact.email,
+      contactName: contact.name,
+      clientName: client.name,
+    }).catch((err) => console.error("[email] contact added error:", err));
+  }
+
   return Response.json(
     { ok: true, contact: { ...contact, lastLoginAt: contact.lastLoginAt?.toISOString() ?? null, createdAt: contact.createdAt.toISOString() } },
     { status: 201 }
@@ -74,6 +94,17 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     where: { id: contactId, clientId },
   });
   if (!existing) return new Response("Contact not found", { status: 404 });
+
+  // Check for duplicate email (excluding this contact)
+  const normalizedEmail = email.trim().toLowerCase();
+  if (normalizedEmail !== existing.email) {
+    const duplicate = await prisma.clientContact.findFirst({
+      where: { clientId, email: normalizedEmail, id: { not: contactId } },
+    });
+    if (duplicate) {
+      return new Response("A contact with this email already exists for this client.", { status: 409 });
+    }
+  }
 
   // If marking as primary, unset others
   if (isPrimary && !existing.isPrimary) {

@@ -133,7 +133,7 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
               </button>
             </div>
 
-            <form onSubmit={submit} className="p-5 space-y-4">
+            <form onSubmit={submit} className="p-5 space-y-4 max-h-[calc(100vh-10rem)] overflow-y-auto">
               {error && (
                 <div className="text-xs text-red-600 px-3 py-2 rounded-lg" style={{ background: "#FEF2F2" }}>
                   {error}

@@ -95,7 +95,7 @@ export default function EnablePortalModal({
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5">
+        <div className="px-6 py-5 max-h-[calc(100vh-12rem)] overflow-y-auto">
           {success ? (
             <div
               className="rounded-lg px-4 py-3 text-sm text-center"

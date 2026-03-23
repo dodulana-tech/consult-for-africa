@@ -114,7 +114,7 @@ export default function NotificationsDrawer() {
       {/* Drawer */}
       {open && (
         <div
-          className="absolute right-0 top-10 z-50 w-80 rounded-2xl bg-white shadow-2xl overflow-hidden"
+          className="absolute right-0 top-10 z-50 w-80 max-h-[calc(100vh-5rem)] rounded-2xl bg-white shadow-2xl overflow-hidden flex flex-col"
           style={{ border: "1px solid #e5eaf0" }}
         >
           {/* Header */}
@@ -182,7 +182,7 @@ export default function NotificationsDrawer() {
           )}
 
           {/* Activity feed */}
-          <div className="overflow-y-auto" style={{ maxHeight: "360px" }}>
+          <div className="overflow-y-auto flex-1">
             {loading && updates.length === 0 ? (
               <div className="p-8 text-center text-xs text-gray-400">Loading...</div>
             ) : updates.length === 0 ? (

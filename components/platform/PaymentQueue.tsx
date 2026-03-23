@@ -256,7 +256,7 @@ export default function PaymentQueue({ entries }: { entries: Entry[] }) {
       {/* Confirm modal */}
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.4)" }}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center gap-3 mb-4">
               <CreditCard size={20} style={{ color: "#0F2744" }} />
               <h3 className="text-base font-semibold text-gray-900">Confirm Payment</h3>
