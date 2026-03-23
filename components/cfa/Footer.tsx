@@ -73,6 +73,11 @@ export default function Footer() {
               </Link>
             </li>
             <li>
+              <Link href="/solutions" className="hover:text-white transition-colors">
+                Solutions
+              </Link>
+            </li>
+            <li>
               <Link href="/maarova" className="hover:text-white transition-colors">
                 Maarova Platform
               </Link>
@@ -129,6 +134,9 @@ export default function Footer() {
             </Link>
             <Link href="/services" className="hover:text-white transition">
               Services
+            </Link>
+            <Link href="/solutions" className="hover:text-white transition">
+              Solutions
             </Link>
             <Link href="/insights" className="hover:text-white transition">
               Insights
