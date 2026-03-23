@@ -89,12 +89,13 @@ export default function PartnerCTA() {
             name="Organization"
             className="glass-input"
             placeholder="Organization"
+            aria-label="Organization"
             required
           />
 
           <div className="grid grid-cols-2 gap-4">
-            <input name="Country" className="glass-input" placeholder="Country" />
-            <input name="Role"    className="glass-input" placeholder="Role / Title" />
+            <input name="Country" className="glass-input" placeholder="Country" aria-label="Country" />
+            <input name="Role"    className="glass-input" placeholder="Role / Title" aria-label="Role or Title" />
           </div>
 
           <input
@@ -102,10 +103,11 @@ export default function PartnerCTA() {
             type="email"
             className="glass-input"
             placeholder="Work Email"
+            aria-label="Work Email"
             required
           />
 
-          <select name="Project Type" className="glass-input" required>
+          <select name="Project Type" className="glass-input" aria-label="Project Type" required>
             <option value="">Select Project Type</option>
             <option>Hospital Turnaround</option>
             <option>Performance Improvement</option>
@@ -122,7 +124,7 @@ export default function PartnerCTA() {
             <option>Technology Platform / CTO-as-a-Service</option>
           </select>
 
-          <select name="Budget Stage" className="glass-input">
+          <select name="Budget Stage" className="glass-input" aria-label="Budget Stage">
             <option value="">Budget Stage</option>
             <option>Planning phase</option>
             <option>Budget approved</option>
@@ -130,11 +132,11 @@ export default function PartnerCTA() {
             <option>Exploring financing options</option>
           </select>
 
-          <select name="Timeline" className="glass-input">
+          <select name="Timeline" className="glass-input" aria-label="Desired Timeline">
             <option value="">Desired Timeline</option>
-            <option>Immediate (0–3 months)</option>
-            <option>Near term (3–6 months)</option>
-            <option>Medium term (6–12 months)</option>
+            <option>Immediate (0 to 3 months)</option>
+            <option>Near term (3 to 6 months)</option>
+            <option>Medium term (6 to 12 months)</option>
             <option>Exploratory</option>
           </select>
 
@@ -143,6 +145,7 @@ export default function PartnerCTA() {
             className="glass-input"
             style={{ height: "7rem", resize: "none" }}
             placeholder="Brief description of situation or objectives"
+            aria-label="Project Details"
           />
 
           <button

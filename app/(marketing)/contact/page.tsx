@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { Send, CheckCircle, MapPin, Mail, Clock } from "lucide-react";
 
+// Metadata must be set via generateMetadata in a separate file or layout for client components
+// See app/(marketing)/contact/layout.tsx
+
 export default function Contact() {
   const [form, setForm] = useState({ name: "", email: "", organization: "", message: "" });
   const [loading, setLoading] = useState(false);
@@ -146,8 +149,9 @@ export default function Contact() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Your Name</label>
+                    <label htmlFor="contact-name" className="block text-xs font-medium text-gray-600 mb-1.5">Your Name</label>
                     <input
+                      id="contact-name"
                       required
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -159,8 +163,9 @@ export default function Contact() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Work Email</label>
+                    <label htmlFor="contact-email" className="block text-xs font-medium text-gray-600 mb-1.5">Work Email</label>
                     <input
+                      id="contact-email"
                       required
                       type="email"
                       value={form.email}
@@ -175,8 +180,9 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1.5">Organization</label>
+                  <label htmlFor="contact-org" className="block text-xs font-medium text-gray-600 mb-1.5">Organization</label>
                   <input
+                    id="contact-org"
                     required
                     value={form.organization}
                     onChange={(e) => setForm({ ...form, organization: e.target.value })}
@@ -189,8 +195,9 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1.5">How can we help?</label>
+                  <label htmlFor="contact-message" className="block text-xs font-medium text-gray-600 mb-1.5">How can we help?</label>
                   <textarea
+                    id="contact-message"
                     required
                     rows={4}
                     value={form.message}

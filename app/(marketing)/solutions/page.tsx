@@ -8,6 +8,12 @@ export const metadata: Metadata = {
   title: "Solutions | Consult For Africa",
   description:
     "Six engagement models for African healthcare. Advisory projects, retainer advisory, embedded secondments, fractional leadership, hospital transformation, and transaction advisory.",
+  openGraph: {
+    title: "Solutions | Consult For Africa",
+    description: "Six engagement models designed for African healthcare challenges.",
+    type: "website",
+    images: ["/og-image.jpg"],
+  },
 };
 
 export default function SolutionsPage() {

@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   title: "Hospital Turnaround & Recovery | Consult For Africa",
   description:
     "CFA stabilises hospital operations, improves efficiency, strengthens governance, and restores financial performance for healthcare institutions across Africa.",
+  openGraph: {
+    title: "Hospital Turnaround & Recovery | Consult For Africa",
+    description: "We stabilise hospital operations, improve efficiency, and restore financial performance across Africa.",
+    type: "website",
+    images: ["/og-image.jpg"],
+  },
 };
 
 const symptoms = [

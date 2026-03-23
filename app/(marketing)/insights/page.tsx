@@ -9,6 +9,12 @@ export const metadata: Metadata = {
   title: "Insights | Consult For Africa",
   description:
     "Perspectives on hospital performance, governance, capital projects, and health system strengthening across Africa.",
+  openGraph: {
+    title: "Insights | Consult For Africa",
+    description: "Perspectives on hospital performance, governance, and health system strengthening across Africa.",
+    type: "website",
+    images: ["/og-image.jpg"],
+  },
 };
 
 export const dynamic = "force-dynamic";

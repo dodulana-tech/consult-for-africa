@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   title: "About | Consult For Africa",
   description:
     "Consult For Africa is an Africa-focused healthcare management and transformation firm. Built by operators, for operators.",
+  openGraph: {
+    title: "About | Consult For Africa",
+    description: "Africa-focused healthcare management and transformation firm. Built by operators, for operators.",
+    type: "website",
+    images: ["/og-image.jpg"],
+  },
 };
 
 /* ─── Team data ───────────────────────────────────────────────────── */

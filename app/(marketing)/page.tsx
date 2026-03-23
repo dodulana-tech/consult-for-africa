@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Consult For Africa",
     description: "Transforming hospital performance across Africa.",
+    type: "website",
     images: ["/og-image.jpg"],
   },
 };
