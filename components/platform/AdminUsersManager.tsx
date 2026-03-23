@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, X, CheckCircle2, AlertCircle, ChevronDown, User, Star, Shield, Trash2, RotateCw } from "lucide-react";
+import { Plus, X, CheckCircle2, AlertCircle, ChevronDown, User, Star, Shield, Trash2, RotateCw, Pencil, Check, Loader2 } from "lucide-react";
 
 type UserRow = {
   id: string;
@@ -49,6 +49,9 @@ export default function AdminUsersManager({ users: initialUsers, currentUserId }
   const [resending, setResending] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", email: "" });
+  const [savingEdit, setSavingEdit] = useState(false);
 
   function setField(k: string, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -144,6 +147,35 @@ export default function AdminUsersManager({ users: initialUsers, currentUserId }
     } finally {
       setDeleting(null);
       setConfirmDelete(null);
+    }
+  }
+
+  function startEditUser(u: UserRow) {
+    setEditingUser(u.id);
+    setEditForm({ name: u.name, email: u.email });
+  }
+
+  async function saveUserEdit(userId: string) {
+    setSavingEdit(true);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "update-info", userId, name: editForm.name, email: editForm.email }),
+      });
+      if (!res.ok) {
+        setError(await res.text().catch(() => "Failed to update user."));
+        return;
+      }
+      const { user: updated } = await res.json();
+      setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, name: updated.name, email: updated.email } : u));
+      setEditingUser(null);
+      setSuccess(`${updated.name} updated.`);
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setSavingEdit(false);
     }
   }
 
@@ -293,13 +325,44 @@ export default function AdminUsersManager({ users: initialUsers, currentUserId }
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-900">{u.name}</span>
-                      {u.id === currentUserId && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">You</span>
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-400">{u.email}</p>
+                    {editingUser === u.id ? (
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 space-y-1">
+                          <input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                            className="w-full rounded-md border px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
+                            style={inputStyle} placeholder="Full name"
+                            onKeyDown={(e) => { if (e.key === "Enter") saveUserEdit(u.id); if (e.key === "Escape") setEditingUser(null); }}
+                            autoFocus />
+                          <input value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                            className="w-full rounded-md border px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
+                            style={inputStyle} placeholder="Email"
+                            onKeyDown={(e) => { if (e.key === "Enter") saveUserEdit(u.id); if (e.key === "Escape") setEditingUser(null); }} />
+                        </div>
+                        <button onClick={() => saveUserEdit(u.id)} disabled={savingEdit}
+                          className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 disabled:opacity-50">
+                          {savingEdit ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
+                        </button>
+                        <button onClick={() => setEditingUser(null)}
+                          className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100">
+                          <X size={13} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="group/info">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-gray-900">{u.name}</span>
+                          {u.id === currentUserId && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">You</span>
+                          )}
+                          {u.id !== currentUserId && (
+                            <button onClick={() => startEditUser(u)} className="p-1 rounded text-gray-300 opacity-0 group-hover/info:opacity-100 hover:text-gray-600 transition-opacity">
+                              <Pencil size={11} />
+                            </button>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-400">{u.email}</p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Consultant profile snippet */}

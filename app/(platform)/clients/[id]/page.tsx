@@ -7,12 +7,9 @@ import CreateInvoiceForm from "@/components/platform/CreateInvoiceForm";
 import InvoiceStatusButton from "@/components/platform/InvoiceStatusButton";
 import ClientContactsSection from "@/components/client-portal/ClientContactsSection";
 import { formatCurrency, formatCompactCurrency, formatDate } from "@/lib/utils";
+import EditableClientInfo from "@/components/platform/EditableClientInfo";
+import InlineProjectBudget from "@/components/platform/InlineProjectBudget";
 import {
-  Building2,
-  Phone,
-  Mail,
-  MapPin,
-  CreditCard,
   FolderOpen,
   FileText,
   ChevronRight,
@@ -172,32 +169,15 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
           </div>
 
           {/* Client info */}
-          <div className="rounded-xl p-5 bg-white" style={{ border: "1px solid #e5eaf0" }}>
-            <h2 className="text-sm font-semibold text-gray-900 mb-3">Contact Information</h2>
-            <div className="grid grid-cols-2 gap-3 text-sm text-gray-600">
-              <span className="flex items-center gap-2">
-                <Mail size={13} className="text-gray-400" />
-                {client.email}
-              </span>
-              <span className="flex items-center gap-2">
-                <Phone size={13} className="text-gray-400" />
-                {client.phone}
-              </span>
-              <span className="flex items-center gap-2">
-                <MapPin size={13} className="text-gray-400" />
-                {client.address}
-              </span>
-              <span className="flex items-center gap-2">
-                <CreditCard size={13} className="text-gray-400" />
-                {client.paymentTerms}-day payment terms &middot; {client.currency}
-              </span>
-            </div>
-            {client.notes && (
-              <p className="mt-3 text-xs text-gray-500 border-t pt-3" style={{ borderColor: "#e5eaf0" }}>
-                {client.notes}
-              </p>
-            )}
-          </div>
+          <EditableClientInfo client={{
+            id: client.id,
+            email: client.email,
+            phone: client.phone,
+            address: client.address,
+            paymentTerms: client.paymentTerms,
+            currency: client.currency,
+            notes: client.notes,
+          }} />
 
           {/* Contacts */}
           <ClientContactsSection
@@ -241,9 +221,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                         deliverable{p._count.deliverables !== 1 ? "s" : ""}
                       </p>
                     </div>
-                    <p className="text-sm font-semibold text-gray-700 shrink-0">
-                      {formatCompactCurrency(Number(p.budgetAmount), p.budgetCurrency)}
-                    </p>
+                    <InlineProjectBudget projectId={p.id} amount={Number(p.budgetAmount)} currency={p.budgetCurrency} />
                     <ChevronRight size={14} className="text-gray-300 group-hover:text-gray-500 transition-colors" />
                   </Link>
                 );

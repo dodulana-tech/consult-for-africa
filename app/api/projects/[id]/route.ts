@@ -105,6 +105,13 @@ export async function PATCH(
     const valid = ["PREMIUM", "STANDARD", "VALUE", "BUDGET"];
     if (valid.includes(body.budgetSensitivity) || body.budgetSensitivity === null) updateData.budgetSensitivity = body.budgetSensitivity;
   }
+  if (body.budgetAmount !== undefined) {
+    const amt = parseFloat(String(body.budgetAmount));
+    if (!isNaN(amt) && amt >= 0) updateData.budgetAmount = amt;
+  }
+  if (body.budgetCurrency !== undefined) {
+    if (["NGN", "USD"].includes(body.budgetCurrency)) updateData.budgetCurrency = body.budgetCurrency;
+  }
   if (body.consultantTierMin !== undefined) updateData.consultantTierMin = body.consultantTierMin || null;
   if (body.consultantTierMax !== undefined) updateData.consultantTierMax = body.consultantTierMax || null;
   if (body.internEligible !== undefined) updateData.internEligible = !!body.internEligible;

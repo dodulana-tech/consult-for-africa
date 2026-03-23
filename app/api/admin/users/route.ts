@@ -158,6 +158,39 @@ export async function PATCH(req: NextRequest) {
     return Response.json({ ok: true });
   }
 
+  // Update user info flow
+  if (body.action === "update-info") {
+    const { userId, name, email } = body;
+    if (!userId) return new Response("userId required", { status: 400 });
+
+    const updateData: Record<string, string> = {};
+    if (name?.trim()) updateData.name = name.trim();
+    if (email?.trim()) {
+      const existing = await prisma.user.findFirst({ where: { email: email.trim(), NOT: { id: userId } } });
+      if (existing) return new Response("Email already in use by another user", { status: 409 });
+      updateData.email = email.trim();
+    }
+
+    if (Object.keys(updateData).length === 0) return new Response("No fields to update", { status: 400 });
+
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: { id: true, name: true, email: true, role: true },
+    });
+
+    await logAudit({
+      userId: session.user.id,
+      action: "UPDATE",
+      entityType: "User",
+      entityId: updated.id,
+      entityName: updated.name,
+      details: { fields: Object.keys(updateData) },
+    });
+
+    return Response.json({ ok: true, user: updated });
+  }
+
   // Role change flow
   const { userId, role } = body;
   if (!userId || !role) return new Response("userId and role required", { status: 400 });
