@@ -185,6 +185,11 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             contacts={client.contacts}
             canEnablePortal={canEnablePortal}
             canAdd={canEnablePortal}
+            clientAccount={{
+              email: client.email,
+              primaryContact: client.primaryContact,
+              phone: client.phone,
+            }}
           />
 
           {/* Projects */}

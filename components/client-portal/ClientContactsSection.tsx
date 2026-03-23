@@ -15,11 +15,18 @@ interface Contact {
   lastLoginAt: Date | null;
 }
 
+interface ClientAccount {
+  email: string;
+  primaryContact: string;
+  phone: string;
+}
+
 interface Props {
   clientId: string;
   contacts: Contact[];
   canEnablePortal: boolean;
   canAdd?: boolean;
+  clientAccount?: ClientAccount;
 }
 
 const emptyForm = { name: "", email: "", title: "", phone: "", isPrimary: false };
@@ -29,6 +36,7 @@ export default function ClientContactsSection({
   contacts: initialContacts,
   canEnablePortal,
   canAdd = false,
+  clientAccount,
 }: Props) {
   const [contacts, setContacts] = useState<Contact[]>(initialContacts);
   const [modalContact, setModalContact] = useState<Contact | null>(null);
@@ -42,6 +50,51 @@ export default function ClientContactsSection({
   const [formError, setFormError] = useState("");
   const [resending, setResending] = useState<string | null>(null);
   const [resendSuccess, setResendSuccess] = useState<string | null>(null);
+  const [provisioning, setProvisioning] = useState(false);
+  const [provisionSuccess, setProvisionSuccess] = useState(false);
+
+  // Check if the client account owner has a contact entry
+  const ownerHasContact = !clientAccount || contacts.some(
+    (c) => c.email.toLowerCase() === clientAccount.email.toLowerCase()
+  );
+
+  async function provisionOwner() {
+    if (!clientAccount) return;
+    setProvisioning(true);
+    try {
+      // Create contact for account owner
+      const res = await fetch(`/api/clients/${clientId}/contacts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: clientAccount.primaryContact,
+          email: clientAccount.email,
+          phone: clientAccount.phone,
+          isPrimary: true,
+        }),
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        setFormError(text || "Failed to create contact.");
+        setProvisioning(false);
+        return;
+      }
+      const { contact } = await res.json();
+      setContacts((prev) => [contact, ...prev.map((c) => ({ ...c, isPrimary: false }))]);
+
+      // Now send portal invite (resend-invite auto-creates password + enables portal)
+      const inviteRes = await fetch("/api/client-portal/resend-invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contactId: contact.id }),
+      });
+      if (inviteRes.ok) {
+        setEnabledIds((prev) => new Set([...prev, contact.id]));
+        setProvisionSuccess(true);
+      }
+    } catch {}
+    setProvisioning(false);
+  }
 
   function startEdit(contact: Contact) {
     setEditingId(contact.id);
@@ -165,6 +218,39 @@ export default function ClientContactsSection({
             </button>
           )}
         </div>
+
+        {/* Banner for legacy clients without a portal contact */}
+        {!ownerHasContact && canEnablePortal && !provisionSuccess && clientAccount && (
+          <div
+            className="flex items-center justify-between rounded-xl px-4 py-3 mb-3"
+            style={{ background: "#FEF3C7", border: "1px solid #FDE68A" }}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <Mail size={14} className="text-amber-600 shrink-0" />
+              <p className="text-xs text-amber-800">
+                <span className="font-medium">{clientAccount.primaryContact}</span> ({clientAccount.email}) does not have portal access yet.
+              </p>
+            </div>
+            <button
+              onClick={provisionOwner}
+              disabled={provisioning}
+              className="shrink-0 ml-3 text-xs font-semibold px-3 py-1.5 rounded-lg disabled:opacity-50"
+              style={{ background: "#0F2744", color: "#fff" }}
+            >
+              {provisioning ? "Setting up..." : "Send portal invite"}
+            </button>
+          </div>
+        )}
+
+        {provisionSuccess && !ownerHasContact && (
+          <div
+            className="flex items-center gap-2 rounded-xl px-4 py-3 mb-3"
+            style={{ background: "#D1FAE5", border: "1px solid #A7F3D0" }}
+          >
+            <CheckCircle size={14} className="text-emerald-600" />
+            <p className="text-xs text-emerald-800">Portal invite sent to {clientAccount?.email}. They will receive login credentials by email.</p>
+          </div>
+        )}
 
         {showForm && (
           <div className="rounded-lg p-4 space-y-2 mb-3" style={{ background: "#F9FAFB", border: "1px solid #e5eaf0" }}>
