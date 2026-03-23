@@ -925,3 +925,27 @@ export async function emailOutreachInvite({
     `)
   );
 }
+
+// ─── Secondment Recall ───────────────────────────────────────────────────────
+
+export async function emailSecondmentRecall({
+  recipientEmail, recipientName, engagementName, reason, effectiveDate, isClient,
+}: {
+  recipientEmail: string; recipientName: string; engagementName: string;
+  reason: string; effectiveDate: string; isClient: boolean;
+}) {
+  const roleContext = isClient
+    ? "We are writing to inform you that the secondment arrangement"
+    : "We are writing to inform you that your secondment";
+
+  await send(recipientEmail, `Secondment Recall Notice: ${engagementName}`,
+    layout(`
+      ${h1("Secondment Recall Notice")}
+      ${p(`Dear ${esc(recipientName)},`)}
+      ${p(`${roleContext} for ${esc(engagementName)} is being recalled, effective ${esc(effectiveDate)}.`)}
+      ${p(`<strong>Reason:</strong> ${esc(reason)}`)}
+      ${p(`Our team will be in touch to discuss transition arrangements and next steps.`)}
+      ${p(`If you have any questions, please contact us at hello@consultforafrica.com.`)}
+    `)
+  );
+}

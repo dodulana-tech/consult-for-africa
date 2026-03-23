@@ -197,6 +197,29 @@ export async function PATCH(
     });
   }
 
+  // Auto-create debrief when engagement transitions to COMPLETED
+  if (body.status === "COMPLETED" && project.status !== "COMPLETED") {
+    const existingDebrief = await prisma.engagementDebrief.findUnique({ where: { engagementId: id } });
+    if (!existingDebrief) {
+      await prisma.engagementDebrief.create({
+        data: {
+          engagementId: id,
+          status: "PENDING",
+          dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
+        },
+      });
+      // Create an update notification
+      await prisma.engagementUpdate.create({
+        data: {
+          engagementId: id,
+          createdById: session.user.id,
+          type: "MILESTONE_COMPLETED",
+          content: "Engagement completed. Debrief has been auto-created and is due in 14 days.",
+        },
+      });
+    }
+  }
+
   await logAudit({
     userId: session.user.id,
     action: "UPDATE",
