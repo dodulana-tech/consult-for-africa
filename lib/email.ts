@@ -274,7 +274,7 @@ export async function sendInvite(
   const roleIntro: Record<string, string> = {
     Consultant: "As a consultant, you will be assigned to client projects, submit deliverables, track your time, and collaborate with engagement managers through the platform.",
     "Engagement Manager": "As an Engagement Manager, you will oversee project delivery, review deliverables, manage consultant assignments, and ensure client satisfaction across your portfolio.",
-    Director: "As a Director, you will have oversight of practice-level performance, project portfolios, and team capacity across Consult for Africa.",
+    Director: "As a Director, you will have oversight of practice-level performance, project portfolios, and team capacity across Consult For Africa.",
     Partner: "As a Partner, you will have full visibility into firm performance, client relationships, financial metrics, and strategic planning tools.",
     Admin: "As an Administrator, you will have full access to manage users, configure the platform, and oversee all operations.",
   };
@@ -283,11 +283,11 @@ export async function sendInvite(
 
   await send(
     email,
-    `Welcome to Consult for Africa, ${name}`,
+    `Welcome to Consult For Africa, ${name}`,
     layout(`
       ${h1(`Welcome, ${firstName}`)}
       <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-        You have been invited to join <strong>Consult for Africa</strong>, a specialist management consulting firm focused on healthcare and social impact across Africa.
+        You have been invited to join <strong>Consult For Africa</strong>, a specialist management consulting firm focused on healthcare and social impact across Africa.
       </p>
       <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
         Your role: <strong>${safeRole}</strong>
@@ -337,11 +337,11 @@ export async function emailClientPortalInvite({
 
   await send(
     contactEmail,
-    "Your Client Portal Access | Consult for Africa",
+    "Your Client Portal Access | Consult For Africa",
     layout(`
       ${h1(`Welcome, ${firstName}`)}
       <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-        Your client portal account for <strong>${safeClientName}</strong> is now active on the Consult for Africa platform.
+        Your client portal account for <strong>${safeClientName}</strong> is now active on the Consult For Africa platform.
       </p>
       <p style="margin:0 0 20px;font-size:14px;line-height:1.6;color:#6B7280;">
         Through the portal you can track project progress, view deliverables, see milestones, and contact your engagement manager directly.
@@ -388,11 +388,11 @@ export async function emailPartnerPortalInvite({
 
   await send(
     contactEmail,
-    "Your Partner Portal Access | Consult for Africa",
+    "Your Partner Portal Access | Consult For Africa",
     layout(`
       ${h1(`Welcome, ${firstName}`)}
       <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-        Your partner portal account for <strong>${safePartnerName}</strong> is now active on the Consult for Africa platform.
+        Your partner portal account for <strong>${safePartnerName}</strong> is now active on the Consult For Africa platform.
       </p>
       <p style="margin:0 0 20px;font-size:14px;line-height:1.6;color:#6B7280;">
         Through the portal you can manage staffing requests, track consultant placements, view invoices, and communicate with the CFA team directly.
@@ -439,7 +439,7 @@ export async function emailContactAdded({
     layout(`
       ${h1(`Hello, ${firstName}`)}
       <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-        You have been added as a contact person for <strong>${safeClientName}</strong> on the Consult for Africa platform.
+        You have been added as a contact person for <strong>${safeClientName}</strong> on the Consult For Africa platform.
       </p>
       <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#6B7280;">
         As a listed contact, you may receive project updates and communications related to your organisation's engagements with us.
@@ -503,10 +503,10 @@ export async function emailPlatformPasswordReset({
 
   await send(
     email,
-    "Password Reset | Consult for Africa Platform",
+    "Password Reset | Consult For Africa Platform",
     layout(`
       ${h1("Password Reset")}
-      ${p(`Hi ${firstName}, we received a request to reset your Consult for Africa platform password.`)}
+      ${p(`Hi ${firstName}, we received a request to reset your Consult For Africa platform password.`)}
       ${btn("Reset Password", resetUrl, "#0F2744")}
       <p style="margin:16px 0;font-size:13px;color:#6B7280;line-height:1.6;">
         This link will expire in 1 hour. If you did not request a password reset, you can safely ignore this email.
@@ -553,7 +553,7 @@ export async function emailClientPortalPasswordReset({
 
   await send(
     email,
-    "Password Reset | Consult for Africa Client Portal",
+    "Password Reset | Consult For Africa Client Portal",
     layout(`
       ${h1(`Password Reset`)}
       ${p(`Hi ${firstName}, we received a request to reset your Client Portal password.`)}
@@ -584,7 +584,7 @@ export async function email360RaterInvite({
 
   await send(
     raterEmail,
-    `360 Feedback Request | Consult for Africa`,
+    `360 Feedback Request | Consult For Africa`,
     layout(`
       ${h1(`Hi ${firstName}`)}
       <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
@@ -785,11 +785,11 @@ export async function emailMaarovaInvite({
 
   await send(
     email,
-    `Your Maarova Assessment Access | Consult for Africa`,
+    `Your Maarova Assessment Access | Consult For Africa`,
     layout(`
       ${h1(`Welcome to Maarova, ${firstName}`)}
       <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-        You have been invited by <strong>${safeOrg}</strong> to complete a Maarova leadership assessment through Consult for Africa.
+        You have been invited by <strong>${safeOrg}</strong> to complete a Maarova leadership assessment through Consult For Africa.
       </p>
       <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#6B7280;">
         Maarova is a psychometric assessment platform built specifically for healthcare leaders in Africa. Over the next 60 minutes, you will complete six assessment dimensions covering behavioural style, values, emotional intelligence, clinical leadership transition, and organisational culture. Your results will generate a personalised leadership profile and development roadmap.

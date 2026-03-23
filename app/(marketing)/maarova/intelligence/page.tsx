@@ -728,7 +728,7 @@ export default function IntelligencePage() {
           </div>
 
           <p className="mt-10 text-xs text-gray-300">
-            Consult for Africa {"·"} Maarova{"\u2122"} Organisational
+            Consult For Africa {"·"} Maarova{"\u2122"} Organisational
             Intelligence
           </p>
         </div>

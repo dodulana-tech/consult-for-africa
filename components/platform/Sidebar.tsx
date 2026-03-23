@@ -87,6 +87,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: "Time & Payments",href: "/timesheets",     icon: Clock },
       { label: "Knowledge",      href: "/knowledge",      icon: BookOpen },
+      { label: "Asset Library",   href: "/knowledge/library", icon: FileSearch },
       { label: "Academy",        href: "/academy",        icon: GraduationCap },
       { label: "Nuru",           href: "/ai",             icon: Sparkles },
       { label: "Tools",          href: "/tools",          icon: Wrench },

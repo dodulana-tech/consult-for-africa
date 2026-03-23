@@ -26,8 +26,15 @@ import {
   X,
   Sparkles,
   Phone,
+  Activity,
+  BookOpen,
+  ClipboardList,
 } from "lucide-react";
 import StatusBadge from "./StatusBadge";
+import TransformOS from "./project/TransformOS";
+import PlaybookBuilder from "./project/PlaybookBuilder";
+import DebriefFlow from "./project/DebriefFlow";
+import BoardPackButton from "./project/BoardPackButton";
 import ConsultantMatchingWidget from "./ConsultantMatchingWidget";
 import ProjectRiskAnalysis from "./ProjectRiskAnalysis";
 import ProjectStatusEditor from "./ProjectStatusEditor";
@@ -51,7 +58,7 @@ import {
   healthColor,
 } from "@/lib/utils";
 
-type Tab = "overview" | "team" | "deliverables" | "timeline" | "calls";
+type Tab = "overview" | "team" | "deliverables" | "timeline" | "calls" | "transform" | "playbook" | "debrief";
 
 type EngagementType = "PROJECT" | "RETAINER" | "SECONDMENT" | "FRACTIONAL" | "TRANSFORMATION" | "TRANSACTION";
 
@@ -65,12 +72,12 @@ const ENGAGEMENT_TYPE_COLORS: Record<EngagementType, string> = {
 };
 
 const TABS_BY_TYPE: Record<EngagementType, Tab[]> = {
-  PROJECT: ["overview", "team", "deliverables", "timeline", "calls"],
-  RETAINER: ["overview", "team", "calls"],
-  SECONDMENT: ["overview", "team", "calls"],
-  FRACTIONAL: ["overview", "calls"],
-  TRANSFORMATION: ["overview", "team", "timeline", "calls"],
-  TRANSACTION: ["overview", "timeline", "calls"],
+  PROJECT: ["overview", "team", "deliverables", "timeline", "playbook", "debrief", "calls"],
+  RETAINER: ["overview", "team", "playbook", "debrief", "calls"],
+  SECONDMENT: ["overview", "team", "debrief", "calls"],
+  FRACTIONAL: ["overview", "debrief", "calls"],
+  TRANSFORMATION: ["overview", "transform", "team", "timeline", "playbook", "debrief", "calls"],
+  TRANSACTION: ["overview", "timeline", "debrief", "calls"],
 };
 
 function getVisibleTabs(engagementType: EngagementType): Tab[] {
@@ -227,10 +234,12 @@ interface Project {
   fractionalCommissionPct: number | null;
   fractionalArrangementFee: number | null;
   // TRANSFORMATION
+  transformHospitalId: string | null;
   transformEquityPct: number | null;
   transformDealStructure: string | null;
   transformEntryValuation: number | null;
   transformBoardSeat: boolean | null;
+  transformStepInTrigger: number | null;
   transformExitMonths: number | null;
   // TRANSACTION
   transactionMandateType: string | null;
@@ -290,6 +299,9 @@ export default function ProjectTabs({
     { key: "deliverables", label: "Deliverables", icon: FileCheck },
     { key: "timeline", label: "Timeline", icon: Flag },
     { key: "calls", label: "Calls", icon: Phone },
+    { key: "transform", label: "Transform OS", icon: Activity },
+    { key: "playbook", label: "Playbook", icon: BookOpen },
+    { key: "debrief", label: "Debrief", icon: ClipboardList },
   ];
   const visibleKeys = getVisibleTabs(project.engagementType);
   const tabs = allTabs.filter((t) => visibleKeys.includes(t.key));
@@ -412,6 +424,29 @@ export default function ProjectTabs({
             project={project}
             isEM={["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(userRole)}
           />
+        )}
+        {tab === "transform" && project.engagementType === "TRANSFORMATION" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-end">
+              <BoardPackButton engagementId={project.id} />
+            </div>
+            <TransformOS
+              engagementId={project.id}
+              hospitalId={project.transformHospitalId ?? ""}
+              equityPct={project.transformEquityPct ?? 0}
+              dealStructure={project.transformDealStructure ?? "SWEAT"}
+              entryValuation={project.transformEntryValuation ?? 0}
+              exitMonths={project.transformExitMonths ?? 36}
+              boardSeat={project.transformBoardSeat ?? false}
+              stepInTrigger={project.transformStepInTrigger ?? null}
+            />
+          </div>
+        )}
+        {tab === "playbook" && (
+          <PlaybookBuilder engagementId={project.id} />
+        )}
+        {tab === "debrief" && (
+          <DebriefFlow engagementId={project.id} engagementName={project.name} />
         )}
       </main>
     </div>

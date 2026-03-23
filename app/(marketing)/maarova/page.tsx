@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Maarova\u2122 | CFA Leadership Assessment Platform",
   description:
-    "Africa\u2019s first psychometric assessment platform built for healthcare leaders. Proprietary technology by Consult for Africa.",
+    "Africa\u2019s first psychometric assessment platform built for healthcare leaders. Proprietary technology by Consult For Africa.",
 };
 
 /* ─── data ────────────────────────────────────────────────────────────────── */
@@ -281,7 +281,7 @@ export default function MaarovaPage() {
           </div>
 
           <p className="mt-14 text-xs tracking-wide text-center md:text-left" style={{ color: "rgba(255,255,255,0.2)" }}>
-            Built by Africans, for Africa {"·"} Proprietary technology by Consult for Africa
+            Built by Africans, for Africa {"·"} Proprietary technology by Consult For Africa
           </p>
         </div>
       </section>
@@ -629,7 +629,7 @@ export default function MaarovaPage() {
           </div>
 
           <p className="mt-10 text-xs text-gray-300">
-            Consult for Africa {"·"} Proprietary Technology {"·"} Built in Africa, for Africa
+            Consult For Africa {"·"} Proprietary Technology {"·"} Built in Africa, for Africa
           </p>
         </div>
       </section>

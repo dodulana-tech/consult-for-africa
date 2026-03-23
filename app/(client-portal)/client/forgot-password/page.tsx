@@ -40,7 +40,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-cfa.png" alt="Consult for Africa" className="mx-auto mb-4" style={{ height: 48, width: "auto" }} />
+          <img src="/logo-cfa.png" alt="Consult For Africa" className="mx-auto mb-4" style={{ height: 48, width: "auto" }} />
           <h1 className="text-2xl font-bold" style={{ color: "#0F2744" }}>
             Client Portal
           </h1>

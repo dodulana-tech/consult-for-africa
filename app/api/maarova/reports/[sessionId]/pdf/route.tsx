@@ -169,7 +169,7 @@ function LeadershipReport(props: PDFProps) {
 
         <View style={s.footer}>
           <Text style={s.footerText}>Confidential | {dateStr}</Text>
-          <Text style={s.footerGold}>Consult for Africa | Maarova</Text>
+          <Text style={s.footerGold}>Consult For Africa | Maarova</Text>
         </View>
       </Page>
 
@@ -211,7 +211,7 @@ function LeadershipReport(props: PDFProps) {
 
         <View style={s.footer}>
           <Text style={s.footerText}>Confidential | {dateStr}</Text>
-          <Text style={s.footerGold}>Consult for Africa | Maarova</Text>
+          <Text style={s.footerGold}>Consult For Africa | Maarova</Text>
         </View>
       </Page>
 
@@ -266,7 +266,7 @@ function LeadershipReport(props: PDFProps) {
 
         <View style={s.footer}>
           <Text style={s.footerText}>Confidential | {dateStr}</Text>
-          <Text style={s.footerGold}>Consult for Africa | Maarova</Text>
+          <Text style={s.footerGold}>Consult For Africa | Maarova</Text>
         </View>
       </Page>
     </Document>

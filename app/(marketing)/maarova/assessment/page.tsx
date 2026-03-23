@@ -531,7 +531,7 @@ export default function MaarovaAssessmentPage() {
           </div>
 
           <p className="mt-10 text-xs text-gray-300">
-            Consult for Africa {"\u00B7"} Proprietary Technology {"\u00B7"} Built
+            Consult For Africa {"\u00B7"} Proprietary Technology {"\u00B7"} Built
             in Africa, for Africa
           </p>
         </div>

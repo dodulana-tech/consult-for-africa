@@ -451,7 +451,7 @@ export default function RecruitmentPage() {
           </div>
 
           <p className="mt-10 text-xs text-gray-300">
-            Consult for Africa {"·"} Maarova{"\u2122"} Recruitment Assessment
+            Consult For Africa {"·"} Maarova{"\u2122"} Recruitment Assessment
           </p>
         </div>
       </section>

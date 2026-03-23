@@ -416,7 +416,7 @@ export default function DevelopmentPage() {
           </div>
 
           <p className="mt-10 text-xs text-gray-300">
-            Consult for Africa {"·"} Maarova{"\u2122"} Leadership Development
+            Consult For Africa {"·"} Maarova{"\u2122"} Leadership Development
           </p>
         </div>
       </section>

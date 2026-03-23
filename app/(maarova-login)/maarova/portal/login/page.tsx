@@ -153,7 +153,7 @@ export default function MaarovaLoginPage() {
         </form>
 
         <p className="text-gray-600 text-xs text-center mt-8">
-          Powered by Consult for Africa
+          Powered by Consult For Africa
         </p>
       </div>
     </div>

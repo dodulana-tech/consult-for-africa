@@ -76,7 +76,7 @@ interface TransformOSProps {
   entryValuation: number;
   exitMonths: number;
   boardSeat: boolean;
-  stepInTrigger: string | null;
+  stepInTrigger: number | null;
 }
 
 /* ── RAG thresholds (mirror server) ─────────────────────────────────────────── */
@@ -469,7 +469,7 @@ export default function TransformOS({
             <p className="text-sm font-semibold text-red-800">Step-In Trigger Warning</p>
             <p className="text-xs text-red-600 mt-1">
               {latest?.redCount} KPI{(latest?.redCount ?? 0) > 1 ? "s" : ""} in red zone.
-              Step-in clause: {stepInTrigger}
+              Step-in clause activates after {stepInTrigger} consecutive months of missed KPI targets.
             </p>
           </div>
         </div>

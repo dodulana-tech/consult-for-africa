@@ -87,10 +87,12 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     fractionalCommissionPct: project.fractionalCommissionPct ? Number(project.fractionalCommissionPct) : null,
     fractionalArrangementFee: project.fractionalArrangementFee ? Number(project.fractionalArrangementFee) : null,
     // TRANSFORMATION fields
+    transformHospitalId: project.transformHospitalId,
     transformEquityPct: project.transformEquityPct ? Number(project.transformEquityPct) : null,
     transformDealStructure: project.transformDealStructure,
     transformEntryValuation: project.transformEntryValuation ? Number(project.transformEntryValuation) : null,
     transformBoardSeat: project.transformBoardSeat,
+    transformStepInTrigger: project.transformStepInTrigger,
     transformExitMonths: project.transformExitMonths,
     // TRANSACTION fields
     transactionMandateType: project.transactionMandateType,

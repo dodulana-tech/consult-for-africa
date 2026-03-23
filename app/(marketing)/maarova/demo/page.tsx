@@ -179,7 +179,7 @@ export default function MaarovaDemoPage() {
               className="mt-10 text-xs"
               style={{ color: "rgba(255,255,255,0.18)" }}
             >
-              Consult for Africa {"·"} Proprietary Technology {"·"} Built in
+              Consult For Africa {"·"} Proprietary Technology {"·"} Built in
               Africa, for Africa
             </p>
           </div>
