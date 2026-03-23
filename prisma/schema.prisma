@@ -2683,3 +2683,175 @@ model AssetDownloadLog {
   @@index([assetId])
   @@index([engagementId])
 }
+
+// ─── Partner Firm Portal ───────────────────────────────────────────────────────
+
+enum PartnerRequestStatus {
+  DRAFT
+  SUBMITTED
+  MATCHING
+  SHORTLIST_SENT
+  CONFIRMED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum PartnerDeploymentStatus {
+  PROPOSED
+  ACCEPTED
+  ACTIVE
+  COMPLETED
+  RECALLED
+  DECLINED
+}
+
+model PartnerFirm {
+  id             String   @id @default(cuid())
+  name           String
+  type           String   // CONSULTANCY | DEVELOPMENT_AGENCY | NGO | MULTILATERAL | OTHER
+  website        String?
+  country        String   @default("Nigeria")
+  city           String?
+  notes          String?  @db.Text
+
+  // Commercial terms
+  defaultMarkupPct  Decimal?  @db.Decimal(5, 2) // default margin on consultant rates
+  paymentTerms      Int       @default(30) // days
+  currency          String    @default("NGN")
+
+  status         String   @default("PROSPECT") // PROSPECT | ONBOARDING | ACTIVE | INACTIVE
+
+  contacts       PartnerContact[]
+  staffingRequests PartnerStaffingRequest[]
+  invoices       PartnerInvoice[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status])
+}
+
+model PartnerContact {
+  id             String   @id @default(cuid())
+  partnerId      String
+  partner        PartnerFirm @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  name           String
+  email          String   @unique
+  passwordHash   String?
+  title          String?
+  phone          String?
+  isPrimary      Boolean  @default(false)
+  isPortalEnabled Boolean @default(false)
+  lastLoginAt    DateTime?
+  resetToken       String?
+  resetTokenExpiry DateTime?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([partnerId])
+}
+
+model PartnerStaffingRequest {
+  id             String   @id @default(cuid())
+  partnerId      String
+  partner        PartnerFirm @relation(fields: [partnerId], references: [id])
+  requestCode    String   @unique // PSR-2026-001 format
+
+  // What they need
+  projectName    String
+  projectDescription String @db.Text
+  rolesNeeded    Int      @default(1)
+  skillsRequired String[]
+  serviceTypes   String[] // maps to CFA ServiceType values
+  seniority      String?  // EMERGING | STANDARD | EXPERIENCED | ELITE
+  hoursPerWeek   Int?
+  startDate      DateTime?
+  durationWeeks  Int?
+
+  // Commercial
+  clientBudgetPerDay Decimal? @db.Decimal(10, 2) // what partner will pay CFA per day
+  budgetCurrency     String   @default("NGN")
+
+  // Workflow
+  status         PartnerRequestStatus @default(DRAFT)
+  submittedAt    DateTime?
+  matchedAt      DateTime?  // when CFA sent shortlist
+  confirmedAt    DateTime?  // when partner confirmed selections
+
+  // Internal
+  cfaReviewedById String?
+  cfaNotes        String?  @db.Text
+
+  deployments    PartnerDeployment[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([partnerId, status])
+}
+
+model PartnerDeployment {
+  id             String   @id @default(cuid())
+  requestId      String
+  request        PartnerStaffingRequest @relation(fields: [requestId], references: [id])
+  consultantId   String   // User ID of the consultant
+
+  // Assignment terms
+  role           String
+  ratePerDay     Decimal  @db.Decimal(10, 2) // CFA's rate to consultant
+  billingRatePerDay Decimal @db.Decimal(10, 2) // rate charged to partner
+  rateCurrency   String   @default("NGN")
+  startDate      DateTime?
+  endDate        DateTime?
+  hoursPerWeek   Int?
+
+  // Anonymised profile (sent to partner before confirmation)
+  anonymisedProfile Json?  // {tier, yearsExperience, expertiseAreas, bio snippet}
+
+  // Status
+  status         PartnerDeploymentStatus @default(PROPOSED)
+  proposedAt     DateTime @default(now())
+  acceptedAt     DateTime?
+  declinedReason String?
+  completedAt    DateTime?
+
+  // Performance
+  partnerRating  Int?     // 1-5 rating from partner at end
+  partnerFeedback String? @db.Text
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([requestId])
+  @@index([consultantId])
+  @@index([status])
+}
+
+model PartnerInvoice {
+  id             String   @id @default(cuid())
+  partnerId      String
+  partner        PartnerFirm @relation(fields: [partnerId], references: [id])
+  invoiceNumber  String   @unique // PCFA-INV-2026-001 format
+
+  // Line items
+  lineItems      Json     // [{consultantRole, days, ratePerDay, amount}]
+  subtotal       Decimal  @db.Decimal(14, 2)
+  tax            Decimal  @default(0) @db.Decimal(14, 2)
+  total          Decimal  @db.Decimal(14, 2)
+  currency       String   @default("NGN")
+
+  period         String?  // "2026-03" billing period
+  status         String   @default("DRAFT") // DRAFT | SENT | PAID | OVERDUE | CANCELLED
+  issuedDate     DateTime?
+  dueDate        DateTime?
+  paidDate       DateTime?
+  paymentRef     String?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([partnerId])
+  @@index([status])
+}

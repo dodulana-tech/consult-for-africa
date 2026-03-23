@@ -100,6 +100,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Assessments",    href: "/admin/assessments", icon: FileSearch },
       { label: "Outreach",       href: "/admin/outreach", icon: Share2 },
       { label: "Maarova",        href: "/admin/maarova",  icon: Brain },
+      { label: "Partners",       href: "/admin/partners",     icon: Building2 },
       { label: "Satisfaction",   href: "/admin/satisfaction", icon: HeartPulse },
     ],
     roles: ["PARTNER", "ADMIN"],

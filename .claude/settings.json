@@ -6,7 +6,12 @@
       "Bash(grep -r \"SMTP_\" /Users/debo/consult-for-africa/.env*)",
       "Bash(git show:*)",
       "Bash(git reset:*)",
-      "Bash(ls /Users/debo/consult-for-africa/app/api/clients/[id]/)"
+      "Bash(ls /Users/debo/consult-for-africa/app/api/clients/[id]/)",
+      "Bash(ls -la /Users/debo/consult-for-africa/app/\\\\\\(marketing\\\\\\)/solutions/)",
+      "Bash(ls -la /Users/debo/consult-for-africa/app/\\\\\\(marketing\\\\\\)/maarova/page.tsx)",
+      "Bash(wc -l /Users/debo/consult-for-africa/components/cfa/*.tsx)",
+      "Bash(head -10 /Users/debo/consult-for-africa/app/\\\\\\(marketing\\\\\\)/contact/page.tsx)",
+      "Bash(head -20 /Users/debo/consult-for-africa/app/\\\\\\(marketing\\\\\\)/contact/page.tsx)"
     ]
   }
 }
