@@ -17,10 +17,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!isElevated) {
     const existing = await prisma.invoice.findUnique({
       where: { id },
-      select: { project: { select: { engagementManagerId: true } } },
+      select: { engagement: { select: { engagementManagerId: true } } },
     });
     if (!existing) return new Response("Not found", { status: 404 });
-    if (existing.project?.engagementManagerId !== session.user.id) {
+    if (existing.engagement?.engagementManagerId !== session.user.id) {
       return new Response("Forbidden", { status: 403 });
     }
   }

@@ -41,7 +41,7 @@ export default async function DashboardPage() {
     : { assignments: { some: { consultantId: userId } } };
 
   // ─── Fetch projects ───────────────────────────────────────────────────────
-  const projects = await prisma.project.findMany({
+  const projects = await prisma.engagement.findMany({
     where: projectWhere,
     include: {
       client: { select: { name: true } },
@@ -57,14 +57,14 @@ export default async function DashboardPage() {
 
   const pendingDeliverables = await prisma.deliverable.count({
     where: {
-      project: projectWhere,
+      engagement: projectWhere,
       status: { in: ["SUBMITTED", "IN_REVIEW"] },
     },
   });
 
   const pendingTimesheets = await prisma.timeEntry.count({
     where: {
-      assignment: { project: projectWhere },
+      assignment: { engagement: projectWhere },
       status: "PENDING",
     },
   });
@@ -74,7 +74,7 @@ export default async function DashboardPage() {
     ? await prisma.assignment.findMany({
         where: { consultantId: userId, status: "PENDING_ACCEPTANCE" },
         include: {
-          project: { select: { id: true, name: true, serviceType: true, client: { select: { name: true } } } },
+          engagement: { select: { id: true, name: true, serviceType: true, client: { select: { name: true } } } },
         },
         orderBy: { createdAt: "desc" },
       })
@@ -87,10 +87,10 @@ export default async function DashboardPage() {
   const capacity = isConsultant ? await getConsultantCapacity(userId) : null;
 
   // ─── Recent updates ───────────────────────────────────────────────────────
-  const recentUpdates = await prisma.projectUpdate.findMany({
-    where: { project: projectWhere },
+  const recentUpdates = await prisma.engagementUpdate.findMany({
+    where: { engagement: projectWhere },
     include: {
-      project: { select: { name: true } },
+      engagement: { select: { name: true } },
       createdBy: { select: { name: true } },
     },
     orderBy: { createdAt: "desc" },
@@ -101,7 +101,7 @@ export default async function DashboardPage() {
   const now = new Date();
   const overdueMilestones = await prisma.milestone.count({
     where: {
-      project: projectWhere,
+      engagement: projectWhere,
       dueDate: { lt: now },
       status: { notIn: ["COMPLETED", "SKIPPED"] },
     },
@@ -322,14 +322,14 @@ export default async function DashboardPage() {
             {pendingAssignments.map((a) => (
               <Link
                 key={a.id}
-                href={`/projects/${a.project.id}`}
+                href={`/projects/${a.engagement.id}`}
                 className="flex items-center justify-between gap-4 rounded-xl p-4 transition-shadow hover:shadow-sm"
                 style={{ background: "#EFF6FF", border: "1px solid #BFDBFE" }}
               >
                 <div>
                   <p className="text-sm font-semibold text-blue-900">{a.role}</p>
                   <p className="text-xs text-blue-700 mt-0.5">
-                    {a.project.name} · {a.project.client.name}
+                    {a.engagement.name} · {a.engagement.client.name}
                   </p>
                 </div>
                 <span className="text-xs font-semibold text-blue-600 shrink-0">Review &rarr;</span>
@@ -422,7 +422,7 @@ export default async function DashboardPage() {
                   <div className="min-w-0 flex-1">
                     <p className="text-sm text-gray-700 leading-snug">{update.content}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-gray-400">{update.project.name}</span>
+                      <span className="text-xs text-gray-400">{update.engagement.name}</span>
                       <span className="text-gray-200">·</span>
                       <span className="text-xs text-gray-400">{timeAgo(update.createdAt)}</span>
                     </div>

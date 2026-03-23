@@ -12,7 +12,7 @@ interface AuditParams {
   entityType: string;
   entityId: string;
   entityName?: string;
-  projectId?: string;
+  engagementId?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   details?: Record<string, any>;
   ipAddress?: string;
@@ -27,7 +27,7 @@ export async function logAudit(params: AuditParams) {
         entityType: params.entityType,
         entityId: params.entityId,
         entityName: params.entityName ?? null,
-        projectId: params.projectId ?? null,
+        engagementId: params.engagementId ?? null,
         details: params.details ? (params.details as Prisma.InputJsonValue) : Prisma.JsonNull,
         ipAddress: params.ipAddress ?? null,
       },

@@ -14,7 +14,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   const isEM = session.user.role === "ENGAGEMENT_MANAGER";
   if (!isElevated) {
-    const project = await prisma.project.findUnique({
+    const project = await prisma.engagement.findUnique({
       where: { id: projectId },
       select: { engagementManagerId: true, assignments: { select: { consultantId: true } } },
     });
@@ -25,7 +25,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
   }
 
   const milestones = await prisma.paymentMilestone.findMany({
-    where: { projectId },
+    where: { engagementId: projectId },
     orderBy: { dueDate: "asc" },
     select: {
       id: true,
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
 
   const milestone = await prisma.paymentMilestone.create({
     data: {
-      projectId,
+      engagementId: projectId,
       name: name.trim(),
       amount,
       currency: currency || "NGN",

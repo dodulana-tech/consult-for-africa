@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       where: {
         id: { in: entryIds },
         assignment: {
-          project: { engagementManagerId: { not: session.user.id } },
+          engagement: { engagementManagerId: { not: session.user.id } },
         },
       },
     });
@@ -58,18 +58,18 @@ export async function POST(req: NextRequest) {
   try {
     const entries = await prisma.timeEntry.findMany({
       where: { id: { in: entryIds }, billableAmount: { not: null } },
-      select: { billableAmount: true, assignment: { select: { projectId: true } } },
+      select: { billableAmount: true, assignment: { select: { engagementId: true } } },
     });
     // Group by project
     const projectSpend = new Map<string, number>();
     for (const entry of entries) {
-      const pid = entry.assignment.projectId;
+      const pid = entry.assignment.engagementId;
       const amount = Number(entry.billableAmount ?? 0);
       projectSpend.set(pid, (projectSpend.get(pid) ?? 0) + amount);
     }
     // Increment actualSpent per project
     for (const [projectId, amount] of projectSpend) {
-      await prisma.project.update({
+      await prisma.engagement.update({
         where: { id: projectId },
         data: { actualSpent: { increment: amount } },
       });

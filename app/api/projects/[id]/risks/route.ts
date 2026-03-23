@@ -17,7 +17,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
   }
 
   const risks = await prisma.riskItem.findMany({
-    where: { projectId },
+    where: { engagementId: projectId },
     orderBy: [{ severity: "asc" }, { createdAt: "desc" }],
     select: {
       id: true,
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
 
   const risk = await prisma.riskItem.create({
     data: {
-      projectId,
+      engagementId: projectId,
       createdById: session.user.id,
       title: title.trim(),
       description: description?.trim() ?? "",
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     entityType: "Risk",
     entityId: risk.id,
     entityName: risk.title,
-    projectId,
+    engagementId: projectId,
   });
 
   return Response.json({ ok: true, risk }, { status: 201 });

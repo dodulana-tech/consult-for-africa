@@ -19,10 +19,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (session.user.role === "ENGAGEMENT_MANAGER") {
     const entryCheck = await prisma.timeEntry.findUnique({
       where: { id },
-      select: { assignment: { select: { project: { select: { engagementManagerId: true } } } } },
+      select: { assignment: { select: { engagement: { select: { engagementManagerId: true } } } } },
     });
     if (!entryCheck) return new Response("Not found", { status: 404 });
-    if (entryCheck.assignment.project.engagementManagerId !== session.user.id) {
+    if (entryCheck.assignment.engagement.engagementManagerId !== session.user.id) {
       return new Response("Forbidden", { status: 403 });
     }
   }
@@ -37,7 +37,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     },
     include: {
       consultant: { select: { name: true, email: true } },
-      assignment: { include: { project: { select: { name: true } } } },
+      assignment: { include: { engagement: { select: { name: true } } } },
     },
   });
 
@@ -48,14 +48,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       totalHours: Number(entry.hours),
       totalAmount: entry.billableAmount ? Number(entry.billableAmount) : 0,
       currency: entry.currency,
-      projectName: entry.assignment.project.name,
+      projectName: entry.assignment.engagement.name,
     });
   } else if (reason) {
     await emailTimesheetRejected({
       consultantEmail: entry.consultant.email,
       consultantName: entry.consultant.name,
       totalHours: Number(entry.hours),
-      projectName: entry.assignment.project.name,
+      projectName: entry.assignment.engagement.name,
       reason,
     });
   }
@@ -65,8 +65,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     action: action === "approve" ? "APPROVE" : "REJECT",
     entityType: "TimeEntry",
     entityId: id,
-    entityName: `${Number(entry.hours)}h - ${entry.assignment.project.name}`,
-    projectId: entry.assignment.projectId,
+    entityName: `${Number(entry.hours)}h - ${entry.assignment.engagement.name}`,
+    engagementId: entry.assignment.engagementId,
   });
 
   return Response.json({ ok: true });

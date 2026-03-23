@@ -13,7 +13,7 @@ export default async function DeliverableReviewPage({ params }: { params: Promis
   const deliverable = await prisma.deliverable.findUnique({
     where: { id },
     include: {
-      project: { select: { id: true, name: true, budgetCurrency: true } },
+      engagement: { select: { id: true, name: true, budgetCurrency: true } },
       assignment: {
         include: {
           consultant: {
@@ -59,7 +59,7 @@ export default async function DeliverableReviewPage({ params }: { params: Promis
     <div className="flex flex-col flex-1 overflow-hidden">
       <TopBar
         title="Review Deliverable"
-        subtitle={deliverable.project.name}
+        subtitle={deliverable.engagement.name}
       />
       <DeliverableReview
         deliverable={serialized}

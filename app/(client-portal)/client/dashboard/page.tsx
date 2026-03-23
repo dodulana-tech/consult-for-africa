@@ -61,7 +61,7 @@ export default async function ClientDashboardPage() {
   const session = await getClientPortalSession();
   if (!session) redirect("/client/login");
 
-  const projects = await prisma.project.findMany({
+  const projects = await prisma.engagement.findMany({
     where: { clientId: session.clientId },
     include: {
       engagementManager: { select: { name: true, email: true } },
@@ -85,7 +85,7 @@ export default async function ClientDashboardPage() {
   });
 
   // Fetch full project details for description and dates
-  const projectDetails = await prisma.project.findMany({
+  const projectDetails = await prisma.engagement.findMany({
     where: { clientId: session.clientId },
     select: {
       id: true,

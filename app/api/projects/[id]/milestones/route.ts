@@ -21,11 +21,11 @@ export async function POST(
     return Response.json({ error: "name and dueDate are required" }, { status: 400 });
   }
 
-  const count = await prisma.milestone.count({ where: { projectId: id } });
+  const count = await prisma.milestone.count({ where: { engagementId: id } });
 
   const milestone = await prisma.milestone.create({
     data: {
-      projectId: id,
+      engagementId: id,
       name: name.trim(),
       description: description?.trim() || "",
       dueDate: new Date(dueDate),

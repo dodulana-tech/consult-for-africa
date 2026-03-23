@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
         orderBy: { order: "asc" },
         include: { gates: { orderBy: { order: "asc" } } },
       },
-      _count: { select: { projects: true } },
+      _count: { select: { engagements: true } },
     },
   });
 

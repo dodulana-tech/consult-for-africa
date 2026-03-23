@@ -14,7 +14,7 @@ type Entry = {
   consultant: { id: string; name: string; email: string };
   assignment: {
     rateType: string;
-    project: { id: string; name: string };
+    engagement: { id: string; name: string };
     consultant: {
       consultantProfile: {
         bankName: string | null;
@@ -234,7 +234,7 @@ export default function PaymentQueue({ entries }: { entries: Entry[] }) {
                         {g.entries.map((e) => (
                           <tr key={e.id} className="hover:bg-gray-50">
                             <td className="px-4 py-2.5 text-gray-500">{formatDate(new Date(e.date))}</td>
-                            <td className="px-4 py-2.5 text-gray-700">{e.assignment.project.name}</td>
+                            <td className="px-4 py-2.5 text-gray-700">{e.assignment.engagement.name}</td>
                             <td className="px-4 py-2.5 text-gray-600">{e.hours}h</td>
                             <td className="px-4 py-2.5 text-right font-medium text-gray-800">
                               {e.billableAmount != null

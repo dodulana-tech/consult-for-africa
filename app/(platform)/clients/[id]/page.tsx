@@ -65,15 +65,15 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   // Role-scoped access: consultants only see clients they are assigned to via projects
   let accessFilter: Record<string, unknown> = { id };
   if (isEM) {
-    accessFilter = { id, projects: { some: { engagementManagerId: session.user.id } } };
+    accessFilter = { id, engagements: { some: { engagementManagerId: session.user.id } } };
   } else if (isConsultant) {
-    accessFilter = { id, projects: { some: { assignments: { some: { consultantId: session.user.id } } } } };
+    accessFilter = { id, engagements: { some: { assignments: { some: { consultantId: session.user.id } } } } };
   }
 
   const client = await prisma.client.findFirst({
     where: accessFilter,
     include: {
-      projects: {
+      engagements: {
         include: {
           engagementManager: { select: { name: true } },
           deliverables: { select: { id: true, status: true } },
@@ -106,7 +106,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
     .reduce((s, i) => s + Number(i.total), 0);
 
   // Deliverable stats across all projects
-  const allDeliverables = client.projects.flatMap((p) => p.deliverables);
+  const allDeliverables = client.engagements.flatMap((p) => p.deliverables);
   const deliverableCount = allDeliverables.length;
   const deliverableBreakdown = allDeliverables.reduce<Record<string, number>>((acc, d) => {
     acc[d.status] = (acc[d.status] || 0) + 1;
@@ -152,7 +152,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               },
               {
                 label: "Projects",
-                value: client.projects.length,
+                value: client.engagements.length,
                 color: "#3B82F6",
               },
             ].map((s) => (
@@ -196,10 +196,10 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
           <div>
             <h2 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
               <FolderOpen size={15} />
-              Projects ({client.projects.length})
+              Projects ({client.engagements.length})
             </h2>
             <div className="space-y-2">
-              {client.projects.map((p) => {
+              {client.engagements.map((p) => {
                 const statusStyle = PROJECT_STATUS_COLORS[p.status] ?? PROJECT_STATUS_COLORS.PLANNING;
                 return (
                   <Link
@@ -231,7 +231,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                   </Link>
                 );
               })}
-              {client.projects.length === 0 && (
+              {client.engagements.length === 0 && (
                 <p className="text-sm text-gray-400 text-center py-6">No projects yet</p>
               )}
             </div>
@@ -303,7 +303,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               <div className="mb-3">
                 <CreateInvoiceForm
                   clientId={client.id}
-                  projects={client.projects.map((p) => ({ id: p.id, name: p.name }))}
+                  projects={client.engagements.map((p) => ({ id: p.id, name: p.name }))}
                   defaultCurrency={client.currency}
                   paymentTerms={client.paymentTerms}
                 />

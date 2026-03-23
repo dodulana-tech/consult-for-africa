@@ -18,7 +18,7 @@ export async function canAccessProject(
     return true;
   }
 
-  const project = await prisma.project.findUnique({
+  const project = await prisma.engagement.findUnique({
     where: { id: projectId },
     select: {
       engagementManagerId: true,

@@ -35,7 +35,7 @@ async function main() {
     const clientIds = existingClients.map((c) => c.id)
 
     // Find projects for these clients
-    const existingProjects = await prisma.project.findMany({
+    const existingProjects = await prisma.engagement.findMany({
       where: { clientId: { in: clientIds } },
       select: { id: true },
     })
@@ -43,20 +43,20 @@ async function main() {
 
     if (projectIds.length > 0) {
       // Delete in dependency order
-      await prisma.deliverable.deleteMany({ where: { projectId: { in: projectIds } } })
-      await prisma.milestone.deleteMany({ where: { projectId: { in: projectIds } } })
-      await prisma.paymentMilestone.deleteMany({ where: { projectId: { in: projectIds } } })
-      await prisma.projectPhase.deleteMany({ where: { projectId: { in: projectIds } } })
-      await prisma.riskItem.deleteMany({ where: { projectId: { in: projectIds } } })
-      await prisma.clientInteraction.deleteMany({ where: { projectId: { in: projectIds } } })
-      await prisma.projectImpactMetric.deleteMany({ where: { projectId: { in: projectIds } } })
-      await prisma.knowledgeAsset.deleteMany({ where: { projectId: { in: projectIds } } })
-      await prisma.projectFramework.deleteMany({ where: { projectId: { in: projectIds } } })
-      await prisma.projectUpdate.deleteMany({ where: { projectId: { in: projectIds } } })
-      await prisma.assignment.deleteMany({ where: { projectId: { in: projectIds } } })
-      await prisma.invoice.deleteMany({ where: { projectId: { in: projectIds } } })
-      await prisma.message.deleteMany({ where: { projectId: { in: projectIds } } })
-      await prisma.project.deleteMany({ where: { id: { in: projectIds } } })
+      await prisma.deliverable.deleteMany({ where: { engagementId: { in: projectIds } } })
+      await prisma.milestone.deleteMany({ where: { engagementId: { in: projectIds } } })
+      await prisma.paymentMilestone.deleteMany({ where: { engagementId: { in: projectIds } } })
+      await prisma.engagementPhase.deleteMany({ where: { engagementId: { in: projectIds } } })
+      await prisma.riskItem.deleteMany({ where: { engagementId: { in: projectIds } } })
+      await prisma.clientInteraction.deleteMany({ where: { engagementId: { in: projectIds } } })
+      await prisma.engagementImpactMetric.deleteMany({ where: { engagementId: { in: projectIds } } })
+      await prisma.knowledgeAsset.deleteMany({ where: { engagementId: { in: projectIds } } })
+      await prisma.engagementFramework.deleteMany({ where: { engagementId: { in: projectIds } } })
+      await prisma.engagementUpdate.deleteMany({ where: { engagementId: { in: projectIds } } })
+      await prisma.assignment.deleteMany({ where: { engagementId: { in: projectIds } } })
+      await prisma.invoice.deleteMany({ where: { engagementId: { in: projectIds } } })
+      await prisma.message.deleteMany({ where: { engagementId: { in: projectIds } } })
+      await prisma.engagement.deleteMany({ where: { id: { in: projectIds } } })
     }
 
     await prisma.clientContact.deleteMany({ where: { clientId: { in: clientIds } } })
@@ -87,7 +87,7 @@ async function main() {
     },
   })
 
-  const cookedIndoorsProject = await prisma.project.create({
+  const cookedIndoorsProject = await prisma.engagement.create({
     data: {
       clientId: cookedIndoorsClient.id,
       engagementManagerId: em.id,
@@ -111,7 +111,7 @@ async function main() {
   // Milestones for Cooked Indoors
   const ciMilestone1 = await prisma.milestone.create({
     data: {
-      projectId: cookedIndoorsProject.id,
+      engagementId: cookedIndoorsProject.id,
       name: 'Discovery and Strategy',
       description: 'Market research, competitive analysis, and platform strategy development for the Food-as-Medicine concept.',
       dueDate: new Date('2024-04-30'),
@@ -123,7 +123,7 @@ async function main() {
 
   const ciMilestone2 = await prisma.milestone.create({
     data: {
-      projectId: cookedIndoorsProject.id,
+      engagementId: cookedIndoorsProject.id,
       name: 'Platform Design and Architecture',
       description: 'UX/UI design, technical architecture, service categorization framework, and business model finalization.',
       dueDate: new Date('2024-07-31'),
@@ -135,7 +135,7 @@ async function main() {
 
   const ciMilestone3 = await prisma.milestone.create({
     data: {
-      projectId: cookedIndoorsProject.id,
+      engagementId: cookedIndoorsProject.id,
       name: 'Development and Integration',
       description: 'Full-stack website build, e-commerce integration, payment gateway setup, and operational tooling.',
       dueDate: new Date('2024-11-30'),
@@ -147,7 +147,7 @@ async function main() {
 
   const ciMilestone4 = await prisma.milestone.create({
     data: {
-      projectId: cookedIndoorsProject.id,
+      engagementId: cookedIndoorsProject.id,
       name: 'Launch and Go-Live',
       description: 'QA testing, soft launch, marketing site go-live, and post-launch support.',
       dueDate: new Date('2025-02-28'),
@@ -235,7 +235,7 @@ async function main() {
 
   for (const d of ciDeliverables) {
     await prisma.deliverable.create({
-      data: { projectId: cookedIndoorsProject.id, ...d },
+      data: { engagementId: cookedIndoorsProject.id, ...d },
     })
   }
   console.log('  Created project with 4 milestones, 6 deliverables.\n')
@@ -259,7 +259,7 @@ async function main() {
     },
   })
 
-  const covallyProject = await prisma.project.create({
+  const covallyProject = await prisma.engagement.create({
     data: {
       clientId: covallyClient.id,
       engagementManagerId: em.id,
@@ -282,7 +282,7 @@ async function main() {
 
   const covMilestone1 = await prisma.milestone.create({
     data: {
-      projectId: covallyProject.id,
+      engagementId: covallyProject.id,
       name: 'Platform Strategy and Vision',
       description: '31-page platform strategy document covering cooperative model, market analysis, regulatory landscape, and product vision.',
       dueDate: new Date('2024-11-30'),
@@ -294,7 +294,7 @@ async function main() {
 
   const covMilestone2 = await prisma.milestone.create({
     data: {
-      projectId: covallyProject.id,
+      engagementId: covallyProject.id,
       name: 'Technical Architecture and DB Schema',
       description: 'Complete database schema design, system architecture, API contract definitions, and infrastructure planning.',
       dueDate: new Date('2025-02-28'),
@@ -306,7 +306,7 @@ async function main() {
 
   const covMilestone3 = await prisma.milestone.create({
     data: {
-      projectId: covallyProject.id,
+      engagementId: covallyProject.id,
       name: 'Core Engine Development',
       description: 'Fund management engine, claims processing system, and provider network module development.',
       dueDate: new Date('2025-08-31'),
@@ -317,7 +317,7 @@ async function main() {
 
   const covMilestone4 = await prisma.milestone.create({
     data: {
-      projectId: covallyProject.id,
+      engagementId: covallyProject.id,
       name: 'Governance and Procurement Modules',
       description: 'Governance module, procurement engine, and cooperative decision-making tools.',
       dueDate: new Date('2026-02-28'),
@@ -328,7 +328,7 @@ async function main() {
 
   const covMilestone5 = await prisma.milestone.create({
     data: {
-      projectId: covallyProject.id,
+      engagementId: covallyProject.id,
       name: 'Integration Testing and Launch',
       description: 'End-to-end integration testing, user acceptance testing, pilot rollout, and production launch.',
       dueDate: new Date('2026-09-30'),
@@ -449,7 +449,7 @@ async function main() {
 
   for (const d of covDeliverables) {
     await prisma.deliverable.create({
-      data: { projectId: covallyProject.id, ...d },
+      data: { engagementId: covallyProject.id, ...d },
     })
   }
   console.log('  Created project with 5 milestones, 10 deliverables.\n')
@@ -473,7 +473,7 @@ async function main() {
     },
   })
 
-  const connexxumProject = await prisma.project.create({
+  const connexxumProject = await prisma.engagement.create({
     data: {
       clientId: connexxumClient.id,
       engagementManagerId: em.id,
@@ -496,7 +496,7 @@ async function main() {
 
   const cxMilestone1 = await prisma.milestone.create({
     data: {
-      projectId: connexxumProject.id,
+      engagementId: connexxumProject.id,
       name: 'Technical Discovery and Handoff',
       description: 'Technical discovery, existing codebase audit, and comprehensive handoff documentation for development team.',
       dueDate: new Date('2024-12-31'),
@@ -508,7 +508,7 @@ async function main() {
 
   const cxMilestone2 = await prisma.milestone.create({
     data: {
-      projectId: connexxumProject.id,
+      engagementId: connexxumProject.id,
       name: 'Schema and API Architecture',
       description: '943-line database schema, 80+ API endpoint contracts, and system architecture documentation.',
       dueDate: new Date('2025-03-31'),
@@ -520,7 +520,7 @@ async function main() {
 
   const cxMilestone3 = await prisma.milestone.create({
     data: {
-      projectId: connexxumProject.id,
+      engagementId: connexxumProject.id,
       name: 'Core Business Logic Engines',
       description: 'Escrow state machine, biomedical SLA model, buying pool lifecycle engine, and procurement workflow automation.',
       dueDate: new Date('2025-09-30'),
@@ -531,7 +531,7 @@ async function main() {
 
   const cxMilestone4 = await prisma.milestone.create({
     data: {
-      projectId: connexxumProject.id,
+      engagementId: connexxumProject.id,
       name: 'Frontend Architecture and Beta',
       description: 'Frontend architecture implementation, buyer/seller dashboards, and beta launch preparation.',
       dueDate: new Date('2026-06-30'),
@@ -631,7 +631,7 @@ async function main() {
 
   for (const d of cxDeliverables) {
     await prisma.deliverable.create({
-      data: { projectId: connexxumProject.id, ...d },
+      data: { engagementId: connexxumProject.id, ...d },
     })
   }
   console.log('  Created project with 4 milestones, 8 deliverables.\n')
@@ -655,7 +655,7 @@ async function main() {
     },
   })
 
-  const curevaProject = await prisma.project.create({
+  const curevaProject = await prisma.engagement.create({
     data: {
       clientId: curevaClient.id,
       engagementManagerId: em.id,
@@ -678,7 +678,7 @@ async function main() {
 
   const cuMilestone1 = await prisma.milestone.create({
     data: {
-      projectId: curevaProject.id,
+      engagementId: curevaProject.id,
       name: 'Product Strategy and Patient Journey',
       description: 'Market analysis, patient journey mapping, procedure package definition, and platform positioning for medical tourism.',
       dueDate: new Date('2025-01-31'),
@@ -690,7 +690,7 @@ async function main() {
 
   const cuMilestone2 = await prisma.milestone.create({
     data: {
-      projectId: curevaProject.id,
+      engagementId: curevaProject.id,
       name: 'Design System and Prototype',
       description: 'Design system creation, 806-line frontend prototype, booking widget, and doctor profile components.',
       dueDate: new Date('2025-05-31'),
@@ -702,7 +702,7 @@ async function main() {
 
   const cuMilestone3 = await prisma.milestone.create({
     data: {
-      projectId: curevaProject.id,
+      engagementId: curevaProject.id,
       name: 'AI Advisor and Finance Module',
       description: 'AI patient advisor "Ara" integration, CurevaFinance payment system, and financing workflow development.',
       dueDate: new Date('2025-11-30'),
@@ -713,7 +713,7 @@ async function main() {
 
   const cuMilestone4 = await prisma.milestone.create({
     data: {
-      projectId: curevaProject.id,
+      engagementId: curevaProject.id,
       name: 'Pilot Launch',
       description: 'Provider onboarding, pilot patient cohort, booking system go-live, and initial marketing campaign.',
       dueDate: new Date('2026-06-30'),
@@ -818,7 +818,7 @@ async function main() {
 
   for (const d of cuDeliverables) {
     await prisma.deliverable.create({
-      data: { projectId: curevaProject.id, ...d },
+      data: { engagementId: curevaProject.id, ...d },
     })
   }
   console.log('  Created project with 4 milestones, 8 deliverables.\n')
@@ -842,7 +842,7 @@ async function main() {
     },
   })
 
-  const priscillaProject = await prisma.project.create({
+  const priscillaProject = await prisma.engagement.create({
     data: {
       clientId: priscillaClient.id,
       engagementManagerId: em.id,
@@ -863,7 +863,7 @@ async function main() {
 
   const prMilestone1 = await prisma.milestone.create({
     data: {
-      projectId: priscillaProject.id,
+      engagementId: priscillaProject.id,
       name: 'Discovery & Assessment',
       description: 'Initial hospital assessment, stakeholder interviews, systems audit, gap analysis, and engagement scoping.',
       dueDate: new Date('2026-04-30'),
@@ -874,7 +874,7 @@ async function main() {
 
   const prMilestone2 = await prisma.milestone.create({
     data: {
-      projectId: priscillaProject.id,
+      engagementId: priscillaProject.id,
       name: 'HMIS Selection & Implementation Plan',
       description: 'Evaluate HMIS/EMR options (Helium Health, custom-built), select platform, design implementation roadmap.',
       dueDate: new Date('2026-06-30'),
@@ -885,7 +885,7 @@ async function main() {
 
   const prMilestone3 = await prisma.milestone.create({
     data: {
-      projectId: priscillaProject.id,
+      engagementId: priscillaProject.id,
       name: 'Operations & Systems Setup',
       description: 'Clinical operations framework, staff management systems, HMO claims processing, financial reporting, patient acquisition funnel.',
       dueDate: new Date('2026-10-31'),
@@ -896,7 +896,7 @@ async function main() {
 
   const prMilestone4 = await prisma.milestone.create({
     data: {
-      projectId: priscillaProject.id,
+      engagementId: priscillaProject.id,
       name: 'Go-Live & Optimization',
       description: 'Full system go-live, staff training, performance monitoring, optimization cycles.',
       dueDate: new Date('2027-02-01'),
@@ -955,7 +955,7 @@ async function main() {
 
   for (const d of prDeliverables) {
     await prisma.deliverable.create({
-      data: { projectId: priscillaProject.id, ...d },
+      data: { engagementId: priscillaProject.id, ...d },
     })
   }
   console.log('  Created project with 4 milestones, 5 deliverables.\n')

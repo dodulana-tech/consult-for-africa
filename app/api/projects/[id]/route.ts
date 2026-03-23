@@ -20,7 +20,7 @@ export async function PATCH(
   const { id } = await params;
   const body = await req.json();
 
-  const project = await prisma.project.findUnique({
+  const project = await prisma.engagement.findUnique({
     where: { id },
     select: { id: true, name: true, engagementManagerId: true },
   });
@@ -57,9 +57,9 @@ export async function PATCH(
     updateData.engagementManagerId = newEM.id;
 
     // Log the change
-    await prisma.projectUpdate.create({
+    await prisma.engagementUpdate.create({
       data: {
-        projectId: id,
+        engagementId: id,
         createdById: session.user.id,
         type: "TEAM_CHANGE",
         content: `Engagement Manager reassigned to ${newEM.name}.`,
@@ -121,7 +121,7 @@ export async function PATCH(
     return Response.json({ error: "No valid fields to update" }, { status: 400 });
   }
 
-  const updated = await prisma.project.update({
+  const updated = await prisma.engagement.update({
     where: { id },
     data: updateData,
     select: { id: true, name: true, status: true, engagementManagerId: true },
@@ -130,7 +130,7 @@ export async function PATCH(
   await logAudit({
     userId: session.user.id,
     action: "UPDATE",
-    entityType: "Project",
+    entityType: "Engagement",
     entityId: id,
     entityName: project.name,
     details: { fields: Object.keys(updateData) },

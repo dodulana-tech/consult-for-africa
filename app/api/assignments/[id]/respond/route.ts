@@ -23,7 +23,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const assignment = await prisma.assignment.findUnique({
     where: { id },
     include: {
-      project: { select: { id: true, name: true, engagementManagerId: true } },
+      engagement: { select: { id: true, name: true, engagementManagerId: true } },
       consultant: { select: { id: true, name: true } },
     },
   });
@@ -54,9 +54,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     });
 
     // Notify EM via project update
-    await prisma.projectUpdate.create({
+    await prisma.engagementUpdate.create({
       data: {
-        projectId: assignment.projectId,
+        engagementId: assignment.engagementId,
         createdById: session.user.id,
         type: "TEAM_CHANGE",
         content: `${assignment.consultant.name} accepted the ${assignment.role} assignment.`,
@@ -68,14 +68,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       action: "APPROVE",
       entityType: "Assignment",
       entityId: id,
-      entityName: `${assignment.role} - ${assignment.project.name}`,
-      projectId: assignment.projectId,
+      entityName: `${assignment.role} - ${assignment.engagement.name}`,
+      engagementId: assignment.engagementId,
     });
 
     // Email EM
-    const em = await prisma.user.findUnique({ where: { id: assignment.project.engagementManagerId }, select: { email: true } });
+    const em = await prisma.user.findUnique({ where: { id: assignment.engagement.engagementManagerId }, select: { email: true } });
     if (em) {
-      emailAssignmentResponse({ emEmail: em.email, consultantName: assignment.consultant.name, projectName: assignment.project.name, role: assignment.role, accepted: true }).catch(() => {});
+      emailAssignmentResponse({ emEmail: em.email, consultantName: assignment.consultant.name, projectName: assignment.engagement.name, role: assignment.role, accepted: true }).catch(() => {});
     }
 
     return Response.json({ ok: true, status: "ACTIVE" });
@@ -96,9 +96,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   });
 
   // Notify EM
-  await prisma.projectUpdate.create({
+  await prisma.engagementUpdate.create({
     data: {
-      projectId: assignment.projectId,
+      engagementId: assignment.engagementId,
       createdById: session.user.id,
       type: "TEAM_CHANGE",
       content: `${assignment.consultant.name} declined the ${assignment.role} assignment. Reason: ${reason.trim()}`,
@@ -110,14 +110,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     action: "REJECT",
     entityType: "Assignment",
     entityId: id,
-    entityName: `${assignment.role} - ${assignment.project.name} (declined)`,
-    projectId: assignment.projectId,
+    entityName: `${assignment.role} - ${assignment.engagement.name} (declined)`,
+    engagementId: assignment.engagementId,
   });
 
   // Email EM
-  const emForDecline = await prisma.user.findUnique({ where: { id: assignment.project.engagementManagerId }, select: { email: true } });
+  const emForDecline = await prisma.user.findUnique({ where: { id: assignment.engagement.engagementManagerId }, select: { email: true } });
   if (emForDecline) {
-    emailAssignmentResponse({ emEmail: emForDecline.email, consultantName: assignment.consultant.name, projectName: assignment.project.name, role: assignment.role, accepted: false, reason: reason.trim() }).catch(() => {});
+    emailAssignmentResponse({ emEmail: emForDecline.email, consultantName: assignment.consultant.name, projectName: assignment.engagement.name, role: assignment.role, accepted: false, reason: reason.trim() }).catch(() => {});
   }
 
   return Response.json({ ok: true, status: "DECLINED" });

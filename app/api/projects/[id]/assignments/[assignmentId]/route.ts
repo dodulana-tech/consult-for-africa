@@ -21,15 +21,15 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
 
   const assignment = await prisma.assignment.findUnique({
     where: { id: assignmentId },
-    include: { project: { select: { engagementManagerId: true } } },
+    include: { engagement: { select: { engagementManagerId: true } } },
   });
 
-  if (!assignment || assignment.projectId !== projectId) {
+  if (!assignment || assignment.engagementId !== projectId) {
     return new Response("Assignment not found", { status: 404 });
   }
 
   // EM can only manage their own projects
-  if (isEM && assignment.project.engagementManagerId !== session.user.id) {
+  if (isEM && assignment.engagement.engagementManagerId !== session.user.id) {
     return new Response("Forbidden", { status: 403 });
   }
 
@@ -85,14 +85,14 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
 
   const assignment = await prisma.assignment.findUnique({
     where: { id: assignmentId },
-    include: { project: { select: { engagementManagerId: true } } },
+    include: { engagement: { select: { engagementManagerId: true } } },
   });
 
-  if (!assignment || assignment.projectId !== projectId) {
+  if (!assignment || assignment.engagementId !== projectId) {
     return new Response("Assignment not found", { status: 404 });
   }
 
-  if (isEM && assignment.project.engagementManagerId !== session.user.id) {
+  if (isEM && assignment.engagement.engagementManagerId !== session.user.id) {
     return new Response("Forbidden", { status: 403 });
   }
 

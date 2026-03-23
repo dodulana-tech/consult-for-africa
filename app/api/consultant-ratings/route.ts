@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
   if (consultantUserId && (isElevated || isEM)) {
     where.consultant = { userId: consultantUserId };
   }
-  if (projectId) where.projectId = projectId;
+  if (projectId) where.engagementId = projectId;
 
   const ratings = await prisma.consultantRating.findMany({
     where,
@@ -36,11 +36,11 @@ export async function GET(req: NextRequest) {
   });
 
   // Enrich with project names and rater names
-  const projectIds = [...new Set(ratings.map((r) => r.projectId))];
+  const projectIds = [...new Set(ratings.map((r) => r.engagementId))];
   const raterIds = [...new Set(ratings.map((r) => r.ratedById))];
 
   const [projects, raters] = await Promise.all([
-    prisma.project.findMany({ where: { id: { in: projectIds } }, select: { id: true, name: true } }),
+    prisma.engagement.findMany({ where: { id: { in: projectIds } }, select: { id: true, name: true } }),
     prisma.user.findMany({ where: { id: { in: raterIds } }, select: { id: true, name: true } }),
   ]);
 
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
   return Response.json(
     ratings.map((r) => ({
       ...r,
-      projectName: projectMap[r.projectId] ?? null,
+      projectName: projectMap[r.engagementId] ?? null,
       ratedByName: raterMap[r.ratedById] ?? null,
       createdAt: r.createdAt.toISOString(),
     }))
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
 
   // Verify the consultant is assigned to this project
   const assignment = await prisma.assignment.findFirst({
-    where: { consultantId: consultantUserId, projectId },
+    where: { consultantId: consultantUserId, engagementId: projectId },
   });
   if (!assignment) return new Response("Consultant not assigned to this project", { status: 400 });
 
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
   const existing = await prisma.consultantRating.findFirst({
     where: {
       consultant: { userId: consultantUserId },
-      projectId,
+      engagementId: projectId,
       ratedById: session.user.id,
     },
   });
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
   const rating = await prisma.consultantRating.create({
     data: {
       consultantId: profile.id,
-      projectId,
+      engagementId: projectId,
       technicalQuality,
       communication,
       timeliness,

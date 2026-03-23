@@ -9,13 +9,13 @@ async function main() {
   // Clean slate
   await prisma.consultantRating.deleteMany();
   await prisma.message.deleteMany();
-  await prisma.projectUpdate.deleteMany();
+  await prisma.engagementUpdate.deleteMany();
   await prisma.invoice.deleteMany();
   await prisma.timeEntry.deleteMany();
   await prisma.deliverable.deleteMany();
   await prisma.milestone.deleteMany();
   await prisma.assignment.deleteMany();
-  await prisma.project.deleteMany();
+  await prisma.engagement.deleteMany();
   await prisma.client.deleteMany();
   await prisma.consultantProfile.deleteMany();
   await prisma.engagementManagerProfile.deleteMany();
@@ -300,7 +300,7 @@ async function main() {
   const daysFromNow = (d: number) => new Date(now.getTime() + d * 86400000);
 
   // Project 1: Lagoon Turnaround — ACTIVE, healthy
-  const lagoonProject = await prisma.project.create({
+  const lagoonProject = await prisma.engagement.create({
     data: {
       clientId: lagoon.id,
       engagementManagerId: chidi.id,
@@ -320,7 +320,7 @@ async function main() {
   });
 
   // Project 2: Eko Revenue Cycle — AT_RISK
-  const ekoProject = await prisma.project.create({
+  const ekoProject = await prisma.engagement.create({
     data: {
       clientId: eko.id,
       engagementManagerId: chidi.id,
@@ -342,7 +342,7 @@ async function main() {
   });
 
   // Project 3: Rivers State PHC — AT_RISK/CRITICAL
-  const riversProject = await prisma.project.create({
+  const riversProject = await prisma.engagement.create({
     data: {
       clientId: riversState.id,
       engagementManagerId: amara.id,
@@ -364,7 +364,7 @@ async function main() {
   });
 
   // Project 4: CHAI Health Systems — PLANNING
-  const chaiProject = await prisma.project.create({
+  const chaiProject = await prisma.engagement.create({
     data: {
       clientId: chai.id,
       engagementManagerId: amara.id,
@@ -387,7 +387,7 @@ async function main() {
 
   const lagoonAssign1 = await prisma.assignment.create({
     data: {
-      projectId: lagoonProject.id,
+      engagementId: lagoonProject.id,
       consultantId: tunde.id,
       role: "Lead Operations Consultant",
       responsibilities:
@@ -403,7 +403,7 @@ async function main() {
 
   const lagoonAssign2 = await prisma.assignment.create({
     data: {
-      projectId: lagoonProject.id,
+      engagementId: lagoonProject.id,
       consultantId: ngozi.id,
       role: "Clinical Governance Advisor",
       responsibilities:
@@ -419,7 +419,7 @@ async function main() {
 
   const ekoAssign1 = await prisma.assignment.create({
     data: {
-      projectId: ekoProject.id,
+      engagementId: ekoProject.id,
       consultantId: kemi.id,
       role: "Revenue Cycle Lead",
       responsibilities:
@@ -435,7 +435,7 @@ async function main() {
 
   const riversAssign1 = await prisma.assignment.create({
     data: {
-      projectId: riversProject.id,
+      engagementId: riversProject.id,
       consultantId: sarah.id,
       role: "Health Systems Lead",
       responsibilities:
@@ -451,7 +451,7 @@ async function main() {
 
   const chaiAssign1 = await prisma.assignment.create({
     data: {
-      projectId: chaiProject.id,
+      engagementId: chaiProject.id,
       consultantId: david.id,
       role: "Digital Health & Data Advisor",
       responsibilities:
@@ -471,7 +471,7 @@ async function main() {
   await prisma.milestone.createMany({
     data: [
       {
-        projectId: lagoonProject.id,
+        engagementId: lagoonProject.id,
         name: "Baseline Assessment Complete",
         description: "Full operational baseline documented across OPD, theatres, wards, and pharmacy.",
         dueDate: daysAgo(55),
@@ -480,7 +480,7 @@ async function main() {
         order: 1,
       },
       {
-        projectId: lagoonProject.id,
+        engagementId: lagoonProject.id,
         name: "Redesigned OPD Flow Live",
         description: "New patient journey protocols implemented and staff trained. KPI dashboards activated.",
         dueDate: daysAgo(10),
@@ -489,7 +489,7 @@ async function main() {
         order: 2,
       },
       {
-        projectId: lagoonProject.id,
+        engagementId: lagoonProject.id,
         name: "Theatre Utilisation Improvement",
         description: "Theatre scheduling optimised. Target: utilisation rate above 75%.",
         dueDate: daysFromNow(30),
@@ -497,7 +497,7 @@ async function main() {
         order: 3,
       },
       {
-        projectId: lagoonProject.id,
+        engagementId: lagoonProject.id,
         name: "Final Report & Handover",
         description: "Full project report, playbooks, and capability handover to hospital leadership.",
         dueDate: daysFromNow(85),
@@ -511,7 +511,7 @@ async function main() {
   await prisma.milestone.createMany({
     data: [
       {
-        projectId: ekoProject.id,
+        engagementId: ekoProject.id,
         name: "Billing Audit Complete",
         description: "Full audit of 12-month billing records. Leakage quantified.",
         dueDate: daysAgo(15),
@@ -519,7 +519,7 @@ async function main() {
         order: 1,
       },
       {
-        projectId: ekoProject.id,
+        engagementId: ekoProject.id,
         name: "NHIS Claims Reconciliation",
         description: "All outstanding NHIS claims identified, categorised, and submitted.",
         dueDate: daysFromNow(20),
@@ -527,7 +527,7 @@ async function main() {
         order: 2,
       },
       {
-        projectId: ekoProject.id,
+        engagementId: ekoProject.id,
         name: "Revenue Cycle Process Redesign",
         description: "New end-to-end revenue cycle processes documented, approved, and team trained.",
         dueDate: daysFromNow(60),
@@ -541,7 +541,7 @@ async function main() {
   await prisma.milestone.createMany({
     data: [
       {
-        projectId: riversProject.id,
+        engagementId: riversProject.id,
         name: "Phase 1 PHC Audit (40 facilities)",
         description: "On-site audit of 40 PHCs across 5 LGAs. Findings report submitted.",
         dueDate: daysAgo(30),
@@ -549,7 +549,7 @@ async function main() {
         order: 1,
       },
       {
-        projectId: riversProject.id,
+        engagementId: riversProject.id,
         name: "Infrastructure Gap Analysis",
         description: "Costed infrastructure needs assessment across all 120 PHCs.",
         dueDate: daysFromNow(45),
@@ -557,7 +557,7 @@ async function main() {
         order: 2,
       },
       {
-        projectId: riversProject.id,
+        engagementId: riversProject.id,
         name: "Staff Retraining Programme Launch",
         description: "Clinical protocols standardised. First cohort of 200 CHEWs trained.",
         dueDate: daysFromNow(120),
@@ -572,7 +572,7 @@ async function main() {
   await prisma.deliverable.createMany({
     data: [
       {
-        projectId: lagoonProject.id,
+        engagementId: lagoonProject.id,
         assignmentId: lagoonAssign1.id,
         name: "OPD Process Redesign Report",
         description:
@@ -586,7 +586,7 @@ async function main() {
         version: 1,
       },
       {
-        projectId: lagoonProject.id,
+        engagementId: lagoonProject.id,
         assignmentId: lagoonAssign1.id,
         name: "Theatre Utilisation Improvement Plan",
         description:
@@ -596,7 +596,7 @@ async function main() {
         version: 1,
       },
       {
-        projectId: ekoProject.id,
+        engagementId: ekoProject.id,
         assignmentId: ekoAssign1.id,
         name: "Revenue Leakage Audit Report",
         description:
@@ -606,7 +606,7 @@ async function main() {
         version: 1,
       },
       {
-        projectId: ekoProject.id,
+        engagementId: ekoProject.id,
         assignmentId: ekoAssign1.id,
         name: "NHIS Claims Recovery Tracker",
         description:
@@ -615,7 +615,7 @@ async function main() {
         version: 1,
       },
       {
-        projectId: riversProject.id,
+        engagementId: riversProject.id,
         assignmentId: riversAssign1.id,
         name: "Phase 1 PHC Diagnostic Report",
         description:
@@ -680,52 +680,52 @@ async function main() {
 
   // ─── Project Updates ──────────────────────────────────────────────────────
 
-  await prisma.projectUpdate.createMany({
+  await prisma.engagementUpdate.createMany({
     data: [
       {
-        projectId: lagoonProject.id,
+        engagementId: lagoonProject.id,
         content: "New OPD triage protocol launched. Initial data shows 22% reduction in average wait time in week one.",
         type: "MILESTONE_COMPLETED",
         createdById: chidi.id,
         createdAt: daysAgo(8),
       },
       {
-        projectId: lagoonProject.id,
+        engagementId: lagoonProject.id,
         content: "Theatre utilisation analysis submitted for review. Key finding: 34% of delayed starts attributable to anaesthetist scheduling gaps.",
         type: "GENERAL",
         createdById: chidi.id,
         createdAt: daysAgo(3),
       },
       {
-        projectId: ekoProject.id,
+        engagementId: ekoProject.id,
         content: "CFO transition complete. New CFO Dr. Yemi Adisa onboarded into project. Full data access now granted.",
         type: "TEAM_CHANGE",
         createdById: chidi.id,
         createdAt: daysAgo(10),
       },
       {
-        projectId: ekoProject.id,
+        engagementId: ekoProject.id,
         content: "Revenue leakage audit submitted. Preliminary findings show N48M in unrecovered NHIS claims over 18 months.",
         type: "GENERAL",
         createdById: chidi.id,
         createdAt: daysAgo(5),
       },
       {
-        projectId: riversProject.id,
+        engagementId: riversProject.id,
         content: "Security clearance received for Ogoniland LGAs. Field team resuming audits from Monday.",
         type: "ISSUE",
         createdById: amara.id,
         createdAt: daysAgo(14),
       },
       {
-        projectId: riversProject.id,
+        engagementId: riversProject.id,
         content: "Phase 1 report revision in progress. EM feedback addressed. New submission expected by end of week.",
         type: "GENERAL",
         createdById: amara.id,
         createdAt: daysAgo(7),
       },
       {
-        projectId: chaiProject.id,
+        engagementId: chaiProject.id,
         content: "Kick-off call scheduled with CHAI Nigeria team for March 28. Project charter under review.",
         type: "GENERAL",
         createdById: amara.id,
@@ -740,7 +740,7 @@ async function main() {
     data: [
       {
         clientId: lagoon.id,
-        projectId: lagoonProject.id,
+        engagementId: lagoonProject.id,
         invoiceNumber: "CFA-2025-001",
         subtotal: 12000000,
         tax: 0,
@@ -759,7 +759,7 @@ async function main() {
       },
       {
         clientId: lagoon.id,
-        projectId: lagoonProject.id,
+        engagementId: lagoonProject.id,
         invoiceNumber: "CFA-2025-004",
         subtotal: 10200000,
         tax: 0,
@@ -775,7 +775,7 @@ async function main() {
       },
       {
         clientId: eko.id,
-        projectId: ekoProject.id,
+        engagementId: ekoProject.id,
         invoiceNumber: "CFA-2025-002",
         subtotal: 7000000,
         tax: 0,
@@ -795,7 +795,7 @@ async function main() {
   console.log("Seed complete.");
   console.log(`  Users: ${await prisma.user.count()}`);
   console.log(`  Clients: ${await prisma.client.count()}`);
-  console.log(`  Projects: ${await prisma.project.count()}`);
+  console.log(`  Projects: ${await prisma.engagement.count()}`);
   console.log(`  Assignments: ${await prisma.assignment.count()}`);
   console.log(`  Milestones: ${await prisma.milestone.count()}`);
   console.log(`  Deliverables: ${await prisma.deliverable.count()}`);

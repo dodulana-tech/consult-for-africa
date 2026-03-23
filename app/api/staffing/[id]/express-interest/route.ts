@@ -18,7 +18,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const request = await prisma.staffingRequest.findUnique({
     where: { id: staffingRequestId },
-    select: { id: true, status: true, role: true, projectId: true },
+    select: { id: true, status: true, role: true, engagementId: true },
   });
 
   if (!request) return Response.json({ error: "Not found" }, { status: 404 });
@@ -50,13 +50,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     entityType: "StaffingExpression",
     entityId: expression.id,
     entityName: `Interest in ${request.role}`,
-    projectId: request.projectId,
+    engagementId: request.engagementId,
   });
 
   // Notify the EM who created the staffing request
   const staffingReq = await prisma.staffingRequest.findUnique({
     where: { id: staffingRequestId },
-    select: { createdById: true, role: true, project: { select: { name: true } } },
+    select: { createdById: true, role: true, engagement: { select: { name: true } } },
   });
   if (staffingReq) {
     const em = await prisma.user.findUnique({ where: { id: staffingReq.createdById }, select: { email: true } });
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         emEmail: em.email,
         consultantName: session.user.name ?? "Consultant",
         role: staffingReq.role,
-        projectName: staffingReq.project.name,
+        projectName: staffingReq.engagement.name,
         note: note?.trim() || undefined,
       }).catch(() => {});
     }

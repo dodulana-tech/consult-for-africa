@@ -65,7 +65,7 @@ enum ServiceType {
   EM_AS_SERVICE
 }
 
-enum ProjectStatus {
+enum EngagementStatus {
   PLANNING
   ACTIVE
   ON_HOLD
@@ -223,11 +223,11 @@ model User {
 
   consultantProfile      ConsultantProfile?
   engagementManagerProfile EngagementManagerProfile?
-  managedProjects        Project[]         @relation("ProjectEM")
+  managedEngagements     Engagement[]      @relation("EngagementEM")
   assignments            Assignment[]
   timeEntries            TimeEntry[]
   sentMessages           Message[]
-  projectUpdates         ProjectUpdate[]
+  engagementUpdates      EngagementUpdate[]
   reviewedApplications   TalentApplication[] @relation("ApplicationReviewer")
   referrals              Referral[]
   trainingEnrollments    TrainingEnrollment[]
@@ -313,7 +313,7 @@ model Client {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  projects          Project[]
+  engagements       Engagement[]
   invoices          Invoice[]
   contacts          ClientContact[]
   expansionRequests ClientExpansionRequest[]
@@ -325,22 +325,24 @@ model Client {
   @@index([type, status])
 }
 
-model Project {
-  id                  String        @id @default(cuid())
+model Engagement {
+  id                  String           @id @default(cuid())
   clientId            String
-  client              Client        @relation(fields: [clientId], references: [id])
+  client              Client           @relation(fields: [clientId], references: [id])
   engagementManagerId String
-  engagementManager   User          @relation("ProjectEM", fields: [engagementManagerId], references: [id])
+  engagementManager   User             @relation("EngagementEM", fields: [engagementManagerId], references: [id])
 
+  // Common fields
   name           String
-  description    String        @db.Text
+  description    String           @db.Text
   serviceType    ServiceType
+  engagementType EngagementType   @default(PROJECT)
   startDate      DateTime
   endDate        DateTime
-  status         ProjectStatus @default(PLANNING)
-  budgetAmount   Decimal       @db.Decimal(14, 2)
-  budgetCurrency Currency      @default(NGN)
-  actualSpent    Decimal       @default(0) @db.Decimal(14, 2)
+  status         EngagementStatus @default(PLANNING)
+  budgetAmount   Decimal          @db.Decimal(14, 2)
+  budgetCurrency Currency         @default(NGN)
+  actualSpent    Decimal          @default(0) @db.Decimal(14, 2)
   healthScore              Int?          @default(5)
   riskLevel                RiskLevel     @default(LOW)
   notes                    String?       @db.Text
@@ -352,7 +354,47 @@ model Project {
   clientSatisfactionScore  Int?
   methodology              String?
   methodologyId            String?
-  methodologyTemplate      MethodologyTemplate? @relation("ProjectMethodology", fields: [methodologyId], references: [id])
+  methodologyTemplate      MethodologyTemplate? @relation("EngagementMethodology", fields: [methodologyId], references: [id])
+  engagementCode           String?       @unique // CFA-YYYY-NNN format
+
+  // RETAINER fields
+  retainerMonthlyFee       Decimal?      @db.Decimal(14, 2)
+  retainerHoursPool        Int?          // monthly hours included
+  retainerAutoRenew        Boolean?
+  retainerNoticePeriodDays Int?
+
+  // SECONDMENT fields
+  secondeeId               String?       // User ID of the seconded individual
+  secondeeClientLineManager String?
+  secondeeRecallClauseDays  Int?
+  secondeeMaarovaProfileUrl String?
+  secondeeMonthlyFee       Decimal?      @db.Decimal(14, 2)
+
+  // FRACTIONAL fields
+  fractionalPlacedName     String?
+  fractionalRoleTitle      String?
+  fractionalCommissionPct  Decimal?      @db.Decimal(5, 2)
+  fractionalArrangementFee Decimal?      @db.Decimal(14, 2) // monthly
+  fractionalPlacementDate  DateTime?
+  fractionalConvertedToPermanent Boolean?
+
+  // TRANSFORMATION fields
+  transformHospitalId      String?
+  transformEquityPct       Decimal?      @db.Decimal(5, 2)
+  transformDealStructure   DealStructure?
+  transformEntryValuation  Decimal?      @db.Decimal(14, 2)
+  transformBoardSeat       Boolean?
+  transformStepInTrigger   Int?          // consecutive months of missed KPIs
+  transformExitMonths      Int?          // exit timeline in months from start
+
+  // TRANSACTION fields
+  transactionMandateType   MandateType?
+  transactionTargetCompany String?
+  transactionDealSize      Decimal?      @db.Decimal(14, 2)
+  transactionSuccessFeePct Decimal?      @db.Decimal(5, 2)
+  transactionUpfrontRetainer Decimal?    @db.Decimal(14, 2)
+  transactionCloseDate     DateTime?
+  transactionSuccessFeeAmount Decimal?   @db.Decimal(14, 2) // calculated on close
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -362,28 +404,30 @@ model Project {
   deliverables      Deliverable[]
   invoices          Invoice[]
   messages          Message[]
-  updates           ProjectUpdate[]
-  phases            ProjectPhase[]
+  updates           EngagementUpdate[]
+  phases            EngagementPhase[]
   risks             RiskItem[]
   paymentMilestones PaymentMilestone[]
   interactions      ClientInteraction[]
-  impactMetrics     ProjectImpactMetric[]
+  impactMetrics     EngagementImpactMetric[]
   knowledgeAssets   KnowledgeAsset[]
-  frameworks        ProjectFramework[]
+  frameworks        EngagementFramework[]
   staffingRequests       StaffingRequest[]
   satisfactionPulses     ClientSatisfactionPulse[]
   recommendations        ClientRecommendation[]
   internRotations        InternRotation[]
 
+  @@map("Project")
   @@index([clientId])
   @@index([engagementManagerId])
   @@index([status])
+  @@index([engagementType])
 }
 
 model Assignment {
   id           String           @id @default(cuid())
-  projectId    String
-  project      Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  engagementId String           @map("projectId")
+  engagement   Engagement       @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   consultantId String
   consultant   User             @relation(fields: [consultantId], references: [id])
 
@@ -408,14 +452,14 @@ model Assignment {
   timeEntries  TimeEntry[]
   deliverables Deliverable[]
 
-  @@index([projectId, status])
+  @@index([engagementId], map: "Assignment_projectId_status_idx")
   @@index([consultantId])
 }
 
 model Milestone {
   id             String          @id @default(cuid())
-  projectId      String
-  project        Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  engagementId   String          @map("projectId")
+  engagement     Engagement      @relation(fields: [engagementId], references: [id], onDelete: Cascade)
 
   name           String
   description    String          @db.Text
@@ -432,8 +476,8 @@ model Milestone {
 
 model Deliverable {
   id           String            @id @default(cuid())
-  projectId    String
-  project      Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  engagementId String            @map("projectId")
+  engagement   Engagement        @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   milestoneId  String?
   milestone    Milestone?        @relation(fields: [milestoneId], references: [id])
   assignmentId String?
@@ -466,7 +510,7 @@ model Deliverable {
   versions     DeliverableVersion[]
   comments     DeliverableComment[]
 
-  @@index([projectId, status])
+  @@index([engagementId], map: "Deliverable_projectId_status_idx")
   @@index([assignmentId])
 }
 
@@ -502,8 +546,8 @@ model Invoice {
   id              String        @id @default(cuid())
   clientId        String
   client          Client        @relation(fields: [clientId], references: [id])
-  projectId       String?
-  project         Project?      @relation(fields: [projectId], references: [id])
+  engagementId    String?       @map("projectId")
+  engagement      Engagement?   @relation(fields: [engagementId], references: [id])
 
   invoiceNumber   String        @unique
   subtotal        Decimal       @db.Decimal(14, 2)
@@ -522,27 +566,28 @@ model Invoice {
   updatedAt DateTime @updatedAt
 
   @@index([clientId])
-  @@index([projectId])
+  @@index([engagementId], map: "Invoice_projectId_idx")
   @@index([status])
 }
 
-model ProjectUpdate {
+model EngagementUpdate {
   id        String     @id @default(cuid())
-  projectId String
-  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  engagementId String  @map("projectId")
+  engagement   Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   content   String     @db.Text
   type      UpdateType @default(GENERAL)
   createdById String
   createdBy User       @relation(fields: [createdById], references: [id])
   createdAt DateTime   @default(now())
 
-  @@index([projectId, createdAt])
+  @@map("ProjectUpdate")
+  @@index([engagementId], map: "ProjectUpdate_projectId_createdAt_idx")
 }
 
 model Message {
-  id          String   @id @default(cuid())
-  projectId   String?
-  project     Project? @relation(fields: [projectId], references: [id])
+  id          String      @id @default(cuid())
+  engagementId String?    @map("projectId")
+  engagement   Engagement? @relation(fields: [engagementId], references: [id])
   senderId    String
   sender      User     @relation(fields: [senderId], references: [id])
   content     String   @db.Text
@@ -550,7 +595,7 @@ model Message {
   isRead      Boolean  @default(false)
   createdAt   DateTime @default(now())
 
-  @@index([projectId])
+  @@index([engagementId], map: "Message_projectId_idx")
   @@index([senderId])
 }
 
@@ -558,7 +603,7 @@ model ConsultantRating {
   id                String            @id @default(cuid())
   consultantId      String
   consultant        ConsultantProfile @relation(fields: [consultantId], references: [id])
-  projectId         String
+  engagementId      String            @map("projectId")
   technicalQuality  Int
   communication     Int
   timeliness        Int
@@ -569,12 +614,12 @@ model ConsultantRating {
   createdAt         DateTime          @default(now())
 
   @@index([consultantId])
-  @@index([projectId])
+  @@index([engagementId], map: "ConsultantRating_projectId_idx")
 }
 
 model ConsultantMatchScore {
   id           String   @id @default(cuid())
-  projectId    String
+  engagementId String   @map("projectId")
   consultantId String
 
   matchScore        Int
@@ -593,8 +638,8 @@ model ConsultantMatchScore {
 
   createdAt DateTime @default(now())
 
-  @@unique([projectId, consultantId])
-  @@index([projectId, rankPosition])
+  @@unique([engagementId, consultantId], map: "ConsultantMatchScore_projectId_consultantId_key")
+  @@index([engagementId], map: "ConsultantMatchScore_projectId_rankPosition_idx")
 }
 
 model GeneratedProposal {
@@ -836,11 +881,26 @@ enum TalentApplicationStatus {
 }
 
 enum EngagementType {
-  FULL_TIME
-  PART_TIME
-  PROJECT_BASED
-  INTERIM
-  ADVISORY
+  PROJECT
+  RETAINER
+  SECONDMENT
+  FRACTIONAL
+  TRANSFORMATION
+  TRANSACTION
+}
+
+// Deal structure for TRANSFORMATION engagements
+enum DealStructure {
+  SWEAT
+  CAPITAL
+  HYBRID
+}
+
+// Mandate type for TRANSACTION engagements
+enum MandateType {
+  SELL_SIDE
+  BUY_SIDE
+  FUNDRAISE
 }
 
 model TalentApplication {
@@ -906,10 +966,10 @@ model TalentApplication {
 
 // ─── Project Delivery Models ───────────────────────────────────────────────────
 
-model ProjectPhase {
+model EngagementPhase {
   id          String       @id @default(cuid())
-  projectId   String
-  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  engagementId String      @map("projectId")
+  engagement   Engagement  @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   name        String
   description String?      @db.Text
   order       Int
@@ -922,13 +982,14 @@ model ProjectPhase {
   updatedAt   DateTime     @updatedAt
   gates       PhaseGate[]
 
-  @@index([projectId, order])
+  @@map("ProjectPhase")
+  @@index([engagementId], map: "ProjectPhase_projectId_order_idx")
 }
 
 model PhaseGate {
-  id          String       @id @default(cuid())
+  id          String          @id @default(cuid())
   phaseId     String
-  phase       ProjectPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  phase       EngagementPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
   name        String
   passed      Boolean      @default(false)
   passedAt    DateTime?
@@ -941,8 +1002,8 @@ model PhaseGate {
 
 model RiskItem {
   id          String         @id @default(cuid())
-  projectId   String
-  project     Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  engagementId String        @map("projectId")
+  engagement   Engagement    @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   title       String
   description String         @db.Text
   category    String         @default("Operational")
@@ -958,13 +1019,13 @@ model RiskItem {
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 
-  @@index([projectId, severity])
+  @@index([engagementId], map: "RiskItem_projectId_severity_idx")
 }
 
 model PaymentMilestone {
   id        String                 @id @default(cuid())
-  projectId String
-  project   Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  engagementId String              @map("projectId")
+  engagement   Engagement          @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   name      String
   amount    Decimal                @db.Decimal(14, 2)
   currency  Currency               @default(NGN)
@@ -975,13 +1036,13 @@ model PaymentMilestone {
   createdAt DateTime               @default(now())
   updatedAt DateTime               @updatedAt
 
-  @@index([projectId, status])
+  @@index([engagementId], map: "PaymentMilestone_projectId_status_idx")
 }
 
 model ClientInteraction {
   id             String               @id @default(cuid())
-  projectId      String
-  project        Project              @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  engagementId   String               @map("projectId")
+  engagement     Engagement           @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   type           InteractionType
   summary        String               @db.Text
   sentiment      InteractionSentiment @default(NEUTRAL)
@@ -991,7 +1052,7 @@ model ClientInteraction {
   nextActionNote String?              @db.Text
   createdAt      DateTime             @default(now())
 
-  @@index([projectId, conductedAt])
+  @@index([engagementId], map: "ClientInteraction_projectId_conductedAt_idx")
 }
 
 model DeliverableVersion {
@@ -1027,10 +1088,10 @@ model DeliverableComment {
   @@index([deliverableId, parentId])
 }
 
-model ProjectImpactMetric {
-  id               String   @id @default(cuid())
-  projectId        String
-  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+model EngagementImpactMetric {
+  id               String     @id @default(cuid())
+  engagementId     String     @map("projectId")
+  engagement       Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   metricName       String
   baselineValue    String?
   currentValue     String?
@@ -1041,13 +1102,14 @@ model ProjectImpactMetric {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  @@index([projectId])
+  @@map("ProjectImpactMetric")
+  @@index([engagementId], map: "ProjectImpactMetric_projectId_idx")
 }
 
 model KnowledgeAsset {
   id         String             @id @default(cuid())
-  projectId  String?
-  project    Project?           @relation(fields: [projectId], references: [id])
+  engagementId String?          @map("projectId")
+  engagement   Engagement?      @relation(fields: [engagementId], references: [id])
   title      String
   content    String             @db.Text
   assetType  KnowledgeAssetType
@@ -1059,7 +1121,7 @@ model KnowledgeAsset {
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
 
-  @@index([projectId])
+  @@index([engagementId], map: "KnowledgeAsset_projectId_idx")
   @@index([assetType, isReusable])
 }
 
@@ -1070,7 +1132,7 @@ model ClientExpansionRequest {
   clientId    String
   client      Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
   contactId   String
-  projectId   String?
+  engagementId String?     @map("projectId")
   serviceType ServiceType?
   description String       @db.Text
   urgency     String       @default("normal")
@@ -1082,23 +1144,23 @@ model ClientExpansionRequest {
 }
 
 model ClientSatisfactionPulse {
-  id        String   @id @default(cuid())
-  projectId String
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id        String     @id @default(cuid())
+  engagementId String  @map("projectId")
+  engagement   Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   contactId String
   score     Int
   feedback  String?  @db.Text
   period    String
   createdAt DateTime @default(now())
 
-  @@unique([projectId, contactId, period])
-  @@index([projectId])
+  @@unique([engagementId, contactId, period], map: "ClientSatisfactionPulse_projectId_contactId_period_key")
+  @@index([engagementId], map: "ClientSatisfactionPulse_projectId_idx")
 }
 
 model ClientRecommendation {
   id              String       @id @default(cuid())
-  projectId       String
-  project         Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  engagementId    String       @map("projectId")
+  engagement      Engagement   @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   title           String
   description     String       @db.Text
   serviceType     ServiceType?
@@ -1108,7 +1170,7 @@ model ClientRecommendation {
   createdAt       DateTime     @default(now())
   respondedAt     DateTime?
 
-  @@index([projectId, status])
+  @@index([engagementId], map: "ClientRecommendation_projectId_status_idx")
 }
 
 model ClientContact {
@@ -1154,7 +1216,7 @@ model MethodologyTemplate {
   updatedAt   DateTime @updatedAt
 
   phases      MethodologyPhaseTemplate[]
-  projects    Project[]                  @relation("ProjectMethodology")
+  engagements Engagement[]               @relation("EngagementMethodology")
 
   @@index([category])
   @@index([isActive])
@@ -1202,28 +1264,29 @@ model FrameworkTemplate {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  projectFrameworks ProjectFramework[]
+  engagementFrameworks EngagementFramework[]
 
   @@index([category])
   @@index([isActive])
 }
 
-model ProjectFramework {
-  id          String          @id @default(cuid())
-  projectId   String
-  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+model EngagementFramework {
+  id          String            @id @default(cuid())
+  engagementId String           @map("projectId")
+  engagement   Engagement       @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   frameworkId String
   framework   FrameworkTemplate @relation(fields: [frameworkId], references: [id])
-  content     Json            // AI-generated or consultant-filled content keyed by dimension
-  aiGenerated Boolean         @default(false)
-  status      FrameworkStatus @default(DRAFT)
-  notes       String?         @db.Text
+  content     Json              // AI-generated or consultant-filled content keyed by dimension
+  aiGenerated Boolean           @default(false)
+  status      FrameworkStatus   @default(DRAFT)
+  notes       String?           @db.Text
   createdById String
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 
-  @@unique([projectId, frameworkId])
-  @@index([projectId])
+  @@map("ProjectFramework")
+  @@unique([engagementId, frameworkId], map: "ProjectFramework_projectId_frameworkId_key")
+  @@index([engagementId], map: "ProjectFramework_projectId_idx")
 }
 
 // ─── Training & Certification Academy ─────────────────────────────────────────
@@ -1392,23 +1455,23 @@ model AuditLog {
   entityType  String   // "Project", "Deliverable", "Risk", "Phase", "Client", etc.
   entityId    String
   entityName  String?  // Human-readable name for quick display
-  projectId   String?  // Link to project if applicable
+  engagementId String? @map("projectId") // Link to engagement if applicable
   details     Json?    // { before: {...}, after: {...}, note: "..." }
   ipAddress   String?
   createdAt   DateTime @default(now())
 
   @@index([userId, createdAt])
   @@index([entityType, entityId])
-  @@index([projectId, createdAt])
+  @@index([engagementId], map: "AuditLog_projectId_createdAt_idx")
   @@index([action, createdAt])
 }
 
 // ─── Staffing & Opportunity Board ─────────────────────────────────────────────
 
 model StaffingRequest {
-  id          String   @id @default(cuid())
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id          String     @id @default(cuid())
+  engagementId String    @map("projectId")
+  engagement   Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   createdById String
   createdBy   User     @relation("StaffingRequestCreator", fields: [createdById], references: [id])
 
@@ -1431,7 +1494,7 @@ model StaffingRequest {
   updatedAt DateTime @updatedAt
 
   @@index([status])
-  @@index([projectId])
+  @@index([engagementId], map: "StaffingRequest_projectId_idx")
 }
 
 model StaffingExpression {
@@ -2117,8 +2180,8 @@ model InternRotation {
   cohort       InternCohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
   internId     String       // User ID of the intern
   intern       User         @relation("InternRotations", fields: [internId], references: [id])
-  projectId    String?
-  project      Project?     @relation(fields: [projectId], references: [id])
+  engagementId String?      @map("projectId")
+  engagement   Engagement?  @relation(fields: [engagementId], references: [id])
   supervisorId String?
   supervisor   User?        @relation("SupervisedRotations", fields: [supervisorId], references: [id])
   startDate    DateTime
@@ -2213,4 +2276,410 @@ model PricingIntelligence {
   dataPoints     Int      // how many deliverables/entries were analyzed
   stats          Json     // aggregated stats: avg fee by deliverable type, avg hours, tier distribution
   // Format: { deliverableTypes: [{ name, avgFee, avgHours, count, tiers }], ratesByTier: {...}, clientTypeMultipliers: {...} }
+}
+
+// ─── Transform OS ──────────────────────────────────────────────────────────────
+
+model Hospital {
+  id                  String   @id @default(cuid())
+  name                String
+  address             String?
+  state               String
+  lga                 String?
+  bedCount            Int?
+  ownershipType       String?  // PRIVATE_SOLO | PRIVATE_GROUP | MISSION | PPP
+  specialtyFocus      String?
+  hmoPanelsCount      Int?
+  nhiaAccredited      Boolean  @default(false)
+  registrationNumber  String?
+
+  // Distress scoring (0-100, computed)
+  distressScore       Decimal? @db.Decimal(5, 2)
+  distressTier        String?  // A | B | C | D
+  financialScore      Decimal? @db.Decimal(5, 2)
+  operationalScore    Decimal? @db.Decimal(5, 2)
+  clinicalScore       Decimal? @db.Decimal(5, 2)
+  staffingScore       Decimal? @db.Decimal(5, 2)
+  infrastructureScore Decimal? @db.Decimal(5, 2)
+  governanceScore     Decimal? @db.Decimal(5, 2)
+
+  // Pipeline CRM
+  pipelineStage       String   @default("IDENTIFIED")
+  // IDENTIFIED | QUALIFIED | APPROACHED | IN_DIALOGUE | TERM_SHEET | ACTIVE | EXITED | CLOSED
+  founderMotivation   String?  // EXIT | TIRED | GROWTH | SUCCESSION
+  founderSuccession   Boolean?
+  cfaRelationshipScore Int?    // 1-5
+  source              String?
+  referredBy          String?
+  lastContactDate     DateTime?
+  nextAction          String?
+  nextActionDate      DateTime?
+  priorityRank        Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  diagnostics    Diagnostic[]
+  kpiSnapshots   TransformKPISnapshot[]
+  dealRecords    DealRecord[]
+  exitDossier    ExitDossier?
+  contactLog     HospitalContactLog[]
+
+  @@index([pipelineStage])
+  @@index([distressTier])
+}
+
+model HospitalContactLog {
+  id         String   @id @default(cuid())
+  hospitalId String
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  contactedBy String
+  channel    String   // CALL | MEETING | EMAIL | VISIT | WHATSAPP
+  summary    String   @db.Text
+  nextAction String?
+  contactedAt DateTime @default(now())
+
+  @@index([hospitalId, contactedAt])
+}
+
+model DealRecord {
+  id             String   @id @default(cuid())
+  hospitalId     String
+  hospital       Hospital @relation(fields: [hospitalId], references: [id])
+  engagementId   String?
+  version        Int      @default(1)
+
+  // Structure
+  structureType  String   // SWEAT | CAPITAL | HYBRID
+  recommendedByWizard Boolean @default(false)
+
+  // Valuation
+  entryValuation  Decimal? @db.Decimal(14, 2)
+  exitValBase     Decimal? @db.Decimal(14, 2)
+  exitValBear     Decimal? @db.Decimal(14, 2)
+  exitValBull     Decimal? @db.Decimal(14, 2)
+  exitMultipleBase Decimal? @db.Decimal(5, 2)
+
+  // Equity terms
+  cfaEquityPct    Decimal? @db.Decimal(5, 2)
+  kickerPct       Decimal? @db.Decimal(5, 2)
+  kickerTrigger   String?
+  vestCliffMonths Int?
+  vestMonthlyPct  Decimal? @db.Decimal(5, 2)
+  antiDilution    Boolean  @default(true)
+
+  // Cash terms (Hybrid)
+  cashFeeMonthly  Decimal? @db.Decimal(14, 2)
+  cashFeePct      Decimal? @db.Decimal(5, 2)
+
+  // Returns (calculated)
+  irrBase         Decimal? @db.Decimal(6, 2)
+  irrBear         Decimal? @db.Decimal(6, 2)
+  irrBull         Decimal? @db.Decimal(6, 2)
+  moicBase        Decimal? @db.Decimal(5, 2)
+  moicBear        Decimal? @db.Decimal(5, 2)
+  moicBull        Decimal? @db.Decimal(5, 2)
+
+  // RTO overlay
+  rtoType         String?  // FACILITY | EQUIPMENT | CONCESSION | NONE
+  rtoTermsJson    Json?
+
+  // Status
+  status          String   @default("MODELLING")
+  // MODELLING | PRESENTED | NEGOTIATING | AGREED | ABANDONED
+  termSheetUrl    String?
+  termSheetVersion Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([hospitalId])
+  @@index([engagementId])
+}
+
+model Diagnostic {
+  id           String   @id @default(cuid())
+  hospitalId   String
+  hospital     Hospital @relation(fields: [hospitalId], references: [id])
+  engagementId String
+
+  // 48-point audit (6 domains, JSON scores)
+  clinicalJson    Json?
+  operationalJson Json?
+  revenueJson     Json?
+  financialJson   Json?
+  hrJson          Json?
+  governanceJson  Json?
+
+  // 22 KPI baseline (immutable once locked)
+  revenueMonthly       Decimal? @db.Decimal(14, 2)
+  revenuePerBedDay     Decimal? @db.Decimal(14, 2)
+  revenuePerOpd        Decimal? @db.Decimal(14, 2)
+  ebitdaMarginPct      Decimal? @db.Decimal(5, 2)
+  grossMarginPct       Decimal? @db.Decimal(5, 2)
+  costPerPatient       Decimal? @db.Decimal(14, 2)
+  bedOccupancyPct      Decimal? @db.Decimal(5, 2)
+  opdVolumeDaily       Decimal? @db.Decimal(8, 2)
+  theatreUtilisationPct Decimal? @db.Decimal(5, 2)
+  alosDays             Decimal? @db.Decimal(5, 2)
+  hmoDenialRatePct     Decimal? @db.Decimal(5, 2)
+  arDays               Decimal? @db.Decimal(8, 2)
+  hmoPanelsCount       Int?
+  cleanClaimRatePct    Decimal? @db.Decimal(5, 2)
+  collectionRatePct    Decimal? @db.Decimal(5, 2)
+  staffTurnoverPct     Decimal? @db.Decimal(5, 2)
+  doctorBedRatio       Decimal? @db.Decimal(5, 2)
+  nurseBedRatio        Decimal? @db.Decimal(5, 2)
+  vacancyRatePct       Decimal? @db.Decimal(5, 2)
+  readmissionRatePct   Decimal? @db.Decimal(5, 2)
+  complaintRate        Decimal? @db.Decimal(8, 2)
+  infectionRatePct     Decimal? @db.Decimal(5, 2)
+
+  // Quick wins
+  quickWinsJson  Json?
+
+  // 90-day plan
+  planDay1to30   Json?
+  planDay31to60  Json?
+  planDay61to90  Json?
+
+  locked     Boolean   @default(false)
+  lockedBy   String?
+  lockedAt   DateTime?
+
+  createdAt  DateTime  @default(now())
+
+  @@index([hospitalId])
+  @@index([engagementId])
+}
+
+model TransformKPISnapshot {
+  id           String   @id @default(cuid())
+  hospitalId   String
+  hospital     Hospital @relation(fields: [hospitalId], references: [id])
+  engagementId String
+  period       String   // "2024-01" format
+
+  // All 22 KPIs (same fields as Diagnostic baseline)
+  revenueMonthly       Decimal? @db.Decimal(14, 2)
+  revenuePerBedDay     Decimal? @db.Decimal(14, 2)
+  ebitdaMarginPct      Decimal? @db.Decimal(5, 2)
+  bedOccupancyPct      Decimal? @db.Decimal(5, 2)
+  opdVolumeDaily       Decimal? @db.Decimal(8, 2)
+  hmoDenialRatePct     Decimal? @db.Decimal(5, 2)
+  arDays               Decimal? @db.Decimal(8, 2)
+  hmoPanelsCount       Int?
+  cleanClaimRatePct    Decimal? @db.Decimal(5, 2)
+  collectionRatePct    Decimal? @db.Decimal(5, 2)
+  staffTurnoverPct     Decimal? @db.Decimal(5, 2)
+  doctorBedRatio       Decimal? @db.Decimal(5, 2)
+  nurseBedRatio        Decimal? @db.Decimal(5, 2)
+  readmissionRatePct   Decimal? @db.Decimal(5, 2)
+
+  // RAG summary
+  redCount      Int?
+  amberCount    Int?
+  greenCount    Int?
+  vsBaselineJson Json? // Delta for each KPI vs locked diagnostic baseline
+
+  enteredBy  String
+  notes      String?  @db.Text
+  boardPackIncluded Boolean @default(false)
+  createdAt  DateTime @default(now())
+
+  @@unique([hospitalId, engagementId, period])
+  @@index([engagementId, period])
+}
+
+model ConsultantActivityLog {
+  id           String   @id @default(cuid())
+  engagementId String
+  memberId     String
+  date         DateTime
+  activity     String   // ON_SITE_VISIT | MEETING | REPORT | DECISION | INTERVENTION
+  description  String   @db.Text
+  hours        Decimal? @db.Decimal(5, 2)
+  immutable    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  @@index([engagementId, date])
+}
+
+model GovernanceAlert {
+  id           String   @id @default(cuid())
+  engagementId String
+  hospitalId   String
+  alertType    String   // STEP_IN_RIGHTS | EXPENDITURE | KPI_KICKER | EXIT_TIMELINE
+  triggeredAt  DateTime @default(now())
+  status       String   @default("OPEN") // OPEN | ACKNOWLEDGED | RESOLVED
+  detailsJson  Json
+  resolvedBy   String?
+  resolvedAt   DateTime?
+
+  @@index([engagementId, status])
+  @@index([alertType, status])
+}
+
+model ExitDossier {
+  id           String   @id @default(cuid())
+  hospitalId   String   @unique
+  hospital     Hospital @relation(fields: [hospitalId], references: [id])
+  engagementId String
+
+  // Exit valuation
+  exitEbitda          Decimal? @db.Decimal(14, 2)
+  exitMultipleApplied Decimal? @db.Decimal(5, 2)
+  exitValuation       Decimal? @db.Decimal(14, 2)
+  exitValRangeLow     Decimal? @db.Decimal(14, 2)
+  exitValRangeHigh    Decimal? @db.Decimal(14, 2)
+
+  // Data room
+  dataRoomCompletenessPct Int?
+  documentsJson    Json?  // 45-item checklist with upload status
+
+  // Buyer pipeline
+  buyersJson       Json?  // Array of {name, type, status, cfaWarmth, ticketRange}
+
+  // IM
+  imVersion        Int?
+  imUrl            String?
+
+  // Process
+  ndaLogJson       Json?  // {buyer, signedAt, accessTier}
+  ioiLogJson       Json?  // Indicative offers received
+  preferredBidder  String?
+
+  // Realised return (on close)
+  equityProceeds        Decimal? @db.Decimal(14, 2)
+  managementFeesTotal   Decimal? @db.Decimal(14, 2)
+  totalCfaReturn        Decimal? @db.Decimal(14, 2)
+  realisedMoic          Decimal? @db.Decimal(5, 2)
+  realisedIrr           Decimal? @db.Decimal(6, 2)
+
+  status    String @default("NOT_STARTED")
+  // NOT_STARTED | PREPARATION | ACTIVE_PROCESS | CLOSED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([engagementId])
+}
+
+// ─── PlaybookOS ────────────────────────────────────────────────────────────────
+
+model LibraryAsset {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+
+  assetType   String   // FRAMEWORK | TEMPLATE | MODEL | CHECKLIST | DATASET | CASE_STUDY | PLAYBOOK
+  streamTags  String[] // HOSPITAL_OPS | DIGITAL_HEALTH | STRATEGY | HR_TALENT | STARTUP | PARTNER_NETWORK
+  problemTags String[] // TURNAROUND | MARKET_ENTRY | DUE_DILIGENCE | STRATEGY | FUNDRAISE | HR | REGULATORY
+  outputFormat String?
+  geographyTags String[]
+
+  maturity    String   @default("DRAFT") // DRAFT | VALIDATED | BATTLE_TESTED | RETIRED
+  fileUrl     String?
+  fileType    String?  // DOCX | XLSX | PDF | PPTX
+
+  version     Int      @default(1)
+  versionHistoryJson Json?
+
+  authorId    String
+  reviewerId  String?
+
+  viewCount           Int @default(0)
+  downloadCount       Int @default(0)
+  engagementAssociationCount Int @default(0)
+
+  publishedAt   DateTime?
+  lastUpdatedAt DateTime?
+  createdAt     DateTime @default(now())
+
+  playbookLinks PlaybookAssetLink[]
+  debriefLinks  DebriefAssetLink[]
+
+  @@index([assetType, maturity])
+  @@index([authorId])
+}
+
+model EngagementPlaybook {
+  id           String     @id @default(cuid())
+  engagementId String     @unique
+  templateUsed String?
+  phasesJson   Json?      // [{phase, activities, assets, owner, outputs}]
+  notes        String?    @db.Text
+  status       String     @default("DRAFT") // DRAFT | ACTIVE | ARCHIVED
+
+  assets       PlaybookAssetLink[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([engagementId])
+}
+
+model PlaybookAssetLink {
+  id         String   @id @default(cuid())
+  playbookId String
+  assetId    String
+  phase      String?
+  notes      String?
+  asset      LibraryAsset       @relation(fields: [assetId], references: [id])
+  playbook   EngagementPlaybook @relation(fields: [playbookId], references: [id], onDelete: Cascade)
+
+  @@index([playbookId])
+  @@index([assetId])
+}
+
+model EngagementDebrief {
+  id           String   @id @default(cuid())
+  engagementId String   @unique
+
+  // 7 structured sections
+  summaryProblem   String? @db.Text
+  summaryApproach  String? @db.Text
+  summaryOutcome   String? @db.Text
+  whatWorkedJson    Json?   // [{technique, description, reusability}]
+  whatFailedJson    Json?   // [{issue, rootCause, avoidNextTime}]
+  clientContext    String? @db.Text
+  newAssetsJson    Json?   // Assets created during engagement pending library submission
+
+  sectorInsightsJson Json? // [{insight, geography, stream, confidence}]
+
+  submittedBy  String?
+  reviewedBy   String?
+  status       String  @default("PENDING")
+  // PENDING | SUBMITTED | REVIEWED | INSIGHTS_EXTRACTED
+
+  dueDate      DateTime?
+  submittedAt  DateTime?
+
+  assets       DebriefAssetLink[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([status])
+}
+
+model DebriefAssetLink {
+  id        String        @id @default(cuid())
+  debriefId String
+  assetId   String?
+  debrief   EngagementDebrief @relation(fields: [debriefId], references: [id], onDelete: Cascade)
+  asset     LibraryAsset?     @relation(fields: [assetId], references: [id])
+  action    String         // USED | CREATED | IMPROVED
+  notes     String?
+
+  @@index([debriefId])
+  @@index([assetId])
+}
+
+model AssetDownloadLog {
+  id           String   @id @default(cuid())
+  assetId      String
+  engagementId String?
+  downloadedBy String
+  createdAt    DateTime @default(now())
+
+  @@index([assetId])
+  @@index([engagementId])
 }

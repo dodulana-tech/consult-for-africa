@@ -14,7 +14,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const deliverable = await prisma.deliverable.findUnique({
     where: { id },
     include: {
-      project: {
+      engagement: {
         include: {
           engagementManager: { select: { name: true, email: true } },
         },
@@ -51,9 +51,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     },
   });
 
-  await prisma.projectUpdate.create({
+  await prisma.engagementUpdate.create({
     data: {
-      projectId: deliverable.projectId,
+      engagementId: deliverable.engagementId,
       content: `Deliverable "${deliverable.name}" submitted for review${newVersion > 1 ? ` (v${newVersion})` : ""} by ${deliverable.assignment?.consultant.name ?? "consultant"}.`,
       type: "GENERAL",
       createdById: session.user.id,
@@ -61,15 +61,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   });
 
   // Email the EM
-  const em = deliverable.project.engagementManager;
+  const em = deliverable.engagement.engagementManager;
   await emailDeliverableSubmitted({
     emEmail: em.email,
     emName: em.name,
     consultantName: deliverable.assignment?.consultant.name ?? "Consultant",
     deliverableName: deliverable.name,
-    projectName: deliverable.project.name,
+    projectName: deliverable.engagement.name,
     deliverableId: id,
-    projectId: deliverable.projectId,
+    projectId: deliverable.engagementId,
   });
 
   await logAudit({
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     entityType: "Deliverable",
     entityId: deliverable.id,
     entityName: deliverable.name,
-    projectId: deliverable.projectId,
+    engagementId: deliverable.engagementId,
     details: { before: deliverable.status, after: "SUBMITTED" },
   });
 

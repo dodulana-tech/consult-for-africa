@@ -16,7 +16,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
         orderBy: { order: "asc" },
         include: { gates: { orderBy: { order: "asc" } } },
       },
-      _count: { select: { projects: true } },
+      _count: { select: { engagements: true } },
     },
   });
 

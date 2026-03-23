@@ -46,7 +46,7 @@ export default async function ConsultantProfilePage({
       },
       assignments: {
         include: {
-          project: { select: { id: true, name: true, status: true, client: { select: { name: true } } } },
+          engagement: { select: { id: true, name: true, status: true, client: { select: { name: true } } } },
           timeEntries: {
             select: { hours: true, status: true, billableAmount: true, currency: true },
           },
@@ -87,7 +87,7 @@ export default async function ConsultantProfilePage({
   // Only show projects where this consultant was assigned
   const rateableProjects = user.assignments
     .filter((a) => ["ACTIVE", "COMPLETED"].includes(a.status))
-    .map((a) => ({ id: a.project.id, name: a.project.name }))
+    .map((a) => ({ id: a.engagement.id, name: a.engagement.name }))
     .filter((p, i, arr) => arr.findIndex((x) => x.id === p.id) === i); // dedupe
 
   const backHref = session.user.role === "CONSULTANT" ? "/dashboard" : "/consultants";
@@ -217,9 +217,9 @@ export default async function ConsultantProfilePage({
                       style={{ background: "#F9FAFB", border: "1px solid #e5eaf0" }}
                     >
                       <div>
-                        <p className="text-sm font-medium text-gray-800">{a.project.name}</p>
+                        <p className="text-sm font-medium text-gray-800">{a.engagement.name}</p>
                         <p className="text-xs text-gray-500">
-                          {a.project.client.name} &middot; {a.role}
+                          {a.engagement.client.name} &middot; {a.role}
                         </p>
                       </div>
                       <div className="text-right">

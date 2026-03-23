@@ -13,7 +13,7 @@ export default async function OpportunitiesPage() {
   const requests = await prisma.staffingRequest.findMany({
     where: { status: "OPEN" },
     include: {
-      project: {
+      engagement: {
         select: {
           id: true,
           name: true,
@@ -40,7 +40,7 @@ export default async function OpportunitiesPage() {
     ? await prisma.assignment.findMany({
         where: { consultantId: session.user.id, status: "PENDING_ACCEPTANCE" },
         include: {
-          project: {
+          engagement: {
             select: { id: true, name: true, serviceType: true, client: { select: { name: true } } },
           },
         },
@@ -50,10 +50,10 @@ export default async function OpportunitiesPage() {
 
   const serialized = requests.map((r) => ({
     id: r.id,
-    projectId: r.project.id,
-    projectName: r.project.name,
-    clientName: r.project.client.name,
-    serviceType: r.project.serviceType.replace(/_/g, " "),
+    projectId: r.engagement.id,
+    projectName: r.engagement.name,
+    clientName: r.engagement.client.name,
+    serviceType: r.engagement.serviceType.replace(/_/g, " "),
     createdBy: r.createdBy.name,
     role: r.role,
     description: r.description,
@@ -71,10 +71,10 @@ export default async function OpportunitiesPage() {
     id: a.id,
     role: a.role,
     responsibilities: a.responsibilities,
-    projectId: a.project.id,
-    projectName: a.project.name,
-    clientName: a.project.client.name,
-    serviceType: a.project.serviceType.replace(/_/g, " "),
+    projectId: a.engagement.id,
+    projectName: a.engagement.name,
+    clientName: a.engagement.client.name,
+    serviceType: a.engagement.serviceType.replace(/_/g, " "),
     estimatedHoursPerWeek: a.estimatedHoursPerWeek,
     rateAmount: Number(a.rateAmount),
     rateCurrency: a.rateCurrency,

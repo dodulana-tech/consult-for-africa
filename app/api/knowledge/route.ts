@@ -13,13 +13,13 @@ export async function GET(req: NextRequest) {
 
   const assets = await prisma.knowledgeAsset.findMany({
     where: {
-      ...(projectId ? { projectId } : {}),
+      ...(projectId ? { engagementId: projectId } : {}),
       ...(type ? { assetType: type as "INSIGHT" | "FRAMEWORK" | "TEMPLATE" | "CASE_STUDY" | "LESSON_LEARNED" } : {}),
       ...(reusable === "true" ? { isReusable: true } : {}),
     },
     orderBy: { createdAt: "desc" },
     include: {
-      project: { select: { id: true, name: true } },
+      engagement: { select: { id: true, name: true } },
     },
   });
 
@@ -50,11 +50,11 @@ export async function POST(req: NextRequest) {
       tags: Array.isArray(tags) ? tags : [],
       isReusable: Boolean(isReusable),
       fileUrl: fileUrl?.trim() || null,
-      projectId: projectId?.trim() || null,
+      engagementId: projectId?.trim() || null,
       authorId: session.user.id,
     },
     include: {
-      project: { select: { id: true, name: true } },
+      engagement: { select: { id: true, name: true } },
     },
   });
 

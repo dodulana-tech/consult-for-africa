@@ -23,7 +23,7 @@ export default async function SatisfactionPage() {
   const pulses = await prisma.clientSatisfactionPulse.findMany({
     orderBy: { createdAt: "desc" },
     include: {
-      project: {
+      engagement: {
         select: {
           id: true,
           name: true,
@@ -140,10 +140,10 @@ export default async function SatisfactionPage() {
                       style={{ borderBottom: "1px solid #F3F4F6" }}
                     >
                       <td className="px-5 py-3 font-medium" style={{ color: "#0F2744" }}>
-                        {pulse.project.name}
+                        {pulse.engagement.name}
                       </td>
                       <td className="px-5 py-3 text-gray-600">
-                        {pulse.project.client.name}
+                        {pulse.engagement.client.name}
                       </td>
                       <td className="px-5 py-3 text-gray-500 text-xs font-mono">
                         {pulse.contactId.slice(0, 8)}...

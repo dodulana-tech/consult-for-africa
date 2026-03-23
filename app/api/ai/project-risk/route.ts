@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
   // Fetch full project state using separate queries for reliability
   const [project, assignments, milestones, deliverables, invoices] = await Promise.all([
-    prisma.project.findUnique({
+    prisma.engagement.findUnique({
       where: { id: projectId },
       include: {
         client: { select: { name: true, type: true, creditScore: true, status: true } },
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       },
     }),
     prisma.assignment.findMany({
-      where: { projectId },
+      where: { engagementId: projectId },
       include: {
         consultant: { select: { name: true, consultantProfile: { select: { tier: true, averageRating: true } } } },
         timeEntries: { select: { hours: true, status: true } },
@@ -33,15 +33,15 @@ export async function POST(req: NextRequest) {
       },
     }),
     prisma.milestone.findMany({
-      where: { projectId },
+      where: { engagementId: projectId },
       select: { name: true, dueDate: true, status: true },
     }),
     prisma.deliverable.findMany({
-      where: { projectId },
+      where: { engagementId: projectId },
       select: { status: true, version: true },
     }),
     prisma.invoice.findMany({
-      where: { projectId },
+      where: { engagementId: projectId },
       select: { status: true, total: true, dueDate: true },
     }),
   ]);
@@ -226,7 +226,7 @@ All probability fields (likelihood, impact, predictedOutcomes) are 0-100.`;
   const existingNotes = project.notes || "";
   const updatedNotes = riskSummary + (existingNotes ? "\n\n---\n\n" + existingNotes : "");
 
-  await prisma.project.update({
+  await prisma.engagement.update({
     where: { id: projectId },
     data: {
       notes: updatedNotes,

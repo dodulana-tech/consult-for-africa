@@ -34,17 +34,17 @@ export default async function ClientsPage() {
   let clientWhere = {};
   if (isEM) {
     // EM sees clients on their managed projects
-    clientWhere = { projects: { some: { engagementManagerId: session.user.id } } };
+    clientWhere = { engagements: { some: { engagementManagerId: session.user.id } } };
   } else if (isConsultant) {
     // Consultant sees clients on projects they are assigned to
-    clientWhere = { projects: { some: { assignments: { some: { consultantId: session.user.id } } } } };
+    clientWhere = { engagements: { some: { assignments: { some: { consultantId: session.user.id } } } } };
   }
   // Elevated roles (DIRECTOR/PARTNER/ADMIN) see all, no filter needed
 
   const clients = await prisma.client.findMany({
     where: clientWhere,
     include: {
-      projects: {
+      engagements: {
         select: {
           id: true,
           name: true,
@@ -67,7 +67,7 @@ export default async function ClientsPage() {
 
   const active = clients.filter((c) => c.status === "ACTIVE").length;
   const overdue = clients.filter((c) => c.status === "OVERDUE_PAYMENT").length;
-  const totalProjects = clients.reduce((s, c) => s + c.projects.length, 0);
+  const totalProjects = clients.reduce((s, c) => s + c.engagements.length, 0);
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
@@ -96,7 +96,7 @@ export default async function ClientsPage() {
           {/* Client cards */}
           <div className="space-y-3">
             {clients.map((c) => {
-              const activeProjects = c.projects.filter((p) =>
+              const activeProjects = c.engagements.filter((p) =>
                 ["PLANNING", "ACTIVE", "AT_RISK"].includes(p.status)
               ).length;
               const totalRevenue = c.invoices
@@ -168,7 +168,7 @@ export default async function ClientsPage() {
                         {c.phone}
                       </span>
                       <span>
-                        {c.projects.length} project{c.projects.length !== 1 ? "s" : ""}
+                        {c.engagements.length} project{c.engagements.length !== 1 ? "s" : ""}
                         {activeProjects > 0 && (
                           <span className="text-emerald-600 ml-1">({activeProjects} active)</span>
                         )}

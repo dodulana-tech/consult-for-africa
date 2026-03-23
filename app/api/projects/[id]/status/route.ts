@@ -1,9 +1,9 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import type { ProjectStatus, RiskLevel } from "@prisma/client";
+import type { EngagementStatus, RiskLevel } from "@prisma/client";
 
-const VALID_STATUSES: ProjectStatus[] = ["PLANNING", "ACTIVE", "ON_HOLD", "AT_RISK", "COMPLETED", "CANCELLED"];
+const VALID_STATUSES: EngagementStatus[] = ["PLANNING", "ACTIVE", "ON_HOLD", "AT_RISK", "COMPLETED", "CANCELLED"];
 const VALID_RISK_LEVELS: RiskLevel[] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
 export async function PATCH(
@@ -29,7 +29,7 @@ export async function PATCH(
     return new Response("healthScore must be 1-10", { status: 400 });
   }
 
-  const project = await prisma.project.findUnique({
+  const project = await prisma.engagement.findUnique({
     where: { id },
     select: { id: true, engagementManagerId: true },
   });
@@ -44,7 +44,7 @@ export async function PATCH(
   if (riskLevel) data.riskLevel = riskLevel;
   if (healthScore !== undefined) data.healthScore = healthScore;
 
-  const updated = await prisma.project.update({
+  const updated = await prisma.engagement.update({
     where: { id },
     data,
     select: { id: true, status: true, riskLevel: true, healthScore: true },

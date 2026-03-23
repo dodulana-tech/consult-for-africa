@@ -20,13 +20,13 @@ export default async function DeliverablesPage() {
   const deliverableWhere = isElevated
     ? {}
     : isEM
-    ? { project: { engagementManagerId: userId } }
+    ? { engagement: { engagementManagerId: userId } }
     : { assignment: { consultantId: userId } };
 
   const deliverables = await prisma.deliverable.findMany({
     where: deliverableWhere,
     include: {
-      project: { select: { id: true, name: true } },
+      engagement: { select: { id: true, name: true } },
       assignment: {
         include: { consultant: { select: { name: true } } },
       },
@@ -151,7 +151,7 @@ export default async function DeliverablesPage() {
                             {d.name}
                           </p>
                           <div className="flex items-center gap-2 mt-1 text-xs text-gray-400 flex-wrap">
-                            <span>{d.project.name}</span>
+                            <span>{d.engagement.name}</span>
                             {d.assignment && (
                               <>
                                 <span>·</span>

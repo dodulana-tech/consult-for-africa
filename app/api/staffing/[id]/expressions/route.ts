@@ -22,7 +22,7 @@ export async function GET(
   const request = await prisma.staffingRequest.findUnique({
     where: { id },
     include: {
-      project: { select: { id: true, name: true, client: { select: { name: true } } } },
+      engagement: { select: { id: true, name: true, client: { select: { name: true } } } },
     },
   });
 
@@ -60,7 +60,7 @@ export async function GET(
       description: request.description,
       skillsRequired: request.skillsRequired,
       status: request.status,
-      project: request.project,
+      engagement: request.engagement,
     },
     expressions: expressions.map((e) => ({
       id: e.id,
@@ -114,7 +114,7 @@ export async function PATCH(
   const expression = await prisma.staffingExpression.findUnique({
     where: { id: expressionId },
     include: {
-      staffingRequest: { select: { projectId: true, role: true } },
+      staffingRequest: { select: { engagementId: true, role: true } },
     },
   });
 
@@ -133,7 +133,7 @@ export async function PATCH(
 
     await prisma.assignment.create({
       data: {
-        projectId: expression.staffingRequest.projectId,
+        engagementId: expression.staffingRequest.engagementId,
         consultantId: expression.consultantId,
         role: expression.staffingRequest.role,
         responsibilities: "",

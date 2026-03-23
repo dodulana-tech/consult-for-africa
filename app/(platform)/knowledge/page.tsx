@@ -14,7 +14,7 @@ export default async function KnowledgePage() {
   const assets = await prisma.knowledgeAsset.findMany({
     orderBy: { createdAt: "desc" },
     include: {
-      project: { select: { id: true, name: true } },
+      engagement: { select: { id: true, name: true } },
     },
   });
 

@@ -27,7 +27,7 @@ interface Deliverable {
   reviewScore: number | null;
   reviewNotes: string | null;
   fileUrl: string | null;
-  project: { id: string; name: string };
+  engagement: { id: string; name: string };
   assignment: { consultant: { id: string; name: string } } | null;
 }
 
@@ -68,7 +68,7 @@ export default function DeliverableSubmit({
       });
       if (!res.ok) throw new Error("Failed");
       setSubmitted(true);
-      setTimeout(() => router.push(`/projects/${deliverable.project.id}`), 2000);
+      setTimeout(() => router.push(`/projects/${deliverable.engagement.id}`), 2000);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -80,11 +80,11 @@ export default function DeliverableSubmit({
     <main className="flex-1 overflow-y-auto p-6">
       <div className="max-w-2xl mx-auto space-y-6">
         <Link
-          href={`/projects/${deliverable.project.id}`}
+          href={`/projects/${deliverable.engagement.id}`}
           className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors"
         >
           <ArrowLeft size={13} />
-          Back to {deliverable.project.name}
+          Back to {deliverable.engagement.name}
         </Link>
 
         {/* Success */}

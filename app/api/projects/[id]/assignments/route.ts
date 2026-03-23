@@ -21,7 +21,7 @@ export async function POST(
 
   const { id: projectId } = await params;
 
-  const project = await prisma.project.findUnique({
+  const project = await prisma.engagement.findUnique({
     where: { id: projectId },
     select: { id: true, name: true, startDate: true, endDate: true, engagementManagerId: true },
   });
@@ -55,7 +55,7 @@ export async function POST(
 
   // Check the consultant isn't already on this project
   const existing = await prisma.assignment.findFirst({
-    where: { projectId, consultantId, status: { in: ["ACTIVE", "PENDING", "PENDING_ACCEPTANCE"] } },
+    where: { engagementId: projectId, consultantId, status: { in: ["ACTIVE", "PENDING", "PENDING_ACCEPTANCE"] } },
   });
   if (existing) {
     return new Response("Consultant is already assigned to this project", { status: 409 });
@@ -96,7 +96,7 @@ export async function POST(
   // Create assignment as PENDING_ACCEPTANCE (consultant must accept)
   const assignment = await prisma.assignment.create({
     data: {
-      projectId,
+      engagementId: projectId,
       consultantId,
       role: role.trim(),
       responsibilities,
@@ -114,9 +114,9 @@ export async function POST(
   });
 
   // Create project update
-  await prisma.projectUpdate.create({
+  await prisma.engagementUpdate.create({
     data: {
-      projectId,
+      engagementId: projectId,
       createdById: session.user.id,
       type: "TEAM_CHANGE",
       content: `Assignment request sent to ${consultant.name} for the ${role.trim()} role. Awaiting acceptance.`,
@@ -129,7 +129,7 @@ export async function POST(
     entityType: "Assignment",
     entityId: assignment.id,
     entityName: `${role.trim()} - ${project.name} (pending acceptance)`,
-    projectId,
+    engagementId: projectId,
   });
 
   // Email the consultant

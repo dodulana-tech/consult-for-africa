@@ -14,7 +14,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   const deliverable = await prisma.deliverable.findUnique({
     where: { id },
-    select: { projectId: true, assignmentId: true },
+    select: { engagementId: true, assignmentId: true },
   });
 
   if (!deliverable) {
@@ -23,8 +23,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   // Verify EM owns this project
   if (session.user.role === "ENGAGEMENT_MANAGER") {
-    const project = await prisma.project.findUnique({
-      where: { id: deliverable.projectId },
+    const project = await prisma.engagement.findUnique({
+      where: { id: deliverable.engagementId },
       select: { engagementManagerId: true },
     });
     if (project?.engagementManagerId !== session.user.id) {
@@ -33,7 +33,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   const assignments = await prisma.assignment.findMany({
-    where: { projectId: deliverable.projectId, status: "ACTIVE" },
+    where: { engagementId: deliverable.engagementId, status: "ACTIVE" },
     select: {
       id: true,
       role: true,

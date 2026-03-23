@@ -73,7 +73,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     entityType: "Risk",
     entityId: risk.id,
     entityName: risk.title,
-    projectId,
+    engagementId: projectId,
     details: status ? { before: oldStatus, after: status } : undefined,
   });
 
@@ -97,7 +97,7 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
     entityType: "Risk",
     entityId: riskId,
     entityName: risk?.title,
-    projectId,
+    engagementId: projectId,
   });
 
   return Response.json({ ok: true });

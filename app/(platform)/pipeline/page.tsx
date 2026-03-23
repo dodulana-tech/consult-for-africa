@@ -52,7 +52,7 @@ export default async function PipelinePage() {
       orderBy: { createdAt: "desc" },
       take: 50,
       include: {
-        project: { select: { id: true, name: true, client: { select: { name: true } } } },
+        engagement: { select: { id: true, name: true, client: { select: { name: true } } } },
         createdBy: { select: { name: true } },
       },
     }),

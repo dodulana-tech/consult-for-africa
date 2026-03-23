@@ -87,13 +87,13 @@ export async function getDigestForUser(userId: string): Promise<DigestData | nul
     weekApprovedDeliverables,
     revisionDeliverables,
   ] = await Promise.all([
-    prisma.project.findMany({
+    prisma.engagement.findMany({
       where: { ...projectWhere, status: { in: ["ACTIVE", "AT_RISK", "COMPLETED"] } },
       select: { status: true, updatedAt: true },
     }),
     prisma.deliverable.count({
       where: {
-        project: projectWhere,
+        engagement: projectWhere,
         dueDate: { lt: new Date() },
         status: { notIn: ["APPROVED", "DELIVERED_TO_CLIENT"] },
       },
@@ -102,7 +102,7 @@ export async function getDigestForUser(userId: string): Promise<DigestData | nul
       ? prisma.timeEntry.count({
           where: {
             status: "PENDING",
-            ...(isEM ? { assignment: { project: { engagementManagerId: userId } } } : {}),
+            ...(isEM ? { assignment: { engagement: { engagementManagerId: userId } } } : {}),
           },
         })
       : 0,
@@ -111,7 +111,7 @@ export async function getDigestForUser(userId: string): Promise<DigestData | nul
         createdAt: { gte: weekAgo },
         ...(isElevated
           ? isEM
-            ? { assignment: { project: { engagementManagerId: userId } } }
+            ? { assignment: { engagement: { engagementManagerId: userId } } }
             : {}
           : { consultantId: userId }),
       },
@@ -119,19 +119,19 @@ export async function getDigestForUser(userId: string): Promise<DigestData | nul
     }),
     prisma.deliverable.count({
       where: {
-        project: projectWhere,
+        engagement: projectWhere,
         submittedAt: { gte: weekAgo },
       },
     }),
     prisma.deliverable.count({
       where: {
-        project: projectWhere,
+        engagement: projectWhere,
         approvedAt: { gte: weekAgo },
       },
     }),
     prisma.deliverable.count({
       where: {
-        project: projectWhere,
+        engagement: projectWhere,
         status: "NEEDS_REVISION",
       },
     }),

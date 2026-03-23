@@ -12,7 +12,7 @@ export interface CapacitySnapshot {
   activeAssignmentCount: number;
   assignments: {
     id: string;
-    projectName: string;
+    engagementName: string;
     role: string;
     hoursPerWeek: number;
     status: string;
@@ -40,7 +40,7 @@ export async function getConsultantCapacity(consultantId: string): Promise<Capac
           status: true,
           estimatedHoursPerWeek: true,
           estimatedHours: true,
-          project: { select: { name: true } },
+          engagement: { select: { name: true } },
         },
       },
     },
@@ -53,7 +53,7 @@ export async function getConsultantCapacity(consultantId: string): Promise<Capac
 
   const assignments = user.assignments.map((a) => ({
     id: a.id,
-    projectName: a.project.name,
+    engagementName: a.engagement.name,
     role: a.role,
     hoursPerWeek: a.estimatedHoursPerWeek ?? a.estimatedHours ?? 0,
     status: a.status,

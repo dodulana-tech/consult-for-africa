@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
   if (!projectId) return new Response("projectId required", { status: 400 });
 
   // Fetch project
-  const project = await prisma.project.findUnique({
+  const project = await prisma.engagement.findUnique({
     where: { id: projectId },
     select: {
       id: true, name: true, description: true,
@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
 
   // Fetch available consultants not already assigned
   const alreadyAssigned = await prisma.assignment.findMany({
-    where: { projectId, status: { in: ["ACTIVE", "PENDING"] } },
+    where: { engagementId: projectId, status: { in: ["ACTIVE", "PENDING"] } },
     select: { consultantId: true },
   });
   const assignedIds = new Set(alreadyAssigned.map((a) => a.consultantId));
@@ -285,9 +285,9 @@ Return a JSON array of ${top5.length} strings, one explanation per consultant in
   const matches = await Promise.all(
     top5.map(async (c, i) => {
       await prisma.consultantMatchScore.upsert({
-        where: { projectId_consultantId: { projectId, consultantId: c.consultant.id } },
+        where: { engagementId_consultantId: { engagementId: projectId, consultantId: c.consultant.id } },
         create: {
-          projectId,
+          engagementId: projectId,
           consultantId: c.consultant.id,
           matchScore: Math.round(c.overallScore * 100),
           rankPosition: i + 1,

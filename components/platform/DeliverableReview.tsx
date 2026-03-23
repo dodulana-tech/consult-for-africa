@@ -37,7 +37,7 @@ interface Deliverable {
   reviewNotes: string | null;
   fileUrl: string | null;
   clientVisible?: boolean;
-  project: { id: string; name: string };
+  engagement: { id: string; name: string };
   assignmentId?: string | null;
   assignment: {
     id?: string;
@@ -215,7 +215,7 @@ export default function DeliverableReview({
       const res = await fetch(`/api/deliverables/${deliverable.id}/deliver`, { method: "POST" });
       if (!res.ok) throw new Error("Failed");
       setResult("delivered");
-      setTimeout(() => router.push(`/projects/${deliverable.project.id}?tab=deliverables`), 1800);
+      setTimeout(() => router.push(`/projects/${deliverable.engagement.id}?tab=deliverables`), 1800);
     } catch {
       setError("Failed to mark as delivered. Please try again.");
     } finally {
@@ -234,7 +234,7 @@ export default function DeliverableReview({
       });
       if (!res.ok) throw new Error("Failed");
       setResult(action === "approve" ? "approved" : "revision");
-      setTimeout(() => router.push(`/projects/${deliverable.project.id}?tab=deliverables`), 1800);
+      setTimeout(() => router.push(`/projects/${deliverable.engagement.id}?tab=deliverables`), 1800);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -247,11 +247,11 @@ export default function DeliverableReview({
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Back */}
         <Link
-          href={`/projects/${deliverable.project.id}`}
+          href={`/projects/${deliverable.engagement.id}`}
           className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors"
         >
           <ArrowLeft size={13} />
-          Back to {deliverable.project.name}
+          Back to {deliverable.engagement.name}
         </Link>
 
         {/* Success state */}

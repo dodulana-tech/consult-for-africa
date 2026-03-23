@@ -16,8 +16,8 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
     return new Response("Forbidden", { status: 403 });
   }
 
-  const metrics = await prisma.projectImpactMetric.findMany({
-    where: { projectId },
+  const metrics = await prisma.engagementImpactMetric.findMany({
+    where: { engagementId: projectId },
     orderBy: { createdAt: "desc" },
   });
 
@@ -43,9 +43,9 @@ export async function POST(req: NextRequest, { params }: Ctx) {
 
   if (!metricName?.trim()) return new Response("metricName is required", { status: 400 });
 
-  const metric = await prisma.projectImpactMetric.create({
+  const metric = await prisma.engagementImpactMetric.create({
     data: {
-      projectId,
+      engagementId: projectId,
       metricName: metricName.trim(),
       baselineValue: baselineValue?.trim() || null,
       currentValue: currentValue?.trim() || null,
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     entityType: "ImpactMetric",
     entityId: metric.id,
     entityName: metric.metricName,
-    projectId,
+    engagementId: projectId,
   });
 
   return Response.json(

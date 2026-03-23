@@ -33,7 +33,7 @@ export async function GET() {
       description: r.description,
       urgency: r.urgency,
       status: r.status,
-      projectId: r.projectId,
+      projectId: r.engagementId,
       createdAt: r.createdAt.toISOString(),
     })),
   });
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
 
   // If projectId provided, verify it belongs to this client
   if (projectId) {
-    const project = await prisma.project.findFirst({
+    const project = await prisma.engagement.findFirst({
       where: { id: projectId, clientId: session.clientId },
       select: { id: true },
     });
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
       serviceType: serviceType as (typeof VALID_SERVICE_TYPES)[number] | undefined,
       description: description.trim(),
       urgency: resolvedUrgency,
-      projectId: projectId || undefined,
+      engagementId: projectId || undefined,
     },
   });
 

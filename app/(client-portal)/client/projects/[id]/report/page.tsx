@@ -73,7 +73,7 @@ export default async function ClientExecutiveSummaryPage({
 
   const { id } = await params;
 
-  const project = await prisma.project.findUnique({
+  const project = await prisma.engagement.findUnique({
     where: { id },
     include: {
       engagementManager: { select: { name: true, email: true } },

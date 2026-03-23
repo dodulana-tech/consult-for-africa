@@ -29,7 +29,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
       ...(isReusable !== undefined ? { isReusable: Boolean(isReusable) } : {}),
     },
     include: {
-      project: { select: { id: true, name: true } },
+      engagement: { select: { id: true, name: true } },
     },
   });
 

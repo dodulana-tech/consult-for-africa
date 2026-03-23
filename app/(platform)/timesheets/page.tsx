@@ -12,13 +12,13 @@ export default async function TimesheetsPage() {
 
   const entries = await prisma.timeEntry.findMany({
     where: isEM
-      ? { assignment: { project: { engagementManagerId: session.user.id } } }
+      ? { assignment: { engagement: { engagementManagerId: session.user.id } } }
       : { consultantId: session.user.id },
     include: {
       consultant: { select: { id: true, name: true, email: true } },
       assignment: {
         include: {
-          project: { select: { id: true, name: true } },
+          engagement: { select: { id: true, name: true } },
         },
       },
     },
@@ -29,7 +29,7 @@ export default async function TimesheetsPage() {
   const myAssignments = !isEM
     ? await prisma.assignment.findMany({
         where: { consultantId: session.user.id, status: { in: ["ACTIVE", "PENDING"] } },
-        include: { project: { select: { id: true, name: true } } },
+        include: { engagement: { select: { id: true, name: true } } },
       })
     : [];
 

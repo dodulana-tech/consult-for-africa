@@ -18,11 +18,11 @@ export async function POST(
 
   const { id: projectId, frameworkId } = await params;
 
-  const pf = await prisma.projectFramework.findUnique({
+  const pf = await prisma.engagementFramework.findUnique({
     where: { id: frameworkId },
     include: {
       framework: true,
-      project: {
+      engagement: {
         select: {
           name: true,
           description: true,
@@ -38,9 +38,9 @@ export async function POST(
     },
   });
 
-  if (!pf || pf.project === null) return new Response("Not found", { status: 404 });
+  if (!pf || pf.engagement === null) return new Response("Not found", { status: 404 });
 
-  const project = pf.project;
+  const project = pf.engagement;
   const dimensions = pf.framework.dimensions;
 
   const prompt = `You are Nuru, the AI consulting analyst at Consult For Africa. You are filling in a ${pf.framework.name} analysis framework for a healthcare consulting project.
@@ -81,7 +81,7 @@ Be specific to this project. Use Nigerian healthcare context. No em dashes. No g
 
     const content = JSON.parse(jsonMatch[0]);
 
-    const updated = await prisma.projectFramework.update({
+    const updated = await prisma.engagementFramework.update({
       where: { id: frameworkId },
       data: {
         content,
@@ -97,7 +97,7 @@ Be specific to this project. Use Nigerian healthcare context. No em dashes. No g
       entityType: "ProjectFramework",
       entityId: updated.id,
       entityName: updated.framework.name,
-      projectId,
+      engagementId: projectId,
     });
 
     return Response.json({

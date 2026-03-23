@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import type { ServiceType, ProjectStatus, RiskLevel } from "@prisma/client";
+import type { ServiceType, EngagementStatus, RiskLevel } from "@prisma/client";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -52,14 +52,14 @@ export async function POST(req: NextRequest) {
     return new Response("engagementManagerId is required", { status: 400 });
   }
 
-  const project = await prisma.project.create({
+  const project = await prisma.engagement.create({
     data: {
       client: { connect: { id: clientId } },
       engagementManager: { connect: { id: emId } },
       name,
       description: description ?? null,
       serviceType: serviceType as ServiceType,
-      status: (status as ProjectStatus) ?? "PLANNING",
+      status: (status as EngagementStatus) ?? "PLANNING",
       startDate: startDate ? new Date(startDate) : new Date(),
       endDate: endDate ? new Date(endDate) : new Date(Date.now() + 365 * 86400000),
       budgetAmount: budgetAmount ? Number(budgetAmount) : 0,
@@ -88,9 +88,9 @@ export async function POST(req: NextRequest) {
       include: { phases: { orderBy: { order: "asc" } } },
     });
     if (methodology) {
-      await prisma.projectPhase.createMany({
+      await prisma.engagementPhase.createMany({
         data: methodology.phases.map((p) => ({
-          projectId: project.id,
+          engagementId: project.id,
           name: p.name,
           description: p.description,
           order: p.order,

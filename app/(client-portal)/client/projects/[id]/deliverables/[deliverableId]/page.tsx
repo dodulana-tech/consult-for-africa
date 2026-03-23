@@ -37,7 +37,7 @@ interface DeliverableData {
   version: number;
   createdAt: string;
   updatedAt: string;
-  project: { id: string; name: string; clientId: string };
+  engagement: { id: string; name: string; clientId: string };
   versions: DeliverableVersion[];
   comments: DeliverableComment[];
 }
@@ -242,7 +242,7 @@ export default function DeliverableDetailPage({
               href={`/client/projects/${projectId}`}
               className="text-sm text-gray-500 hover:text-gray-800 transition-colors truncate max-w-[120px]"
             >
-              {deliverable.project.name}
+              {deliverable.engagement.name}
             </Link>
             <span className="text-gray-300 text-sm">/</span>
             <span

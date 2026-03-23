@@ -13,7 +13,7 @@ export async function getNuruContext(): Promise<string> {
 
     // Get platform stats
     const [projectCount, consultantCount, clientCount, deliverableCount, paidEntryCount] = await Promise.all([
-      prisma.project.count({ where: { status: { in: ["ACTIVE", "COMPLETED"] } } }),
+      prisma.engagement.count({ where: { status: { in: ["ACTIVE", "COMPLETED"] } } }),
       prisma.consultantProfile.count(),
       prisma.client.count({ where: { status: "ACTIVE" } }),
       prisma.deliverable.count({ where: { status: { in: ["APPROVED", "DELIVERED_TO_CLIENT"] } } }),
@@ -21,7 +21,7 @@ export async function getNuruContext(): Promise<string> {
     ]);
 
     // Get recent successful patterns
-    const recentProjects = await prisma.project.findMany({
+    const recentProjects = await prisma.engagement.findMany({
       where: { status: { in: ["ACTIVE", "COMPLETED"] } },
       take: 10,
       orderBy: { createdAt: "desc" },

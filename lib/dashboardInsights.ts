@@ -27,18 +27,18 @@ export async function getDashboardInsights(
 
   // ─── 1. Project milestones celebrated ─────────────────────────────────────
 
-  const recentPhaseCompletions = await prisma.projectPhase.findMany({
+  const recentPhaseCompletions = await prisma.engagementPhase.findMany({
     where: {
       status: "COMPLETED",
       updatedAt: { gte: weekAgo },
-      project: isDirectorPlus
+      engagement: isDirectorPlus
         ? {}
         : isEM
         ? { engagementManagerId: userId }
         : { assignments: { some: { consultantId: userId } } },
     },
     include: {
-      project: { select: { id: true, name: true } },
+      engagement: { select: { id: true, name: true } },
     },
     take: 3,
     orderBy: { updatedAt: "desc" },
@@ -48,9 +48,9 @@ export async function getDashboardInsights(
     insights.push({
       type: "celebration",
       icon: "\u{1F389}",
-      title: `${phase.project.name}`,
+      title: `${phase.engagement.name}`,
       message: `${phase.name} phase completed this week.`,
-      href: `/projects/${phase.project.id}`,
+      href: `/projects/${phase.engagement.id}`,
       accent: "gold",
     });
   }
@@ -61,12 +61,12 @@ export async function getDashboardInsights(
     const recentFeedback = await prisma.clientSatisfactionPulse.findMany({
       where: {
         createdAt: { gte: weekAgo },
-        project: isEM
+        engagement: isEM
           ? { engagementManagerId: userId }
           : { assignments: { some: { consultantId: userId } } },
       },
       include: {
-        project: { select: { id: true, name: true } },
+        engagement: { select: { id: true, name: true } },
       },
       take: 2,
       orderBy: { createdAt: "desc" },
@@ -77,9 +77,9 @@ export async function getDashboardInsights(
         insights.push({
           type: "feedback",
           icon: "\u2B50",
-          title: `${fb.project.name} rated ${fb.score}/5`,
+          title: `${fb.engagement.name} rated ${fb.score}/5`,
           message: fb.feedback ?? "Great feedback from your client.",
-          href: `/projects/${fb.project.id}`,
+          href: `/projects/${fb.engagement.id}`,
           accent: "green",
         });
       }
@@ -98,11 +98,11 @@ export async function getDashboardInsights(
       ...(isConsultant
         ? { assignment: { consultantId: userId } }
         : isEM
-        ? { project: { engagementManagerId: userId } }
+        ? { engagement: { engagementManagerId: userId } }
         : {}),
     },
     include: {
-      project: { select: { id: true, name: true } },
+      engagement: { select: { id: true, name: true } },
     },
     orderBy: { dueDate: "asc" },
   });
@@ -115,8 +115,8 @@ export async function getDashboardInsights(
       icon: "\u{1F4DD}",
       title: `${count} deliverable${count > 1 ? "s" : ""} due this week`,
       message: count === 1
-        ? `${first.name} for ${first.project.name} is due soon.`
-        : `Including ${first.name} for ${first.project.name}.`,
+        ? `${first.name} for ${first.engagement.name} is due soon.`
+        : `Including ${first.name} for ${first.engagement.name}.`,
       href: `/deliverables`,
       accent: "amber",
     });
@@ -125,7 +125,7 @@ export async function getDashboardInsights(
   // ─── 4. Stale project detection (EM/Director) ────────────────────────────
 
   if (isEM || isDirectorPlus) {
-    const staleProjects = await prisma.project.findMany({
+    const staleProjects = await prisma.engagement.findMany({
       where: {
         status: "ACTIVE",
         ...(isEM ? { engagementManagerId: userId } : {}),
@@ -256,7 +256,7 @@ export async function getDashboardInsights(
   // ─── 8. Pipeline transparency (Consultant) ───────────────────────────────
 
   if (isConsultant && isDirectorPlus === false) {
-    const newProjectsThisMonth = await prisma.project.count({
+    const newProjectsThisMonth = await prisma.engagement.count({
       where: { createdAt: { gte: new Date(now.getFullYear(), now.getMonth(), 1) } },
     });
 
@@ -281,14 +281,14 @@ export async function getDashboardInsights(
 
     const assignments = await prisma.assignment.findMany({
       where: { consultantId: userId },
-      include: { project: { select: { serviceType: true } } },
+      include: { engagement: { select: { serviceType: true } } },
     });
 
     if (assignments.length >= 3 && profile) {
       // Find dominant service type
       const typeCounts: Record<string, number> = {};
       for (const a of assignments) {
-        typeCounts[a.project.serviceType] = (typeCounts[a.project.serviceType] || 0) + 1;
+        typeCounts[a.engagement.serviceType] = (typeCounts[a.engagement.serviceType] || 0) + 1;
       }
       const sorted = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]);
       const dominant = sorted[0];

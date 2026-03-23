@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
   let projectContext = "";
   if (projectId) {
     try {
-      const project = await prisma.project.findUnique({
+      const project = await prisma.engagement.findUnique({
         where: { id: projectId },
         select: { name: true },
       });

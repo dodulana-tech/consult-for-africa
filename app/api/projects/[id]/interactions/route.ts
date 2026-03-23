@@ -16,7 +16,7 @@ export async function GET(
   const { id } = await params;
 
   const interactions = await prisma.clientInteraction.findMany({
-    where: { projectId: id },
+    where: { engagementId: id },
     orderBy: { conductedAt: "desc" },
   });
 
@@ -40,7 +40,7 @@ export async function POST(
   const { id } = await params;
 
   // Verify project exists
-  const project = await prisma.project.findUnique({ where: { id }, select: { id: true } });
+  const project = await prisma.engagement.findUnique({ where: { id }, select: { id: true } });
   if (!project) return Response.json({ error: "Project not found" }, { status: 404 });
 
   const body = await req.json();
@@ -57,7 +57,7 @@ export async function POST(
 
   const interaction = await prisma.clientInteraction.create({
     data: {
-      projectId: id,
+      engagementId: id,
       type,
       summary: summary.trim(),
       sentiment: sentiment || "NEUTRAL",

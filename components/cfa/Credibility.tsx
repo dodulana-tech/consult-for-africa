@@ -20,7 +20,7 @@ const credentials = [
 ];
 
 export default async function Credibility() {
-  const activeEngagements = await prisma.project.count({
+  const activeEngagements = await prisma.engagement.count({
     where: { status: { in: ["ACTIVE", "AT_RISK"] } },
   });
 

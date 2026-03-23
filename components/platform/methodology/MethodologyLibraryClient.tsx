@@ -35,7 +35,7 @@ interface Methodology {
   serviceTypes: string[];
   estimatedWeeks: number;
   phases: Phase[];
-  _count: { projects: number };
+  _count: { engagements: number };
 }
 
 interface Framework {
@@ -104,9 +104,9 @@ function MethodologyCard({ m }: { m: Methodology }) {
               <span className="text-[10px] text-gray-400 flex items-center gap-1">
                 <Layers size={9} /> {m.phases.length} phases
               </span>
-              {m._count.projects > 0 && (
+              {m._count.engagements > 0 && (
                 <span className="text-[10px] text-gray-400 flex items-center gap-1">
-                  <Users size={9} /> used on {m._count.projects} project{m._count.projects !== 1 ? "s" : ""}
+                  <Users size={9} /> used on {m._count.engagements} project{m._count.engagements !== 1 ? "s" : ""}
                 </span>
               )}
             </div>

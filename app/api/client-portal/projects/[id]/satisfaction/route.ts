@@ -22,7 +22,7 @@ export async function GET(
   const period = getCurrentPeriod();
 
   // Verify project belongs to this client
-  const project = await prisma.project.findFirst({
+  const project = await prisma.engagement.findFirst({
     where: { id: projectId, clientId: session.clientId },
     select: { id: true },
   });
@@ -33,8 +33,8 @@ export async function GET(
 
   const pulse = await prisma.clientSatisfactionPulse.findUnique({
     where: {
-      projectId_contactId_period: {
-        projectId,
+      engagementId_contactId_period: {
+        engagementId: projectId,
         contactId: session.sub,
         period,
       },
@@ -68,7 +68,7 @@ export async function POST(
   const { id: projectId } = await params;
 
   // Verify project belongs to this client
-  const project = await prisma.project.findFirst({
+  const project = await prisma.engagement.findFirst({
     where: { id: projectId, clientId: session.clientId },
     select: { id: true },
   });
@@ -104,8 +104,8 @@ export async function POST(
   // Check for existing submission this month (unique constraint will also catch this)
   const existing = await prisma.clientSatisfactionPulse.findUnique({
     where: {
-      projectId_contactId_period: {
-        projectId,
+      engagementId_contactId_period: {
+        engagementId: projectId,
         contactId: session.sub,
         period,
       },
@@ -122,7 +122,7 @@ export async function POST(
 
   const pulse = await prisma.clientSatisfactionPulse.create({
     data: {
-      projectId,
+      engagementId: projectId,
       contactId: session.sub,
       score,
       feedback: feedback?.trim() || null,

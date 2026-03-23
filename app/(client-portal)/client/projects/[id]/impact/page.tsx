@@ -55,7 +55,7 @@ export default async function ClientImpactDashboardPage({
 
   const { id } = await params;
 
-  const project = await prisma.project.findUnique({
+  const project = await prisma.engagement.findUnique({
     where: { id },
     select: {
       id: true,
@@ -70,8 +70,8 @@ export default async function ClientImpactDashboardPage({
   if (!project) notFound();
   if (project.clientId !== session.clientId) redirect("/client/dashboard");
 
-  const metrics = await prisma.projectImpactMetric.findMany({
-    where: { projectId: id },
+  const metrics = await prisma.engagementImpactMetric.findMany({
+    where: { engagementId: id },
     orderBy: { updatedAt: "desc" },
   });
 

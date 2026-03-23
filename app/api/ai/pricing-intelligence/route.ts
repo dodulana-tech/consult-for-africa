@@ -50,7 +50,7 @@ export async function POST() {
           },
         },
       },
-      project: {
+      engagement: {
         select: {
           serviceType: true,
           budgetSensitivity: true,
@@ -71,7 +71,7 @@ export async function POST() {
         select: {
           rateType: true,
           rateAmount: true,
-          project: {
+          engagement: {
             select: {
               serviceType: true,
               budgetSensitivity: true,
@@ -91,7 +91,7 @@ export async function POST() {
   // Compute stats
   const deliverableStats: Record<string, { totalFee: number; count: number; tiers: Record<string, number> }> = {};
   for (const d of deliverables) {
-    const serviceType = d.project.serviceType;
+    const serviceType = d.engagement.serviceType;
     if (!deliverableStats[serviceType]) {
       deliverableStats[serviceType] = { totalFee: 0, count: 0, tiers: {} };
     }
@@ -114,7 +114,7 @@ export async function POST() {
 
   const clientTypeStats: Record<string, { totalSpend: number; count: number }> = {};
   for (const e of paidEntries) {
-    const clientType = e.assignment.project.client.type;
+    const clientType = e.assignment.engagement.client.type;
     if (!clientTypeStats[clientType]) {
       clientTypeStats[clientType] = { totalSpend: 0, count: 0 };
     }

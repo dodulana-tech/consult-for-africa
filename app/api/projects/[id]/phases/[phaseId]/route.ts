@@ -23,7 +23,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   if (status) {
     const VALID = ["PENDING", "ACTIVE", "COMPLETED", "SKIPPED"];
     if (!VALID.includes(status)) return new Response("Invalid status", { status: 400 });
-    const existing = await prisma.projectPhase.findUnique({ where: { id: phaseId }, select: { status: true } });
+    const existing = await prisma.engagementPhase.findUnique({ where: { id: phaseId }, select: { status: true } });
     oldStatus = existing?.status;
     updates.status = status;
     if (status === "COMPLETED") updates.completedAt = new Date();
@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
 
   if (Object.keys(updates).length === 0) return new Response("No valid fields", { status: 400 });
 
-  const phase = await prisma.projectPhase.update({
+  const phase = await prisma.engagementPhase.update({
     where: { id: phaseId },
     data: updates,
     select: {
@@ -60,7 +60,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     entityType: "Phase",
     entityId: phase.id,
     entityName: phase.name,
-    projectId,
+    engagementId: projectId,
     details: status ? { before: oldStatus, after: status } : undefined,
   });
 
@@ -85,8 +85,8 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
   if (!canManage) return new Response("Forbidden", { status: 403 });
 
   const { id: projectId, phaseId } = await params;
-  const phase = await prisma.projectPhase.findUnique({ where: { id: phaseId }, select: { name: true } });
-  await prisma.projectPhase.delete({ where: { id: phaseId } });
+  const phase = await prisma.engagementPhase.findUnique({ where: { id: phaseId }, select: { name: true } });
+  await prisma.engagementPhase.delete({ where: { id: phaseId } });
 
   await logAudit({
     userId: session.user.id,
@@ -94,7 +94,7 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
     entityType: "Phase",
     entityId: phaseId,
     entityName: phase?.name,
-    projectId,
+    engagementId: projectId,
   });
 
   return Response.json({ ok: true });

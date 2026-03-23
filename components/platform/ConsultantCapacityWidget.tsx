@@ -68,7 +68,7 @@ export default function ConsultantCapacityWidget({
               >
                 <div className="flex items-center gap-2">
                   <Briefcase size={11} className="text-gray-400" />
-                  <span className="text-gray-700 font-medium">{a.projectName}</span>
+                  <span className="text-gray-700 font-medium">{a.engagementName}</span>
                   <span className="text-gray-400">{a.role}</span>
                 </div>
                 <span className="font-semibold text-gray-600">{a.hoursPerWeek}h/wk</span>

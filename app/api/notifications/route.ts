@@ -17,10 +17,10 @@ export async function GET(req: NextRequest) {
     : { assignments: { some: { consultantId: userId } } };
 
   // Recent project updates (activity feed)
-  const updates = await prisma.projectUpdate.findMany({
-    where: { project: projectWhere },
+  const updates = await prisma.engagementUpdate.findMany({
+    where: { engagement: projectWhere },
     include: {
-      project: { select: { id: true, name: true } },
+      engagement: { select: { id: true, name: true } },
       createdBy: { select: { name: true } },
     },
     orderBy: { createdAt: "desc" },
@@ -30,21 +30,21 @@ export async function GET(req: NextRequest) {
   // Pending timesheets (EMs only)
   const pendingTimesheets = isEM || isElevated
     ? await prisma.timeEntry.count({
-        where: { assignment: { project: projectWhere }, status: "PENDING" },
+        where: { assignment: { engagement: projectWhere }, status: "PENDING" },
       })
     : 0;
 
   // Pending deliverable reviews (EMs only)
   const pendingReviews = isEM || isElevated
     ? await prisma.deliverable.count({
-        where: { project: projectWhere, status: { in: ["SUBMITTED", "IN_REVIEW"] } },
+        where: { engagement: projectWhere, status: { in: ["SUBMITTED", "IN_REVIEW"] } },
       })
     : 0;
 
   // Approved entries awaiting payment (EMs only)
   const awaitingPayment = isEM || isElevated
     ? await prisma.timeEntry.count({
-        where: { assignment: { project: projectWhere }, status: "APPROVED" },
+        where: { assignment: { engagement: projectWhere }, status: "APPROVED" },
       })
     : 0;
 
@@ -60,8 +60,8 @@ export async function GET(req: NextRequest) {
       id: u.id,
       content: u.content,
       type: u.type,
-      projectId: u.project.id,
-      projectName: u.project.name,
+      projectId: u.engagement.id,
+      projectName: u.engagement.name,
       createdByName: u.createdBy.name,
       createdAt: u.createdAt.toISOString(),
     })),

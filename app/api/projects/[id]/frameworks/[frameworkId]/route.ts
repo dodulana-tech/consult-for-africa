@@ -25,7 +25,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
 
   if (Object.keys(updates).length === 0) return new Response("No valid fields", { status: 400 });
 
-  const pf = await prisma.projectFramework.update({
+  const pf = await prisma.engagementFramework.update({
     where: { id: frameworkId },
     data: updates,
     include: {
@@ -46,7 +46,7 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
   if (!canDelete) return new Response("Forbidden", { status: 403 });
 
   const { frameworkId } = await params;
-  await prisma.projectFramework.delete({ where: { id: frameworkId } });
+  await prisma.engagementFramework.delete({ where: { id: frameworkId } });
 
   return Response.json({ ok: true });
 }

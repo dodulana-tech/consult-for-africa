@@ -31,8 +31,8 @@ export interface KnowledgeAsset {
   isReusable: boolean;
   fileUrl: string | null;
   authorId: string;
-  projectId: string | null;
-  project: { id: string; name: string } | null;
+  engagementId: string | null;
+  engagement: { id: string; name: string } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -485,14 +485,14 @@ export default function KnowledgeBase({
                   style={{ borderTop: "1px solid #F3F4F6" }}
                 >
                   <div className="flex items-center gap-3 text-[10px] text-gray-400">
-                    {asset.project && (
+                    {asset.engagement && (
                       <Link
-                        href={`/projects/${asset.project.id}`}
+                        href={`/projects/${asset.engagement.id}`}
                         className="hover:underline flex items-center gap-1"
                         style={{ color: "#3B82F6" }}
                       >
                         <ExternalLink size={9} />
-                        {asset.project.name}
+                        {asset.engagement.name}
                       </Link>
                     )}
                     <span>
@@ -569,8 +569,8 @@ export default function KnowledgeBase({
                     month: "long",
                     year: "numeric",
                   })}
-                  {viewAsset.project && (
-                    <> · {viewAsset.project.name}</>
+                  {viewAsset.engagement && (
+                    <> · {viewAsset.engagement.name}</>
                   )}
                 </p>
               </div>

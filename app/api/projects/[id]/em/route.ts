@@ -34,7 +34,7 @@ export async function PATCH(
     return new Response("User is not eligible to be an Engagement Manager", { status: 400 });
   }
 
-  const project = await prisma.project.update({
+  const project = await prisma.engagement.update({
     where: { id: projectId },
     data: { engagementManagerId },
     select: {

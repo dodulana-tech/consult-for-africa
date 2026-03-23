@@ -16,7 +16,7 @@ export async function POST(
 
   const deliverable = await prisma.deliverable.findUnique({
     where: { id },
-    select: { id: true, status: true, project: { select: { engagementManagerId: true } } },
+    select: { id: true, status: true, engagement: { select: { engagementManagerId: true } } },
   });
 
   if (!deliverable) return new Response("Not found", { status: 404 });
@@ -26,7 +26,7 @@ export async function POST(
 
   // EMs can only deliver on their own projects
   if (session.user.role === "ENGAGEMENT_MANAGER") {
-    if (deliverable.project.engagementManagerId !== session.user.id) {
+    if (deliverable.engagement.engagementManagerId !== session.user.id) {
       return new Response("Forbidden", { status: 403 });
     }
   }

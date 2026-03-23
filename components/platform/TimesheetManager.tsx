@@ -31,7 +31,7 @@ interface TimeEntry {
   periodMonth: number | null;
   periodYear: number | null;
   consultant: { id: string; name: string; email: string };
-  assignment: { project: { id: string; name: string }; rateAmount: number; rateType: string; rateCurrency: string };
+  assignment: { engagement: { id: string; name: string }; rateAmount: number; rateType: string; rateCurrency: string };
 }
 
 interface Assignment {
@@ -42,7 +42,7 @@ interface Assignment {
   rateCurrency: string;
   estimatedHours: number | null;
   estimatedDays: number | null;
-  project: { id: string; name: string };
+  engagement: { id: string; name: string };
 }
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -360,7 +360,7 @@ export default function TimesheetManager({
                           >
                             <div className="min-w-0">
                               <p className="text-gray-400 text-xs">
-                                {formatDate(new Date(e.date))} · {e.assignment.project.name}
+                                {formatDate(new Date(e.date))} · {e.assignment.engagement.name}
                                 <span className="ml-1 text-gray-300">({rateTypeLabel(e.assignment.rateType)})</span>
                               </p>
                               <p className="text-gray-700 mt-0.5">{e.description}</p>
@@ -437,7 +437,7 @@ export default function TimesheetManager({
               >
                 {myAssignments.map((a) => (
                   <option key={a.id} value={a.id}>
-                    {a.project.name} ({a.role}) - {rateTypeLabel(a.rateType)}
+                    {a.engagement.name} ({a.role}) - {rateTypeLabel(a.rateType)}
                   </option>
                 ))}
               </select>
@@ -608,7 +608,7 @@ export default function TimesheetManager({
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <StatusBadge status={e.status} />
-                      <span className="text-xs text-gray-400">{e.assignment.project.name}</span>
+                      <span className="text-xs text-gray-400">{e.assignment.engagement.name}</span>
                       <span className="text-xs text-gray-300">({rateTypeLabel(e.assignment.rateType)})</span>
                     </div>
                     <p className="text-sm text-gray-700">{e.description}</p>

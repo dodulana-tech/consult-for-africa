@@ -13,7 +13,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   // Verify caller has access to this project
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isElevated) {
-    const project = await prisma.project.findUnique({
+    const project = await prisma.engagement.findUnique({
       where: { id },
       select: { engagementManagerId: true, assignments: { select: { consultantId: true } } },
     });
@@ -24,9 +24,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (!hasAccess) return new Response("Forbidden", { status: 403 });
   }
 
-  const update = await prisma.projectUpdate.create({
+  const update = await prisma.engagementUpdate.create({
     data: {
-      projectId: id,
+      engagementId: id,
       content: content.trim(),
       type: type ?? "GENERAL",
       createdById: session.user.id,

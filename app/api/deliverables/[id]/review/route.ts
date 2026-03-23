@@ -18,10 +18,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (session.user.role === "ENGAGEMENT_MANAGER") {
     const deliverableCheck = await prisma.deliverable.findUnique({
       where: { id },
-      select: { project: { select: { engagementManagerId: true } } },
+      select: { engagement: { select: { engagementManagerId: true } } },
     });
     if (!deliverableCheck) return new Response("Not found", { status: 404 });
-    if (deliverableCheck.project.engagementManagerId !== session.user.id) {
+    if (deliverableCheck.engagement.engagementManagerId !== session.user.id) {
       return new Response("Forbidden", { status: 403 });
     }
   }
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       ...(action === "approve" ? { approvedAt: new Date() } : {}),
     },
     include: {
-      project: { select: { id: true, name: true } },
+      engagement: { select: { id: true, name: true } },
       assignment: {
         include: {
           consultant: { select: { id: true, name: true, email: true } },
@@ -83,9 +83,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     }
   }
 
-  await prisma.projectUpdate.create({
+  await prisma.engagementUpdate.create({
     data: {
-      projectId: deliverable.projectId,
+      engagementId: deliverable.engagementId,
       content:
         action === "approve"
           ? `Deliverable "${deliverable.name}" approved${overallScore ? ` (score: ${overallScore}/10)` : ""}.`
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         consultantEmail: consultant.email,
         consultantName: consultant.name,
         deliverableName: deliverable.name,
-        projectName: deliverable.project.name,
+        projectName: deliverable.engagement.name,
         reviewScore: overallScore,
         reviewNotes: notes ?? null,
         deliverableId: id,
@@ -113,7 +113,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         consultantEmail: consultant.email,
         consultantName: consultant.name,
         deliverableName: deliverable.name,
-        projectName: deliverable.project.name,
+        projectName: deliverable.engagement.name,
         reviewNotes: notes ?? null,
         deliverableId: id,
       });
@@ -126,7 +126,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     entityType: "Deliverable",
     entityId: deliverable.id,
     entityName: deliverable.name,
-    projectId: deliverable.projectId,
+    engagementId: deliverable.engagementId,
     details: { before: "SUBMITTED", after: newStatus },
   });
 

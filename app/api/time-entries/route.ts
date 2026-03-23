@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   const baseWhere = isElevated
     ? {}
     : isEM
-    ? { assignment: { project: { engagementManagerId: session.user.id } } }
+    ? { assignment: { engagement: { engagementManagerId: session.user.id } } }
     : { consultantId: session.user.id };
 
   const entries = await prisma.timeEntry.findMany({
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     include: {
       consultant: { select: { id: true, name: true, email: true } },
       assignment: {
-        include: { project: { select: { id: true, name: true } } },
+        include: { engagement: { select: { id: true, name: true } } },
       },
     },
     orderBy: { date: "desc" },

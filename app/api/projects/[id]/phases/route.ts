@@ -16,8 +16,8 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
     return new Response("Forbidden", { status: 403 });
   }
 
-  const phases = await prisma.projectPhase.findMany({
-    where: { projectId },
+  const phases = await prisma.engagementPhase.findMany({
+    where: { engagementId: projectId },
     orderBy: { order: "asc" },
     select: {
       id: true,
@@ -72,17 +72,17 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   // Auto-assign order if not provided
   let phaseOrder = Number(order);
   if (!phaseOrder) {
-    const last = await prisma.projectPhase.findFirst({
-      where: { projectId },
+    const last = await prisma.engagementPhase.findFirst({
+      where: { engagementId: projectId },
       orderBy: { order: "desc" },
       select: { order: true },
     });
     phaseOrder = (last?.order ?? 0) + 1;
   }
 
-  const phase = await prisma.projectPhase.create({
+  const phase = await prisma.engagementPhase.create({
     data: {
-      projectId,
+      engagementId: projectId,
       name: name.trim(),
       description: description?.trim() ?? null,
       order: phaseOrder,
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     entityType: "Phase",
     entityId: phase.id,
     entityName: phase.name,
-    projectId,
+    engagementId: projectId,
   });
 
   return Response.json({

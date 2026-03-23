@@ -110,7 +110,7 @@ export async function POST(
       descParts.push(`Suggested scope:\n${call.aiSuggestedScope}`);
     }
 
-    project = await prisma.project.create({
+    project = await prisma.engagement.create({
       data: {
         clientId: client.id,
         engagementManagerId: engagementManagerId || session.user.id,

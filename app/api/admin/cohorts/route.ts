@@ -16,7 +16,7 @@ export async function GET() {
       rotations: {
         include: {
           intern: { select: { id: true, name: true, email: true } },
-          project: { select: { id: true, name: true } },
+          engagement: { select: { id: true, name: true } },
           supervisor: { select: { id: true, name: true } },
           _count: { select: { evaluations: true } },
         },

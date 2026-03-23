@@ -35,7 +35,7 @@ export default async function KnowledgeLibraryPage({
   const searchQuery = params.q || "";
 
   // Fetch client's project IDs
-  const clientProjects = await prisma.project.findMany({
+  const clientProjects = await prisma.engagement.findMany({
     where: { clientId: session.clientId },
     select: { id: true },
   });
@@ -46,8 +46,8 @@ export default async function KnowledgeLibraryPage({
   const where: any = {
     clientVisible: true,
     OR: [
-      { projectId: null },
-      { projectId: { in: projectIds } },
+      { engagementId: null },
+      { engagementId: { in: projectIds } },
     ],
   };
 

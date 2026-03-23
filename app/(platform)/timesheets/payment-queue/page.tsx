@@ -20,7 +20,7 @@ export default async function PaymentQueuePage() {
       consultant: { select: { id: true, name: true, email: true } },
       assignment: {
         include: {
-          project: { select: { id: true, name: true } },
+          engagement: { select: { id: true, name: true } },
           consultant: {
             select: {
               consultantProfile: {
@@ -49,7 +49,7 @@ export default async function PaymentQueuePage() {
     consultant: e.consultant,
     assignment: {
       rateType: e.assignment.rateType,
-      project: e.assignment.project,
+      engagement: e.assignment.engagement,
       consultant: e.assignment.consultant,
     },
   }));

@@ -16,14 +16,14 @@ export async function GET(
   // Verify deliverable belongs to client's project
   const deliverable = await prisma.deliverable.findUnique({
     where: { id },
-    select: { project: { select: { clientId: true } } },
+    select: { engagement: { select: { clientId: true } } },
   });
 
   if (!deliverable) {
     return new Response("Not found", { status: 404 });
   }
 
-  if (deliverable.project.clientId !== session.clientId) {
+  if (deliverable.engagement.clientId !== session.clientId) {
     return new Response("Forbidden", { status: 403 });
   }
 
@@ -59,14 +59,14 @@ export async function POST(
   // Verify deliverable belongs to client's project
   const deliverable = await prisma.deliverable.findUnique({
     where: { id },
-    select: { project: { select: { clientId: true } } },
+    select: { engagement: { select: { clientId: true } } },
   });
 
   if (!deliverable) {
     return new Response("Not found", { status: 404 });
   }
 
-  if (deliverable.project.clientId !== session.clientId) {
+  if (deliverable.engagement.clientId !== session.clientId) {
     return new Response("Forbidden", { status: 403 });
   }
 

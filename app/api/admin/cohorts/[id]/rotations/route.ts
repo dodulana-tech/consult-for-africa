@@ -23,7 +23,7 @@ export async function POST(
     data: {
       cohortId: id,
       internId,
-      projectId: projectId || null,
+      engagementId: projectId || null,
       supervisorId: supervisorId || null,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
@@ -31,7 +31,7 @@ export async function POST(
     },
     include: {
       intern: { select: { name: true } },
-      project: { select: { name: true } },
+      engagement: { select: { name: true } },
       supervisor: { select: { name: true } },
     },
   });

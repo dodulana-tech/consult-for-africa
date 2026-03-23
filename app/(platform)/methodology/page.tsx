@@ -20,7 +20,7 @@ export default async function MethodologyPage() {
         category: true,
         serviceTypes: true,
         estimatedWeeks: true,
-        _count: { select: { projects: true } },
+        _count: { select: { engagements: true } },
         phases: {
           orderBy: { order: "asc" },
           select: {

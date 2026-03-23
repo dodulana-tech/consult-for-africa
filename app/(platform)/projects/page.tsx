@@ -25,7 +25,7 @@ export default async function ProjectsPage() {
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
   const isConsultant = role === "CONSULTANT";
 
-  const projects = await prisma.project.findMany({
+  const projects = await prisma.engagement.findMany({
     where: isElevated
       ? {}
       : isEM

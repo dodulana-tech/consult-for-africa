@@ -19,7 +19,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const deliverable = await prisma.deliverable.create({
     data: {
-      projectId,
+      engagementId: projectId,
       name: body.name.trim(),
       description: body.description?.trim() || "",
       milestoneId: body.milestoneId || null,
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     entityType: "Deliverable",
     entityId: deliverable.id,
     entityName: deliverable.name,
-    projectId,
+    engagementId: projectId,
   });
 
   return Response.json({

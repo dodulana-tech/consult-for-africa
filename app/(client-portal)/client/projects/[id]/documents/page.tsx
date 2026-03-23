@@ -51,7 +51,7 @@ export default async function DocumentsPage({
 
   const { id } = await params;
 
-  const project = await prisma.project.findUnique({
+  const project = await prisma.engagement.findUnique({
     where: { id },
     select: { id: true, name: true, clientId: true },
   });
@@ -65,7 +65,7 @@ export default async function DocumentsPage({
   // Fetch deliverables visible to client
   const deliverables = await prisma.deliverable.findMany({
     where: {
-      projectId: id,
+      engagementId: id,
       OR: [
         { clientVisible: true },
         { status: { in: ["APPROVED", "DELIVERED_TO_CLIENT"] } },

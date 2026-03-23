@@ -49,7 +49,7 @@ interface Props {
     skillsRequired: string[];
     status: string;
     urgency: string;
-    project: { id: string; name: string; client: { name: string } };
+    engagement: { id: string; name: string; client: { name: string } };
     createdBy: { name: string };
     createdAt: string;
   }>;
@@ -470,10 +470,10 @@ function StaffingTab({ staffingRequests, isElevated }: { staffingRequests: Props
                   <Badge status={sr.urgency} />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  <Link href={`/projects/${sr.project.id}`} className="hover:underline" onClick={(e) => e.stopPropagation()}>
-                    {sr.project.name}
+                  <Link href={`/projects/${sr.engagement.id}`} className="hover:underline" onClick={(e) => e.stopPropagation()}>
+                    {sr.engagement.name}
                   </Link>
-                  {" | "}{sr.project.client.name}
+                  {" | "}{sr.engagement.client.name}
                 </p>
                 <div className="flex flex-wrap gap-1 mt-2">
                   {(sr.skillsRequired ?? []).slice(0, 4).map((s, i) => (

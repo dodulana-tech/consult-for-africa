@@ -13,7 +13,7 @@ export default async function DeliverableSubmitPage({ params }: { params: Promis
   const deliverable = await prisma.deliverable.findUnique({
     where: { id },
     include: {
-      project: { select: { id: true, name: true } },
+      engagement: { select: { id: true, name: true } },
       assignment: {
         include: { consultant: { select: { id: true, name: true } } },
       },
@@ -43,7 +43,7 @@ export default async function DeliverableSubmitPage({ params }: { params: Promis
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
-      <TopBar title="Submit Deliverable" subtitle={deliverable.project.name} />
+      <TopBar title="Submit Deliverable" subtitle={deliverable.engagement.name} />
       <DeliverableSubmit deliverable={serialized} userId={session.user.id} />
     </div>
   );

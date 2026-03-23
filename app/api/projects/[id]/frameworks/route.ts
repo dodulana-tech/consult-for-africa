@@ -19,8 +19,8 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
     return new Response("Forbidden", { status: 403 });
   }
 
-  const frameworks = await prisma.projectFramework.findMany({
-    where: { projectId },
+  const frameworks = await prisma.engagementFramework.findMany({
+    where: { engagementId: projectId },
     include: {
       framework: {
         select: { id: true, name: true, slug: true, description: true, category: true, dimensions: true },
@@ -45,8 +45,8 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   if (!frameworkId) return new Response("frameworkId required", { status: 400 });
 
   // Check if already exists
-  const existing = await prisma.projectFramework.findUnique({
-    where: { projectId_frameworkId: { projectId, frameworkId } },
+  const existing = await prisma.engagementFramework.findUnique({
+    where: { engagementId_frameworkId: { engagementId: projectId, frameworkId } },
   });
   if (existing) return new Response("Framework already added to this project", { status: 409 });
 
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   let aiGenerated = false;
 
   if (generateWithAI) {
-    const project = await prisma.project.findUnique({
+    const project = await prisma.engagement.findUnique({
       where: { id: projectId },
       select: {
         name: true,
@@ -119,9 +119,9 @@ Example format:
     finalContent = content;
   }
 
-  const projectFramework = await prisma.projectFramework.create({
+  const projectFramework = await prisma.engagementFramework.create({
     data: {
-      projectId,
+      engagementId: projectId,
       frameworkId,
       content: finalContent,
       aiGenerated,
@@ -141,7 +141,7 @@ Example format:
     entityType: "ProjectFramework",
     entityId: projectFramework.id,
     entityName: projectFramework.framework.name,
-    projectId,
+    engagementId: projectId,
     details: { aiGenerated },
   });
 

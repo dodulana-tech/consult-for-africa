@@ -21,7 +21,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     where: { id },
     include: {
       assignment: { include: { consultant: { select: { name: true } } } },
-      project: { select: { id: true, name: true } },
+      engagement: { select: { id: true, name: true } },
     },
   });
 
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return Response.json({ error: "Assignment not found" }, { status: 404 });
   }
 
-  if (newAssignment.projectId !== deliverable.projectId) {
+  if (newAssignment.engagementId !== deliverable.engagementId) {
     return Response.json({ error: "Assignment must belong to the same project" }, { status: 400 });
   }
 
@@ -69,9 +69,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   });
 
   // Create a project update for audit trail
-  await prisma.projectUpdate.create({
+  await prisma.engagementUpdate.create({
     data: {
-      projectId: deliverable.projectId,
+      engagementId: deliverable.engagementId,
       createdById: session.user.id,
       type: "TEAM_CHANGE",
       content: `Deliverable "${deliverable.name}" reassigned from ${previousConsultant} to ${newAssignment.consultant.name}.${reason ? ` Reason: ${reason}` : ""}`,
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     entityType: "Deliverable",
     entityId: deliverable.id,
     entityName: `${deliverable.name} (reassigned)`,
-    projectId: deliverable.projectId,
+    engagementId: deliverable.engagementId,
   });
 
   return Response.json({

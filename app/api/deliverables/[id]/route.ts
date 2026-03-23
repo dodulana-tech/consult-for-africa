@@ -16,12 +16,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   // Verify deliverable exists and user has project access
   const existing = await prisma.deliverable.findUnique({
     where: { id },
-    select: { projectId: true, project: { select: { engagementManagerId: true } } },
+    select: { engagementId: true, engagement: { select: { engagementManagerId: true } } },
   });
   if (!existing) return new Response("Deliverable not found", { status: 404 });
 
   // EMs can only edit deliverables on their projects
-  if (session.user.role === "ENGAGEMENT_MANAGER" && existing.project.engagementManagerId !== session.user.id) {
+  if (session.user.role === "ENGAGEMENT_MANAGER" && existing.engagement.engagementManagerId !== session.user.id) {
     return new Response("Forbidden", { status: 403 });
   }
 
@@ -49,7 +49,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     entityType: "Deliverable",
     entityId: deliverable.id,
     entityName: deliverable.name,
-    projectId: deliverable.projectId,
+    engagementId: deliverable.engagementId,
   });
 
   return Response.json({
@@ -76,7 +76,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
 
   const deliverable = await prisma.deliverable.findUnique({
     where: { id },
-    select: { name: true, projectId: true },
+    select: { name: true, engagementId: true },
   });
   if (!deliverable) return new Response("Deliverable not found", { status: 404 });
 
@@ -88,7 +88,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     entityType: "Deliverable",
     entityId: id,
     entityName: deliverable.name,
-    projectId: deliverable.projectId,
+    engagementId: deliverable.engagementId,
   });
 
   return Response.json({ ok: true });

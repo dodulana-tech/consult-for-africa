@@ -26,20 +26,20 @@ export async function POST(req: NextRequest) {
       prisma.assignment.findMany({
         where: { consultantId: userId, status: { in: ["ACTIVE", "PENDING"] } },
         include: {
-          project: {
+          engagement: {
             select: { name: true, status: true, startDate: true, endDate: true, client: { select: { name: true } } },
           },
         },
       }),
       prisma.deliverable.findMany({
         where: { assignment: { consultantId: userId } },
-        select: { name: true, status: true, version: true, dueDate: true, submittedAt: true, reviewScore: true, reviewNotes: true, project: { select: { name: true } } },
+        select: { name: true, status: true, version: true, dueDate: true, submittedAt: true, reviewScore: true, reviewNotes: true, engagement: { select: { name: true } } },
         orderBy: { createdAt: "desc" },
         take: 20,
       }),
       prisma.timeEntry.findMany({
         where: { consultantId: userId },
-        select: { date: true, hours: true, status: true, description: true, assignment: { select: { project: { select: { name: true } } } } },
+        select: { date: true, hours: true, status: true, description: true, assignment: { select: { engagement: { select: { name: true } } } } },
         orderBy: { date: "desc" },
         take: 30,
       }),
@@ -50,16 +50,16 @@ export async function POST(req: NextRequest) {
     ]);
 
     const assignmentSummaries = myAssignments.map((a) => ({
-      project: a.project.name,
-      client: a.project.client.name,
+      project: a.engagement.name,
+      client: a.engagement.client.name,
       role: a.role,
-      status: a.project.status,
-      endDate: a.project.endDate.toISOString().split("T")[0],
+      status: a.engagement.status,
+      endDate: a.engagement.endDate.toISOString().split("T")[0],
     }));
 
     const deliverableSummaries = myDeliverables.map((d) => ({
       name: d.name,
-      project: d.project.name,
+      project: d.engagement.name,
       status: d.status,
       version: d.version,
       dueDate: d.dueDate?.toISOString().split("T")[0] ?? null,
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
       date: t.date.toISOString().split("T")[0],
       hours: Number(t.hours),
       status: t.status,
-      project: t.assignment.project.name,
+      project: t.assignment.engagement.name,
     }));
 
     context = `YOUR DATA SNAPSHOT (${new Date().toLocaleDateString()}):
@@ -96,7 +96,7 @@ USER CONTEXT:
 
     // Fetch platform snapshot
     const [projects, consultants, clients, deliverables, timesheets] = await Promise.all([
-      prisma.project.findMany({
+      prisma.engagement.findMany({
         where: projectWhere,
         select: {
           id: true, name: true, status: true, riskLevel: true, healthScore: true,
@@ -124,7 +124,7 @@ USER CONTEXT:
         ? prisma.client.findMany({
             select: {
               name: true, type: true, status: true,
-              _count: { select: { projects: true, invoices: true } },
+              _count: { select: { engagements: true, invoices: true } },
             },
             take: 20,
           })

@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   const deliverable = await prisma.deliverable.findUnique({
     where: { id: deliverableId },
     include: {
-      project: {
+      engagement: {
         select: {
           name: true, serviceType: true, description: true,
           client: { select: { name: true, type: true } },
@@ -44,9 +44,9 @@ export async function POST(req: NextRequest) {
 
   const prompt = `You are an expert management consulting reviewer at Consult For Africa. Evaluate this deliverable submission.
 
-PROJECT: ${deliverable.project.name} (${deliverable.project.serviceType.replace(/_/g, " ")})
-CLIENT: ${deliverable.project.client.name} (${deliverable.project.client.type.replace(/_/g, " ")})
-PROJECT CONTEXT: ${deliverable.project.description}
+PROJECT: ${deliverable.engagement.name} (${deliverable.engagement.serviceType.replace(/_/g, " ")})
+CLIENT: ${deliverable.engagement.client.name} (${deliverable.engagement.client.type.replace(/_/g, " ")})
+PROJECT CONTEXT: ${deliverable.engagement.description}
 
 DELIVERABLE NAME: ${deliverable.name}
 DELIVERABLE DESCRIPTION: ${deliverable.description}

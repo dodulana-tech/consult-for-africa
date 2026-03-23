@@ -25,7 +25,7 @@ export async function GET() {
   const requests = await prisma.staffingRequest.findMany({
     where,
     include: {
-      project: { select: { id: true, name: true, serviceType: true, client: { select: { name: true } } } },
+      engagement: { select: { id: true, name: true, serviceType: true, client: { select: { name: true } } } },
       createdBy: { select: { name: true } },
       expressions: isConsultant
         ? { where: { consultantId: session.user.id } }
@@ -38,10 +38,10 @@ export async function GET() {
   return Response.json(
     requests.map((r) => ({
       id: r.id,
-      projectId: r.project.id,
-      projectName: r.project.name,
-      clientName: r.project.client.name,
-      serviceType: r.project.serviceType,
+      projectId: r.engagement.id,
+      projectName: r.engagement.name,
+      clientName: r.engagement.client.name,
+      serviceType: r.engagement.serviceType,
       createdBy: r.createdBy.name,
       role: r.role,
       description: r.description,
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
 
   const request = await prisma.staffingRequest.create({
     data: {
-      projectId,
+      engagementId: projectId,
       createdById: session.user.id,
       role: role.trim(),
       description: description.trim(),
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
     entityType: "StaffingRequest",
     entityId: request.id,
     entityName: `${role.trim()} for project`,
-    projectId,
+    engagementId: projectId,
   });
 
   return Response.json({ ok: true, request }, { status: 201 });

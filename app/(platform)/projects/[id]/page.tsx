@@ -10,7 +10,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
   const { id } = await params;
 
-  const project = await prisma.project.findUnique({
+  const project = await prisma.engagement.findUnique({
     where: { id },
     include: {
       client: true,

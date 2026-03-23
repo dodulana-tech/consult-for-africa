@@ -16,7 +16,7 @@ export async function GET(
   const deliverable = await prisma.deliverable.findUnique({
     where: { id },
     include: {
-      project: { select: { id: true, name: true, clientId: true } },
+      engagement: { select: { id: true, name: true, clientId: true } },
       versions: {
         orderBy: { versionNumber: "desc" },
         select: {
@@ -49,7 +49,7 @@ export async function GET(
   }
 
   // Verify ownership: the deliverable's project must belong to the client
-  if (deliverable.project.clientId !== session.clientId) {
+  if (deliverable.engagement.clientId !== session.clientId) {
     return new Response("Forbidden", { status: 403 });
   }
 
@@ -65,7 +65,7 @@ export async function GET(
     version: deliverable.version,
     createdAt: deliverable.createdAt,
     updatedAt: deliverable.updatedAt,
-    project: deliverable.project,
+    project: deliverable.engagement,
     versions: deliverable.versions,
     comments: deliverable.comments,
   });

@@ -18,19 +18,19 @@ export async function GET(req: NextRequest) {
 
   const where: Record<string, unknown> = {};
   if (clientId) where.clientId = clientId;
-  if (projectId) where.projectId = projectId;
+  if (projectId) where.engagementId = projectId;
   if (status) where.status = status;
 
   // EMs can only see invoices for their projects
   if (isEM) {
-    where.project = { engagementManagerId: session.user.id };
+    where.engagement = { engagementManagerId: session.user.id };
   }
 
   const invoices = await prisma.invoice.findMany({
     where,
     include: {
       client: { select: { id: true, name: true } },
-      project: { select: { id: true, name: true } },
+      engagement: { select: { id: true, name: true } },
     },
     orderBy: { createdAt: "desc" },
     take: 100,
@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
   const invoice = await prisma.invoice.create({
     data: {
       clientId,
-      projectId: projectId ?? null,
+      engagementId: projectId ?? null,
       invoiceNumber,
       subtotal,
       tax,
