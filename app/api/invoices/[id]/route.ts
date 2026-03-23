@@ -20,7 +20,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       select: { engagement: { select: { engagementManagerId: true } } },
     });
     if (!existing) return new Response("Not found", { status: 404 });
-    if (existing.engagement?.engagementManagerId !== session.user.id) {
+    if (!existing.engagement || existing.engagement.engagementManagerId !== session.user.id) {
       return new Response("Forbidden", { status: 403 });
     }
   }

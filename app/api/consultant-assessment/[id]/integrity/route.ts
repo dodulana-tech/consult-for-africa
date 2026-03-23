@@ -51,7 +51,12 @@ export async function POST(
   if (typeof largePasteCount === "number") newFlags.largePasteCount = largePasteCount;
   if (typingPatterns) newFlags.typingPatterns = typingPatterns;
   if (typeof suspiciousGaps === "number") newFlags.suspiciousGaps = suspiciousGaps;
-  if (suspiciousFlags && typeof suspiciousFlags === "object") Object.assign(newFlags, suspiciousFlags);
+  if (suspiciousFlags && typeof suspiciousFlags === "object") {
+    const allowed = ["rapidSubmission", "consistentTiming", "copyPasteRatio", "focusLoss", "browserInfo"];
+    for (const key of allowed) {
+      if (key in suspiciousFlags) newFlags[key] = suspiciousFlags[key];
+    }
+  }
   newFlags.lastUpdated = new Date().toISOString();
   data.suspiciousFlags = newFlags;
 

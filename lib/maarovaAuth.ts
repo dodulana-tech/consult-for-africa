@@ -2,7 +2,11 @@ import crypto from "crypto";
 import { cookies } from "next/headers";
 
 const SECRET = () => {
-  const s = process.env.MAAROVA_PORTAL_SECRET ?? "maarova-dev-secret";
+  const s = process.env.MAAROVA_PORTAL_SECRET;
+  if (!s) {
+    console.error("[maarovaAuth] MAAROVA_PORTAL_SECRET is not set. Authentication will fail.");
+    return "MISSING_SECRET_DO_NOT_USE";
+  }
   return s;
 };
 
