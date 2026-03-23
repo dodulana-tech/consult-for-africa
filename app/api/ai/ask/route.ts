@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       client: a.engagement.client.name,
       role: a.role,
       status: a.engagement.status,
-      endDate: a.engagement.endDate.toISOString().split("T")[0],
+      endDate: a.engagement.endDate?.toISOString().split("T")[0] ?? "ongoing",
     }));
 
     const deliverableSummaries = myDeliverables.map((d) => ({
@@ -148,7 +148,7 @@ USER CONTEXT:
       team: p.assignments.filter((a) => a.status === "ACTIVE").length,
       em: p.engagementManager.name,
       deliverables: p._count.deliverables,
-      endDate: p.endDate.toISOString().split("T")[0],
+      endDate: p.endDate?.toISOString().split("T")[0] ?? "ongoing",
     }));
 
     const consultantSummaries = consultants.map((c) => ({

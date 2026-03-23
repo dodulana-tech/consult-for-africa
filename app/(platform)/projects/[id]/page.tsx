@@ -64,13 +64,40 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   // Serialize Decimal fields
   const serialized = {
     ...project,
+    engagementType: project.engagementType as "PROJECT" | "RETAINER" | "SECONDMENT" | "FRACTIONAL" | "TRANSFORMATION" | "TRANSACTION",
     budgetAmount: Number(project.budgetAmount),
     actualSpent: Number(project.actualSpent),
     budgetCurrency: project.budgetCurrency as "NGN" | "USD",
     startDate: project.startDate.toISOString(),
-    endDate: project.endDate.toISOString(),
+    endDate: project.endDate?.toISOString() ?? new Date().toISOString(),
     createdAt: project.createdAt.toISOString(),
     updatedAt: project.updatedAt.toISOString(),
+    // RETAINER fields
+    retainerMonthlyFee: project.retainerMonthlyFee ? Number(project.retainerMonthlyFee) : null,
+    retainerHoursPool: project.retainerHoursPool,
+    retainerAutoRenew: project.retainerAutoRenew,
+    retainerNoticePeriodDays: project.retainerNoticePeriodDays,
+    // SECONDMENT fields
+    secondeeClientLineManager: project.secondeeClientLineManager,
+    secondeeRecallClauseDays: project.secondeeRecallClauseDays,
+    secondeeMonthlyFee: project.secondeeMonthlyFee ? Number(project.secondeeMonthlyFee) : null,
+    // FRACTIONAL fields
+    fractionalPlacedName: project.fractionalPlacedName,
+    fractionalRoleTitle: project.fractionalRoleTitle,
+    fractionalCommissionPct: project.fractionalCommissionPct ? Number(project.fractionalCommissionPct) : null,
+    fractionalArrangementFee: project.fractionalArrangementFee ? Number(project.fractionalArrangementFee) : null,
+    // TRANSFORMATION fields
+    transformEquityPct: project.transformEquityPct ? Number(project.transformEquityPct) : null,
+    transformDealStructure: project.transformDealStructure,
+    transformEntryValuation: project.transformEntryValuation ? Number(project.transformEntryValuation) : null,
+    transformBoardSeat: project.transformBoardSeat,
+    transformExitMonths: project.transformExitMonths,
+    // TRANSACTION fields
+    transactionMandateType: project.transactionMandateType,
+    transactionTargetCompany: project.transactionTargetCompany,
+    transactionDealSize: project.transactionDealSize ? Number(project.transactionDealSize) : null,
+    transactionSuccessFeePct: project.transactionSuccessFeePct ? Number(project.transactionSuccessFeePct) : null,
+    transactionCloseDate: project.transactionCloseDate?.toISOString() ?? null,
     assignments: project.assignments.map((a) => ({
       id: a.id,
       role: a.role,

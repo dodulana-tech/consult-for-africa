@@ -167,7 +167,7 @@ export async function POST(req: NextRequest) {
   // Compute duration from project dates if not provided
   const projDuration = durationWeeks ||
     Math.round(
-      (new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) /
+      ((project.endDate ? new Date(project.endDate).getTime() : (new Date(project.startDate).getTime() + 365 * 86400000)) - new Date(project.startDate).getTime()) /
         (7 * 24 * 60 * 60 * 1000)
     );
 

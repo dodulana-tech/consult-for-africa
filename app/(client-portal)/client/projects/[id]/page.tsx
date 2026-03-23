@@ -126,9 +126,10 @@ export default async function ClientProjectPage({
     PROJECT_STATUS_STYLES[project.status] ?? PROJECT_STATUS_STYLES.PLANNING;
 
   const startDate = new Date(project.startDate);
-  const endDate = new Date(project.endDate);
+  const endDate = project.endDate ? new Date(project.endDate) : null;
   const now = new Date();
-  const totalMs = endDate.getTime() - startDate.getTime();
+  const endMs = endDate?.getTime() ?? (startDate.getTime() + 365 * 86400000);
+  const totalMs = endMs - startDate.getTime();
   const elapsedMs = now.getTime() - startDate.getTime();
   const timeProgress =
     totalMs > 0
@@ -137,7 +138,7 @@ export default async function ClientProjectPage({
 
   const daysRemaining = Math.max(
     0,
-    Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    Math.ceil((endMs - now.getTime()) / (1000 * 60 * 60 * 24))
   );
 
   const phasesCompleted = project.phases.filter(
@@ -282,7 +283,7 @@ export default async function ClientProjectPage({
                 <div className="flex items-center justify-between mb-1.5 text-xs text-gray-500">
                   <span className="font-medium">Timeline</span>
                   <span>
-                    {formatDateShort(startDate)} to {formatDateShort(endDate)}
+                    {formatDateShort(startDate)} to {endDate ? formatDateShort(endDate) : "Ongoing"}
                   </span>
                 </div>
                 <div

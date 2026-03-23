@@ -33,7 +33,8 @@ export function formatCompactCurrency(amount: number, currency: "NGN" | "USD"): 
 
 // ─── Dates ────────────────────────────────────────────────────────────────────
 
-export function daysRemaining(endDate: Date): number {
+export function daysRemaining(endDate: Date | null): number {
+  if (!endDate) return 365;
   const now = new Date();
   const diff = endDate.getTime() - now.getTime();
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
@@ -70,7 +71,8 @@ export function budgetUtilization(spent: number, total: number): number {
   return Math.round((spent / total) * 100);
 }
 
-export function timelineProgress(start: Date, end: Date): number {
+export function timelineProgress(start: Date, end: Date | null): number {
+  if (!end) return 0;
   const now = new Date();
   const total = end.getTime() - start.getTime();
   const elapsed = now.getTime() - start.getTime();

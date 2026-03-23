@@ -49,8 +49,9 @@ export async function POST(req: NextRequest) {
   if (!project) return new Response("Project not found", { status: 404 });
 
   const now = new Date();
-  const daysUntilEnd = Math.round((new Date(project.endDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  const totalDays = Math.round((new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24));
+  const endTime = project.endDate ? new Date(project.endDate).getTime() : (new Date(project.startDate).getTime() + 365 * 86400000);
+  const daysUntilEnd = Math.round((endTime - now.getTime()) / (1000 * 60 * 60 * 24));
+  const totalDays = Math.round((endTime - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24));
   const pctComplete = Math.round(((totalDays - Math.max(0, daysUntilEnd)) / totalDays) * 100);
 
   const budgetSpentPct = Math.round((Number(project.actualSpent) / Number(project.budgetAmount)) * 100);

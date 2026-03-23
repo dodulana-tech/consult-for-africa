@@ -2,7 +2,9 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { emailEMChanged } from "@/lib/email";
+import { generateEngagementCode } from "@/lib/engagementCode";
 import { NextRequest } from "next/server";
+import { Decimal } from "@prisma/client/runtime/library";
 
 const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
 
@@ -22,7 +24,17 @@ export async function PATCH(
 
   const project = await prisma.engagement.findUnique({
     where: { id },
-    select: { id: true, name: true, engagementManagerId: true },
+    select: {
+      id: true,
+      name: true,
+      engagementManagerId: true,
+      engagementType: true,
+      status: true,
+      clientId: true,
+      budgetCurrency: true,
+      transactionDealSize: true,
+      transactionSuccessFeePct: true,
+    },
   });
 
   if (!project) return Response.json({ error: "Project not found" }, { status: 404 });
@@ -124,8 +136,66 @@ export async function PATCH(
   const updated = await prisma.engagement.update({
     where: { id },
     data: updateData,
-    select: { id: true, name: true, status: true, engagementManagerId: true },
+    select: {
+      id: true,
+      name: true,
+      status: true,
+      engagementManagerId: true,
+      engagementType: true,
+      transactionDealSize: true,
+      transactionSuccessFeePct: true,
+      transactionSuccessFeeAmount: true,
+      clientId: true,
+      budgetCurrency: true,
+    },
   });
+
+  // Transaction success fee calculation:
+  // When a TRANSACTION engagement is marked COMPLETED and deal size + fee pct are set,
+  // calculate the success fee and auto-create a DRAFT invoice.
+  let successFeeInvoice = null;
+  if (
+    updated.engagementType === "TRANSACTION" &&
+    updated.status === "COMPLETED" &&
+    project.status !== "COMPLETED" && // only on transition to COMPLETED
+    updated.transactionDealSize &&
+    updated.transactionSuccessFeePct
+  ) {
+    const dealSize = new Decimal(updated.transactionDealSize.toString());
+    const feePct = new Decimal(updated.transactionSuccessFeePct.toString());
+    const successFeeAmount = dealSize.mul(feePct).div(100);
+
+    // Store the calculated amount on the engagement
+    await prisma.engagement.update({
+      where: { id },
+      data: { transactionSuccessFeeAmount: successFeeAmount },
+    });
+
+    // Generate invoice number
+    const invoiceNumber = await generateEngagementCode();
+    // Replace CFA- prefix with INV- for invoice
+    const invNumber = invoiceNumber.replace("CFA-", "INV-SF-");
+
+    // Auto-create a DRAFT success fee invoice
+    successFeeInvoice = await prisma.invoice.create({
+      data: {
+        clientId: updated.clientId,
+        engagementId: id,
+        invoiceNumber: invNumber,
+        subtotal: successFeeAmount,
+        tax: 0,
+        total: successFeeAmount,
+        currency: updated.budgetCurrency,
+        status: "DRAFT",
+        lineItems: [
+          {
+            description: `Success fee: ${feePct.toString()}% of ${dealSize.toString()} deal size`,
+            amount: Number(successFeeAmount),
+          },
+        ],
+      },
+    });
+  }
 
   await logAudit({
     userId: session.user.id,
@@ -136,5 +206,8 @@ export async function PATCH(
     details: { fields: Object.keys(updateData) },
   });
 
-  return Response.json({ project: updated });
+  return Response.json({
+    project: updated,
+    ...(successFeeInvoice ? { successFeeInvoice } : {}),
+  });
 }

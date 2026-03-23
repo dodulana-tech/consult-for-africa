@@ -64,7 +64,21 @@ export async function POST(req: NextRequest) {
 
   const assignment = await prisma.assignment.findUnique({
     where: { id: assignmentId },
-    select: { id: true, rateAmount: true, rateType: true, rateCurrency: true, estimatedHours: true, estimatedDays: true },
+    select: {
+      id: true,
+      rateAmount: true,
+      rateType: true,
+      rateCurrency: true,
+      estimatedHours: true,
+      estimatedDays: true,
+      engagement: {
+        select: {
+          id: true,
+          engagementType: true,
+          retainerHoursPool: true,
+        },
+      },
+    },
   });
 
   if (!assignment) return new Response("Assignment not found", { status: 404 });
@@ -125,6 +139,42 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // Check for retainer overage: if this is a RETAINER engagement with an hours pool,
+  // check if total hours logged this month exceeds the pool allocation.
+  let overageWarning = false;
+  if (
+    assignment.engagement &&
+    assignment.engagement.engagementType === "RETAINER" &&
+    assignment.engagement.retainerHoursPool
+  ) {
+    const entryDate = new Date(date);
+    const monthStart = new Date(entryDate.getFullYear(), entryDate.getMonth(), 1);
+    const monthEnd = new Date(entryDate.getFullYear(), entryDate.getMonth() + 1, 1);
+
+    // Sum all hours logged for this engagement in the same month
+    const monthlyEntries = await prisma.timeEntry.findMany({
+      where: {
+        assignment: {
+          engagementId: assignment.engagement.id,
+        },
+        date: {
+          gte: monthStart,
+          lt: monthEnd,
+        },
+      },
+      select: { hours: true },
+    });
+
+    const totalHoursThisMonth = monthlyEntries.reduce(
+      (sum, e) => sum + Number(e.hours),
+      0,
+    );
+
+    if (totalHoursThisMonth > assignment.engagement.retainerHoursPool) {
+      overageWarning = true;
+    }
+  }
+
   return Response.json({
     ...entry,
     hours: Number(entry.hours),
@@ -133,5 +183,6 @@ export async function POST(req: NextRequest) {
     date: entry.date.toISOString(),
     createdAt: entry.createdAt.toISOString(),
     updatedAt: entry.updatedAt.toISOString(),
+    ...(overageWarning ? { overageWarning: true } : {}),
   });
 }

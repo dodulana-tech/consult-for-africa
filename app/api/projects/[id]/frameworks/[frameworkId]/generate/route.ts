@@ -52,7 +52,7 @@ PROJECT CONTEXT:
 - Client: ${project.client.name} (${project.client.type})
 - Status: ${project.status}
 - Budget: ${project.budgetCurrency} ${Number(project.budgetAmount).toLocaleString()}
-- Timeline: ${project.startDate.toISOString().slice(0, 10)} to ${project.endDate.toISOString().slice(0, 10)}
+- Timeline: ${project.startDate.toISOString().slice(0, 10)} to ${project.endDate?.toISOString().slice(0, 10) ?? "ongoing"}
 
 FRAMEWORK: ${pf.framework.name}
 DESCRIPTION: ${pf.framework.description}

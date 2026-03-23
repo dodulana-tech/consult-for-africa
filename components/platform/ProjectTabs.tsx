@@ -53,6 +53,30 @@ import {
 
 type Tab = "overview" | "team" | "deliverables" | "timeline" | "calls";
 
+type EngagementType = "PROJECT" | "RETAINER" | "SECONDMENT" | "FRACTIONAL" | "TRANSFORMATION" | "TRANSACTION";
+
+const ENGAGEMENT_TYPE_COLORS: Record<EngagementType, string> = {
+  PROJECT: "#3B82F6",
+  RETAINER: "#8B5CF6",
+  SECONDMENT: "#14B8A6",
+  FRACTIONAL: "#F97316",
+  TRANSFORMATION: "#22C55E",
+  TRANSACTION: "#EAB308",
+};
+
+const TABS_BY_TYPE: Record<EngagementType, Tab[]> = {
+  PROJECT: ["overview", "team", "deliverables", "timeline", "calls"],
+  RETAINER: ["overview", "team", "calls"],
+  SECONDMENT: ["overview", "team", "calls"],
+  FRACTIONAL: ["overview", "calls"],
+  TRANSFORMATION: ["overview", "team", "timeline", "calls"],
+  TRANSACTION: ["overview", "timeline", "calls"],
+};
+
+function getVisibleTabs(engagementType: EngagementType): Tab[] {
+  return TABS_BY_TYPE[engagementType] ?? TABS_BY_TYPE.PROJECT;
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ConsultantProfile {
@@ -171,6 +195,7 @@ interface Project {
   startDate: string;
   endDate: string;
   serviceType: string;
+  engagementType: EngagementType;
   notes: string | null;
   client: { name: string; primaryContact: string; email: string; phone: string };
   engagementManager: { id: string; name: string; email: string };
@@ -187,6 +212,32 @@ interface Project {
   consultantTierMax: string | null;
   internEligible: boolean;
   pricingNotes: string | null;
+  // RETAINER
+  retainerMonthlyFee: number | null;
+  retainerHoursPool: number | null;
+  retainerAutoRenew: boolean | null;
+  retainerNoticePeriodDays: number | null;
+  // SECONDMENT
+  secondeeClientLineManager: string | null;
+  secondeeRecallClauseDays: number | null;
+  secondeeMonthlyFee: number | null;
+  // FRACTIONAL
+  fractionalPlacedName: string | null;
+  fractionalRoleTitle: string | null;
+  fractionalCommissionPct: number | null;
+  fractionalArrangementFee: number | null;
+  // TRANSFORMATION
+  transformEquityPct: number | null;
+  transformDealStructure: string | null;
+  transformEntryValuation: number | null;
+  transformBoardSeat: boolean | null;
+  transformExitMonths: number | null;
+  // TRANSACTION
+  transactionMandateType: string | null;
+  transactionTargetCompany: string | null;
+  transactionDealSize: number | null;
+  transactionSuccessFeePct: number | null;
+  transactionCloseDate: string | null;
 }
 
 interface StaffingRequestItem {
@@ -233,13 +284,15 @@ export default function ProjectTabs({
   const [posting, startPosting] = useTransition();
   const [updateError, setUpdateError] = useState("");
 
-  const tabs: { key: Tab; label: string; icon: typeof LayoutGrid }[] = [
+  const allTabs: { key: Tab; label: string; icon: typeof LayoutGrid }[] = [
     { key: "overview", label: "Overview", icon: LayoutGrid },
     { key: "team", label: "Team", icon: Users },
     { key: "deliverables", label: "Deliverables", icon: FileCheck },
     { key: "timeline", label: "Timeline", icon: Flag },
     { key: "calls", label: "Calls", icon: Phone },
   ];
+  const visibleKeys = getVisibleTabs(project.engagementType);
+  const tabs = allTabs.filter((t) => visibleKeys.includes(t.key));
 
   const budgetPct = budgetUtilization(project.actualSpent, project.budgetAmount);
   const days = daysRemaining(new Date(project.endDate));
@@ -446,6 +499,15 @@ function OverviewTab({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
             <StatusBadge status={project.status} />
+            <span
+              className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+              style={{
+                background: ENGAGEMENT_TYPE_COLORS[project.engagementType] + "18",
+                color: ENGAGEMENT_TYPE_COLORS[project.engagementType],
+              }}
+            >
+              {project.engagementType.replace(/_/g, " ")}
+            </span>
             <StatusBadge status={project.riskLevel} />
             <span className="text-xs text-gray-400">{project.serviceType.replace(/_/g, " ")}</span>
             <span className="text-xs text-gray-300">|</span>
@@ -664,6 +726,261 @@ function OverviewTab({
           )}
         </div>
       </div>
+
+      {/* Type-specific panels */}
+      {project.engagementType === "RETAINER" && (
+        <div
+          className="rounded-xl p-5"
+          style={{ background: "#fff", border: "1px solid #e5eaf0", borderLeft: "4px solid #8B5CF6" }}
+        >
+          <h3 className="text-sm font-semibold text-gray-900 mb-4">Retainer Details</h3>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Monthly Fee</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.retainerMonthlyFee != null
+                  ? formatCurrency(project.retainerMonthlyFee, project.budgetCurrency)
+                  : "Not set"}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Hours Pool</span>
+              <div className="mt-0.5">
+                <p className="text-sm font-semibold text-gray-900">
+                  {project.retainerHoursPool != null ? `${project.retainerHoursPool} hrs/month` : "Not set"}
+                </p>
+                {project.retainerHoursPool != null && (() => {
+                  const consumed = project.assignments.reduce(
+                    (sum, a) => sum + a.timeEntries.reduce((s, t) => s + t.hours, 0), 0
+                  );
+                  const pct = Math.min(100, Math.round((consumed / project.retainerHoursPool) * 100));
+                  return (
+                    <div className="mt-1.5">
+                      <div className="flex items-center justify-between text-[10px] text-gray-400 mb-0.5">
+                        <span>{consumed.toFixed(1)} consumed</span>
+                        <span>{pct}%</span>
+                      </div>
+                      <div className="h-1.5 rounded-full" style={{ background: "#F3F4F6" }}>
+                        <div
+                          className="h-1.5 rounded-full transition-all"
+                          style={{
+                            width: `${pct}%`,
+                            background: pct > 90 ? "#EF4444" : pct > 75 ? "#F59E0B" : "#8B5CF6",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Auto-Renew</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.retainerAutoRenew != null ? (project.retainerAutoRenew ? "Yes" : "No") : "Not set"}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Notice Period</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.retainerNoticePeriodDays != null ? `${project.retainerNoticePeriodDays} days` : "Not set"}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {project.engagementType === "SECONDMENT" && (
+        <div
+          className="rounded-xl p-5"
+          style={{ background: "#fff", border: "1px solid #e5eaf0", borderLeft: "4px solid #14B8A6" }}
+        >
+          <h3 className="text-sm font-semibold text-gray-900 mb-4">Secondment Details</h3>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Monthly Fee</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.secondeeMonthlyFee != null
+                  ? formatCurrency(project.secondeeMonthlyFee, project.budgetCurrency)
+                  : "Not set"}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Client Line Manager</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.secondeeClientLineManager ?? "Not set"}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Recall Clause</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.secondeeRecallClauseDays != null ? `${project.secondeeRecallClauseDays} days` : "Not set"}
+              </p>
+            </div>
+          </div>
+          <div
+            className="mt-4 flex items-center gap-2 text-xs px-3 py-2 rounded-lg"
+            style={{ background: "#14B8A618", color: "#0F766E" }}
+          >
+            <AlertTriangle size={13} />
+            Secondment recall can be initiated by CFA partner.
+          </div>
+        </div>
+      )}
+
+      {project.engagementType === "FRACTIONAL" && (
+        <div
+          className="rounded-xl p-5"
+          style={{ background: "#fff", border: "1px solid #e5eaf0", borderLeft: "4px solid #F97316" }}
+        >
+          <h3 className="text-sm font-semibold text-gray-900 mb-4">Fractional Placement</h3>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Placed Individual</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.fractionalPlacedName ?? "Not set"}
+              </p>
+              {project.fractionalRoleTitle && (
+                <p className="text-[10px] text-gray-400 mt-0.5">{project.fractionalRoleTitle}</p>
+              )}
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Commission</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.fractionalCommissionPct != null ? `${project.fractionalCommissionPct}%` : "Not set"}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Monthly Arrangement Fee</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.fractionalArrangementFee != null
+                  ? formatCurrency(project.fractionalArrangementFee, project.budgetCurrency)
+                  : "Not set"}
+              </p>
+            </div>
+          </div>
+          <div
+            className="mt-4 flex items-start gap-2 text-xs px-3 py-2 rounded-lg"
+            style={{ background: "#F9731618", color: "#C2410C" }}
+          >
+            <AlertCircle size={13} className="shrink-0 mt-0.5" />
+            Placed individual is not a CFA employee. Arrangement is broker-only.
+          </div>
+        </div>
+      )}
+
+      {project.engagementType === "TRANSFORMATION" && (
+        <div
+          className="rounded-xl p-5"
+          style={{ background: "#fff", border: "1px solid #e5eaf0", borderLeft: "4px solid #22C55E" }}
+        >
+          <h3 className="text-sm font-semibold text-gray-900 mb-4">Transformation Deal</h3>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Equity</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.transformEquityPct != null ? `${project.transformEquityPct}%` : "Not set"}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Deal Structure</span>
+              <p className="mt-0.5">
+                {project.transformDealStructure ? (
+                  <span
+                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                    style={{ background: "#22C55E18", color: "#22C55E" }}
+                  >
+                    {project.transformDealStructure}
+                  </span>
+                ) : (
+                  <span className="text-sm font-semibold text-gray-900">Not set</span>
+                )}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Entry Valuation</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.transformEntryValuation != null
+                  ? formatCurrency(project.transformEntryValuation, project.budgetCurrency)
+                  : "Not set"}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Board Seat</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.transformBoardSeat != null ? (project.transformBoardSeat ? "Yes" : "No") : "Not set"}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Exit Timeline</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.transformExitMonths != null ? (() => {
+                  const startDate = new Date(project.startDate);
+                  const exitDate = new Date(startDate);
+                  exitDate.setMonth(exitDate.getMonth() + project.transformExitMonths!);
+                  const now = new Date();
+                  const monthsRemaining = Math.max(0, Math.round((exitDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+                  return `${monthsRemaining} months remaining`;
+                })() : "Not set"}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {project.engagementType === "TRANSACTION" && (
+        <div
+          className="rounded-xl p-5"
+          style={{ background: "#fff", border: "1px solid #e5eaf0", borderLeft: "4px solid #EAB308" }}
+        >
+          <h3 className="text-sm font-semibold text-gray-900 mb-4">Transaction Advisory</h3>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Mandate Type</span>
+              <p className="mt-0.5">
+                {project.transactionMandateType ? (
+                  <span
+                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                    style={{ background: "#EAB30818", color: "#A16207" }}
+                  >
+                    {project.transactionMandateType.replace(/_/g, " ")}
+                  </span>
+                ) : (
+                  <span className="text-sm font-semibold text-gray-900">Not set</span>
+                )}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Target Company</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.transactionTargetCompany ?? "Not set"}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Deal Size Estimate</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.transactionDealSize != null
+                  ? formatCurrency(project.transactionDealSize, project.budgetCurrency)
+                  : "Not set"}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Success Fee</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.transactionSuccessFeePct != null ? `${project.transactionSuccessFeePct}%` : "Not set"}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wide">Close Date</span>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {project.transactionCloseDate
+                  ? formatDate(new Date(project.transactionCloseDate))
+                  : "Not set"}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

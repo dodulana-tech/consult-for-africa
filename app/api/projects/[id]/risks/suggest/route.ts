@@ -40,7 +40,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
   if (!project) return new Response("Not found", { status: 404 });
 
   const now = new Date();
-  const daysLeft = Math.round((project.endDate.getTime() - now.getTime()) / 86400000);
+  const daysLeft = project.endDate ? Math.round((project.endDate.getTime() - now.getTime()) / 86400000) : 365;
   const budgetPct = Number(project.budgetAmount) > 0
     ? Math.round((Number(project.actualSpent) / Number(project.budgetAmount)) * 100)
     : 0;

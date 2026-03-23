@@ -256,7 +256,7 @@ export default async function ClientExecutiveSummaryPage({
             <div>
               <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">Timeline</p>
               <p className="text-sm font-medium" style={{ color: "#0F2744" }}>
-                {formatDateShort(new Date(project.startDate))} to {formatDateShort(new Date(project.endDate))}
+                {formatDateShort(new Date(project.startDate))} to {project.endDate ? formatDateShort(new Date(project.endDate)) : "Ongoing"}
               </p>
             </div>
             <div>

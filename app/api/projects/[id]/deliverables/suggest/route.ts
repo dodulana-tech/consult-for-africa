@@ -37,7 +37,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
 
   const existingDeliverables = project.deliverables.map((d) => d.name);
   const durationWeeks = Math.round(
-    (project.endDate.getTime() - project.startDate.getTime()) / (7 * 86400000)
+    ((project.endDate?.getTime() ?? (project.startDate.getTime() + 365 * 86400000)) - project.startDate.getTime()) / (7 * 86400000)
   );
 
   const prompt = `You are Nuru, the AI consulting analyst at Consult For Africa. You design engagement deliverables for healthcare consulting projects.

@@ -72,6 +72,9 @@ ALTER TABLE "Project" ADD COLUMN IF NOT EXISTS "transactionUpfrontRetainer" DECI
 ALTER TABLE "Project" ADD COLUMN IF NOT EXISTS "transactionCloseDate" TIMESTAMP(3);
 ALTER TABLE "Project" ADD COLUMN IF NOT EXISTS "transactionSuccessFeeAmount" DECIMAL(14,2);
 
+-- Make endDate nullable (RETAINER engagements have no fixed end date)
+ALTER TABLE "Project" ALTER COLUMN "endDate" DROP NOT NULL;
+
 -- Index on engagement type
 CREATE INDEX IF NOT EXISTS "Project_engagementType_idx" ON "Project"("engagementType");
 

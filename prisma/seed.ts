@@ -383,6 +383,213 @@ async function main() {
     },
   });
 
+  // ─── Additional Clients for engagement type demos ────────────────────────
+
+  const africanCapital = await prisma.client.create({
+    data: {
+      name: "African Capital Alliance",
+      type: "DEVELOPMENT",
+      primaryContact: "Bola Adesola",
+      email: "bola@africancapital.ng",
+      phone: "+234 1 461 0000",
+      address: "Victoria Island, Lagos",
+      paymentTerms: 30,
+      currency: "NGN",
+      status: "ACTIVE",
+      creditScore: 5,
+      notes: "PE/fund client. Strong payer. Board advisory relationship.",
+    },
+  });
+
+  const mediTech = await prisma.client.create({
+    data: {
+      name: "MediTech Health Solutions",
+      type: "STARTUP",
+      primaryContact: "Yemi Adewale",
+      email: "yemi@meditechhealth.com",
+      phone: "+234 802 300 4444",
+      address: "Lekki Phase 1, Lagos",
+      paymentTerms: 30,
+      currency: "NGN",
+      status: "ACTIVE",
+      creditScore: 4,
+      notes: "Health tech startup. Series A stage. Fast-growing team.",
+    },
+  });
+
+  // ─── Engagement Type Demo Records (one per type) ────────────────────────
+
+  // 1. PROJECT - Operational Strategy Review
+  const existingProject = await prisma.engagement.findFirst({ where: { name: "Operational Strategy Review" } });
+  if (!existingProject) {
+    await prisma.engagement.create({
+      data: {
+        clientId: lagoon.id,
+        engagementManagerId: chidi.id,
+        name: "Operational Strategy Review",
+        description: "Comprehensive review of hospital operational strategy covering workforce planning, supply chain optimisation, and service line profitability analysis.",
+        serviceType: "HOSPITAL_OPERATIONS",
+        engagementType: "PROJECT",
+        engagementCode: "CFA-2026-001",
+        startDate: daysAgo(30),
+        endDate: daysFromNow(60),
+        status: "ACTIVE",
+        budgetAmount: 4500000,
+        budgetCurrency: "NGN",
+        actualSpent: 1200000,
+        healthScore: 4,
+        riskLevel: "LOW",
+        milestones: {
+          create: [
+            { name: "Diagnostic Assessment", description: "Current-state operational audit across all departments.", dueDate: daysAgo(10), status: "COMPLETED", completionDate: daysAgo(12), order: 1 },
+            { name: "Strategy Recommendations", description: "Detailed recommendations report with implementation roadmap.", dueDate: daysFromNow(20), status: "IN_PROGRESS", order: 2 },
+            { name: "Implementation Kick-off", description: "First wave of quick-win implementations and change management.", dueDate: daysFromNow(50), status: "PENDING", order: 3 },
+          ],
+        },
+      },
+    });
+  }
+
+  // 2. RETAINER - Board Advisory Retainer
+  const existingRetainer = await prisma.engagement.findFirst({ where: { name: "Board Advisory Retainer" } });
+  if (!existingRetainer) {
+    await prisma.engagement.create({
+      data: {
+        clientId: africanCapital.id,
+        engagementManagerId: chidi.id,
+        name: "Board Advisory Retainer",
+        description: "Ongoing board-level advisory on healthcare portfolio strategy, deal screening, and operational due diligence for healthcare investments across West Africa.",
+        serviceType: "HOSPITAL_OPERATIONS",
+        engagementType: "RETAINER",
+        engagementCode: "CFA-2026-002",
+        startDate: daysAgo(90),
+        endDate: daysFromNow(270),
+        status: "ACTIVE",
+        budgetAmount: 750000,
+        budgetCurrency: "NGN",
+        actualSpent: 2250000,
+        healthScore: 5,
+        riskLevel: "LOW",
+        retainerMonthlyFee: 750000,
+        retainerHoursPool: 15,
+        retainerAutoRenew: true,
+        retainerNoticePeriodDays: 30,
+      },
+    });
+  }
+
+  // 3. SECONDMENT - Interim COO Placement
+  const existingSecondment = await prisma.engagement.findFirst({ where: { name: "Interim COO Placement" } });
+  if (!existingSecondment) {
+    await prisma.engagement.create({
+      data: {
+        clientId: eko.id,
+        engagementManagerId: amara.id,
+        name: "Interim COO Placement",
+        description: "Placement of an experienced interim COO to stabilise hospital operations during leadership transition. Six-month term with option to extend.",
+        serviceType: "EMBEDDED_LEADERSHIP",
+        engagementType: "SECONDMENT",
+        engagementCode: "CFA-2026-003",
+        startDate: daysAgo(60),
+        endDate: daysFromNow(120),
+        status: "ACTIVE",
+        budgetAmount: 1200000,
+        budgetCurrency: "NGN",
+        actualSpent: 2400000,
+        healthScore: 4,
+        riskLevel: "MEDIUM",
+        secondeeClientLineManager: "Mr. Babatunde Ogun",
+        secondeeRecallClauseDays: 30,
+        secondeeMonthlyFee: 1200000,
+      },
+    });
+  }
+
+  // 4. FRACTIONAL - Fractional CMO
+  const existingFractional = await prisma.engagement.findFirst({ where: { name: "Fractional CMO" } });
+  if (!existingFractional) {
+    await prisma.engagement.create({
+      data: {
+        clientId: mediTech.id,
+        engagementManagerId: amara.id,
+        name: "Fractional CMO",
+        description: "Fractional Chief Marketing Officer placement for a health tech startup. Part-time strategic marketing leadership with commission-based incentive structure.",
+        serviceType: "EMBEDDED_LEADERSHIP",
+        engagementType: "FRACTIONAL",
+        engagementCode: "CFA-2026-004",
+        startDate: daysAgo(45),
+        endDate: daysFromNow(135),
+        status: "ACTIVE",
+        budgetAmount: 300000,
+        budgetCurrency: "NGN",
+        actualSpent: 450000,
+        healthScore: 4,
+        riskLevel: "LOW",
+        fractionalRoleTitle: "Chief Marketing Officer",
+        fractionalCommissionPct: 20,
+        fractionalArrangementFee: 300000,
+        fractionalConvertedToPermanent: false,
+      },
+    });
+  }
+
+  // 5. TRANSFORMATION - Hospital Turnaround Programme
+  const existingTransformation = await prisma.engagement.findFirst({ where: { name: "Hospital Turnaround Programme" } });
+  if (!existingTransformation) {
+    await prisma.engagement.create({
+      data: {
+        clientId: lagoon.id,
+        engagementManagerId: chidi.id,
+        name: "Hospital Turnaround Programme",
+        description: "Full hospital turnaround programme with equity participation. CFA takes operational control with board seat, targeting 3x revenue growth over 36 months.",
+        serviceType: "TURNAROUND",
+        engagementType: "TRANSFORMATION",
+        engagementCode: "CFA-2026-005",
+        startDate: daysAgo(15),
+        endDate: daysFromNow(720),
+        status: "PLANNING",
+        budgetAmount: 50000000,
+        budgetCurrency: "NGN",
+        actualSpent: 0,
+        healthScore: 5,
+        riskLevel: "MEDIUM",
+        transformEquityPct: 15,
+        transformDealStructure: "HYBRID",
+        transformBoardSeat: true,
+        transformStepInTrigger: 3,
+        transformExitMonths: 36,
+      },
+    });
+  }
+
+  // 6. TRANSACTION - Series A Fundraise Advisory
+  const existingTransaction = await prisma.engagement.findFirst({ where: { name: "Series A Fundraise Advisory" } });
+  if (!existingTransaction) {
+    await prisma.engagement.create({
+      data: {
+        clientId: mediTech.id,
+        engagementManagerId: chidi.id,
+        name: "Series A Fundraise Advisory",
+        description: "Advisory mandate for Series A fundraise targeting N500M. Includes investor identification, pitch preparation, data room management, and negotiation support.",
+        serviceType: "HOSPITAL_OPERATIONS",
+        engagementType: "TRANSACTION",
+        engagementCode: "CFA-2026-006",
+        startDate: daysAgo(30),
+        endDate: daysFromNow(150),
+        status: "ACTIVE",
+        budgetAmount: 500000000,
+        budgetCurrency: "NGN",
+        actualSpent: 500000,
+        healthScore: 4,
+        riskLevel: "LOW",
+        transactionMandateType: "FUNDRAISE",
+        transactionDealSize: 500000000,
+        transactionSuccessFeePct: 2,
+        transactionUpfrontRetainer: 500000,
+      },
+    });
+  }
+
   // ─── Assignments ──────────────────────────────────────────────────────────
 
   const lagoonAssign1 = await prisma.assignment.create({

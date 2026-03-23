@@ -338,7 +338,7 @@ model Engagement {
   serviceType    ServiceType
   engagementType EngagementType   @default(PROJECT)
   startDate      DateTime
-  endDate        DateTime
+  endDate        DateTime?
   status         EngagementStatus @default(PLANNING)
   budgetAmount   Decimal          @db.Decimal(14, 2)
   budgetCurrency Currency         @default(NGN)

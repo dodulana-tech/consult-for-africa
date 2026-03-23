@@ -19,7 +19,7 @@ interface ProjectCardProps {
     budgetCurrency: "NGN" | "USD";
     actualSpent: number;
     startDate: Date;
-    endDate: Date;
+    endDate: Date | null;
     serviceType: string;
     client: { name: string };
     engagementManager: { name: string };

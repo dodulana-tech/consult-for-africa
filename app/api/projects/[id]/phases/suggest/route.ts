@@ -34,7 +34,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
   if (!project) return new Response("Not found", { status: 404 });
 
   const durationWeeks = Math.round(
-    (project.endDate.getTime() - project.startDate.getTime()) / (7 * 86400000)
+    ((project.endDate?.getTime() ?? (project.startDate.getTime() + 365 * 86400000)) - project.startDate.getTime()) / (7 * 86400000)
   );
   const existingPhases = project.phases.map((p) => p.name);
 
@@ -45,7 +45,7 @@ PROJECT:
 - Service Type: ${project.serviceType.replace(/_/g, " ")}
 - Description: ${project.description}
 - Client: ${project.client.name} (${project.client.type})
-- Duration: ${durationWeeks} weeks (${project.startDate.toISOString().slice(0, 10)} to ${project.endDate.toISOString().slice(0, 10)})
+- Duration: ${durationWeeks} weeks (${project.startDate.toISOString().slice(0, 10)} to ${project.endDate?.toISOString().slice(0, 10) ?? "ongoing"})
 - Budget: ${project.budgetCurrency} ${Number(project.budgetAmount).toLocaleString()}
 - Methodology: ${project.methodology || "Not specified"}
 - Existing phases: ${existingPhases.length > 0 ? existingPhases.join(", ") : "None yet"}
