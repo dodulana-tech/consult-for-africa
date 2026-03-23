@@ -124,7 +124,7 @@ export default async function AdminPartnersPage() {
                             className="text-[10px] px-2 py-0.5 rounded-full font-medium"
                             style={statusStyle}
                           >
-                            {p.status}
+                            {p.status === "PROSPECT" ? "Prospect" : p.status === "ONBOARDING" ? "Onboarding" : p.status === "ACTIVE" ? "Active" : p.status === "INACTIVE" ? "Inactive" : p.status}
                           </span>
                           <span
                             className="text-[10px] px-2 py-0.5 rounded-full"

@@ -421,41 +421,6 @@ export async function emailPartnerPortalInvite({
   );
 }
 
-export async function emailClientWelcome({
-  contactEmail,
-  contactName,
-  clientName,
-}: {
-  contactEmail: string;
-  contactName: string;
-  clientName: string;
-}) {
-  const firstName = esc(contactName.split(" ")[0]);
-  const safeClientName = esc(clientName);
-
-  await send(
-    contactEmail,
-    `Welcome to Consult for Africa | ${clientName}`,
-    layout(`
-      ${h1(`Welcome, ${firstName}`)}
-      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-        <strong>${safeClientName}</strong> has been onboarded to the Consult for Africa engagement platform. We look forward to working together.
-      </p>
-      <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#6B7280;">
-        Your engagement manager will be in touch shortly to discuss next steps. In the meantime, you can expect:
-      </p>
-      <ul style="margin:0 0 20px;padding-left:20px;font-size:14px;line-height:1.8;color:#374151;">
-        <li>A dedicated engagement manager for your projects</li>
-        <li>Access to a client portal where you can track progress and deliverables</li>
-        <li>Regular updates on milestones and project health</li>
-      </ul>
-      <p style="margin:0 0 0;font-size:14px;line-height:1.6;color:#374151;">
-        If you have any questions, please reach out to us at <a href="mailto:hello@consultforafrica.com" style="color:#0F2744;font-weight:600;">hello@consultforafrica.com</a>.
-      </p>
-    `)
-  );
-}
-
 export async function emailContactAdded({
   contactEmail,
   contactName,

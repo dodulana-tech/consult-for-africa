@@ -79,6 +79,22 @@ export default async function PartnerDashboardPage() {
     orderBy: { createdAt: "desc" },
   });
 
+  const pastRequests = await prisma.partnerStaffingRequest.findMany({
+    where: {
+      partnerId: session.partnerId,
+      status: { in: ["COMPLETED", "CANCELLED"] },
+    },
+    select: {
+      id: true,
+      projectName: true,
+      requestCode: true,
+      status: true,
+      rolesNeeded: true,
+      createdAt: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
   const activeDeployments = await prisma.partnerDeployment.findMany({
     where: {
       request: { partnerId: session.partnerId },
@@ -97,6 +113,52 @@ export default async function PartnerDashboardPage() {
     orderBy: { createdAt: "desc" },
     take: 5,
   });
+
+  // Analytics: engagement history
+  const allRequests = await prisma.partnerStaffingRequest.findMany({
+    where: { partnerId: session.partnerId },
+    select: { id: true },
+  });
+
+  const allDeployments = await prisma.partnerDeployment.findMany({
+    where: {
+      request: { partnerId: session.partnerId },
+    },
+    select: {
+      id: true,
+      startDate: true,
+      endDate: true,
+      completedAt: true,
+      partnerRating: true,
+    },
+  });
+
+  const totalRequestsAllTime = allRequests.length;
+  const totalDeploymentsAllTime = allDeployments.length;
+
+  // Average deployment duration in weeks
+  let avgDurationWeeks = 0;
+  const durationsMs: number[] = [];
+  for (const dep of allDeployments) {
+    const start = dep.startDate;
+    const end = dep.completedAt || dep.endDate;
+    if (start && end) {
+      durationsMs.push(new Date(end).getTime() - new Date(start).getTime());
+    }
+  }
+  if (durationsMs.length > 0) {
+    const avgMs = durationsMs.reduce((a, b) => a + b, 0) / durationsMs.length;
+    avgDurationWeeks = Math.round(avgMs / (1000 * 60 * 60 * 24 * 7) * 10) / 10;
+  }
+
+  // Average rating given
+  const ratings = allDeployments
+    .map((d) => d.partnerRating)
+    .filter((r): r is number => r !== null);
+  const avgRating =
+    ratings.length > 0
+      ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10
+      : null;
 
   const pendingInvoices = recentInvoices.filter(
     (inv) => inv.status === "SENT" || inv.status === "OVERDUE"
@@ -303,6 +365,56 @@ export default async function PartnerDashboardPage() {
           </div>
         )}
 
+        {/* Past Requests */}
+        {pastRequests.length > 0 && (
+          <>
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h2 className="text-lg font-semibold" style={{ color: "#0F2744" }}>
+                  Past Requests
+                </h2>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {pastRequests.length} completed or cancelled request{pastRequests.length !== 1 ? "s" : ""}
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-2 mb-8">
+              {pastRequests.map((req) => {
+                const statusStyle =
+                  REQUEST_STATUS_STYLES[req.status] ?? REQUEST_STATUS_STYLES.SUBMITTED;
+                return (
+                  <div
+                    key={req.id}
+                    className="bg-white rounded-xl px-5 py-3"
+                    style={{ border: "1px solid #e5eaf0" }}
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 flex-wrap min-w-0">
+                        <p className="text-sm font-medium" style={{ color: "#0F2744" }}>
+                          {req.projectName}
+                        </p>
+                        <span
+                          className="text-[11px] px-2.5 py-0.5 rounded-full font-medium"
+                          style={{
+                            background: statusStyle.bg,
+                            color: statusStyle.color,
+                          }}
+                        >
+                          {statusStyle.label}
+                        </span>
+                        <span className="text-xs text-gray-400">{req.requestCode}</span>
+                      </div>
+                      <span className="text-xs text-gray-400 shrink-0">
+                        {req.rolesNeeded} consultant{req.rolesNeeded !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
         {/* Active Deployments */}
         <div className="mb-5">
           <h2 className="text-lg font-semibold" style={{ color: "#0F2744" }}>
@@ -368,6 +480,52 @@ export default async function PartnerDashboardPage() {
             ))}
           </div>
         )}
+
+        {/* Engagement History Analytics */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold mb-4" style={{ color: "#0F2744" }}>
+            Your Engagement History
+          </h2>
+          <div
+            className="bg-white rounded-2xl p-6"
+            style={{ border: "1px solid #e5eaf0" }}
+          >
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1">
+                  Total Requests
+                </p>
+                <p className="text-xl font-bold" style={{ color: "#0F2744" }}>
+                  {totalRequestsAllTime}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1">
+                  Consultants Deployed
+                </p>
+                <p className="text-xl font-bold" style={{ color: "#0F2744" }}>
+                  {totalDeploymentsAllTime}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1">
+                  Avg. Duration
+                </p>
+                <p className="text-xl font-bold" style={{ color: "#0F2744" }}>
+                  {avgDurationWeeks > 0 ? `${avgDurationWeeks} wks` : "N/A"}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-1">
+                  Avg. Rating Given
+                </p>
+                <p className="text-xl font-bold" style={{ color: "#0F2744" }}>
+                  {avgRating !== null ? `${avgRating}/5` : "N/A"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Recent Invoices */}
         {recentInvoices.length > 0 && (

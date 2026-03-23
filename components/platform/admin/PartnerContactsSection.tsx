@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Users, Shield, CheckCircle, Mail, Phone, Plus, X, Pencil } from "lucide-react";
+import { Users, Shield, CheckCircle, Mail, Phone, Plus, X, Pencil, Send } from "lucide-react";
+import EnablePartnerPortalModal from "./EnablePartnerPortalModal";
 
 interface Contact {
   id: string;
@@ -28,6 +29,13 @@ export default function PartnerContactsSection({ partnerId, contacts: initialCon
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
+  const [modalContact, setModalContact] = useState<Contact | null>(null);
+  const [enabledIds, setEnabledIds] = useState<Set<string>>(
+    new Set(initialContacts.filter((c) => c.isPortalEnabled).map((c) => c.id))
+  );
+  const [resending, setResending] = useState<string | null>(null);
+  const [resendSuccess, setResendSuccess] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   function startEdit(contact: Contact) {
     setEditingId(contact.id);
@@ -104,235 +112,314 @@ export default function PartnerContactsSection({ partnerId, contacts: initialCon
     }
   }
 
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-          <Users size={15} />
-          Contacts ({contacts.length})
-        </h2>
-        <button
-          onClick={() => { setShowForm((v) => !v); setEditingId(null); setForm(emptyForm); setFormError(""); }}
-          className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg"
-          style={{ background: showForm ? "#F3F4F6" : "#0F2744", color: showForm ? "#374151" : "#fff" }}
-        >
-          {showForm ? <X size={12} /> : <Plus size={12} />}
-          {showForm ? "Cancel" : "Add Contact"}
-        </button>
-      </div>
+  async function deleteContact(contact: Contact) {
+    if (!confirm(`Remove ${contact.name}?`)) return;
+    setDeleting(contact.id);
+    try {
+      const res = await fetch(`/api/admin/partners/${partnerId}/contacts`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contactId: contact.id }),
+      });
+      if (res.ok) {
+        setContacts((prev) => prev.filter((c) => c.id !== contact.id));
+      }
+    } catch {}
+    setDeleting(null);
+  }
 
-      {showForm && (
-        <div className="rounded-lg p-4 space-y-2 mb-3" style={{ background: "#F9FAFB", border: "1px solid #e5eaf0" }}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <input
-              value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              placeholder="Full name *"
-              className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
-              style={{ border: "1px solid #e5eaf0", background: "#fff" }}
-            />
-            <input
-              value={form.email}
-              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-              placeholder="Email *"
-              type="email"
-              className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
-              style={{ border: "1px solid #e5eaf0", background: "#fff" }}
-            />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <input
-              value={form.title}
-              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-              placeholder="Job title"
-              className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
-              style={{ border: "1px solid #e5eaf0", background: "#fff" }}
-            />
-            <input
-              value={form.phone}
-              onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-              placeholder="Phone"
-              className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
-              style={{ border: "1px solid #e5eaf0", background: "#fff" }}
-            />
-          </div>
-          <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.isPrimary}
-              onChange={(e) => setForm((f) => ({ ...f, isPrimary: e.target.checked }))}
-              className="rounded"
-            />
-            Set as primary contact
-          </label>
-          {formError && <p className="text-xs text-red-500">{formError}</p>}
+  async function resendInvite(contactId: string) {
+    setResending(contactId);
+    setResendSuccess(null);
+    try {
+      const res = await fetch("/api/partner-portal/resend-invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contactId }),
+      });
+      if (res.ok) {
+        setResendSuccess(contactId);
+        setEnabledIds((prev) => new Set([...prev, contactId]));
+        setTimeout(() => setResendSuccess(null), 3000);
+      }
+    } catch {}
+    setResending(null);
+  }
+
+  return (
+    <>
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+            <Users size={15} />
+            Contacts ({contacts.length})
+          </h2>
           <button
-            onClick={addContact}
-            disabled={!form.name.trim() || !form.email.trim() || saving}
-            className="px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-50"
-            style={{ background: "#0F2744", color: "#fff" }}
+            onClick={() => { setShowForm((v) => !v); setEditingId(null); setForm(emptyForm); setFormError(""); }}
+            className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg"
+            style={{ background: showForm ? "#F3F4F6" : "#0F2744", color: showForm ? "#374151" : "#fff" }}
           >
-            {saving ? "Adding..." : "Add Contact"}
+            {showForm ? <X size={12} /> : <Plus size={12} />}
+            {showForm ? "Cancel" : "Add Contact"}
           </button>
         </div>
-      )}
 
-      {contacts.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-6">No contacts yet</p>
-      ) : (
-        <div className="space-y-2">
-          {contacts.map((contact) => {
-            const isEditing = editingId === contact.id;
+        {showForm && (
+          <div className="rounded-lg p-4 space-y-2 mb-3" style={{ background: "#F9FAFB", border: "1px solid #e5eaf0" }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="Full name *"
+                className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
+                style={{ border: "1px solid #e5eaf0", background: "#fff" }}
+              />
+              <input
+                value={form.email}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                placeholder="Email *"
+                type="email"
+                className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
+                style={{ border: "1px solid #e5eaf0", background: "#fff" }}
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input
+                value={form.title}
+                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                placeholder="Job title"
+                className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
+                style={{ border: "1px solid #e5eaf0", background: "#fff" }}
+              />
+              <input
+                value={form.phone}
+                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                placeholder="Phone"
+                className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
+                style={{ border: "1px solid #e5eaf0", background: "#fff" }}
+              />
+            </div>
+            <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.isPrimary}
+                onChange={(e) => setForm((f) => ({ ...f, isPrimary: e.target.checked }))}
+                className="rounded"
+              />
+              Set as primary contact
+            </label>
+            {formError && <p className="text-xs text-red-500">{formError}</p>}
+            <button
+              onClick={addContact}
+              disabled={!form.name.trim() || !form.email.trim() || saving}
+              className="px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-50"
+              style={{ background: "#0F2744", color: "#fff" }}
+            >
+              {saving ? "Adding..." : "Add Contact"}
+            </button>
+          </div>
+        )}
 
-            if (isEditing) {
+        {contacts.length === 0 ? (
+          <p className="text-sm text-gray-400 text-center py-6">No contacts yet</p>
+        ) : (
+          <div className="space-y-2">
+            {contacts.map((contact) => {
+              const isEditing = editingId === contact.id;
+              const portalEnabled = enabledIds.has(contact.id);
+
+              if (isEditing) {
+                return (
+                  <div
+                    key={contact.id}
+                    className="rounded-xl px-4 py-3"
+                    style={{ border: "1px solid #0F2744", background: "#F9FAFB" }}
+                  >
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+                      <input
+                        value={form.name}
+                        onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                        placeholder="Full name *"
+                        className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
+                        style={{ border: "1px solid #e5eaf0", background: "#fff" }}
+                      />
+                      <input
+                        value={form.email}
+                        onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                        placeholder="Email *"
+                        type="email"
+                        className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
+                        style={{ border: "1px solid #e5eaf0", background: "#fff" }}
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+                      <input
+                        value={form.title}
+                        onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                        placeholder="Job title"
+                        className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
+                        style={{ border: "1px solid #e5eaf0", background: "#fff" }}
+                      />
+                      <input
+                        value={form.phone}
+                        onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                        placeholder="Phone"
+                        className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
+                        style={{ border: "1px solid #e5eaf0", background: "#fff" }}
+                      />
+                    </div>
+                    <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer mb-2">
+                      <input
+                        type="checkbox"
+                        checked={form.isPrimary}
+                        onChange={(e) => setForm((f) => ({ ...f, isPrimary: e.target.checked }))}
+                        className="rounded"
+                      />
+                      Set as primary contact
+                    </label>
+                    {formError && <p className="text-xs text-red-500 mb-2">{formError}</p>}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={saveEdit}
+                        disabled={!form.name.trim() || !form.email.trim() || saving}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50"
+                        style={{ background: "#0F2744", color: "#fff" }}
+                      >
+                        {saving ? "Saving..." : "Save"}
+                      </button>
+                      <button
+                        onClick={cancelEdit}
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium"
+                        style={{ background: "#F3F4F6", color: "#374151" }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                );
+              }
+
               return (
                 <div
                   key={contact.id}
-                  className="rounded-xl px-4 py-3"
-                  style={{ border: "1px solid #0F2744", background: "#F9FAFB" }}
+                  className="flex items-center gap-4 rounded-xl px-4 py-3 bg-white"
+                  style={{ border: "1px solid #e5eaf0" }}
                 >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
-                    <input
-                      value={form.name}
-                      onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                      placeholder="Full name *"
-                      className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
-                      style={{ border: "1px solid #e5eaf0", background: "#fff" }}
-                    />
-                    <input
-                      value={form.email}
-                      onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                      placeholder="Email *"
-                      type="email"
-                      className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
-                      style={{ border: "1px solid #e5eaf0", background: "#fff" }}
-                    />
+                  {/* Avatar */}
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0"
+                    style={{ background: "#0F2744" }}
+                  >
+                    {contact.name.charAt(0).toUpperCase()}
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
-                    <input
-                      value={form.title}
-                      onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                      placeholder="Job title"
-                      className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
-                      style={{ border: "1px solid #e5eaf0", background: "#fff" }}
-                    />
-                    <input
-                      value={form.phone}
-                      onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                      placeholder="Phone"
-                      className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
-                      style={{ border: "1px solid #e5eaf0", background: "#fff" }}
-                    />
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-medium text-gray-900">{contact.name}</p>
+                      {contact.isPrimary && (
+                        <span
+                          className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+                          style={{ background: "#EFF6FF", color: "#1D4ED8" }}
+                        >
+                          Primary
+                        </span>
+                      )}
+                      {portalEnabled && (
+                        <span
+                          className="text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1"
+                          style={{ background: "#D1FAE5", color: "#065F46" }}
+                        >
+                          <CheckCircle size={9} />
+                          Portal enabled
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 mt-0.5 flex-wrap">
+                      {contact.title && (
+                        <span className="text-xs text-gray-500">{contact.title}</span>
+                      )}
+                      <span className="flex items-center gap-1 text-xs text-gray-400">
+                        <Mail size={10} />
+                        {contact.email}
+                      </span>
+                      {contact.phone && (
+                        <span className="flex items-center gap-1 text-xs text-gray-400">
+                          <Phone size={10} />
+                          {contact.phone}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer mb-2">
-                    <input
-                      type="checkbox"
-                      checked={form.isPrimary}
-                      onChange={(e) => setForm((f) => ({ ...f, isPrimary: e.target.checked }))}
-                      className="rounded"
-                    />
-                    Set as primary contact
-                  </label>
-                  {formError && <p className="text-xs text-red-500 mb-2">{formError}</p>}
-                  <div className="flex gap-2">
+
+                  {/* Edit button */}
+                  <button
+                    onClick={() => startEdit(contact)}
+                    className="shrink-0 text-xs font-medium px-2 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                    style={{ border: "1px solid #e5eaf0", color: "#6B7280", background: "#fff" }}
+                    title="Edit contact"
+                  >
+                    <Pencil size={11} />
+                  </button>
+
+                  {/* Delete button */}
+                  <button
+                    onClick={() => deleteContact(contact)}
+                    disabled={deleting === contact.id}
+                    className="shrink-0 text-xs px-2 py-1.5 rounded-lg transition-colors text-gray-300 hover:text-red-500 disabled:opacity-50"
+                    title="Remove contact"
+                  >
+                    <X size={11} />
+                  </button>
+
+                  {/* Portal actions */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {portalEnabled && (
+                      <button
+                        onClick={() => resendInvite(contact.id)}
+                        disabled={resending === contact.id}
+                        className="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                        style={{
+                          border: "1px solid #e5eaf0",
+                          color: resendSuccess === contact.id ? "#065F46" : "#6B7280",
+                          background: resendSuccess === contact.id ? "#D1FAE5" : "#fff",
+                        }}
+                        title="Resend login credentials"
+                      >
+                        <Send size={11} />
+                        {resending === contact.id ? "Sending..." : resendSuccess === contact.id ? "Sent!" : "Resend invite"}
+                      </button>
+                    )}
                     <button
-                      onClick={saveEdit}
-                      disabled={!form.name.trim() || !form.email.trim() || saving}
-                      className="px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50"
-                      style={{ background: "#0F2744", color: "#fff" }}
+                      onClick={() => setModalContact(contact)}
+                      className="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+                      style={{
+                        border: "1px solid #e5eaf0",
+                        color: portalEnabled ? "#6B7280" : "#0F2744",
+                        background: "#fff",
+                      }}
                     >
-                      {saving ? "Saving..." : "Save"}
-                    </button>
-                    <button
-                      onClick={cancelEdit}
-                      className="px-3 py-1.5 rounded-lg text-xs font-medium"
-                      style={{ background: "#F3F4F6", color: "#374151" }}
-                    >
-                      Cancel
+                      <Shield size={11} />
+                      {portalEnabled ? "Reset password" : "Enable portal"}
                     </button>
                   </div>
                 </div>
               );
-            }
+            })}
+          </div>
+        )}
+      </div>
 
-            return (
-              <div
-                key={contact.id}
-                className="flex items-center gap-4 rounded-xl px-4 py-3 bg-white"
-                style={{ border: "1px solid #e5eaf0" }}
-              >
-                {/* Avatar */}
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0"
-                  style={{ background: "#0F2744" }}
-                >
-                  {contact.name.charAt(0).toUpperCase()}
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-sm font-medium text-gray-900">{contact.name}</p>
-                    {contact.isPrimary && (
-                      <span
-                        className="text-[10px] px-2 py-0.5 rounded-full font-medium"
-                        style={{ background: "#EFF6FF", color: "#1D4ED8" }}
-                      >
-                        Primary
-                      </span>
-                    )}
-                    {contact.isPortalEnabled && (
-                      <span
-                        className="text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1"
-                        style={{ background: "#D1FAE5", color: "#065F46" }}
-                      >
-                        <CheckCircle size={9} />
-                        Portal enabled
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-                    {contact.title && (
-                      <span className="text-xs text-gray-500">{contact.title}</span>
-                    )}
-                    <span className="flex items-center gap-1 text-xs text-gray-400">
-                      <Mail size={10} />
-                      {contact.email}
-                    </span>
-                    {contact.phone && (
-                      <span className="flex items-center gap-1 text-xs text-gray-400">
-                        <Phone size={10} />
-                        {contact.phone}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Edit button */}
-                <button
-                  onClick={() => startEdit(contact)}
-                  className="shrink-0 text-xs font-medium px-2 py-1.5 rounded-lg transition-colors flex items-center gap-1"
-                  style={{ border: "1px solid #e5eaf0", color: "#6B7280", background: "#fff" }}
-                  title="Edit contact"
-                >
-                  <Pencil size={11} />
-                </button>
-
-                {/* Portal toggle placeholder */}
-                {!contact.isPortalEnabled && (
-                  <button
-                    className="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
-                    style={{ border: "1px solid #e5eaf0", color: "#0F2744", background: "#fff" }}
-                  >
-                    <Shield size={11} />
-                    Enable portal
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
+      {modalContact && (
+        <EnablePartnerPortalModal
+          contactId={modalContact.id}
+          contactName={modalContact.name}
+          onClose={() => setModalContact(null)}
+          onSuccess={() => {
+            setEnabledIds((prev) => new Set([...prev, modalContact.id]));
+          }}
+        />
       )}
-    </div>
+    </>
   );
 }

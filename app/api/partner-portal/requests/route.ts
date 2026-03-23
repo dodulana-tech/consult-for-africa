@@ -60,6 +60,32 @@ export async function POST(req: NextRequest) {
     return new NextResponse("Project description is required", { status: 400 });
   }
 
+  // Validate numeric fields
+  if (body.rolesNeeded !== undefined && body.rolesNeeded !== null) {
+    const roles = Number(body.rolesNeeded);
+    if (!Number.isInteger(roles) || roles < 1 || roles > 50) {
+      return new NextResponse("rolesNeeded must be a positive integer between 1 and 50", { status: 400 });
+    }
+  }
+  if (body.hoursPerWeek !== undefined && body.hoursPerWeek !== null) {
+    const hours = Number(body.hoursPerWeek);
+    if (isNaN(hours) || hours < 1 || hours > 60) {
+      return new NextResponse("hoursPerWeek must be between 1 and 60", { status: 400 });
+    }
+  }
+  if (body.durationWeeks !== undefined && body.durationWeeks !== null) {
+    const weeks = Number(body.durationWeeks);
+    if (isNaN(weeks) || weeks < 1 || weeks > 104) {
+      return new NextResponse("durationWeeks must be between 1 and 104", { status: 400 });
+    }
+  }
+  if (body.clientBudgetPerDay !== undefined && body.clientBudgetPerDay !== null) {
+    const budget = Number(body.clientBudgetPerDay);
+    if (isNaN(budget) || budget <= 0) {
+      return new NextResponse("clientBudgetPerDay must be a positive number", { status: 400 });
+    }
+  }
+
   // Generate request code: PSR-YYYY-NNN
   const year = new Date().getFullYear();
   const lastRequest = await prisma.partnerStaffingRequest.findFirst({
@@ -97,5 +123,49 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  return NextResponse.json(request, { status: 201 });
+  // Calculate matchability score (not stored in DB)
+  const requestedSkills = [
+    ...(body.skillsRequired || []),
+    ...(body.serviceTypes || []),
+  ].map((s: string) => s.toUpperCase());
+
+  let matchCount = 0;
+  if (requestedSkills.length > 0) {
+    matchCount = await prisma.consultantProfile.count({
+      where: {
+        availabilityStatus: { in: ["AVAILABLE", "PARTIALLY_AVAILABLE"] },
+        OR: [
+          { expertiseAreas: { hasSome: requestedSkills } },
+          { specialties: { hasSome: requestedSkills } },
+        ],
+      },
+    });
+  } else {
+    matchCount = await prisma.consultantProfile.count({
+      where: {
+        availabilityStatus: { in: ["AVAILABLE", "PARTIALLY_AVAILABLE"] },
+      },
+    });
+  }
+
+  let matchabilityScore: number;
+  let matchabilityLabel: string;
+  if (matchCount === 0) {
+    matchabilityScore = 10;
+    matchabilityLabel = "Low";
+  } else if (matchCount <= 3) {
+    matchabilityScore = 40;
+    matchabilityLabel = "Moderate";
+  } else if (matchCount <= 10) {
+    matchabilityScore = 70;
+    matchabilityLabel = "Good";
+  } else {
+    matchabilityScore = 95;
+    matchabilityLabel = "Excellent";
+  }
+
+  return NextResponse.json(
+    { ...request, matchabilityScore, matchabilityLabel },
+    { status: 201 }
+  );
 }

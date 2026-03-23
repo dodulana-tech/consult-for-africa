@@ -147,3 +147,39 @@ export async function PATCH(
     },
   });
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await auth();
+  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!ALLOWED_ROLES.includes(session.user.role))
+    return new Response("Forbidden", { status: 403 });
+
+  const { id: partnerId } = await params;
+  const body = await req.json();
+  const { contactId } = body;
+
+  if (!contactId) return new Response("contactId required", { status: 400 });
+
+  const existing = await prisma.partnerContact.findFirst({
+    where: { id: contactId, partnerId },
+  });
+  if (!existing) return new Response("Contact not found", { status: 404 });
+
+  await prisma.partnerContact.delete({
+    where: { id: contactId },
+  });
+
+  await logAudit({
+    userId: session.user.id,
+    action: "DELETE",
+    entityType: "PartnerContact",
+    entityId: contactId,
+    entityName: existing.name,
+    details: { partnerId },
+  });
+
+  return Response.json({ ok: true });
+}

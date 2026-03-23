@@ -12,6 +12,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
+import MatchInsightsWidget from "@/components/platform/admin/MatchInsightsWidget";
+import RequestStatusActions from "@/components/platform/admin/RequestStatusActions";
 
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   PROSPECT: { bg: "#EFF6FF", color: "#1D4ED8" },
@@ -24,7 +26,7 @@ const REQUEST_STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   DRAFT: { bg: "#F3F4F6", color: "#6B7280" },
   SUBMITTED: { bg: "#EFF6FF", color: "#1D4ED8" },
   MATCHING: { bg: "#FEF3C7", color: "#92400E" },
-  SHORTLIST_SENT: { bg: "#EDE9FE", color: "#5B21B6" },
+  SHORTLIST_SENT: { bg: "#FEF3C7", color: "#92400E" },
   CONFIRMED: { bg: "#DBEAFE", color: "#1E40AF" },
   ACTIVE: { bg: "#D1FAE5", color: "#065F46" },
   COMPLETED: { bg: "#F0FDF4", color: "#15803D" },
@@ -262,6 +264,19 @@ export default async function PartnerDetailPage({ params }: { params: Promise<{ 
                           })}
                         </div>
                       )}
+
+                      {/* Status Actions */}
+                      <RequestStatusActions
+                        requestId={r.id}
+                        status={r.status}
+                        allDeploymentsResponded={
+                          r.deployments.length > 0 &&
+                          r.deployments.every((d) => ["ACCEPTED", "DECLINED"].includes(d.status))
+                        }
+                      />
+
+                      {/* Match Insights Widget */}
+                      <MatchInsightsWidget requestId={r.id} requestStatus={r.status} />
                     </div>
                   );
                 })}
