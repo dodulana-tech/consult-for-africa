@@ -22,6 +22,8 @@ export async function canAccessProject(
     where: { id: projectId },
     select: {
       engagementManagerId: true,
+      isOwnGig: true,
+      ownGigOwnerId: true,
       assignments: { select: { consultantId: true }, where: { status: { in: ["ACTIVE", "PENDING"] } } },
     },
   });
@@ -33,6 +35,7 @@ export async function canAccessProject(
     return project.engagementManagerId === userId;
   }
 
-  // Consultants can access projects they are assigned to
+  // Consultants can access projects they own (own gig) or are assigned to
+  if (project.isOwnGig && project.ownGigOwnerId === userId) return true;
   return project.assignments.some((a) => a.consultantId === userId);
 }

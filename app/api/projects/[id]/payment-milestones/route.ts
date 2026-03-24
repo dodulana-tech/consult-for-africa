@@ -16,12 +16,13 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
   if (!isElevated) {
     const project = await prisma.engagement.findUnique({
       where: { id: projectId },
-      select: { engagementManagerId: true, assignments: { select: { consultantId: true } } },
+      select: { engagementManagerId: true, isOwnGig: true, ownGigOwnerId: true, assignments: { select: { consultantId: true } } },
     });
     if (!project) return new Response("Not found", { status: 404 });
     const isProjectEM = isEM && project.engagementManagerId === session.user.id;
     const isAssigned = project.assignments.some((a) => a.consultantId === session.user.id);
-    if (!isProjectEM && !isAssigned) return new Response("Forbidden", { status: 403 });
+    const isOwnGigOwner = project.isOwnGig && project.ownGigOwnerId === session.user.id;
+    if (!isProjectEM && !isAssigned && !isOwnGigOwner) return new Response("Forbidden", { status: 403 });
   }
 
   const milestones = await prisma.paymentMilestone.findMany({

@@ -38,6 +38,11 @@ enum Currency {
   NGN
 }
 
+enum OwnGigFeeModel {
+  PERCENTAGE
+  FLAT_MONTHLY
+}
+
 enum ClientType {
   PRIVATE_ELITE
   PRIVATE_MIDTIER
@@ -290,6 +295,8 @@ model User {
   invoicesApproved       Invoice[]          @relation("InvoiceApprover")
   paymentsConfirmed      Payment[]          @relation("PaymentConfirmer")
   creditNotesCreated     CreditNote[]       @relation("CreditNoteCreator")
+  ownGigEngagements      Engagement[]       @relation("OwnGigOwner")
+  ownGigFees             OwnGigPlatformFee[] @relation("OwnGigFeeConsultant")
 }
 
 model ConsultantProfile {
@@ -446,9 +453,18 @@ model Engagement {
   transactionCloseDate     DateTime?
   transactionSuccessFeeAmount Decimal?   @db.Decimal(14, 2) // calculated on close
 
+  // OWN GIG fields
+  isOwnGig                Boolean       @default(false)
+  ownGigOwnerId           String?
+  ownGigOwner             User?         @relation("OwnGigOwner", fields: [ownGigOwnerId], references: [id])
+  ownGigFeeModel          OwnGigFeeModel?
+  ownGigFeePct            Decimal?      @db.Decimal(5, 2)  // 10-15% for PERCENTAGE model
+  ownGigFlatMonthlyFee    Decimal?      @db.Decimal(14, 2) // for FLAT_MONTHLY model
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  ownGigFees        OwnGigPlatformFee[]
   assignments       Assignment[]
   milestones        Milestone[]
   deliverables      Deliverable[]
@@ -476,6 +492,29 @@ model Engagement {
   @@index([engagementManagerId])
   @@index([status])
   @@index([engagementType])
+  @@index([isOwnGig, ownGigOwnerId])
+}
+
+model OwnGigPlatformFee {
+  id              String         @id @default(cuid())
+  engagementId    String
+  engagement      Engagement     @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+  consultantId    String
+  consultant      User           @relation("OwnGigFeeConsultant", fields: [consultantId], references: [id])
+
+  periodStart     DateTime
+  periodEnd       DateTime
+  feeModel        OwnGigFeeModel
+  projectValue    Decimal?       @db.Decimal(14, 2)
+  feeAmount       Decimal        @db.Decimal(14, 2)
+  currency        Currency       @default(NGN)
+  status          String         @default("PENDING") // PENDING, INVOICED, PAID
+
+  createdAt       DateTime       @default(now())
+
+  @@index([engagementId])
+  @@index([consultantId])
+  @@index([status])
 }
 
 model Assignment {

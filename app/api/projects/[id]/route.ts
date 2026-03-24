@@ -32,6 +32,8 @@ export async function PATCH(
       status: true,
       clientId: true,
       budgetCurrency: true,
+      isOwnGig: true,
+      ownGigOwnerId: true,
       transactionDealSize: true,
       transactionSuccessFeePct: true,
     },
@@ -39,10 +41,11 @@ export async function PATCH(
 
   if (!project) return Response.json({ error: "Project not found" }, { status: 404 });
 
-  // Only EM of the project or elevated roles can update
+  // Only EM of the project, elevated roles, or own gig owner can update
   const isProjectEM = project.engagementManagerId === session.user.id;
   const isElevated = ELEVATED.includes(session.user.role);
-  if (!isProjectEM && !isElevated) {
+  const isOwnGigOwner = project.isOwnGig && project.ownGigOwnerId === session.user.id;
+  if (!isProjectEM && !isElevated && !isOwnGigOwner) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 

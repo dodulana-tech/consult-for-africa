@@ -79,6 +79,13 @@ const NAV_SECTIONS: NavSection[] = [
     roles: ["CONSULTANT"],
   },
   {
+    title: "Own Gigs",
+    items: [
+      { label: "My Gigs",       href: "/own-gigs",       icon: Briefcase },
+    ],
+    roles: ["CONSULTANT"],
+  },
+  {
     title: "Team",
     items: [
       { label: "Consultants",    href: "/consultants",    icon: Users },
@@ -115,6 +122,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Maarova",        href: "/admin/maarova",  icon: Brain },
       { label: "Partners",       href: "/admin/partners",     icon: Building2 },
       { label: "Satisfaction",   href: "/admin/satisfaction", icon: HeartPulse },
+      { label: "Gig Fees",       href: "/admin/own-gig-fees", icon: BarChart3 },
     ],
     roles: ["PARTNER", "ADMIN"],
   },

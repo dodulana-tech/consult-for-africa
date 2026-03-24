@@ -15,12 +15,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!isElevated) {
     const project = await prisma.engagement.findUnique({
       where: { id },
-      select: { engagementManagerId: true, assignments: { select: { consultantId: true } } },
+      select: { engagementManagerId: true, isOwnGig: true, ownGigOwnerId: true, assignments: { select: { consultantId: true } } },
     });
     if (!project) return new Response("Not found", { status: 404 });
     const hasAccess =
       project.engagementManagerId === session.user.id ||
-      project.assignments.some((a) => a.consultantId === session.user.id);
+      project.assignments.some((a) => a.consultantId === session.user.id) ||
+      (project.isOwnGig && project.ownGigOwnerId === session.user.id);
     if (!hasAccess) return new Response("Forbidden", { status: 403 });
   }
 
