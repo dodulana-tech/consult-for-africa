@@ -13,6 +13,7 @@ const solutions = [
     icon: ClipboardList,
     title: "Advisory Projects",
     tag: "PROJECT",
+    href: "/solutions/advisory",
     summary:
       "Targeted consulting for specific operational or strategic challenges.",
     how: [
@@ -28,6 +29,7 @@ const solutions = [
     icon: PhoneCall,
     title: "Retainer Advisory",
     tag: "RETAINER",
+    href: "/solutions/retainer",
     summary:
       "Ongoing strategic counsel with a dedicated pool of consulting hours each month.",
     how: [
@@ -43,6 +45,7 @@ const solutions = [
     icon: UserCheck,
     title: "Embedded Secondments",
     tag: "SECONDMENT",
+    href: "/solutions/secondment",
     summary:
       "Full-time consultants placed inside your organisation to drive change from within.",
     how: [
@@ -58,6 +61,7 @@ const solutions = [
     icon: Crown,
     title: "Fractional Leadership",
     tag: "FRACTIONAL",
+    href: "/solutions/fractional",
     summary:
       "Part-time C-suite executives for hospitals that need senior leadership without full-time cost.",
     how: [
@@ -73,6 +77,7 @@ const solutions = [
     icon: Building2,
     title: "Hospital Transformation",
     tag: "TRANSFORMATION",
+    href: "/solutions/transformation",
     summary:
       "Equity-backed operational turnarounds for underperforming healthcare facilities.",
     how: [
@@ -88,6 +93,7 @@ const solutions = [
     icon: Handshake,
     title: "Transaction Advisory",
     tag: "TRANSACTION",
+    href: "/solutions/transaction",
     summary:
       "M&A and capital raising for healthcare assets across Africa.",
     how: [
@@ -199,19 +205,29 @@ export default function SolutionsList() {
                 </ul>
 
                 {/* Duration */}
-                <div className="flex items-center gap-2">
-                  <span
-                    className="text-xs uppercase tracking-[0.12em]"
-                    style={{ color: "rgba(255,255,255,0.3)" }}
-                  >
-                    Typical duration:
-                  </span>
-                  <span
-                    className="text-xs font-medium"
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="text-xs uppercase tracking-[0.12em]"
+                      style={{ color: "rgba(255,255,255,0.3)" }}
+                    >
+                      Typical duration:
+                    </span>
+                    <span
+                      className="text-xs font-medium"
+                      style={{ color: "#D4AF37" }}
+                    >
+                      {s.duration}
+                    </span>
+                  </div>
+                  <a
+                    href={s.href}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold transition-colors"
                     style={{ color: "#D4AF37" }}
                   >
-                    {s.duration}
-                  </span>
+                    Learn more
+                    <span className="group-hover:translate-x-0.5 transition-transform">&#x2192;</span>
+                  </a>
                 </div>
               </div>
             );

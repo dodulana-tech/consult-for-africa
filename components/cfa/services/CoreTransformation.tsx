@@ -11,6 +11,7 @@ const services = [
       "Cashflow stabilisation and financial visibility",
     ],
     tag: "Turnaround",
+    href: "/turnaround",
   },
   {
     num: "02",
@@ -24,6 +25,7 @@ const services = [
       "Revenue diversification and patient experience",
     ],
     tag: "Strategy",
+    href: "/services/strategy-growth",
   },
   {
     num: "03",
@@ -37,6 +39,7 @@ const services = [
       "Clinical audit and quality monitoring",
     ],
     tag: "Governance",
+    href: "/services/clinical-governance",
   },
   {
     num: "04",
@@ -50,6 +53,7 @@ const services = [
       "Option to convert CTO fees into pre-seed equity",
     ],
     tag: "Digital",
+    href: "/services/digital-health",
   },
   {
     num: "05",
@@ -63,6 +67,7 @@ const services = [
       "Performance-linked fixed-term mandates",
     ],
     tag: "Leadership",
+    href: "/services/fractional-leadership",
   },
   {
     num: "06",
@@ -76,6 +81,7 @@ const services = [
       "Development partner and NGO advisory",
     ],
     tag: "Systems",
+    href: "/services/health-systems",
   },
   {
     num: "07",
@@ -89,6 +95,7 @@ const services = [
       "Workforce planning, compensation, and culture",
     ],
     tag: "Powered by Maarova\u2122",
+    href: "/maarova",
   },
 ];
 
@@ -155,7 +162,7 @@ export default function CoreTransformation() {
                 {s.summary}
               </p>
 
-              <ul className="space-y-2">
+              <ul className="space-y-2 mb-6">
                 {s.points.map((pt) => (
                   <li
                     key={pt}
@@ -169,6 +176,15 @@ export default function CoreTransformation() {
                   </li>
                 ))}
               </ul>
+
+              <a
+                href={s.href}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold transition-colors"
+                style={{ color: "#D4AF37" }}
+              >
+                Learn more
+                <span className="group-hover:translate-x-0.5 transition-transform">&#x2192;</span>
+              </a>
             </div>
           ))}
         </div>

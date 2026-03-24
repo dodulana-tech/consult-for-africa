@@ -32,11 +32,12 @@ export default function Footer() {
           <ul className="space-y-2 text-white/70 text-sm">
             {[
               { label: "Hospital Turnaround", href: "/turnaround" },
-              { label: "Strategy & Growth", href: "/services" },
-              { label: "Clinical Governance", href: "/services" },
-              { label: "Digital Health & Data", href: "/services" },
+              { label: "Strategy & Growth", href: "/services/strategy-growth" },
+              { label: "Clinical Governance", href: "/services/clinical-governance" },
+              { label: "Digital Health", href: "/services/digital-health" },
               { label: "Healthcare HR (Maarova\u2122)", href: "/maarova" },
-              { label: "Fractional Leadership", href: "/services" },
+              { label: "Fractional Leadership", href: "/services/fractional-leadership" },
+              { label: "Health Systems", href: "/services/health-systems" },
             ].map((item) => (
               <li key={item.label}>
                 <Link
