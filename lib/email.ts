@@ -965,3 +965,325 @@ export async function emailSecondmentRecall({
     `)
   );
 }
+
+// ─── Meeting Invite ──────────────────────────────────────────────────────────
+
+export async function sendMeetingInvite({
+  to, participantName, meetingTitle, meetLink, scheduledAt, scheduledEndAt,
+  organizerName, nuruEnabled,
+}: {
+  to: string; participantName: string; meetingTitle: string; meetLink: string;
+  scheduledAt: Date; scheduledEndAt: Date; organizerName: string; nuruEnabled: boolean;
+}) {
+  const dateStr = scheduledAt.toLocaleDateString("en-NG", {
+    weekday: "long", year: "numeric", month: "long", day: "numeric",
+    timeZone: "Africa/Lagos",
+  });
+  const startStr = scheduledAt.toLocaleTimeString("en-NG", {
+    hour: "2-digit", minute: "2-digit", timeZone: "Africa/Lagos",
+  });
+  const endStr = scheduledEndAt.toLocaleTimeString("en-NG", {
+    hour: "2-digit", minute: "2-digit", timeZone: "Africa/Lagos",
+  });
+
+  const nuruLine = nuruEnabled
+    ? `<p style="margin:12px 0;padding:12px;background:#F0F7FF;border-radius:8px;font-size:13px;color:#374151;">
+        <strong>Nuru</strong>, our meeting assistant, will join to take notes and capture action items automatically.
+      </p>`
+    : "";
+
+  await send(to, `Meeting: ${meetingTitle}`,
+    layout(`
+      ${h1(meetingTitle)}
+      ${p(`Hi ${esc(participantName)},`)}
+      ${p(`${esc(organizerName)} has scheduled a meeting with you.`)}
+      ${infoTable([
+        ["Date", dateStr],
+        ["Time", `${startStr} - ${endStr} (WAT)`],
+        ["Organized by", organizerName],
+      ])}
+      ${nuruLine}
+      ${btn("Join Google Meet", meetLink, "#1a73e8")}
+      ${p("You can also join using this link:")}
+      <p style="margin:0 0 16px;font-size:13px;word-break:break-all;">
+        <a href="${esc(meetLink)}" style="color:#1a73e8;">${esc(meetLink)}</a>
+      </p>
+    `)
+  );
+}
+
+// ─── Meeting Summary ─────────────────────────────────────────────────────────
+
+export async function sendMeetingSummary({
+  to, participantName, meetingTitle, summary, actionItems, meetingDate,
+}: {
+  to: string; participantName: string; meetingTitle: string;
+  summary: string; actionItems: string[]; meetingDate: Date;
+}) {
+  const dateStr = meetingDate.toLocaleDateString("en-NG", {
+    weekday: "long", year: "numeric", month: "long", day: "numeric",
+    timeZone: "Africa/Lagos",
+  });
+
+  const actionList = actionItems.length > 0
+    ? `<ul style="margin:12px 0;padding-left:20px;">
+        ${actionItems.map(item => `<li style="margin:4px 0;font-size:14px;color:#374151;">${esc(item)}</li>`).join("")}
+      </ul>`
+    : "";
+
+  await send(to, `Meeting Notes: ${meetingTitle}`,
+    layout(`
+      ${h1("Meeting Notes")}
+      ${p(`Hi ${esc(participantName)},`)}
+      ${p(`Here are the notes from your meeting "${esc(meetingTitle)}" on ${esc(dateStr)}.`)}
+      <div style="margin:16px 0;padding:16px;background:#F9FAFB;border-radius:8px;border:1px solid #E5E7EB;">
+        <h3 style="margin:0 0 8px;font-size:14px;font-weight:600;color:#0F2744;">Summary</h3>
+        <p style="margin:0;font-size:14px;line-height:1.6;color:#374151;">${esc(summary)}</p>
+      </div>
+      ${actionItems.length > 0 ? `
+        <div style="margin:16px 0;">
+          <h3 style="margin:0 0 8px;font-size:14px;font-weight:600;color:#0F2744;">Action Items</h3>
+          ${actionList}
+        </div>
+      ` : ""}
+      ${p("These notes were captured by Nuru, our meeting assistant.")}
+    `)
+  );
+}
+
+// ─── NDA Signing Invite ──────────────────────────────────────────────────────
+
+export async function sendNdaSigningInvite({
+  to, recipientName, ndaType, senderName, senderOrg, signingUrl, projectName,
+}: {
+  to: string; recipientName: string; ndaType: string;
+  senderName: string; senderOrg: string; signingUrl: string;
+  projectName?: string;
+}) {
+  const projectLine = projectName
+    ? `<p style="margin:8px 0;padding:10px;background:#F9FAFB;border-radius:6px;font-size:12px;color:#374151;">
+        Related engagement: <strong>${esc(projectName)}</strong>
+      </p>`
+    : "";
+
+  await send(to, `NDA for your review: ${senderOrg}`,
+    layout(`
+      ${h1("Non-Disclosure Agreement")}
+      ${p(`Dear ${esc(recipientName)},`)}
+      ${p(`${esc(senderName)} from ${esc(senderOrg)} has prepared a ${esc(ndaType)} for your review and signature.`)}
+      ${projectLine}
+      ${p("Please click the button below to review the agreement and provide your electronic signature. The signing link is valid for 30 days.")}
+      ${btn("Review & Sign NDA", signingUrl)}
+      ${p("If you have questions about the agreement, please contact us at hello@consultforafrica.com.")}
+      <p style="margin:16px 0 0;font-size:11px;color:#9CA3AF;">
+        This NDA is governed by the laws of the Federal Republic of Nigeria. Electronic signatures are legally binding.
+      </p>
+    `)
+  );
+}
+
+// ─── NDA Countersigned Notification ──────────────────────────────────────────
+
+export async function sendNdaCountersigned({
+  to, recipientName, ndaType, pdfUrl,
+}: {
+  to: string; recipientName: string; ndaType: string; pdfUrl?: string;
+}) {
+  await send(to, `NDA Fully Executed: ${ndaType}`,
+    layout(`
+      ${h1("NDA Fully Executed")}
+      ${p(`Dear ${esc(recipientName)},`)}
+      ${p(`Your ${esc(ndaType)} with Consult For Africa has been countersigned and is now active.`)}
+      ${p("The confidentiality obligations outlined in the agreement are now in effect. A copy of the signed agreement is attached for your records.")}
+      ${pdfUrl ? btn("Download Signed NDA", pdfUrl) : ""}
+      ${p("Thank you for your cooperation. If you have any questions, please contact us at hello@consultforafrica.com.")}
+    `)
+  );
+}
+
+// ─── Invoice Sent Notification ───────────────────────────────────────────────
+
+export async function emailInvoiceSent({
+  clientEmail,
+  clientName,
+  invoiceNumber,
+  amount,
+  currency,
+  dueDate,
+  viewUrl,
+}: {
+  clientEmail: string;
+  clientName: string;
+  invoiceNumber: string;
+  amount: string;
+  currency: string;
+  dueDate: string;
+  viewUrl: string;
+}) {
+  const firstName = esc(clientName.split(" ")[0]);
+
+  await send(
+    clientEmail,
+    `Invoice ${invoiceNumber} from Consult For Africa`,
+    layout(`
+      ${h1("Invoice from Consult For Africa")}
+      ${p(`Dear ${firstName},`)}
+      ${p("Please find below the details of your invoice. We appreciate your continued partnership.")}
+      ${infoTable([
+        ["Invoice Number", invoiceNumber],
+        ["Amount Due", amount],
+        ["Currency", currency],
+        ["Due Date", dueDate],
+      ])}
+      ${btn("View Invoice", viewUrl)}
+      <p style="margin:20px 0 0;font-size:13px;color:#6B7280;line-height:1.6;">
+        Please quote invoice number <strong>${esc(invoiceNumber)}</strong> on all payments and correspondence.
+        If you have any questions about this invoice, please contact your engagement manager or reach out to us at
+        <a href="mailto:finance@consultforafrica.com" style="color:#0F2744;font-weight:600;">finance@consultforafrica.com</a>.
+      </p>
+    `)
+  );
+}
+
+// ─── Payment Received Confirmation ───────────────────────────────────────────
+
+export async function emailPaymentReceived({
+  clientEmail,
+  clientName,
+  invoiceNumber,
+  amountPaid,
+  balanceDue,
+  currency,
+}: {
+  clientEmail: string;
+  clientName: string;
+  invoiceNumber: string;
+  amountPaid: string;
+  balanceDue: string;
+  currency: string;
+}) {
+  const firstName = esc(clientName.split(" ")[0]);
+
+  await send(
+    clientEmail,
+    `Payment received for ${invoiceNumber}`,
+    layout(`
+      ${h1("Payment Received")}
+      ${p(`Dear ${firstName},`)}
+      ${p("Thank you for your payment. This email confirms that we have received and recorded the following.")}
+      ${infoTable([
+        ["Invoice", invoiceNumber],
+        ["Amount Received", amountPaid],
+        ["Balance Remaining", balanceDue],
+        ["Currency", currency],
+      ])}
+      ${p("Please retain this email as confirmation of your payment.")}
+      <p style="margin:0;font-size:13px;color:#6B7280;line-height:1.6;">
+        If you believe there is a discrepancy, please contact us at
+        <a href="mailto:finance@consultforafrica.com" style="color:#0F2744;font-weight:600;">finance@consultforafrica.com</a>.
+      </p>
+    `)
+  );
+}
+
+// ─── Invoice Reminder (Dunning) ─────────────────────────────────────────────
+
+const REMINDER_SUBJECTS: Record<string, string> = {
+  FIRST_REMINDER: "Friendly reminder: Invoice {num} is past due",
+  SECOND_REMINDER: "Invoice {num} requires your attention",
+  FINAL_NOTICE: "Final notice: Invoice {num} is overdue",
+  ESCALATION: "Urgent: Invoice {num} requires immediate attention",
+};
+
+const REMINDER_BODIES: Record<string, (name: string, days: number) => string> = {
+  FIRST_REMINDER: (name, days) =>
+    `We hope this finds you well. This is a friendly reminder that Invoice {num} was due ${days} day(s) ago. We would appreciate your prompt attention to this outstanding balance.`,
+  SECOND_REMINDER: (name, days) =>
+    `We are following up regarding Invoice {num}, which is now ${days} days past due. Please arrange payment at your earliest convenience to avoid any disruption to our engagement.`,
+  FINAL_NOTICE: (name, days) =>
+    `This is a final notice regarding Invoice {num}, which is now ${days} days overdue. We kindly request immediate payment to maintain good standing.`,
+  ESCALATION: (name, days) =>
+    `Invoice {num} is now ${days} days overdue and has been escalated to our senior leadership team. Please contact us immediately to arrange payment and discuss any concerns.`,
+};
+
+export async function emailInvoiceReminder({
+  clientEmail,
+  clientName,
+  invoiceNumber,
+  amount,
+  currency,
+  daysOverdue,
+  reminderType,
+}: {
+  clientEmail: string;
+  clientName: string;
+  invoiceNumber: string;
+  amount: number;
+  currency: string;
+  daysOverdue: number;
+  reminderType: string;
+}) {
+  const formatted = currency === "USD"
+    ? `$${amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+    : `\u20A6${amount.toLocaleString("en-NG")}`;
+
+  const subject = (REMINDER_SUBJECTS[reminderType] ?? "Invoice reminder: {num}").replace("{num}", invoiceNumber);
+  const bodyFn = REMINDER_BODIES[reminderType] ?? REMINDER_BODIES.FIRST_REMINDER;
+  const bodyText = bodyFn(clientName, daysOverdue).replace(/\{num\}/g, invoiceNumber);
+
+  await send(clientEmail, subject,
+    layout(`
+      ${h1("Invoice Reminder")}
+      ${p(`Dear ${esc(clientName)},`)}
+      ${p(bodyText)}
+      ${infoTable([
+        ["Invoice", invoiceNumber],
+        ["Amount due", formatted],
+        ["Days overdue", String(daysOverdue)],
+      ])}
+      ${p("If you have already made payment, please disregard this notice and share the payment confirmation with us.")}
+      ${p("Questions? Reach out at hello@consultforafrica.com.")}
+    `)
+  );
+}
+
+// ─── Payment Receipt ────────────────────────────────────────────────────────
+
+export async function emailPaymentReceipt({
+  clientEmail,
+  clientName,
+  invoiceNumber,
+  amountPaid,
+  balanceDue,
+  currency,
+  reference,
+}: {
+  clientEmail: string;
+  clientName: string;
+  invoiceNumber: string;
+  amountPaid: number;
+  balanceDue: number;
+  currency: string;
+  reference: string;
+}) {
+  const fmtPaid = currency === "USD"
+    ? `$${amountPaid.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+    : `\u20A6${amountPaid.toLocaleString("en-NG")}`;
+  const fmtBalance = currency === "USD"
+    ? `$${balanceDue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+    : `\u20A6${balanceDue.toLocaleString("en-NG")}`;
+
+  await send(clientEmail, `Payment received: ${invoiceNumber}`,
+    layout(`
+      ${h1("Payment Received")}
+      ${p(`Dear ${esc(clientName)}, thank you for your payment.`)}
+      ${infoTable([
+        ["Invoice", invoiceNumber],
+        ["Amount paid", fmtPaid],
+        ["Balance remaining", fmtBalance],
+        ["Reference", reference],
+      ])}
+      ${p("This email serves as your payment receipt. If you have any questions, please contact us at hello@consultforafrica.com.")}
+    `)
+  );
+}

@@ -125,10 +125,50 @@ enum TimeEntryStatus {
 
 enum InvoiceStatus {
   DRAFT
+  PENDING_APPROVAL
   SENT
+  VIEWED
+  PARTIALLY_PAID
   PAID
   OVERDUE
+  DISPUTED
+  WRITTEN_OFF
   CANCELLED
+}
+
+enum InvoiceType {
+  STANDARD
+  PROFORMA
+  CREDIT_NOTE
+  DEBIT_NOTE
+  MOBILIZATION
+  MILESTONE
+  RETAINER
+  FINAL_SETTLEMENT
+}
+
+enum FeeStructure {
+  FIXED_FEE
+  TIME_AND_MATERIALS
+  RETAINER
+  SUCCESS_FEE
+  MILESTONE_BASED
+  HYBRID
+}
+
+enum BillingCycle {
+  ONE_TIME
+  MONTHLY
+  QUARTERLY
+  ON_MILESTONE
+  ON_COMPLETION
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+  REVERSED
 }
 
 enum UpdateType {
@@ -243,6 +283,13 @@ model User {
   supervisedRotations    InternRotation[] @relation("SupervisedRotations")
   internEvaluations      InternEvaluation[] @relation("InternEvaluations")
   outreachCampaigns      OutreachCampaign[] @relation("CampaignCreator")
+  organizedMeetings      Meeting[]          @relation("MeetingOrganizer")
+  meetingParticipations  MeetingParticipant[] @relation("MeetingParticipants")
+  consultantNdas         Nda[]              @relation("ConsultantNdas")
+  createdNdas            Nda[]              @relation("NdaCreator")
+  invoicesApproved       Invoice[]          @relation("InvoiceApprover")
+  paymentsConfirmed      Payment[]          @relation("PaymentConfirmer")
+  creditNotesCreated     CreditNote[]       @relation("CreditNoteCreator")
 }
 
 model ConsultantProfile {
@@ -321,6 +368,8 @@ model Client {
   discoveryCalls    DiscoveryCall[]
   leadsFrom         Lead[]         @relation("LeadFromClient")
   leadsConverted    Lead[]         @relation("LeadConverted")
+  ndas              Nda[]
+  creditNotes       CreditNote[]
 
   @@index([type, status])
 }
@@ -356,6 +405,7 @@ model Engagement {
   methodologyId            String?
   methodologyTemplate      MethodologyTemplate? @relation("EngagementMethodology", fields: [methodologyId], references: [id])
   engagementCode           String?       @unique // CFA-YYYY-NNN format
+  feeStructure             FeeStructure?
 
   // RETAINER fields
   retainerMonthlyFee       Decimal?      @db.Decimal(14, 2)
@@ -409,6 +459,8 @@ model Engagement {
   risks             RiskItem[]
   paymentMilestones PaymentMilestone[]
   interactions      ClientInteraction[]
+  meetings          Meeting[]
+  ndas              Nda[]
   impactMetrics     EngagementImpactMetric[]
   knowledgeAssets   KnowledgeAsset[]
   frameworks        EngagementFramework[]
@@ -416,6 +468,8 @@ model Engagement {
   satisfactionPulses     ClientSatisfactionPulse[]
   recommendations        ClientRecommendation[]
   internRotations        InternRotation[]
+  billingSchedules       BillingSchedule[]
+  creditNotes            CreditNote[]
 
   @@map("Project")
   @@index([clientId])
@@ -550,24 +604,59 @@ model Invoice {
   engagement      Engagement?   @relation(fields: [engagementId], references: [id])
 
   invoiceNumber   String        @unique
+  invoiceType     InvoiceType   @default(STANDARD)
   subtotal        Decimal       @db.Decimal(14, 2)
   tax             Decimal       @default(0) @db.Decimal(14, 2)
+  whtAmount       Decimal       @default(0) @db.Decimal(14, 2)  // withholding tax deducted at source
+  discountAmount  Decimal       @default(0) @db.Decimal(14, 2)
   total           Decimal       @db.Decimal(14, 2)
+  paidAmount      Decimal       @default(0) @db.Decimal(14, 2)  // running total of payments
+  balanceDue      Decimal       @default(0) @db.Decimal(14, 2)
   currency        Currency      @default(NGN)
   status          InvoiceStatus @default(DRAFT)
   issuedDate      DateTime?
   dueDate         DateTime?
   paidDate        DateTime?
-  paymentMethod   String?
-  paymentReference String?
-  lineItems       Json
+  viewedAt        DateTime?
+  paymentMethod   String?       // legacy, prefer Payment records
+  paymentReference String?      // legacy, prefer Payment records
+  lineItems       Json          // legacy JSON, prefer InvoiceLineItem records
+
+  // Approval workflow
+  approvedById    String?
+  approvedBy      User?         @relation("InvoiceApprover", fields: [approvedById], references: [id])
+  approvedAt      DateTime?
+
+  // Billing context
+  billingScheduleId String?
+  billingSchedule   BillingSchedule? @relation(fields: [billingScheduleId], references: [id])
+  billingPeriodStart DateTime?
+  billingPeriodEnd   DateTime?
+
+  // Notes
+  notes          String?       @db.Text // internal
+  clientNotes    String?       @db.Text // shown on invoice
+  bankDetails    Json?         // CFA bank details to display
+
+  // Partner firm invoicing
+  partnerFirmId  String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Relations
+  lineItemRecords InvoiceLineItem[]
+  payments        Payment[]
+  reminders       InvoiceReminder[]
+  creditNotesIssued CreditNote[]   @relation("CreditNoteOriginal")
+  creditNotesApplied CreditNote[]  @relation("CreditNoteApplied")
+  paymentMilestones  PaymentMilestone[]
+
   @@index([clientId])
   @@index([engagementId], map: "Invoice_projectId_idx")
   @@index([status])
+  @@index([invoiceType])
+  @@index([dueDate])
 }
 
 model EngagementUpdate {
@@ -1033,8 +1122,11 @@ model PaymentMilestone {
   paidDate  DateTime?
   status    PaymentMilestoneStatus @default(PENDING)
   invoiceId String?
+  invoice   Invoice?               @relation(fields: [invoiceId], references: [id])
   createdAt DateTime               @default(now())
   updatedAt DateTime               @updatedAt
+
+  lineItemRecords InvoiceLineItem[]
 
   @@index([engagementId], map: "PaymentMilestone_projectId_status_idx")
 }
@@ -2151,8 +2243,183 @@ model DiscoveryCall {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
+  // Meeting
+  meetingId          String?  @unique
+  meeting            Meeting? @relation(fields: [meetingId], references: [id])
+
   @@index([conductedById])
   @@index([status])
+}
+
+// ─── Meetings & Video Calls ─────────────────────────────────────────────────
+
+enum MeetingStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum MeetingType {
+  DISCOVERY_CALL
+  PROJECT_CHECKIN
+  INTERNAL
+  CLIENT_REVIEW
+  COACHING
+}
+
+model Meeting {
+  id              String        @id @default(cuid())
+  title           String
+  description     String?       @db.Text
+  type            MeetingType
+  status          MeetingStatus @default(SCHEDULED)
+
+  // Schedule
+  scheduledAt     DateTime
+  scheduledEndAt  DateTime
+  startedAt       DateTime?
+  endedAt         DateTime?
+  duration        Int?          // actual duration in minutes
+
+  // Google Meet
+  meetLink        String?       // Google Meet URL
+  calendarEventId String?       // Google Calendar event ID for sync
+
+  // Participants
+  organizerId     String
+  organizer       User          @relation("MeetingOrganizer", fields: [organizerId], references: [id])
+  participants    MeetingParticipant[]
+
+  // Links to other entities
+  engagementId    String?
+  engagement      Engagement?   @relation(fields: [engagementId], references: [id])
+  discoveryCall   DiscoveryCall?
+  clientId        String?
+
+  // Nuru bot
+  nuruEnabled     Boolean       @default(true)
+  nuruJoined      Boolean       @default(false)
+
+  // Transcript & Notes
+  transcript      String?       @db.Text
+  aiSummary       String?       @db.Text
+  aiActionItems   String[]
+  aiKeyDecisions  String[]
+
+  // Recording
+  recordingUrl    String?
+  recordingBucket String?
+  recordingKey    String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([organizerId])
+  @@index([scheduledAt])
+  @@index([status])
+  @@index([engagementId])
+}
+
+model MeetingParticipant {
+  id          String   @id @default(cuid())
+  meetingId   String
+  meeting     Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  // Internal user (optional - external participants won't have this)
+  userId      String?
+  user        User?    @relation("MeetingParticipants", fields: [userId], references: [id])
+
+  // External participant info
+  name        String
+  email       String
+  role        String?  // e.g. "Client", "Consultant", "Stakeholder"
+
+  // Attendance
+  attended    Boolean  @default(false)
+  joinedAt    DateTime?
+  leftAt      DateTime?
+
+  createdAt   DateTime @default(now())
+
+  @@unique([meetingId, email])
+  @@index([meetingId])
+  @@index([userId])
+}
+
+// ─── NDA & Legal Documents ───────────────────────────────────────────────────
+
+enum NdaType {
+  MUTUAL_CLIENT          // Standard Mutual NDA (your v1.0 template)
+  CONSULTANT_MASTER      // One-time NDA for consultants joining CFA
+  PROJECT_SPECIFIC       // Extra NDA for sensitive engagements (M&A, etc.)
+}
+
+enum NdaStatus {
+  DRAFT                  // Generated, not yet sent
+  PENDING_PARTY_A        // Awaiting Party A signature
+  PENDING_PARTY_B        // Awaiting Party B (CFA countersign)
+  ACTIVE                 // Fully executed
+  EXPIRED                // Past the 3-year confidentiality period
+  TERMINATED             // Manually terminated
+}
+
+model Nda {
+  id              String    @id @default(cuid())
+  type            NdaType
+  status          NdaStatus @default(DRAFT)
+  version         String    @default("1.0")
+
+  // Party A (Client / Consultant / External)
+  partyAName      String
+  partyAOrg       String
+  partyATitle     String?
+  partyAEmail     String
+  partyASignature String?   // base64 signature image
+  partyASignedAt  DateTime?
+  partyAIp        String?   // IP address at time of signing
+
+  // Party B (CFA side)
+  partyBName      String    @default("Consult For Africa")
+  partyBOrg       String    @default("Consult For Africa")
+  partyBTitle     String?
+  partyBEmail     String?
+  partyBSignature String?
+  partyBSignedAt  DateTime?
+  partyBIp        String?
+
+  // Schedule
+  effectiveDate   DateTime
+  expiresAt       DateTime? // auto-calculated: engagement end + 3 years
+
+  // Signed PDF
+  signedPdfUrl    String?   // S3 URL of fully-executed PDF
+  signedPdfKey    String?   // S3 key for deletion
+
+  // Links
+  engagementId    String?
+  engagement      Engagement? @relation(fields: [engagementId], references: [id])
+  clientId        String?
+  client          Client?     @relation(fields: [clientId], references: [id])
+  consultantId    String?     // User ID of consultant (for CONSULTANT_MASTER)
+  consultant      User?       @relation("ConsultantNdas", fields: [consultantId], references: [id])
+
+  // Signing token (for email-based signing by external parties)
+  signingToken    String?   @unique
+  signingTokenExp DateTime?
+
+  // Audit
+  createdById     String
+  createdBy       User      @relation("NdaCreator", fields: [createdById], references: [id])
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([engagementId])
+  @@index([clientId])
+  @@index([consultantId])
+  @@index([status])
+  @@index([signingToken])
 }
 
 // ─── Intern & Talent Pipeline ────────────────────────────────────────────────
@@ -2854,4 +3121,156 @@ model PartnerInvoice {
 
   @@index([partnerId])
   @@index([status])
+}
+
+// ─── INVOICING & BILLING ─────────────────────────────────────────────────────
+
+model InvoiceLineItem {
+  id          String  @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Decimal @db.Decimal(10, 2)
+  unitPrice   Decimal @db.Decimal(14, 2)
+  amount      Decimal @db.Decimal(14, 2)
+  sortOrder   Int     @default(0)
+  category    String? // consulting_fee, expense_reimbursement, success_fee, mobilization, holdback
+
+  // Links to source data
+  timeEntryIds    String[] // TimeEntry IDs used to generate this line
+  milestoneId     String?  // Milestone (deliverable-linked)
+  paymentMilestoneId String? // PaymentMilestone FK
+  paymentMilestone   PaymentMilestone? @relation(fields: [paymentMilestoneId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([invoiceId])
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  invoiceId       String
+  invoice         Invoice       @relation(fields: [invoiceId], references: [id])
+  amount          Decimal       @db.Decimal(14, 2)
+  currency        Currency      @default(NGN)
+  paymentDate     DateTime
+  paymentMethod   String        // bank_transfer, paystack, wise, cheque, cash
+  reference       String?       // bank reference or cheque number
+  paystackRef     String?       // Paystack transaction reference
+  paystackTxnId   String?       // Paystack transaction ID
+  bankName        String?
+  status          PaymentStatus @default(PENDING)
+  notes           String?       @db.Text
+  receiptUrl      String?       // generated receipt URL
+
+  confirmedById   String?
+  confirmedBy     User?         @relation("PaymentConfirmer", fields: [confirmedById], references: [id])
+  confirmedAt     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([invoiceId])
+  @@index([status])
+  @@index([paystackRef])
+}
+
+model BillingSchedule {
+  id              String        @id @default(cuid())
+  engagementId    String        @map("projectId")
+  engagement      Engagement    @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+
+  feeStructure    FeeStructure
+  billingCycle    BillingCycle
+  totalContractValue Decimal    @db.Decimal(14, 2)
+  currency        Currency      @default(NGN)
+
+  // Mobilization / upfront deposit
+  mobilizationPct   Decimal?    @db.Decimal(5, 2) // e.g. 30.00 = 30%
+  mobilizationFixed Decimal?    @db.Decimal(14, 2) // or fixed amount
+
+  // Holdback / retention
+  holdbackPct     Decimal?      @db.Decimal(5, 2)
+
+  // Success fee
+  successFeePct   Decimal?      @db.Decimal(5, 2)
+  successFeeTrigger String?     // description of trigger condition
+
+  // Retainer
+  retainerAmount  Decimal?      @db.Decimal(14, 2)
+
+  // Terms
+  paymentTermsDays Int          @default(30)
+  taxRatePct       Decimal      @default(0) @db.Decimal(5, 2) // VAT
+  whtRatePct       Decimal      @default(0) @db.Decimal(5, 2) // withholding tax
+
+  notes           String?       @db.Text
+  isActive        Boolean       @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  invoices  Invoice[]
+
+  @@index([engagementId], map: "BillingSchedule_projectId_idx")
+}
+
+model CreditNote {
+  id                String  @id @default(cuid())
+  creditNoteNumber  String  @unique // CFA-CN-YYYY-NNNN
+  originalInvoiceId String
+  originalInvoice   Invoice @relation("CreditNoteOriginal", fields: [originalInvoiceId], references: [id])
+  clientId          String
+  client            Client  @relation(fields: [clientId], references: [id])
+  engagementId      String? @map("projectId")
+  engagement        Engagement? @relation(fields: [engagementId], references: [id])
+
+  reason            String  @db.Text
+  subtotal          Decimal @db.Decimal(14, 2)
+  tax               Decimal @default(0) @db.Decimal(14, 2)
+  total             Decimal @db.Decimal(14, 2)
+  currency          Currency @default(NGN)
+  status            String  @default("DRAFT") // DRAFT, ISSUED, APPLIED
+
+  issuedDate        DateTime?
+  appliedToInvoiceId String?
+  appliedToInvoice   Invoice? @relation("CreditNoteApplied", fields: [appliedToInvoiceId], references: [id])
+
+  createdById       String
+  createdBy         User    @relation("CreditNoteCreator", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([originalInvoiceId])
+}
+
+model InvoiceReminder {
+  id           String   @id @default(cuid())
+  invoiceId    String
+  invoice      Invoice  @relation(fields: [invoiceId], references: [id])
+  sentAt       DateTime @default(now())
+  channel      String   @default("EMAIL") // EMAIL, WHATSAPP, SMS
+  reminderType String   // FIRST_REMINDER, SECOND_REMINDER, FINAL_NOTICE, ESCALATION
+  recipientEmail String
+  notes        String?
+
+  createdAt DateTime @default(now())
+
+  @@index([invoiceId])
+}
+
+model ExchangeRate {
+  id            String   @id @default(cuid())
+  fromCurrency  Currency
+  toCurrency    Currency
+  rate          Decimal  @db.Decimal(12, 6)
+  effectiveDate DateTime
+  source        String   @default("manual") // manual, api
+
+  createdAt DateTime @default(now())
+
+  @@unique([fromCurrency, toCurrency, effectiveDate])
+  @@index([effectiveDate])
 }

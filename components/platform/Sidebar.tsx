@@ -27,8 +27,11 @@ import {
   GraduationCap,
   Radio,
   ClipboardList,
+  Video,
   Menu,
   X,
+  FileText,
+  BarChart3,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import type { LucideIcon } from "lucide-react";
@@ -57,6 +60,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Dashboard",      href: "/dashboard",      icon: LayoutDashboard },
       { label: "Projects",       href: "/projects",       icon: Briefcase },
       { label: "Deliverables",   href: "/deliverables",   icon: FileCheck },
+      { label: "Meetings",       href: "/meetings",       icon: Video },
     ],
   },
   {
@@ -92,6 +96,14 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Nuru",           href: "/ai",             icon: Sparkles },
       { label: "Tools",          href: "/tools",          icon: Wrench },
     ],
+  },
+  {
+    title: "Finance",
+    items: [
+      { label: "Invoices",        href: "/finance/invoices",  icon: FileText },
+      { label: "Reports",         href: "/finance/reports",   icon: BarChart3 },
+    ],
+    roles: ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"],
   },
   {
     title: "Admin",

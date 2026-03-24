@@ -1,9 +1,135 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import type { InvoiceStatus } from "@prisma/client";
+import type { InvoiceStatus, Prisma } from "@prisma/client";
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+type Ctx = { params: Promise<{ id: string }> };
+
+/* ── Serialise helpers ─────────────────────────────────────────────────────── */
+
+function serialise(inv: Record<string, unknown>) {
+  const decimalFields = [
+    "subtotal", "tax", "whtAmount", "discountAmount",
+    "total", "paidAmount", "balanceDue",
+  ];
+  const dateFields = [
+    "issuedDate", "dueDate", "paidDate", "viewedAt", "approvedAt",
+    "billingPeriodStart", "billingPeriodEnd", "createdAt", "updatedAt",
+  ];
+  const out: Record<string, unknown> = { ...inv };
+  for (const f of decimalFields) {
+    if (out[f] != null) out[f] = Number(out[f]);
+  }
+  for (const f of dateFields) {
+    if (out[f] instanceof Date) out[f] = (out[f] as Date).toISOString();
+    else if (out[f] == null) out[f] = null;
+  }
+
+  if (Array.isArray(out.lineItemRecords)) {
+    out.lineItemRecords = (out.lineItemRecords as Record<string, unknown>[]).map((li) => ({
+      ...li,
+      quantity: li.quantity != null ? Number(li.quantity) : null,
+      unitPrice: li.unitPrice != null ? Number(li.unitPrice) : null,
+      amount: li.amount != null ? Number(li.amount) : null,
+      createdAt: li.createdAt instanceof Date ? (li.createdAt as Date).toISOString() : li.createdAt,
+    }));
+  }
+
+  if (Array.isArray(out.payments)) {
+    out.payments = (out.payments as Record<string, unknown>[]).map((p) => ({
+      ...p,
+      amount: p.amount != null ? Number(p.amount) : null,
+      paymentDate: p.paymentDate instanceof Date ? (p.paymentDate as Date).toISOString() : p.paymentDate,
+      confirmedAt: p.confirmedAt instanceof Date ? (p.confirmedAt as Date).toISOString() : p.confirmedAt,
+      createdAt: p.createdAt instanceof Date ? (p.createdAt as Date).toISOString() : p.createdAt,
+      updatedAt: p.updatedAt instanceof Date ? (p.updatedAt as Date).toISOString() : p.updatedAt,
+    }));
+  }
+
+  if (Array.isArray(out.reminders)) {
+    out.reminders = (out.reminders as Record<string, unknown>[]).map((r) => ({
+      ...r,
+      sentAt: r.sentAt instanceof Date ? (r.sentAt as Date).toISOString() : r.sentAt,
+      createdAt: r.createdAt instanceof Date ? (r.createdAt as Date).toISOString() : r.createdAt,
+    }));
+  }
+
+  return out;
+}
+
+/* ── Approval threshold ────────────────────────────────────────────────────── */
+
+const APPROVAL_THRESHOLD: Record<string, number> = {
+  NGN: 5_000_000,
+  USD: 5_000,
+};
+
+/* ── Valid status transitions ──────────────────────────────────────────────── */
+
+type TransitionCheck = {
+  from: InvoiceStatus[];
+  requireRole?: string[];
+  auto?: boolean;
+};
+
+const STATUS_TRANSITIONS: Record<string, TransitionCheck> = {
+  PENDING_APPROVAL: { from: ["DRAFT"] },
+  SENT: { from: ["DRAFT", "PENDING_APPROVAL"] },
+  VIEWED: { from: ["SENT"] },
+  PARTIALLY_PAID: { from: ["SENT", "VIEWED"], auto: true },
+  PAID: { from: ["PARTIALLY_PAID"], auto: true },
+  OVERDUE: { from: ["SENT", "VIEWED", "PARTIALLY_PAID"] },
+  CANCELLED: { from: ["DRAFT", "PENDING_APPROVAL", "SENT", "VIEWED", "PARTIALLY_PAID", "OVERDUE", "DISPUTED"] },
+  DISPUTED: { from: ["OVERDUE"] },
+  WRITTEN_OFF: { from: ["OVERDUE", "DISPUTED"], requireRole: ["PARTNER"] },
+};
+
+/* ── GET: full invoice detail ──────────────────────────────────────────────── */
+
+export async function GET(req: NextRequest, { params }: Ctx) {
+  const session = await auth();
+  if (!session) return new Response("Unauthorized", { status: 401 });
+
+  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isEM = session.user.role === "ENGAGEMENT_MANAGER";
+  if (!isElevated && !isEM) return new Response("Forbidden", { status: 403 });
+
+  const { id } = await params;
+
+  const invoice = await prisma.invoice.findUnique({
+    where: { id },
+    include: {
+      client: { select: { id: true, name: true, email: true, primaryContact: true, address: true, paymentTerms: true } },
+      engagement: { select: { id: true, name: true, serviceType: true, engagementManagerId: true } },
+      lineItemRecords: { orderBy: { sortOrder: "asc" } },
+      payments: { orderBy: { paymentDate: "desc" } },
+      reminders: { orderBy: { sentAt: "desc" } },
+      creditNotesIssued: true,
+      billingSchedule: true,
+      approvedBy: { select: { id: true, name: true } },
+    },
+  });
+
+  if (!invoice) return new Response("Not found", { status: 404 });
+
+  // IDOR check for EMs
+  if (isEM && invoice.engagement?.engagementManagerId !== session.user.id) {
+    // Need to re-fetch with EM check
+    const withEM = await prisma.invoice.findUnique({
+      where: { id },
+      select: { engagement: { select: { engagementManagerId: true } } },
+    });
+    if (!withEM?.engagement || withEM.engagement.engagementManagerId !== session.user.id) {
+      return new Response("Forbidden", { status: 403 });
+    }
+  }
+
+  return Response.json(serialise(invoice as unknown as Record<string, unknown>));
+}
+
+/* ── PATCH: status transitions + draft editing ─────────────────────────────── */
+
+export async function PATCH(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -11,48 +137,169 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!canUpdate) return new Response("Forbidden", { status: 403 });
 
   const { id } = await params;
+  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+
+  // Fetch existing invoice
+  const existing = await prisma.invoice.findUnique({
+    where: { id },
+    include: {
+      engagement: { select: { engagementManagerId: true } },
+      lineItemRecords: true,
+    },
+  });
+  if (!existing) return new Response("Not found", { status: 404 });
 
   // IDOR: verify ownership for non-elevated roles
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isElevated) {
-    const existing = await prisma.invoice.findUnique({
-      where: { id },
-      select: { engagement: { select: { engagementManagerId: true } } },
-    });
-    if (!existing) return new Response("Not found", { status: 404 });
     if (!existing.engagement || existing.engagement.engagementManagerId !== session.user.id) {
       return new Response("Forbidden", { status: 403 });
     }
   }
 
-  const { status, paymentMethod, paymentReference } = await req.json();
+  const body = await req.json();
+  const { status, lineItems, notes, clientNotes, dueDate, billingPeriodStart, billingPeriodEnd } = body;
 
-  const validStatuses: InvoiceStatus[] = ["DRAFT", "SENT", "PAID", "OVERDUE", "CANCELLED"];
-  if (status && !validStatuses.includes(status)) {
-    return new Response("Invalid status", { status: 400 });
+  const data: Prisma.InvoiceUpdateInput = {};
+
+  // ── Status transition ─────────────────────────────────────────────────────
+  if (status && status !== existing.status) {
+    const transition = STATUS_TRANSITIONS[status as string];
+    if (!transition) {
+      return new Response(`Invalid target status: ${status}`, { status: 400 });
+    }
+
+    if (!transition.from.includes(existing.status)) {
+      return new Response(
+        `Cannot transition from ${existing.status} to ${status}`,
+        { status: 400 }
+      );
+    }
+
+    // Role checks for specific transitions
+    if (transition.requireRole && !transition.requireRole.includes(session.user.role)) {
+      return new Response(
+        `Only ${transition.requireRole.join("/")} can set status to ${status}`,
+        { status: 403 }
+      );
+    }
+
+    // PENDING_APPROVAL: only if above threshold
+    if (status === "PENDING_APPROVAL") {
+      const threshold = APPROVAL_THRESHOLD[existing.currency] ?? APPROVAL_THRESHOLD.NGN;
+      if (Number(existing.total) <= threshold) {
+        return new Response(
+          `Invoice total is below the approval threshold (${existing.currency} ${threshold.toLocaleString()}). Send directly instead.`,
+          { status: 400 }
+        );
+      }
+    }
+
+    // SENT: check approval requirement
+    if (status === "SENT") {
+      if (existing.status === "DRAFT") {
+        const threshold = APPROVAL_THRESHOLD[existing.currency] ?? APPROVAL_THRESHOLD.NGN;
+        if (Number(existing.total) > threshold && !existing.approvedById) {
+          return new Response(
+            `Invoice total exceeds ${existing.currency} ${threshold.toLocaleString()}. Requires approval before sending.`,
+            { status: 400 }
+          );
+        }
+      }
+      if (existing.status === "PENDING_APPROVAL") {
+        // Must be Director+ to approve and send
+        if (!isElevated) {
+          return new Response("Director or above required to approve invoices", { status: 403 });
+        }
+        data.approvedBy = { connect: { id: session.user.id } };
+        data.approvedAt = new Date();
+      }
+      data.issuedDate = existing.issuedDate ?? new Date();
+    }
+
+    if (status === "VIEWED") {
+      data.viewedAt = new Date();
+    }
+
+    if (status === "PAID") {
+      data.paidDate = new Date();
+    }
+
+    data.status = status as InvoiceStatus;
   }
 
-  const data: Record<string, unknown> = {};
-  if (status) data.status = status as InvoiceStatus;
-  if (paymentMethod) data.paymentMethod = paymentMethod;
-  if (paymentReference) data.paymentReference = paymentReference;
-  if (status === "PAID") data.paidDate = new Date();
-  if (status === "SENT" && !data.issuedDate) data.issuedDate = new Date();
+  // ── Draft editing: line items, notes, dates ───────────────────────────────
+  if (existing.status === "DRAFT") {
+    if (notes !== undefined) data.notes = notes;
+    if (clientNotes !== undefined) data.clientNotes = clientNotes;
+    if (dueDate) data.dueDate = new Date(dueDate);
+    if (billingPeriodStart) data.billingPeriodStart = new Date(billingPeriodStart);
+    if (billingPeriodEnd) data.billingPeriodEnd = new Date(billingPeriodEnd);
+
+    // Update line items if provided
+    if (lineItems && Array.isArray(lineItems) && lineItems.length > 0) {
+      // Validate
+      for (const item of lineItems) {
+        if (!item.description || typeof item.quantity !== "number" || typeof item.unitPrice !== "number") {
+          return new Response("Each line item needs description, quantity, unitPrice", { status: 400 });
+        }
+        if (item.quantity <= 0) return new Response("Quantity must be greater than zero", { status: 400 });
+        if (item.unitPrice < 0) return new Response("Unit price cannot be negative", { status: 400 });
+      }
+
+      // Recalculate amounts
+      const subtotal = lineItems.reduce(
+        (sum: number, item: { quantity: number; unitPrice: number }) => sum + item.quantity * item.unitPrice,
+        0
+      );
+      const taxRate = Number(existing.tax) / (Number(existing.subtotal) || 1);
+      const tax = Math.round(subtotal * taxRate * 100) / 100;
+      const whtRate = Number(existing.whtAmount) / (Number(existing.subtotal) || 1);
+      const whtAmount = Math.round(subtotal * whtRate * 100) / 100;
+      const discountAmount = Number(existing.discountAmount);
+      const total = Math.round((subtotal + tax - whtAmount - discountAmount) * 100) / 100;
+
+      data.subtotal = subtotal;
+      data.tax = tax;
+      data.whtAmount = whtAmount;
+      data.total = total;
+      data.balanceDue = total - Number(existing.paidAmount);
+      data.lineItems = lineItems.map((item: { description: string; quantity: number; unitPrice: number }, i: number) => ({
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        amount: item.quantity * item.unitPrice,
+        sortOrder: i,
+      }));
+
+      // Delete existing line item records and recreate
+      await prisma.invoiceLineItem.deleteMany({ where: { invoiceId: id } });
+      data.lineItemRecords = {
+        create: lineItems.map((item: { description: string; quantity: number; unitPrice: number; category?: string; paymentMilestoneId?: string; timeEntryIds?: string[] }, i: number) => ({
+          description: item.description,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          amount: item.quantity * item.unitPrice,
+          sortOrder: i,
+          category: item.category ?? null,
+          paymentMilestoneId: item.paymentMilestoneId ?? null,
+          timeEntryIds: item.timeEntryIds ?? [],
+        })),
+      };
+    }
+  } else if (lineItems) {
+    return new Response("Line items can only be edited on DRAFT invoices", { status: 400 });
+  }
 
   const invoice = await prisma.invoice.update({
     where: { id },
     data,
+    include: {
+      client: { select: { id: true, name: true } },
+      engagement: { select: { id: true, name: true } },
+      lineItemRecords: { orderBy: { sortOrder: "asc" } },
+      payments: { orderBy: { paymentDate: "desc" } },
+    },
   });
 
-  return Response.json({
-    ...invoice,
-    subtotal: Number(invoice.subtotal),
-    tax: Number(invoice.tax),
-    total: Number(invoice.total),
-    issuedDate: invoice.issuedDate?.toISOString() ?? null,
-    dueDate: invoice.dueDate?.toISOString() ?? null,
-    paidDate: invoice.paidDate?.toISOString() ?? null,
-    createdAt: invoice.createdAt.toISOString(),
-    updatedAt: invoice.updatedAt.toISOString(),
-  });
+  return Response.json(serialise(invoice as unknown as Record<string, unknown>));
 }
