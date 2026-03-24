@@ -216,6 +216,7 @@ export default function AdminReferralsManager({
                         >
                           <option value="LIGHT">Light (profile only)</option>
                           <option value="STANDARD">Standard (profile + proctored assessment)</option>
+                          <option value="MAAROVA">Maarova assessment only</option>
                           <option value="FULL">Full (profile + assessment + Maarova)</option>
                         </select>
                         <div className="flex gap-2">

@@ -4,7 +4,7 @@ import { NextRequest } from "next/server";
 import type { ReferralStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
-import { sendInvite } from "@/lib/email";
+import { sendInvite, emailMaarovaInvite } from "@/lib/email";
 
 const VALID_STATUSES: ReferralStatus[] = ["PENDING", "CONTACTED", "CONVERTED", "REJECTED"];
 
@@ -57,7 +57,7 @@ export async function PATCH(
       },
     });
 
-    const level = ["LIGHT", "STANDARD", "FULL"].includes(assessmentLevel ?? "") ? assessmentLevel : "STANDARD";
+    const level = ["LIGHT", "STANDARD", "MAAROVA", "FULL"].includes(assessmentLevel ?? "") ? assessmentLevel : "STANDARD";
     await prisma.consultantOnboarding.create({
       data: {
         userId: user.id,
@@ -70,6 +70,60 @@ export async function PATCH(
       await sendInvite(referral.email, referral.name, "CONSULTANT", tempPassword);
     } catch (err) {
       console.error("Failed to send referral invite:", err);
+    }
+
+    // Auto-create Maarova portal credentials for MAAROVA/FULL tiers
+    if (level === "MAAROVA" || level === "FULL") {
+      try {
+        let cfaOrg = await prisma.maarovaOrganisation.findFirst({
+          where: { name: "Consult For Africa" },
+          select: { id: true, name: true },
+        });
+        if (!cfaOrg) {
+          cfaOrg = await prisma.maarovaOrganisation.create({
+            data: {
+              name: "Consult For Africa",
+              type: "Consulting Firm",
+              country: "Nigeria",
+              stream: "DEVELOPMENT",
+              contactName: "Consult For Africa",
+              contactEmail: "hello@consultforafrica.com",
+              isActive: true,
+            },
+            select: { id: true, name: true },
+          });
+        }
+
+        const existingMaarovaUser = await prisma.maarovaUser.findUnique({
+          where: { email: referral.email.trim().toLowerCase() },
+        });
+
+        if (!existingMaarovaUser) {
+          const maarovaPassword = randomBytes(12).toString("base64url") + "!1A";
+          const maarovaPasswordHash = await bcrypt.hash(maarovaPassword, 12);
+
+          await prisma.maarovaUser.create({
+            data: {
+              organisationId: cfaOrg.id,
+              name: referral.name,
+              email: referral.email.trim().toLowerCase(),
+              passwordHash: maarovaPasswordHash,
+              role: "USER",
+              isPortalEnabled: true,
+              invitedAt: new Date(),
+            },
+          });
+
+          emailMaarovaInvite({
+            email: referral.email,
+            name: referral.name,
+            organisationName: cfaOrg.name,
+            password: maarovaPassword,
+          }).catch((err) => console.error("[maarova] invite email error:", err));
+        }
+      } catch (err) {
+        console.error("Failed to create Maarova credentials:", err);
+      }
     }
   }
 

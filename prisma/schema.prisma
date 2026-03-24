@@ -1043,7 +1043,7 @@ model TalentApplication {
 
   // Onboarding link
   convertedToUserId String?
-  assessmentLevel   String  @default("STANDARD") // LIGHT, STANDARD, FULL
+  assessmentLevel   String  @default("STANDARD") // LIGHT, STANDARD, MAAROVA, FULL
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2189,7 +2189,7 @@ model ConsultantOnboarding {
   userId              String           @unique
   user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   status              OnboardingStatus @default(INVITED)
-  assessmentLevel     String           @default("STANDARD") // LIGHT, STANDARD, FULL
+  assessmentLevel     String           @default("STANDARD") // LIGHT, STANDARD, MAAROVA, FULL
   profileCompleted    Boolean          @default(false)
   assessmentCompleted Boolean          @default(false)
   reviewedById        String?

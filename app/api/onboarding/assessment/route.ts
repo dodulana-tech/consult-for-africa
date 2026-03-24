@@ -31,8 +31,8 @@ export async function POST(req: NextRequest) {
     return new Response("Onboarding already completed", { status: 400 });
   }
 
-  if (onboarding.assessmentLevel === "LIGHT") {
-    return new Response("No assessment required for LIGHT level", { status: 400 });
+  if (onboarding.assessmentLevel === "LIGHT" || onboarding.assessmentLevel === "MAAROVA") {
+    return new Response("No self-assessment required for this level", { status: 400 });
   }
 
   const body = await req.json();

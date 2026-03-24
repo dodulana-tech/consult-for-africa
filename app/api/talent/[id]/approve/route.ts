@@ -4,7 +4,7 @@ import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
-import { sendInvite } from "@/lib/email";
+import { sendInvite, emailMaarovaInvite } from "@/lib/email";
 
 export async function POST(
   req: NextRequest,
@@ -20,8 +20,8 @@ export async function POST(
   const body = await req.json();
   const assessmentLevel = body.assessmentLevel ?? "STANDARD";
 
-  if (!["LIGHT", "STANDARD", "FULL"].includes(assessmentLevel)) {
-    return new Response("assessmentLevel must be LIGHT, STANDARD, or FULL", { status: 400 });
+  if (!["LIGHT", "STANDARD", "MAAROVA", "FULL"].includes(assessmentLevel)) {
+    return new Response("assessmentLevel must be LIGHT, STANDARD, MAAROVA, or FULL", { status: 400 });
   }
 
   // Fetch the application
@@ -101,6 +101,63 @@ export async function POST(
     await sendInvite(application.email, fullName, "CONSULTANT", tempPassword);
   } catch (err) {
     console.error("Failed to send invite email:", err);
+  }
+
+  // Auto-create Maarova portal credentials for MAAROVA/FULL tiers
+  if (assessmentLevel === "MAAROVA" || assessmentLevel === "FULL") {
+    try {
+      // Find or create the CFA internal organisation
+      let cfaOrg = await prisma.maarovaOrganisation.findFirst({
+        where: { name: "Consult For Africa" },
+        select: { id: true, name: true },
+      });
+      if (!cfaOrg) {
+        cfaOrg = await prisma.maarovaOrganisation.create({
+          data: {
+            name: "Consult For Africa",
+            type: "Consulting Firm",
+            country: "Nigeria",
+            stream: "DEVELOPMENT",
+            contactName: "Consult For Africa",
+            contactEmail: "hello@consultforafrica.com",
+            isActive: true,
+          },
+          select: { id: true, name: true },
+        });
+      }
+
+      // Check if Maarova user already exists
+      const existingMaarovaUser = await prisma.maarovaUser.findUnique({
+        where: { email: application.email.trim().toLowerCase() },
+      });
+
+      if (!existingMaarovaUser) {
+        const maarovaPassword = randomBytes(12).toString("base64url") + "!1A";
+        const maarovaPasswordHash = await bcrypt.hash(maarovaPassword, 12);
+
+        await prisma.maarovaUser.create({
+          data: {
+            organisationId: cfaOrg.id,
+            name: fullName,
+            email: application.email.trim().toLowerCase(),
+            passwordHash: maarovaPasswordHash,
+            role: "USER",
+            isPortalEnabled: true,
+            invitedAt: new Date(),
+          },
+        });
+
+        // Send Maarova invite email with credentials
+        emailMaarovaInvite({
+          email: application.email,
+          name: fullName,
+          organisationName: cfaOrg.name,
+          password: maarovaPassword,
+        }).catch((err) => console.error("[maarova] invite email error:", err));
+      }
+    } catch (err) {
+      console.error("Failed to create Maarova credentials:", err);
+    }
   }
 
   await logAudit({

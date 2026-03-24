@@ -285,8 +285,8 @@ export default function OnboardingPage() {
       if (!ok) return;
     } else if (step === 3 && level !== "LIGHT") {
       // Save assessment
-      if (level === "FULL") {
-        // For FULL, just move to confirmation (external assessment)
+      if (level === "FULL" || level === "MAAROVA") {
+        // For FULL/MAAROVA, just move to confirmation (external Maarova assessment)
       } else {
         const ok = await saveAssessment();
         if (!ok) return;
@@ -396,7 +396,7 @@ export default function OnboardingPage() {
                       <ClipboardCheck size={16} className="text-blue-500 shrink-0 mt-0.5" />
                       <span>
                         <strong>Skills assessment</strong> -{" "}
-                        {level === "FULL"
+                        {level === "FULL" || level === "MAAROVA"
                           ? "Complete a Maarova leadership assessment"
                           : "Self-assess your expertise across our service areas"}
                       </span>
@@ -410,7 +410,7 @@ export default function OnboardingPage() {
               </div>
 
               <p className="text-sm text-gray-500">
-                This takes about {level === "FULL" ? "10-15" : "5-10"} minutes. You can save and resume at any time.
+                This takes about {level === "FULL" || level === "MAAROVA" ? "10-15" : "5-10"} minutes. You can save and resume at any time.
               </p>
             </div>
           )}
@@ -735,7 +735,37 @@ export default function OnboardingPage() {
                 Skills assessment
               </h1>
 
-              {level === "FULL" ? (
+              {level === "MAAROVA" ? (
+                <div>
+                  <p className="text-gray-500 text-sm mb-6">
+                    Your onboarding includes a Maarova leadership assessment. You will receive
+                    a separate email with credentials to access the assessment portal.
+                    Complete the assessment within 7 days.
+                  </p>
+                  <div
+                    className="rounded-xl p-6"
+                    style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}
+                  >
+                    <h2 className="text-sm font-semibold mb-2" style={{ color: "#0F2744" }}>
+                      Maarova Assessment Portal
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Complete the leadership assessment to help us understand your strengths
+                      and match you with the right engagements.
+                    </p>
+                    <a
+                      href="/maarova/portal/login"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
+                      style={{ background: "#0F2744", color: "#fff" }}
+                    >
+                      Open Maarova Portal
+                      <ChevronRight size={14} />
+                    </a>
+                  </div>
+                </div>
+              ) : level === "FULL" ? (
                 <div>
                   <p className="text-gray-500 text-sm mb-6">
                     Your onboarding includes a proctored skills assessment and a Maarova leadership

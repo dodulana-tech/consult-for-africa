@@ -361,6 +361,7 @@ export default function TalentApplicationDetail({ application: app }: Props) {
                   >
                     <option value="LIGHT">Light (profile only)</option>
                     <option value="STANDARD">Standard (profile + assessment)</option>
+                    <option value="MAAROVA">Maarova assessment only</option>
                     <option value="FULL">Full (profile + assessment + Maarova)</option>
                   </select>
                   <button
