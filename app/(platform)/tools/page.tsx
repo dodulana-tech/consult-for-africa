@@ -13,9 +13,18 @@ import {
   Calculator,
   Layout,
   Search,
+  Shield,
 } from "lucide-react";
 
 const TOOL_CATEGORIES = [
+  {
+    name: "Legal & Compliance",
+    icon: Shield,
+    color: "#0F2744",
+    tools: [
+      { slug: "nda", name: "NDA Manager", description: "Generate, send, and track non-disclosure agreements for clients and consultants with e-signatures." },
+    ],
+  },
   {
     name: "Problem Structuring",
     icon: GitBranch,

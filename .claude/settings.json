@@ -11,7 +11,18 @@
       "Bash(ls -la /Users/debo/consult-for-africa/app/\\\\\\(marketing\\\\\\)/maarova/page.tsx)",
       "Bash(wc -l /Users/debo/consult-for-africa/components/cfa/*.tsx)",
       "Bash(head -10 /Users/debo/consult-for-africa/app/\\\\\\(marketing\\\\\\)/contact/page.tsx)",
-      "Bash(head -20 /Users/debo/consult-for-africa/app/\\\\\\(marketing\\\\\\)/contact/page.tsx)"
+      "Bash(head -20 /Users/debo/consult-for-africa/app/\\\\\\(marketing\\\\\\)/contact/page.tsx)",
+      "Bash(dig consultforafrica.com MX +short)",
+      "Bash(dig consultforafrica.com TXT +short)",
+      "Bash(dig _dmarc.consultforafrica.com TXT +short)",
+      "Bash(dig zb14924137._domainkey.consultforafrica.com TXT +short)",
+      "Bash(dig zoho._domainkey.consultforafrica.com TXT +short)",
+      "Bash(dig default._domainkey.consultforafrica.com TXT +short)",
+      "Bash(dig consultforafrica.com NS +short)",
+      "Bash(dig consultforafrica.com A +short)"
+    ],
+    "additionalDirectories": [
+      "/Users/debo/consult-for-africa/app/(client-portal)/client/projects/[id]/report"
     ]
   }
 }
