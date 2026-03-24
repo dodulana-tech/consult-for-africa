@@ -44,11 +44,16 @@ const DELIVERABLE_STATUS_COLORS: Record<string, { bg: string; color: string }> =
 };
 
 const INVOICE_STATUS_COLORS: Record<string, { bg: string; color: string }> = {
-  DRAFT:     { bg: "#F3F4F6", color: "#6B7280" },
-  SENT:      { bg: "#EFF6FF", color: "#1D4ED8" },
-  PAID:      { bg: "#D1FAE5", color: "#065F46" },
-  OVERDUE:   { bg: "#FEE2E2", color: "#991B1B" },
-  CANCELLED: { bg: "#F3F4F6", color: "#9CA3AF" },
+  DRAFT:            { bg: "#F3F4F6", color: "#6B7280" },
+  PENDING_APPROVAL: { bg: "#FEF3C7", color: "#92400E" },
+  SENT:             { bg: "#EFF6FF", color: "#1D4ED8" },
+  VIEWED:           { bg: "#E0E7FF", color: "#3730A3" },
+  PARTIALLY_PAID:   { bg: "#FEF9C3", color: "#854D0E" },
+  PAID:             { bg: "#D1FAE5", color: "#065F46" },
+  OVERDUE:          { bg: "#FEE2E2", color: "#991B1B" },
+  DISPUTED:         { bg: "#FFE4E6", color: "#BE123C" },
+  WRITTEN_OFF:      { bg: "#F3F4F6", color: "#9CA3AF" },
+  CANCELLED:        { bg: "#F3F4F6", color: "#9CA3AF" },
 };
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -99,11 +104,11 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
     .filter((i) => i.status === "PAID")
     .reduce((s, i) => s + Number(i.total), 0);
   const outstanding = client.invoices
-    .filter((i) => ["SENT", "OVERDUE"].includes(i.status))
-    .reduce((s, i) => s + Number(i.total), 0);
+    .filter((i) => ["SENT", "VIEWED", "PARTIALLY_PAID", "OVERDUE", "DISPUTED"].includes(i.status))
+    .reduce((s, i) => s + Number(i.balanceDue ?? i.total), 0);
   const overdueAmount = client.invoices
-    .filter((i) => i.status === "OVERDUE")
-    .reduce((s, i) => s + Number(i.total), 0);
+    .filter((i) => ["OVERDUE", "DISPUTED"].includes(i.status))
+    .reduce((s, i) => s + Number(i.balanceDue ?? i.total), 0);
 
   // Deliverable stats across all projects
   const allDeliverables = client.engagements.flatMap((p) => p.deliverables);
@@ -319,33 +324,57 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                     <tr className="text-xs text-gray-500 border-b" style={{ borderColor: "#e5eaf0", background: "#F9FAFB" }}>
                       <th className="text-left px-4 py-2.5 font-medium">Invoice</th>
                       <th className="text-left px-4 py-2.5 font-medium">Amount</th>
-                      <th className="text-left px-4 py-2.5 font-medium">Issued</th>
-                      <th className="text-left px-4 py-2.5 font-medium">Due</th>
+                      <th className="text-left px-4 py-2.5 font-medium hidden sm:table-cell">Paid</th>
+                      <th className="text-left px-4 py-2.5 font-medium hidden md:table-cell">Due</th>
                       <th className="text-left px-4 py-2.5 font-medium">Status</th>
-                  {canManageInvoices && <th className="px-4 py-2.5" />}
+                      {canManageInvoices && <th className="px-4 py-2.5 font-medium text-right">Actions</th>}
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y" style={{ borderColor: "#e5eaf0" }}>
                     {client.invoices.map((inv) => {
                       const invStyle = INVOICE_STATUS_COLORS[inv.status] ?? INVOICE_STATUS_COLORS.DRAFT;
+                      const isOverdue = inv.status === "SENT" && inv.dueDate && new Date(inv.dueDate) < new Date();
+                      const daysOverdue = inv.dueDate ? Math.max(0, Math.floor((Date.now() - new Date(inv.dueDate).getTime()) / 86400000)) : 0;
                       return (
-                        <tr key={inv.id} className="hover:bg-gray-50">
-                          <td className="px-4 py-3 font-mono text-xs text-gray-600">{inv.invoiceNumber}</td>
+                        <tr key={inv.id} className="hover:bg-gray-50 group">
+                          <td className="px-4 py-3">
+                            <Link
+                              href={`/finance/invoices/${inv.id}`}
+                              className="font-mono text-xs hover:underline"
+                              style={{ color: "#0F2744" }}
+                            >
+                              {inv.invoiceNumber}
+                            </Link>
+                            {inv.invoiceType && inv.invoiceType !== "STANDARD" && (
+                              <span className="ml-1.5 text-[9px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 uppercase">
+                                {inv.invoiceType.replace(/_/g, " ")}
+                              </span>
+                            )}
+                          </td>
                           <td className="px-4 py-3 font-semibold">
                             {formatCurrency(Number(inv.total), inv.currency)}
                           </td>
-                          <td className="px-4 py-3 text-gray-500">
-                            {inv.issuedDate ? formatDate(new Date(inv.issuedDate)) : "-"}
+                          <td className="px-4 py-3 text-gray-500 hidden sm:table-cell">
+                            {Number(inv.paidAmount) > 0 ? (
+                              <span className="text-green-600 font-medium">{formatCurrency(Number(inv.paidAmount), inv.currency)}</span>
+                            ) : "-"}
                           </td>
-                          <td className="px-4 py-3 text-gray-500">
-                            {inv.dueDate ? formatDate(new Date(inv.dueDate)) : "-"}
+                          <td className="px-4 py-3 hidden md:table-cell">
+                            {inv.dueDate ? (
+                              <span className={isOverdue ? "text-red-600 font-medium" : "text-gray-500"}>
+                                {formatDate(new Date(inv.dueDate))}
+                                {isOverdue && daysOverdue > 0 && (
+                                  <span className="text-[10px] ml-1">({daysOverdue}d late)</span>
+                                )}
+                              </span>
+                            ) : "-"}
                           </td>
                           <td className="px-4 py-3">
                             <span
-                              className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+                              className="text-[10px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap"
                               style={invStyle}
                             >
-                              {inv.status}
+                              {inv.status.replace(/_/g, " ")}
                             </span>
                           </td>
                           {canManageInvoices && (
