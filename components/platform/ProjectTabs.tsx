@@ -579,6 +579,97 @@ function OverviewTab({
             )}
           </div>
           <p className="text-sm text-gray-600 mt-2 leading-relaxed max-w-3xl">{project.description}</p>
+
+          {/* Latest updates below description */}
+          {project.updates.length > 0 && (
+            <div className="mt-3 space-y-2 max-w-3xl">
+              {project.updates.slice(0, 3).map((u) => (
+                <div key={u.id} className="flex items-start gap-2.5">
+                  <div
+                    className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
+                    style={{
+                      background:
+                        u.type === "ISSUE" ? "#EF4444"
+                        : u.type === "CLIENT_FEEDBACK" ? "#3B82F6"
+                        : u.type === "MILESTONE_COMPLETED" ? "#10B981"
+                        : u.type === "TEAM_CHANGE" ? "#8B5CF6"
+                        : "#D4AF37",
+                    }}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className="text-[10px] font-medium px-1.5 py-0.5 rounded-full"
+                        style={{
+                          background:
+                            u.type === "ISSUE" ? "#FEE2E2"
+                            : u.type === "CLIENT_FEEDBACK" ? "#DBEAFE"
+                            : u.type === "MILESTONE_COMPLETED" ? "#D1FAE5"
+                            : u.type === "TEAM_CHANGE" ? "#EDE9FE"
+                            : "#F3F4F6",
+                          color:
+                            u.type === "ISSUE" ? "#991B1B"
+                            : u.type === "CLIENT_FEEDBACK" ? "#1E40AF"
+                            : u.type === "MILESTONE_COMPLETED" ? "#065F46"
+                            : u.type === "TEAM_CHANGE" ? "#5B21B6"
+                            : "#6B7280",
+                        }}
+                      >
+                        {u.type.replace(/_/g, " ").toLowerCase()}
+                      </span>
+                      <span className="text-[10px] text-gray-400">{u.createdBy.name}</span>
+                      <span className="text-gray-200 text-[10px]">·</span>
+                      <span className="text-[10px] text-gray-400">{timeAgo(new Date(u.createdAt))}</span>
+                    </div>
+                    <p className="text-xs text-gray-700 leading-snug mt-0.5">{u.content}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Inline update form */}
+          <div className="mt-3 max-w-3xl">
+            <div className="flex items-start gap-2">
+              <textarea
+                value={updateContent}
+                onChange={(e) => onContentChange(e.target.value)}
+                placeholder="Post a project update..."
+                rows={1}
+                className="flex-1 text-xs rounded-lg px-3 py-2 resize-none focus:outline-none"
+                style={{ border: "1px solid #e5eaf0", background: "#F9FAFB" }}
+                onFocus={(e) => { e.currentTarget.rows = 3; }}
+                onBlur={(e) => { if (!e.currentTarget.value) e.currentTarget.rows = 1; }}
+              />
+              <select
+                value={updateType}
+                onChange={(e) => onTypeChange(e.target.value)}
+                className="text-[10px] rounded-lg px-2 py-2 focus:outline-none shrink-0"
+                style={{ border: "1px solid #e5eaf0", color: "#374151" }}
+              >
+                <option value="GENERAL">General</option>
+                <option value="MILESTONE_COMPLETED">Milestone</option>
+                <option value="ISSUE">Issue</option>
+                <option value="CLIENT_FEEDBACK">Client Feedback</option>
+                <option value="TEAM_CHANGE">Team Change</option>
+              </select>
+              <button
+                onClick={onPost}
+                disabled={!updateContent.trim() || posting}
+                className="flex items-center gap-1 px-3 py-2 rounded-lg text-[10px] font-semibold disabled:opacity-50 shrink-0"
+                style={{ background: "#0F2744", color: "#fff" }}
+              >
+                {posting ? <Loader2 size={11} className="animate-spin" /> : <Send size={11} />}
+                Post
+              </button>
+            </div>
+            {updateError && (
+              <p className="mt-1 text-[10px] text-red-500 flex items-center gap-1">
+                <AlertCircle size={10} />
+                {updateError}
+              </p>
+            )}
+          </div>
         </div>
         {isEM && (
           <ProjectStatusEditor
@@ -685,18 +776,44 @@ function OverviewTab({
             <h3 className="text-sm font-semibold text-gray-900 mb-4">Activity</h3>
 
             {project.updates.length === 0 ? (
-              <p className="text-xs text-gray-400">No updates yet.</p>
+              <p className="text-xs text-gray-400">No updates yet. Post one above.</p>
             ) : (
-              <div className="space-y-3 max-h-64 overflow-y-auto">
+              <div className="space-y-3 max-h-80 overflow-y-auto">
                 {project.updates.map((u) => (
                   <div key={u.id} className="flex items-start gap-2.5">
                     <div
                       className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
-                      style={{ background: "#D4AF37" }}
+                      style={{
+                        background:
+                          u.type === "ISSUE" ? "#EF4444"
+                          : u.type === "CLIENT_FEEDBACK" ? "#3B82F6"
+                          : u.type === "MILESTONE_COMPLETED" ? "#10B981"
+                          : u.type === "TEAM_CHANGE" ? "#8B5CF6"
+                          : "#D4AF37",
+                      }}
                     />
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-gray-700 leading-snug">{u.content}</p>
                       <div className="flex items-center gap-1.5 mt-0.5">
+                        <span
+                          className="text-[10px] font-medium px-1.5 py-0.5 rounded-full"
+                          style={{
+                            background:
+                              u.type === "ISSUE" ? "#FEE2E2"
+                              : u.type === "CLIENT_FEEDBACK" ? "#DBEAFE"
+                              : u.type === "MILESTONE_COMPLETED" ? "#D1FAE5"
+                              : u.type === "TEAM_CHANGE" ? "#EDE9FE"
+                              : "#F3F4F6",
+                            color:
+                              u.type === "ISSUE" ? "#991B1B"
+                              : u.type === "CLIENT_FEEDBACK" ? "#1E40AF"
+                              : u.type === "MILESTONE_COMPLETED" ? "#065F46"
+                              : u.type === "TEAM_CHANGE" ? "#5B21B6"
+                              : "#6B7280",
+                          }}
+                        >
+                          {u.type.replace(/_/g, " ").toLowerCase()}
+                        </span>
                         <span className="text-[10px] text-gray-400">{u.createdBy.name}</span>
                         <span className="text-gray-200 text-[10px]">·</span>
                         <span className="text-[10px] text-gray-400">{timeAgo(new Date(u.createdAt))}</span>
@@ -706,47 +823,6 @@ function OverviewTab({
                 ))}
               </div>
             )}
-
-            {/* Post update form */}
-            <div className="mt-4 pt-3" style={{ borderTop: "1px solid #F3F4F6" }}>
-              <textarea
-                value={updateContent}
-                onChange={(e) => onContentChange(e.target.value)}
-                placeholder="Post an update..."
-                rows={2}
-                className="w-full text-xs rounded-lg px-3 py-2 resize-none focus:outline-none"
-                style={{ border: "1px solid #e5eaf0", background: "#F9FAFB" }}
-              />
-              <div className="flex items-center gap-2 mt-1.5">
-                <select
-                  value={updateType}
-                  onChange={(e) => onTypeChange(e.target.value)}
-                  className="text-[10px] rounded-lg px-2 py-1 focus:outline-none"
-                  style={{ border: "1px solid #e5eaf0", color: "#374151" }}
-                >
-                  <option value="GENERAL">General</option>
-                  <option value="MILESTONE_COMPLETED">Milestone</option>
-                  <option value="ISSUE">Issue</option>
-                  <option value="CLIENT_FEEDBACK">Client Feedback</option>
-                  <option value="TEAM_CHANGE">Team Change</option>
-                </select>
-                <button
-                  onClick={onPost}
-                  disabled={!updateContent.trim() || posting}
-                  className="ml-auto flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold disabled:opacity-50"
-                  style={{ background: "#0F2744", color: "#fff" }}
-                >
-                  {posting ? <Loader2 size={11} className="animate-spin" /> : <Send size={11} />}
-                  Post
-                </button>
-              </div>
-              {updateError && (
-                <p className="mt-1.5 text-[10px] text-red-500 flex items-center gap-1">
-                  <AlertCircle size={10} />
-                  {updateError}
-                </p>
-              )}
-            </div>
           </div>
 
           {/* Internal notes */}

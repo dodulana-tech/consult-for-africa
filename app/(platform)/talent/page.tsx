@@ -5,6 +5,8 @@ import Link from "next/link";
 import TopBar from "@/components/platform/TopBar";
 import { ChevronRight, Star, Users, CheckCircle, Clock } from "lucide-react";
 
+const PAGE_SIZE = 25;
+
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   SUBMITTED:            { bg: "#F3F4F6", color: "#6B7280" },
   AI_SCREENED:          { bg: "#EFF6FF", color: "#1D4ED8" },
@@ -24,20 +26,29 @@ const RECOMMENDATION_COLORS: Record<string, { bg: string; color: string }> = {
   NO:         { bg: "#FEE2E2", color: "#991B1B" },
 };
 
-export default async function TalentPage() {
+const PIPELINE_STATUSES = ["SHORTLISTED", "INTERVIEW_SCHEDULED", "OFFER_EXTENDED"];
+
+export default async function TalentPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const session = await auth();
   if (!session) redirect("/login");
 
   const allowed = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"];
   if (!allowed.includes(session.user.role)) redirect("/dashboard");
 
-  const [applications, stats] = await Promise.all([
+  const { page: pageParam } = await searchParams;
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const skip = (page - 1) * PAGE_SIZE;
+
+  const [applications, stats, total, strongYesCount] = await Promise.all([
     prisma.talentApplication.findMany({
       select: {
         id: true,
         firstName: true,
         lastName: true,
-        email: true,
         location: true,
         specialty: true,
         yearsExperience: true,
@@ -51,17 +62,24 @@ export default async function TalentPage() {
         createdAt: true,
       },
       orderBy: [{ aiScore: "desc" }, { createdAt: "desc" }],
+      take: PAGE_SIZE,
+      skip,
     }),
     prisma.talentApplication.groupBy({
       by: ["status"],
       _count: { id: true },
     }),
+    prisma.talentApplication.count(),
+    prisma.talentApplication.count({
+      where: { aiRecommendation: "STRONG_YES" },
+    }),
   ]);
 
-  const total = applications.length;
-  const shortlisted = applications.filter((a) => ["SHORTLISTED", "INTERVIEW_SCHEDULED", "OFFER_EXTENDED"].includes(a.status)).length;
-  const hired = applications.filter((a) => a.status === "HIRED").length;
-  const strongYes = applications.filter((a) => a.aiRecommendation === "STRONG_YES").length;
+  const statusMap = Object.fromEntries(stats.map((s) => [s.status, s._count.id]));
+  const shortlisted = PIPELINE_STATUSES.reduce((sum, s) => sum + (statusMap[s] ?? 0), 0);
+  const hired = statusMap["HIRED"] ?? 0;
+  const strongYes = strongYesCount;
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
@@ -183,6 +201,35 @@ export default async function TalentPage() {
               </div>
             )}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-2">
+              <p className="text-xs text-gray-400">
+                Showing {skip + 1}&ndash;{Math.min(skip + PAGE_SIZE, total)} of {total}
+              </p>
+              <div className="flex gap-2">
+                {page > 1 && (
+                  <Link
+                    href={`/talent?page=${page - 1}`}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-white text-gray-600 hover:bg-gray-50 transition-colors"
+                    style={{ border: "1px solid #e5eaf0" }}
+                  >
+                    Previous
+                  </Link>
+                )}
+                {page < totalPages && (
+                  <Link
+                    href={`/talent?page=${page + 1}`}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-white text-gray-600 hover:bg-gray-50 transition-colors"
+                    style={{ border: "1px solid #e5eaf0" }}
+                  >
+                    Next
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>
