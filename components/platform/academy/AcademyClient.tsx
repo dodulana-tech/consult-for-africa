@@ -56,6 +56,9 @@ type Track = {
   colorHex: string | null;
   prerequisites: string[];
   estimatedHours: number;
+  pricingType: string;
+  priceNGN: number | null;
+  discountPct: number | null;
   modules: TrackModule[];
   enrollments: Enrollment[];
   _count: { enrollments: number; modules: number };
@@ -95,14 +98,17 @@ export default function AcademyClient({
   tracks,
   stats,
   userId,
+  userRole,
 }: {
   tracks: Track[];
   stats: Stats;
   userId: string;
+  userRole?: string;
 }) {
   const [activeLevel, setActiveLevel] = useState<string>("ALL");
   const [enrolling, setEnrolling] = useState<string | null>(null);
   const [expandedTrack, setExpandedTrack] = useState<string | null>(null);
+  const [purchasing, setPurchasing] = useState<string | null>(null);
 
   const filtered =
     activeLevel === "ALL" ? tracks : tracks.filter((t) => t.level === activeLevel);
@@ -135,13 +141,42 @@ export default function AcademyClient({
         window.location.reload();
       } else {
         const data = await res.json();
-        alert(data.error || "Failed to enroll");
+        if (data.requiresPayment) {
+          handlePurchase(trackId);
+        } else {
+          alert(data.error || "Failed to enroll");
+        }
       }
     } catch {
       alert("Failed to enroll");
     } finally {
       setEnrolling(null);
     }
+  }
+
+  async function handlePurchase(trackId: string) {
+    setPurchasing(trackId);
+    try {
+      const res = await fetch("/api/training/purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trackId }),
+      });
+      const data = await res.json();
+      if (res.ok && data.authorizationUrl) {
+        window.location.href = data.authorizationUrl;
+      } else {
+        alert(data.error || "Failed to initialize payment");
+      }
+    } catch {
+      alert("Failed to initialize payment");
+    } finally {
+      setPurchasing(null);
+    }
+  }
+
+  function formatPrice(price: number) {
+    return `\u20A6${price.toLocaleString("en-NG")}`;
   }
 
   function getTrackProgress(track: Track) {
@@ -189,6 +224,29 @@ export default function AcademyClient({
           </div>
         </div>
       </div>
+
+      {/* Reapply banner for Academy Learners */}
+      {userRole === "ACADEMY_LEARNER" && (
+        <div className="px-8 py-4" style={{ background: "#FFFBEB", borderBottom: "1px solid #FDE68A" }}>
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-amber-800">
+                Ready to reapply to Consult For Africa?
+              </p>
+              <p className="text-xs text-amber-700 mt-0.5">
+                Complete at least 1 Foundation and 1 Specialist track to unlock reapplication.
+              </p>
+            </div>
+            <a
+              href="/academy/reapply"
+              className="px-4 py-2 rounded-lg text-xs font-semibold transition-all"
+              style={{ background: "#D97706", color: "#fff" }}
+            >
+              Check Eligibility
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Level filter tabs */}
       <div className="px-8 py-4 border-b" style={{ borderColor: "#E2E8F0" }}>
@@ -254,11 +312,23 @@ export default function AcademyClient({
                             >
                               <Icon size={18} className="text-white" />
                             </div>
-                            {progress?.enrollment.status === "CERTIFIED" && (
-                              <div className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium" style={{ background: "#ECFDF5", color: "#059669" }}>
-                                <CheckCircle2 size={12} /> Certified
-                              </div>
-                            )}
+                            <div className="flex items-center gap-1.5">
+                              {track.pricingType === "PAID" && track.priceNGN && !progress && (
+                                <div className="px-2 py-1 rounded-full text-[10px] font-semibold" style={{ background: "#FEF3C7", color: "#92400E" }}>
+                                  {formatPrice(track.priceNGN)}
+                                </div>
+                              )}
+                              {track.pricingType === "FREE" && !progress && (
+                                <div className="px-2 py-1 rounded-full text-[10px] font-semibold" style={{ background: "#ECFDF5", color: "#059669" }}>
+                                  Free
+                                </div>
+                              )}
+                              {progress?.enrollment.status === "CERTIFIED" && (
+                                <div className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium" style={{ background: "#ECFDF5", color: "#059669" }}>
+                                  <CheckCircle2 size={12} /> Certified
+                                </div>
+                              )}
+                            </div>
                           </div>
 
                           <h3 className="font-semibold text-gray-900 text-sm mb-1">{track.name}</h3>
@@ -383,6 +453,17 @@ export default function AcademyClient({
                                 Continue Learning
                               </a>
                             )
+                          ) : track.pricingType === "PAID" && track.priceNGN ? (
+                            <button
+                              onClick={() => handlePurchase(track.id)}
+                              disabled={purchasing === track.id}
+                              className="w-full py-2.5 rounded-lg text-xs font-semibold text-white transition-all disabled:opacity-50"
+                              style={{ background: "#D97706" }}
+                            >
+                              {purchasing === track.id
+                                ? "Redirecting to payment..."
+                                : `Pay ${formatPrice(track.priceNGN)} & Enroll`}
+                            </button>
                           ) : (
                             <button
                               onClick={() => handleEnroll(track.id)}

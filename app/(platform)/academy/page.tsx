@@ -63,5 +63,20 @@ export default async function AcademyPage() {
     inProgress: tracks.filter((t) => t.enrollments.some((e) => e.status === "IN_PROGRESS")).length,
   };
 
-  return <AcademyClient tracks={tracks} stats={stats} userId={session.user.id} />;
+  // Serialize pricing for client (Decimal -> number)
+  const tracksWithPricing = tracks.map((t) => ({
+    ...t,
+    pricingType: t.pricingType,
+    priceNGN: t.priceNGN ? Number(t.priceNGN) : null,
+    discountPct: t.discountPct ? Number(t.discountPct) : null,
+  }));
+
+  return (
+    <AcademyClient
+      tracks={tracksWithPricing}
+      stats={stats}
+      userId={session.user.id}
+      userRole={session.user.role}
+    />
+  );
 }

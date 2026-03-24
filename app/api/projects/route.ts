@@ -3,6 +3,49 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import type { Prisma, ServiceType, EngagementStatus, RiskLevel, EngagementType, DealStructure, MandateType } from "@prisma/client";
 
+/**
+ * GET /api/projects
+ * List engagements accessible to the current user.
+ * Used by NDA Manager to populate "Link to Project" dropdown.
+ */
+export async function GET() {
+  const session = await auth();
+  if (!session) return new Response("Unauthorized", { status: 401 });
+
+  const role = session.user.role;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let where: any = {};
+  if (role === "CONSULTANT") {
+    where = { assignments: { some: { consultantId: session.user.id } } };
+  } else if (role === "ENGAGEMENT_MANAGER") {
+    where = { engagementManagerId: session.user.id };
+  }
+  // DIRECTOR, PARTNER, ADMIN see all
+
+  const engagements = await prisma.engagement.findMany({
+    where,
+    select: {
+      id: true,
+      name: true,
+      clientId: true,
+      status: true,
+      client: { select: { name: true } },
+    },
+    orderBy: { updatedAt: "desc" },
+    take: 100,
+  });
+
+  return Response.json({
+    engagements: engagements.map((e) => ({
+      id: e.id,
+      name: `${e.name} (${e.client.name})`,
+      clientId: e.clientId,
+      status: e.status,
+    })),
+  });
+}
+
 const VALID_ENGAGEMENT_TYPES: EngagementType[] = [
   "PROJECT", "RETAINER", "SECONDMENT", "FRACTIONAL", "TRANSFORMATION", "TRANSACTION",
 ];

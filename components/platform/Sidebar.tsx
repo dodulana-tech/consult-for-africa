@@ -52,6 +52,9 @@ interface NavSection {
 // CONSULTANT sees: Dashboard, Projects, Deliverables, Opportunities, Time, Knowledge, Nuru, Academy, Tools
 // EM sees: Above + Clients, Pipeline, Consultants, Talent
 // DIRECTOR+ sees: Above + Admin section
+// ACADEMY_LEARNER sees: Academy only (+ Settings/Sign out in bottom)
+
+const STAFF_ROLES = ["CONSULTANT", "ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
 
 const NAV_SECTIONS: NavSection[] = [
   {
@@ -62,6 +65,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Deliverables",   href: "/deliverables",   icon: FileCheck },
       { label: "Meetings",       href: "/meetings",       icon: Video },
     ],
+    roles: STAFF_ROLES,
   },
   {
     title: "Pipeline",
@@ -99,9 +103,15 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Time & Payments",href: "/timesheets",     icon: Clock },
       { label: "Knowledge",      href: "/knowledge",      icon: BookOpen },
       { label: "Asset Library",   href: "/knowledge/library", icon: FileSearch },
-      { label: "Academy",        href: "/academy",        icon: GraduationCap },
       { label: "Nuru",           href: "/ai",             icon: Sparkles },
       { label: "Tools",          href: "/tools",          icon: Wrench },
+    ],
+    roles: STAFF_ROLES,
+  },
+  {
+    title: "Learning",
+    items: [
+      { label: "Academy",        href: "/academy",        icon: GraduationCap },
     ],
   },
   {
@@ -211,18 +221,20 @@ export default function Sidebar() {
         className="px-3 py-3 space-y-0.5"
         style={{ borderTop: "1px solid #E2E8F0" }}
       >
-        <Link
-          href="/refer"
-          onClick={() => setMobileOpen(false)}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all"
-          style={{
-            background: pathname === "/refer" ? "#EFF6FF" : "transparent",
-            color: pathname === "/refer" ? "#0F2744" : "#64748B",
-          }}
-        >
-          <Share2 size={16} style={{ color: pathname === "/refer" ? "#0F2744" : "#94A3B8" }} />
-          Refer & Invite
-        </Link>
+        {role !== "ACADEMY_LEARNER" && (
+          <Link
+            href="/refer"
+            onClick={() => setMobileOpen(false)}
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all"
+            style={{
+              background: pathname === "/refer" ? "#EFF6FF" : "transparent",
+              color: pathname === "/refer" ? "#0F2744" : "#64748B",
+            }}
+          >
+            <Share2 size={16} style={{ color: pathname === "/refer" ? "#0F2744" : "#94A3B8" }} />
+            Refer & Invite
+          </Link>
+        )}
         <Link
           href="/settings"
           onClick={() => setMobileOpen(false)}

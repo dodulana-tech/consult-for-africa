@@ -64,21 +64,25 @@ export default function NdaToolPage() {
     partyBTitle: "",
     engagementId: "",
     clientId: "",
+    consultantId: "",
   });
 
   const [clients, setClients] = useState<{ id: string; name: string; email: string; primaryContact: string }[]>([]);
   const [projects, setProjects] = useState<{ id: string; name: string; clientId: string }[]>([]);
+  const [consultants, setConsultants] = useState<{ id: string; name: string; email: string }[]>([]);
 
   useEffect(() => {
     Promise.all([
       fetch("/api/ndas").then((r) => r.json()),
       fetch("/api/clients").then((r) => r.json()),
       fetch("/api/projects").then((r) => r.json()),
+      fetch("/api/consultants").then((r) => r.json()),
     ])
-      .then(([ndaData, clientData, projectData]) => {
+      .then(([ndaData, clientData, projectData, consultantData]) => {
         setNdas(ndaData.ndas ?? []);
         setClients(clientData.clients ?? []);
         setProjects(projectData.engagements ?? projectData.projects ?? []);
+        setConsultants(consultantData.consultants ?? []);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -121,7 +125,7 @@ export default function NdaToolPage() {
       setShowCreate(false);
       setForm({
         type: "MUTUAL_CLIENT", partyAName: "", partyAOrg: "", partyATitle: "",
-        partyAEmail: "", partyBName: "", partyBTitle: "", engagementId: "", clientId: "",
+        partyAEmail: "", partyBName: "", partyBTitle: "", engagementId: "", clientId: "", consultantId: "",
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create NDA");
@@ -181,7 +185,7 @@ export default function NdaToolPage() {
                 ))}
               </div>
 
-              {/* Pre-fill from client */}
+              {/* Pre-fill from client (Client/Project NDA) */}
               {form.type !== "CONSULTANT_MASTER" && (
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Pre-fill from Client</label>
@@ -193,6 +197,34 @@ export default function NdaToolPage() {
                   >
                     <option value="">Select client...</option>
                     {clients.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Pre-fill from consultant (Consultant NDA) */}
+              {form.type === "CONSULTANT_MASTER" && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Select Consultant</label>
+                  <select
+                    value={form.consultantId}
+                    onChange={(e) => {
+                      const c = consultants.find((x) => x.id === e.target.value);
+                      if (c) {
+                        setForm((f) => ({
+                          ...f,
+                          consultantId: c.id,
+                          partyAName: c.name,
+                          partyAEmail: c.email,
+                        }));
+                      }
+                    }}
+                    className={inputClass}
+                    style={inputStyle}
+                  >
+                    <option value="">Select consultant...</option>
+                    {consultants.map((c) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>

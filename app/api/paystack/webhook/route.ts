@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { emailPaymentReceipt } from "@/lib/email";
+import { emailPaymentReceipt, emailTrackPurchaseConfirmation } from "@/lib/email";
 import { createHmac } from "crypto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { InvoiceStatus } from "@prisma/client";
@@ -47,6 +47,9 @@ export async function POST(req: Request) {
         invoiceId?: string;
         invoiceNumber?: string;
         clientId?: string;
+        trackPurchaseId?: string;
+        trackId?: string;
+        userId?: string;
       };
     };
   };
@@ -63,10 +66,105 @@ export async function POST(req: Request) {
   }
 
   const { data } = event;
+
+  // ─── Track Purchase handling ─────────────────────────────────────────────
+  const trackPurchaseId = data.metadata?.trackPurchaseId;
+  if (trackPurchaseId) {
+    try {
+      const purchase = await prisma.trackPurchase.findUnique({
+        where: { id: trackPurchaseId },
+      });
+
+      if (!purchase || purchase.status === "CONFIRMED") {
+        // Already processed or not found
+        return new Response("OK", { status: 200 });
+      }
+
+      await prisma.$transaction(async (tx) => {
+        // Confirm the purchase
+        await tx.trackPurchase.update({
+          where: { id: trackPurchaseId },
+          data: {
+            status: "CONFIRMED",
+            paystackTxnId: String(data.id),
+            confirmedAt: new Date(),
+          },
+        });
+
+        // Auto-create enrollment
+        const track = await tx.trainingTrack.findUnique({
+          where: { id: purchase.trackId },
+          include: {
+            modules: { where: { isActive: true }, orderBy: { order: "asc" } },
+          },
+        });
+
+        if (track) {
+          // Check if enrollment already exists (idempotency)
+          const existing = await tx.trainingEnrollment.findUnique({
+            where: {
+              userId_trackId: {
+                userId: purchase.userId,
+                trackId: purchase.trackId,
+              },
+            },
+          });
+
+          if (!existing) {
+            await tx.trainingEnrollment.create({
+              data: {
+                userId: purchase.userId,
+                trackId: purchase.trackId,
+                status: "IN_PROGRESS",
+                startedAt: new Date(),
+                moduleProgress: {
+                  create: track.modules.map((mod, i) => ({
+                    moduleId: mod.id,
+                    status: i === 0 ? "AVAILABLE" : "LOCKED",
+                  })),
+                },
+              },
+            });
+          }
+        }
+      });
+
+      // Send confirmation email (non-blocking)
+      const user = await prisma.user.findUnique({
+        where: { id: purchase.userId },
+        select: { email: true, name: true },
+      });
+      const track = await prisma.trainingTrack.findUnique({
+        where: { id: purchase.trackId },
+        select: { name: true },
+      });
+
+      if (user && track) {
+        emailTrackPurchaseConfirmation({
+          email: user.email,
+          firstName: user.name?.split(" ")[0] ?? "there",
+          trackName: track.name,
+          amountPaid: Number(purchase.amountNGN),
+        }).catch((err) => {
+          console.error("[paystack/webhook] Failed to send track purchase email:", err);
+        });
+      }
+
+      console.log(
+        `[paystack/webhook] Track purchase ${data.reference} confirmed for user ${purchase.userId}`
+      );
+      return new Response("OK", { status: 200 });
+    } catch (err) {
+      console.error("[paystack/webhook] Track purchase processing error:", err);
+      return new Response("OK", { status: 200 });
+    }
+  }
+
+  // ─── Invoice Payment handling ────────────────────────────────────────────
   const invoiceId = data.metadata?.invoiceId;
 
   if (!invoiceId) {
-    console.warn("[paystack/webhook] charge.success without invoiceId in metadata");
+    console.warn("[paystack/webhook] charge.success without invoiceId or trackPurchaseId in metadata");
     return new Response("OK", { status: 200 });
   }
 

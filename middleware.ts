@@ -15,7 +15,10 @@ export default auth((req) => {
   }
 
   if (isAuthRoute && isLoggedIn) {
-    return NextResponse.redirect(new URL("/dashboard", nextUrl));
+    // Academy Learners go straight to Academy, not Dashboard
+    const role = session?.user?.role;
+    const dest = role === "ACADEMY_LEARNER" ? "/academy" : "/dashboard";
+    return NextResponse.redirect(new URL(dest, nextUrl));
   }
 
   return NextResponse.next();

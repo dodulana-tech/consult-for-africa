@@ -44,11 +44,19 @@ export async function GET(_req: NextRequest) {
 
   const clients = await prisma.client.findMany({
     where,
-    select: { id: true, name: true, currency: true, status: true, type: true },
+    select: {
+      id: true,
+      name: true,
+      currency: true,
+      status: true,
+      type: true,
+      primaryContact: true,
+      email: true,
+    },
     orderBy: { name: "asc" },
   });
 
-  return Response.json(clients);
+  return Response.json({ clients });
 }
 
 export async function POST(req: NextRequest) {

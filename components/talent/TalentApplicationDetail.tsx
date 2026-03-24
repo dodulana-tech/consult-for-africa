@@ -72,6 +72,19 @@ export default function TalentApplicationDetail({ application: app }: Props) {
   const [approveError, setApproveError] = useState("");
   const [approveSuccess, setApproveSuccess] = useState(false);
 
+  // Rejection flow state
+  const [rejectPreview, setRejectPreview] = useState<{
+    segment: string;
+    label: string;
+    description: string;
+    academyOffer: string;
+    reapplyEligible: boolean;
+  } | null>(null);
+  const [loadingRejectPreview, setLoadingRejectPreview] = useState(false);
+  const [rejecting, setRejecting] = useState(false);
+  const [rejectSuccess, setRejectSuccess] = useState(false);
+  const [rejectError, setRejectError] = useState("");
+
   async function save() {
     setSaving(true);
     setSaved(false);
@@ -111,6 +124,51 @@ export default function TalentApplicationDetail({ application: app }: Props) {
       setApproveError("Network error. Please try again.");
     } finally {
       setApproving(false);
+    }
+  }
+
+  async function loadRejectPreview() {
+    setLoadingRejectPreview(true);
+    setRejectError("");
+    try {
+      const res = await fetch(`/api/talent/${app.id}/reject`);
+      if (!res.ok) {
+        setRejectError(await res.text());
+        return;
+      }
+      const data = await res.json();
+      setRejectPreview(data);
+    } catch {
+      setRejectError("Failed to load rejection preview");
+    } finally {
+      setLoadingRejectPreview(false);
+    }
+  }
+
+  async function confirmReject() {
+    if (!rejectPreview) return;
+    setRejecting(true);
+    setRejectError("");
+    try {
+      const res = await fetch(`/api/talent/${app.id}/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          segment: rejectPreview.segment,
+          reviewNotes: notes,
+        }),
+      });
+      if (!res.ok) {
+        setRejectError(await res.text());
+        return;
+      }
+      setRejectSuccess(true);
+      setStatus("REJECTED");
+      router.refresh();
+    } catch {
+      setRejectError("Network error. Please try again.");
+    } finally {
+      setRejecting(false);
     }
   }
 
@@ -381,6 +439,78 @@ export default function TalentApplicationDetail({ application: app }: Props) {
                   {approveSuccess && (
                     <p className="text-xs text-emerald-600 mt-2 flex items-center gap-1">
                       <CheckCircle size={11} /> Account created and invite sent
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Reject with Academy Pathway */}
+              {status !== "HIRED" && status !== "REJECTED" && (
+                <div className="pt-3 mt-3" style={{ borderTop: "1px solid #e5eaf0" }}>
+                  {!rejectPreview && !rejectSuccess && (
+                    <button
+                      onClick={loadRejectPreview}
+                      disabled={loadingRejectPreview}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
+                      style={{ background: "#DC2626" }}
+                    >
+                      {loadingRejectPreview ? <Loader2 size={13} className="animate-spin" /> : <AlertTriangle size={13} />}
+                      {loadingRejectPreview ? "Loading preview..." : "Reject with Academy Pathway"}
+                    </button>
+                  )}
+
+                  {rejectPreview && !rejectSuccess && (
+                    <div className="space-y-3">
+                      <div className="rounded-lg p-3" style={{ background: "#FEF2F2", border: "1px solid #FECACA" }}>
+                        <p className="text-xs font-semibold text-red-800 mb-1">Rejection Preview</p>
+                        <p className="text-xs text-red-700 mb-2">
+                          This applicant will be classified as:
+                        </p>
+                        <p className="text-sm font-bold text-red-900 mb-2">{rejectPreview.label}</p>
+                        <p className="text-xs text-red-700 mb-2">{rejectPreview.description}</p>
+                        <div className="pt-2 mt-2" style={{ borderTop: "1px solid #FECACA" }}>
+                          <p className="text-[10px] font-semibold text-red-800 uppercase tracking-wide mb-1">Academy Offer</p>
+                          <p className="text-xs text-red-700">{rejectPreview.academyOffer}</p>
+                        </div>
+                        <div className="pt-2 mt-2" style={{ borderTop: "1px solid #FECACA" }}>
+                          <p className="text-[10px] text-red-600">
+                            {rejectPreview.reapplyEligible
+                              ? "Eligible to reapply after completing Foundation + 1 Specialist track"
+                              : "Not eligible to reapply"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setRejectPreview(null)}
+                          className="flex-1 py-2 rounded-lg text-sm font-medium border"
+                          style={{ borderColor: "#e5eaf0", color: "#6B7280" }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={confirmReject}
+                          disabled={rejecting}
+                          className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
+                          style={{ background: "#DC2626" }}
+                        >
+                          {rejecting ? <Loader2 size={13} className="animate-spin" /> : null}
+                          {rejecting ? "Rejecting..." : "Confirm Rejection"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {rejectSuccess && (
+                    <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
+                      <CheckCircle size={11} /> Rejected. Academy account created and email sent.
+                    </p>
+                  )}
+
+                  {rejectError && (
+                    <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
+                      <AlertTriangle size={11} /> {rejectError}
                     </p>
                   )}
                 </div>

@@ -19,6 +19,9 @@ export default async function DashboardPage() {
   const userId = session.user.id;
   const role = session.user.role;
 
+  // Academy Learners have no dashboard -- redirect to Academy
+  if (role === "ACADEMY_LEARNER") redirect("/academy");
+
   const isEM = role === "ENGAGEMENT_MANAGER";
   const isDirector = role === "DIRECTOR" || role === "PARTNER" || role === "ADMIN";
   const isConsultant = role === "CONSULTANT";

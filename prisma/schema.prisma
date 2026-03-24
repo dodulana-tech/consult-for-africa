@@ -16,6 +16,13 @@ enum UserRole {
   DIRECTOR
   PARTNER
   ADMIN
+  ACADEMY_LEARNER
+}
+
+enum TrackPricingType {
+  FREE
+  PAID
+  SCHOLARSHIP
 }
 
 enum ConsultantTier {
@@ -297,6 +304,8 @@ model User {
   creditNotesCreated     CreditNote[]       @relation("CreditNoteCreator")
   ownGigEngagements      Engagement[]       @relation("OwnGigOwner")
   ownGigFees             OwnGigPlatformFee[] @relation("OwnGigFeeConsultant")
+  trackPurchases         TrackPurchase[]
+  sourceApplicationId    String?            // TalentApplication ID that created this ACADEMY_LEARNER account
 }
 
 model ConsultantProfile {
@@ -1081,8 +1090,12 @@ model TalentApplication {
   reviewedAt      DateTime?
 
   // Onboarding link
-  convertedToUserId String?
-  assessmentLevel   String  @default("STANDARD") // LIGHT, STANDARD, MAAROVA, FULL
+  convertedToUserId     String?
+  assessmentLevel       String  @default("STANDARD") // LIGHT, STANDARD, MAAROVA, FULL
+
+  // Rejection flow
+  rejectionSegment      String?  // JUNIOR, WRONG_FIT, WEAK_COMMS, NOT_READY, INTEGRITY_FLAGS
+  previousApplicationId String?  // links to original rejected application on reapplication
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1465,11 +1478,18 @@ model TrainingTrack {
   estimatedHours Int   @default(20)
   isActive    Boolean  @default(true)
   sortOrder   Int      @default(0)
+
+  // Pricing
+  pricingType TrackPricingType @default(FREE)
+  priceNGN    Decimal?         @db.Decimal(10, 2)
+  discountPct Decimal?         @db.Decimal(5, 2) // e.g. 10.00 = 10% off for academy learners
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   modules     TrainingModule[]
   enrollments TrainingEnrollment[]
+  purchases   TrackPurchase[]
 
   @@index([category, level])
   @@index([isActive])
@@ -1574,6 +1594,28 @@ model QuestionAnswer {
 
   @@index([progressId])
   @@index([questionId])
+}
+
+// ─── Track Purchases (Paystack-gated enrollment) ────────────────────────────
+
+model TrackPurchase {
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  trackId         String
+  track           TrainingTrack @relation(fields: [trackId], references: [id])
+  amountNGN       Decimal       @db.Decimal(10, 2)
+  discountApplied Decimal?      @db.Decimal(5, 2)
+  paystackRef     String        @unique
+  paystackTxnId   String?
+  status          String        @default("PENDING") // PENDING, CONFIRMED, FAILED, REFUNDED
+  confirmedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([userId, trackId])
+  @@index([paystackRef])
+  @@index([userId])
 }
 
 // ─── Audit Trail ──────────────────────────────────────────────────────────────

@@ -17,6 +17,25 @@ export async function POST(req: NextRequest) {
 
   if (!track) return Response.json({ error: "Track not found" }, { status: 404 });
 
+  // Check pricing -- paid tracks require purchase via /api/training/purchase
+  if (track.pricingType === "PAID") {
+    const purchase = await prisma.trackPurchase.findUnique({
+      where: { userId_trackId: { userId: session.user.id, trackId } },
+    });
+    if (!purchase || purchase.status !== "CONFIRMED") {
+      return Response.json(
+        {
+          error: "This track requires payment",
+          requiresPayment: true,
+          trackId,
+          priceNGN: track.priceNGN ? Number(track.priceNGN) : null,
+          discountPct: track.discountPct ? Number(track.discountPct) : null,
+        },
+        { status: 402 }
+      );
+    }
+  }
+
   // Check prerequisites
   if (track.prerequisites.length > 0) {
     const completedTracks = await prisma.trainingEnrollment.findMany({

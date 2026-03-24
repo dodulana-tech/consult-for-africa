@@ -277,6 +277,7 @@ export async function sendInvite(
     Director: "As a Director, you will have oversight of practice-level performance, project portfolios, and team capacity across Consult For Africa.",
     Partner: "As a Partner, you will have full visibility into firm performance, client relationships, financial metrics, and strategic planning tools.",
     Admin: "As an Administrator, you will have full access to manage users, configure the platform, and oversee all operations.",
+    "Academy Learner": "As an Academy Learner, you have access to CFA's training tracks, certifications, and learning resources to build your healthcare consulting capabilities.",
   };
 
   const intro = roleIntro[roleLabel] ?? "You now have access to project management, collaboration tools, and knowledge resources.";
@@ -1284,6 +1285,131 @@ export async function emailPaymentReceipt({
         ["Reference", reference],
       ])}
       ${p("This email serves as your payment receipt. If you have any questions, please contact us at hello@consultforafrica.com.")}
+    `)
+  );
+}
+
+// ─── Rejection emails (segmented) ────────────────────────────────────────────
+
+import type { RejectionSegment } from "./rejectionSegments";
+
+interface RejectionEmailParams {
+  email: string;
+  firstName: string;
+  segment: RejectionSegment;
+  tempPassword: string;
+}
+
+const REJECTION_BODIES: Record<RejectionSegment, (firstName: string) => string> = {
+  JUNIOR: (firstName) => `
+    ${h1(`Thank you for applying, ${firstName}`)}
+    ${p("We appreciate your interest in Consult For Africa. After reviewing your application, we believe you are at an early stage in your career and would benefit from structured development before joining our consulting engagements.")}
+    ${p("We have created a CFA Academy account for you with free access to our Foundation training tracks. These cover core consulting skills, healthcare fundamentals, and professional standards that will prepare you for a consulting career in healthcare.")}
+    ${p("We also encourage you to explore our Intern and SIWES programmes, which are designed specifically for early-career professionals looking to gain hands-on consulting experience in African healthcare.")}
+    ${p("Once you complete the Foundation tracks and gain more experience, you are welcome to reapply. We would love to see you grow with us.")}
+  `,
+
+  WRONG_FIT: (firstName) => `
+    ${h1(`Thank you for applying, ${firstName}`)}
+    ${p("We appreciate your interest in Consult For Africa. After reviewing your application, we feel there are gaps between your current experience and the specific requirements of our healthcare consulting practice.")}
+    ${p("We have created a CFA Academy account for you with free access to our Foundation training tracks. These will introduce you to our consulting methodology and the healthcare landscape we operate in.")}
+    ${p("We also offer Specialist tracks that can help you build targeted expertise in areas like hospital operations, clinical governance, revenue cycle management, and health economics. Completing these tracks alongside your existing experience would strengthen a future application significantly.")}
+    ${p("We encourage you to explore the Academy and consider reapplying after completing the Foundation programme and at least one Specialist track.")}
+  `,
+
+  WEAK_COMMS: (firstName) => `
+    ${h1(`Thank you for applying, ${firstName}`)}
+    ${p("We appreciate your interest in Consult For Africa. As a specialist management consulting firm, executive-level communication is central to how we deliver value to our clients. Based on our review, we believe there is room to strengthen this area before joining our engagements.")}
+    ${p("We have created a CFA Academy account for you with free access to our Foundation training tracks, which include Professional Standards and Core Consulting Skills modules focused on executive communication, stakeholder presentations, and structured reporting.")}
+    ${p("We also recommend our leadership assessment and coaching programmes, which provide personalised development plans and one-on-one coaching with experienced professionals.")}
+    ${p("After developing these capabilities, we would welcome a future application from you.")}
+  `,
+
+  NOT_READY: (firstName) => `
+    ${h1(`Thank you for applying, ${firstName}`)}
+    ${p("We appreciate your interest in Consult For Africa. After careful review, we are unable to proceed with your application at this time.")}
+    ${p("We have created a CFA Academy account for you with free access to our Foundation training tracks. These cover core consulting skills, healthcare fundamentals, and professional standards that are central to our work.")}
+    ${p("The Academy is designed to help professionals develop the capabilities needed for healthcare consulting in Africa. We encourage you to take advantage of these resources and consider reapplying in the future.")}
+  `,
+
+  INTEGRITY_FLAGS: (firstName) => `
+    ${h1(`Thank you for applying, ${firstName}`)}
+    ${p("We appreciate your interest in Consult For Africa. After careful review, we are unable to proceed with your application at this time.")}
+    ${p("We encourage you to explore the CFA Academy, our learning platform with training tracks covering healthcare consulting, leadership, and professional development.")}
+    ${p("We wish you the best in your career.")}
+  `,
+};
+
+export async function emailTalentRejection({
+  email,
+  firstName,
+  segment,
+  tempPassword,
+}: RejectionEmailParams) {
+  const safeFirst = esc(firstName);
+  const safeEmail = esc(email);
+  const safePassword = esc(tempPassword);
+  const body = REJECTION_BODIES[segment](safeFirst);
+
+  // Integrity flags get no account credentials
+  const credentialsBlock = segment !== "INTEGRITY_FLAGS" ? `
+    <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:20px;margin:16px 0;">
+      <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#9CA3AF;font-weight:600;">Your Academy login</p>
+      <table style="width:100%;border-collapse:collapse;margin-top:12px;">
+        <tr>
+          <td style="padding:6px 0;font-size:13px;color:#6B7280;width:140px;">Email</td>
+          <td style="padding:6px 0;font-size:13px;font-weight:600;color:#111827;"><a href="mailto:${safeEmail}" style="color:#0F2744;">${safeEmail}</a></td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0;font-size:13px;color:#6B7280;">Temporary Password</td>
+          <td style="padding:6px 0;font-size:13px;font-weight:600;color:#111827;font-family:monospace;letter-spacing:0.5px;">${safePassword}</td>
+        </tr>
+      </table>
+    </div>
+    <p style="margin:16px 0;font-size:14px;line-height:1.6;color:#374151;">
+      Please change your password after your first login.
+    </p>
+    ${btn("Start Your Academy Journey", `${BASE_URL}/login`)}
+  ` : `
+    ${btn("Explore the Academy", `${BASE_URL}/academy`)}
+  `;
+
+  await send(
+    email,
+    "Your Application to Consult For Africa",
+    layout(`
+      ${body}
+      ${credentialsBlock}
+      <p style="margin:20px 0 0;font-size:12px;color:#9CA3AF;line-height:1.5;">
+        If you have questions, please contact us at hello@consultforafrica.com.
+      </p>
+    `)
+  );
+}
+
+export async function emailTrackPurchaseConfirmation({
+  email,
+  firstName,
+  trackName,
+  amountPaid,
+}: {
+  email: string;
+  firstName: string;
+  trackName: string;
+  amountPaid: number;
+}) {
+  const fmtAmount = `\u20A6${amountPaid.toLocaleString("en-NG")}`;
+  await send(
+    email,
+    `Enrollment confirmed: ${trackName}`,
+    layout(`
+      ${h1("Enrollment Confirmed")}
+      ${p(`Hi ${esc(firstName)}, your payment has been received and you are now enrolled in the ${esc(trackName)} track.`)}
+      ${infoTable([
+        ["Track", trackName],
+        ["Amount paid", fmtAmount],
+      ])}
+      ${btn("Start Learning", `${BASE_URL}/academy`)}
     `)
   );
 }
