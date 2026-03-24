@@ -1,6 +1,7 @@
 const rows = [
   {
     model: "Advisory Projects",
+    href: "/solutions/advisory",
     duration: "8 to 16 weeks",
     teamSize: "2 to 4 consultants",
     clientInvolvement: "Moderate. Sponsor plus working group",
@@ -9,6 +10,7 @@ const rows = [
   },
   {
     model: "Retainer Advisory",
+    href: "/solutions/retainer",
     duration: "6 to 12 months (rolling)",
     teamSize: "1 to 2 senior advisors",
     clientInvolvement: "Light. Monthly check-ins, on-demand access",
@@ -17,6 +19,7 @@ const rows = [
   },
   {
     model: "Embedded Secondments",
+    href: "/solutions/secondment",
     duration: "3 to 12 months",
     teamSize: "1 to 3 embedded staff",
     clientInvolvement: "High. Consultant reports to client leadership",
@@ -25,6 +28,7 @@ const rows = [
   },
   {
     model: "Fractional Leadership",
+    href: "/solutions/fractional",
     duration: "6 to 18 months",
     teamSize: "1 executive",
     clientInvolvement: "High. Integrated into leadership team",
@@ -33,6 +37,7 @@ const rows = [
   },
   {
     model: "Hospital Transformation",
+    href: "/solutions/transformation",
     duration: "24 to 60 months",
     teamSize: "Full management team",
     clientInvolvement: "Board-level oversight",
@@ -41,6 +46,7 @@ const rows = [
   },
   {
     model: "Transaction Advisory",
+    href: "/solutions/transaction",
     duration: "6 to 18 months",
     teamSize: "2 to 4 specialists",
     clientInvolvement: "Moderate. Data provision and decision gates",
@@ -108,8 +114,10 @@ export default function SolutionsComparison() {
                     borderBottom: i < rows.length - 1 ? "1px solid rgba(255,255,255,0.05)" : undefined,
                   }}
                 >
-                  <td className="px-5 py-4 font-semibold text-white whitespace-nowrap">
-                    {row.model}
+                  <td className="px-5 py-4 font-semibold whitespace-nowrap">
+                    <a href={row.href} className="text-white hover:text-[#D4AF37] transition-colors">
+                      {row.model}
+                    </a>
                   </td>
                   <td className="px-5 py-4" style={{ color: "rgba(255,255,255,0.5)" }}>
                     {row.duration}
@@ -143,7 +151,9 @@ export default function SolutionsComparison() {
                 border: "1px solid rgba(255,255,255,0.08)",
               }}
             >
-              <h3 className="font-semibold text-white mb-4">{row.model}</h3>
+              <h3 className="font-semibold mb-4">
+                <a href={row.href} className="text-white hover:text-[#D4AF37] transition-colors">{row.model}</a>
+              </h3>
               <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
                 <div>
                   <p className="text-xs uppercase tracking-[0.1em] mb-1" style={{ color: "rgba(255,255,255,0.3)" }}>
