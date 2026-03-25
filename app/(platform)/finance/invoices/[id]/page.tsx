@@ -492,6 +492,26 @@ export default function InvoiceDetailPage() {
                       Edit Invoice
                     </button>
                   )}
+                  {["SENT", "PENDING_APPROVAL"].includes(invoice.status) && (
+                    <button
+                      onClick={async () => {
+                        if (!confirm("Revert this invoice to Draft? You can then edit and resend it.")) return;
+                        try {
+                          const res = await fetch(`/api/invoices/${id}`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ status: "DRAFT" }),
+                          });
+                          if (res.ok) fetchInvoice();
+                          else alert(await res.text());
+                        } catch { /* silently handle */ }
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-gray-50 transition-colors text-gray-700"
+                    >
+                      <ArrowLeft size={15} className="text-gray-400" />
+                      Revert to Draft
+                    </button>
+                  )}
                   {(invoice.status === "DRAFT" || invoice.status === "PENDING_APPROVAL") && (
                     <button
                       onClick={() => handleAction("approve")}
