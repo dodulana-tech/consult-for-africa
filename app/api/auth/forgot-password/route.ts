@@ -1,9 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import { emailPlatformPasswordReset } from "@/lib/email";
+import { isRateLimited } from "@/lib/rate-limit";
 import crypto from "crypto";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (isRateLimited(ip, "forgot-password", { windowMs: 3_600_000, max: 5 })) {
+    return Response.json({ ok: true }); // silent rate limit to prevent enumeration
+  }
+
   const { email } = await req.json();
 
   if (!email?.trim()) {

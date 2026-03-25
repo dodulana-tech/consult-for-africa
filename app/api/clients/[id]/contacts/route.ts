@@ -13,6 +13,16 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   if (!canManage) return new Response("Forbidden", { status: 403 });
 
   const { id: clientId } = await params;
+
+  // EMs can only manage contacts for clients they have engagements with
+  if (session.user.role === "ENGAGEMENT_MANAGER") {
+    const hasEngagement = await prisma.engagement.findFirst({
+      where: { clientId, engagementManagerId: session.user.id },
+      select: { id: true },
+    });
+    if (!hasEngagement) return new Response("Forbidden", { status: 403 });
+  }
+
   const { name, email, title, phone, isPrimary } = await req.json();
 
   if (!name?.trim() || !email?.trim()) {
@@ -82,6 +92,16 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   if (!canManage) return new Response("Forbidden", { status: 403 });
 
   const { id: clientId } = await params;
+
+  // EMs can only manage contacts for clients they have engagements with
+  if (session.user.role === "ENGAGEMENT_MANAGER") {
+    const hasEngagement = await prisma.engagement.findFirst({
+      where: { clientId, engagementManagerId: session.user.id },
+      select: { id: true },
+    });
+    if (!hasEngagement) return new Response("Forbidden", { status: 403 });
+  }
+
   const { contactId, name, email, title, phone, isPrimary } = await req.json();
 
   if (!contactId) return new Response("contactId is required", { status: 400 });

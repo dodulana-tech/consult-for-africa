@@ -28,6 +28,11 @@ export async function POST(
 
   if (!project) return new Response("Project not found", { status: 404 });
 
+  // EMs can only create assignments on projects they manage
+  if (session.user.role === "ENGAGEMENT_MANAGER" && project.engagementManagerId !== session.user.id) {
+    return new Response("Forbidden", { status: 403 });
+  }
+
   const {
     consultantId,
     role,
