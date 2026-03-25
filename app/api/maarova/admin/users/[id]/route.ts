@@ -91,6 +91,13 @@ export async function PUT(
     data.role = role;
   }
   if (managerId !== undefined) {
+    if (managerId) {
+      const manager = await prisma.maarovaUser.findFirst({
+        where: { id: managerId, organisationId: existing.organisationId },
+        select: { id: true },
+      });
+      if (!manager) return new Response("Manager not found in this organisation", { status: 400 });
+    }
     data.managerId = managerId || null;
   }
 

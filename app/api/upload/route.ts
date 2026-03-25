@@ -39,19 +39,26 @@ export async function POST(req: NextRequest) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  let body: { filename?: string; contentType?: string; folder?: string };
+  let body: { filename?: string; contentType?: string; folder?: string; fileSize?: number };
   try {
     body = await req.json();
   } catch {
     return new Response("Invalid JSON body", { status: 400 });
   }
 
-  const { filename, contentType, folder } = body;
+  const { filename, contentType, folder, fileSize } = body;
 
   if (!filename || !contentType || !folder) {
     return Response.json(
       { error: "filename, contentType, and folder are required" },
       { status: 400 }
+    );
+  }
+
+  if (fileSize && fileSize > MAX_FILE_SIZE_MB * 1024 * 1024) {
+    return Response.json(
+      { error: `File exceeds maximum size of ${MAX_FILE_SIZE_MB}MB` },
+      { status: 413 }
     );
   }
 

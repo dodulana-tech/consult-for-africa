@@ -169,6 +169,18 @@ export async function POST(req: Request) {
   }
 
   try {
+    // Check for duplicate payment FIRST to avoid race conditions
+    const existingPayment = await prisma.payment.findFirst({
+      where: { paystackRef: data.reference },
+    });
+
+    if (existingPayment) {
+      console.warn(
+        `[paystack/webhook] Duplicate payment for ref ${data.reference}, skipping`
+      );
+      return new Response("OK", { status: 200 });
+    }
+
     const invoice = await prisma.invoice.findUnique({
       where: { id: invoiceId },
       include: {
@@ -183,18 +195,6 @@ export async function POST(req: Request) {
 
     // Amount comes from Paystack in kobo/cents
     const paymentAmount = new Decimal(data.amount).div(100);
-
-    // Check for duplicate payment by reference
-    const existingPayment = await prisma.payment.findFirst({
-      where: { paystackRef: data.reference },
-    });
-
-    if (existingPayment) {
-      console.warn(
-        `[paystack/webhook] Duplicate payment for ref ${data.reference}, skipping`
-      );
-      return new Response("OK", { status: 200 });
-    }
 
     // Create payment and update invoice in a transaction
     await prisma.$transaction(async (tx) => {
