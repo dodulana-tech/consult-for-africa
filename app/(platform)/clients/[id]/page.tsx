@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import TopBar from "@/components/platform/TopBar";
-import CreateInvoiceForm from "@/components/platform/CreateInvoiceForm";
 import InvoiceStatusButton from "@/components/platform/InvoiceStatusButton";
 import ClientContactsSection from "@/components/client-portal/ClientContactsSection";
 import { formatCurrency, formatCompactCurrency, formatDate } from "@/lib/utils";
@@ -306,12 +305,14 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 
             {canManageInvoices && (
               <div className="mb-3">
-                <CreateInvoiceForm
-                  clientId={client.id}
-                  projects={client.engagements.map((p) => ({ id: p.id, name: p.name }))}
-                  defaultCurrency={client.currency}
-                  paymentTerms={client.paymentTerms}
-                />
+                <Link
+                  href={`/finance/invoices/new?clientId=${client.id}`}
+                  className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-lg text-white"
+                  style={{ background: "#0F2744" }}
+                >
+                  <FileText size={14} />
+                  Create Invoice
+                </Link>
               </div>
             )}
             <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #e5eaf0" }}>

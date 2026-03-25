@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import type { InvoiceType } from "@prisma/client";
+import type { InvoiceType, Prisma } from "@prisma/client";
 
 const PREFIX_MAP: Record<string, string> = {
   STANDARD: "CFA-INV",
@@ -42,6 +42,81 @@ function serialise(inv: Record<string, unknown>) {
   }
   return out;
 }
+
+/* ── GET: paginated invoice list for finance tab ─────────────────────────────── */
+
+export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session) return new Response("Unauthorized", { status: 401 });
+
+  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isEM = session.user.role === "ENGAGEMENT_MANAGER";
+  if (!isElevated && !isEM) return new Response("Forbidden", { status: 403 });
+
+  const { searchParams } = new URL(req.url);
+  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"));
+  const limit = Math.min(100, parseInt(searchParams.get("limit") ?? "20"));
+  const status = searchParams.get("status");
+  const type = searchParams.get("type");
+  const currency = searchParams.get("currency");
+  const clientSearch = searchParams.get("clientSearch");
+  const dateFrom = searchParams.get("dateFrom");
+  const dateTo = searchParams.get("dateTo");
+
+  const where: Prisma.InvoiceWhereInput = {};
+  if (status) where.status = status as Prisma.InvoiceWhereInput["status"];
+  if (type) where.invoiceType = type as InvoiceType;
+  if (currency) where.currency = currency as Prisma.InvoiceWhereInput["currency"];
+  if (clientSearch) where.client = { name: { contains: clientSearch, mode: "insensitive" } };
+  if (dateFrom || dateTo) {
+    where.createdAt = {};
+    if (dateFrom) (where.createdAt as Prisma.DateTimeFilter).gte = new Date(dateFrom);
+    if (dateTo) (where.createdAt as Prisma.DateTimeFilter).lte = new Date(dateTo);
+  }
+  if (isEM) where.engagement = { engagementManagerId: session.user.id };
+
+  const [invoices, totalCount] = await Promise.all([
+    prisma.invoice.findMany({
+      where,
+      include: {
+        client: { select: { id: true, name: true } },
+        engagement: { select: { id: true, name: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.invoice.count({ where }),
+  ]);
+
+  // Summary stats
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const [outstanding, collected, draftCount] = await Promise.all([
+    prisma.invoice.aggregate({
+      where: { ...where, status: { in: ["SENT", "VIEWED", "PARTIALLY_PAID", "OVERDUE"] } },
+      _sum: { balanceDue: true },
+    }),
+    prisma.payment.aggregate({
+      where: { invoice: where, status: "CONFIRMED", paymentDate: { gte: monthStart } },
+      _sum: { amount: true },
+    }),
+    prisma.invoice.count({ where: { ...where, status: "DRAFT" } }),
+  ]);
+
+  return Response.json({
+    invoices: invoices.map((inv) => serialise(inv as unknown as Record<string, unknown>)),
+    totalCount,
+    summary: {
+      totalOutstanding: Number(outstanding._sum.balanceDue ?? 0),
+      overdue: 0,
+      collectedThisMonth: Number(collected._sum.amount ?? 0),
+      draftsPending: draftCount,
+    },
+  });
+}
+
+/* ── POST: create invoice ───────────────────────────────────────────────────── */
 
 interface LineItemInput {
   description: string;

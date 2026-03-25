@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import TopBar from "@/components/platform/TopBar";
 import {
   Plus,
@@ -79,13 +79,15 @@ function fmtCurrency(amount: number, currency: string) {
 
 export default function NewInvoicePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const preselectedClientId = searchParams.get("clientId") ?? "";
 
   // Data
   const [clients, setClients] = useState<ClientOption[]>([]);
   const [engagements, setEngagements] = useState<EngagementOption[]>([]);
 
   // Form
-  const [clientId, setClientId] = useState("");
+  const [clientId, setClientId] = useState(preselectedClientId);
   const [engagementId, setEngagementId] = useState("");
   const [invoiceType, setInvoiceType] = useState("STANDARD");
   const [currency, setCurrency] = useState("NGN");
