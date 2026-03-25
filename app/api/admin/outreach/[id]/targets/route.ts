@@ -52,11 +52,22 @@ export async function PATCH(
   if (!session || !["PARTNER", "ADMIN"].includes(session.user.role)) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
-  const { targetId, status, notes } = await req.json();
+  const body = await req.json();
+  const { targetId, status, notes } = body;
 
   if (!targetId) return Response.json({ error: "targetId required" }, { status: 400 });
 
   const updateData: Record<string, unknown> = {};
+
+  // Field editing
+  if (body.name !== undefined) updateData.name = body.name.trim();
+  if (body.title !== undefined) updateData.title = body.title?.trim() || null;
+  if (body.organization !== undefined) updateData.organization = body.organization?.trim() || null;
+  if (body.email !== undefined) updateData.email = body.email?.trim().toLowerCase() || null;
+  if (body.linkedinUrl !== undefined) updateData.linkedinUrl = body.linkedinUrl?.trim() || null;
+  if (body.city !== undefined) updateData.city = body.city?.trim() || null;
+  if (body.source !== undefined) updateData.source = body.source?.trim() || null;
+
   if (status) {
     const valid = ["IDENTIFIED", "INVITED", "RESPONDED", "ASSESSMENT_STARTED", "ASSESSMENT_COMPLETED", "DECLINED", "NO_RESPONSE"];
     if (valid.includes(status)) {

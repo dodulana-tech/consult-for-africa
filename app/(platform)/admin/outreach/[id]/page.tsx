@@ -54,6 +54,24 @@ export default function CampaignDetailPage() {
   const [showBulk, setShowBulk] = useState(false);
   const [bulkText, setBulkText] = useState("");
 
+  // Inline edit
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", title: "", organization: "", email: "", linkedinUrl: "", city: "", source: "" });
+
+  function startEdit(t: Target) {
+    setEditingId(t.id);
+    setEditForm({ name: t.name, title: t.title ?? "", organization: t.organization ?? "", email: t.email ?? "", linkedinUrl: t.linkedinUrl ?? "", city: t.city ?? "", source: t.source ?? "" });
+  }
+
+  async function saveEdit() {
+    if (!editingId) return;
+    try {
+      await fetch(`/api/admin/outreach/${id}/targets`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ targetId: editingId, ...editForm }) });
+      setEditingId(null);
+      await refresh();
+    } catch {}
+  }
+
   // Nuru
   const [nuruSuggesting, setNuruSuggesting] = useState(false);
   const [nuruTargets, setNuruTargets] = useState<Array<{ name: string; title: string; organization: string; city: string; source: string; outreachAngle: string }>>([]);
@@ -266,71 +284,100 @@ export default function CampaignDetailPage() {
           <div className="space-y-2">
             {targets.map((t) => {
               const statusConfig = TARGET_STATUSES.find((s) => s.value === t.status) ?? TARGET_STATUSES[0];
+              const isEditing = editingId === t.id;
               return (
-                <div key={t.id} className="bg-white rounded-xl border p-4" style={{ borderColor: "#e5eaf0" }}>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-semibold" style={{ color: "#0F2744" }}>{t.name}</span>
-                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: statusConfig.bg, color: statusConfig.color }}>
-                          {statusConfig.label}
-                        </span>
+                <div key={t.id} className="bg-white rounded-xl border p-4" style={{ borderColor: isEditing ? "#D4AF37" : "#e5eaf0" }}>
+                  {isEditing ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <input value={editForm.name} onChange={(e) => setEditForm((p) => ({ ...p, name: e.target.value }))} className={inputClass} style={inputStyle} placeholder="Full name *" />
+                        <input value={editForm.title} onChange={(e) => setEditForm((p) => ({ ...p, title: e.target.value }))} className={inputClass} style={inputStyle} placeholder="Title" />
+                        <input value={editForm.organization} onChange={(e) => setEditForm((p) => ({ ...p, organization: e.target.value }))} className={inputClass} style={inputStyle} placeholder="Organisation" />
                       </div>
-                      <p className="text-xs text-gray-500">
-                        {t.title && `${t.title} | `}{t.organization ?? ""}{t.city ? ` | ${t.city}` : ""}
-                      </p>
-                      <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
-                        {t.email && <span>{t.email}</span>}
-                        {t.linkedinUrl && <a href={t.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">LinkedIn Profile</a>}
-                        {t.source && <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100">{t.source}</span>}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <input value={editForm.email} onChange={(e) => setEditForm((p) => ({ ...p, email: e.target.value }))} className={inputClass} style={inputStyle} placeholder="Email" />
+                        <input value={editForm.linkedinUrl} onChange={(e) => setEditForm((p) => ({ ...p, linkedinUrl: e.target.value }))} className={inputClass} style={inputStyle} placeholder="LinkedIn URL" />
+                        <input value={editForm.city} onChange={(e) => setEditForm((p) => ({ ...p, city: e.target.value }))} className={inputClass} style={inputStyle} placeholder="City" />
+                        <select value={editForm.source} onChange={(e) => setEditForm((p) => ({ ...p, source: e.target.value }))} className={inputClass} style={inputStyle}>
+                          <option value="">Source</option><option>LinkedIn</option><option>Conference</option><option>Referral</option><option>MDCN Registry</option><option>Industry Directory</option><option>Other</option>
+                        </select>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={saveEdit} className="text-xs px-3 py-1.5 rounded-lg text-white" style={{ background: "#0F2744" }}>Save</button>
+                        <button onClick={() => setEditingId(null)} className="text-xs px-3 py-1.5 rounded-lg text-gray-500 hover:bg-gray-50">Cancel</button>
                       </div>
                     </div>
+                  ) : (
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-semibold" style={{ color: "#0F2744" }}>{t.name}</span>
+                          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: statusConfig.bg, color: statusConfig.color }}>
+                            {statusConfig.label}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          {t.title && `${t.title} | `}{t.organization ?? ""}{t.city ? ` | ${t.city}` : ""}
+                        </p>
+                        <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
+                          {t.email && <span>{t.email}</span>}
+                          {t.linkedinUrl && <a href={t.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">LinkedIn Profile</a>}
+                          {t.source && <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100">{t.source}</span>}
+                        </div>
+                      </div>
 
-                    {/* Action buttons */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      {statusConfig.next && (
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-2 shrink-0">
                         <button
-                          onClick={() => updateTargetStatus(t.id, statusConfig.next!)}
-                          className="text-xs font-medium px-3 py-1.5 rounded-lg text-white"
-                          style={{ background: "#0F2744" }}
+                          onClick={() => startEdit(t)}
+                          className="text-xs px-2 py-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50"
                         >
-                          {statusConfig.nextLabel}
+                          Edit
                         </button>
-                      )}
-                      {t.status === "IDENTIFIED" && (
-                        <button
-                          onClick={() => updateTargetStatus(t.id, "NO_RESPONSE")}
-                          className="text-xs px-2 py-1.5 rounded-lg text-gray-400 hover:text-red-500"
-                        >
-                          Skip
-                        </button>
-                      )}
-                      {(t.status === "INVITED" || t.status === "NO_RESPONSE") && t.email && (
-                        <button
-                          onClick={() => updateTargetStatus(t.id, "INVITED")}
-                          className="text-xs px-2 py-1.5 rounded-lg text-blue-600 hover:bg-blue-50"
-                        >
-                          Resend Invite
-                        </button>
-                      )}
-                      {t.status === "INVITED" && (
-                        <button
-                          onClick={() => updateTargetStatus(t.id, "DECLINED")}
-                          className="text-xs px-2 py-1.5 rounded-lg text-gray-400 hover:text-red-500"
-                        >
-                          Declined
-                        </button>
-                      )}
-                      {t.status === "INVITED" && (
-                        <button
-                          onClick={() => updateTargetStatus(t.id, "NO_RESPONSE")}
-                          className="text-xs px-2 py-1.5 rounded-lg text-gray-400"
-                        >
-                          No Response
-                        </button>
-                      )}
+                        {statusConfig.next && (
+                          <button
+                            onClick={() => updateTargetStatus(t.id, statusConfig.next!)}
+                            className="text-xs font-medium px-3 py-1.5 rounded-lg text-white"
+                            style={{ background: "#0F2744" }}
+                          >
+                            {statusConfig.nextLabel}
+                          </button>
+                        )}
+                        {t.status === "IDENTIFIED" && (
+                          <button
+                            onClick={() => updateTargetStatus(t.id, "NO_RESPONSE")}
+                            className="text-xs px-2 py-1.5 rounded-lg text-gray-400 hover:text-red-500"
+                          >
+                            Skip
+                          </button>
+                        )}
+                        {(t.status === "INVITED" || t.status === "NO_RESPONSE") && t.email && (
+                          <button
+                            onClick={() => updateTargetStatus(t.id, "INVITED")}
+                            className="text-xs px-2 py-1.5 rounded-lg text-blue-600 hover:bg-blue-50"
+                          >
+                            Resend Invite
+                          </button>
+                        )}
+                        {t.status === "INVITED" && (
+                          <button
+                            onClick={() => updateTargetStatus(t.id, "DECLINED")}
+                            className="text-xs px-2 py-1.5 rounded-lg text-gray-400 hover:text-red-500"
+                          >
+                            Declined
+                          </button>
+                        )}
+                        {t.status === "INVITED" && (
+                          <button
+                            onClick={() => updateTargetStatus(t.id, "NO_RESPONSE")}
+                            className="text-xs px-2 py-1.5 rounded-lg text-gray-400"
+                          >
+                            No Response
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               );
             })}
