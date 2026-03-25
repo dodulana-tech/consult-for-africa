@@ -819,6 +819,38 @@ export async function emailMaarovaInvite({
   );
 }
 
+export async function emailMaarovaCoachCredentials({
+  email,
+  name,
+  password,
+}: {
+  email: string;
+  name: string;
+  password: string;
+}) {
+  const firstName = esc(name.split(" ")[0]);
+  const safeEmail = esc(email);
+  const safePassword = esc(password);
+
+  await send(
+    email,
+    `Your Maarova Coach Portal Access | Consult For Africa`,
+    layout(`
+      ${h1(`Welcome to Maarova Coach Portal, ${firstName}`)}
+      ${p("Your coach portal access has been enabled. Use the credentials below to sign in.")}
+      <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:20px;margin:16px 0;">
+        <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#9CA3AF;font-weight:600;">Your login credentials</p>
+        ${infoTable([
+          ["Email", safeEmail],
+          ["Temporary password", safePassword],
+        ])}
+      </div>
+      ${p("Please change your password after first login.")}
+      ${btn("Sign In", `${BASE_URL}/maarova/coach/login`)}
+    `)
+  );
+}
+
 // ─── Project & Team Notifications ─────────────────────────────────────────────
 
 export async function emailEMChanged({

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { signMaarovaJWT } from "@/lib/maarovaAuth";
+import { isRateLimited } from "@/lib/rate-limit";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -10,9 +11,14 @@ import { NextRequest } from "next/server";
  * GET - Validate token and return pre-filled data
  */
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (isRateLimited(ip, "outreach-onboard", { windowMs: 60_000, max: 15 })) {
+    return Response.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   const { token } = await params;
 
   const target = await prisma.outreachTarget.findUnique({
@@ -63,6 +69,11 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (isRateLimited(ip, "outreach-onboard-submit", { windowMs: 3_600_000, max: 5 })) {
+    return Response.json({ error: "Too many attempts" }, { status: 429 });
+  }
+
   const { token } = await params;
   const body = await req.json();
   const { password, name, title, organization, city, yearsInHealthcare, clinicalBackground } = body;

@@ -11,8 +11,20 @@ export async function GET(req: NextRequest) {
   const type = searchParams.get("type");
   const reusable = searchParams.get("reusable");
 
+  // Non-elevated users can only see assets from their projects or reusable assets
+  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"].includes(session.user.role);
+  const scopeFilter = isElevated
+    ? {}
+    : {
+        OR: [
+          { isReusable: true },
+          { engagement: { assignments: { some: { consultantId: session.user.id } } } },
+        ],
+      };
+
   const assets = await prisma.knowledgeAsset.findMany({
     where: {
+      ...scopeFilter,
       ...(projectId ? { engagementId: projectId } : {}),
       ...(type ? { assetType: type as "INSIGHT" | "FRAMEWORK" | "TEMPLATE" | "CASE_STUDY" | "LESSON_LEARNED" } : {}),
       ...(reusable === "true" ? { isReusable: true } : {}),

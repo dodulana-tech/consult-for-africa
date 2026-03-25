@@ -2,8 +2,8 @@ import crypto from "crypto";
 import { cookies } from "next/headers";
 
 const SECRET = () => {
-  const s = process.env.CLIENT_PORTAL_SECRET ?? process.env.NEXTAUTH_SECRET;
-  if (!s) throw new Error("CLIENT_PORTAL_SECRET or NEXTAUTH_SECRET must be set");
+  const s = process.env.CLIENT_PORTAL_SECRET;
+  if (!s) throw new Error("CLIENT_PORTAL_SECRET environment variable is required");
   return s;
 };
 

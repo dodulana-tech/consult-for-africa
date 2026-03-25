@@ -25,6 +25,12 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
 
   if (!nda) return Response.json({ error: "NDA not found" }, { status: 404 });
 
+  // Only elevated roles, the NDA creator, or the consultant party can view
+  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"].includes(session.user.role);
+  if (!isElevated && nda.createdBy?.id !== session.user.id && nda.consultant?.id !== session.user.id) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   return Response.json({ nda });
 }
 

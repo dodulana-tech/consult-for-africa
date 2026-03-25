@@ -15,6 +15,18 @@ export async function GET(
 
   const { id } = await params;
 
+  // Verify user has access to this project
+  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  if (!isElevated) {
+    const project = await prisma.engagement.findUnique({
+      where: { id },
+      select: { engagementManagerId: true, assignments: { where: { consultantId: session.user.id }, select: { id: true } } },
+    });
+    if (!project || (project.engagementManagerId !== session.user.id && project.assignments.length === 0)) {
+      return Response.json({ error: "Forbidden" }, { status: 403 });
+    }
+  }
+
   const interactions = await prisma.clientInteraction.findMany({
     where: { engagementId: id },
     orderBy: { conductedAt: "desc" },

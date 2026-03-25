@@ -3,10 +3,7 @@ import { cookies } from "next/headers";
 
 const SECRET = () => {
   const s = process.env.MAAROVA_PORTAL_SECRET;
-  if (!s) {
-    console.error("[maarovaAuth] MAAROVA_PORTAL_SECRET is not set. Authentication will fail.");
-    return "MISSING_SECRET_DO_NOT_USE";
-  }
+  if (!s) throw new Error("MAAROVA_PORTAL_SECRET environment variable is required");
   return s;
 };
 

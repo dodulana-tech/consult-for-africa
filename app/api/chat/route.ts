@@ -14,7 +14,7 @@ function isRateLimited(ip: string): boolean {
     return false;
   }
   entry.count++;
-  return entry.count > 10;
+  return entry.count > 5; // 5 requests per minute per IP
 }
 
 /* ── Periodic cleanup so the map doesn't grow unbounded ── */

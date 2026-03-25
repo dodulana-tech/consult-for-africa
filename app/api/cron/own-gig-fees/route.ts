@@ -1,5 +1,11 @@
 import { prisma } from "@/lib/prisma";
+import { timingSafeEqual } from "crypto";
 import { NextRequest } from "next/server";
+
+function safeCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
 
 /**
  * POST /api/cron/own-gig-fees
@@ -8,7 +14,8 @@ import { NextRequest } from "next/server";
  */
 export async function POST(req: NextRequest) {
   const secret = req.headers.get("x-cron-secret") ?? req.headers.get("authorization")?.replace("Bearer ", "");
-  if (secret !== process.env.CRON_SECRET) {
+  const expected = process.env.CRON_SECRET;
+  if (!secret || !expected || !safeCompare(secret, expected)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 

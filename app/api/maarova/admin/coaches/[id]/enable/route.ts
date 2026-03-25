@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { emailMaarovaCoachCredentials } from "@/lib/email";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { NextRequest } from "next/server";
@@ -40,10 +41,15 @@ export async function POST(
     },
   });
 
-  // In production, send email. For now return the temp password.
+  // Send credentials via email
+  emailMaarovaCoachCredentials({
+    email: coach.email,
+    name: coach.name,
+    password: tempPassword,
+  }).catch((err) => console.error("[coach-enable] Failed to send credentials email:", err));
+
   return Response.json({
     coach: { id: coach.id, name: coach.name, email: coach.email },
-    tempPassword,
-    message: `Portal enabled for ${coach.name}. Temporary password generated. Send credentials to ${coach.email}.`,
+    message: `Portal enabled for ${coach.name}. Credentials sent to ${coach.email}.`,
   });
 }
