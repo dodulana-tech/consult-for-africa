@@ -72,7 +72,7 @@ export default function EditInvoicePage() {
   const fetchInvoice = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/finance/invoices/${id}`);
+      const res = await fetch(`/api/invoices/${id}`);
       if (!res.ok) { setError("Failed to load invoice"); return; }
       const inv = await res.json();
 
@@ -153,6 +153,9 @@ export default function EditInvoicePage() {
           unitPrice: parseFloat(item.unitPrice) || 0,
           category: item.category,
         })),
+        taxRate: parseFloat(taxRate) || 0,
+        whtRate: parseFloat(whtRate) || 0,
+        discountAmount: discount,
         clientNotes: clientNotes || null,
         notes: internalNotes || null,
         dueDate: dueDate || null,

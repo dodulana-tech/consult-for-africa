@@ -5,6 +5,8 @@ import { NextRequest } from "next/server";
 /**
  * GET /api/leads/[id]
  */
+const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"];
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -30,6 +32,12 @@ export async function GET(
 
   if (!lead) return Response.json({ error: "Not found" }, { status: 404 });
 
+  // Only assignee or elevated roles can view
+  const isElevated = ELEVATED.includes(session.user.role);
+  if (!isElevated && lead.assignedToId !== session.user.id) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   return Response.json({ lead: JSON.parse(JSON.stringify(lead)) });
 }
 
@@ -45,6 +53,15 @@ export async function PATCH(
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
+
+  // Verify the user has access to this lead
+  const lead = await prisma.lead.findUnique({ where: { id }, select: { assignedToId: true } });
+  if (!lead) return Response.json({ error: "Not found" }, { status: 404 });
+  const isElevated = ELEVATED.includes(session.user.role);
+  if (!isElevated && lead.assignedToId !== session.user.id) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const body = await req.json();
 
   const updateData: Record<string, unknown> = {};

@@ -42,7 +42,10 @@ export async function GET(
 /**
  * PATCH /api/own-gig/[id]/fees — update fee status (admin only)
  */
-export async function PATCH(req: NextRequest) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -50,12 +53,19 @@ export async function PATCH(req: NextRequest) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const { id } = await params;
   const body = await req.json();
   const { feeId, status } = body;
 
   if (!feeId || !["PENDING", "INVOICED", "PAID"].includes(status)) {
     return Response.json({ error: "feeId and valid status required" }, { status: 400 });
   }
+
+  // Verify fee belongs to this gig
+  const fee = await prisma.ownGigPlatformFee.findFirst({
+    where: { id: feeId, engagementId: id },
+  });
+  if (!fee) return Response.json({ error: "Fee not found for this gig" }, { status: 404 });
 
   const updated = await prisma.ownGigPlatformFee.update({
     where: { id: feeId },

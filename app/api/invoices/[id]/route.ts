@@ -158,7 +158,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   }
 
   const body = await req.json();
-  const { status, lineItems, notes, clientNotes, dueDate, billingPeriodStart, billingPeriodEnd } = body;
+  const { status, lineItems, notes, clientNotes, dueDate, billingPeriodStart, billingPeriodEnd, taxRate: bodyTaxRate, whtRate: bodyWhtRate, discountAmount: bodyDiscount } = body;
 
   const data: Prisma.InvoiceUpdateInput = {};
 
@@ -247,21 +247,22 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
         if (item.unitPrice < 0) return new Response("Unit price cannot be negative", { status: 400 });
       }
 
-      // Recalculate amounts
+      // Recalculate amounts - use explicit rates if provided, else derive from existing
       const subtotal = lineItems.reduce(
         (sum: number, item: { quantity: number; unitPrice: number }) => sum + item.quantity * item.unitPrice,
         0
       );
-      const taxRate = Number(existing.tax) / (Number(existing.subtotal) || 1);
+      const taxRate = typeof bodyTaxRate === "number" ? bodyTaxRate / 100 : Number(existing.tax) / (Number(existing.subtotal) || 1);
       const tax = Math.round(subtotal * taxRate * 100) / 100;
-      const whtRate = Number(existing.whtAmount) / (Number(existing.subtotal) || 1);
+      const whtRate = typeof bodyWhtRate === "number" ? bodyWhtRate / 100 : Number(existing.whtAmount) / (Number(existing.subtotal) || 1);
       const whtAmount = Math.round(subtotal * whtRate * 100) / 100;
-      const discountAmount = Number(existing.discountAmount);
+      const discountAmount = typeof bodyDiscount === "number" ? bodyDiscount : Number(existing.discountAmount);
       const total = Math.round((subtotal + tax - whtAmount - discountAmount) * 100) / 100;
 
       data.subtotal = subtotal;
       data.tax = tax;
       data.whtAmount = whtAmount;
+      data.discountAmount = discountAmount;
       data.total = total;
       data.balanceDue = total - Number(existing.paidAmount);
       data.lineItems = lineItems.map((item: { description: string; quantity: number; unitPrice: number }, i: number) => ({

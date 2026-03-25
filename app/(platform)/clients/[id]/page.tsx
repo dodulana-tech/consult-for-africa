@@ -336,17 +336,12 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                       const isOverdue = inv.status === "SENT" && inv.dueDate && new Date(inv.dueDate) < new Date();
                       const daysOverdue = inv.dueDate ? Math.max(0, Math.floor((Date.now() - new Date(inv.dueDate).getTime()) / 86400000)) : 0;
                       return (
-                        <tr
-                          key={inv.id}
-                          className="hover:bg-gray-50 group cursor-pointer"
-                          onClick={() => window.location.href = `/finance/invoices/${inv.id}`}
-                        >
+                        <tr key={inv.id} className="hover:bg-gray-50 group">
                           <td className="px-4 py-3">
                             <Link
                               href={`/finance/invoices/${inv.id}`}
-                              className="font-mono text-xs hover:underline"
-                              style={{ color: "#0F2744" }}
-                              onClick={(e) => e.stopPropagation()}
+                              className="font-mono text-xs font-medium hover:underline"
+                              style={{ color: "#1D4ED8" }}
                             >
                               {inv.invoiceNumber}
                             </Link>
@@ -383,16 +378,17 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                             </span>
                           </td>
                           {canManageInvoices && (
-                            <td className="px-4 py-3 text-right flex items-center justify-end gap-2">
-                              <InvoiceStatusButton invoiceId={inv.id} currentStatus={inv.status} />
-                              <Link
-                                href={`/finance/invoices/${inv.id}`}
-                                className="text-xs px-2.5 py-1 rounded border font-medium hover:bg-gray-50 whitespace-nowrap"
-                                style={{ color: "#0F2744", borderColor: "#d1d5db" }}
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                View
-                              </Link>
+                            <td className="px-4 py-3 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <InvoiceStatusButton invoiceId={inv.id} currentStatus={inv.status} />
+                                <Link
+                                  href={`/finance/invoices/${inv.id}`}
+                                  className="text-xs px-2.5 py-1 rounded border font-medium hover:bg-gray-50 whitespace-nowrap"
+                                  style={{ color: "#0F2744", borderColor: "#d1d5db" }}
+                                >
+                                  View
+                                </Link>
+                              </div>
                             </td>
                           )}
                         </tr>
