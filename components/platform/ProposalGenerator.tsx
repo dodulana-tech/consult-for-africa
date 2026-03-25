@@ -148,7 +148,8 @@ export default function ProposalGenerator() {
         body: JSON.stringify({ ...form, problems, goals }),
       });
       if (!res.ok) {
-        setError(await res.text().catch(() => "Failed to generate proposal."));
+        const errData = await res.json().catch(() => null);
+        setError(errData?.error || "Failed to generate proposal. Please try again.");
         return;
       }
       const data = await res.json();

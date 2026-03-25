@@ -85,38 +85,101 @@ Return ONLY the JSON object, no other text.`;
   try {
     const message = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 2000,
+      max_tokens: 4096,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
     });
 
     const raw = (message.content[0] as { text: string }).text;
-    // Extract JSON
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("No JSON in response");
+    // Extract JSON - handle potential markdown code blocks
+    const cleaned = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "");
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.error("[generate-proposal] No JSON found in response:", raw.slice(0, 500));
+      throw new Error("No JSON in response");
+    }
     content = JSON.parse(jsonMatch[0]);
   } catch (err) {
-    console.error("Claude proposal generation error:", err);
-    return new Response("Failed to generate proposal. Please try again.", { status: 500 });
+    console.error("[generate-proposal] Error:", err);
+    const msg = err instanceof Error ? err.message : "Unknown error";
+    return Response.json(
+      { error: `Failed to generate proposal: ${msg}` },
+      { status: 500 }
+    );
   }
 
-  // Save proposal
-  const saved = await prisma.generatedProposal.create({
-    data: {
-      clientName,
-      projectName: projectName || `${clientName} Engagement`,
-      inputData: JSON.parse(JSON.stringify({ clientName, contactName, clientType, problems, goals, budgetRange, timeline, serviceType })),
-      content: JSON.parse(JSON.stringify(content)),
-      createdById: session.user.id,
-    },
+  const finalProjectName = projectName || `${clientName} Engagement`;
+
+  // Build a flat text version of the proposal for the Proposal record
+  const proposalText = [
+    "EXECUTIVE SUMMARY",
+    content.executiveSummary,
+    "",
+    "THE CHALLENGE",
+    content.challengeStatement,
+    "",
+    "PROPOSED APPROACH",
+    content.proposedApproach,
+    "",
+    "TEAM COMPOSITION",
+    content.teamComposition,
+    "",
+    "KEY DELIVERABLES",
+    ...(Array.isArray(content.keyDeliverables)
+      ? (content.keyDeliverables as string[]).map((d, i) => `${i + 1}. ${d}`)
+      : []),
+    "",
+    "INVESTMENT SUMMARY",
+    content.investmentSummary,
+    "",
+    "WHY CONSULT FOR AFRICA",
+    content.whyConsultForAfrica,
+    "",
+    "NEXT STEPS",
+    ...(Array.isArray(content.nextSteps)
+      ? (content.nextSteps as string[]).map((s, i) => `${i + 1}. ${s}`)
+      : []),
+  ].join("\n");
+
+  // Save to both tables in a transaction
+  const [saved, proposal] = await prisma.$transaction(async (tx) => {
+    const gen = await tx.generatedProposal.create({
+      data: {
+        clientName,
+        projectName: finalProjectName,
+        inputData: JSON.parse(JSON.stringify({ clientName, contactName, clientType, problems, goals, budgetRange, timeline, serviceType })),
+        content: JSON.parse(JSON.stringify(content)),
+        createdById: session.user.id,
+      },
+    });
+
+    // Also create a formal Proposal record so it appears in the proposals list
+    const prop = await tx.proposal.create({
+      data: {
+        title: finalProjectName,
+        clientName,
+        clientContact: contactName || null,
+        serviceType: (serviceType as import("@prisma/client").ServiceType) || null,
+        budgetRange: budgetRange || null,
+        timeline: timeline || null,
+        challenges: problems,
+        objectives: goals,
+        content: proposalText,
+        status: "DRAFT",
+        createdById: session.user.id,
+      },
+    });
+
+    return [gen, prop] as const;
   });
 
   return Response.json({
     proposalId: saved.id,
+    formalProposalId: proposal.id,
     content,
     metadata: {
       clientName,
-      projectName: projectName || `${clientName} Engagement`,
+      projectName: finalProjectName,
       budgetRange,
       timeline,
       generatedAt: new Date().toISOString(),
