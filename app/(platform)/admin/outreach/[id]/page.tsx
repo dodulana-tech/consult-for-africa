@@ -209,7 +209,7 @@ export default function CampaignDetailPage() {
         {nuruTargets.length > 0 && (
           <div className="bg-white rounded-xl border p-4 mb-4 space-y-3" style={{ borderColor: "#D4AF37" + "40", background: "#D4AF37" + "05" }}>
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold" style={{ color: "#0F2744" }}>Nuru suggests {nuruTargets.length} target profiles</p>
+              <p className="text-xs font-semibold" style={{ color: "#0F2744" }}>Nuru found {nuruTargets.length} sourcing leads (verify before adding)</p>
               <button onClick={() => setNuruTargets([])} className="text-[10px] text-gray-400">Dismiss</button>
             </div>
             {nuruTip && <p className="text-xs text-gray-500 italic bg-amber-50 rounded px-3 py-2">Messaging tip: {nuruTip}</p>}
@@ -217,9 +217,10 @@ export default function CampaignDetailPage() {
               {nuruTargets.map((t, i) => (
                 <div key={i} className="flex items-start justify-between bg-white rounded-lg border p-3" style={{ borderColor: "#e5eaf0" }}>
                   <div>
-                    <p className="text-sm font-medium" style={{ color: "#0F2744" }}>{t.name}</p>
-                    <p className="text-xs text-gray-500">{t.title} at {t.organization} | {t.city}</p>
+                    <p className="text-sm font-medium" style={{ color: "#0F2744" }}>{t.organization}</p>
+                    <p className="text-xs text-gray-500">Look for: {t.title} | {t.city}</p>
                     <p className="text-[10px] text-gray-400 mt-0.5">{t.outreachAngle}</p>
+                    <p className="text-[10px] text-blue-500 mt-0.5">Source: {t.source}</p>
                   </div>
                   <button onClick={() => addNuruTarget(t, i)} className="text-[10px] px-2.5 py-1 rounded-lg text-white shrink-0" style={{ background: "#0F2744" }}>Add</button>
                 </div>

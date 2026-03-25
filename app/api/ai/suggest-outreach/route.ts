@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   const nuruContext = await getNuruContext();
 
-  const prompt = `You are Nuru, CFA's internal intelligence system. Help build an outreach target list for a Maarova leadership assessment campaign.
+  const prompt = `You are Nuru, CFA's internal strategy advisor. Help plan outreach sourcing for a Maarova leadership assessment campaign.
 
 CAMPAIGN: ${campaignName || "Monthly outreach"}
 ${targetCity ? `TARGET CITY: ${targetCity}` : ""}
@@ -29,30 +29,32 @@ ${industry ? `INDUSTRY FOCUS: ${industry}` : "Healthcare: private hospitals, hos
 ${Array.isArray(existingTargets) && existingTargets.length > 0 ? `ALREADY IN CAMPAIGN (avoid duplicates):\n${existingTargets.join("\n")}` : ""}
 ${nuruContext}
 
-CONTEXT: CFA is building a network of assessed healthcare leaders in Nigeria. The goal is to invite senior healthcare professionals to take a free Maarova leadership assessment, building our executive search database.
+CONTEXT: CFA is building a network of assessed healthcare leaders in Nigeria and across Africa. The goal is to invite senior healthcare professionals to take a free Maarova leadership assessment, building our leadership database.
 
-TARGET CRITERIA:
-- Decision-makers at hospitals, HMOs, health agencies (CEO, MD, CMO, COO, Director level)
-- Preferably in Lagos, Abuja, Port Harcourt, but other major cities welcome
-- Mix of private hospitals, government/teaching hospitals, HMO executives
-- 10+ years experience in healthcare management
-- Active on LinkedIn or reachable via email
+IMPORTANT: Do NOT invent fictional people. Instead, suggest REAL, VERIFIABLE organisations and roles where we should look for targets. Every organisation you name must be a real institution that exists in Nigeria or Africa. If you are not confident an organisation is real, do not include it.
 
-Generate 10-20 target profiles. For each, suggest a realistic Nigerian healthcare leader profile (these should be plausible target archetypes, not real people).
+For each suggestion, provide:
+- The real organisation name (hospital, HMO, health agency, or group)
+- The role/title we should target at that organisation
+- The city where the organisation is headquartered
+- Where to find the person (LinkedIn search terms, organisation website, conference speaker lists)
+- Why someone in that role at that organisation would value a leadership assessment
+
+Generate 10-20 sourcing leads.
 
 Return ONLY valid JSON:
 {
   "targets": [
     {
-      "name": "<Nigerian name>",
-      "title": "<e.g. Medical Director>",
-      "organization": "<e.g. XYZ Hospital>",
-      "city": "<Lagos/Abuja/etc>",
-      "source": "<LinkedIn/Conference/Industry Directory>",
-      "outreachAngle": "<1 sentence: why they'd care about a free leadership assessment>"
+      "name": "<role title to search for, e.g. Medical Director>",
+      "title": "<specific role, e.g. Chief Medical Officer>",
+      "organization": "<REAL organisation name>",
+      "city": "<city>",
+      "source": "<where to find them: specific LinkedIn search, org website URL pattern, conference name>",
+      "outreachAngle": "<1 sentence: why this role at this org would value the assessment>"
     }
   ],
-  "messagingTip": "<1-2 sentences: suggested LinkedIn message approach for this campaign>"
+  "messagingTip": "<1-2 sentences: suggested outreach approach for this campaign>"
 }`;
 
   try {
