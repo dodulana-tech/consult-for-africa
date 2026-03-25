@@ -1,12 +1,18 @@
 import { prisma } from "@/lib/prisma";
+import { isRateLimited } from "@/lib/rate-limit";
 import { NextRequest } from "next/server";
 
 // NO AUTH REQUIRED - token-based access for external raters
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (isRateLimited(ip, "360-rate", { windowMs: 60_000, max: 20 })) {
+    return Response.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   const { token } = await params;
 
   const invite = await prisma.maarova360RaterInvite.findUnique({
@@ -94,6 +100,11 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (isRateLimited(ip, "360-rate-submit", { windowMs: 60_000, max: 10 })) {
+    return Response.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   const { token } = await params;
 
   const invite = await prisma.maarova360RaterInvite.findUnique({

@@ -80,7 +80,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   });
 
   // Send email to client
-  const BASE_URL = process.env.NEXTAUTH_URL ?? "https://platform.consultforafrica.com";
+  const BASE_URL = process.env.NEXTAUTH_URL;
   const viewUrl = `${BASE_URL}/invoices/${invoice.id}`;
 
   const formatted = invoice.currency === "USD"

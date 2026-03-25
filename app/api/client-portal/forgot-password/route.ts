@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  const BASE_URL = process.env.NEXTAUTH_URL ?? "https://platform.consultforafrica.com";
+  const BASE_URL = process.env.NEXTAUTH_URL;
   const resetUrl = `${BASE_URL}/client/reset-password?token=${token}`;
 
   emailClientPortalPasswordReset({

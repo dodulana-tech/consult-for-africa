@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "No signing token available" }, { status: 400 });
   }
 
-  const BASE_URL = process.env.NEXTAUTH_URL ?? "https://platform.consultforafrica.com";
+  const BASE_URL = process.env.NEXTAUTH_URL;
   const signingUrl = `${BASE_URL}/sign-nda/${nda.signingToken}`;
 
   const typeLabel = nda.type === "CONSULTANT_MASTER"

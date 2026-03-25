@@ -4,6 +4,15 @@ import { NextRequest } from "next/server";
 
 const VALID_STATUSES = ["NEW", "CONTACTED", "PROPOSAL_SENT", "WON", "LOST"];
 
+// Allowed transitions: current status -> set of valid next statuses
+const TRANSITIONS: Record<string, string[]> = {
+  NEW: ["CONTACTED", "LOST"],
+  CONTACTED: ["PROPOSAL_SENT", "LOST"],
+  PROPOSAL_SENT: ["WON", "LOST"],
+  WON: [],
+  LOST: ["NEW"], // allow reopening
+};
+
 export async function PATCH(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
@@ -29,6 +38,14 @@ export async function PATCH(req: NextRequest) {
   });
 
   if (!existing) return new Response("Request not found", { status: 404 });
+
+  const allowedNext = TRANSITIONS[existing.status] ?? [];
+  if (!allowedNext.includes(status)) {
+    return new Response(
+      `Cannot transition from ${existing.status} to ${status}. Allowed: ${allowedNext.join(", ") || "none"}`,
+      { status: 400 }
+    );
+  }
 
   const updated = await prisma.clientExpansionRequest.update({
     where: { id },

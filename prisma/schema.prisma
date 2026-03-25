@@ -3237,7 +3237,7 @@ model Payment {
   paymentDate     DateTime
   paymentMethod   String        // bank_transfer, paystack, wise, cheque, cash
   reference       String?       // bank reference or cheque number
-  paystackRef     String?       // Paystack transaction reference
+  paystackRef     String?       @unique // Paystack transaction reference
   paystackTxnId   String?       // Paystack transaction ID
   bankName        String?
   status          PaymentStatus @default(PENDING)
@@ -3253,7 +3253,6 @@ model Payment {
 
   @@index([invoiceId])
   @@index([status])
-  @@index([paystackRef])
 }
 
 model BillingSchedule {

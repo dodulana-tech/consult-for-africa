@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     data: { resetToken: tokenHash, resetTokenExpiry: expiry },
   });
 
-  const BASE_URL = process.env.NEXTAUTH_URL ?? "https://platform.consultforafrica.com";
+  const BASE_URL = process.env.NEXTAUTH_URL;
   const resetUrl = `${BASE_URL}/reset-password?token=${token}`;
 
   emailPlatformPasswordReset({

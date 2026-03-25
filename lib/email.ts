@@ -90,7 +90,7 @@ function btn(text: string, href: string, color = "#D4AF37") {
 
 // ─── Email functions ──────────────────────────────────────────────────────────
 
-const BASE_URL = process.env.NEXTAUTH_URL ?? "https://platform.consultforafrica.com";
+const BASE_URL = process.env.NEXTAUTH_URL ?? "";
 
 export async function emailDeliverableSubmitted({
   emEmail,
