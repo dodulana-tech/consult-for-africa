@@ -47,15 +47,15 @@ export default function LogframeTool() {
         <button onClick={exportText} className="text-xs px-3 py-1.5 rounded-lg border flex items-center gap-1.5" style={{ borderColor: "#e5eaf0" }}><Download size={12} /> Export</button>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border" style={{ borderColor: "#e5eaf0" }}>
+      <div className="overflow-x-auto rounded-xl border scrollbar-thin" style={{ borderColor: "#e5eaf0", WebkitOverflowScrolling: "touch" }}>
         <table className="w-full text-xs">
           <thead>
             <tr style={{ background: "#0F2744" }}>
               <th className="text-left px-3 py-2.5 text-white font-medium w-24">Level</th>
-              <th className="text-left px-3 py-2.5 text-white font-medium min-w-[200px]">Narrative Summary</th>
-              <th className="text-left px-3 py-2.5 text-white font-medium min-w-[180px]">Objectively Verifiable Indicators</th>
-              <th className="text-left px-3 py-2.5 text-white font-medium min-w-[180px]">Means of Verification</th>
-              <th className="text-left px-3 py-2.5 text-white font-medium min-w-[180px]">Assumptions & Risks</th>
+              <th className="text-left px-3 py-2.5 text-white font-medium">Narrative Summary</th>
+              <th className="text-left px-3 py-2.5 text-white font-medium hidden sm:table-cell">Objectively Verifiable Indicators</th>
+              <th className="text-left px-3 py-2.5 text-white font-medium hidden sm:table-cell">Means of Verification</th>
+              <th className="text-left px-3 py-2.5 text-white font-medium hidden sm:table-cell">Assumptions & Risks</th>
               <th className="w-12"></th>
             </tr>
           </thead>
@@ -74,9 +74,9 @@ export default function LogframeTool() {
                     </td>
                   )}
                   <td className="px-2 py-1"><textarea value={row.narrative} onChange={(e) => update(row.id, "narrative", e.target.value)} className="w-full border-0 bg-transparent py-1 outline-none resize-none" rows={2} placeholder={`What will be achieved at ${level.label.split(" ")[0].toLowerCase()} level?`} /></td>
-                  <td className="px-2 py-1"><textarea value={row.indicators} onChange={(e) => update(row.id, "indicators", e.target.value)} className="w-full border-0 bg-transparent py-1 outline-none resize-none" rows={2} placeholder="How will it be measured?" /></td>
-                  <td className="px-2 py-1"><textarea value={row.meansOfVerification} onChange={(e) => update(row.id, "meansOfVerification", e.target.value)} className="w-full border-0 bg-transparent py-1 outline-none resize-none" rows={2} placeholder="Data source / evidence" /></td>
-                  <td className="px-2 py-1"><textarea value={row.assumptions} onChange={(e) => update(row.id, "assumptions", e.target.value)} className="w-full border-0 bg-transparent py-1 outline-none resize-none" rows={2} placeholder="What must hold true?" /></td>
+                  <td className="px-2 py-1 hidden sm:table-cell"><textarea value={row.indicators} onChange={(e) => update(row.id, "indicators", e.target.value)} className="w-full border-0 bg-transparent py-1 outline-none resize-none" rows={2} placeholder="How will it be measured?" /></td>
+                  <td className="px-2 py-1 hidden sm:table-cell"><textarea value={row.meansOfVerification} onChange={(e) => update(row.id, "meansOfVerification", e.target.value)} className="w-full border-0 bg-transparent py-1 outline-none resize-none" rows={2} placeholder="Data source / evidence" /></td>
+                  <td className="px-2 py-1 hidden sm:table-cell"><textarea value={row.assumptions} onChange={(e) => update(row.id, "assumptions", e.target.value)} className="w-full border-0 bg-transparent py-1 outline-none resize-none" rows={2} placeholder="What must hold true?" /></td>
                   <td className="px-1 py-2">
                     {levelRows.length > 1 && <button onClick={() => removeRow(row.id)} className="text-gray-300 hover:text-red-400"><X size={12} /></button>}
                   </td>

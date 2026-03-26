@@ -59,7 +59,7 @@ export default async function ConsultantsPage() {
               <Link
                 key={c.id}
                 href={`/consultants/${c.user.id}`}
-                className="flex items-start gap-4 rounded-xl p-5 group transition-shadow hover:shadow-sm bg-white"
+                className="flex flex-col sm:flex-row items-start gap-4 rounded-xl p-5 group transition-shadow hover:shadow-sm bg-white"
                 style={{ border: "1px solid #e5eaf0" }}
               >
                 {/* Avatar */}

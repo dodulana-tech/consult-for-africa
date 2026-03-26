@@ -211,10 +211,10 @@ export default function OrgGoalsClient() {
       )}
 
       {/* Goals table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
+            <tr className="text-left text-xs font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
               <th className="px-4 py-3">User</th>
               <th className="px-4 py-3">Goal</th>
               <th className="px-4 py-3">Dimension</th>
@@ -245,15 +245,15 @@ export default function OrgGoalsClient() {
                       <div className="w-12 h-1.5 rounded-full bg-gray-100 overflow-hidden">
                         <div className="h-full rounded-full" style={{ width: `${goal.progress}%`, background: goal.progress >= 100 ? "#16a34a" : "#D4A574" }} />
                       </div>
-                      <span className="text-[10px] text-gray-500">{goal.progress}%</span>
+                      <span className="text-xs text-gray-500">{goal.progress}%</span>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>
                       {st.label}
                     </span>
                     {goal.managerValidated && (
-                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-green-50 text-green-700 ml-1">
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-50 text-green-700 ml-1">
                         Validated
                       </span>
                     )}

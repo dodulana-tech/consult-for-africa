@@ -119,15 +119,15 @@ export default function RACITool() {
         </div>
 
         {/* Matrix */}
-        <div className="rounded-xl overflow-auto" style={{ border: "1px solid #e5eaf0" }}>
-          <table className="w-full text-sm">
+        <div className="rounded-xl overflow-auto scrollbar-thin" style={{ border: "1px solid #e5eaf0", WebkitOverflowScrolling: "touch" }}>
+          <table className="w-full text-xs sm:text-sm">
             <thead>
               <tr style={{ background: "#F9FAFB" }}>
-                <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 min-w-[200px]" style={{ borderBottom: "1px solid #e5eaf0" }}>
+                <th className="text-left px-2 sm:px-3 py-2 text-xs font-semibold text-gray-500" style={{ borderBottom: "1px solid #e5eaf0" }}>
                   Task / Activity
                 </th>
                 {roles.map((role, ri) => (
-                  <th key={ri} className="px-2 py-2 text-center min-w-[120px]" style={{ borderBottom: "1px solid #e5eaf0" }}>
+                  <th key={ri} className="px-1 sm:px-2 py-2 text-center" style={{ borderBottom: "1px solid #e5eaf0" }}>
                     <div className="flex items-center gap-1 justify-center group">
                       <input
                         type="text"
@@ -154,13 +154,13 @@ export default function RACITool() {
             <tbody>
               {tasks.map((task, ti) => (
                 <tr key={ti} className="group" style={{ borderBottom: "1px solid #F3F4F6" }}>
-                  <td className="px-3 py-2">
+                  <td className="px-2 sm:px-3 py-1.5 sm:py-2">
                     <div className="flex items-center gap-1">
                       <input
                         type="text"
                         value={task}
                         onChange={(e) => setTasks((prev) => prev.map((t, i) => (i === ti ? e.target.value : t)))}
-                        className="text-sm text-gray-800 bg-transparent border-none outline-none w-full"
+                        className="text-xs sm:text-sm text-gray-800 bg-transparent border-none outline-none w-full"
                         placeholder="Task description..."
                       />
                       {tasks.length > 1 && (
@@ -174,10 +174,10 @@ export default function RACITool() {
                     const val = matrix[ti]?.[ri] ?? "";
                     const style = RACI_COLORS[val] || RACI_COLORS[""];
                     return (
-                      <td key={ri} className="px-2 py-2 text-center">
+                      <td key={ri} className="px-1 sm:px-2 py-1.5 sm:py-2 text-center">
                         <button
                           onClick={() => setCell(ti, ri)}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center mx-auto text-xs font-bold transition-all hover:scale-110"
+                          className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center mx-auto text-xs font-bold transition-all hover:scale-110"
                           style={{ background: style.bg, color: style.color, border: val ? `1.5px solid ${style.color}30` : "1.5px solid #E5E7EB" }}
                         >
                           {val || "-"}

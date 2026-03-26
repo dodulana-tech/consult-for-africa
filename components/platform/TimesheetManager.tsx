@@ -271,7 +271,7 @@ export default function TimesheetManager({
   }
 
   return (
-    <main className="flex-1 overflow-y-auto p-6">
+    <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
       <div className="max-w-3xl space-y-6">
         {/* Tabs */}
         <div
@@ -649,7 +649,7 @@ export default function TimesheetManager({
         {/* Reject modal */}
         {rejectTarget && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.4)" }}>
-            <div className="w-full max-w-md rounded-xl p-6 bg-white shadow-xl">
+            <div className="w-full max-w-md rounded-xl p-6 bg-white shadow-xl max-h-[90vh] overflow-y-auto">
               <h3 className="font-semibold text-gray-900 mb-1">Return timesheet</h3>
               <p className="text-sm text-gray-500 mb-4">For {rejectTarget.name}</p>
               <textarea

@@ -66,7 +66,7 @@ export default async function ProjectsPage() {
           />
         ) : undefined}
       />
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
         <div className="max-w-4xl space-y-6">
           {/* Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -94,7 +94,7 @@ export default async function ProjectsPage() {
                 <Link
                   key={p.id}
                   href={`/projects/${p.id}`}
-                  className="flex items-start gap-4 rounded-xl p-5 group transition-shadow hover:shadow-sm bg-white"
+                  className="flex flex-col sm:flex-row items-start gap-4 rounded-xl p-5 group transition-shadow hover:shadow-sm bg-white"
                   style={{ border: `1px solid ${isCritical ? "#FECACA" : "#e5eaf0"}` }}
                 >
                   <div className="flex-1 min-w-0">

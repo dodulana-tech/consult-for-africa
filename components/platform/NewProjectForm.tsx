@@ -218,7 +218,7 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.4)" }}>
-          <div className="bg-white rounded-xl w-full max-w-2xl shadow-xl" style={{ border: "1px solid #e5eaf0" }}>
+          <div className="bg-white rounded-xl w-full max-w-lg sm:max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto" style={{ border: "1px solid #e5eaf0" }}>
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid #e5eaf0" }}>
               <h2 className="text-sm font-semibold text-gray-900">New Engagement</h2>
               <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600">

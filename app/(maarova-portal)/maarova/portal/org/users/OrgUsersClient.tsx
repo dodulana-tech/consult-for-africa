@@ -98,10 +98,10 @@ export default function OrgUsersClient() {
         <div className="p-3 rounded-lg bg-green-50 text-green-700 text-sm">{success}</div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
+            <tr className="text-left text-xs font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Role</th>
               <th className="px-4 py-3">Manager</th>
@@ -139,7 +139,7 @@ export default function OrgUsersClient() {
                         <option value="HR_ADMIN">HR Admin</option>
                       </select>
                     ) : (
-                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${roleCfg.bg} ${roleCfg.text}`}>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${roleCfg.bg} ${roleCfg.text}`}>
                         {roleCfg.label}
                       </span>
                     )}
@@ -167,7 +167,7 @@ export default function OrgUsersClient() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${assessmentCfg.bg} ${assessmentCfg.text}`}>
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${assessmentCfg.bg} ${assessmentCfg.text}`}>
                       {assessmentCfg.label}
                     </span>
                   </td>
@@ -180,7 +180,7 @@ export default function OrgUsersClient() {
                             style={{ width: `${user.avgGoalProgress}%`, background: "#D4A574" }}
                           />
                         </div>
-                        <span className="text-[10px] text-gray-500">
+                        <span className="text-xs text-gray-500">
                           {user.goalsCompleted}/{user.goalCount}
                         </span>
                       </div>

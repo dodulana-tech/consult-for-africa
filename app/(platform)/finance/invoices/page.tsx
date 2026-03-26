@@ -238,7 +238,7 @@ export default function InvoicesPage() {
           <div className="bg-white rounded-xl" style={{ border: "1px solid #e5eaf0" }}>
             <div className="flex flex-wrap items-center gap-3 p-4">
               {/* Search */}
-              <div className="relative flex-1 min-w-[200px]">
+              <div className="relative flex-1 min-w-0 w-full sm:min-w-[200px]">
                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"

@@ -59,12 +59,12 @@ export default async function DiscoveryCallsPage() {
             <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
+                <tr className="text-left text-[10px] md:text-xs font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
                   <th className="px-4 py-3">Organisation</th>
                   <th className="px-4 py-3">Contact</th>
                   <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Service Lines</th>
-                  <th className="px-4 py-3">Conducted By</th>
+                  <th className="px-4 py-3 hidden md:table-cell">Service Lines</th>
+                  <th className="px-4 py-3 hidden md:table-cell">Conducted By</th>
                   <th className="px-4 py-3">Date</th>
                 </tr>
               </thead>
@@ -75,39 +75,39 @@ export default async function DiscoveryCallsPage() {
                     <tr key={call.id} className="border-t hover:bg-gray-50 transition-colors" style={{ borderColor: "#F3F4F6" }}>
                       <td className="px-4 py-3">
                         <Link href={`/discovery-calls/${call.id}`} className="hover:underline">
-                          <p className="text-sm font-medium" style={{ color: "#0F2744" }}>{call.organizationName}</p>
+                          <p className="text-xs font-medium" style={{ color: "#0F2744" }}>{call.organizationName}</p>
                           {call.organizationType && (
-                            <p className="text-[10px] text-gray-400 capitalize">{call.organizationType.replace(/_/g, " ")}</p>
+                            <p className="text-xs text-gray-400 capitalize">{call.organizationType.replace(/_/g, " ")}</p>
                           )}
                         </Link>
                         {call.convertedToClient && (
-                          <Link href={`/clients/${call.convertedToClient.id}`} className="text-[10px] text-green-600 hover:underline">
+                          <Link href={`/clients/${call.convertedToClient.id}`} className="text-xs text-green-600 hover:underline">
                             Converted to {call.convertedToClient.name}
                           </Link>
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <p className="text-sm text-gray-700">{call.contactName}</p>
-                        {call.contactEmail && <p className="text-[10px] text-gray-400">{call.contactEmail}</p>}
+                        <p className="text-xs text-gray-700">{call.contactName}</p>
+                        {call.contactEmail && <p className="text-xs text-gray-400">{call.contactEmail}</p>}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>
                           {call.status.replace(/_/g, " ")}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 hidden md:table-cell">
                         <div className="flex flex-wrap gap-1">
                           {call.aiServiceLineMatch.slice(0, 2).map((sl, i) => (
-                            <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 truncate max-w-[120px]">
+                            <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 truncate max-w-full sm:max-w-[120px]">
                               {sl.split(" ").slice(0, 3).join(" ")}
                             </span>
                           ))}
                           {call.aiServiceLineMatch.length === 0 && (
-                            <span className="text-[10px] text-gray-300">Not analyzed</span>
+                            <span className="text-xs text-gray-300">Not analyzed</span>
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 hidden md:table-cell">
                         <span className="text-xs text-gray-500">{call.conductedBy.name}</span>
                       </td>
                       <td className="px-4 py-3">

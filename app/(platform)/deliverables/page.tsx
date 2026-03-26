@@ -82,7 +82,7 @@ export default async function DeliverablesPage() {
         title="Deliverables"
         subtitle={isConsultant ? "Your submitted work" : "Review and manage consultant work"}
       />
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
         <div className="max-w-3xl space-y-6">
           {/* Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

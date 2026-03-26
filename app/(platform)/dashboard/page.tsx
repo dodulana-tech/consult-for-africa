@@ -189,7 +189,7 @@ export default async function DashboardPage() {
         subtitle={formatDate(new Date())}
       />
 
-      <main className="flex-1 overflow-y-auto p-6 space-y-6">
+      <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-6">
 
         {/* Onboarding banner */}
         {showOnboardingBanner && (
@@ -367,7 +367,7 @@ export default async function DashboardPage() {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             label="Active Projects"
             value={activeProjects}
