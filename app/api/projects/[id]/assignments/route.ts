@@ -82,11 +82,13 @@ export async function POST(
   }
 
   // Validate trackId belongs to this engagement if provided
+  let trackRecord: { id: string; name: string } | null = null;
   if (trackId) {
-    const track = await prisma.engagementTrack.findFirst({
+    trackRecord = await prisma.engagementTrack.findFirst({
       where: { id: trackId, engagementId: projectId },
+      select: { id: true, name: true },
     });
-    if (!track) {
+    if (!trackRecord) {
       return new Response("Track not found or does not belong to this engagement", { status: 400 });
     }
   }
@@ -180,6 +182,7 @@ export async function POST(
     rateType,
     rateAmount: String(rateAmount),
     currency: rateCurrency,
+    trackName: trackRecord?.name ?? undefined,
   }).catch((err) => console.error("[email] assignment notification failed:", err));
 
   return Response.json({
