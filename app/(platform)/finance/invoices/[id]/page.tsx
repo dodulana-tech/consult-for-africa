@@ -188,7 +188,7 @@ export default function InvoiceDetailPage() {
   const fetchInvoice = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/finance/invoices/${id}`);
+      const res = await fetch(`/api/invoices/${id}`);
       if (res.ok) {
         const data = await res.json();
         setInvoice(data);
@@ -209,11 +209,26 @@ export default function InvoiceDetailPage() {
       return;
     }
     try {
-      await fetch(`/api/finance/invoices/${id}/actions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      });
+      if (action === "send" || action === "approve") {
+        // Send or approve+send via the send endpoint
+        await fetch(`/api/invoices/${id}/send`, { method: "POST" });
+      } else if (action === "remind") {
+        // For now, re-send the invoice as a reminder
+        await fetch(`/api/invoices/${id}/send`, { method: "POST" });
+      } else {
+        // Status transitions via PATCH
+        const statusMap: Record<string, string> = {
+          cancel: "CANCELLED",
+        };
+        const newStatus = statusMap[action];
+        if (newStatus) {
+          await fetch(`/api/invoices/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: newStatus }),
+          });
+        }
+      }
       fetchInvoice();
     } catch {
       // silently handle
@@ -223,7 +238,7 @@ export default function InvoiceDetailPage() {
   async function submitPayment() {
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/finance/invoices/${id}/payments`, {
+      const res = await fetch(`/api/invoices/${id}/payments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
