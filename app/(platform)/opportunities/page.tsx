@@ -23,6 +23,7 @@ export default async function OpportunitiesPage() {
           client: { select: { name: true } },
         },
       },
+      track: { select: { name: true } },
       createdBy: { select: { name: true } },
       expressions: isConsultant
         ? { where: { consultantId: session.user.id } }
@@ -43,6 +44,7 @@ export default async function OpportunitiesPage() {
           engagement: {
             select: { id: true, name: true, serviceType: true, client: { select: { name: true } } },
           },
+          track: { select: { name: true } },
         },
         orderBy: { createdAt: "desc" },
       })
@@ -64,6 +66,7 @@ export default async function OpportunitiesPage() {
     expressionCount: r._count.expressions,
     hasExpressed: isConsultant && r.expressions.length > 0,
     rateType: r.rateType,
+    trackName: r.track?.name ?? null,
     createdAt: r.createdAt.toISOString(),
   }));
 
@@ -79,6 +82,9 @@ export default async function OpportunitiesPage() {
     rateAmount: Number(a.rateAmount),
     rateCurrency: a.rateCurrency,
     rateType: a.rateType,
+    trackName: a.track?.name ?? null,
+    trackRole: a.trackRole ?? null,
+    allocationPct: a.allocationPct ?? null,
     startDate: a.startDate.toISOString(),
     endDate: a.endDate?.toISOString() ?? null,
     createdAt: a.createdAt.toISOString(),

@@ -30,6 +30,7 @@ interface Opportunity {
   expressionCount: number;
   hasExpressed: boolean;
   rateType: string;
+  trackName: string | null;
   createdAt: string;
 }
 
@@ -45,6 +46,9 @@ interface PendingAssignment {
   rateAmount: number;
   rateCurrency: string;
   rateType: string;
+  trackName: string | null;
+  trackRole: string | null;
+  allocationPct: number | null;
   startDate: string;
   endDate: string | null;
   createdAt: string;
@@ -136,7 +140,20 @@ export default function OpportunityBoard({
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-sm font-bold text-blue-900">{a.role}</p>
+                      {a.trackName && (
+                        <span
+                          className="text-[10px] px-2 py-0.5 rounded-full font-medium inline-block mb-1"
+                          style={{ background: "#DBEAFE", color: "#1E40AF" }}
+                        >
+                          {a.trackName}
+                        </span>
+                      )}
+                      <p className="text-sm font-bold text-blue-900">
+                        {a.role}
+                        {a.trackRole && a.trackRole !== a.role && (
+                          <span className="font-normal text-blue-600 ml-1">/ {a.trackRole}</span>
+                        )}
+                      </p>
                       <p className="text-xs text-blue-700 mt-0.5">
                         {a.projectName} · {a.clientName} · {a.serviceType}
                       </p>
@@ -150,6 +167,9 @@ export default function OpportunityBoard({
                           </span>
                         )}
                         <span>{a.rateType}</span>
+                        {a.allocationPct != null && a.allocationPct < 100 && (
+                          <span className="flex items-center gap-1">{a.allocationPct}% allocation</span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -252,6 +272,14 @@ export default function OpportunityBoard({
                             {opp.expressionCount} interested
                           </span>
                         </div>
+                        {opp.trackName && (
+                          <span
+                            className="text-[10px] px-2 py-0.5 rounded-full font-medium inline-block mb-1"
+                            style={{ background: "#EDE9FE", color: "#6D28D9" }}
+                          >
+                            {opp.trackName}
+                          </span>
+                        )}
                         <p className="text-sm font-bold text-gray-900">{opp.role}</p>
                         <p className="text-xs text-gray-500 mt-0.5">
                           {opp.projectName} · {opp.clientName} · {opp.serviceType}

@@ -30,6 +30,7 @@ interface TimeEntry {
   rejectionReason: string | null;
   periodMonth: number | null;
   periodYear: number | null;
+  trackName: string | null;
   consultant: { id: string; name: string; email: string };
   assignment: { engagement: { id: string; name: string }; rateAmount: number; rateType: string; rateCurrency: string };
 }
@@ -361,6 +362,7 @@ export default function TimesheetManager({
                             <div className="min-w-0">
                               <p className="text-gray-400 text-xs">
                                 {formatDate(new Date(e.date))} · {e.assignment.engagement.name}
+                                {e.trackName && <span className="ml-1 text-purple-500">[{e.trackName}]</span>}
                                 <span className="ml-1 text-gray-300">({rateTypeLabel(e.assignment.rateType)})</span>
                               </p>
                               <p className="text-gray-700 mt-0.5">{e.description}</p>
@@ -609,6 +611,14 @@ export default function TimesheetManager({
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <StatusBadge status={e.status} />
                       <span className="text-xs text-gray-400">{e.assignment.engagement.name}</span>
+                      {e.trackName && (
+                        <span
+                          className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+                          style={{ background: "#EDE9FE", color: "#6D28D9" }}
+                        >
+                          {e.trackName}
+                        </span>
+                      )}
                       <span className="text-xs text-gray-300">({rateTypeLabel(e.assignment.rateType)})</span>
                     </div>
                     <p className="text-sm text-gray-700">{e.description}</p>

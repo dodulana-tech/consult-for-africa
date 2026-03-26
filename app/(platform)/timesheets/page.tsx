@@ -16,6 +16,7 @@ export default async function TimesheetsPage() {
       : { consultantId: session.user.id },
     include: {
       consultant: { select: { id: true, name: true, email: true } },
+      track: { select: { name: true } },
       assignment: {
         include: {
           engagement: { select: { id: true, name: true } },
@@ -45,6 +46,7 @@ export default async function TimesheetsPage() {
     rejectionReason: e.rejectionReason ?? null,
     periodMonth: e.periodMonth ?? null,
     periodYear: e.periodYear ?? null,
+    trackName: e.track?.name ?? null,
     assignment: {
       ...e.assignment,
       rateAmount: Number((e.assignment as any).rateAmount ?? 0),

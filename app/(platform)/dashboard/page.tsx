@@ -78,6 +78,7 @@ export default async function DashboardPage() {
         where: { consultantId: userId, status: "PENDING_ACCEPTANCE" },
         include: {
           engagement: { select: { id: true, name: true, serviceType: true, client: { select: { name: true } } } },
+          track: { select: { name: true } },
         },
         orderBy: { createdAt: "desc" },
       })
@@ -330,9 +331,25 @@ export default async function DashboardPage() {
                 style={{ background: "#EFF6FF", border: "1px solid #BFDBFE" }}
               >
                 <div>
-                  <p className="text-sm font-semibold text-blue-900">{a.role}</p>
+                  {a.track && (
+                    <span
+                      className="text-[10px] px-2 py-0.5 rounded-full font-medium inline-block mb-1"
+                      style={{ background: "#DBEAFE", color: "#1E40AF" }}
+                    >
+                      {a.track.name}
+                    </span>
+                  )}
+                  <p className="text-sm font-semibold text-blue-900">
+                    {a.role}
+                    {a.trackRole && a.trackRole !== a.role && (
+                      <span className="font-normal text-blue-600 ml-1">/ {a.trackRole}</span>
+                    )}
+                  </p>
                   <p className="text-xs text-blue-700 mt-0.5">
                     {a.engagement.name} · {a.engagement.client.name}
+                    {a.allocationPct != null && a.allocationPct < 100 && (
+                      <span className="ml-1">· {a.allocationPct}% allocation</span>
+                    )}
                   </p>
                 </div>
                 <span className="text-xs font-semibold text-blue-600 shrink-0">Review &rarr;</span>
