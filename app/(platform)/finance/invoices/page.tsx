@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import TopBar from "@/components/platform/TopBar";
 import {
@@ -9,8 +10,6 @@ import {
   Send,
   Download,
   Eye,
-  CreditCard,
-  FileDown,
   ChevronLeft,
   ChevronRight,
   Filter,
@@ -116,6 +115,7 @@ function daysOverdue(dueDate: string | null): number {
 /* ─── Component ───────────────────────────────────────────────────────────── */
 
 export default function InvoicesPage() {
+  const router = useRouter();
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
   const [summary, setSummary] = useState<SummaryData>({ totalOutstanding: 0, overdue: 0, collectedThisMonth: 0, draftsPending: 0 });
   const [loading, setLoading] = useState(true);
@@ -382,10 +382,11 @@ export default function InvoicesPage() {
                       return (
                         <tr
                           key={inv.id}
-                          className="hover:bg-gray-50 transition-colors"
+                          className="hover:bg-gray-50 transition-colors cursor-pointer"
                           style={{ borderBottom: "1px solid #f1f5f9" }}
+                          onClick={() => router.push(`/finance/invoices/${inv.id}`)}
                         >
-                          <td className="px-4 py-3">
+                          <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                             <input
                               type="checkbox"
                               checked={selected.has(inv.id)}
@@ -425,7 +426,7 @@ export default function InvoicesPage() {
                               </div>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-right">
+                          <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-end gap-1">
                               <Link
                                 href={`/finance/invoices/${inv.id}`}
@@ -434,24 +435,15 @@ export default function InvoicesPage() {
                               >
                                 <Eye size={14} />
                               </Link>
-                              <button
-                                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
-                                title="Send"
-                              >
-                                <Send size={14} />
-                              </button>
-                              <button
-                                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
-                                title="Record Payment"
-                              >
-                                <CreditCard size={14} />
-                              </button>
-                              <button
-                                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
-                                title="Download PDF"
-                              >
-                                <FileDown size={14} />
-                              </button>
+                              {inv.status === "DRAFT" && (
+                                <Link
+                                  href={`/finance/invoices/${inv.id}/edit`}
+                                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
+                                  title="Edit"
+                                >
+                                  <Send size={14} />
+                                </Link>
+                              )}
                             </div>
                           </td>
                         </tr>
