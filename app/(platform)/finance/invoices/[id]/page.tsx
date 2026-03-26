@@ -558,6 +558,7 @@ export default function InvoiceDetailPage() {
                     Generate Credit Note
                   </button>
                   <button
+                    onClick={() => window.open(`/api/invoices/${id}/pdf`, "_blank")}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-gray-50 transition-colors text-gray-700"
                   >
                     <Download size={15} className="text-gray-400" />
