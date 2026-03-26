@@ -168,9 +168,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
     <table style="width:100%;margin-bottom:40px;">
       <tr>
         <td style="vertical-align:top;">
-          <div style="background:#0F2744;display:inline-block;padding:12px 20px;border-radius:8px;margin-bottom:16px;">
-            <span style="color:#D4AF37;font-weight:700;font-size:18px;">Consult For Africa</span>
-          </div>
+          <img src="/logo-mark.png" alt="Consult For Africa" style="height:48px;margin-bottom:16px;" />
           <div style="font-size:12px;color:#6B7280;line-height:1.6;">
             Healthcare Management Consulting<br>
             Lagos, Nigeria<br>
