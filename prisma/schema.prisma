@@ -490,6 +490,7 @@ model Engagement {
   knowledgeAssets   KnowledgeAsset[]
   frameworks        EngagementFramework[]
   staffingRequests       StaffingRequest[]
+  tracks                 EngagementTrack[]
   satisfactionPulses     ClientSatisfactionPulse[]
   recommendations        ClientRecommendation[]
   internRotations        InternRotation[]
@@ -526,6 +527,42 @@ model OwnGigPlatformFee {
   @@index([status])
 }
 
+// ─── Engagement Tracks (workstreams) ──────────────────────────────────────────
+
+model EngagementTrack {
+  id           String     @id @default(cuid())
+  engagementId String     @map("projectId")
+  engagement   Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+
+  name         String
+  description  String?             @db.Text
+  order        Int                 @default(0)
+  status       EngagementTrackStatus @default(OPEN)
+  startDate    DateTime?
+  endDate      DateTime?
+  budgetAmount Decimal?            @db.Decimal(14, 2)
+  budgetCurrency Currency?
+
+  assignments      Assignment[]
+  deliverables     Deliverable[]
+  timeEntries      TimeEntry[]
+  staffingRequests StaffingRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([engagementId])
+}
+
+enum EngagementTrackStatus {
+  OPEN
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+// ─── Assignments ─────────────────────────────────────────────────────────────
+
 model Assignment {
   id           String           @id @default(cuid())
   engagementId String           @map("projectId")
@@ -533,14 +570,31 @@ model Assignment {
   consultantId String
   consultant   User             @relation(fields: [consultantId], references: [id])
 
+  // Track assignment (optional - null means project-level floater)
+  trackId      String?
+  track        EngagementTrack? @relation(fields: [trackId], references: [id])
+  trackRole    String?                  // "Track Lead", "Support", "Specialist", "Analyst", "Intern"
+
   role             String
   responsibilities String         @db.Text
   startDate        DateTime
   endDate          DateTime?
   status           AssignmentStatus @default(PENDING_ACCEPTANCE)
+
+  // Allocation
+  allocationPct    Int              @default(100) // 0-100, percentage of FTE
+
+  // What CFA pays consultant (cost rate)
   rateAmount       Decimal          @db.Decimal(10, 2)
   rateCurrency     Currency
   rateType         RateType
+
+  // What client is billed (bill rate, optional - derived from BillingSchedule if not set)
+  billRate         Decimal?         @db.Decimal(10, 2)
+  billCurrency     Currency?
+
+  isBillable       Boolean          @default(true) // false for interns/shadows
+
   estimatedHours   Int?
   estimatedDays    Int?                  // for DAILY rate type
   estimatedHoursPerWeek Int?             // weekly commitment for capacity tracking
@@ -556,6 +610,7 @@ model Assignment {
 
   @@index([engagementId], map: "Assignment_projectId_status_idx")
   @@index([consultantId])
+  @@index([trackId])
 }
 
 model Milestone {
@@ -584,6 +639,8 @@ model Deliverable {
   milestone    Milestone?        @relation(fields: [milestoneId], references: [id])
   assignmentId String?
   assignment   Assignment?       @relation(fields: [assignmentId], references: [id])
+  trackId      String?
+  track        EngagementTrack?  @relation(fields: [trackId], references: [id])
 
   name          String
   description   String                 @db.Text
@@ -614,6 +671,7 @@ model Deliverable {
 
   @@index([engagementId], map: "Deliverable_projectId_status_idx")
   @@index([assignmentId])
+  @@index([trackId])
 }
 
 model TimeEntry {
@@ -622,6 +680,8 @@ model TimeEntry {
   assignment   Assignment      @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   consultantId String
   consultant   User            @relation(fields: [consultantId], references: [id])
+  trackId      String?
+  track        EngagementTrack? @relation(fields: [trackId], references: [id])
 
   date           DateTime
   hours          Decimal         @db.Decimal(5, 2)
@@ -642,6 +702,7 @@ model TimeEntry {
 
   @@index([consultantId])
   @@index([assignmentId, status])
+  @@index([trackId])
 }
 
 model Invoice {
@@ -1647,6 +1708,8 @@ model StaffingRequest {
   engagement   Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   createdById String
   createdBy   User     @relation("StaffingRequestCreator", fields: [createdById], references: [id])
+  trackId     String?
+  track       EngagementTrack? @relation(fields: [trackId], references: [id])
 
   role              String           // "Lead Consultant", "Analyst", etc.
   description       String  @db.Text // what the work involves

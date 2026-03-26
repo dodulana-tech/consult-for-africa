@@ -13,8 +13,12 @@ export interface CapacitySnapshot {
   assignments: {
     id: string;
     engagementName: string;
+    trackName: string | null;
     role: string;
+    trackRole: string | null;
     hoursPerWeek: number;
+    allocationPct: number;
+    effectiveHoursPerWeek: number; // hoursPerWeek * allocationPct/100
     status: string;
   }[];
 }
@@ -40,7 +44,11 @@ export async function getConsultantCapacity(consultantId: string): Promise<Capac
           status: true,
           estimatedHoursPerWeek: true,
           estimatedHours: true,
+          allocationPct: true,
+          trackId: true,
+          trackRole: true,
           engagement: { select: { name: true } },
+          track: { select: { name: true } },
         },
       },
     },
@@ -51,15 +59,23 @@ export async function getConsultantCapacity(consultantId: string): Promise<Capac
   const weeklyCapacity = user.consultantProfile.weeklyCapacityHours;
   const maxUtil = user.consultantProfile.maxUtilization;
 
-  const assignments = user.assignments.map((a) => ({
-    id: a.id,
-    engagementName: a.engagement.name,
-    role: a.role,
-    hoursPerWeek: a.estimatedHoursPerWeek ?? a.estimatedHours ?? 0,
-    status: a.status,
-  }));
+  const assignments = user.assignments.map((a) => {
+    const rawHours = a.estimatedHoursPerWeek ?? a.estimatedHours ?? 0;
+    const pct = a.allocationPct ?? 100;
+    return {
+      id: a.id,
+      engagementName: a.engagement.name,
+      trackName: a.track?.name ?? null,
+      role: a.role,
+      trackRole: a.trackRole ?? null,
+      hoursPerWeek: rawHours,
+      allocationPct: pct,
+      effectiveHoursPerWeek: Math.round(rawHours * (pct / 100) * 100) / 100,
+      status: a.status,
+    };
+  });
 
-  const allocatedHours = assignments.reduce((sum, a) => sum + a.hoursPerWeek, 0);
+  const allocatedHours = assignments.reduce((sum, a) => sum + a.effectiveHoursPerWeek, 0);
   const utilization = weeklyCapacity > 0 ? Math.round((allocatedHours / weeklyCapacity) * 100) : 0;
 
   return {
