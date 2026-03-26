@@ -81,7 +81,7 @@ export default function NewClientForm() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(15,39,68,0.4)" }}>
       <div
-        className="w-full max-w-lg rounded-2xl shadow-xl overflow-hidden"
+        className="w-full max-w-lg rounded-2xl shadow-xl overflow-hidden max-h-[90vh] overflow-y-auto"
         style={{ background: "#fff" }}
       >
         {/* Header */}

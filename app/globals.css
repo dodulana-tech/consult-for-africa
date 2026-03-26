@@ -247,3 +247,20 @@
 .animate-scroll {
   animation: scroll 28s linear infinite;
 }
+
+/* =========================================
+   iOS SAFARI INPUT ZOOM FIX
+   iOS zooms in on inputs with font-size < 16px.
+   This forces 16px on mobile only, reverting on sm+.
+========================================= */
+
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  @media (min-width: 640px) {
+    input, select, textarea {
+      font-size: inherit !important;
+    }
+  }
+}

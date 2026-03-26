@@ -167,7 +167,7 @@ export default function NdaToolPage() {
 
             <form onSubmit={handleCreate} className="space-y-4">
               {/* NDA Type */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {NDA_TYPES.map((t) => (
                   <button
                     key={t.value}

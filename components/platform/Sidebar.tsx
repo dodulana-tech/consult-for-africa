@@ -283,7 +283,7 @@ export default function Sidebar() {
 
       {/* Desktop sidebar */}
       <aside
-        className="hidden lg:flex fixed left-0 top-0 h-screen w-60 flex-col z-40"
+        className="hidden lg:flex fixed left-0 top-0 h-[100dvh] w-60 flex-col z-40"
         style={{ background: "#ffffff", borderRight: "1px solid #E2E8F0" }}
       >
         {navContent}

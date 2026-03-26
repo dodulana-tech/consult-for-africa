@@ -150,7 +150,7 @@ export default function PaymentQueue({ entries }: { entries: Entry[] }) {
     <main className="flex-1 overflow-y-auto p-6">
       <div className="max-w-3xl space-y-6">
         {/* Summary */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {[
             { label: "Consultants", value: visibleGroups.length, color: "#3B82F6" },
             { label: "NGN Outstanding", value: formatCurrency(totalNGN, "NGN"), color: "#10B981" },

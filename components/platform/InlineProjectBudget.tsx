@@ -67,10 +67,10 @@ export default function InlineProjectBudget({ projectId, amount, currency }: {
           className={inputClass} style={inputStyle} autoFocus
           onKeyDown={(e) => { if (e.key === "Enter") save(e as unknown as React.MouseEvent); if (e.key === "Escape") cancel(e as unknown as React.MouseEvent); }}
         />
-        <button onClick={save} disabled={saving} className="p-1 rounded text-emerald-600 hover:bg-emerald-50 disabled:opacity-50">
+        <button onClick={save} disabled={saving} className="p-2.5 rounded text-emerald-600 hover:bg-emerald-50 disabled:opacity-50">
           {saving ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
         </button>
-        <button onClick={cancel} className="p-1 rounded text-gray-400 hover:bg-gray-100">
+        <button onClick={cancel} className="p-2.5 rounded text-gray-400 hover:bg-gray-100">
           <X size={12} />
         </button>
       </div>

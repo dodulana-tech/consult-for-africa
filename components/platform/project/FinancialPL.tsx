@@ -79,7 +79,7 @@ export default function FinancialPL({
       <h3 className="text-sm font-semibold text-gray-900">Financial P&L</h3>
 
       {/* Budget summary */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
         <div className="rounded-lg p-3 text-center" style={{ background: "#F9FAFB", border: "1px solid #e5eaf0" }}>
           <p className="text-[10px] text-gray-400 mb-1">Budget</p>
           <p className="text-sm font-bold text-gray-900">{formatCompactCurrency(budgetAmount, budgetCurrency)}</p>
@@ -141,7 +141,7 @@ export default function FinancialPL({
               className="w-full text-xs rounded-lg px-2.5 py-1.5 focus:outline-none"
               style={{ border: "1px solid #e5eaf0", background: "#fff" }}
             />
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
               <div className="col-span-2">
                 <input
                   type="number"

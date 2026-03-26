@@ -38,7 +38,7 @@ export default function FounderSidebar() {
 
   return (
     <aside
-      className="flex flex-col shrink-0 h-screen"
+      className="flex flex-col shrink-0 h-[100dvh]"
       style={{
         width: 220,
         background: "#0F2744",

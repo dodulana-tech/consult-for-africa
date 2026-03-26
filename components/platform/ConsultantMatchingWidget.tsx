@@ -325,7 +325,7 @@ export default function ConsultantMatchingWidget({ projectId, projectServiceType
                 </div>
 
                 {/* Score pills */}
-                <div className="grid grid-cols-5 gap-3 mt-3 pt-3" style={{ borderTop: "1px solid #F3F4F6" }}>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mt-3 pt-3" style={{ borderTop: "1px solid #F3F4F6" }}>
                   <ScorePill label="Expertise" score={m.scores.expertise} icon={Star} />
                   <ScorePill label="Track Record" score={m.scores.performance} icon={TrendingUp} />
                   <ScorePill label="Availability" score={m.scores.availability} icon={Clock} />

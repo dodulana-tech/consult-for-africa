@@ -497,7 +497,7 @@ function AssetSearchModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div
-        className="bg-white rounded-xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col"
+        className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col"
         style={{ border: "1px solid #e5eaf0" }}
       >
         <div className="p-4 flex items-center justify-between" style={{ borderBottom: "1px solid #f1f5f9" }}>

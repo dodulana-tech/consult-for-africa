@@ -177,7 +177,7 @@ export default function ProjectRiskAnalysis({ projectId, isEM }: { projectId: st
           {/* Predicted outcomes */}
           <div>
             <p className="text-[11px] text-gray-400 mb-2">Predicted Outcomes</p>
-            <div className="grid grid-cols-3 gap-3 rounded-xl bg-white p-3" style={{ border: "1px solid #e5eaf0" }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 rounded-xl bg-white p-3" style={{ border: "1px solid #e5eaf0" }}>
               <OutcomePill label="On-Time Delivery" value={analysis.predictedOutcomes.onTimeDelivery} />
               <OutcomePill label="Within Budget" value={analysis.predictedOutcomes.withinBudget} />
               <OutcomePill label="Client Satisfaction" value={analysis.predictedOutcomes.clientSatisfaction} />

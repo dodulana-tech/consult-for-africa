@@ -657,7 +657,7 @@ export default function InvoiceDetailPage() {
         <>
           <div className="fixed inset-0 bg-black/40 z-50" onClick={() => setShowPaymentModal(false)} />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl w-full max-w-md shadow-xl" style={{ border: "1px solid #e5eaf0" }}>
+            <div className="bg-white rounded-2xl w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto" style={{ border: "1px solid #e5eaf0" }}>
               <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: "1px solid #e5eaf0" }}>
                 <h3 className="text-base font-semibold text-gray-900">Record Payment</h3>
                 <button onClick={() => setShowPaymentModal(false)} className="p-1 rounded-lg hover:bg-gray-100 text-gray-400">

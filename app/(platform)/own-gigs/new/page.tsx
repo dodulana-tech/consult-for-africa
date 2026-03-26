@@ -171,7 +171,7 @@ export default function NewOwnGigPage() {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
                   <label className={labelCls}>Start Date</label>
                   <input className={inputCls} type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
