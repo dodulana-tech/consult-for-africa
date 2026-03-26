@@ -3,7 +3,7 @@ import Link from "next/link";
 import MaarovaNav from "@/components/cfa/MaarovaNav";
 
 export const metadata: Metadata = {
-  title: "Healthcare HR Services | Maarova by CFA",
+  title: "Healthcare HR Services | Maarova by C4A",
   description:
     "Nine specialised HR service lines for healthcare organisations. From recruitment to retention, powered by Maarova psychometric intelligence.",
 };
@@ -306,7 +306,7 @@ export default function MaarovaServicesPage() {
               className="text-xs uppercase tracking-[0.25em] mb-4"
               style={{ color: "#D4A574" }}
             >
-              The CFA Difference
+              The C4ADifference
             </p>
             <h2
               className="font-semibold text-gray-900 mb-4"
@@ -316,7 +316,7 @@ export default function MaarovaServicesPage() {
             </h2>
             <p className="text-gray-500 max-w-2xl mx-auto leading-relaxed">
               Every service line is backed by Maarova psychometric data where it
-              matters and CFA consulting expertise throughout. You get the
+              matters and C4A consulting expertise throughout. You get the
               intelligence and the people who know how to act on it.
             </p>
           </div>
@@ -331,7 +331,7 @@ export default function MaarovaServicesPage() {
               {
                 num: "2",
                 label: "Advise",
-                desc: "CFA consultants interpret the data and build actionable strategies tailored to your organisation.",
+                desc: "C4A consultants interpret the data and build actionable strategies tailored to your organisation.",
               },
               {
                 num: "3",

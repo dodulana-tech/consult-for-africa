@@ -35,7 +35,7 @@ export default function MaarovaForgotPasswordPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Image src="/cfa-logo-white.svg" alt="CFA" width={40} height={40} className="rounded" />
+            <Image src="/cfa-logo-white.svg" alt="C4A" width={40} height={40} className="rounded" />
             <span className="text-white font-bold text-2xl tracking-tight">Maarova</span>
           </div>
           <p className="text-gray-400 text-sm">Leadership Assessment Portal</p>

@@ -167,7 +167,7 @@ export default function Sidebar() {
         className="flex items-center gap-3 px-5 h-14 lg:h-16 shrink-0"
         style={{ borderBottom: "1px solid #E2E8F0" }}
       >
-        <Image src="/logo-cfa.png" alt="CFA" width={28} height={28} style={{ mixBlendMode: "multiply" }} />
+        <Image src="/logo-cfa.png" alt="C4A" width={28} height={28} style={{ mixBlendMode: "multiply" }} />
         <div>
           <p className="font-semibold text-sm leading-tight" style={{ color: "#0F2744" }}>Consult For Africa</p>
           <p className="text-[10px] leading-tight" style={{ color: "#D4AF37" }}>Platform</p>
@@ -264,7 +264,7 @@ export default function Sidebar() {
         style={{ background: "#fff", borderBottom: "1px solid #E2E8F0" }}
       >
         <div className="flex items-center gap-2">
-          <Image src="/logo-cfa.png" alt="CFA" width={24} height={24} style={{ mixBlendMode: "multiply" }} />
+          <Image src="/logo-cfa.png" alt="C4A" width={24} height={24} style={{ mixBlendMode: "multiply" }} />
           <span className="font-semibold text-sm" style={{ color: "#0F2744" }}>CFA</span>
         </div>
         <button

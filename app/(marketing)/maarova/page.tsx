@@ -172,7 +172,7 @@ export default function MaarovaPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src="/logo-cfa.png" alt="CFA" style={{ height: 20, width: "auto", objectFit: "contain" }} />
+                      <img src="/logo-cfa.png" alt="C4A" style={{ height: 20, width: "auto", objectFit: "contain" }} />
                       <span className="text-xs font-semibold" style={{ color: "#1A3A52" }}>Maarova</span>
                       <span className="text-[10px]" style={{ color: "#94A3B8" }}>Dashboard</span>
                     </div>

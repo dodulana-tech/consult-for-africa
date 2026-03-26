@@ -395,8 +395,8 @@ async function main() {
       name: "JCI Accreditation Readiness Framework™",
       slug: "jci-accreditation-readiness",
       description:
-        "CFA's proprietary end-to-end roadmap for preparing large hospitals (200+ beds) to achieve Joint Commission International (JCI) accreditation. Covers gap analysis, phased standards implementation across all 16 JCI chapters, mock survey, and post-survey remediation. Typically 18-24 months for de novo applicants.",
-      category: "cfa_proprietary",
+        "C4A's proprietary end-to-end roadmap for preparing large hospitals (200+ beds) to achieve Joint Commission International (JCI) accreditation. Covers gap analysis, phased standards implementation across all 16 JCI chapters, mock survey, and post-survey remediation. Typically 18-24 months for de novo applicants.",
+      category: "c4a_proprietary",
       serviceTypes: ["CLINICAL_GOVERNANCE", "HOSPITAL_OPERATIONS"],
       estimatedWeeks: 88,
       sortOrder: 6,
@@ -495,7 +495,7 @@ async function main() {
         {
           name: "Mock Survey & Remediation",
           description:
-            "Conduct a full simulation JCI survey with external surveyor or CFA surveyor team. Identify residual findings and execute targeted remediation before the actual survey.",
+            "Conduct a full simulation JCI survey with external surveyor or C4A surveyor team. Identify residual findings and execute targeted remediation before the actual survey.",
           order: 4,
           typicalWeeks: 10,
           keyActivities: [
@@ -556,8 +556,8 @@ async function main() {
       name: "SafeCare Certification Readiness Framework™",
       slug: "safecare-certification-readiness",
       description:
-        "CFA's proprietary step-by-step programme for small and medium hospitals (under 200 beds) to achieve SafeCare Level 4 or Level 5 certification. SafeCare is the WHO/IFC-endorsed quality improvement programme widely used in sub-Saharan Africa. Typically 12-18 months from baseline to Level 4.",
-      category: "cfa_proprietary",
+        "C4A's proprietary step-by-step programme for small and medium hospitals (under 200 beds) to achieve SafeCare Level 4 or Level 5 certification. SafeCare is the WHO/IFC-endorsed quality improvement programme widely used in sub-Saharan Africa. Typically 12-18 months from baseline to Level 4.",
+      category: "c4a_proprietary",
       serviceTypes: ["CLINICAL_GOVERNANCE", "HOSPITAL_OPERATIONS"],
       estimatedWeeks: 60,
       sortOrder: 7,

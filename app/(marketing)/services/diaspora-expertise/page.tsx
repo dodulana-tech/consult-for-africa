@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import PartnerCTA from "@/components/cfa/PartnerCTA";
 
-export const metadata: Metadata = { title: "Diaspora Expertise & Global Advisory | Consult For Africa", description: "CFA connects African healthcare institutions with seasoned diaspora professionals who understand both global best practice and African context.", openGraph: { title: "Diaspora Expertise & Global Advisory | Consult For Africa", description: "World-class African healthcare professionals bringing global expertise home.", type: "website", images: ["/og-image.jpg"] } };
+export const metadata: Metadata = { title: "Diaspora Expertise & Global Advisory | Consult For Africa", description: "C4A connects African healthcare institutions with seasoned diaspora professionals who understand both global best practice and African context.", openGraph: { title: "Diaspora Expertise & Global Advisory | Consult For Africa", description: "World-class African healthcare professionals bringing global expertise home.", type: "website", images: ["/og-image.jpg"] } };
 
 const indicators = ["Difficulty attracting experienced diaspora professionals", "Board advisory needs without access to global talent", "Technology or clinical gaps that local talent cannot fill", "Investor boards needing healthcare-specific expertise", "New facility builds requiring international standards knowledge", "Accreditation processes requiring global clinical governance experience"];
 const phases = [

@@ -54,7 +54,7 @@ const STATUS_STYLES: Record<string, { bg: string; color: string; label: string }
 };
 
 const AUTHOR_TYPE_STYLES: Record<string, { bg: string; color: string; label: string }> = {
-  INTERNAL: { bg: "#EFF6FF", color: "#1D4ED8", label: "CFA Team" },
+  INTERNAL: { bg: "#EFF6FF", color: "#1D4ED8", label: "C4A Team" },
   CLIENT:   { bg: "#FEF9E7", color: "#92400E", label: "Client" },
 };
 
@@ -226,7 +226,7 @@ export default function DeliverableDetailPage({
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-cfa.png" alt="CFA" style={{ height: 28, width: "auto" }} />
+            <img src="/logo-cfa.png" alt="C4A" style={{ height: 28, width: "auto" }} />
             <span className="text-sm font-semibold" style={{ color: "#0F2744" }}>
               Client Portal
             </span>

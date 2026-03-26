@@ -176,8 +176,8 @@ export async function PATCH(
 
     // Generate invoice number
     const invoiceNumber = await generateEngagementCode();
-    // Replace CFA- prefix with INV- for invoice
-    const invNumber = invoiceNumber.replace("CFA-", "INV-SF-");
+    // Replace C4A- prefix with INV- for invoice
+    const invNumber = invoiceNumber.replace("C4A-", "INV-SF-");
 
     // Auto-create a DRAFT success fee invoice
     successFeeInvoice = await prisma.invoice.create({

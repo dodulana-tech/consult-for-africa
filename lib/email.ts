@@ -20,7 +20,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const FROM = process.env.SMTP_FROM ?? "CFA Platform <platform@consultforafrica.com>";
+const FROM = process.env.SMTP_FROM ?? "C4A Platform <platform@consultforafrica.com>";
 
 // ─── Send helper ──────────────────────────────────────────────────────────────
 
@@ -44,7 +44,7 @@ async function send(to: string, subject: string, html: string) {
 function layout(content: string) {
   return `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CFA Platform</title></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>C4A Platform</title></head>
 <body style="margin:0;padding:0;background:#F9FAFB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
     <tr><td align="center">
@@ -283,7 +283,7 @@ export async function sendInvite(
     Director: "As a Director, you will have oversight of practice-level performance, project portfolios, and team capacity across Consult For Africa.",
     Partner: "As a Partner, you will have full visibility into firm performance, client relationships, financial metrics, and strategic planning tools.",
     Admin: "As an Administrator, you will have full access to manage users, configure the platform, and oversee all operations.",
-    "Academy Learner": "As an Academy Learner, you have access to CFA's training tracks, certifications, and learning resources to build your healthcare consulting capabilities.",
+    "Academy Learner": "As an Academy Learner, you have access to C4A's training tracks, certifications, and learning resources to build your healthcare consulting capabilities.",
   };
 
   const intro = roleIntro[roleLabel] ?? "You now have access to project management, collaboration tools, and knowledge resources.";
@@ -402,7 +402,7 @@ export async function emailPartnerPortalInvite({
         Your partner portal account for <strong>${safePartnerName}</strong> is now active on the Consult For Africa platform.
       </p>
       <p style="margin:0 0 20px;font-size:14px;line-height:1.6;color:#6B7280;">
-        Through the portal you can manage staffing requests, track consultant placements, view invoices, and communicate with the CFA team directly.
+        Through the portal you can manage staffing requests, track consultant placements, view invoices, and communicate with the C4A team directly.
       </p>
       <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:20px;margin:16px 0;">
         <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#9CA3AF;font-weight:600;">Your login credentials</p>
@@ -747,11 +747,11 @@ export async function emailWeeklyDigest({
 
   await send(
     email,
-    `Your Week at CFA | ${weekEnding}`,
+    `Your Week at C4A | ${weekEnding}`,
     layout(`
       ${h1(`Hi ${firstName}`)}
       <p style="margin:0 0 4px;font-size:13px;color:#6B7280;">Week ending ${esc(weekEnding)}</p>
-      <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#374151;">Here is your weekly snapshot from the CFA platform.</p>
+      <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#374151;">Here is your weekly snapshot from the C4A platform.</p>
 
       <h2 style="margin:0 0 8px;font-size:14px;font-weight:700;color:#0F2744;text-transform:uppercase;letter-spacing:0.05em;">Project Pulse</h2>
       ${projectRow}
@@ -878,7 +878,7 @@ export async function emailAssignmentCreated({
   consultantEmail: string; consultantName: string; projectName: string; role: string; rateType: string; rateAmount: string; currency: string; trackName?: string;
 }) {
   await send(consultantEmail, `Assignment request: ${role} on ${projectName}`,
-    layout(`${h1("New Assignment Request")}${p(`You have been requested for a role on a CFA engagement. Please review and respond.`)}${infoTable([["Project", projectName], ...(trackName ? [["Track", trackName] as [string, string]] : []), ["Role", role], ["Rate", `${currency} ${rateAmount} (${rateType})`]])}${p("You will need to accept this assignment before it becomes active.")}${btn("Review Assignment", `${BASE_URL}/opportunities`)}`)
+    layout(`${h1("New Assignment Request")}${p(`You have been requested for a role on a C4A engagement. Please review and respond.`)}${infoTable([["Project", projectName], ...(trackName ? [["Track", trackName] as [string, string]] : []), ["Role", role], ["Rate", `${currency} ${rateAmount} (${rateType})`]])}${p("You will need to accept this assignment before it becomes active.")}${btn("Review Assignment", `${BASE_URL}/opportunities`)}`)
   );
 }
 
@@ -1342,7 +1342,7 @@ const REJECTION_BODIES: Record<RejectionSegment, (firstName: string) => string> 
   JUNIOR: (firstName) => `
     ${h1(`Thank you for applying, ${firstName}`)}
     ${p("We appreciate your interest in Consult For Africa. After reviewing your application, we believe you are at an early stage in your career and would benefit from structured development before joining our consulting engagements.")}
-    ${p("We have created a CFA Academy account for you with free access to our Foundation training tracks. These cover core consulting skills, healthcare fundamentals, and professional standards that will prepare you for a consulting career in healthcare.")}
+    ${p("We have created a C4A Academy account for you with free access to our Foundation training tracks. These cover core consulting skills, healthcare fundamentals, and professional standards that will prepare you for a consulting career in healthcare.")}
     ${p("We also encourage you to explore our Intern and SIWES programmes, which are designed specifically for early-career professionals looking to gain hands-on consulting experience in African healthcare.")}
     ${p("Once you complete the Foundation tracks and gain more experience, you are welcome to reapply. We would love to see you grow with us.")}
   `,
@@ -1350,7 +1350,7 @@ const REJECTION_BODIES: Record<RejectionSegment, (firstName: string) => string> 
   WRONG_FIT: (firstName) => `
     ${h1(`Thank you for applying, ${firstName}`)}
     ${p("We appreciate your interest in Consult For Africa. After reviewing your application, we feel there are gaps between your current experience and the specific requirements of our healthcare consulting practice.")}
-    ${p("We have created a CFA Academy account for you with free access to our Foundation training tracks. These will introduce you to our consulting methodology and the healthcare landscape we operate in.")}
+    ${p("We have created a C4A Academy account for you with free access to our Foundation training tracks. These will introduce you to our consulting methodology and the healthcare landscape we operate in.")}
     ${p("We also offer Specialist tracks that can help you build targeted expertise in areas like hospital operations, clinical governance, revenue cycle management, and health economics. Completing these tracks alongside your existing experience would strengthen a future application significantly.")}
     ${p("We encourage you to explore the Academy and consider reapplying after completing the Foundation programme and at least one Specialist track.")}
   `,
@@ -1358,7 +1358,7 @@ const REJECTION_BODIES: Record<RejectionSegment, (firstName: string) => string> 
   WEAK_COMMS: (firstName) => `
     ${h1(`Thank you for applying, ${firstName}`)}
     ${p("We appreciate your interest in Consult For Africa. As a specialist management consulting firm, executive-level communication is central to how we deliver value to our clients. Based on our review, we believe there is room to strengthen this area before joining our engagements.")}
-    ${p("We have created a CFA Academy account for you with free access to our Foundation training tracks, which include Professional Standards and Core Consulting Skills modules focused on executive communication, stakeholder presentations, and structured reporting.")}
+    ${p("We have created a C4A Academy account for you with free access to our Foundation training tracks, which include Professional Standards and Core Consulting Skills modules focused on executive communication, stakeholder presentations, and structured reporting.")}
     ${p("We also recommend our leadership assessment and coaching programmes, which provide personalised development plans and one-on-one coaching with experienced professionals.")}
     ${p("After developing these capabilities, we would welcome a future application from you.")}
   `,
@@ -1366,14 +1366,14 @@ const REJECTION_BODIES: Record<RejectionSegment, (firstName: string) => string> 
   NOT_READY: (firstName) => `
     ${h1(`Thank you for applying, ${firstName}`)}
     ${p("We appreciate your interest in Consult For Africa. After careful review, we are unable to proceed with your application at this time.")}
-    ${p("We have created a CFA Academy account for you with free access to our Foundation training tracks. These cover core consulting skills, healthcare fundamentals, and professional standards that are central to our work.")}
+    ${p("We have created a C4A Academy account for you with free access to our Foundation training tracks. These cover core consulting skills, healthcare fundamentals, and professional standards that are central to our work.")}
     ${p("The Academy is designed to help professionals develop the capabilities needed for healthcare consulting in Africa. We encourage you to take advantage of these resources and consider reapplying in the future.")}
   `,
 
   INTEGRITY_FLAGS: (firstName) => `
     ${h1(`Thank you for applying, ${firstName}`)}
     ${p("We appreciate your interest in Consult For Africa. After careful review, we are unable to proceed with your application at this time.")}
-    ${p("We encourage you to explore the CFA Academy, our learning platform with training tracks covering healthcare consulting, leadership, and professional development.")}
+    ${p("We encourage you to explore the C4A Academy, our learning platform with training tracks covering healthcare consulting, leadership, and professional development.")}
     ${p("We wish you the best in your career.")}
   `,
 };

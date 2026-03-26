@@ -1,5 +1,5 @@
 /**
- * CFA TRAINING ACADEMY - SPECIALIST LEVEL SEED A (Tracks 6-8)
+ * C4ATRAINING ACADEMY - SPECIALIST LEVEL SEED A (Tracks 6-8)
  * Seeds Specialist-level training tracks, modules, and assessment questions
  *
  * 3 Tracks:
@@ -17,7 +17,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('Seeding CFA Training Academy - Specialist Level Tracks (6-8)...\n')
+  console.log('Seeding C4ATraining Academy - Specialist Level Tracks (6-8)...\n')
 
   // ════════════════════════════════════════════════════════════════════════════
   // TRACK 6: SPECIALIST - Hospital Turnaround & Recovery
@@ -29,7 +29,7 @@ async function main() {
       slug: 'hospital-turnaround-recovery',
       description: `Learn to diagnose failing hospitals and lead them back to financial and operational health.
         This track covers rapid assessment techniques for distressed facilities, financial stabilisation
-        strategies tailored to African healthcare contexts, and the full CFA 24-week Turnaround Programme
+        strategies tailored to African healthcare contexts, and the full C4A24-week Turnaround Programme
         methodology. You will gain practical tools for cash management, cost reduction, and revenue recovery
         that can be deployed from day one of an engagement.`,
       level: 'SPECIALIST',
@@ -59,12 +59,12 @@ async function main() {
             type: 'text',
             body: `Hospital distress rarely arrives overnight. It follows a predictable pattern: declining occupancy, rising staff costs as a percentage of revenue, deferred maintenance creating a backlog, supplier relationships deteriorating as payment cycles stretch from 30 to 90 to 180 days. By the time leadership calls for help, the facility is typically 6 to 12 months away from insolvency. Your job as a turnaround consultant is to cut through the noise and identify where the hospital sits on the distress curve.
 
-              The CFA Distress Scorecard evaluates five dimensions: liquidity (can the hospital meet payroll next month?), operational performance (are beds, theatres, and clinics generating adequate throughput?), revenue integrity (is the hospital capturing and collecting what it earns?), cost structure (where is money leaking?), and leadership capacity (does the management team have the skill and will to execute change?). Scoring each dimension on a 1-5 scale gives you a rapid triage that determines whether the hospital needs stabilisation, restructuring, or managed wind-down.`
+              The C4ADistress Scorecard evaluates five dimensions: liquidity (can the hospital meet payroll next month?), operational performance (are beds, theatres, and clinics generating adequate throughput?), revenue integrity (is the hospital capturing and collecting what it earns?), cost structure (where is money leaking?), and leadership capacity (does the management team have the skill and will to execute change?). Scoring each dimension on a 1-5 scale gives you a rapid triage that determines whether the hospital needs stabilisation, restructuring, or managed wind-down.`
           },
           {
             title: 'The 10-Day Rapid Assessment',
             type: 'text',
-            body: `Speed matters in turnaround work. A hospital burning cash cannot wait for a 12-week diagnostic. The CFA Rapid Assessment compresses a full diagnostic into 10 working days. Days 1-3 focus on financial triage: cash position, burn rate, creditor exposure, and revenue pipeline. You need to know how many weeks of runway remain before anything else matters.
+            body: `Speed matters in turnaround work. A hospital burning cash cannot wait for a 12-week diagnostic. The C4ARapid Assessment compresses a full diagnostic into 10 working days. Days 1-3 focus on financial triage: cash position, burn rate, creditor exposure, and revenue pipeline. You need to know how many weeks of runway remain before anything else matters.
 
               Days 4-7 shift to operational review: bed occupancy trends, theatre utilisation, outpatient volumes, staffing ratios versus benchmarks. Days 8-10 synthesise findings into a Turnaround Readiness Report with three components: a severity rating (green/amber/red), a prioritised list of quick wins deliverable within 30 days, and a high-level 24-week stabilisation roadmap. This report becomes the mandate document that leadership and the board use to authorise the turnaround programme.`
           },
@@ -79,7 +79,7 @@ async function main() {
         exercises: [
           {
             title: 'Practice: Distress Scorecard',
-            instruction: 'A 150-bed private hospital in Kampala has 45% bed occupancy, 72% staff cost ratio, 120-day average supplier payment cycle, and cash reserves covering 6 weeks of operations. Score each of the five CFA Distress dimensions (1-5) and classify the overall severity.',
+            instruction: 'A 150-bed private hospital in Kampala has 45% bed occupancy, 72% staff cost ratio, 120-day average supplier payment cycle, and cash reserves covering 6 weeks of operations. Score each of the five C4ADistress dimensions (1-5) and classify the overall severity.',
           },
           {
             title: 'Practice: Rapid Assessment Planning',
@@ -89,7 +89,7 @@ async function main() {
       },
       resources: {
         links: [
-          { title: 'CFA Distress Scorecard Template', url: 'internal://knowledge/distress-scorecard' },
+          { title: 'C4ADistress Scorecard Template', url: 'internal://knowledge/distress-scorecard' },
           { title: 'Rapid Assessment Playbook', url: 'internal://knowledge/rapid-assessment-playbook' },
         ],
         tools: ['Distress Scorecard', '10-Day Assessment Planner', 'Stakeholder Interview Guide']
@@ -103,7 +103,7 @@ async function main() {
       {
         moduleId: m6_1.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'In the CFA Distress Scorecard, which dimension answers the question "Can the hospital meet payroll next month?"',
+        question: 'In the C4ADistress Scorecard, which dimension answers the question "Can the hospital meet payroll next month?"',
         options: JSON.stringify([
           { id: 'a', text: 'Operational performance', isCorrect: false },
           { id: 'b', text: 'Liquidity', isCorrect: true },
@@ -117,7 +117,7 @@ async function main() {
       {
         moduleId: m6_1.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'During the CFA 10-Day Rapid Assessment, what is the primary focus of Days 1-3?',
+        question: 'During the C4A10-Day Rapid Assessment, what is the primary focus of Days 1-3?',
         options: JSON.stringify([
           { id: 'a', text: 'Staff interviews and culture assessment', isCorrect: false },
           { id: 'b', text: 'Operational review of bed occupancy and theatre utilisation', isCorrect: false },
@@ -192,12 +192,12 @@ async function main() {
             type: 'text',
             body: `Cash is oxygen for a distressed hospital. Before you can fix anything structural, you must stabilise cash flow. The first action is implementing a 13-week cash flow forecast, updated weekly, that tracks every naira, cedi, or shilling flowing in and out. This forecast becomes the single most important management tool during stabilisation.
 
-              Immediate cash levers include: accelerating collections on outstanding receivables (especially insurance claims older than 60 days), renegotiating payment terms with top 10 suppliers, suspending all non-essential capital expenditure, and reviewing every recurring expense over a defined threshold. In one CFA engagement at a 200-bed hospital in Accra, implementing a 13-week cash forecast and activating these levers freed up $180,000 in working capital within the first month.`
+              Immediate cash levers include: accelerating collections on outstanding receivables (especially insurance claims older than 60 days), renegotiating payment terms with top 10 suppliers, suspending all non-essential capital expenditure, and reviewing every recurring expense over a defined threshold. In one C4A engagement at a 200-bed hospital in Accra, implementing a 13-week cash forecast and activating these levers freed up $180,000 in working capital within the first month.`
           },
           {
             title: 'Cost Reduction Without Harming Care',
             type: 'text',
-            body: `The temptation in turnaround is to slash costs indiscriminately. This is dangerous in healthcare because poorly targeted cuts directly harm patient outcomes and accelerate the death spiral. CFA uses a three-tier cost framework: Tier 1 (cut immediately) includes redundant administrative roles, unused subscriptions, excessive overtime, and inflated procurement contracts. Tier 2 (restructure within 60 days) includes staffing ratios above benchmark, energy costs, and non-clinical outsourcing. Tier 3 (protect) includes frontline clinical staff, essential drugs, and patient-facing services.
+            body: `The temptation in turnaround is to slash costs indiscriminately. This is dangerous in healthcare because poorly targeted cuts directly harm patient outcomes and accelerate the death spiral. C4A uses a three-tier cost framework: Tier 1 (cut immediately) includes redundant administrative roles, unused subscriptions, excessive overtime, and inflated procurement contracts. Tier 2 (restructure within 60 days) includes staffing ratios above benchmark, energy costs, and non-clinical outsourcing. Tier 3 (protect) includes frontline clinical staff, essential drugs, and patient-facing services.
 
               Start with procurement. African hospitals routinely overpay 15-40% for pharmaceuticals and consumables due to fragmented purchasing, lack of formulary discipline, and supplier relationships that have never been competitively tested. Consolidating suppliers, enforcing a formulary, and joining group purchasing organisations can yield savings of 20-30% on drug spend within 90 days.`
           },
@@ -216,7 +216,7 @@ async function main() {
           },
           {
             title: 'Practice: Cost Reduction Prioritisation',
-            instruction: 'Using the CFA three-tier framework, categorise the following 8 cost items into Tier 1 (cut), Tier 2 (restructure), or Tier 3 (protect): night-shift nurses, marketing agency retainer, pharmaceutical procurement, CEO driver, lab technicians, office renovations, security outsourcing, clinical training budget.',
+            instruction: 'Using the C4A three-tier framework, categorise the following 8 cost items into Tier 1 (cut), Tier 2 (restructure), or Tier 3 (protect): night-shift nurses, marketing agency retainer, pharmaceutical procurement, CEO driver, lab technicians, office renovations, security outsourcing, clinical training budget.',
           }
         ]
       },
@@ -250,7 +250,7 @@ async function main() {
       {
         moduleId: m6_2.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'In the CFA three-tier cost framework, which category should include frontline clinical staff and essential drugs?',
+        question: 'In the C4A three-tier cost framework, which category should include frontline clinical staff and essential drugs?',
         options: JSON.stringify([
           { id: 'a', text: 'Tier 1: Cut immediately', isCorrect: false },
           { id: 'b', text: 'Tier 2: Restructure within 60 days', isCorrect: false },
@@ -308,13 +308,13 @@ async function main() {
 
   console.log('  Module 6.2: Financial Stabilisation - 5 questions')
 
-  // Module 6.3: CFA Turnaround Programme
+  // Module 6.3: C4ATurnaround Programme
   const m6_3 = await prisma.trainingModule.create({
     data: {
       trackId: hospitalTurnaround.id,
-      name: 'CFA Turnaround Programme',
+      name: 'C4ATurnaround Programme',
       slug: 'cfa-turnaround-programme',
-      description: 'Master the CFA proprietary 24-week turnaround methodology that takes a distressed hospital from crisis to sustainable performance.',
+      description: 'Master the C4A proprietary 24-week turnaround methodology that takes a distressed hospital from crisis to sustainable performance.',
       order: 3,
       estimatedMinutes: 120,
       passingScore: 80,
@@ -323,23 +323,23 @@ async function main() {
           {
             title: 'The 24-Week Methodology Overview',
             type: 'text',
-            body: `The CFA Turnaround Programme is a structured 24-week intervention divided into four phases. Phase 1 (Weeks 1-4) is Stabilise: stop the cash bleeding, implement crisis management governance, and execute quick wins identified in the Rapid Assessment. Phase 2 (Weeks 5-12) is Restructure: redesign the operating model, right-size staffing, renegotiate key contracts, and fix revenue cycle processes.
+            body: `The C4ATurnaround Programme is a structured 24-week intervention divided into four phases. Phase 1 (Weeks 1-4) is Stabilise: stop the cash bleeding, implement crisis management governance, and execute quick wins identified in the Rapid Assessment. Phase 2 (Weeks 5-12) is Restructure: redesign the operating model, right-size staffing, renegotiate key contracts, and fix revenue cycle processes.
 
               Phase 3 (Weeks 13-20) is Rebuild: launch growth initiatives, invest in deferred maintenance priorities, rebuild staff morale and culture, and implement performance management systems. Phase 4 (Weeks 21-24) is Sustain: embed monitoring dashboards, train the internal team to maintain gains, conduct a final performance review, and formally hand over to hospital leadership with a 12-month sustainability plan.`
           },
           {
             title: 'Governance and the Turnaround Management Office',
             type: 'text',
-            body: `Turnarounds fail without disciplined governance. CFA establishes a Turnaround Management Office (TMO) in the first week, co-led by the CFA engagement manager and a senior hospital executive. The TMO meets daily for the first four weeks (stabilisation), then three times weekly through restructuring, then weekly through rebuild and sustain phases. Every meeting follows a fixed agenda: cash position update, progress against the 30/60/90-day action plan, escalated decisions, and risks.
+            body: `Turnarounds fail without disciplined governance. C4A establishes a Turnaround Management Office (TMO) in the first week, co-led by the C4A engagement manager and a senior hospital executive. The TMO meets daily for the first four weeks (stabilisation), then three times weekly through restructuring, then weekly through rebuild and sustain phases. Every meeting follows a fixed agenda: cash position update, progress against the 30/60/90-day action plan, escalated decisions, and risks.
 
               The TMO has delegated authority from the board to make operational decisions up to a defined financial threshold without waiting for board approval. This is critical because distressed hospitals are often paralysed by slow decision-making. The board receives a weekly one-page dashboard showing cash position, key milestones, and a traffic-light summary of each workstream. If the board loses confidence or the CEO resists TMO authority, the turnaround will stall.`
           },
           {
             title: 'Measuring Turnaround Success',
             type: 'text',
-            body: `CFA tracks turnaround progress against five anchor metrics reported weekly: days of cash on hand (target: move from under 14 days to over 60 days by Week 24), staff cost ratio (target: reduce to under 55%), bed occupancy (target: increase to over 70%), claims denial rate (target: reduce to under 10%), and supplier payment cycle (target: reduce to under 45 days). These five numbers tell the full story of whether the hospital is recovering.
+            body: `C4A tracks turnaround progress against five anchor metrics reported weekly: days of cash on hand (target: move from under 14 days to over 60 days by Week 24), staff cost ratio (target: reduce to under 55%), bed occupancy (target: increase to over 70%), claims denial rate (target: reduce to under 10%), and supplier payment cycle (target: reduce to under 45 days). These five numbers tell the full story of whether the hospital is recovering.
 
-              At Week 12, the mid-point review determines whether the programme is on track. If three or more anchor metrics are trending in the right direction, Phase 3 (Rebuild) proceeds as planned. If not, the team reassesses and may extend the Restructure phase. At Week 24, the final scorecard compares each anchor metric to baseline and target. CFA's benchmark is that 80% of anchor metrics should hit target by programme completion. Hospitals that achieve this have a 90% probability of sustaining performance at 12 months post-engagement.`
+              At Week 12, the mid-point review determines whether the programme is on track. If three or more anchor metrics are trending in the right direction, Phase 3 (Rebuild) proceeds as planned. If not, the team reassesses and may extend the Restructure phase. At Week 24, the final scorecard compares each anchor metric to baseline and target. C4A's benchmark is that 80% of anchor metrics should hit target by programme completion. Hospitals that achieve this have a 90% probability of sustaining performance at 12 months post-engagement.`
           }
         ],
         exercises: [
@@ -369,7 +369,7 @@ async function main() {
       {
         moduleId: m6_3.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'The CFA 24-week Turnaround Programme is divided into four phases. What is the correct sequence?',
+        question: 'The C4A24-week Turnaround Programme is divided into four phases. What is the correct sequence?',
         options: JSON.stringify([
           { id: 'a', text: 'Assess, Plan, Execute, Monitor', isCorrect: false },
           { id: 'b', text: 'Stabilise, Restructure, Rebuild, Sustain', isCorrect: true },
@@ -397,7 +397,7 @@ async function main() {
       {
         moduleId: m6_3.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'Which of the following is one of CFA\'s five anchor metrics for tracking turnaround progress?',
+        question: 'Which of the following is one of C4A\'s five anchor metrics for tracking turnaround progress?',
         options: JSON.stringify([
           { id: 'a', text: 'Patient satisfaction score', isCorrect: false },
           { id: 'b', text: 'Number of new service lines launched', isCorrect: false },
@@ -425,21 +425,21 @@ async function main() {
       {
         moduleId: m6_3.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'CFA\'s benchmark for turnaround success at Week 24 is that what percentage of anchor metrics should hit their targets?',
+        question: 'C4A\'s benchmark for turnaround success at Week 24 is that what percentage of anchor metrics should hit their targets?',
         options: JSON.stringify([
           { id: 'a', text: '50%', isCorrect: false },
           { id: 'b', text: '60%', isCorrect: false },
           { id: 'c', text: '80%', isCorrect: true },
           { id: 'd', text: '100%', isCorrect: false },
         ]),
-        explanation: 'CFA\'s benchmark is 80% of anchor metrics hitting target by programme completion (4 out of 5). Hospitals achieving this threshold have a 90% probability of sustaining performance at 12 months post-engagement.',
+        explanation: 'C4A\'s benchmark is 80% of anchor metrics hitting target by programme completion (4 out of 5). Hospitals achieving this threshold have a 90% probability of sustaining performance at 12 months post-engagement.',
         points: 1,
         order: 5,
       },
     ],
   })
 
-  console.log('  Module 6.3: CFA Turnaround Programme - 5 questions')
+  console.log('  Module 6.3: C4ATurnaround Programme - 5 questions')
   console.log('  Track 6: Hospital Turnaround & Recovery - 3 modules, 15 questions\n')
 
   // ════════════════════════════════════════════════════════════════════════════
@@ -482,7 +482,7 @@ async function main() {
             type: 'text',
             body: `Clinical governance is the system through which healthcare organisations are accountable for continuously improving the quality of their services and safeguarding high standards of care. In many African hospitals, "quality" is treated as a department rather than a system. There is a quality officer, perhaps a committee, and a folder of policies that nobody reads. This is not clinical governance. It is documentation theatre.
 
-              True clinical governance rests on seven pillars: clinical effectiveness (are treatments evidence-based?), risk management (are hazards identified and mitigated?), patient experience (do patients feel safe, informed, and respected?), communication effectiveness (do handoffs, referrals, and documentation prevent errors?), resource effectiveness (are staff, equipment, and drugs deployed optimally?), strategic effectiveness (does leadership set and enforce quality standards?), and learning effectiveness (does the organisation learn from its mistakes?). A CFA governance assessment scores each pillar and identifies the weakest links.`
+              True clinical governance rests on seven pillars: clinical effectiveness (are treatments evidence-based?), risk management (are hazards identified and mitigated?), patient experience (do patients feel safe, informed, and respected?), communication effectiveness (do handoffs, referrals, and documentation prevent errors?), resource effectiveness (are staff, equipment, and drugs deployed optimally?), strategic effectiveness (does leadership set and enforce quality standards?), and learning effectiveness (does the organisation learn from its mistakes?). A C4A governance assessment scores each pillar and identifies the weakest links.`
           },
           {
             title: 'Clinical Audit Methodology',
@@ -526,7 +526,7 @@ async function main() {
       {
         moduleId: m7_1.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'How many pillars does the CFA clinical governance framework include?',
+        question: 'How many pillars does the C4A clinical governance framework include?',
         options: JSON.stringify([
           { id: 'a', text: 'Four', isCorrect: false },
           { id: 'b', text: 'Five', isCorrect: false },
@@ -622,12 +622,12 @@ async function main() {
             type: 'text',
             body: `Both JCI and SafeCare emphasise the six International Patient Safety Goals, which are non-negotiable requirements. IPSG 1: Identify patients correctly using at least two identifiers (name and date of birth, never bed number). IPSG 2: Improve effective communication, including read-back of verbal orders and critical test results. IPSG 3: Improve the safety of high-alert medications through standardised storage, labelling, and double-checking protocols. IPSG 4: Ensure safe surgery through the WHO Surgical Safety Checklist (time-out before incision). IPSG 5: Reduce healthcare-associated infections through hand hygiene and evidence-based precautions. IPSG 6: Reduce patient harm from falls through risk assessment and prevention protocols.
 
-              For CFA consultants preparing hospitals for accreditation, the IPSGs are the starting point. They address the most common causes of preventable patient harm and are heavily weighted in survey scoring. A hospital that nails IPSGs demonstrates a foundational safety culture.`
+              For C4A consultants preparing hospitals for accreditation, the IPSGs are the starting point. They address the most common causes of preventable patient harm and are heavily weighted in survey scoring. A hospital that nails IPSGs demonstrates a foundational safety culture.`
           },
           {
             title: 'Accreditation Preparation Roadmap',
             type: 'text',
-            body: `CFA uses a phased approach to accreditation readiness. Phase 1 (Months 1-3): Baseline Assessment. Conduct a mock survey against the relevant standard set (JCI or SafeCare), scoring every measurable element. This produces a gap analysis showing the distance between current state and accreditation requirements. Most African hospitals score 30-50% on initial baseline against JCI standards.
+            body: `C4A uses a phased approach to accreditation readiness. Phase 1 (Months 1-3): Baseline Assessment. Conduct a mock survey against the relevant standard set (JCI or SafeCare), scoring every measurable element. This produces a gap analysis showing the distance between current state and accreditation requirements. Most African hospitals score 30-50% on initial baseline against JCI standards.
 
               Phase 2 (Months 4-12): System Building. Address gaps systematically, starting with IPSGs and high-risk areas (medication management, infection control, facility safety). Write policies, train staff, implement processes, and begin internal auditing. Phase 3 (Months 13-18): Embedding and Mock Surveys. Run quarterly mock surveys with increasing rigour. Track "tracer methodology" readiness by following patient journeys through the hospital and testing compliance at every touchpoint. Phase 4 (Months 19-24): Final preparation and survey. Conduct a full dress rehearsal, address remaining gaps, and submit the survey application. Throughout all phases, the single biggest determinant of success is leadership commitment, not budget.`
           }
@@ -748,7 +748,7 @@ async function main() {
             type: 'text',
             body: `Failure Mode and Effects Analysis (FMEA) is a proactive tool that identifies what could go wrong before it does. Originally developed for aerospace engineering, FMEA has been adapted for healthcare to systematically analyse high-risk processes. The method involves mapping every step of a clinical process (e.g., medication administration from prescription to delivery), identifying potential failure modes at each step, scoring each failure by severity, probability of occurrence, and detectability, then calculating a Risk Priority Number (RPN = Severity x Occurrence x Detectability).
 
-              In African hospitals, FMEA is particularly powerful for medication safety and blood transfusion processes, where the consequences of failure are severe and the systems are often manual. A CFA team conducting FMEA on the medication process at a Lagos hospital identified 23 potential failure points, with "wrong dose due to illegible handwriting on prescription" scoring the highest RPN. The intervention was simple: standardised prescription forms with pre-printed dose ranges and mandatory block lettering. This single change reduced medication errors by 40% within three months.`
+              In African hospitals, FMEA is particularly powerful for medication safety and blood transfusion processes, where the consequences of failure are severe and the systems are often manual. A C4A team conducting FMEA on the medication process at a Lagos hospital identified 23 potential failure points, with "wrong dose due to illegible handwriting on prescription" scoring the highest RPN. The intervention was simple: standardised prescription forms with pre-printed dose ranges and mandatory block lettering. This single change reduced medication errors by 40% within three months.`
           },
           {
             title: 'Root Cause Analysis and Incident Investigation',
@@ -762,7 +762,7 @@ async function main() {
             type: 'text',
             body: `Patient safety systems depend on information flow. If staff do not report near-misses and adverse events, the organisation cannot learn. Most African hospitals have incident reporting rates far below international benchmarks, not because fewer incidents occur, but because staff fear punishment. Building a reporting culture requires three elements: a simple reporting mechanism (one-page form or digital tool, anonymous option available), a visible response loop (staff must see that their reports lead to action, not filing cabinets), and explicit protection from blame for honest reporting.
 
-              CFA recommends a "just culture" framework that distinguishes between human error (system-supported, no blame), at-risk behaviour (coaching and system redesign), and reckless behaviour (accountability and discipline). This framework gives staff clarity on when reporting is safe and when behaviour crosses the line. Hospitals that implement just culture typically see reporting rates increase 5-10x within six months, which paradoxically looks like safety is getting worse when in fact visibility is improving.`
+              C4A recommends a "just culture" framework that distinguishes between human error (system-supported, no blame), at-risk behaviour (coaching and system redesign), and reckless behaviour (accountability and discipline). This framework gives staff clarity on when reporting is safe and when behaviour crosses the line. Hospitals that implement just culture typically see reporting rates increase 5-10x within six months, which paradoxically looks like safety is getting worse when in fact visibility is improving.`
           }
         ],
         exercises: [
@@ -905,14 +905,14 @@ async function main() {
             type: 'text',
             body: `Most hospital leaders think of patient registration as an administrative task. It is not. It is the first step in the revenue cycle, and errors here cascade through billing, coding, and collections. A misspelled name, wrong insurance ID, or missing referral authorisation at registration can result in a denied claim worth thousands of dollars weeks later. Studies across African hospitals show that 30-40% of claims denials originate from registration errors, making patient access the highest-leverage intervention point in the entire revenue cycle.
 
-              CFA approaches patient access as a revenue function, not an admin function. This means registration staff need training in insurance verification, not just data entry. It means pre-registration processes should capture and verify insurance details before the patient arrives. And it means real-time eligibility checking (where infrastructure allows) should flag coverage gaps before services are rendered, not after.`
+              C4A approaches patient access as a revenue function, not an admin function. This means registration staff need training in insurance verification, not just data entry. It means pre-registration processes should capture and verify insurance details before the patient arrives. And it means real-time eligibility checking (where infrastructure allows) should flag coverage gaps before services are rendered, not after.`
           },
           {
             title: 'Insurance Verification and Pre-Authorisation',
             type: 'text',
             body: `In African healthcare markets with mixed payer environments (NHIS, private HMOs, corporate schemes, and out-of-pocket), insurance verification is complex but critical. Each payer has different requirements for pre-authorisation, benefit limits, co-payment structures, and excluded services. Registration staff must verify four things before a patient receives care: Is the policy active? What benefits are covered? Is pre-authorisation required for the planned service? What is the patient's co-payment or balance responsibility?
 
-              For hospitals without real-time electronic verification, CFA recommends a dedicated verification desk that calls HMOs to confirm eligibility for every insured patient. This seems labour-intensive, but the cost of one verification clerk is recovered many times over by preventing unverified patients from consuming services that will never be reimbursed. A Lagos hospital implementing this approach reduced its "insurance rejection at point of billing" rate from 18% to 3% within two months.`
+              For hospitals without real-time electronic verification, C4A recommends a dedicated verification desk that calls HMOs to confirm eligibility for every insured patient. This seems labour-intensive, but the cost of one verification clerk is recovered many times over by preventing unverified patients from consuming services that will never be reimbursed. A Lagos hospital implementing this approach reduced its "insurance rejection at point of billing" rate from 18% to 3% within two months.`
           },
           {
             title: 'Financial Counselling and Point-of-Service Collections',
@@ -991,14 +991,14 @@ async function main() {
       {
         moduleId: m8_1.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'CFA approaches patient access as a:',
+        question: 'C4A approaches patient access as a:',
         options: JSON.stringify([
           { id: 'a', text: 'Clinical function focused on triage', isCorrect: false },
           { id: 'b', text: 'Revenue function, not an administrative function', isCorrect: true },
           { id: 'c', text: 'IT function focused on data entry', isCorrect: false },
           { id: 'd', text: 'Marketing function focused on patient experience', isCorrect: false },
         ]),
-        explanation: 'CFA reframes patient access as a revenue function because registration accuracy directly determines downstream revenue capture. This reframing changes how staff are trained, how processes are designed, and how performance is measured.',
+        explanation: 'C4A reframes patient access as a revenue function because registration accuracy directly determines downstream revenue capture. This reframing changes how staff are trained, how processes are designed, and how performance is measured.',
         points: 1,
         order: 4,
       },
@@ -1045,14 +1045,14 @@ async function main() {
             type: 'text',
             body: `Diagnosis-Related Groups (DRGs) bundle hospital services into a single payment based on the patient's diagnosis, procedures performed, complications, and demographic factors. Several African countries, including Kenya, Nigeria, and Ghana, are moving toward DRG-based reimbursement through their national health insurance schemes. Under DRG models, hospitals receive a fixed payment per case rather than fee-for-service billing. This means coding accuracy directly determines whether the hospital is paid fairly, underpaid, or overpaid.
 
-              For CFA consultants, understanding DRGs is essential because the transition from fee-for-service to case-based payment fundamentally changes hospital economics. Under fee-for-service, hospitals are incentivised to do more (more tests, more days, more procedures). Under DRGs, hospitals are incentivised to be efficient because the payment is fixed regardless of resources consumed. CFA helps hospitals prepare for DRG transitions by improving coding accuracy, optimising length of stay, and redesigning clinical pathways to deliver outcomes within the DRG payment envelope.`
+              For C4A consultants, understanding DRGs is essential because the transition from fee-for-service to case-based payment fundamentally changes hospital economics. Under fee-for-service, hospitals are incentivised to do more (more tests, more days, more procedures). Under DRGs, hospitals are incentivised to be efficient because the payment is fixed regardless of resources consumed. C4A helps hospitals prepare for DRG transitions by improving coding accuracy, optimising length of stay, and redesigning clinical pathways to deliver outcomes within the DRG payment envelope.`
           },
           {
             title: 'Charge Capture and Revenue Leakage',
             type: 'text',
             body: `Charge capture is the process of recording every billable service, supply, and procedure so that the hospital can invoice appropriately. Revenue leakage from missed charges is one of the most common and most fixable problems in African hospitals. Common leakage points include: medications administered but not recorded on the charge sheet, diagnostic tests ordered verbally but never entered into billing, surgical supplies used but not captured, specialist consultations delivered but not billed, and ward procedures (wound dressing, catheterisation) performed by nurses without a billing trigger.
 
-              CFA's charge capture audit methodology reviews a random sample of 50-100 patient files, comparing clinical documentation (what was done) to billing records (what was charged). The gap between the two is the leakage rate. In most African hospitals, the first audit reveals a leakage rate of 8-15% of gross revenue. Closing this gap requires three interventions: redesigning charge capture forms to match clinical workflows, training clinical staff that documentation is a revenue activity, and implementing daily charge reconciliation between nursing stations and billing.`
+              C4A's charge capture audit methodology reviews a random sample of 50-100 patient files, comparing clinical documentation (what was done) to billing records (what was charged). The gap between the two is the leakage rate. In most African hospitals, the first audit reveals a leakage rate of 8-15% of gross revenue. Closing this gap requires three interventions: redesigning charge capture forms to match clinical workflows, training clinical staff that documentation is a revenue activity, and implementing daily charge reconciliation between nursing stations and billing.`
           }
         ],
         exercises: [
@@ -1110,7 +1110,7 @@ async function main() {
       {
         moduleId: m8_2.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'CFA\'s charge capture audit typically reveals a revenue leakage rate of what percentage in most African hospitals?',
+        question: 'C4A\'s charge capture audit typically reveals a revenue leakage rate of what percentage in most African hospitals?',
         options: JSON.stringify([
           { id: 'a', text: '1-3%', isCorrect: false },
           { id: 'b', text: '8-15%', isCorrect: true },
@@ -1171,12 +1171,12 @@ async function main() {
             type: 'text',
             body: `Billing in African healthcare is fragmented across multiple payer types, each with unique submission requirements, tariff schedules, and processing timelines. The major payer categories are: National Health Insurance Schemes (NHIS in Nigeria, NHIF in Kenya, NHIA in Ghana), private Health Maintenance Organisations (HMOs), corporate medical schemes, and out-of-pocket patients. Each payer requires different documentation, uses different claim forms, and pays at different rates for the same service.
 
-              The billing team must master each payer's requirements. NHIS claims typically require capitation verification, referral authorisation for secondary and tertiary services, and submission within strict deadlines (often 30-60 days from service delivery). HMO claims require pre-authorisation codes, itemised bills matching the approved treatment plan, and supporting clinical documentation. Getting any of these elements wrong results in denial or delayed payment. CFA recommends payer-specific standard operating procedures and dedicated billing staff trained on each payer's requirements rather than generalist billers handling all payers.`
+              The billing team must master each payer's requirements. NHIS claims typically require capitation verification, referral authorisation for secondary and tertiary services, and submission within strict deadlines (often 30-60 days from service delivery). HMO claims require pre-authorisation codes, itemised bills matching the approved treatment plan, and supporting clinical documentation. Getting any of these elements wrong results in denial or delayed payment. C4A recommends payer-specific standard operating procedures and dedicated billing staff trained on each payer's requirements rather than generalist billers handling all payers.`
           },
           {
             title: 'Denial Management and Prevention',
             type: 'text',
-            body: `Claims denials are the single largest revenue leak in African hospital revenue cycles. Denial rates of 15-30% are common, with some facilities seeing rates above 40% for specific payers. CFA categorises denials into three buckets: preventable denials (registration errors, missing authorisation, late submission), clinical denials (medical necessity disputes, length of stay outliers, uncovered services), and technical denials (coding errors, duplicate claims, formatting issues). In most hospitals, 70-80% of denials are preventable.
+            body: `Claims denials are the single largest revenue leak in African hospital revenue cycles. Denial rates of 15-30% are common, with some facilities seeing rates above 40% for specific payers. C4A categorises denials into three buckets: preventable denials (registration errors, missing authorisation, late submission), clinical denials (medical necessity disputes, length of stay outliers, uncovered services), and technical denials (coding errors, duplicate claims, formatting issues). In most hospitals, 70-80% of denials are preventable.
 
               Effective denial management requires a closed-loop process. First, track every denial by reason code and payer. Build a denial dashboard that shows trends over time. Second, work denied claims aggressively within the appeal window (typically 30-90 days depending on the payer). Many hospitals write off denied claims without attempting appeal, leaving significant money on the table. Third, feed denial root causes back to the front end. If 25% of denials are due to missing pre-authorisation, fix the pre-authorisation process rather than repeatedly appealing the same type of denial. Prevention is always cheaper than correction.`
           },
@@ -1185,17 +1185,17 @@ async function main() {
             type: 'text',
             body: `The probability of collecting a receivable drops sharply with age. Industry data shows that receivables under 30 days have a 95% collection probability, 30-60 days drops to 85%, 60-90 days to 70%, 90-120 days to 50%, and beyond 120 days the probability falls below 30%. This means that speed of follow-up is the most important factor in collections performance, not the aggressiveness of collection tactics.
 
-              CFA recommends a tiered collections strategy. Tier 1 (0-30 days): automated statements and follow-up calls for patient balances; systematic claims tracking for insurer receivables. Tier 2 (31-60 days): personal outreach, payment plan offers for patients; escalation to HMO relationship managers for insurer claims. Tier 3 (61-90 days): final demand letters, credit hold for repeat defaulters (patients); formal dispute filing for insurer claims. Tier 4 (90+ days): evaluate cost-benefit of continued pursuit; consider write-off or third-party collection agency. For NHIS receivables, which in some countries take 6-12 months to pay, hospitals should factor this into cash flow planning and negotiate advance capitation payments where possible.`
+              C4A recommends a tiered collections strategy. Tier 1 (0-30 days): automated statements and follow-up calls for patient balances; systematic claims tracking for insurer receivables. Tier 2 (31-60 days): personal outreach, payment plan offers for patients; escalation to HMO relationship managers for insurer claims. Tier 3 (61-90 days): final demand letters, credit hold for repeat defaulters (patients); formal dispute filing for insurer claims. Tier 4 (90+ days): evaluate cost-benefit of continued pursuit; consider write-off or third-party collection agency. For NHIS receivables, which in some countries take 6-12 months to pay, hospitals should factor this into cash flow planning and negotiate advance capitation payments where possible.`
           }
         ],
         exercises: [
           {
             title: 'Practice: Denial Analysis',
-            instruction: 'You receive a report showing 200 denied claims from the past quarter worth $180,000. Break down the denials by the three CFA categories (preventable, clinical, technical), estimate the percentage in each category, and design 3 specific process changes to reduce the overall denial rate by 50% within 6 months.',
+            instruction: 'You receive a report showing 200 denied claims from the past quarter worth $180,000. Break down the denials by the three C4A categories (preventable, clinical, technical), estimate the percentage in each category, and design 3 specific process changes to reduce the overall denial rate by 50% within 6 months.',
           },
           {
             title: 'Practice: Collections Improvement Plan',
-            instruction: 'A hospital has $2.5M in accounts receivable, with 40% over 90 days old. Current monthly collections are $300,000 against $500,000 in monthly billings. Design a 90-day collections improvement plan using the CFA tiered strategy, with specific actions, staffing requirements, and target collection rate improvements.',
+            instruction: 'A hospital has $2.5M in accounts receivable, with 40% over 90 days old. Current monthly collections are $300,000 against $500,000 in monthly billings. Design a 90-day collections improvement plan using the C4A tiered strategy, with specific actions, staffing requirements, and target collection rate improvements.',
           }
         ]
       },
@@ -1243,21 +1243,21 @@ async function main() {
       {
         moduleId: m8_3.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'CFA recommends that billing staff should be:',
+        question: 'C4A recommends that billing staff should be:',
         options: JSON.stringify([
           { id: 'a', text: 'Generalists who handle all payer types', isCorrect: false },
           { id: 'b', text: 'Dedicated staff trained on specific payer requirements', isCorrect: true },
           { id: 'c', text: 'Clinical staff who also handle their own billing', isCorrect: false },
           { id: 'd', text: 'Outsourced to a third-party billing company', isCorrect: false },
         ]),
-        explanation: 'CFA recommends payer-specific standard operating procedures and dedicated billing staff trained on each payer\'s unique requirements (NHIS, HMOs, corporate schemes). Generalist billers are more likely to miss payer-specific documentation requirements.',
+        explanation: 'C4A recommends payer-specific standard operating procedures and dedicated billing staff trained on each payer\'s unique requirements (NHIS, HMOs, corporate schemes). Generalist billers are more likely to miss payer-specific documentation requirements.',
         points: 1,
         order: 3,
       },
       {
         moduleId: m8_3.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'In the CFA tiered collections strategy, what action is recommended at Tier 2 (31-60 days) for patient balances?',
+        question: 'In the C4A tiered collections strategy, what action is recommended at Tier 2 (31-60 days) for patient balances?',
         options: JSON.stringify([
           { id: 'a', text: 'Automated statements only', isCorrect: false },
           { id: 'b', text: 'Personal outreach and payment plan offers', isCorrect: true },
@@ -1271,7 +1271,7 @@ async function main() {
       {
         moduleId: m8_3.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'The third step in CFA\'s closed-loop denial management process is:',
+        question: 'The third step in C4A\'s closed-loop denial management process is:',
         options: JSON.stringify([
           { id: 'a', text: 'Track every denial by reason code and payer', isCorrect: false },
           { id: 'b', text: 'Appeal denied claims within the appeal window', isCorrect: false },
@@ -1288,7 +1288,7 @@ async function main() {
   console.log('  Module 8.3: Billing, Claims & Collections - 5 questions')
   console.log('  Track 8: Revenue Cycle Excellence - 3 modules, 15 questions\n')
 
-  console.log('CFA Training Academy Specialist Level A seeding complete!')
+  console.log('C4ATraining Academy Specialist Level A seeding complete!')
   console.log('  Total: 3 tracks, 9 modules, 45 questions')
 }
 

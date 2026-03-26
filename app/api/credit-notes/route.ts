@@ -91,11 +91,11 @@ export async function POST(req: Request) {
     subtotal = subtotal.add(amount);
   }
 
-  // Generate credit note number: CFA-CN-YYYY-NNNN
+  // Generate credit note number: C4A-CN-YYYY-NNNN
   const year = new Date().getFullYear();
   const latestCN = await prisma.creditNote.findFirst({
     where: {
-      creditNoteNumber: { startsWith: `CFA-CN-${year}-` },
+      creditNoteNumber: { startsWith: `C4A-CN-${year}-` },
     },
     orderBy: { creditNoteNumber: "desc" },
     select: { creditNoteNumber: true },
@@ -110,7 +110,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const creditNoteNumber = `CFA-CN-${year}-${String(sequence).padStart(4, "0")}`;
+  const creditNoteNumber = `C4A-CN-${year}-${String(sequence).padStart(4, "0")}`;
 
   const creditNote = await prisma.creditNote.create({
     data: {

@@ -5,6 +5,11 @@ import { NextRequest } from "next/server";
 /**
  * PATCH /api/maarova/coach/sessions/[sessionId]
  * Update a session: complete it, add notes, update meeting link, cancel, reschedule.
+ *
+ * On completion:
+ *  - Increments match.sessionsCompleted and coach.totalSessions
+ *  - Updates match.lastSessionAt
+ *  - If all sessions completed, marks match COMPLETED and updates coach stats
  */
 export async function PATCH(
   req: NextRequest,
@@ -21,7 +26,15 @@ export async function PATCH(
   const coachingSession = await prisma.maarovaCoachingSession.findUnique({
     where: { id: sessionId },
     include: {
-      match: { select: { id: true, coachId: true, sessionsCompleted: true } },
+      match: {
+        select: {
+          id: true,
+          coachId: true,
+          sessionsCompleted: true,
+          sessionsScheduled: true,
+          status: true,
+        },
+      },
     },
   });
 
@@ -43,13 +56,23 @@ export async function PATCH(
     if (Array.isArray(focusAreas)) updateData.focusAreas = focusAreas;
     if (Array.isArray(actionItems)) updateData.actionItems = actionItems;
 
+    const newCompleted = coachingSession.match.sessionsCompleted + 1;
+    const isEngagementComplete = newCompleted >= coachingSession.match.sessionsScheduled;
+
     // Update match: increment completed count, update lastSessionAt
+    const matchUpdate: Record<string, unknown> = {
+      sessionsCompleted: { increment: 1 },
+      lastSessionAt: new Date(),
+    };
+
+    if (isEngagementComplete) {
+      matchUpdate.status = "COMPLETED";
+      matchUpdate.endDate = new Date();
+    }
+
     await prisma.maarovaCoachingMatch.update({
       where: { id: coachingSession.matchId },
-      data: {
-        sessionsCompleted: { increment: 1 },
-        lastSessionAt: new Date(),
-      },
+      data: matchUpdate,
     });
 
     // Find next scheduled session and update nextSessionAt on match
@@ -67,6 +90,22 @@ export async function PATCH(
     await prisma.maarovaCoachingMatch.update({
       where: { id: coachingSession.matchId },
       data: { nextSessionAt: nextSession?.scheduledAt ?? null },
+    });
+
+    // Update coach stats: increment totalSessions
+    const coachUpdate: Record<string, unknown> = {
+      totalSessions: { increment: 1 },
+    };
+
+    // If the engagement just completed, update coach engagement counters
+    if (isEngagementComplete) {
+      coachUpdate.completedEngagements = { increment: 1 };
+      coachUpdate.activeClients = { decrement: 1 };
+    }
+
+    await prisma.maarovaCoach.update({
+      where: { id: session.sub },
+      data: coachUpdate,
     });
   }
 

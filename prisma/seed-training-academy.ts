@@ -1,11 +1,11 @@
 /**
- * CFA TRAINING ACADEMY - COMPREHENSIVE SEED
+ * C4ATRAINING ACADEMY - COMPREHENSIVE SEED
  * Seeds all training tracks, modules, and assessment questions
  *
  * 6 Tracks across 3 Certification Levels:
- *   FOUNDATION (3 tracks): Core Consulting, Healthcare Fundamentals, CFA Platform
+ *   FOUNDATION (3 tracks): Core Consulting, Healthcare Fundamentals, C4APlatform
  *   SPECIALIST (2 tracks): Health Economics & M&E, Digital Health & Tech
- *   MASTER (1 track):      CFA Master Consultant
+ *   MASTER (1 track):      C4AMaster Consultant
  *
  * Run: npx tsx prisma/seed-training-academy.ts
  */
@@ -15,7 +15,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('Seeding CFA Training Academy...\n')
+  console.log('Seeding C4ATraining Academy...\n')
 
   // ════════════════════════════════════════════════════════════════════════════
   // TRACK 1: FOUNDATION - Core Consulting Skills
@@ -25,7 +25,7 @@ async function main() {
     data: {
       name: 'Core Consulting Skills',
       slug: 'core-consulting-skills',
-      description: `Master the fundamentals that every CFA consultant needs. From structured problem-solving
+      description: `Master the fundamentals that every C4A consultant needs. From structured problem-solving
         to client communication, this track builds the core toolkit used across all engagements.
         Covers McKinsey-style problem structuring, MECE thinking, the Pyramid Principle,
         hypothesis-driven analysis, and professional client management.`,
@@ -58,7 +58,7 @@ async function main() {
               It is the ability to structure ambiguity. Clients come to us with messy, undefined problems.
               Our job is to impose order, identify the real issue, and solve it systematically.
 
-              Structured problem-solving is the single most valuable skill you will develop at CFA.
+              Structured problem-solving is the single most valuable skill you will develop at C4A.
               It applies to every engagement, from a 2-week diagnostic to a 12-month transformation.`
           },
           {
@@ -116,9 +116,9 @@ async function main() {
               Clients are busy executives. Give them the answer, let them drill down if they want detail.`
           },
           {
-            title: 'CFA Application: The Diagnostic Framework',
+            title: 'C4AApplication: The Diagnostic Framework',
             type: 'text',
-            body: `At CFA, every engagement starts with a structured diagnostic. Here is how we apply these principles:
+            body: `At C4A, every engagement starts with a structured diagnostic. Here is how we apply these principles:
 
               Week 1: Frame the problem (issue tree, initial hypothesis)
               Week 2: Data gathering (targeted by hypothesis, not exhaustive)
@@ -246,9 +246,9 @@ async function main() {
       content: {
         sections: [
           {
-            title: 'The CFA Client Relationship Model',
+            title: 'The C4AClient Relationship Model',
             type: 'text',
-            body: `At CFA, we are not vendors. We are embedded partners. This distinction matters because:
+            body: `At C4A, we are not vendors. We are embedded partners. This distinction matters because:
 
               Vendors deliver a product and leave. Partners invest in outcomes.
               Vendors manage scope. Partners manage relationships.
@@ -324,7 +324,7 @@ async function main() {
       },
       resources: {
         links: [
-          { title: 'CFA Stakeholder Mapping Template', url: 'internal://templates/stakeholder-map' },
+          { title: 'C4AStakeholder Mapping Template', url: 'internal://templates/stakeholder-map' },
           { title: 'Executive Update Template', url: 'internal://templates/exec-update' },
         ],
         tools: ['RACI Matrix', 'Stakeholder Map', 'Meeting Agenda Template']
@@ -358,7 +358,7 @@ async function main() {
           { id: 'c', text: 'After you have fully resolved the issue', isCorrect: false },
           { id: 'd', text: 'In the monthly progress report', isCorrect: false },
         ]),
-        explanation: 'Bad news early is a core CFA principle. Inform the client as soon as you identify the risk and bring a mitigation plan. Clients lose trust when they are surprised by bad news.',
+        explanation: 'Bad news early is a core C4A principle. Inform the client as soon as you identify the risk and bring a mitigation plan. Clients lose trust when they are surprised by bad news.',
         points: 1,
         order: 2,
       },
@@ -370,7 +370,7 @@ async function main() {
         caseStudy: JSON.stringify({
           scenario: 'A teaching hospital in Lagos. The Medical Director controls 40 consultants. Without their cooperation, charge capture improvement cannot proceed. The CEO hired you but is not a clinician and has limited influence over medical staff.',
           stakeholders: {
-            ceo: 'Champion, hired CFA, wants results',
+            ceo: 'Champion, hired C4A, wants results',
             medicalDirector: 'Blocker, territorial, respected by medical staff',
             cfo: 'Influencer, supportive but risk-averse',
             headNurse: 'Potential champion, sees clinical documentation gaps daily',
@@ -443,7 +443,7 @@ async function main() {
               Sources for African healthcare benchmarks:
               - WHO African Health Observatory
               - Nigeria Health Facility Registry
-              - CFA internal benchmark database (proprietary)
+              - C4A internal benchmark database (proprietary)
               - Published hospital performance data (NHIS reports)
               - International benchmarks (adjust for context)
 
@@ -457,7 +457,7 @@ async function main() {
           {
             title: 'Financial Analysis Essentials',
             type: 'text',
-            body: `Every CFA consultant must be able to:
+            body: `Every C4A consultant must be able to:
 
               1. Read financial statements (P&L, balance sheet, cash flow)
               2. Build a revenue waterfall (gross charges to net revenue)
@@ -482,9 +482,9 @@ async function main() {
               3. Use comparison. Show benchmark, prior year, competitor. Raw numbers lack context.
               4. Simplify. Remove gridlines, unnecessary labels, 3D effects. Less is more.
               5. Color with purpose. Use color to highlight the insight, not decorate.
-              6. Source everything. "Source: Hospital billing data, Jan-Dec 2024, CFA analysis"
+              6. Source everything. "Source: Hospital billing data, Jan-Dec 2024, C4A analysis"
 
-              CFA standard charts: waterfall (revenue leakage), tornado (sensitivity), bar (comparison),
+              C4A standard charts: waterfall (revenue leakage), tornado (sensitivity), bar (comparison),
               line (trends), scatter (correlation). Avoid pie charts (hard to compare slices).`
           }
         ],
@@ -497,7 +497,7 @@ async function main() {
       },
       resources: {
         links: [
-          { title: 'CFA Benchmark Database', url: 'internal://tools/benchmarks' },
+          { title: 'C4ABenchmark Database', url: 'internal://tools/benchmarks' },
           { title: 'Financial Model Template', url: 'internal://templates/financial-model' },
         ],
         tools: ['Revenue Waterfall Template', 'Benchmarking Workbook', 'KPI Dashboard Template']
@@ -551,9 +551,9 @@ async function main() {
       content: {
         sections: [
           {
-            title: 'The CFA Deliverable Standard',
+            title: 'The C4ADeliverable Standard',
             type: 'text',
-            body: `Every deliverable that leaves CFA must meet these criteria:
+            body: `Every deliverable that leaves C4A must meet these criteria:
 
               1. Actionable: Client can take next steps without asking us "so what?"
               2. Data-driven: Claims supported by evidence, not opinions
@@ -567,7 +567,7 @@ async function main() {
           {
             title: 'Diagnostic Reports',
             type: 'text',
-            body: `Structure for a CFA diagnostic report:
+            body: `Structure for a C4A diagnostic report:
 
               1. Executive Summary (1 page max, answer-first)
               2. Current State Assessment (data-driven, benchmarked)
@@ -608,7 +608,7 @@ async function main() {
               How much: Budget/resources needed
               Success metric: How we know it worked
 
-              CFA uses a 90-day sprint model:
+              C4A uses a 90-day sprint model:
               Days 1-30: Quick wins (visible impact, build momentum)
               Days 31-60: Process changes (new workflows, training)
               Days 61-90: Sustain and measure (dashboards, handover)
@@ -619,7 +619,7 @@ async function main() {
       },
       resources: {
         links: [
-          { title: 'CFA Report Templates', url: 'internal://templates/reports' },
+          { title: 'C4AReport Templates', url: 'internal://templates/reports' },
           { title: 'Presentation Guide', url: 'internal://guides/presentations' },
         ],
         tools: ['Diagnostic Report Template', 'Weekly Update Template', '90-Day Plan Template']
@@ -637,7 +637,7 @@ async function main() {
     data: {
       name: 'Healthcare Industry Fundamentals',
       slug: 'healthcare-fundamentals',
-      description: `Understand the African healthcare landscape that CFA operates in. From hospital operations
+      description: `Understand the African healthcare landscape that C4A operates in. From hospital operations
         and revenue models to regulatory frameworks and payer dynamics. This track ensures every
         consultant can speak the language of healthcare, regardless of their background.`,
       level: 'FOUNDATION',
@@ -732,7 +732,7 @@ async function main() {
               - Task-shifting (nurses doing tasks traditionally done by doctors)
               - Telemedicine (remote specialists supporting local generalists)
 
-              CFA implications: workforce strategy is often central to hospital performance.
+              C4A implications: workforce strategy is often central to hospital performance.
               You cannot optimize a hospital without addressing staffing.`
           }
         ],
@@ -791,7 +791,7 @@ async function main() {
               Timeline: 6-18 months for full licensing of a new hospital.
               Cost: N5-20M depending on state and hospital size.
 
-              CFA relevance: When advising on new hospital builds or service line expansion,
+              C4A relevance: When advising on new hospital builds or service line expansion,
               always factor in regulatory timelines and costs.`
           },
           {
@@ -810,7 +810,7 @@ async function main() {
               - Claims submission and follow-up is a full-time function
               - Pre-authorization requirements vary by HMO
 
-              For CFA consultants:
+              For C4A consultants:
               - Revenue cycle work always involves payer strategy
               - Understanding NHIS/HMO dynamics is non-negotiable
               - Help clients diversify payer mix to reduce NHIS dependency`
@@ -865,7 +865,7 @@ async function main() {
               - More affordable and achievable
               - Growing recognition among international funders
 
-              CFA role: We often help hospitals prepare for accreditation, which serves as a
+              C4A role: We often help hospitals prepare for accreditation, which serves as a
               structured quality improvement program even if they never formally apply.`
           },
           {
@@ -903,14 +903,14 @@ async function main() {
   console.log('  Track 2: Healthcare Fundamentals (3 modules)')
 
   // ════════════════════════════════════════════════════════════════════════════
-  // TRACK 3: FOUNDATION - CFA Platform & Tools
+  // TRACK 3: FOUNDATION - C4APlatform & Tools
   // ════════════════════════════════════════════════════════════════════════════
 
   const cfaPlatform = await prisma.trainingTrack.create({
     data: {
-      name: 'CFA Platform & Tools Mastery',
+      name: 'C4APlatform & Tools Mastery',
       slug: 'cfa-platform-tools',
-      description: `Learn to use the CFA consulting platform effectively. Project setup, methodology selection,
+      description: `Learn to use the C4A consulting platform effectively. Project setup, methodology selection,
         deliverable management, AI-powered analysis tools, time tracking, and client reporting.
         This track ensures you can hit the ground running on your first engagement.`,
       level: 'FOUNDATION',
@@ -928,7 +928,7 @@ async function main() {
       trackId: cfaPlatform.id,
       name: 'Platform Overview & Navigation',
       slug: 'platform-overview',
-      description: 'Navigate the CFA platform: dashboard, projects, deliverables, time tracking, and AI tools.',
+      description: 'Navigate the C4A platform: dashboard, projects, deliverables, time tracking, and AI tools.',
       order: 1,
       estimatedMinutes: 30,
       passingScore: 80,
@@ -937,7 +937,7 @@ async function main() {
           {
             title: 'Platform Architecture',
             type: 'text',
-            body: `The CFA platform is your command center for every engagement. Key sections:
+            body: `The C4A platform is your command center for every engagement. Key sections:
 
               Dashboard: Overview of your active projects, upcoming deadlines, time entries
               Projects: All engagement details, phases, deliverables, team
@@ -994,7 +994,7 @@ async function main() {
       trackId: cfaPlatform.id,
       name: 'Methodology Library & Framework Selection',
       slug: 'methodology-framework-selection',
-      description: 'Master the CFA methodology library. Learn when to use each methodology, how to select frameworks, and how to customize for your engagement.',
+      description: 'Master the C4A methodology library. Learn when to use each methodology, how to select frameworks, and how to customize for your engagement.',
       order: 2,
       estimatedMinutes: 45,
       passingScore: 75,
@@ -1003,11 +1003,11 @@ async function main() {
           {
             title: 'Methodology Categories',
             type: 'text',
-            body: `CFA's methodology library covers:
+            body: `C4A's methodology library covers:
 
               Generic Consulting: McKinsey problem-solving, BCG frameworks, Design Thinking
               Healthcare Process Improvement: Lean, Six Sigma, PDSA, FOCUS-PDSA
-              CFA Proprietary: Revenue Cycle Excellence, Clinical Quality, Digital Health
+              C4AProprietary: Revenue Cycle Excellence, Clinical Quality, Digital Health
               Public Health & M&E: Logframe, Impact Evaluation, DHIS2
               Health Economics: CEA, CBA, Budget Impact Analysis
               Tech Startup: Lean Startup, Agile/Scrum, Jobs-to-be-Done
@@ -1037,7 +1037,7 @@ async function main() {
     },
   })
 
-  console.log('  Track 3: CFA Platform & Tools (2 modules)')
+  console.log('  Track 3: C4APlatform & Tools (2 modules)')
 
   // ════════════════════════════════════════════════════════════════════════════
   // TRACK 4: SPECIALIST - Health Economics & M&E
@@ -1339,7 +1339,7 @@ async function main() {
               Tier 4 (Integrated HIS): Full EMR/EHR, integrated modules, some interoperability
               Tier 5 (Advanced): AI-powered analytics, full interoperability, patient portal
 
-              Most Nigerian private hospitals are Tier 2-3. CFA typically helps move them to Tier 4.
+              Most Nigerian private hospitals are Tier 2-3. C4A typically helps move them to Tier 4.
 
               Common HIS platforms in Nigeria:
               - OpenMRS (open source, PEPFAR-funded facilities)
@@ -1371,7 +1371,7 @@ async function main() {
               - Local support (vendor presence in Nigeria)
               - Total cost of ownership (license + implementation + training + maintenance)
 
-              CFA evaluation matrix: Score each system 1-5 on each requirement,
+              C4A evaluation matrix: Score each system 1-5 on each requirement,
               weight by importance, calculate total. Recommend top 2-3 for demos.`
           },
           {
@@ -1387,7 +1387,7 @@ async function main() {
               5. Scope creep (trying to do everything at once)
               6. Vendor mismatch (international system, no local support)
 
-              CFA implementation approach:
+              C4A implementation approach:
               Phase 1 (Month 1-2): Foundation (infrastructure, data cleanup, core config)
               Phase 2 (Month 3-4): Pilot (1-2 departments, super-users)
               Phase 3 (Month 5-6): Expand (remaining departments, full training)
@@ -1419,7 +1419,7 @@ async function main() {
           {
             title: 'The Data Maturity Journey',
             type: 'text',
-            body: `Most African hospitals are at Level 1-2. CFA helps them move up.
+            body: `Most African hospitals are at Level 1-2. C4A helps them move up.
 
               Level 1 - Reporting: What happened? (Monthly reports, basic dashboards)
               Level 2 - Analysis: Why did it happen? (Root cause analysis, trend analysis)
@@ -1469,12 +1469,12 @@ async function main() {
               - Autonomous clinical decision-making (liability, trust, regulation)
               - Complex multimodal AI (infrastructure not ready)
 
-              CFA approach to AI:
+              C4A approach to AI:
               1. Start with the problem, not the technology
               2. Use the simplest model that works
               3. Always keep a human in the loop
               4. Measure ROI rigorously
-              5. Plan for sustainability (who maintains the model after CFA leaves?)`
+              5. Plan for sustainability (who maintains the model after C4A leaves?)`
           }
         ],
       },
@@ -1539,14 +1539,14 @@ async function main() {
   console.log('  Track 5: Digital Health & Technology (3 modules)')
 
   // ════════════════════════════════════════════════════════════════════════════
-  // TRACK 6: MASTER - CFA Master Consultant
+  // TRACK 6: MASTER - C4AMaster Consultant
   // ════════════════════════════════════════════════════════════════════════════
 
   const masterTrack = await prisma.trainingTrack.create({
     data: {
-      name: 'CFA Master Consultant',
+      name: 'C4AMaster Consultant',
       slug: 'cfa-master-consultant',
-      description: `The capstone certification. Demonstrates mastery across all CFA competencies:
+      description: `The capstone certification. Demonstrates mastery across all C4A competencies:
         strategic thinking, health economics, operational excellence, client leadership,
         and business development. Requires completion of all Foundation and at least one
         Specialist track. Includes live case defense and peer review.`,
@@ -1580,9 +1580,9 @@ async function main() {
               Leader mindset: "What decision does this enable for the client?"
 
               As engagement lead, you are responsible for:
-              1. Client relationship (you are the face of CFA)
+              1. Client relationship (you are the face of C4A)
               2. Team performance (coaching, quality control, workload management)
-              3. Delivery quality (every deliverable meets CFA standard)
+              3. Delivery quality (every deliverable meets C4A standard)
               4. Commercial management (budget, scope, change orders)
               5. Risk management (early warning, mitigation, escalation)
               6. Knowledge capture (what did we learn for future engagements?)
@@ -1593,7 +1593,7 @@ async function main() {
           {
             title: 'Managing Multi-Workstream Engagements',
             type: 'text',
-            body: `Large CFA engagements may have 3-5 workstreams running in parallel:
+            body: `Large C4A engagements may have 3-5 workstreams running in parallel:
 
               Example: Hospital turnaround
               WS1: Revenue cycle optimization (billing, coding, collections)
@@ -1609,7 +1609,7 @@ async function main() {
               - Single narrative to client (not 5 separate updates)
               - Escalation point for cross-workstream conflicts
 
-              Tool: CFA Integration Dashboard (tracks all workstreams, gates, risks in one view)`
+              Tool: C4AIntegration Dashboard (tracks all workstreams, gates, risks in one view)`
           },
           {
             title: 'Developing Your Team',
@@ -1635,16 +1635,16 @@ async function main() {
       trackId: masterTrack.id,
       name: 'Business Development & Thought Leadership',
       slug: 'business-development-thought-leadership',
-      description: 'Win new engagements, build CFA\'s brand, publish thought leadership, and develop client relationships that generate repeat business.',
+      description: 'Win new engagements, build C4A\'s brand, publish thought leadership, and develop client relationships that generate repeat business.',
       order: 2,
       estimatedMinutes: 90,
       passingScore: 75,
       content: {
         sections: [
           {
-            title: 'The CFA Business Development Model',
+            title: 'The C4ABusiness Development Model',
             type: 'text',
-            body: `CFA does not cold-sell. We earn the right to new work through:
+            body: `C4A does not cold-sell. We earn the right to new work through:
 
               1. Exceptional delivery (current clients become references)
               2. Thought leadership (publish insights, speak at conferences)
@@ -1654,21 +1654,21 @@ async function main() {
               Your role in BD as a Master Consultant:
               - Identify follow-on opportunities during engagements
               - Build relationships beyond your project sponsor
-              - Represent CFA at industry events
+              - Represent C4A at industry events
               - Publish case studies and insights (with client permission)
               - Mentor junior consultants in client relationship building`
           },
           {
             title: 'Proposal Writing',
             type: 'text',
-            body: `CFA proposal structure:
+            body: `C4A proposal structure:
 
               1. Understanding of the Challenge (show you get it; do not just repeat the RFP)
               2. Our Approach (methodology, phases, timeline)
               3. Team (specific named people with relevant experience)
               4. Track Record (relevant case studies with measurable outcomes)
               5. Commercial Terms (fees, expenses, payment schedule)
-              6. Why CFA (differentiation; what we bring that others do not)
+              6. Why C4A(differentiation; what we bring that others do not)
 
               Proposal tips:
               - Lead with outcomes, not methodology ("We will recover N200M" not "We will use Lean Six Sigma")
@@ -1680,7 +1680,7 @@ async function main() {
           {
             title: 'Thought Leadership',
             type: 'text',
-            body: `Publishing builds CFA's brand and your personal brand:
+            body: `Publishing builds C4A's brand and your personal brand:
 
               Formats:
               - Insight briefs (2-3 pages on a trending topic)
@@ -1697,7 +1697,7 @@ async function main() {
               - Public-private partnership models
 
               Rule: Every completed engagement should produce at least one knowledge asset.
-              Case study, insight brief, or template that the next CFA team can use.`
+              Case study, insight brief, or template that the next C4A team can use.`
           }
         ],
       },
@@ -1709,7 +1709,7 @@ async function main() {
       trackId: masterTrack.id,
       name: 'Capstone: Live Case Defense',
       slug: 'capstone-live-case-defense',
-      description: 'The final assessment. Present a real or simulated engagement from diagnosis through recommendations. Defend your approach before a panel of CFA partners.',
+      description: 'The final assessment. Present a real or simulated engagement from diagnosis through recommendations. Defend your approach before a panel of C4A partners.',
       order: 3,
       estimatedMinutes: 180,
       passingScore: 80,
@@ -1722,7 +1722,7 @@ async function main() {
 
               Format:
               - 30-minute presentation of a complete engagement
-              - 30-minute Q&A with a panel (2 CFA partners + 1 external reviewer)
+              - 30-minute Q&A with a panel (2 C4A partners + 1 external reviewer)
 
               You will present:
               1. Client situation and problem framing
@@ -1749,7 +1749,7 @@ async function main() {
 
               1. Select your strongest engagement (ideally one you led or co-led)
               2. Gather all deliverables, data, and outcomes
-              3. Build a 25-slide presentation following CFA format
+              3. Build a 25-slide presentation following C4A format
               4. Practice with a peer (get brutal feedback)
               5. Anticipate tough questions:
                  - "Why this methodology and not X?"
@@ -1768,9 +1768,9 @@ async function main() {
     },
   })
 
-  console.log('  Track 6: CFA Master Consultant (3 modules)')
+  console.log('  Track 6: C4AMaster Consultant (3 modules)')
 
-  console.log('\nCFA Training Academy seeded successfully!')
+  console.log('\nC4ATraining Academy seeded successfully!')
   console.log(`
     Tracks: 6
     Modules: 18
@@ -1779,14 +1779,14 @@ async function main() {
     FOUNDATION:
       1. Core Consulting Skills (4 modules, 24 hrs)
       2. Healthcare Fundamentals (3 modules, 20 hrs)
-      3. CFA Platform & Tools (2 modules, 8 hrs)
+      3. C4APlatform & Tools (2 modules, 8 hrs)
 
     SPECIALIST:
       4. Health Economics & M&E (3 modules, 32 hrs)
       5. Digital Health & Technology (3 modules, 28 hrs)
 
     MASTER:
-      6. CFA Master Consultant (3 modules, 40 hrs)
+      6. C4AMaster Consultant (3 modules, 40 hrs)
   `)
 }
 

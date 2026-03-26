@@ -11,10 +11,10 @@ import { NextRequest } from "next/server";
  */
 
 const INVOICE_PREFIXES: Record<string, string> = {
-  RETAINER: "CFA-RET",
-  SECONDMENT: "CFA-SEC",
-  FRACTIONAL: "CFA-FRC",
-  TIME_AND_MATERIALS: "CFA-TM",
+  RETAINER: "C4A-RET",
+  SECONDMENT: "C4A-SEC",
+  FRACTIONAL: "C4A-FRC",
+  TIME_AND_MATERIALS: "C4A-TM",
 };
 
 const INVOICE_TYPES: Record<string, string> = {

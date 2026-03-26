@@ -179,7 +179,7 @@ export async function POST(req: NextRequest) {
     const milestonesData = [
       {
         name: "Company Registered",
-        description: "CFA officially incorporated. The foundation is set.",
+        description: "C4A officially incorporated. The foundation is set.",
         phase: "Phase0_Foundation",
         category: "business",
         targetDate: new Date("2026-01-20"),
@@ -243,7 +243,7 @@ export async function POST(req: NextRequest) {
       },
       {
         name: "Platform Launch Day",
-        description: "CFA platform goes live. First project onboarded to the system.",
+        description: "C4A platform goes live. First project onboarded to the system.",
         phase: "Phase2_Launch",
         category: "business",
         targetDate: new Date("2026-04-13"),

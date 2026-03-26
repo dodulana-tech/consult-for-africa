@@ -1,5 +1,5 @@
 /**
- * NDA template content matching CFA Standard Form v1.0
+ * NDA template content matching C4A Standard Form v1.0
  *
  * Variables are filled at generation time from DB records.
  * The PDF renderer in nda-pdf.tsx uses these sections.
@@ -37,7 +37,7 @@ export const NDA_SECTIONS: Record<string, any[]> = {
       body: `"Confidential Information" means any information disclosed by one Party to the other - whether orally, in writing, electronically, or by any other means - that is designated as confidential or that reasonably should be understood to be confidential given the nature of the information and circumstances of disclosure.`,
       subsections: [
         { label: "a", text: "Client Data & Business Information - operational data, patient records, strategic plans, financial records, organisational structures, and any other non-public business information belonging to the Client." },
-        { label: "b", text: "CFA Methodologies, Frameworks & IP - proprietary consulting tools, assessment frameworks, analytical models, standard operating procedures, templates, and any other intellectual property developed or owned by Consult For Africa." },
+        { label: "b", text: "C4A Methodologies, Frameworks & IP - proprietary consulting tools, assessment frameworks, analytical models, standard operating procedures, templates, and any other intellectual property developed or owned by Consult For Africa." },
         { label: "c", text: "Personnel & Staffing Information - details of employees, consultants, remuneration structures, hiring plans, and human resources data of either Party." },
         { label: "d", text: "Financial & Pricing Information - fee structures, cost models, budget documents, financial projections, and commercial terms exchanged between the Parties." },
         { label: "e", text: "Third-Party Data - information belonging to third parties that either Party shares in the course of the engagement, subject to any applicable third-party confidentiality obligations." },
@@ -103,7 +103,7 @@ export const NDA_SECTIONS: Record<string, any[]> = {
       body: `"Confidential Information" means any information disclosed by Consult For Africa to the Consultant - whether orally, in writing, electronically, or by any other means - that is designated as confidential or that reasonably should be understood to be confidential given the nature of the information and circumstances of disclosure.`,
       subsections: [
         { label: "a", text: "Client Data & Business Information - operational data, patient records, strategic plans, financial records, and organisational structures of CFA clients." },
-        { label: "b", text: "CFA Methodologies, Frameworks & IP - proprietary consulting tools, assessment frameworks, analytical models, standard operating procedures, templates, and any other intellectual property developed or owned by Consult For Africa." },
+        { label: "b", text: "C4A Methodologies, Frameworks & IP - proprietary consulting tools, assessment frameworks, analytical models, standard operating procedures, templates, and any other intellectual property developed or owned by Consult For Africa." },
         { label: "c", text: "Personnel & Staffing Information - details of employees, other consultants, remuneration structures, hiring plans, and human resources data." },
         { label: "d", text: "Financial & Pricing Information - fee structures, cost models, budget documents, financial projections, and commercial terms." },
         { label: "e", text: "Engagement Details - project scopes, client identities, deliverables, timelines, and any information related to active or past consulting engagements." },

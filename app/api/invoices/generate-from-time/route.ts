@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
 
   // Generate invoice number
   const year = new Date().getFullYear();
-  const searchPrefix = `CFA-INV-${year}`;
+  const searchPrefix = `C4A-INV-${year}`;
 
   let invoiceNumber: string;
   let attempts = 0;

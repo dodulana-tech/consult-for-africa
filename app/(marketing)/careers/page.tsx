@@ -60,7 +60,7 @@ export default function TalentPage() {
             className="mb-6 text-xs font-medium uppercase tracking-[0.22em]"
             style={{ color: "#D4AF37" }}
           >
-            CFA Talent Network
+            C4ATalent Network
           </p>
 
           <h1
@@ -133,7 +133,7 @@ export default function TalentPage() {
                 title: "SIWES Placement",
                 duration: "6 months",
                 who: "Health Admin, Public Health, Hospital Management students (300-500 level)",
-                what: "Data collection, process mapping, gap analysis, research support on active CFA engagements",
+                what: "Data collection, process mapping, gap analysis, research support on active C4A engagements",
               },
               {
                 title: "Summer Internship",
@@ -145,7 +145,7 @@ export default function TalentPage() {
                 title: "Graduate Fellowship",
                 duration: "12 months",
                 who: "Fresh MPH, MBA, MHA graduates ready for a structured entry into healthcare consulting",
-                what: "3 rotations across CFA service lines, capstone insight publication, guaranteed interview for Associate Consultant",
+                what: "3 rotations across C4A service lines, capstone insight publication, guaranteed interview for Associate Consultant",
               },
             ].map((prog) => (
               <div key={prog.title} className="bg-white rounded-xl p-6" style={{ border: "1px solid #e5eaf0" }}>
@@ -169,11 +169,11 @@ export default function TalentPage() {
         </div>
       </section>
 
-      {/* Why CFA */}
+      {/* Why C4A*/}
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-12" style={{ color: "#0F2744" }}>
-            Why Join CFA's Consultant Network?
+            Why Join C4A's Consultant Network?
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
             {PERKS.map((p) => (
@@ -199,7 +199,7 @@ export default function TalentPage() {
             We're Looking For Expertise In
           </h2>
           <p className="text-center text-gray-500 text-sm mb-12 max-w-xl mx-auto">
-            CFA works across the full spectrum of healthcare management. If your expertise touches any of these
+            C4A works across the full spectrum of healthcare management. If your expertise touches any of these
             domains, we want to hear from you.
           </p>
           <div className="grid grid-cols-2 gap-3">
@@ -223,7 +223,7 @@ export default function TalentPage() {
             {[
               { step: "01", title: "Submit Your Application", desc: "Complete our online form with your professional background, specialty, and availability." },
               { step: "02", title: "AI-Powered Screening", desc: "Our intelligent screening system reviews your profile against current engagement needs." },
-              { step: "03", title: "CFA Team Review", desc: "Our leadership team personally reviews shortlisted candidates." },
+              { step: "03", title: "C4ATeam Review", desc: "Our leadership team personally reviews shortlisted candidates." },
               { step: "04", title: "Onboarding & Deployment", desc: "Successful candidates join our network and are matched to suitable engagements." },
             ].map((p, i) => (
               <div key={p.step} className="flex gap-6">

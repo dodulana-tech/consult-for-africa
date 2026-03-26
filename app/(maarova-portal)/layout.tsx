@@ -105,7 +105,7 @@ export default async function MaarovaPortalLayout({
           <div className="flex items-center gap-3">
             <Image
               src="/cfa-logo-white.svg"
-              alt="CFA"
+              alt="C4A"
               width={32}
               height={32}
               className="rounded"

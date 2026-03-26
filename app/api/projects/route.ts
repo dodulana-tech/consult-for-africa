@@ -58,7 +58,7 @@ const VALID_SERVICE_TYPES: ServiceType[] = [
 
 async function generateEngagementCode(): Promise<string> {
   const year = new Date().getFullYear();
-  const prefix = `CFA-${year}-`;
+  const prefix = `C4A-${year}-`;
 
   // Find the latest engagement code for any year to get the global sequence
   const latest = await prisma.engagement.findFirst({
@@ -69,7 +69,7 @@ async function generateEngagementCode(): Promise<string> {
 
   let nextSeq = 1;
   if (latest?.engagementCode) {
-    const match = latest.engagementCode.match(/CFA-\d{4}-(\d+)/);
+    const match = latest.engagementCode.match(/C4A-\d{4}-(\d+)/);
     if (match) {
       nextSeq = parseInt(match[1], 10) + 1;
     }

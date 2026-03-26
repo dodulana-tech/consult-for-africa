@@ -176,7 +176,7 @@ export default async function PartnerDashboardPage() {
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-cfa.png" alt="CFA" style={{ height: 28, width: "auto" }} />
+            <img src="/logo-cfa.png" alt="C4A" style={{ height: 28, width: "auto" }} />
             <span className="text-sm font-semibold" style={{ color: "#0F2744" }}>
               Partner Portal
             </span>

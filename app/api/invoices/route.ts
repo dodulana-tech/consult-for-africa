@@ -6,14 +6,14 @@ import type { InvoiceType, Prisma } from "@prisma/client";
 /* ── Invoice number prefix map ─────────────────────────────────────────────── */
 
 const PREFIX_MAP: Record<string, string> = {
-  STANDARD: "CFA-INV",
-  PROFORMA: "CFA-PRO",
-  CREDIT_NOTE: "CFA-CN",
-  DEBIT_NOTE: "CFA-DN",
-  MOBILIZATION: "CFA-MOB",
-  MILESTONE: "CFA-MS",
-  RETAINER: "CFA-RET",
-  FINAL_SETTLEMENT: "CFA-FS",
+  STANDARD: "C4A-INV",
+  PROFORMA: "C4A-PRO",
+  CREDIT_NOTE: "C4A-CN",
+  DEBIT_NOTE: "C4A-DN",
+  MOBILIZATION: "C4A-MOB",
+  MILESTONE: "C4A-MS",
+  RETAINER: "C4A-RET",
+  FINAL_SETTLEMENT: "C4A-FS",
 };
 
 /* ── Serialise Decimal fields for JSON responses ───────────────────────────── */
@@ -239,7 +239,7 @@ export async function POST(req: NextRequest) {
   // Generate invoice number with race-condition retry
   const now = new Date();
   const year = now.getFullYear();
-  const typePrefix = PREFIX_MAP[invoiceType] || "CFA-INV";
+  const typePrefix = PREFIX_MAP[invoiceType] || "C4A-INV";
   const searchPrefix = `${typePrefix}-${year}`;
 
   let invoiceNumber: string;

@@ -6,7 +6,7 @@ import PartnerCTA from "@/components/cfa/PartnerCTA";
 export const metadata: Metadata = {
   title: "Hospital Turnaround & Recovery | Consult For Africa",
   description:
-    "CFA stabilises hospital operations, improves efficiency, strengthens governance, and restores financial performance for healthcare institutions across Africa.",
+    "C4A stabilises hospital operations, improves efficiency, strengthens governance, and restores financial performance for healthcare institutions across Africa.",
   openGraph: {
     title: "Hospital Turnaround & Recovery | Consult For Africa",
     description: "We stabilise hospital operations, improve efficiency, and restore financial performance across Africa.",
@@ -52,7 +52,7 @@ const phases = [
     num: "04",
     name: "Sustained Performance",
     weeks: "Months 9 to 18",
-    desc: "Building the internal capability to sustain results without CFA. Knowledge transfer, leadership coaching, and performance monitoring until independence is confirmed.",
+    desc: "Building the internal capability to sustain results without C4A. Knowledge transfer, leadership coaching, and performance monitoring until independence is confirmed.",
     deliverables: ["Management capability programme", "Performance dashboard", "Exit readiness sign-off"],
   },
 ];
@@ -98,7 +98,7 @@ export default function TurnaroundPage() {
             className="mb-6 text-xs font-medium uppercase tracking-[0.22em]"
             style={{ color: "#D4AF37" }}
           >
-            CFA Service
+            C4AService
           </p>
           <h1
             className="font-semibold leading-[1.1] tracking-tight text-white max-w-3xl"
@@ -113,7 +113,7 @@ export default function TurnaroundPage() {
             style={{ fontSize: "clamp(1rem,1.5vw,1.1rem)", color: "rgba(255,255,255,0.65)" }}
           >
             When a hospital is underperforming, the instinct is to find a new strategy.
-            Usually the problem is execution. CFA embeds into the institution and does the work.
+            Usually the problem is execution. C4A embeds into the institution and does the work.
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
             <Link

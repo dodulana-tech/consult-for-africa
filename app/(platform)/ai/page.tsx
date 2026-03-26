@@ -62,7 +62,7 @@ export default async function AIPage() {
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
-      <TopBar title="Nuru" subtitle="CFA Intelligence" />
+      <TopBar title="Nuru" subtitle="C4A Intelligence" />
       <main className="flex-1 overflow-y-auto p-6">
         <div className="max-w-5xl space-y-6">
           {/* Header */}
@@ -77,7 +77,7 @@ export default async function AIPage() {
               <h2 className="text-base font-semibold text-white">Nuru</h2>
               <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.6)" }}>
                 {isEM
-                  ? "CFA's intelligence layer. Match consultants in 5 minutes, write proposals in 20 seconds, predict risks before they become problems."
+                  ? "C4A's intelligence layer. Match consultants in 5 minutes, write proposals in 20 seconds, predict risks before they become problems."
                   : "Your intelligence layer for drafting reports, analysing data, and getting answers about your engagements."}
               </p>
             </div>

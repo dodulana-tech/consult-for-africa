@@ -70,7 +70,7 @@ export async function POST(req: Request) {
         email: session.email,
         amount: amountInMinorUnit,
         currency: invoice.currency,
-        reference: `CFA-${invoice.invoiceNumber}-${Date.now()}`,
+        reference: `C4A-${invoice.invoiceNumber}-${Date.now()}`,
         callback_url: callbackUrl,
         metadata: {
           invoiceId: invoice.id,

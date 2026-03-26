@@ -45,7 +45,7 @@ const LIBRARY: DocCategory[] = [
       { name: "claude-code-WEEK-6.md",             status: "locked" },
       { name: "claude-code-WEEK-7.md",             status: "locked" },
       { name: "claude-code-WEEK-8.md",             status: "locked" },
-      { name: "CFA-COMPLETE-MVP-ROADMAP.md",       status: "done" },
+      { name: "C4A-COMPLETE-MVP-ROADMAP.md",       status: "done" },
     ],
   },
   {

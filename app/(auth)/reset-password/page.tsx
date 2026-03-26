@@ -54,7 +54,7 @@ function ResetPasswordForm() {
   return (
     <>
       <div className="flex items-center justify-center gap-3 mb-8">
-        <Image src="/logo-cfa.png" alt="CFA" width={36} height={36} style={{ mixBlendMode: "multiply" }} />
+        <Image src="/logo-cfa.png" alt="C4A" width={36} height={36} style={{ mixBlendMode: "multiply" }} />
         <div>
           <p className="font-semibold" style={{ color: "#0F2744" }}>Consult For Africa</p>
           <p className="text-xs" style={{ color: "#D4AF37" }}>Platform</p>

@@ -50,7 +50,7 @@ export default function MaarovaLoginPage() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <Image
               src="/cfa-logo-white.svg"
-              alt="CFA"
+              alt="C4A"
               width={40}
               height={40}
               className="rounded"

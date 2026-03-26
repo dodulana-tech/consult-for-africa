@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import PartnerCTA from "@/components/cfa/PartnerCTA";
 
-export const metadata: Metadata = { title: "Health Systems & Public Sector Advisory | Consult For Africa", description: "CFA supports governments, development partners, and NGOs on health system design, hospital network planning, and policy-to-implementation across Africa.", openGraph: { title: "Health Systems & Public Sector Advisory | Consult For Africa", description: "Health system design, hospital network planning, and policy-to-implementation across Africa.", type: "website", images: ["/og-image.jpg"] } };
+export const metadata: Metadata = { title: "Health Systems & Public Sector Advisory | Consult For Africa", description: "C4A supports governments, development partners, and NGOs on health system design, hospital network planning, and policy-to-implementation across Africa.", openGraph: { title: "Health Systems & Public Sector Advisory | Consult For Africa", description: "Health system design, hospital network planning, and policy-to-implementation across Africa.", type: "website", images: ["/og-image.jpg"] } };
 
 const indicators = ["Health system reform mandates without implementation capacity", "Hospital network planning without operational expertise", "Policy designed in isolation from delivery reality", "PHC systems underperforming despite investment", "Development partner programmes without local execution capability", "Cross-border health corridor planning needs"];
 const phases = [

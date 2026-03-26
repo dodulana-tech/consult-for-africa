@@ -3,12 +3,12 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import PartnerCTA from "@/components/cfa/PartnerCTA";
 
-export const metadata: Metadata = { title: "Hospital Transformation Partnerships | Consult For Africa", description: "Equity-backed operational turnarounds for underperforming healthcare facilities. CFA takes operational control and shares in the upside.", openGraph: { title: "Hospital Transformation Partnerships | Consult For Africa", description: "Equity-backed operational turnarounds for underperforming healthcare facilities.", type: "website", images: ["/og-image.jpg"] } };
+export const metadata: Metadata = { title: "Hospital Transformation Partnerships | Consult For Africa", description: "Equity-backed operational turnarounds for underperforming healthcare facilities. C4A takes operational control and shares in the upside.", openGraph: { title: "Hospital Transformation Partnerships | Consult For Africa", description: "Equity-backed operational turnarounds for underperforming healthcare facilities.", type: "website", images: ["/og-image.jpg"] } };
 
 const features = ["Equity-aligned incentives", "Full operational control", "KPI-driven performance", "Structured exit with defined returns"];
 const phases = [
   { num: "01", name: "Diagnostic & Valuation", weeks: "Months 1 to 2", desc: "Full operational and financial assessment, entry valuation, deal structuring. We understand the asset before we commit.", deliverables: ["Operational diagnostic", "Financial model", "Entry valuation and term sheet"] },
-  { num: "02", name: "Management Takeover", weeks: "Months 2 to 6", desc: "CFA assumes operational control, installs management team, and begins executing the turnaround plan.", deliverables: ["Management team deployment", "100-day plan", "Governance restructuring"] },
+  { num: "02", name: "Management Takeover", weeks: "Months 2 to 6", desc: "C4A assumes operational control, installs management team, and begins executing the turnaround plan.", deliverables: ["Management team deployment", "100-day plan", "Governance restructuring"] },
   { num: "03", name: "Performance Transformation", weeks: "Months 6 to 36", desc: "Systematic improvement of operations, revenue, quality, and governance. Monthly KPI tracking and quarterly board reporting.", deliverables: ["Monthly KPI dashboards", "Revenue growth initiatives", "Quality improvement programmes"] },
   { num: "04", name: "Exit & Value Realisation", weeks: "Months 36 to 60", desc: "Structured exit with defined return targets. Option for continued partnership, management buyout, or third-party sale.", deliverables: ["Exit readiness assessment", "Value realisation report", "Transition or continuation plan"] },
 ];
@@ -19,7 +19,7 @@ export default function TransformationPage() {
     <main>
       <section className="relative overflow-hidden text-white" style={{ paddingTop: "5rem", minHeight: "60svh" }}><div className="absolute inset-0" style={{ background: "#06090f" }} /><div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 80% at 80% 40%, rgba(20,130,200,0.15) 0%, rgba(12,70,130,0.06) 55%, transparent 70%)" }} /><div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 40% 50% at 20% 10%, rgba(201,168,76,0.1) 0%, transparent 60%)" }} /><div className="absolute inset-0 pointer-events-none opacity-[0.036]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: "180px" }} />
         <div className="relative max-w-7xl mx-auto px-6 py-24 md:py-32">
-          <p className="mb-6 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "#D4AF37" }}>CFA Engagement Model</p>
+          <p className="mb-6 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "#D4AF37" }}>C4AEngagement Model</p>
           <h1 className="font-semibold leading-[1.1] tracking-tight text-white max-w-3xl" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>Hospital<br /><span style={{ color: "rgba(255,255,255,0.65)" }}>Transformation Partnerships</span></h1>
           <div className="mt-6 w-12 h-[2px]" style={{ background: "#D4AF37" }} />
           <p className="mt-6 max-w-2xl leading-relaxed" style={{ fontSize: "clamp(1rem,1.5vw,1.1rem)", color: "rgba(255,255,255,0.65)" }}>Equity-backed operational turnarounds for underperforming healthcare facilities. We take operational control, invest our expertise, and share in the upside.</p>

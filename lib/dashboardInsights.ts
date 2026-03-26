@@ -219,7 +219,7 @@ export async function getDashboardInsights(
         insights.push({
           type: "milestone",
           icon: "\u{1F396}\uFE0F",
-          title: `${m} month${m > 1 ? "s" : ""} with CFA`,
+          title: `${m} month${m > 1 ? "s" : ""} with C4A`,
           message: `${projectCount} project${projectCount !== 1 ? "s" : ""}, ${deliverableCount} deliverable${deliverableCount !== 1 ? "s" : ""} approved, ${Math.round(hours)} hours of impact.`,
           accent: "purple",
         });
@@ -247,7 +247,7 @@ export async function getDashboardInsights(
       title: `Your referral for ${ref.name}`,
       message: ref.status === "CONVERTED"
         ? "Has been converted and onboarded. Thank you for growing the network."
-        : "Has been contacted by the CFA team.",
+        : "Has been contacted by the C4A team.",
       href: "/refer",
       accent: "green",
     });
@@ -264,7 +264,7 @@ export async function getDashboardInsights(
       insights.push({
         type: "growth",
         icon: "\u{1F4C8}",
-        title: "CFA is growing",
+        title: "C4A is growing",
         message: `${newProjectsThisMonth} new project${newProjectsThisMonth > 1 ? "s" : ""} started this month. More opportunities ahead.`,
         accent: "blue",
       });
