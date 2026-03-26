@@ -541,7 +541,7 @@ async function main() {
         clientId: lagoon.id,
         engagementManagerId: chidi.id,
         name: "Hospital Turnaround Programme",
-        description: "Full hospital turnaround programme with equity participation. C4A takes operational control with board seat, targeting 3x revenue growth over 36 months.",
+        description: "Full hospital turnaround programme with equity participation. Consult For Africa takes operational control with board seat, targeting 3x revenue growth over 36 months.",
         serviceType: "TURNAROUND",
         engagementType: "TRANSFORMATION",
         engagementCode: "C4A-2026-005",

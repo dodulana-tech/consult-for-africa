@@ -70,7 +70,7 @@ export async function POST(req: Request) {
   if (process.env.RESEND_API_KEY) {
     try {
       await resend.emails.send({
-        from: "C4A Website <platform@consultforafrica.com>",
+        from: "Consult For Africa <platform@consultforafrica.com>",
         to: notifyTo,
         replyTo: email,
         subject: `New enquiry from ${organization}`,

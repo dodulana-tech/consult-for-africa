@@ -6,7 +6,7 @@ import PartnerCTA from "@/components/cfa/PartnerCTA";
 export const metadata: Metadata = {
   title: "Hospital Turnaround & Recovery | Consult For Africa",
   description:
-    "C4A stabilises hospital operations, improves efficiency, strengthens governance, and restores financial performance for healthcare institutions across Africa.",
+    "Consult For Africa stabilises hospital operations, improves efficiency, strengthens governance, and restores financial performance for healthcare institutions across Africa.",
   openGraph: {
     title: "Hospital Turnaround & Recovery | Consult For Africa",
     description: "We stabilise hospital operations, improve efficiency, and restore financial performance across Africa.",

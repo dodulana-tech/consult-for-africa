@@ -735,7 +735,7 @@ export default function CoachingSection({ existingMatch, hasReport, userName }: 
           </div>
 
           {/* Programme details */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-center">
             <div>
               <p className="text-sm font-semibold" style={{ color: "#0F2744" }}>{totalSessions}</p>
               <p className="text-xs text-gray-400">Sessions</p>

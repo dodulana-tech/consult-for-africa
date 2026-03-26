@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "C4A Platform",
+    title: "Consult For Africa",
   },
   robots: {
     index: true,

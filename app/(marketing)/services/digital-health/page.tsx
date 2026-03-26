@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import PartnerCTA from "@/components/cfa/PartnerCTA";
 
-export const metadata: Metadata = { title: "Digital Health & Technology Leadership | Consult For Africa", description: "C4A helps healthcare organisations get the technology foundation right. HIS selection, digital strategy, CTO-as-a-Service, and executive dashboards.", openGraph: { title: "Digital Health & Technology Leadership | Consult For Africa", description: "From HIS selection to digital strategy to building the teams that run it.", type: "website", images: ["/og-image.jpg"] } };
+export const metadata: Metadata = { title: "Digital Health & Technology Leadership | Consult For Africa", description: "Consult For Africa helps healthcare organisations get the technology foundation right. HIS selection, digital strategy, CTO-as-a-Service, and executive dashboards.", openGraph: { title: "Digital Health & Technology Leadership | Consult For Africa", description: "From HIS selection to digital strategy to building the teams that run it.", type: "website", images: ["/og-image.jpg"] } };
 
 const indicators = ["No integrated hospital information system", "Paper-based clinical workflows in 2026", "Executive decisions made without data", "Failed or stalled HIS implementations", "No digital strategy or technology roadmap", "Healthtech ventures without clinical-tech leadership"];
 const phases = [

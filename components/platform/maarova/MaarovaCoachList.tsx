@@ -1181,9 +1181,9 @@ function BulkUploadModal({
                   </h3>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center">
                   <div
-                    className="rounded-lg p-3"
+                    className="rounded-lg p-2 sm:p-3"
                     style={{ background: "#D1FAE5" }}
                   >
                     <p className="text-lg font-bold text-emerald-700">
@@ -1192,7 +1192,7 @@ function BulkUploadModal({
                     <p className="text-xs text-emerald-600">Created</p>
                   </div>
                   <div
-                    className="rounded-lg p-3"
+                    className="rounded-lg p-2 sm:p-3"
                     style={{ background: "#FEF3C7" }}
                   >
                     <p className="text-lg font-bold text-amber-700">
@@ -1201,7 +1201,7 @@ function BulkUploadModal({
                     <p className="text-xs text-amber-600">Skipped</p>
                   </div>
                   <div
-                    className="rounded-lg p-3"
+                    className="rounded-lg p-2 sm:p-3"
                     style={{ background: "#FEE2E2" }}
                   >
                     <p className="text-lg font-bold text-red-700">
@@ -1337,7 +1337,7 @@ export default function MaarovaCoachList({ coaches }: { coaches: Coach[] }) {
   return (
     <div className="p-4 sm:p-6 space-y-5">
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
           icon={<Users size={18} style={{ color: "#0F2744" }} />}
           label="Total Coaches"
@@ -1694,7 +1694,7 @@ export default function MaarovaCoachList({ coaches }: { coaches: Coach[] }) {
         })}
         {filtered.length === 0 && (
           <div
-            className="rounded-xl p-8 text-center"
+            className="rounded-xl p-6 sm:p-8 text-center"
             style={{ background: "#fff", border: "1px solid #e5eaf0" }}
           >
             <p className="text-sm text-gray-400">

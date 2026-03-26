@@ -33,7 +33,7 @@ export default function CoachDashboardPage() {
   }, []);
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Your Clients</h1>
         <p className="text-gray-500 text-sm mt-1">Active coaching engagements</p>
@@ -44,7 +44,7 @@ export default function CoachDashboardPage() {
           <div className="w-6 h-6 border-2 border-gray-200 border-t-gray-600 rounded-full animate-spin" />
         </div>
       ) : clients.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-10 text-center">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 sm:p-10 text-center">
           <p className="text-gray-500">No active clients at the moment.</p>
         </div>
       ) : (

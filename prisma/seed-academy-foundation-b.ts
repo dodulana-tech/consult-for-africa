@@ -1,9 +1,9 @@
 /**
- * C4ATRAINING ACADEMY - FOUNDATION LEVEL SEED B (Tracks 3-5)
+ * Consult For AfricaTRAINING ACADEMY - FOUNDATION LEVEL SEED B (Tracks 3-5)
  * Seeds Foundation-level training tracks, modules, and assessment questions
  *
  * 3 Tracks:
- *   Track 3: C4APlatform & Engagement
+ *   Track 3: Consult For AfricaPlatform & Engagement
  *   Track 4: Financial Literacy for Healthcare
  *   Track 5: Professional Standards
  *
@@ -17,19 +17,19 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('Seeding C4ATraining Academy - Foundation Level Tracks (3-5)...\n')
+  console.log('Seeding Consult For AfricaTraining Academy - Foundation Level Tracks (3-5)...\n')
 
   // ════════════════════════════════════════════════════════════════════════════
-  // TRACK 3: FOUNDATION - C4APlatform & Engagement
+  // TRACK 3: FOUNDATION - Consult For AfricaPlatform & Engagement
   // ════════════════════════════════════════════════════════════════════════════
 
   const platformEngagement = await prisma.trainingTrack.create({
     data: {
-      name: 'C4APlatform & Engagement',
+      name: 'Consult For AfricaPlatform & Engagement',
       slug: 'cfa-platform-engagement',
-      description: `Understand how C4A engagements are structured from first client contact to final handover,
-        and learn to navigate the C4A digital platform for day-to-day project execution. This track covers
-        the engagement lifecycle, deliverable standards, quality gates, and practical use of the C4A platform
+      description: `Understand how Consult For Africa engagements are structured from first client contact to final handover,
+        and learn to navigate the Consult For Africa digital platform for day-to-day project execution. This track covers
+        the engagement lifecycle, deliverable standards, quality gates, and practical use of the Consult For Africa platform
         for project tracking, timesheets, and knowledge management.`,
       level: 'FOUNDATION',
       category: 'methodology',
@@ -41,13 +41,13 @@ async function main() {
     },
   })
 
-  // Module 3.1: C4AEngagement Lifecycle
+  // Module 3.1: Consult For AfricaEngagement Lifecycle
   const m3_1 = await prisma.trainingModule.create({
     data: {
       trackId: platformEngagement.id,
-      name: 'C4AEngagement Lifecycle',
+      name: 'Consult For AfricaEngagement Lifecycle',
       slug: 'cfa-engagement-lifecycle',
-      description: 'Master the four phases of a C4A engagement, understand the deliverables expected at each stage, and learn how quality gates ensure consistent output across every project.',
+      description: 'Master the four phases of a Consult For Africa engagement, understand the deliverables expected at each stage, and learn how quality gates ensure consistent output across every project.',
       order: 1,
       estimatedMinutes: 90,
       passingScore: 80,
@@ -56,23 +56,23 @@ async function main() {
           {
             title: 'The Four Phases: Diagnose, Design, Deliver, Sustain',
             type: 'text',
-            body: `Every C4A engagement follows the Diagnose-Design-Deliver-Sustain (DDDS) framework. This is not a suggestion or a loose guideline. It is the standard operating model that ensures consistency whether we are working with a 50-bed district hospital in Zambia or a 500-bed teaching hospital in Nigeria. Each phase has defined entry criteria, expected deliverables, and an exit gate that must be cleared before moving forward.
+            body: `Every Consult For Africa engagement follows the Diagnose-Design-Deliver-Sustain (DDDS) framework. This is not a suggestion or a loose guideline. It is the standard operating model that ensures consistency whether we are working with a 50-bed district hospital in Zambia or a 500-bed teaching hospital in Nigeria. Each phase has defined entry criteria, expected deliverables, and an exit gate that must be cleared before moving forward.
 
-              Diagnose is about understanding the real problem, not just the presenting complaint. We conduct stakeholder interviews, review financial and operational data, observe workflows, and map the current state. Design translates diagnostic findings into a costed, sequenced action plan with clear ownership. Deliver is hands-on implementation, working alongside client teams to execute the plan. Sustain ensures that changes stick after C4A leaves, through capability transfer, dashboards, and follow-up reviews.`
+              Diagnose is about understanding the real problem, not just the presenting complaint. We conduct stakeholder interviews, review financial and operational data, observe workflows, and map the current state. Design translates diagnostic findings into a costed, sequenced action plan with clear ownership. Deliver is hands-on implementation, working alongside client teams to execute the plan. Sustain ensures that changes stick after Consult For Africa leaves, through capability transfer, dashboards, and follow-up reviews.`
           },
           {
             title: 'Deliverables and Quality Standards',
             type: 'text',
-            body: `Each phase produces specific deliverables that follow C4A templates. The Diagnose phase produces a Current State Assessment (CSA) and a Problem Prioritization Matrix. Design produces a Transformation Roadmap, a Business Case, and a Stakeholder Alignment Deck. Deliver produces weekly progress reports, risk logs, and implementation dashboards. Sustain produces a Handover Pack, a Sustainability Scorecard, and a 90-day Follow-Up Plan.
+            body: `Each phase produces specific deliverables that follow Consult For Africa templates. The Diagnose phase produces a Current State Assessment (CSA) and a Problem Prioritization Matrix. Design produces a Transformation Roadmap, a Business Case, and a Stakeholder Alignment Deck. Deliver produces weekly progress reports, risk logs, and implementation dashboards. Sustain produces a Handover Pack, a Sustainability Scorecard, and a 90-day Follow-Up Plan.
 
-              All deliverables go through the C4A quality review process before reaching the client. Junior consultants draft, senior consultants review, and the engagement lead approves. No deliverable leaves C4A without at least two sets of eyes. This is non-negotiable. A single poorly formatted slide or an incorrect data point erodes the client's confidence in everything else we present.`
+              All deliverables go through the Consult For Africa quality review process before reaching the client. Junior consultants draft, senior consultants review, and the engagement lead approves. No deliverable leaves Consult For Africa without at least two sets of eyes. This is non-negotiable. A single poorly formatted slide or an incorrect data point erodes the client's confidence in everything else we present.`
           },
           {
             title: 'Quality Gates Between Phases',
             type: 'text',
-            body: `Quality gates are formal checkpoints where the engagement team presents findings and recommendations to the C4A review panel before proceeding. The Gate 1 review (after Diagnose) confirms that the root causes have been correctly identified and the scope is right. Gate 2 (after Design) validates that the proposed interventions are feasible, properly costed, and sequenced. Gate 3 (after Deliver) confirms that implementation targets have been met and the client team is ready for independent operation.
+            body: `Quality gates are formal checkpoints where the engagement team presents findings and recommendations to the Consult For Africa review panel before proceeding. The Gate 1 review (after Diagnose) confirms that the root causes have been correctly identified and the scope is right. Gate 2 (after Design) validates that the proposed interventions are feasible, properly costed, and sequenced. Gate 3 (after Deliver) confirms that implementation targets have been met and the client team is ready for independent operation.
 
-              Gates are not bureaucratic hurdles. They exist because C4A's reputation depends on every engagement delivering measurable results. A failed gate means additional work is needed before proceeding. In practice, about 20% of Gate 1 reviews result in the team going back to gather more data or re-scope the engagement. This is healthy. It is far better to course-correct early than to deliver a flawed transformation plan.`
+              Gates are not bureaucratic hurdles. They exist because Consult For Africa's reputation depends on every engagement delivering measurable results. A failed gate means additional work is needed before proceeding. In practice, about 20% of Gate 1 reviews result in the team going back to gather more data or re-scope the engagement. This is healthy. It is far better to course-correct early than to deliver a flawed transformation plan.`
           }
         ],
         exercises: [
@@ -98,14 +98,14 @@ async function main() {
       {
         moduleId: m3_1.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'What are the four phases of the C4A engagement lifecycle in order?',
+        question: 'What are the four phases of the Consult For Africa engagement lifecycle in order?',
         options: JSON.stringify([
           { id: 'a', text: 'Plan, Execute, Monitor, Close', isCorrect: false },
           { id: 'b', text: 'Diagnose, Design, Deliver, Sustain', isCorrect: true },
           { id: 'c', text: 'Assess, Recommend, Implement, Review', isCorrect: false },
           { id: 'd', text: 'Discover, Define, Develop, Deploy', isCorrect: false },
         ]),
-        explanation: 'C4A uses the Diagnose-Design-Deliver-Sustain (DDDS) framework as its standard operating model for all engagements, ensuring consistency across projects of all sizes.',
+        explanation: 'Consult For Africa uses the Diagnose-Design-Deliver-Sustain (DDDS) framework as its standard operating model for all engagements, ensuring consistency across projects of all sizes.',
         points: 1,
         order: 1,
       },
@@ -140,41 +140,41 @@ async function main() {
       {
         moduleId: m3_1.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'What is the minimum review process for C4A deliverables before they reach the client?',
+        question: 'What is the minimum review process for Consult For Africa deliverables before they reach the client?',
         options: JSON.stringify([
           { id: 'a', text: 'Junior consultant drafts and sends directly to the client', isCorrect: false },
           { id: 'b', text: 'Junior consultant drafts, senior consultant reviews, engagement lead approves', isCorrect: true },
           { id: 'c', text: 'The engagement lead drafts and reviews all deliverables alone', isCorrect: false },
           { id: 'd', text: 'Any team member can approve deliverables', isCorrect: false },
         ]),
-        explanation: 'C4A requires at least two sets of eyes on every deliverable. Junior consultants draft, senior consultants review, and the engagement lead approves. This is non-negotiable.',
+        explanation: 'Consult For Africa requires at least two sets of eyes on every deliverable. Junior consultants draft, senior consultants review, and the engagement lead approves. This is non-negotiable.',
         points: 1,
         order: 4,
       },
       {
         moduleId: m3_1.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'The Sustain phase ensures changes stick after C4A leaves. Which of these is a Sustain-phase deliverable?',
+        question: 'The Sustain phase ensures changes stick after Consult For Africa leaves. Which of these is a Sustain-phase deliverable?',
         options: JSON.stringify([
           { id: 'a', text: 'Problem Prioritization Matrix', isCorrect: false },
           { id: 'b', text: 'Business Case', isCorrect: false },
           { id: 'c', text: 'Implementation Dashboard', isCorrect: false },
           { id: 'd', text: '90-day Follow-Up Plan', isCorrect: true },
         ]),
-        explanation: 'The Sustain phase produces a Handover Pack, a Sustainability Scorecard, and a 90-day Follow-Up Plan. These tools ensure the client can maintain improvements independently after C4A exits.',
+        explanation: 'The Sustain phase produces a Handover Pack, a Sustainability Scorecard, and a 90-day Follow-Up Plan. These tools ensure the client can maintain improvements independently after Consult For Africa exits.',
         points: 1,
         order: 5,
       },
     ],
   })
 
-  // Module 3.2: Using the C4APlatform
+  // Module 3.2: Using the Consult For AfricaPlatform
   const m3_2 = await prisma.trainingModule.create({
     data: {
       trackId: platformEngagement.id,
-      name: 'Using the C4APlatform',
+      name: 'Using the Consult For AfricaPlatform',
       slug: 'using-cfa-platform',
-      description: 'Learn to navigate the C4A digital platform for project management, timesheet submission, document collaboration, and accessing the firm knowledge base.',
+      description: 'Learn to navigate the Consult For Africa digital platform for project management, timesheet submission, document collaboration, and accessing the firm knowledge base.',
       order: 2,
       estimatedMinutes: 90,
       passingScore: 80,
@@ -183,7 +183,7 @@ async function main() {
           {
             title: 'Project Dashboard and Task Management',
             type: 'text',
-            body: `The C4A platform is the single source of truth for every active engagement. When you are assigned to a project, it appears on your dashboard with a summary of the current phase, your assigned tasks, upcoming deadlines, and the engagement lead's contact details. Every task in the platform maps to a deliverable or workstream from the Transformation Roadmap.
+            body: `The Consult For Africa platform is the single source of truth for every active engagement. When you are assigned to a project, it appears on your dashboard with a summary of the current phase, your assigned tasks, upcoming deadlines, and the engagement lead's contact details. Every task in the platform maps to a deliverable or workstream from the Transformation Roadmap.
 
               Tasks have four statuses: Not Started, In Progress, In Review, and Complete. You move tasks through these stages as work progresses. The platform automatically notifies the reviewer when a task moves to In Review. Do not use email or WhatsApp to submit deliverables for review. Everything goes through the platform so there is a clear audit trail and nothing gets lost.`
           },
@@ -192,29 +192,29 @@ async function main() {
             type: 'text',
             body: `Timesheets are submitted weekly by end of day Friday. This is a firm-wide policy with no exceptions. Each timesheet entry requires a project code, an activity category (e.g., data collection, analysis, report writing, client meeting, travel), and a brief description. The platform calculates your utilization rate automatically based on billable hours divided by available hours.
 
-              C4A targets 70-80% utilization for consultants. Below 70% means you are under-deployed and the firm is absorbing unbilled cost. Above 85% consistently signals a risk of burnout. If your utilization is trending low, speak with your engagement manager about reallocation. If it is trending high, flag it early so the team can redistribute workload before quality suffers.`
+              Consult For Africa targets 70-80% utilization for consultants. Below 70% means you are under-deployed and the firm is absorbing unbilled cost. Above 85% consistently signals a risk of burnout. If your utilization is trending low, speak with your engagement manager about reallocation. If it is trending high, flag it early so the team can redistribute workload before quality suffers.`
           },
           {
             title: 'Knowledge Base and Document Management',
             type: 'text',
-            body: `The C4A Knowledge Base contains past engagement deliverables (anonymized), methodology guides, industry research, templates, and best-practice case studies. Before starting any new analysis, check the knowledge base first. There is a strong chance that a similar analysis has been done on a prior engagement and you can adapt existing work rather than starting from scratch.
+            body: `The Consult For Africa Knowledge Base contains past engagement deliverables (anonymized), methodology guides, industry research, templates, and best-practice case studies. Before starting any new analysis, check the knowledge base first. There is a strong chance that a similar analysis has been done on a prior engagement and you can adapt existing work rather than starting from scratch.
 
-              All project documents must be stored in the platform's document library, not on personal laptops or Google Drive. Documents are organized by engagement and phase. Version control is automatic, so you can always see the history of changes. When uploading deliverables, use the C4A naming convention: [Project Code]-[Phase]-[Document Type]-[Version]. For example, NGA-LAG-001-DIAGNOSE-CSA-v2.`
+              All project documents must be stored in the platform's document library, not on personal laptops or Google Drive. Documents are organized by engagement and phase. Version control is automatic, so you can always see the history of changes. When uploading deliverables, use the Consult For Africa naming convention: [Project Code]-[Phase]-[Document Type]-[Version]. For example, NGA-LAG-001-DIAGNOSE-CSA-v2.`
           }
         ],
         exercises: [
           {
             title: 'Practice: Platform Navigation',
-            instruction: 'Log into the C4A platform sandbox environment. Create a test timesheet entry for 8 hours on project code DEMO-001, categorized as "data collection," with the description "Reviewed patient flow data for outpatient department." Submit the timesheet for approval.',
+            instruction: 'Log into the Consult For Africa platform sandbox environment. Create a test timesheet entry for 8 hours on project code DEMO-001, categorized as "data collection," with the description "Reviewed patient flow data for outpatient department." Submit the timesheet for approval.',
           },
         ]
       },
       resources: {
         links: [
-          { title: 'C4APlatform User Guide', url: 'internal://knowledge/platform-user-guide' },
+          { title: 'Consult For AfricaPlatform User Guide', url: 'internal://knowledge/platform-user-guide' },
           { title: 'Timesheet Policy', url: 'internal://knowledge/timesheet-policy' },
         ],
-        tools: ['C4APlatform Sandbox', 'Document Naming Guide', 'Knowledge Base Search']
+        tools: ['Consult For AfricaPlatform Sandbox', 'Document Naming Guide', 'Knowledge Base Search']
       },
     },
   })
@@ -225,42 +225,42 @@ async function main() {
       {
         moduleId: m3_2.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'When must weekly timesheets be submitted on the C4A platform?',
+        question: 'When must weekly timesheets be submitted on the Consult For Africa platform?',
         options: JSON.stringify([
           { id: 'a', text: 'By end of day Monday of the following week', isCorrect: false },
           { id: 'b', text: 'By end of day Friday each week', isCorrect: true },
           { id: 'c', text: 'By the 1st of each month for the prior month', isCorrect: false },
           { id: 'd', text: 'Whenever the consultant has time', isCorrect: false },
         ]),
-        explanation: 'C4A has a firm-wide policy requiring timesheets to be submitted by end of day Friday each week, with no exceptions.',
+        explanation: 'Consult For Africa has a firm-wide policy requiring timesheets to be submitted by end of day Friday each week, with no exceptions.',
         points: 1,
         order: 1,
       },
       {
         moduleId: m3_2.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'What is the target utilization rate for C4A consultants?',
+        question: 'What is the target utilization rate for Consult For Africa consultants?',
         options: JSON.stringify([
           { id: 'a', text: '50-60%', isCorrect: false },
           { id: 'b', text: '90-100%', isCorrect: false },
           { id: 'c', text: '70-80%', isCorrect: true },
           { id: 'd', text: '60-70%', isCorrect: false },
         ]),
-        explanation: 'C4A targets 70-80% utilization. Below 70% means the consultant is under-deployed. Above 85% consistently signals burnout risk.',
+        explanation: 'Consult For Africa targets 70-80% utilization. Below 70% means the consultant is under-deployed. Above 85% consistently signals burnout risk.',
         points: 1,
         order: 2,
       },
       {
         moduleId: m3_2.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'What is the correct C4A document naming convention?',
+        question: 'What is the correct Consult For Africa document naming convention?',
         options: JSON.stringify([
           { id: 'a', text: '[Project Code]-[Phase]-[Document Type]-[Version]', isCorrect: true },
           { id: 'b', text: '[Client Name]-[Date]-[Document Type]', isCorrect: false },
           { id: 'c', text: '[Consultant Name]-[Project]-[Version]', isCorrect: false },
           { id: 'd', text: '[Document Type]-[Date]-[Draft Number]', isCorrect: false },
         ]),
-        explanation: 'C4A uses the naming convention [Project Code]-[Phase]-[Document Type]-[Version], for example NGA-LAG-001-DIAGNOSE-CSA-v2.',
+        explanation: 'Consult For Africa uses the naming convention [Project Code]-[Phase]-[Document Type]-[Version], for example NGA-LAG-001-DIAGNOSE-CSA-v2.',
         points: 1,
         order: 3,
       },
@@ -271,31 +271,31 @@ async function main() {
         options: JSON.stringify([
           { id: 'a', text: 'Email the document to the engagement lead', isCorrect: false },
           { id: 'b', text: 'Share via WhatsApp', isCorrect: false },
-          { id: 'c', text: 'Move the task to In Review status on the C4A platform', isCorrect: true },
+          { id: 'c', text: 'Move the task to In Review status on the Consult For Africa platform', isCorrect: true },
           { id: 'd', text: 'Upload to a shared Google Drive folder', isCorrect: false },
         ]),
-        explanation: 'All deliverables must go through the C4A platform by moving tasks to In Review status. This ensures a clear audit trail. Email and WhatsApp should not be used for deliverable submissions.',
+        explanation: 'All deliverables must go through the Consult For Africa platform by moving tasks to In Review status. This ensures a clear audit trail. Email and WhatsApp should not be used for deliverable submissions.',
         points: 1,
         order: 4,
       },
       {
         moduleId: m3_2.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'Before starting a new analysis, what should a C4A consultant do first?',
+        question: 'Before starting a new analysis, what should a Consult For Africa consultant do first?',
         options: JSON.stringify([
           { id: 'a', text: 'Build the analysis from scratch to ensure originality', isCorrect: false },
-          { id: 'b', text: 'Check the C4A Knowledge Base for similar past work that can be adapted', isCorrect: true },
+          { id: 'b', text: 'Check the Consult For Africa Knowledge Base for similar past work that can be adapted', isCorrect: true },
           { id: 'c', text: 'Ask colleagues on WhatsApp if they have done something similar', isCorrect: false },
           { id: 'd', text: 'Search the internet for publicly available reports', isCorrect: false },
         ]),
-        explanation: 'The C4A Knowledge Base contains anonymized past deliverables, methodology guides, and templates. Checking it first avoids reinventing the wheel and ensures consistency with proven C4A approaches.',
+        explanation: 'The Consult For Africa Knowledge Base contains anonymized past deliverables, methodology guides, and templates. Checking it first avoids reinventing the wheel and ensures consistency with proven Consult For Africa approaches.',
         points: 1,
         order: 5,
       },
     ],
   })
 
-  console.log('  Track 3: C4APlatform & Engagement - 2 modules, 10 questions')
+  console.log('  Track 3: Consult For AfricaPlatform & Engagement - 2 modules, 10 questions')
 
   // ════════════════════════════════════════════════════════════════════════════
   // TRACK 4: FOUNDATION - Financial Literacy for Healthcare
@@ -336,14 +336,14 @@ async function main() {
             type: 'text',
             body: `Hospital revenue in Africa typically comes from four sources: out-of-pocket payments, health insurance (NHIS, private HMOs), government subsidies or grants, and development partner funding. The mix varies dramatically by institution type. A private hospital in Lagos might derive 60% of revenue from HMO claims and 35% from out-of-pocket, while a mission hospital in rural Tanzania might depend on 40% government grants, 30% development partner funding, and 30% patient fees on a sliding scale.
 
-              Understanding revenue mix is critical because each source has different collection dynamics. Out-of-pocket is collected at point of service but limits patient volume. Insurance revenue is higher volume but comes with 60-120 day payment cycles and claim rejection rates of 15-30% in some markets. Government funding is predictable in theory but often arrives late. A C4A consultant must map these dynamics early in any financial diagnostic.`
+              Understanding revenue mix is critical because each source has different collection dynamics. Out-of-pocket is collected at point of service but limits patient volume. Insurance revenue is higher volume but comes with 60-120 day payment cycles and claim rejection rates of 15-30% in some markets. Government funding is predictable in theory but often arrives late. A Consult For Africa consultant must map these dynamics early in any financial diagnostic.`
           },
           {
             title: 'Cost Structure and Margins',
             type: 'text',
             body: `Hospital costs fall into three categories: personnel (typically 45-60% of total costs), supplies and consumables (20-30%), and overhead including utilities, maintenance, and administration (15-25%). Personnel costs are largely fixed in the short term since you cannot lay off nurses when occupancy drops. This makes hospitals operationally leveraged, meaning that small changes in revenue have outsized impacts on profitability.
 
-              Gross margin in African hospitals ranges from 25-45% for private facilities and is often negative for public and mission hospitals that rely on subsidies. Operating margin after overhead for well-run private hospitals sits between 8-15%. Below 5% operating margin, a hospital is one bad quarter away from cash flow crisis. C4A consultants should benchmark client margins against these ranges to quickly identify whether the problem is revenue, cost, or both.`
+              Gross margin in African hospitals ranges from 25-45% for private facilities and is often negative for public and mission hospitals that rely on subsidies. Operating margin after overhead for well-run private hospitals sits between 8-15%. Below 5% operating margin, a hospital is one bad quarter away from cash flow crisis. Consult For Africa consultants should benchmark client margins against these ranges to quickly identify whether the problem is revenue, cost, or both.`
           },
           {
             title: 'Reading a Hospital Income Statement',
@@ -470,14 +470,14 @@ async function main() {
             type: 'text',
             body: `Variance analysis compares budgeted figures to actual results and investigates the reasons for differences. A favorable variance means actual performance exceeded budget (higher revenue or lower costs). An unfavorable variance means the opposite. But the label alone is not enough. You must understand whether the variance is due to volume (more or fewer patients), price/rate (different billing rates or procurement costs), or efficiency (more or fewer resources consumed per unit of output).
 
-              For example, if pharmacy costs are 20% over budget, the variance could be a volume variance (more patients required more drugs), a price variance (supplier prices increased), or an efficiency variance (clinical staff are prescribing more expensive drugs than the formulary recommends). Each root cause demands a different response. C4A consultants must decompose variances rather than simply reporting that a line item is over or under budget.`
+              For example, if pharmacy costs are 20% over budget, the variance could be a volume variance (more patients required more drugs), a price variance (supplier prices increased), or an efficiency variance (clinical staff are prescribing more expensive drugs than the formulary recommends). Each root cause demands a different response. Consult For Africa consultants must decompose variances rather than simply reporting that a line item is over or under budget.`
           },
           {
             title: 'Making Budgets Stick in Practice',
             type: 'text',
-            body: `A budget is only useful if department heads own it and review it regularly. C4A recommends monthly budget review meetings where each department head presents their actual-vs-budget performance, explains material variances (anything over 10%), and commits to corrective actions. These meetings should take no more than 90 minutes and follow a standard agenda.
+            body: `A budget is only useful if department heads own it and review it regularly. Consult For Africa recommends monthly budget review meetings where each department head presents their actual-vs-budget performance, explains material variances (anything over 10%), and commits to corrective actions. These meetings should take no more than 90 minutes and follow a standard agenda.
 
-              The biggest barrier to budget discipline in African hospitals is the belief that budgets are accounting exercises disconnected from clinical operations. To overcome this, C4A consultants help clients build budgets from the bottom up with department-level input, link budget performance to departmental KPIs, and make variance reports simple enough for clinical managers (not just accountants) to understand. When the head of surgery can see that theatre underutilization is costing the hospital 15M NGN per month in lost revenue, budget conversations become operational conversations.`
+              The biggest barrier to budget discipline in African hospitals is the belief that budgets are accounting exercises disconnected from clinical operations. To overcome this, Consult For Africa consultants help clients build budgets from the bottom up with department-level input, link budget performance to departmental KPIs, and make variance reports simple enough for clinical managers (not just accountants) to understand. When the head of surgery can see that theatre underutilization is costing the hospital 15M NGN per month in lost revenue, budget conversations become operational conversations.`
           }
         ],
         exercises: [
@@ -531,14 +531,14 @@ async function main() {
       {
         moduleId: m4_2.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'What contingency percentage does C4A recommend building into hospital operating budgets?',
+        question: 'What contingency percentage does Consult For Africa recommend building into hospital operating budgets?',
         options: JSON.stringify([
           { id: 'a', text: '1-2%', isCorrect: false },
           { id: 'b', text: '5-10%', isCorrect: true },
           { id: 'c', text: '20-25%', isCorrect: false },
           { id: 'd', text: 'No contingency is needed if budgets are built correctly', isCorrect: false },
         ]),
-        explanation: 'C4A recommends a 5-10% contingency for unexpected cost increases such as generator fuel during power outages or emergency drug procurement.',
+        explanation: 'Consult For Africa recommends a 5-10% contingency for unexpected cost increases such as generator fuel during power outages or emergency drug procurement.',
         points: 1,
         order: 3,
       },
@@ -552,7 +552,7 @@ async function main() {
           { id: 'c', text: 'Monthly', isCorrect: true },
           { id: 'd', text: 'Weekly', isCorrect: false },
         ]),
-        explanation: 'C4A recommends monthly budget review meetings where each department head presents actual-vs-budget performance, explains material variances (over 10%), and commits to corrective actions.',
+        explanation: 'Consult For Africa recommends monthly budget review meetings where each department head presents actual-vs-budget performance, explains material variances (over 10%), and commits to corrective actions.',
         points: 1,
         order: 4,
       },
@@ -583,11 +583,11 @@ async function main() {
     data: {
       name: 'Professional Standards',
       slug: 'professional-standards',
-      description: `Every C4A consultant represents the firm in every client interaction. This track covers the
+      description: `Every Consult For Africa consultant represents the firm in every client interaction. This track covers the
         ethical standards, codes of conduct, and data protection obligations that govern how we work.
-        You will learn the C4ACode of Conduct, understand your obligations under the Nigeria Data Protection
+        You will learn the Consult For AfricaCode of Conduct, understand your obligations under the Nigeria Data Protection
         Regulation (NDPR) and healthcare data privacy standards, and develop the professional discipline that
-        distinguishes C4A consultants in the market.`,
+        distinguishes Consult For Africa consultants in the market.`,
       level: 'FOUNDATION',
       category: 'methodology',
       iconName: 'shield-check',
@@ -598,13 +598,13 @@ async function main() {
     },
   })
 
-  // Module 5.1: C4ACode of Conduct & Ethics
+  // Module 5.1: Consult For AfricaCode of Conduct & Ethics
   const m5_1 = await prisma.trainingModule.create({
     data: {
       trackId: professionalStandards.id,
-      name: 'C4ACode of Conduct & Ethics',
+      name: 'Consult For AfricaCode of Conduct & Ethics',
       slug: 'cfa-code-of-conduct-ethics',
-      description: 'Understand the ethical principles and professional conduct standards that every C4A consultant must uphold, including conflict of interest management, anti-corruption obligations, and client relationship boundaries.',
+      description: 'Understand the ethical principles and professional conduct standards that every Consult For Africa consultant must uphold, including conflict of interest management, anti-corruption obligations, and client relationship boundaries.',
       order: 1,
       estimatedMinutes: 60,
       passingScore: 80,
@@ -613,21 +613,21 @@ async function main() {
           {
             title: 'Core Ethical Principles',
             type: 'text',
-            body: `C4A operates on four non-negotiable ethical principles: integrity, objectivity, confidentiality, and competence. Integrity means we tell clients the truth even when the findings are uncomfortable. If the data shows that a hospital's CEO is the primary obstacle to operational improvement, we say so professionally and constructively. We do not soften findings to preserve relationships.
+            body: `Consult For Africa operates on four non-negotiable ethical principles: integrity, objectivity, confidentiality, and competence. Integrity means we tell clients the truth even when the findings are uncomfortable. If the data shows that a hospital's CEO is the primary obstacle to operational improvement, we say so professionally and constructively. We do not soften findings to preserve relationships.
 
-              Objectivity means our recommendations are driven by evidence and analysis, not by what the client wants to hear or what generates the largest follow-on engagement for C4A. If a client does not need a full transformation program and a focused 6-week intervention will solve their problem, we recommend the 6-week intervention. C4A's long-term reputation depends on consultants who prioritize client outcomes over firm revenue in every engagement.`
+              Objectivity means our recommendations are driven by evidence and analysis, not by what the client wants to hear or what generates the largest follow-on engagement for Consult For Africa. If a client does not need a full transformation program and a focused 6-week intervention will solve their problem, we recommend the 6-week intervention. Consult For Africa's long-term reputation depends on consultants who prioritize client outcomes over firm revenue in every engagement.`
           },
           {
             title: 'Conflict of Interest and Anti-Corruption',
             type: 'text',
             body: `Consultants must disclose any personal, financial, or professional relationship that could influence their objectivity on an engagement. This includes prior employment at a client organization, family relationships with client staff, or financial interests in vendors being evaluated. Disclosures are made to the engagement lead and documented in the project file. Most conflicts can be managed through recusal from specific workstreams rather than removal from the entire engagement.
 
-              C4A has zero tolerance for bribery, kickbacks, or facilitation payments. In many African markets, consultants will encounter requests for "facilitation" to access data, expedite approvals, or secure meetings with senior officials. The answer is always no. If a legitimate business process requires a formal fee (e.g., regulatory filing fees), it must be documented and approved by the engagement lead. Any gray-area situation should be escalated immediately. There is no penalty for escalating; there are severe consequences for not escalating.`
+              Consult For Africa has zero tolerance for bribery, kickbacks, or facilitation payments. In many African markets, consultants will encounter requests for "facilitation" to access data, expedite approvals, or secure meetings with senior officials. The answer is always no. If a legitimate business process requires a formal fee (e.g., regulatory filing fees), it must be documented and approved by the engagement lead. Any gray-area situation should be escalated immediately. There is no penalty for escalating; there are severe consequences for not escalating.`
           },
           {
             title: 'Client Relationship Boundaries',
             type: 'text',
-            body: `C4A consultants build strong client relationships, but those relationships must remain professional. We do not accept personal gifts from clients beyond token items (under $25 value). We do not enter into personal financial transactions with client staff. We do not socialize with clients in ways that could compromise our objectivity or create the appearance of impropriety.
+            body: `Consult For Africa consultants build strong client relationships, but those relationships must remain professional. We do not accept personal gifts from clients beyond token items (under $25 value). We do not enter into personal financial transactions with client staff. We do not socialize with clients in ways that could compromise our objectivity or create the appearance of impropriety.
 
               During engagements, we are guests in our client's institution. We respect their culture, hierarchies, and working norms. We dress professionally, arrive on time, and follow local customs. At the same time, we maintain the independence needed to deliver honest assessments. The best client relationships are built on trust, which comes from consistently demonstrating competence, reliability, and the courage to have difficult conversations when the data demands them.`
           }
@@ -641,7 +641,7 @@ async function main() {
       },
       resources: {
         links: [
-          { title: 'C4ACode of Conduct (Full Document)', url: 'internal://knowledge/code-of-conduct' },
+          { title: 'Consult For AfricaCode of Conduct (Full Document)', url: 'internal://knowledge/code-of-conduct' },
           { title: 'Ethics Escalation Procedure', url: 'internal://knowledge/ethics-escalation' },
         ],
         tools: ['Conflict of Interest Disclosure Form', 'Gift Register', 'Ethics Hotline Guide']
@@ -655,14 +655,14 @@ async function main() {
       {
         moduleId: m5_1.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'What are C4A\'s four core ethical principles?',
+        question: 'What are Consult For Africa\'s four core ethical principles?',
         options: JSON.stringify([
           { id: 'a', text: 'Speed, accuracy, profitability, and innovation', isCorrect: false },
           { id: 'b', text: 'Integrity, objectivity, confidentiality, and competence', isCorrect: true },
           { id: 'c', text: 'Loyalty, discretion, flexibility, and efficiency', isCorrect: false },
           { id: 'd', text: 'Transparency, accountability, fairness, and growth', isCorrect: false },
         ]),
-        explanation: 'C4A operates on four non-negotiable ethical principles: integrity (tell the truth), objectivity (evidence-driven recommendations), confidentiality (protect client information), and competence (deliver quality work).',
+        explanation: 'Consult For Africa operates on four non-negotiable ethical principles: integrity (tell the truth), objectivity (evidence-driven recommendations), confidentiality (protect client information), and competence (deliver quality work).',
         points: 1,
         order: 1,
       },
@@ -676,21 +676,21 @@ async function main() {
           { id: 'c', text: 'Pay it and include it in the project expense report', isCorrect: false },
           { id: 'd', text: 'Ignore the request and find the data through other channels', isCorrect: false },
         ]),
-        explanation: 'C4A has zero tolerance for facilitation payments. Any gray-area situation must be escalated immediately. There is no penalty for escalating, but there are severe consequences for not escalating.',
+        explanation: 'Consult For Africa has zero tolerance for facilitation payments. Any gray-area situation must be escalated immediately. There is no penalty for escalating, but there are severe consequences for not escalating.',
         points: 1,
         order: 2,
       },
       {
         moduleId: m5_1.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'Your analysis shows that a hospital does not need a full transformation program and a 6-week focused intervention would solve the problem. What should C4A recommend?',
+        question: 'Your analysis shows that a hospital does not need a full transformation program and a 6-week focused intervention would solve the problem. What should Consult For Africa recommend?',
         options: JSON.stringify([
-          { id: 'a', text: 'The full transformation program because it generates more revenue for C4A', isCorrect: false },
+          { id: 'a', text: 'The full transformation program because it generates more revenue for Consult For Africa', isCorrect: false },
           { id: 'b', text: 'The 6-week intervention because objectivity requires prioritizing client outcomes over firm revenue', isCorrect: true },
-          { id: 'c', text: 'A compromise: a medium-sized engagement that balances client needs and C4A revenue', isCorrect: false },
+          { id: 'c', text: 'A compromise: a medium-sized engagement that balances client needs and Consult For Africa revenue', isCorrect: false },
           { id: 'd', text: 'Let the client decide between the two options without making a recommendation', isCorrect: false },
         ]),
-        explanation: 'Objectivity means recommendations are driven by evidence, not by what generates the largest engagement. If a 6-week intervention solves the problem, that is what C4A recommends. Long-term reputation depends on prioritizing client outcomes.',
+        explanation: 'Objectivity means recommendations are driven by evidence, not by what generates the largest engagement. If a 6-week intervention solves the problem, that is what Consult For Africa recommends. Long-term reputation depends on prioritizing client outcomes.',
         points: 1,
         order: 3,
       },
@@ -701,7 +701,7 @@ async function main() {
         options: JSON.stringify([
           { id: 'a', text: 'Do not disclose it since family relationships are private', isCorrect: false },
           { id: 'b', text: 'Disclose the relationship to the engagement lead and document it in the project file', isCorrect: true },
-          { id: 'c', text: 'Resign from C4A to avoid the conflict', isCorrect: false },
+          { id: 'c', text: 'Resign from Consult For Africa to avoid the conflict', isCorrect: false },
           { id: 'd', text: 'Ask your cousin to keep the relationship secret', isCorrect: false },
         ]),
         explanation: 'All personal, financial, or professional relationships that could influence objectivity must be disclosed to the engagement lead and documented. Most conflicts can be managed through recusal from specific workstreams.',
@@ -711,14 +711,14 @@ async function main() {
       {
         moduleId: m5_1.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'What is the maximum value of a personal gift a C4A consultant may accept from a client?',
+        question: 'What is the maximum value of a personal gift a Consult For Africa consultant may accept from a client?',
         options: JSON.stringify([
           { id: 'a', text: 'No gifts of any value are permitted', isCorrect: false },
           { id: 'b', text: '$100', isCorrect: false },
           { id: 'c', text: '$25 (token items only)', isCorrect: true },
           { id: 'd', text: '$50', isCorrect: false },
         ]),
-        explanation: 'C4A consultants may only accept token gifts valued under $25. Anything above that threshold must be declined to maintain professional independence and avoid the appearance of impropriety.',
+        explanation: 'Consult For Africa consultants may only accept token gifts valued under $25. Anything above that threshold must be declined to maintain professional independence and avoid the appearance of impropriety.',
         points: 1,
         order: 5,
       },
@@ -731,7 +731,7 @@ async function main() {
       trackId: professionalStandards.id,
       name: 'Data Protection & Confidentiality',
       slug: 'data-protection-confidentiality',
-      description: 'Understand your obligations under the Nigeria Data Protection Regulation (NDPR), healthcare data privacy standards, and C4A confidentiality policies that protect both client and patient information.',
+      description: 'Understand your obligations under the Nigeria Data Protection Regulation (NDPR), healthcare data privacy standards, and Consult For Africa confidentiality policies that protect both client and patient information.',
       order: 2,
       estimatedMinutes: 60,
       passingScore: 80,
@@ -740,36 +740,36 @@ async function main() {
           {
             title: 'NDPR and Healthcare Data Obligations',
             type: 'text',
-            body: `The Nigeria Data Protection Regulation (NDPR), issued in 2019 and strengthened by the Nigeria Data Protection Act of 2023, governs how personal data is collected, processed, stored, and shared. For C4A consultants, this is directly relevant because hospital engagements routinely involve access to patient records, staff personnel files, and financial data containing personal information. NDPR requires lawful basis for processing, data minimization (collect only what you need), purpose limitation (use data only for the stated purpose), and storage limitation (do not keep data longer than necessary).
+            body: `The Nigeria Data Protection Regulation (NDPR), issued in 2019 and strengthened by the Nigeria Data Protection Act of 2023, governs how personal data is collected, processed, stored, and shared. For Consult For Africa consultants, this is directly relevant because hospital engagements routinely involve access to patient records, staff personnel files, and financial data containing personal information. NDPR requires lawful basis for processing, data minimization (collect only what you need), purpose limitation (use data only for the stated purpose), and storage limitation (do not keep data longer than necessary).
 
-              Health data receives special protection under NDPR as "sensitive personal data." Processing health data requires explicit consent from the data subject or a legal basis such as public health necessity. When C4A consultants access patient records during a diagnostic, they must work with anonymized or pseudonymized datasets wherever possible. If individual patient records are needed (e.g., for clinical pathway analysis), the client must provide the legal basis and C4A must follow strict handling protocols.`
+              Health data receives special protection under NDPR as "sensitive personal data." Processing health data requires explicit consent from the data subject or a legal basis such as public health necessity. When Consult For Africa consultants access patient records during a diagnostic, they must work with anonymized or pseudonymized datasets wherever possible. If individual patient records are needed (e.g., for clinical pathway analysis), the client must provide the legal basis and Consult For Africa must follow strict handling protocols.`
           },
           {
-            title: 'C4AData Handling Protocols',
+            title: 'Consult For AfricaData Handling Protocols',
             type: 'text',
-            body: `C4A maintains strict data handling protocols that go beyond legal minimums. Client data must never be stored on personal devices or in personal cloud accounts. All data stays within the C4A platform or approved secure storage. Laptops used for client work must have full-disk encryption enabled. Data shared between team members must use the C4A platform, not email attachments or messaging apps.
+            body: `Consult For Africa maintains strict data handling protocols that go beyond legal minimums. Client data must never be stored on personal devices or in personal cloud accounts. All data stays within the Consult For Africa platform or approved secure storage. Laptops used for client work must have full-disk encryption enabled. Data shared between team members must use the Consult For Africa platform, not email attachments or messaging apps.
 
-              When an engagement ends, all client data must be returned or securely deleted within 30 days unless a longer retention period is agreed in the engagement contract. C4A maintains a data destruction register that documents what was deleted, when, and by whom. Consultants who retain client data after an engagement ends are in violation of C4A policy and potentially in breach of NDPR. The engagement lead is responsible for ensuring the data destruction process is completed and documented.`
+              When an engagement ends, all client data must be returned or securely deleted within 30 days unless a longer retention period is agreed in the engagement contract. Consult For Africa maintains a data destruction register that documents what was deleted, when, and by whom. Consultants who retain client data after an engagement ends are in violation of Consult For Africa policy and potentially in breach of NDPR. The engagement lead is responsible for ensuring the data destruction process is completed and documented.`
           },
           {
             title: 'Confidentiality in Practice',
             type: 'text',
             body: `Confidentiality extends beyond data files to everyday behavior. Do not discuss client details in public spaces, taxis, hotel lobbies, or restaurants. Do not leave client documents visible on your screen in airports or co-working spaces. Do not mention client names or details on social media, including LinkedIn posts about "exciting work" that could identify the client.
 
-              Within C4A, confidentiality follows the need-to-know principle. You may discuss client matters with team members assigned to the same engagement and with C4A leadership for quality review purposes. You may not share client information with C4A colleagues on other engagements, even if they are working with a similar type of institution. If a colleague asks about your engagement, redirect them to the engagement lead. Client trust is earned one interaction at a time and lost in a single careless moment.`
+              Within Consult For Africa, confidentiality follows the need-to-know principle. You may discuss client matters with team members assigned to the same engagement and with Consult For Africa leadership for quality review purposes. You may not share client information with Consult For Africa colleagues on other engagements, even if they are working with a similar type of institution. If a colleague asks about your engagement, redirect them to the engagement lead. Client trust is earned one interaction at a time and lost in a single careless moment.`
           }
         ],
         exercises: [
           {
             title: 'Practice: Data Handling Scenario',
-            instruction: 'You are conducting a diagnostic at a hospital and need to analyze patient readmission patterns over the past 12 months. The hospital offers to give you a full extract of their patient database including names, national ID numbers, and clinical diagnoses. Describe step by step how you would handle this situation under NDPR and C4A data handling protocols.',
+            instruction: 'You are conducting a diagnostic at a hospital and need to analyze patient readmission patterns over the past 12 months. The hospital offers to give you a full extract of their patient database including names, national ID numbers, and clinical diagnoses. Describe step by step how you would handle this situation under NDPR and Consult For Africa data handling protocols.',
           },
         ]
       },
       resources: {
         links: [
           { title: 'Nigeria Data Protection Act 2023 - Summary', url: 'internal://knowledge/ndpr-summary' },
-          { title: 'C4AData Handling Policy', url: 'internal://knowledge/data-handling-policy' },
+          { title: 'Consult For AfricaData Handling Policy', url: 'internal://knowledge/data-handling-policy' },
         ],
         tools: ['Data Destruction Register Template', 'NDPR Compliance Checklist', 'Data Anonymization Guide']
       },
@@ -796,56 +796,56 @@ async function main() {
       {
         moduleId: m5_2.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'When a C4A engagement ends, within what timeframe must client data be returned or securely deleted?',
+        question: 'When a Consult For Africa engagement ends, within what timeframe must client data be returned or securely deleted?',
         options: JSON.stringify([
           { id: 'a', text: '7 days', isCorrect: false },
           { id: 'b', text: '30 days', isCorrect: true },
           { id: 'c', text: '90 days', isCorrect: false },
           { id: 'd', text: 'No specific timeframe; whenever convenient', isCorrect: false },
         ]),
-        explanation: 'C4A policy requires all client data to be returned or securely deleted within 30 days of engagement completion, unless a longer retention period is specified in the engagement contract.',
+        explanation: 'Consult For Africa policy requires all client data to be returned or securely deleted within 30 days of engagement completion, unless a longer retention period is specified in the engagement contract.',
         points: 1,
         order: 2,
       },
       {
         moduleId: m5_2.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'You need to analyze patient records for a clinical pathway review. What is the preferred approach under C4A data handling protocols?',
+        question: 'You need to analyze patient records for a clinical pathway review. What is the preferred approach under Consult For Africa data handling protocols?',
         options: JSON.stringify([
           { id: 'a', text: 'Download the full patient database to your laptop for analysis', isCorrect: false },
           { id: 'b', text: 'Work with anonymized or pseudonymized datasets wherever possible', isCorrect: true },
           { id: 'c', text: 'Use the data freely since you signed an NDA with the client', isCorrect: false },
-          { id: 'd', text: 'Email the records to the C4A analytics team for processing', isCorrect: false },
+          { id: 'd', text: 'Email the records to the Consult For Africa analytics team for processing', isCorrect: false },
         ]),
-        explanation: 'C4A protocols require using anonymized or pseudonymized datasets wherever possible. If individual patient records are needed, the client must provide the legal basis and C4A must follow strict handling protocols.',
+        explanation: 'Consult For Africa protocols require using anonymized or pseudonymized datasets wherever possible. If individual patient records are needed, the client must provide the legal basis and Consult For Africa must follow strict handling protocols.',
         points: 1,
         order: 3,
       },
       {
         moduleId: m5_2.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'A C4A colleague on a different engagement asks about your current project because they are "working on something similar." What should you do?',
+        question: 'A Consult For Africa colleague on a different engagement asks about your current project because they are "working on something similar." What should you do?',
         options: JSON.stringify([
-          { id: 'a', text: 'Share details since they are a C4A employee and bound by the same confidentiality policies', isCorrect: false },
+          { id: 'a', text: 'Share details since they are a Consult For Africa employee and bound by the same confidentiality policies', isCorrect: false },
           { id: 'b', text: 'Share only general information, keeping specific details private', isCorrect: false },
           { id: 'c', text: 'Redirect them to the engagement lead; confidentiality follows the need-to-know principle', isCorrect: true },
           { id: 'd', text: 'Arrange a meeting to compare notes and share best practices', isCorrect: false },
         ]),
-        explanation: 'Within C4A, confidentiality follows the need-to-know principle. Client information may only be shared with team members on the same engagement and C4A leadership for quality review. Colleagues on other engagements should be redirected to the engagement lead.',
+        explanation: 'Within Consult For Africa, confidentiality follows the need-to-know principle. Client information may only be shared with team members on the same engagement and Consult For Africa leadership for quality review. Colleagues on other engagements should be redirected to the engagement lead.',
         points: 1,
         order: 4,
       },
       {
         moduleId: m5_2.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'Which of the following is a violation of C4A data handling protocols?',
+        question: 'Which of the following is a violation of Consult For Africa data handling protocols?',
         options: JSON.stringify([
-          { id: 'a', text: 'Storing client data on the C4A platform', isCorrect: false },
+          { id: 'a', text: 'Storing client data on the Consult For Africa platform', isCorrect: false },
           { id: 'b', text: 'Using full-disk encryption on laptops used for client work', isCorrect: false },
           { id: 'c', text: 'Sharing client files between team members via WhatsApp', isCorrect: true },
           { id: 'd', text: 'Completing the data destruction register after engagement close', isCorrect: false },
         ]),
-        explanation: 'Data shared between team members must use the C4A platform, not email attachments or messaging apps like WhatsApp. Client data must never be stored on personal devices or in personal cloud accounts.',
+        explanation: 'Data shared between team members must use the Consult For Africa platform, not email attachments or messaging apps like WhatsApp. Client data must never be stored on personal devices or in personal cloud accounts.',
         points: 1,
         order: 5,
       },
@@ -854,7 +854,7 @@ async function main() {
 
   console.log('  Track 5: Professional Standards - 2 modules, 10 questions')
 
-  console.log('\nC4ATraining Academy Foundation Level (B) seeding complete!')
+  console.log('\nConsult For AfricaTraining Academy Foundation Level (B) seeding complete!')
   console.log('  Total: 3 tracks, 6 modules, 30 questions')
 }
 

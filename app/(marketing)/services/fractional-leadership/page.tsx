@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import PartnerCTA from "@/components/cfa/PartnerCTA";
 
-export const metadata: Metadata = { title: "Fractional Leadership & Executive Secondments | Consult For Africa", description: "C4A embeds experienced healthcare executives on fixed-term mandates to fill leadership gaps and drive specific transformations across African hospitals.", openGraph: { title: "Fractional Leadership & Executive Secondments | Consult For Africa", description: "Experienced healthcare executives embedded on fixed-term mandates.", type: "website", images: ["/og-image.jpg"] } };
+export const metadata: Metadata = { title: "Fractional Leadership & Executive Secondments | Consult For Africa", description: "Consult For Africa embeds experienced healthcare executives on fixed-term mandates to fill leadership gaps and drive specific transformations across African hospitals.", openGraph: { title: "Fractional Leadership & Executive Secondments | Consult For Africa", description: "Experienced healthcare executives embedded on fixed-term mandates.", type: "website", images: ["/og-image.jpg"] } };
 
 const indicators = ["CEO or COO vacancy lasting more than 3 months", "Interim leadership from clinical staff without management training", "Board-level frustration with operational execution", "Transformation projects stalling without dedicated leadership", "New facility launch without experienced operators", "Investor pressure for professional management"];
 const phases = [

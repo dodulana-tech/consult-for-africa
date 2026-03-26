@@ -3,12 +3,12 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import PartnerCTA from "@/components/cfa/PartnerCTA";
 
-export const metadata: Metadata = { title: "Hospital Transformation Partnerships | Consult For Africa", description: "Equity-backed operational turnarounds for underperforming healthcare facilities. C4A takes operational control and shares in the upside.", openGraph: { title: "Hospital Transformation Partnerships | Consult For Africa", description: "Equity-backed operational turnarounds for underperforming healthcare facilities.", type: "website", images: ["/og-image.jpg"] } };
+export const metadata: Metadata = { title: "Hospital Transformation Partnerships | Consult For Africa", description: "Equity-backed operational turnarounds for underperforming healthcare facilities. Consult For Africa takes operational control and shares in the upside.", openGraph: { title: "Hospital Transformation Partnerships | Consult For Africa", description: "Equity-backed operational turnarounds for underperforming healthcare facilities.", type: "website", images: ["/og-image.jpg"] } };
 
 const features = ["Equity-aligned incentives", "Full operational control", "KPI-driven performance", "Structured exit with defined returns"];
 const phases = [
   { num: "01", name: "Diagnostic & Valuation", weeks: "Months 1 to 2", desc: "Full operational and financial assessment, entry valuation, deal structuring. We understand the asset before we commit.", deliverables: ["Operational diagnostic", "Financial model", "Entry valuation and term sheet"] },
-  { num: "02", name: "Management Takeover", weeks: "Months 2 to 6", desc: "C4A assumes operational control, installs management team, and begins executing the turnaround plan.", deliverables: ["Management team deployment", "100-day plan", "Governance restructuring"] },
+  { num: "02", name: "Management Takeover", weeks: "Months 2 to 6", desc: "Consult For Africa assumes operational control, installs management team, and begins executing the turnaround plan.", deliverables: ["Management team deployment", "100-day plan", "Governance restructuring"] },
   { num: "03", name: "Performance Transformation", weeks: "Months 6 to 36", desc: "Systematic improvement of operations, revenue, quality, and governance. Monthly KPI tracking and quarterly board reporting.", deliverables: ["Monthly KPI dashboards", "Revenue growth initiatives", "Quality improvement programmes"] },
   { num: "04", name: "Exit & Value Realisation", weeks: "Months 36 to 60", desc: "Structured exit with defined return targets. Option for continued partnership, management buyout, or third-party sale.", deliverables: ["Exit readiness assessment", "Value realisation report", "Transition or continuation plan"] },
 ];

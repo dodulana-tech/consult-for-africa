@@ -1125,12 +1125,12 @@ async function main() {
         },
       ],
     },
-    // ── C4APROPRIETARY ───────────────────────────────────────────────────────
+    // ── Consult For AfricaPROPRIETARY ───────────────────────────────────────────────────────
     {
-      name: "C4AEmbedded Leadership Programme™",
+      name: "Consult For AfricaEmbedded Leadership Programme™",
       slug: "cfa-embedded-leadership",
       description:
-        "C4A's flagship Embedded Leadership service: placing experienced healthcare executives (CEO, COO, CMO, CFO) into client hospitals for 12-24 months to drive transformation from within. Unlike advisory consulting, embedded leaders hold line authority, make real decisions, and are accountable for measurable results. The most intensive and highest-impact form of healthcare consulting — reserved for turnarounds, post-acquisition integration, and major transformation mandates.",
+        "Consult For Africa's flagship Embedded Leadership service: placing experienced healthcare executives (CEO, COO, CMO, CFO) into client hospitals for 12-24 months to drive transformation from within. Unlike advisory consulting, embedded leaders hold line authority, make real decisions, and are accountable for measurable results. The most intensive and highest-impact form of healthcare consulting — reserved for turnarounds, post-acquisition integration, and major transformation mandates.",
       category: "c4a_proprietary",
       serviceTypes: ["EMBEDDED_LEADERSHIP", "TURNAROUND", "EM_AS_SERVICE"],
       estimatedWeeks: 52,
@@ -1145,7 +1145,7 @@ async function main() {
           keyActivities: [
             "Transformation mandate definition with board and investors",
             "Success criteria and KPIs agreed (clinical, financial, operational, cultural)",
-            "C4A embedded leader selection and matching",
+            "Consult For Africa embedded leader selection and matching",
             "Contract and governance framework (who does the embedded leader report to?)",
             "Structured 30-day onboarding and stakeholder listening tour",
             "100-day plan development",
@@ -1160,7 +1160,7 @@ async function main() {
             {
               name: "Mandate agreed and 100-day plan signed off by board",
               criteria:
-                "Board and C4A have agreed on mandate, KPIs, governance, and 100-day plan. Embedded leader has completed stakeholder listening tour and has full picture of situation.",
+                "Board and Consult For Africa have agreed on mandate, KPIs, governance, and 100-day plan. Embedded leader has completed stakeholder listening tour and has full picture of situation.",
               order: 1,
             },
           ],
@@ -1225,7 +1225,7 @@ async function main() {
         {
           name: "Leadership Transition & Handover",
           description:
-            "Develop permanent leadership capability. Plan and execute the transition from C4A embedded leader to permanent leadership.",
+            "Develop permanent leadership capability. Plan and execute the transition from Consult For Africa embedded leader to permanent leadership.",
           order: 4,
           typicalWeeks: 12,
           keyActivities: [
@@ -1233,7 +1233,7 @@ async function main() {
             "Succession planning for embedded leader role",
             "Knowledge transfer and institutional memory documentation",
             "Governance systems embedded for sustainable self-management",
-            "Phased handover with C4A support reducing over time",
+            "Phased handover with Consult For Africa support reducing over time",
             "Final impact report and lessons learned",
           ],
           keyDeliverables: [
@@ -1246,7 +1246,7 @@ async function main() {
             {
               name: "Successful handover to permanent leadership",
               criteria:
-                "Permanent leader appointed and operational. Organisation delivering against KPIs without C4A embedded leader. Board confident in self-sustainability.",
+                "Permanent leader appointed and operational. Organisation delivering against KPIs without Consult For Africa embedded leader. Board confident in self-sustainability.",
               order: 1,
             },
           ],
@@ -1254,10 +1254,10 @@ async function main() {
       ],
     },
     {
-      name: "C4ARevenue Recovery Programme™",
+      name: "Consult For AfricaRevenue Recovery Programme™",
       slug: "cfa-revenue-recovery",
       description:
-        "C4A's proprietary rapid revenue recovery programme for Nigerian private hospitals experiencing revenue decline, cash flow crisis, or chronic underperformance. Combines revenue cycle optimisation, pricing strategy, HMO contract renegotiation, and new revenue stream development into a 90-day intensive programme. Designed to deliver measurable revenue improvement within the first quarter while laying foundations for sustained growth.",
+        "Consult For Africa's proprietary rapid revenue recovery programme for Nigerian private hospitals experiencing revenue decline, cash flow crisis, or chronic underperformance. Combines revenue cycle optimisation, pricing strategy, HMO contract renegotiation, and new revenue stream development into a 90-day intensive programme. Designed to deliver measurable revenue improvement within the first quarter while laying foundations for sustained growth.",
       category: "c4a_proprietary",
       serviceTypes: ["TURNAROUND", "HOSPITAL_OPERATIONS", "REVENUE_CYCLE_EXCELLENCE" as never],
       estimatedWeeks: 16,

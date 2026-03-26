@@ -331,7 +331,7 @@ export default function MaarovaServicesPage() {
               {
                 num: "2",
                 label: "Advise",
-                desc: "C4A consultants interpret the data and build actionable strategies tailored to your organisation.",
+                desc: "Our consultants interpret the data and build actionable strategies tailored to your organisation.",
               },
               {
                 num: "3",

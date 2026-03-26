@@ -58,7 +58,7 @@ const rows = [
 const columns = [
   { key: "model" as const, label: "Engagement Model" },
   { key: "duration" as const, label: "Duration" },
-  { key: "teamSize" as const, label: "C4A Team Size" },
+  { key: "teamSize" as const, label: "Team Size" },
   { key: "clientInvolvement" as const, label: "Client Involvement" },
   { key: "feeStructure" as const, label: "Fee Structure" },
   { key: "bestFor" as const, label: "Best For" },

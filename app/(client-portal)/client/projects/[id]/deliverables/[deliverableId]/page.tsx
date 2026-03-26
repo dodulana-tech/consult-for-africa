@@ -54,7 +54,7 @@ const STATUS_STYLES: Record<string, { bg: string; color: string; label: string }
 };
 
 const AUTHOR_TYPE_STYLES: Record<string, { bg: string; color: string; label: string }> = {
-  INTERNAL: { bg: "#EFF6FF", color: "#1D4ED8", label: "C4A Team" },
+  INTERNAL: { bg: "#EFF6FF", color: "#1D4ED8", label: "Consult For Africa" },
   CLIENT:   { bg: "#FEF9E7", color: "#92400E", label: "Client" },
 };
 

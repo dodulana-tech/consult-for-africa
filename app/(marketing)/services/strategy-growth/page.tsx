@@ -6,7 +6,7 @@ import PartnerCTA from "@/components/cfa/PartnerCTA";
 export const metadata: Metadata = {
   title: "Strategy, Growth & Commercial Performance | Consult For Africa",
   description:
-    "C4A aligns clinical strengths with demand, referral flows, and patient access to drive sustainable hospital revenue growth across Africa.",
+    "Consult For Africa aligns clinical strengths with demand, referral flows, and patient access to drive sustainable hospital revenue growth across Africa.",
   openGraph: {
     title: "Strategy, Growth & Commercial Performance | Consult For Africa",
     description: "We align clinical strengths with demand to drive sustainable hospital revenue growth.",

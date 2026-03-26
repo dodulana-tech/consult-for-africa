@@ -10,10 +10,10 @@ const validServiceTypes = [
 
 const methodologies = [
   {
-    name: "C4AHospital Excellence Programme™",
+    name: "Consult For AfricaHospital Excellence Programme™",
     slug: "cfa-hospital-excellence",
     description:
-      "C4A's flagship comprehensive hospital transformation programme. Integrates operational, clinical, financial, and governance transformation into a single embedded engagement with measurable exit criteria.",
+      "Consult For Africa's flagship comprehensive hospital transformation programme. Integrates operational, clinical, financial, and governance transformation into a single embedded engagement with measurable exit criteria.",
     category: "c4a_proprietary",
     serviceTypes: ["HOSPITAL_OPERATIONS", "TURNAROUND"],
     estimatedWeeks: 52,
@@ -40,7 +40,7 @@ const methodologies = [
           "Quick Win Register",
         ],
         gates: [
-          { name: "Diagnostic Sign-Off", criteria: "Board and C4A leadership aligned on root causes and priority interventions before proceeding.", order: 1 },
+          { name: "Diagnostic Sign-Off", criteria: "Board and Consult For Africa leadership aligned on root causes and priority interventions before proceeding.", order: 1 },
         ],
       },
       {
@@ -68,7 +68,7 @@ const methodologies = [
       },
       {
         name: "Operational Transformation",
-        description: "Structural redesign of core hospital operations. New care pathways, scheduling systems, department KPIs, and accountability frameworks embedded with C4A working alongside department heads.",
+        description: "Structural redesign of core hospital operations. New care pathways, scheduling systems, department KPIs, and accountability frameworks embedded with Consult For Africa working alongside department heads.",
         order: 3,
         typicalWeeks: 16,
         keyActivities: [
@@ -137,14 +137,14 @@ const methodologies = [
       },
       {
         name: "Capability Transfer & Exit",
-        description: "Structured handover of all systems, tools, and management practices to the institution's own leadership. C4A steps back progressively while monitoring performance until exit criteria are met.",
+        description: "Structured handover of all systems, tools, and management practices to the institution's own leadership. Consult For Africa steps back progressively while monitoring performance until exit criteria are met.",
         order: 6,
         typicalWeeks: 4,
         keyActivities: [
           "Leadership capability assessment and coaching",
           "Management systems documentation",
           "Performance monitoring dashboard handover",
-          "Graduated C4A disengagement",
+          "Graduated Consult For Africa disengagement",
           "90-day post-exit support arrangement",
         ],
         keyDeliverables: [
@@ -161,10 +161,10 @@ const methodologies = [
   },
 
   {
-    name: "C4ATurnaround & Recovery Programme™",
+    name: "Consult For AfricaTurnaround & Recovery Programme™",
     slug: "cfa-turnaround-recovery",
     description:
-      "C4A's rapid-response programme for hospitals in acute financial or operational distress. Designed for institutions that cannot afford a full long-cycle engagement — delivers stabilisation and recovery within 6 months.",
+      "Consult For Africa's rapid-response programme for hospitals in acute financial or operational distress. Designed for institutions that cannot afford a full long-cycle engagement — delivers stabilisation and recovery within 6 months.",
     category: "c4a_proprietary",
     serviceTypes: ["TURNAROUND", "HOSPITAL_OPERATIONS"],
     estimatedWeeks: 24,
@@ -190,12 +190,12 @@ const methodologies = [
           "Cash Runway Assessment",
         ],
         gates: [
-          { name: "Recovery Thesis Approval", criteria: "Owner/board aligned on recovery thesis and C4A engagement scope before mobilisation.", order: 1 },
+          { name: "Recovery Thesis Approval", criteria: "Owner/board aligned on recovery thesis and Consult For Africa engagement scope before mobilisation.", order: 1 },
         ],
       },
       {
         name: "Crisis Stabilisation",
-        description: "Weeks 2 to 8. Arrest the decline. Cash stabilised, key revenue restored, critical operational failures resolved. C4A operates with full management authority during this phase.",
+        description: "Weeks 2 to 8. Arrest the decline. Cash stabilised, key revenue restored, critical operational failures resolved. Consult For Africa operates with full management authority during this phase.",
         order: 2,
         typicalWeeks: 6,
         keyActivities: [
@@ -241,7 +241,7 @@ const methodologies = [
       },
       {
         name: "Transition to Sustained Growth",
-        description: "Handover from C4A management to internal leadership. Systems embedded, dashboards live, and a clear 12-month growth plan in place for the institution's own team to execute.",
+        description: "Handover from Consult For Africa management to internal leadership. Systems embedded, dashboards live, and a clear 12-month growth plan in place for the institution's own team to execute.",
         order: 4,
         typicalWeeks: 4,
         keyActivities: [
@@ -264,7 +264,7 @@ const methodologies = [
   },
 
   {
-    name: "C4AClinical Governance Transformation™",
+    name: "Consult For AfricaClinical Governance Transformation™",
     slug: "cfa-clinical-governance",
     description:
       "A structured programme to design, embed, and operationalise clinical governance systems in African hospitals. Covers quality frameworks, safety culture, medical staff management, and board clinical oversight.",
@@ -353,7 +353,7 @@ const methodologies = [
           "Board clinical reporting pack handover",
           "Safety culture follow-up survey",
           "Governance effectiveness review",
-          "C4A advisory handover to internal CMO",
+          "Consult For Africa advisory handover to internal CMO",
         ],
         keyDeliverables: [
           "Training Completion Records",
@@ -369,7 +369,7 @@ const methodologies = [
   },
 
   {
-    name: "C4ADigital Health Transformation Programme™",
+    name: "Consult For AfricaDigital Health Transformation Programme™",
     slug: "cfa-digital-health-transformation",
     description:
       "End-to-end digital health transformation for African hospitals. Covers HIS/EMR selection and implementation, data infrastructure, clinical workflow digitisation, and staff adoption — built for resource-constrained environments.",
@@ -404,7 +404,7 @@ const methodologies = [
       },
       {
         name: "System Selection & Design",
-        description: "Structured procurement and configuration of the HIS/EMR and supporting systems. C4A acts as the client's technical representative throughout vendor selection to ensure fit-for-purpose delivery.",
+        description: "Structured procurement and configuration of the HIS/EMR and supporting systems. Consult For Africa acts as the client's technical representative throughout vendor selection to ensure fit-for-purpose delivery.",
         order: 2,
         typicalWeeks: 6,
         keyActivities: [
@@ -427,7 +427,7 @@ const methodologies = [
       },
       {
         name: "Phased Implementation",
-        description: "Controlled rollout of digital systems department by department. C4A manages the vendor, monitors progress, and resolves issues that would otherwise derail the implementation.",
+        description: "Controlled rollout of digital systems department by department. Consult For Africa manages the vendor, monitors progress, and resolves issues that would otherwise derail the implementation.",
         order: 3,
         typicalWeeks: 14,
         keyActivities: [
@@ -482,7 +482,7 @@ const methodologies = [
           "Digital governance framework",
           "Vendor management protocol",
           "System maintenance and upgrade plan",
-          "C4A advisory handover",
+          "Consult For Africa advisory handover",
         ],
         keyDeliverables: [
           "Digital Governance Framework",
@@ -498,10 +498,10 @@ const methodologies = [
   },
 
   {
-    name: "C4AHealth Systems Advisory Programme™",
+    name: "Consult For AfricaHealth Systems Advisory Programme™",
     slug: "cfa-health-systems-advisory",
     description:
-      "C4A's structured engagement model for government agencies, development partners, and health financing bodies seeking to strengthen health system architecture, policy, and implementation. Built around the WHO Health System Building Blocks.",
+      "Consult For Africa's structured engagement model for government agencies, development partners, and health financing bodies seeking to strengthen health system architecture, policy, and implementation. Built around the WHO Health System Building Blocks.",
     category: "c4a_proprietary",
     serviceTypes: ["HEALTH_SYSTEMS", "DIASPORA_EXPERTISE"],
     estimatedWeeks: 26,
@@ -580,7 +580,7 @@ const methodologies = [
       },
       {
         name: "Implementation Support & Oversight",
-        description: "C4A embeds advisory support during implementation, providing technical expertise, troubleshooting, and course correction as the plan meets the reality of the health system.",
+        description: "Consult For Africa embeds advisory support during implementation, providing technical expertise, troubleshooting, and course correction as the plan meets the reality of the health system.",
         order: 4,
         typicalWeeks: 9,
         keyActivities: [
@@ -606,10 +606,10 @@ const methodologies = [
   },
 
   {
-    name: "C4AEmbedded Medical Director Programme™",
+    name: "Consult For AfricaEmbedded Medical Director Programme™",
     slug: "cfa-embedded-medical-director",
     description:
-      "C4A's EM-as-a-Service model. Provides hospitals with a senior clinical leader functioning as Medical Director or Chief Medical Officer on an embedded basis — delivering clinical governance, medical staff management, and quality leadership without a permanent hire.",
+      "Consult For Africa's EM-as-a-Service model. Provides hospitals with a senior clinical leader functioning as Medical Director or Chief Medical Officer on an embedded basis — delivering clinical governance, medical staff management, and quality leadership without a permanent hire.",
     category: "c4a_proprietary",
     serviceTypes: ["EM_AS_SERVICE", "CLINICAL_GOVERNANCE"],
     estimatedWeeks: 52,
@@ -618,7 +618,7 @@ const methodologies = [
     phases: [
       {
         name: "Clinical Leadership Onboarding",
-        description: "C4A embedded Medical Director integrates into the institution. Full clinical situational assessment conducted, medical staff relationships established, and clinical governance baseline set.",
+        description: "Consult For Africa embedded Medical Director integrates into the institution. Full clinical situational assessment conducted, medical staff relationships established, and clinical governance baseline set.",
         order: 1,
         typicalWeeks: 4,
         keyActivities: [
@@ -669,7 +669,7 @@ const methodologies = [
       },
       {
         name: "Transition to Permanent Leadership",
-        description: "Structured handover to permanent Medical Director or CMO. C4A manages the recruitment process, provides handover documentation, and ensures the incoming leader is set up for success.",
+        description: "Structured handover to permanent Medical Director or CMO. Consult For Africa manages the recruitment process, provides handover documentation, and ensures the incoming leader is set up for success.",
         order: 3,
         typicalWeeks: 4,
         keyActivities: [
@@ -694,10 +694,10 @@ const methodologies = [
   },
 
   {
-    name: "C4ADiaspora Healthcare Expertise Programme™",
+    name: "Consult For AfricaDiaspora Healthcare Expertise Programme™",
     slug: "cfa-diaspora-expertise",
     description:
-      "C4A's structured model for deploying African diaspora healthcare professionals into short-term high-impact assignments. Bridges the gap between diaspora intent and institutional readiness to absorb expertise.",
+      "Consult For Africa's structured model for deploying African diaspora healthcare professionals into short-term high-impact assignments. Bridges the gap between diaspora intent and institutional readiness to absorb expertise.",
     category: "c4a_proprietary",
     serviceTypes: ["DIASPORA_EXPERTISE", "HEALTH_SYSTEMS"],
     estimatedWeeks: 12,
@@ -706,7 +706,7 @@ const methodologies = [
     phases: [
       {
         name: "Institution Readiness & Expert Matching",
-        description: "Assessment of the institution's specific expertise needs and matching with the most suitable diaspora professional from C4A's network. Both parties prepared for a productive engagement.",
+        description: "Assessment of the institution's specific expertise needs and matching with the most suitable diaspora professional from Consult For Africa's network. Both parties prepared for a productive engagement.",
         order: 1,
         typicalWeeks: 3,
         keyActivities: [
@@ -729,7 +729,7 @@ const methodologies = [
       },
       {
         name: "In-Country Deployment",
-        description: "Active deployment period. Diaspora expert embedded in the institution delivering their specific expertise while C4A provides ongoing support for both expert and host institution.",
+        description: "Active deployment period. Diaspora expert embedded in the institution delivering their specific expertise while Consult For Africa provides ongoing support for both expert and host institution.",
         order: 2,
         typicalWeeks: 6,
         keyActivities: [
@@ -737,7 +737,7 @@ const methodologies = [
           "Knowledge transfer sessions",
           "Mentoring of local counterparts",
           "System or protocol development",
-          "C4A check-in and support",
+          "Consult For Africa check-in and support",
           "Real-time issue resolution",
         ],
         keyDeliverables: [
@@ -747,7 +747,7 @@ const methodologies = [
           "Counterpart Development Log",
         ],
         gates: [
-          { name: "Mid-Point Review", criteria: "C4A, expert, and institution review confirms deployment on track and any scope adjustments made.", order: 1 },
+          { name: "Mid-Point Review", criteria: "Consult For Africa, expert, and institution review confirms deployment on track and any scope adjustments made.", order: 1 },
         ],
       },
       {
@@ -760,7 +760,7 @@ const methodologies = [
           "Knowledge and protocol handover",
           "Counterpart readiness confirmation",
           "Institutional feedback collection",
-          "C4A impact report preparation",
+          "Consult For Africa impact report preparation",
           "Alumni network integration",
         ],
         keyDeliverables: [
@@ -778,7 +778,7 @@ const methodologies = [
 ];
 
 async function main() {
-  console.log("Seeding C4A proprietary methodologies...");
+  console.log("Seeding Consult For Africa proprietary methodologies...");
 
   for (const m of methodologies) {
     const { phases, ...mData } = m;
@@ -807,7 +807,7 @@ async function main() {
 
   const total = await prisma.methodologyTemplate.count();
   const proprietary = await prisma.methodologyTemplate.count({ where: { category: "c4a_proprietary" } });
-  console.log(`\nDone. Total methodologies: ${total} | C4AProprietary: ${proprietary}`);
+  console.log(`\nDone. Total methodologies: ${total} | Consult For AfricaProprietary: ${proprietary}`);
 }
 
 main()

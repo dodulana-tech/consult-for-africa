@@ -39,9 +39,9 @@ Common MECE frameworks for hospital consulting include: Revenue vs. Cost decompo
     },
     {
       title: 'Issue Tree Templates',
-      content: `Issue trees are visual tools that decompose complex consulting problems into smaller, manageable components following the MECE principle. At C4A, issue trees are the primary diagnostic tool used in the first two weeks of every engagement.
+      content: `Issue trees are visual tools that decompose complex consulting problems into smaller, manageable components following the MECE principle. At Consult For Africa, issue trees are the primary diagnostic tool used in the first two weeks of every engagement.
 
-Standard C4AIssue Tree Structures:
+Standard Consult For AfricaIssue Tree Structures:
 
 1. Profitability Tree: Revenue (Volume x Price) vs. Costs (Fixed + Variable). Used for hospital turnaround engagements where the core question is "Why is this hospital losing money?"
 
@@ -62,7 +62,7 @@ When building an issue tree for a Nigerian hospital: always include an "Informal
 
 The structure follows three rules: (1) Ideas at any level must always summarize the ideas grouped below them. (2) Ideas in each group must be the same kind of idea. (3) Ideas in each group must be logically ordered.
 
-For C4A consultants, this means every client presentation, email, and deliverable follows the SCR format:
+For Consult For Africa consultants, this means every client presentation, email, and deliverable follows the SCR format:
 
 Situation: The current state (e.g., "Federal Medical Centre Lagos has a -8% operating margin")
 Complication: What changed or what is wrong (e.g., "Claims denial rate has risen to 34%, 4x the industry benchmark, and two major HMOs are threatening to delist the hospital")
@@ -70,7 +70,7 @@ Resolution: Your recommendation (e.g., "Implement a 12-week revenue integrity pr
 
 When presenting to Nigerian hospital boards and management teams, the Pyramid Principle is especially important because meeting time is often limited, decision-makers have competing priorities, and the hierarchical culture expects consultants to lead with clear, confident recommendations rather than lengthy analysis.
 
-Every C4A slide should have an action title (a complete sentence stating the key message), not a topic title. "Revenue cycle has three critical gaps" not "Revenue Cycle Overview".`,
+Every Consult For Africa slide should have an action title (a complete sentence stating the key message), not a topic title. "Revenue cycle has three critical gaps" not "Revenue Cycle Overview".`,
       assetType: 'GUIDE' as KnowledgeAssetType,
       tags: ['communication', 'pyramid-principle', 'presentations', 'consulting-fundamentals'],
       isReusable: true,
@@ -93,20 +93,20 @@ The six building blocks are:
 
 6. Leadership and Governance: Strategic policy frameworks, effective oversight, coalition-building, regulation, attention to system design, and accountability. Governance weakness is consistently identified as the root cause of health system underperformance in Africa.
 
-C4A uses this framework as the starting diagnostic for health systems advisory engagements, mapping each building block to specific assessment criteria and benchmarks relevant to the country context.`,
+Consult For Africa uses this framework as the starting diagnostic for health systems advisory engagements, mapping each building block to specific assessment criteria and benchmarks relevant to the country context.`,
       assetType: 'GUIDE' as KnowledgeAssetType,
       tags: ['who', 'health-systems', 'framework', 'building-blocks', 'public-health'],
       isReusable: true,
     },
     {
       title: 'DDDS Framework Guide',
-      content: `The DDDS (Diagnose, Design, Deliver, Sustain) framework is C4A's proprietary engagement methodology that structures every consulting engagement into four distinct phases. It ensures rigorous diagnosis before solutioning, structured implementation, and built-in sustainability.
+      content: `The DDDS (Diagnose, Design, Deliver, Sustain) framework is Consult For Africa's proprietary engagement methodology that structures every consulting engagement into four distinct phases. It ensures rigorous diagnosis before solutioning, structured implementation, and built-in sustainability.
 
 Phase 1 - DIAGNOSE (Weeks 1-4): Rapid but thorough assessment of the current state. This includes stakeholder interviews (minimum 15-20 across clinical, operational, financial, and governance functions), data collection and analysis, process observation, benchmarking against African healthcare standards, and identification of quick wins. The output is a Diagnostic Report and Transformation Roadmap.
 
-Phase 2 - DESIGN (Weeks 3-8): Solution design based on diagnostic findings. This involves workstream definition, intervention design, resource planning, timeline development, and risk mitigation planning. C4A always designs with implementation in mind, meaning every recommendation includes the "how" not just the "what". The output is a Detailed Implementation Plan with clear milestones and gate reviews.
+Phase 2 - DESIGN (Weeks 3-8): Solution design based on diagnostic findings. This involves workstream definition, intervention design, resource planning, timeline development, and risk mitigation planning. Consult For Africa always designs with implementation in mind, meaning every recommendation includes the "how" not just the "what". The output is a Detailed Implementation Plan with clear milestones and gate reviews.
 
-Phase 3 - DELIVER (Weeks 5-20): Hands-on implementation alongside the client team. C4A consultants work embedded within the hospital, not from an external office. This phase includes weekly progress reviews, data-driven course correction, capability building, and regular client communication. Each workstream has defined deliverables with quality gates.
+Phase 3 - DELIVER (Weeks 5-20): Hands-on implementation alongside the client team. Consult For Africa consultants work embedded within the hospital, not from an external office. This phase includes weekly progress reviews, data-driven course correction, capability building, and regular client communication. Each workstream has defined deliverables with quality gates.
 
 Phase 4 - SUSTAIN (Weeks 18-24): Knowledge transfer and sustainability planning. This includes documentation of new processes, training of internal champions, establishment of performance dashboards, governance structure recommendations, and a 90-day post-engagement monitoring plan.
 
@@ -125,7 +125,7 @@ Claims Process: (1) Patient presents NHIS card at registration. (2) Hospital ver
 
 Common Revenue Leakage Points: Under-coding of services actually rendered; failure to capture all billable items (especially consumables and drugs); expired patient enrollments not caught at registration; claims submitted without proper documentation; denial of claims for technical errors that could be corrected.
 
-C4A's Revenue Cycle Excellence programme typically identifies 20-35% revenue uplift potential in NHIS claims alone, primarily through improved charge capture, coding accuracy, and denial management.`,
+Consult For Africa's Revenue Cycle Excellence programme typically identifies 20-35% revenue uplift potential in NHIS claims alone, primarily through improved charge capture, coding accuracy, and denial management.`,
       assetType: 'GUIDE' as KnowledgeAssetType,
       tags: ['nhis', 'claims', 'revenue-cycle', 'billing', 'nigeria', 'health-insurance'],
       isReusable: true,
@@ -141,7 +141,7 @@ When to use: First two weeks of any engagement, during problem structuring sessi
 
 Key sections: Core question (the overarching problem), Level 1 branches (3-5 MECE categories), Level 2 sub-issues, Level 3 hypotheses (testable, actionable items).
 
-Available as an interactive tool at /tools/issue-tree on the C4APlatform.`,
+Available as an interactive tool at /tools/issue-tree on the Consult For AfricaPlatform.`,
       assetType: 'TOOL' as KnowledgeAssetType,
       tags: ['issue-tree', 'problem-solving', 'diagnostic', 'interactive'],
       isReusable: true,
@@ -163,7 +163,7 @@ When to use: Throughout the Diagnose phase, updated weekly during team meetings.
 
 When to use: Root cause analysis of operational problems, clinical incident investigation, quality improvement projects.
 
-Available as an interactive tool at /tools/fishbone on the C4APlatform.`,
+Available as an interactive tool at /tools/fishbone on the Consult For AfricaPlatform.`,
       assetType: 'TOOL' as KnowledgeAssetType,
       tags: ['fishbone', 'ishikawa', 'root-cause', 'quality-improvement', 'interactive'],
       isReusable: true,
@@ -174,7 +174,7 @@ Available as an interactive tool at /tools/fishbone on the C4APlatform.`,
 
 When to use: At engagement kickoff, when defining workstream ownership, during TMO (Transformation Management Office) setup.
 
-Available as an interactive tool at /tools/raci-builder on the C4APlatform.`,
+Available as an interactive tool at /tools/raci-builder on the Consult For AfricaPlatform.`,
       assetType: 'TOOL' as KnowledgeAssetType,
       tags: ['raci', 'project-management', 'roles', 'accountability', 'interactive'],
       isReusable: true,
@@ -196,7 +196,7 @@ When to use: Every client email, every slide deck, every status update. The SCR 
 
 Key sections: Revenue (by department and payer), Direct Costs (clinical supplies, drugs, consumables), Personnel Costs (clinical and non-clinical staff), Overhead (facilities, utilities, administration), EBITDA, Capital Expenditure, Net Income.
 
-When to use: Financial diagnostic phase of turnaround and operations engagements. Benchmark against C4A's African hospital financial database.`,
+When to use: Financial diagnostic phase of turnaround and operations engagements. Benchmark against Consult For Africa's African hospital financial database.`,
       assetType: 'TEMPLATE' as KnowledgeAssetType,
       tags: ['financial', 'p-and-l', 'hospital', 'accounting', 'nigeria'],
       isReusable: true,
@@ -214,7 +214,7 @@ When to use: First deliverable in any hospital turnaround engagement. Updated we
     },
     {
       title: 'Distress Scorecard',
-      content: `C4A's proprietary hospital financial distress assessment tool. Scores hospitals on 12 indicators across four dimensions: Liquidity, Profitability, Operational Efficiency, and Governance.
+      content: `Consult For Africa's proprietary hospital financial distress assessment tool. Scores hospitals on 12 indicators across four dimensions: Liquidity, Profitability, Operational Efficiency, and Governance.
 
 Scoring: Each indicator scored 1-5 (1=Critical, 5=Healthy). Overall score determines distress level: Critical (<24), Severe (24-36), Moderate (36-48), Stable (>48).
 
@@ -231,7 +231,7 @@ Key sections per perspective: Strategic Objectives (3-4 per perspective), Key Pe
 
 When to use: Strategic planning engagements, performance management system design, hospital transformation programme design.
 
-Available as an interactive tool at /tools/bsc-builder on the C4APlatform.`,
+Available as an interactive tool at /tools/bsc-builder on the Consult For AfricaPlatform.`,
       assetType: 'TEMPLATE' as KnowledgeAssetType,
       tags: ['balanced-scorecard', 'strategy', 'kpi', 'performance-management'],
       isReusable: true,
@@ -244,7 +244,7 @@ Columns: Process Step, Potential Failure Mode, Potential Effect, Severity (1-10)
 
 When to use: Clinical governance engagements, process redesign, pre-accreditation risk assessment, new service line launch.
 
-Available as an interactive tool at /tools/fmea-worksheet on the C4APlatform.`,
+Available as an interactive tool at /tools/fmea-worksheet on the Consult For AfricaPlatform.`,
       assetType: 'TOOL' as KnowledgeAssetType,
       tags: ['fmea', 'risk-assessment', 'clinical-governance', 'quality'],
       isReusable: true,
@@ -257,7 +257,7 @@ Key metrics: Total Denials (count and value), Denial Rate (% of claims), Top Den
 
 When to use: Revenue cycle excellence engagements, ongoing revenue integrity monitoring, HMO relationship management.
 
-Available as an interactive tool at /tools/denial-dashboard on the C4APlatform.`,
+Available as an interactive tool at /tools/denial-dashboard on the Consult For AfricaPlatform.`,
       assetType: 'TOOL' as KnowledgeAssetType,
       tags: ['denial', 'revenue-cycle', 'claims', 'dashboard', 'billing'],
       isReusable: true,
@@ -270,20 +270,20 @@ Quadrants: High Influence + High Interest = Manage Closely (key decision-makers)
 
 When to use: First week of every engagement. Update monthly. Critical for navigating the complex stakeholder landscape in African hospitals where informal power structures often differ from formal organizational charts.
 
-Available as an interactive tool at /tools/stakeholder-map on the C4APlatform.`,
+Available as an interactive tool at /tools/stakeholder-map on the Consult For AfricaPlatform.`,
       assetType: 'TOOL' as KnowledgeAssetType,
       tags: ['stakeholder', 'engagement', 'mapping', 'change-management'],
       isReusable: true,
     },
     {
-      title: 'Logframe Template (C4A)',
-      content: `Logical Framework (Logframe) template adapted for C4A's healthcare consulting engagements and development-funded programmes. Follows USAID/Global Fund standards.
+      title: 'Logframe Template (Consult For Africa)',
+      content: `Logical Framework (Logframe) template adapted for Consult For Africa's healthcare consulting engagements and development-funded programmes. Follows USAID/Global Fund standards.
 
 Structure: Goal (long-term impact), Purpose (engagement outcome), Outputs (deliverables), Activities (tasks). Each level includes: Narrative Summary, Objectively Verifiable Indicators (OVIs), Means of Verification (MOVs), Assumptions.
 
 When to use: M&E-driven engagements, development partner funded projects, government health system strengthening programmes.
 
-Available as an interactive tool at /tools/logframe on the C4APlatform.`,
+Available as an interactive tool at /tools/logframe on the Consult For AfricaPlatform.`,
       assetType: 'TEMPLATE' as KnowledgeAssetType,
       tags: ['logframe', 'mne', 'monitoring-evaluation', 'development', 'global-fund'],
       isReusable: true,
@@ -303,18 +303,18 @@ When to use: Lean healthcare engagements, process improvement projects, patient 
     },
     {
       title: 'Engagement Architecture Template',
-      content: `Master template for structuring a C4A consulting engagement. Defines the overall engagement structure including governance, team composition, workstreams, milestones, and reporting cadence.
+      content: `Master template for structuring a Consult For Africa consulting engagement. Defines the overall engagement structure including governance, team composition, workstreams, milestones, and reporting cadence.
 
 Key sections: Engagement Overview (client, scope, duration, budget), Team Structure (roles, responsibilities, reporting lines), Workstream Definition (objectives, deliverables, timelines), Governance (steering committee, gate reviews, escalation), Communication Plan (cadence, stakeholders, formats), Risk Register, Quality Assurance Plan.
 
-When to use: During the proposal/scoping phase and refined during the first week of engagement. This is the "constitution" of every C4A engagement.`,
+When to use: During the proposal/scoping phase and refined during the first week of engagement. This is the "constitution" of every Consult For Africa engagement.`,
       assetType: 'TEMPLATE' as KnowledgeAssetType,
       tags: ['engagement', 'project-management', 'governance', 'planning'],
       isReusable: true,
     },
     {
       title: 'Proposal Template',
-      content: `C4A's standard consulting proposal template. Follows the Pyramid Principle structure with executive summary first, then detailed methodology, team, timeline, and commercial terms.
+      content: `Consult For Africa's standard consulting proposal template. Follows the Pyramid Principle structure with executive summary first, then detailed methodology, team, timeline, and commercial terms.
 
 Sections: Cover Page, Executive Summary (1 page max), Understanding of the Challenge, Proposed Approach (DDDS methodology), Workstreams and Deliverables, Team and Qualifications, Timeline and Milestones, Commercial Proposal (fees, payment schedule, expenses), Terms and Conditions, Appendices (CVs, case studies).
 

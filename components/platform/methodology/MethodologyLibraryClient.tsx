@@ -73,7 +73,7 @@ const categoryColors: Record<string, { bg: string; color: string }> = {
 
 function CategoryBadge({ category }: { category: string }) {
   const c = categoryColors[category] ?? { bg: "#F3F4F6", color: "#374151" };
-  const label = category === "cfa_proprietary" ? "C4A Proprietary" : category;
+  const label = category === "cfa_proprietary" ? "Consult For Africa Proprietary" : category;
   return (
     <span
       className="text-[10px] font-semibold px-2 py-0.5 rounded-full"

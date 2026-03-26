@@ -149,13 +149,20 @@ export default async function MaarovaAdminPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <Link
             href="/admin/maarova/organisations"
             className="px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
             style={{ background: "#0F2744", color: "#fff" }}
           >
             View All Organisations
+          </Link>
+          <Link
+            href="/admin/maarova/coaches"
+            className="px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors border"
+            style={{ background: "#D4A574", color: "#06090f" }}
+          >
+            Manage Coaches
           </Link>
         </div>
 

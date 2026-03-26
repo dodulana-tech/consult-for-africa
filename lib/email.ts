@@ -20,7 +20,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const FROM = process.env.SMTP_FROM ?? "C4A Platform <platform@consultforafrica.com>";
+const FROM = process.env.SMTP_FROM ?? "Consult For Africa <platform@consultforafrica.com>";
 
 // ─── Send helper ──────────────────────────────────────────────────────────────
 
@@ -44,7 +44,7 @@ async function send(to: string, subject: string, html: string) {
 function layout(content: string) {
   return `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>C4A Platform</title></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Consult For Africa</title></head>
 <body style="margin:0;padding:0;background:#F9FAFB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
     <tr><td align="center">

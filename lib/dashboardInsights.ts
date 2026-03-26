@@ -264,7 +264,7 @@ export async function getDashboardInsights(
       insights.push({
         type: "growth",
         icon: "\u{1F4C8}",
-        title: "C4A is growing",
+        title: "Consult For Africa is growing",
         message: `${newProjectsThisMonth} new project${newProjectsThisMonth > 1 ? "s" : ""} started this month. More opportunities ahead.`,
         accent: "blue",
       });

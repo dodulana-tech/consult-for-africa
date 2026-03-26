@@ -5,7 +5,7 @@ import PartnerCTA from "@/components/cfa/PartnerCTA";
 
 export const metadata: Metadata = {
   title: "Clinical Governance & Accreditation | Consult For Africa",
-  description: "C4A strengthens clinical governance structures and prepares healthcare institutions for JCI, COHSASA, and SafeCare accreditation across Africa.",
+  description: "Consult For Africa strengthens clinical governance structures and prepares healthcare institutions for JCI, COHSASA, and SafeCare accreditation across Africa.",
   openGraph: { title: "Clinical Governance & Accreditation | Consult For Africa", description: "We prepare healthcare institutions for international accreditation and embed governance that lasts.", type: "website", images: ["/og-image.jpg"] },
 };
 
