@@ -55,7 +55,7 @@ export default function MaarovaMobileNav({
             onClick={() => setOpen(false)}
           />
           <div
-            className="lg:hidden fixed top-0 right-0 bottom-0 z-50 w-72 flex flex-col overflow-y-auto"
+            className="lg:hidden fixed top-0 right-0 bottom-0 z-50 w-[85vw] max-w-72 flex flex-col overflow-y-auto"
             style={{ backgroundColor: "#0f1a2a" }}
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">

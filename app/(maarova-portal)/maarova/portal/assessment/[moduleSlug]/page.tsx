@@ -272,7 +272,7 @@ export default function AssessmentModulePage({
               <h1 className="text-sm sm:text-base font-semibold text-gray-900 truncate">
                 {data.module.name}
               </h1>
-              <p className="text-[11px] sm:text-xs text-gray-400">
+              <p className="text-xs text-gray-400">
                 Group {currentGroupIndex + 1} of {totalGroups}
                 {currentGroup.name ? ` \u00b7 ${currentGroup.name}` : ""}
               </p>
@@ -281,7 +281,7 @@ export default function AssessmentModulePage({
 
           <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
             {saving && (
-              <span className="text-[11px] sm:text-xs text-gray-400 flex items-center gap-1">
+              <span className="text-xs text-gray-400 flex items-center gap-1">
                 <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" />
                   <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" />
@@ -290,7 +290,7 @@ export default function AssessmentModulePage({
               </span>
             )}
             <div className="text-right">
-              <span className="text-[11px] sm:text-xs text-gray-500">
+              <span className="text-xs text-gray-500">
                 {answeredCount}/{totalQuestions}
               </span>
             </div>
@@ -371,7 +371,7 @@ export default function AssessmentModulePage({
             Prev
           </button>
 
-          <div className="flex gap-1.5">
+          <div className="flex flex-wrap gap-1.5 justify-center">
             {data.questionGroups.map((_, i) => (
               <button
                 key={i}
@@ -511,7 +511,7 @@ function ForcedChoiceInput({
 
   return (
     <div className="space-y-0">
-      <div className="grid grid-cols-[1fr_56px_56px] sm:grid-cols-[1fr_72px_72px] gap-1 sm:gap-2 mb-2">
+      <div className="grid grid-cols-[1fr_64px_64px] sm:grid-cols-[1fr_72px_72px] gap-1 sm:gap-2 mb-2">
         <span className="text-xs text-gray-400 pl-1">Statement</span>
         <span className="text-xs text-gray-400 text-center">Most</span>
         <span className="text-xs text-gray-400 text-center">Least</span>
@@ -519,7 +519,7 @@ function ForcedChoiceInput({
       {rawOptions.map((opt, i) => (
         <div
           key={`${opt.dimension}-${i}`}
-          className="grid grid-cols-[1fr_56px_56px] sm:grid-cols-[1fr_72px_72px] gap-1 sm:gap-2 items-center py-2.5 border-b border-gray-50 last:border-0"
+          className="grid grid-cols-[1fr_64px_64px] sm:grid-cols-[1fr_72px_72px] gap-1 sm:gap-2 items-center py-2.5 border-b border-gray-50 last:border-0"
         >
           <span className="text-sm text-gray-700">{opt.label}</span>
           <div className="flex justify-center">
@@ -727,7 +727,7 @@ function LikertInput({
                 {val}
               </div>
               <span
-                className="text-[9px] sm:text-[10px] leading-tight text-center hidden sm:block"
+                className="text-[10px] sm:text-xs leading-tight text-center hidden sm:block"
                 style={{ color: isSelected ? "#D4A574" : "#9CA3AF" }}
               >
                 {label}
@@ -738,8 +738,8 @@ function LikertInput({
       </div>
       {/* Mobile labels: just show endpoints */}
       <div className="flex justify-between mt-1 sm:hidden">
-        <span className="text-[9px] text-gray-400">{labels[0]}</span>
-        <span className="text-[9px] text-gray-400">{labels[labels.length - 1]}</span>
+        <span className="text-[10px] sm:text-xs text-gray-400">{labels[0]}</span>
+        <span className="text-[10px] sm:text-xs text-gray-400">{labels[labels.length - 1]}</span>
       </div>
     </div>
   );
@@ -761,7 +761,7 @@ function FrequencyInput({
 
   return (
     <div>
-      <div className="grid grid-cols-3 sm:grid-cols-5 gap-1 sm:gap-1">
+      <div className="grid grid-cols-5 gap-1">
         {labels.map((label, i) => {
           const val = i + 1;
           const isSelected = current.value === val;
@@ -771,7 +771,7 @@ function FrequencyInput({
               onClick={() =>
                 onAnswer({ value: val, dimension: question.dimension })
               }
-              className="py-2 sm:py-3 px-1 sm:px-2 rounded-lg border-2 text-center transition-all"
+              className="min-h-[44px] py-2 sm:py-3 px-1 sm:px-2 rounded-lg border-2 text-center transition-all"
               style={{
                 borderColor: isSelected ? "#D4A574" : "rgba(0,0,0,0.06)",
                 background: isSelected

@@ -69,7 +69,7 @@ export default function TeamOverviewClient() {
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-bold group-hover:underline" style={{ color: "#0F2744" }}>{r.name}</h3>
               <p className="text-xs text-gray-400">{r.title ?? r.email}</p>
-              {r.department && <p className="text-[10px] text-gray-300">{r.department}</p>}
+              {r.department && <p className="text-xs text-gray-300">{r.department}</p>}
             </div>
           </div>
 
@@ -91,17 +91,17 @@ export default function TeamOverviewClient() {
             {/* Status badges */}
             <div className="flex flex-wrap gap-1.5 mt-2">
               {r.assessmentStatus === "COMPLETED" ? (
-                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-green-50 text-green-700">Assessment done</span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-50 text-green-700">Assessment done</span>
               ) : (
-                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">Assessment {r.assessmentStatus.toLowerCase().replace("_", " ")}</span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">Assessment {r.assessmentStatus.toLowerCase().replace("_", " ")}</span>
               )}
               {r.coachingStatus && (
-                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
                   {COACHING_LABELS[r.coachingStatus] ?? r.coachingStatus}
                 </span>
               )}
               {r.goalsValidated > 0 && (
-                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">
                   {r.goalsValidated} validated
                 </span>
               )}

@@ -160,7 +160,7 @@ export default async function MaarovaResultsPage() {
             <div className="space-y-3">
               {radarPoints.map((pt) => (
                 <div key={pt.dimension} className="flex items-center gap-3">
-                  <span className="text-xs text-gray-600 w-40 flex-shrink-0 truncate">{pt.dimension}</span>
+                  <span className="text-xs text-gray-600 w-28 sm:w-40 flex-shrink-0 truncate">{pt.dimension}</span>
                   <div className="flex-1 h-6 rounded-full bg-gray-100 overflow-hidden relative">
                     <div
                       className="h-full rounded-full transition-all"
@@ -180,7 +180,7 @@ export default async function MaarovaResultsPage() {
                 .filter((mr) => mr.status !== "COMPLETED")
                 .map((mr) => (
                   <div key={mr.id} className="flex items-center gap-3 opacity-40">
-                    <span className="text-xs text-gray-400 w-40 flex-shrink-0 truncate">
+                    <span className="text-xs text-gray-400 w-28 sm:w-40 flex-shrink-0 truncate">
                       {MODULE_LABELS[mr.module.type] ?? mr.module.name}
                     </span>
                     <div className="flex-1 h-6 rounded-full bg-gray-100 overflow-hidden relative">

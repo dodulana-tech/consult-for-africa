@@ -104,9 +104,9 @@ export default function OrgUsersClient() {
             <tr className="text-left text-xs font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Role</th>
-              <th className="px-4 py-3">Manager</th>
+              <th className="px-4 py-3 hidden md:table-cell">Manager</th>
               <th className="px-4 py-3">Assessment</th>
-              <th className="px-4 py-3">Goals</th>
+              <th className="px-4 py-3 hidden md:table-cell">Goals</th>
               <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
@@ -122,7 +122,7 @@ export default function OrgUsersClient() {
                     <div>
                       <p className="text-sm font-medium" style={{ color: "#0F2744" }}>{user.name}</p>
                       <p className="text-xs text-gray-400">{user.title ?? user.email}</p>
-                      {user.department && <p className="text-[10px] text-gray-300">{user.department}</p>}
+                      {user.department && <p className="text-xs text-gray-300">{user.department}</p>}
                     </div>
                   </td>
                   <td className="px-4 py-3">
@@ -144,7 +144,7 @@ export default function OrgUsersClient() {
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 hidden md:table-cell">
                     {isEditing ? (
                       <select
                         defaultValue={user.managerId ?? ""}
@@ -171,7 +171,7 @@ export default function OrgUsersClient() {
                       {assessmentCfg.label}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 hidden md:table-cell">
                     {user.goalCount > 0 ? (
                       <div className="flex items-center gap-2">
                         <div className="w-12 h-1.5 rounded-full bg-gray-100 overflow-hidden">
@@ -185,7 +185,7 @@ export default function OrgUsersClient() {
                         </span>
                       </div>
                     ) : (
-                      <span className="text-[10px] text-gray-300">No goals</span>
+                      <span className="text-xs text-gray-300">No goals</span>
                     )}
                   </td>
                   <td className="px-4 py-3">

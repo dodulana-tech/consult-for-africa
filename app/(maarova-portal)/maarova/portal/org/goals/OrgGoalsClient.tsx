@@ -115,7 +115,7 @@ export default function OrgGoalsClient() {
               <p className="text-xs font-semibold" style={{ color: "#0F2744" }}>{d.dimension}</p>
               <div className="flex items-center justify-between mt-2">
                 <span className="text-lg font-bold" style={{ color: "#0F2744" }}>{d.avgProgress}%</span>
-                <span className="text-[10px] text-gray-400">{d.completed}/{d.count} completed</span>
+                <span className="text-xs text-gray-400">{d.completed}/{d.count} completed</span>
               </div>
               <div className="h-1.5 rounded-full bg-gray-100 mt-2 overflow-hidden">
                 <div className="h-full rounded-full" style={{ width: `${d.avgProgress}%`, background: "#D4A574" }} />
@@ -217,10 +217,10 @@ export default function OrgGoalsClient() {
             <tr className="text-left text-xs font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
               <th className="px-4 py-3">User</th>
               <th className="px-4 py-3">Goal</th>
-              <th className="px-4 py-3">Dimension</th>
+              <th className="px-4 py-3 hidden md:table-cell">Dimension</th>
               <th className="px-4 py-3">Progress</th>
               <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Source</th>
+              <th className="px-4 py-3 hidden md:table-cell">Source</th>
             </tr>
           </thead>
           <tbody>
@@ -230,12 +230,12 @@ export default function OrgGoalsClient() {
                 <tr key={goal.id} className="border-t hover:bg-gray-50 transition-colors" style={{ borderColor: "#F3F4F6" }}>
                   <td className="px-4 py-3">
                     <p className="text-sm font-medium" style={{ color: "#0F2744" }}>{goal.user.name}</p>
-                    {goal.user.department && <p className="text-[10px] text-gray-400">{goal.user.department}</p>}
+                    {goal.user.department && <p className="text-xs text-gray-400">{goal.user.department}</p>}
                   </td>
                   <td className="px-4 py-3">
                     <p className="text-sm text-gray-700">{goal.title}</p>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 hidden md:table-cell">
                     <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "#0F2744" + "10", color: "#0F2744" }}>
                       {goal.dimension}
                     </span>
@@ -258,8 +258,8 @@ export default function OrgGoalsClient() {
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3">
-                    <span className="text-[10px] text-gray-400 capitalize">{goal.source}</span>
+                  <td className="px-4 py-3 hidden md:table-cell">
+                    <span className="text-xs text-gray-400 capitalize">{goal.source}</span>
                   </td>
                 </tr>
               );

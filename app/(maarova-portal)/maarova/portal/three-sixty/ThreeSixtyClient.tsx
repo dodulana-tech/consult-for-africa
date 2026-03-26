@@ -449,10 +449,10 @@ export default function ThreeSixtyClient({ request, userName }: Props) {
                     <thead>
                       <tr className="text-left text-xs font-semibold text-gray-500 border-b" style={{ borderColor: "#e5eaf0" }}>
                         <th className="pb-3 pr-4">Name</th>
-                        <th className="pb-3 pr-4">Email</th>
+                        <th className="pb-3 pr-4 hidden md:table-cell">Email</th>
                         <th className="pb-3 pr-4">Role</th>
                         <th className="pb-3 pr-4">Status</th>
-                        <th className="pb-3 pr-4">Completed</th>
+                        <th className="pb-3 pr-4 hidden md:table-cell">Completed</th>
                         <th className="pb-3">Actions</th>
                       </tr>
                     </thead>
@@ -474,7 +474,7 @@ export default function ThreeSixtyClient({ request, userName }: Props) {
                                 {invite.raterName}
                               </span>
                             </td>
-                            <td className="py-3 pr-4 text-sm text-gray-500">
+                            <td className="py-3 pr-4 text-sm text-gray-500 hidden md:table-cell">
                               {invite.raterEmail}
                             </td>
                             <td className="py-3 pr-4">
@@ -489,7 +489,7 @@ export default function ThreeSixtyClient({ request, userName }: Props) {
                                 {badge.label}
                               </span>
                             </td>
-                            <td className="py-3 pr-4 text-xs text-gray-500">
+                            <td className="py-3 pr-4 text-xs text-gray-500 hidden md:table-cell">
                               {invite.completedAt
                                 ? formatDate(invite.completedAt)
                                 : "-"}

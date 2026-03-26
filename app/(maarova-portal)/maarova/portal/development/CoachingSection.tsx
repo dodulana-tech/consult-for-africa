@@ -334,11 +334,11 @@ export default function CoachingSection({ existingMatch, hasReport, userName }: 
             </div>
             <div className="flex flex-wrap gap-1.5 mt-2">
               {(coach.certifications ?? []).map((c, i) => (
-                <span key={i} className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                <span key={i} className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
                   {c}
                 </span>
               ))}
-              <span className="text-[10px] text-gray-400">
+              <span className="text-xs text-gray-400">
                 {coach.country}{coach.city ? `, ${coach.city}` : ""} | {coach.yearsExperience}yr exp
               </span>
             </div>
@@ -461,15 +461,15 @@ export default function CoachingSection({ existingMatch, hasReport, userName }: 
           <div className="grid grid-cols-3 gap-3 text-center">
             <div>
               <p className="text-sm font-semibold" style={{ color: "#0F2744" }}>{totalSessions}</p>
-              <p className="text-[10px] text-gray-400">Sessions</p>
+              <p className="text-xs text-gray-400">Sessions</p>
             </div>
             <div>
               <p className="text-sm font-semibold" style={{ color: "#0F2744" }}>{programme.duration}</p>
-              <p className="text-[10px] text-gray-400">Duration</p>
+              <p className="text-xs text-gray-400">Duration</p>
             </div>
             <div>
               <p className="text-sm font-semibold" style={{ color: "#0F2744" }}>Biweekly</p>
-              <p className="text-[10px] text-gray-400">Cadence</p>
+              <p className="text-xs text-gray-400">Cadence</p>
             </div>
           </div>
 
@@ -548,7 +548,7 @@ export default function CoachingSection({ existingMatch, hasReport, userName }: 
               {isPending ? "Choose a different coach" : "Request coach change"}
             </button>
             {isActive && match.sessionsCompleted > 0 && (
-              <p className="text-[10px] text-gray-300 mt-1">
+              <p className="text-xs text-gray-300 mt-1">
                 One free switch available within the first 2 sessions
               </p>
             )}
@@ -589,7 +589,7 @@ export default function CoachingSection({ existingMatch, hasReport, userName }: 
               ].map((step, i) => (
                 <div key={i} className="flex items-start gap-2.5">
                   <span
-                    className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5"
+                    className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5"
                     style={{ background: "#D4A574" + "20", color: "#92400E" }}
                   >
                     {i + 1}
@@ -729,7 +729,7 @@ export default function CoachingSection({ existingMatch, hasReport, userName }: 
 
                           <div className="flex flex-wrap gap-1.5 mb-3">
                             {(coach.specialisms ?? []).slice(0, 4).map((sp, i) => (
-                              <span key={i} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(212,165,116,0.1)", color: "#92400E" }}>
+                              <span key={i} className="text-xs px-2 py-0.5 rounded-full" style={{ background: "rgba(212,165,116,0.1)", color: "#92400E" }}>
                                 {sp}
                               </span>
                             ))}
@@ -737,7 +737,7 @@ export default function CoachingSection({ existingMatch, hasReport, userName }: 
 
                           <div className="flex items-center gap-2">
                             {(coach.certifications ?? []).map((c, i) => (
-                              <span key={i} className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                              <span key={i} className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
                                 {c}
                               </span>
                             ))}

@@ -97,7 +97,7 @@ export default async function MaarovaPortalLayout({
   ];
 
   return (
-    <div className="flex h-[100dvh] bg-gray-50">
+    <div className="flex min-h-[100dvh] overflow-hidden bg-gray-50">
       {/* Desktop Sidebar - hidden on mobile */}
       <aside className="hidden lg:flex w-64 flex-col flex-shrink-0" style={{ backgroundColor: "#0f1a2a" }}>
         {/* Brand */}
