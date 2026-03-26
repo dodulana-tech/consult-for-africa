@@ -69,10 +69,20 @@ export async function POST(req: NextRequest) {
   const canCreate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canCreate) return new Response("Forbidden", { status: 403 });
 
-  const { projectId, role, description, skillsRequired, hoursPerWeek, duration, rateType, rateBudget, rateCurrency, urgency } = await req.json();
+  const { projectId, role, description, skillsRequired, hoursPerWeek, duration, rateType, rateBudget, rateCurrency, urgency, trackId } = await req.json();
 
   if (!projectId || !role?.trim() || !description?.trim() || !hoursPerWeek || !rateType) {
     return Response.json({ error: "projectId, role, description, hoursPerWeek, and rateType are required" }, { status: 400 });
+  }
+
+  // Validate trackId belongs to this engagement if provided
+  if (trackId) {
+    const track = await prisma.engagementTrack.findFirst({
+      where: { id: trackId, engagementId: projectId },
+    });
+    if (!track) {
+      return Response.json({ error: "Track not found or does not belong to this engagement" }, { status: 400 });
+    }
   }
 
   const request = await prisma.staffingRequest.create({
@@ -88,6 +98,7 @@ export async function POST(req: NextRequest) {
       rateBudget: rateBudget ?? null,
       rateCurrency: rateCurrency ?? "NGN",
       urgency: urgency ?? "normal",
+      ...(trackId ? { trackId } : {}),
     },
   });
 

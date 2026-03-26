@@ -17,13 +17,41 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return Response.json({ error: "Name is required" }, { status: 400 });
   }
 
+  // Validate trackId belongs to this engagement if provided
+  if (body.trackId) {
+    const track = await prisma.engagementTrack.findFirst({
+      where: { id: body.trackId, engagementId: projectId },
+    });
+    if (!track) {
+      return Response.json({ error: "Track not found or does not belong to this engagement" }, { status: 400 });
+    }
+  }
+
+  // If trackId is set and no assignmentId provided, auto-assign to Track Lead
+  let resolvedAssignmentId = body.assignmentId || null;
+  if (body.trackId && !resolvedAssignmentId) {
+    const trackLead = await prisma.assignment.findFirst({
+      where: {
+        engagementId: projectId,
+        trackId: body.trackId,
+        trackRole: "Track Lead",
+        status: { in: ["ACTIVE", "PENDING", "PENDING_ACCEPTANCE"] },
+      },
+      select: { id: true },
+    });
+    if (trackLead) {
+      resolvedAssignmentId = trackLead.id;
+    }
+  }
+
   const deliverable = await prisma.deliverable.create({
     data: {
       engagementId: projectId,
       name: body.name.trim(),
       description: body.description?.trim() || "",
       milestoneId: body.milestoneId || null,
-      assignmentId: body.assignmentId || null,
+      assignmentId: resolvedAssignmentId,
+      trackId: body.trackId || null,
       dueDate: body.dueDate ? new Date(body.dueDate) : null,
       status: "DRAFT",
       reviewStage: "DRAFT",

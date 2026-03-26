@@ -45,6 +45,12 @@ export async function POST(
     estimatedHours,
     estimatedHoursPerWeek,
     forceAssign = false, // bypass capacity warning (still blocked if >100%)
+    trackId,
+    trackRole,
+    allocationPct,
+    isBillable,
+    billRate,
+    billCurrency,
   } = await req.json();
 
   if (!consultantId || !role?.trim() || !rateAmount || !rateCurrency || !rateType) {
@@ -73,6 +79,16 @@ export async function POST(
   });
   if (!consultant || consultant.role !== "CONSULTANT") {
     return new Response("Invalid consultant", { status: 400 });
+  }
+
+  // Validate trackId belongs to this engagement if provided
+  if (trackId) {
+    const track = await prisma.engagementTrack.findFirst({
+      where: { id: trackId, engagementId: projectId },
+    });
+    if (!track) {
+      return new Response("Track not found or does not belong to this engagement", { status: 400 });
+    }
   }
 
   // Capacity check
@@ -114,9 +130,27 @@ export async function POST(
       estimatedHoursPerWeek: estimatedHoursPerWeek ?? null,
       status: "PENDING_ACCEPTANCE",
       capacityAtAssignment: capacityCheck.capacity.utilizationPercent,
+      ...(trackId ? { trackId } : {}),
+      ...(trackRole ? { trackRole } : {}),
+      ...(allocationPct != null ? { allocationPct } : {}),
+      ...(isBillable != null ? { isBillable } : {}),
+      ...(billRate != null ? { billRate } : {}),
+      ...(billCurrency ? { billCurrency } : {}),
     },
     select: { id: true, role: true, status: true, rateAmount: true, rateCurrency: true, rateType: true },
   });
+
+  // If Track Lead, auto-assign all unassigned deliverables in that track
+  if (trackId && trackRole === "Track Lead") {
+    await prisma.deliverable.updateMany({
+      where: {
+        engagementId: projectId,
+        trackId,
+        assignmentId: null,
+      },
+      data: { assignmentId: assignment.id },
+    });
+  }
 
   // Create project update
   await prisma.engagementUpdate.create({

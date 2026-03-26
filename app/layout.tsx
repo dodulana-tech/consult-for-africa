@@ -41,13 +41,19 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
   },
-  manifest: "/site.webmanifest",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "CFA Platform",
+  },
   robots: {
     index: true,
     follow: true,
   },
   other: {
     "theme-color": "#0F2744",
+    "mobile-web-app-capable": "yes",
   },
 };
 

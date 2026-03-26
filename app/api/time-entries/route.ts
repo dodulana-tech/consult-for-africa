@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
   const canLog = ["CONSULTANT", "ENGAGEMENT_MANAGER"].includes(session.user.role);
   if (!canLog) return new Response("Forbidden", { status: 403 });
 
-  const { assignmentId, date, description, hours: inputHours, periodMonth, periodYear } = await req.json();
+  const { assignmentId, date, description, hours: inputHours, periodMonth, periodYear, trackId: inputTrackId } = await req.json();
 
   if (!assignmentId || !date) {
     return new Response("Invalid input", { status: 400 });
@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
       rateCurrency: true,
       estimatedHours: true,
       estimatedDays: true,
+      trackId: true,
       engagement: {
         select: {
           id: true,
@@ -82,6 +83,9 @@ export async function POST(req: NextRequest) {
   });
 
   if (!assignment) return new Response("Assignment not found", { status: 404 });
+
+  // Resolve trackId: use explicit input, fall back to assignment's trackId
+  const resolvedTrackId = inputTrackId ?? assignment.trackId ?? null;
 
   let hours: number;
   let hoursWorked: number | null = null;
@@ -136,6 +140,7 @@ export async function POST(req: NextRequest) {
       currency: assignment.rateCurrency,
       periodMonth: periodMonth ?? null,
       periodYear: periodYear ?? null,
+      ...(resolvedTrackId ? { trackId: resolvedTrackId } : {}),
     },
   });
 

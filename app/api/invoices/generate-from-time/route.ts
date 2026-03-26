@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   const canCreate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canCreate) return new Response("Forbidden", { status: 403 });
 
-  const { engagementId, periodStart, periodEnd } = await req.json();
+  const { engagementId, periodStart, periodEnd, trackId } = await req.json();
 
   if (!engagementId || !periodStart || !periodEnd) {
     return new Response("engagementId, periodStart, and periodEnd are required", { status: 400 });
@@ -39,6 +39,16 @@ export async function POST(req: NextRequest) {
     return new Response("Forbidden", { status: 403 });
   }
 
+  // Validate trackId belongs to this engagement if provided
+  if (trackId) {
+    const track = await prisma.engagementTrack.findFirst({
+      where: { id: trackId, engagementId },
+    });
+    if (!track) {
+      return new Response("Track not found or does not belong to this engagement", { status: 400 });
+    }
+  }
+
   // Find APPROVED time entries in the period that are not already invoiced
   // "Not already invoiced" = not referenced in any InvoiceLineItem.timeEntryIds
   const timeEntries = await prisma.timeEntry.findMany({
@@ -47,10 +57,12 @@ export async function POST(req: NextRequest) {
       status: "APPROVED",
       date: { gte: start, lte: end },
       isForBilling: true,
+      ...(trackId ? { trackId } : {}),
     },
     include: {
       consultant: { select: { id: true, name: true } },
       assignment: { select: { rateAmount: true, rateCurrency: true, rateType: true } },
+      track: { select: { name: true } },
     },
   });
 
@@ -74,18 +86,20 @@ export async function POST(req: NextRequest) {
     return new Response("All time entries in this period have already been invoiced", { status: 400 });
   }
 
-  // Group by consultant
-  const byConsultant = new Map<string, {
+  // Group by consultant + track
+  const byConsultantTrack = new Map<string, {
     name: string;
     hours: number;
     rate: number;
     currency: string;
     entryIds: string[];
+    trackName: string | null;
   }>();
 
   for (const te of uninvoiced) {
-    const key = te.consultantId;
-    const existing = byConsultant.get(key);
+    const trackName = te.track?.name ?? null;
+    const key = `${te.consultantId}::${trackName ?? "__none__"}`;
+    const existing = byConsultantTrack.get(key);
     const hours = Number(te.hours);
     const rate = Number(te.assignment.rateAmount);
 
@@ -93,19 +107,20 @@ export async function POST(req: NextRequest) {
       existing.hours += hours;
       existing.entryIds.push(te.id);
     } else {
-      byConsultant.set(key, {
+      byConsultantTrack.set(key, {
         name: te.consultant.name,
         hours,
         rate,
         currency: te.assignment.rateCurrency,
         entryIds: [te.id],
+        trackName,
       });
     }
   }
 
   // Build line items
-  const lineItemsData = Array.from(byConsultant.values()).map((c, i) => ({
-    description: `Consulting services - ${c.name} - ${c.hours.toFixed(1)}h @ ${c.currency === "USD" ? "$" : "\u20A6"}${c.rate.toLocaleString()}`,
+  const lineItemsData = Array.from(byConsultantTrack.values()).map((c, i) => ({
+    description: `Consulting services - ${c.name}${c.trackName ? ` [${c.trackName}]` : ""} - ${c.hours.toFixed(1)}h @ ${c.currency === "USD" ? "$" : "\u20A6"}${c.rate.toLocaleString()}`,
     quantity: c.hours,
     unitPrice: c.rate,
     amount: Math.round(c.hours * c.rate * 100) / 100,
