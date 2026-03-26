@@ -211,7 +211,7 @@ export default function AssessmentIntroPage() {
 
   if (sessionStatus === "loading" || checkingActive) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-[100dvh]">
         <Loader2 className="animate-spin text-gray-400" size={32} />
       </div>
     );

@@ -167,7 +167,7 @@ export default function TasksPage() {
               className="w-full text-sm px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
               style={{ border: "1px solid #e5eaf0", background: "#F9FAFB" }}
             />
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="text-xs text-gray-500 block mb-1">Priority</label>
                 <select

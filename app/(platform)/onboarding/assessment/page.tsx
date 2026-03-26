@@ -148,7 +148,7 @@ export default function AssessmentPageWrapper() {
   return (
     <Suspense
       fallback={
-        <div className="flex items-center justify-center h-screen">
+        <div className="flex items-center justify-center h-[100dvh]">
           <Loader2 className="animate-spin text-gray-400" size={32} />
         </div>
       }
@@ -842,7 +842,7 @@ function AssessmentPage() {
 
   if (loading || sessionStatus === "loading") {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-[100dvh]">
         <Loader2 className="animate-spin text-gray-400" size={32} />
       </div>
     );
@@ -900,7 +900,7 @@ function AssessmentPage() {
   // -----------------------------------------------------------------------
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden" style={{ background: "#F9FAFB" }}>
+    <div className="flex flex-col h-[100dvh] overflow-hidden" style={{ background: "#F9FAFB" }}>
       {/* Header bar */}
       <div
         className="shrink-0 px-6 py-0"

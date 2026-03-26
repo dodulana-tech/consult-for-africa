@@ -41,7 +41,7 @@ export default function CoachMobileNav({
       {open && (
         <>
           <div className="lg:hidden fixed inset-0 z-40 bg-black/50" onClick={() => setOpen(false)} />
-          <div className="lg:hidden fixed top-0 right-0 bottom-0 z-50 w-64 flex flex-col overflow-y-auto" style={{ backgroundColor: "#0f1a2a" }}>
+          <div className="lg:hidden fixed top-0 right-0 bottom-0 z-50 w-[85vw] max-w-72 flex flex-col overflow-y-auto" style={{ backgroundColor: "#0f1a2a" }}>
             <div className="flex items-center justify-end px-4 py-3 border-b border-white/10">
               <button onClick={() => setOpen(false)} className="text-white p-1">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
