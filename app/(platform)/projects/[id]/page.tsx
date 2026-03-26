@@ -53,6 +53,17 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       risks: {
         orderBy: [{ severity: "desc" }, { createdAt: "desc" }],
       },
+      tracks: {
+        orderBy: { order: "asc" },
+        include: {
+          assignments: {
+            where: { status: { in: ["ACTIVE", "PENDING", "PENDING_ACCEPTANCE"] } },
+            include: { consultant: { select: { id: true, name: true } } },
+          },
+          deliverables: { select: { id: true, name: true, status: true, assignmentId: true, dueDate: true } },
+          staffingRequests: { where: { status: "OPEN" }, select: { id: true, role: true } },
+        },
+      },
       interactions: {
         orderBy: { conductedAt: "desc" },
       },
@@ -230,6 +241,35 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       status: sr.status,
       expressionCount: sr._count.expressions,
       createdAt: sr.createdAt.toISOString(),
+    })),
+    tracks: project.tracks.map((t) => ({
+      id: t.id,
+      name: t.name,
+      description: t.description,
+      order: t.order,
+      status: t.status,
+      startDate: t.startDate?.toISOString() ?? null,
+      endDate: t.endDate?.toISOString() ?? null,
+      budgetAmount: t.budgetAmount ? Number(t.budgetAmount) : null,
+      budgetCurrency: t.budgetCurrency,
+      team: t.assignments.map((a) => ({
+        assignmentId: a.id,
+        consultantId: a.consultant.id,
+        consultantName: a.consultant.name,
+        role: a.role,
+        trackRole: a.trackRole,
+        allocationPct: a.allocationPct,
+        isBillable: a.isBillable,
+        status: a.status,
+      })),
+      deliverables: t.deliverables.map((d) => ({
+        id: d.id,
+        name: d.name,
+        status: d.status,
+        assigned: !!d.assignmentId,
+        dueDate: d.dueDate?.toISOString() ?? null,
+      })),
+      openStaffingRequests: t.staffingRequests.length,
     })),
     risks: project.risks.map((r) => ({
       id: r.id,
