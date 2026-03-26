@@ -136,6 +136,36 @@ const PAYMENT_METHODS = [
   { value: "cash", label: "Cash" },
 ];
 
+/* ─── Track Badge Colors ─────────────────────────────────────────────────── */
+
+const TRACK_BADGE_COLORS = [
+  { bg: "#DBEAFE", color: "#1E40AF" },
+  { bg: "#D1FAE5", color: "#065F46" },
+  { bg: "#FEF3C7", color: "#92400E" },
+  { bg: "#FCE7F3", color: "#9D174D" },
+  { bg: "#E0E7FF", color: "#3730A3" },
+  { bg: "#FEF9C3", color: "#854D0E" },
+  { bg: "#CCFBF1", color: "#115E59" },
+  { bg: "#FFE4E6", color: "#9F1239" },
+];
+
+function getTrackBadgeColor(trackName: string): { bg: string; color: string } {
+  let hash = 0;
+  for (let i = 0; i < trackName.length; i++) {
+    hash = trackName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return TRACK_BADGE_COLORS[Math.abs(hash) % TRACK_BADGE_COLORS.length];
+}
+
+/** Parse "[TrackName]" from a line item description and return parts */
+function parseTrackFromDescription(description: string): { text: string; trackName: string | null } {
+  const match = description.match(/\[([^\]]+)\]/);
+  if (!match) return { text: description, trackName: null };
+  const trackName = match[1];
+  const text = description.replace(`[${trackName}]`, "").replace(/\s{2,}/g, " ").trim();
+  return { text, trackName };
+}
+
 /* ─── Helpers ─────────────────────────────────────────────────────────────── */
 
 function fmtCurrency(amount: number, currency: string) {
@@ -380,10 +410,21 @@ export default function InvoiceDetailPage() {
                     </thead>
                     <tbody>
                       {invoice.lineItemRecords.length > 0 ? (
-                        invoice.lineItemRecords.map((item) => (
+                        invoice.lineItemRecords.map((item) => {
+                          const { text, trackName } = parseTrackFromDescription(item.description);
+                          const trackColor = trackName ? getTrackBadgeColor(trackName) : null;
+                          return (
                           <tr key={item.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                             <td className="py-3 pr-4 text-gray-800">
-                              {item.description}
+                              {trackName && trackColor && (
+                                <span
+                                  className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full mr-2 align-middle"
+                                  style={{ background: trackColor.bg, color: trackColor.color }}
+                                >
+                                  {trackName}
+                                </span>
+                              )}
+                              {text}
                               {item.category && (
                                 <span className="ml-2 text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-400">
                                   {item.category.replace(/_/g, " ")}
@@ -394,7 +435,8 @@ export default function InvoiceDetailPage() {
                             <td className="py-3 px-4 text-right text-gray-600">{fmtCurrency(item.unitPrice, invoice.currency)}</td>
                             <td className="py-3 pl-4 text-right font-medium text-gray-900">{fmtCurrency(item.amount, invoice.currency)}</td>
                           </tr>
-                        ))
+                          );
+                        })
                       ) : (
                         <tr>
                           <td colSpan={4} className="py-6 text-center text-gray-400">No line items</td>

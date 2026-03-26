@@ -22,6 +22,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       assignment: {
         include: { consultant: { select: { name: true } } },
       },
+      track: { select: { name: true } },
     },
   });
 
@@ -70,6 +71,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     projectName: deliverable.engagement.name,
     deliverableId: id,
     projectId: deliverable.engagementId,
+    trackName: deliverable.track?.name ?? undefined,
   });
 
   await logAudit({

@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 import { getNuruContext } from "@/lib/nuruContext";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
@@ -14,7 +15,33 @@ export async function POST(req: NextRequest) {
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  const { projectName, serviceType, description, existingTeam } = body;
+  const { projectName, serviceType, description, existingTeam, trackId } = body;
+
+  // Optionally fetch track context and project tracks
+  let trackSection = "";
+  if (trackId) {
+    const track = await prisma.engagementTrack.findUnique({
+      where: { id: trackId },
+      include: {
+        assignments: {
+          include: { consultant: { select: { name: true } } },
+          where: { status: { in: ["ACTIVE", "PENDING"] } },
+        },
+        staffingRequests: {
+          where: { status: "OPEN" },
+          select: { role: true, skillsRequired: true },
+        },
+      },
+    });
+    if (track) {
+      const assigned = track.assignments.map((a) => a.consultant.name);
+      const openRoles = track.staffingRequests.map((sr) => `${sr.role} (needs: ${sr.skillsRequired.join(", ")})`);
+      trackSection = `\nTARGET TRACK: "${track.name}" (${track.status})${track.description ? ` - ${track.description}` : ""}
+Currently assigned to this track: ${assigned.length > 0 ? assigned.join(", ") : "No one yet"}
+Open staffing requests on this track: ${openRoles.length > 0 ? openRoles.join("; ") : "None"}
+The suggested role should serve this track specifically.\n`;
+    }
+  }
 
   const prompt = `You are Nuru, CFA's internal intelligence system. An Engagement Manager needs help staffing a project.
 
@@ -22,7 +49,7 @@ PROJECT: ${projectName || "Unnamed"}
 SERVICE LINE: ${serviceType || "Not specified"}
 ${description ? `DESCRIPTION: ${description}` : ""}
 ${Array.isArray(existingTeam) && existingTeam.length > 0 ? `EXISTING TEAM:\n${existingTeam.join("\n")}` : "No team assigned yet."}
-
+${trackSection}
 Based on this project context, suggest the next consultant role needed. Consider what skills are missing from the existing team.
 
 CFA SKILL TAXONOMY: Hospital Operations, Revenue Cycle, Clinical Governance, Patient Safety, Quality Improvement, Financial Management, Health Insurance (NHIS/HMO), Supply Chain, Pharmacy Management, Digital Health, EMR/HIS, Data Analytics, Change Management, HR Management, Strategy & Planning, Business Development, Process Engineering, Facilities Management, Nursing Leadership, Medical Director, Health Policy, M&E, Epidemiology, Marketing, Legal & Compliance, Risk Management, Internal Audit, Training & Development

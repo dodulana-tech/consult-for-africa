@@ -66,6 +66,13 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   const paidAmount = Number(invoice.paidAmount);
   const balanceDue = Number(invoice.balanceDue);
 
+  // Parse [TrackName] from description
+  function parseTrack(desc: string): { text: string; trackName: string | null } {
+    const m = desc.match(/\[([^\]]+)\]/);
+    if (!m) return { text: desc, trackName: null };
+    return { text: desc.replace(`[${m[1]}]`, "").replace(/\s{2,}/g, " ").trim(), trackName: m[1] };
+  }
+
   // Use lineItemRecords if available, fall back to legacy JSON
   const items = invoice.lineItemRecords.length > 0
     ? invoice.lineItemRecords.map((li) => ({
@@ -94,14 +101,42 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   };
   const badgeColor = statusColors[invoice.status] ?? "#6B7280";
 
-  const lineItemRows = items.map((item, i) => `
-    <tr style="background:${i % 2 === 0 ? "#fff" : "#F9FAFB"};">
-      <td style="padding:10px 14px;border-bottom:1px solid #E5E7EB;font-size:13px;color:#374151;">${esc(item.description)}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid #E5E7EB;font-size:13px;color:#374151;text-align:center;">${item.quantity}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid #E5E7EB;font-size:13px;color:#374151;text-align:right;">${fmtMoney(item.unitPrice, cur)}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid #E5E7EB;font-size:13px;color:#374151;text-align:right;font-weight:500;">${fmtMoney(item.amount, cur)}</td>
-    </tr>
-  `).join("");
+  // Group items by track for display
+  const trackGroups = new Map<string, typeof items>();
+  for (const item of items) {
+    const { trackName } = parseTrack(item.description);
+    const key = trackName ?? "__none__";
+    if (!trackGroups.has(key)) trackGroups.set(key, []);
+    trackGroups.get(key)!.push(item);
+  }
+  const hasMultipleTracks = trackGroups.size > 1 || (trackGroups.size === 1 && !trackGroups.has("__none__"));
+
+  let lineItemRows = "";
+  let rowIdx = 0;
+  for (const [trackKey, groupItems] of trackGroups) {
+    if (hasMultipleTracks && trackKey !== "__none__") {
+      lineItemRows += `
+        <tr>
+          <td colspan="4" style="padding:10px 14px 6px;border-bottom:1px solid #E5E7EB;font-size:12px;font-weight:600;color:#0F2744;text-transform:uppercase;letter-spacing:0.05em;background:#F9FAFB;">
+            <span style="display:inline-block;padding:2px 10px;border-radius:4px;background:#DBEAFE;color:#1E40AF;font-size:11px;font-weight:600;text-transform:none;letter-spacing:normal;">${esc(trackKey)}</span>
+          </td>
+        </tr>`;
+    }
+    for (const item of groupItems) {
+      const { text, trackName } = parseTrack(item.description);
+      const descHtml = trackName && !hasMultipleTracks
+        ? `<span style="display:inline-block;padding:1px 8px;border-radius:4px;background:#DBEAFE;color:#1E40AF;font-size:10px;font-weight:600;margin-right:6px;vertical-align:middle;">${esc(trackName)}</span>${esc(text)}`
+        : esc(hasMultipleTracks ? text : item.description);
+      lineItemRows += `
+        <tr style="background:${rowIdx % 2 === 0 ? "#fff" : "#F9FAFB"};">
+          <td style="padding:10px 14px;border-bottom:1px solid #E5E7EB;font-size:13px;color:#374151;">${descHtml}</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #E5E7EB;font-size:13px;color:#374151;text-align:center;">${item.quantity}</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #E5E7EB;font-size:13px;color:#374151;text-align:right;">${fmtMoney(item.unitPrice, cur)}</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #E5E7EB;font-size:13px;color:#374151;text-align:right;font-weight:500;">${fmtMoney(item.amount, cur)}</td>
+        </tr>`;
+      rowIdx++;
+    }
+  }
 
   const paymentRows = invoice.payments.length > 0
     ? `

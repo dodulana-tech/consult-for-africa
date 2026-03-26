@@ -39,6 +39,17 @@ const MILESTONE_STATUS_STYLES: Record<
   OVERDUE:   { bg: "#FEE2E2", color: "#991B1B", label: "Overdue" },
 };
 
+const TRACK_STATUS_STYLES: Record<
+  string,
+  { bg: string; color: string; label: string }
+> = {
+  OPEN:       { bg: "#EFF6FF", color: "#1D4ED8", label: "Open" },
+  ACTIVE:     { bg: "#D1FAE5", color: "#065F46", label: "Active" },
+  COMPLETED:  { bg: "#F0FDF4", color: "#15803D", label: "Completed" },
+  ON_HOLD:    { bg: "#F3F4F6", color: "#6B7280", label: "On Hold" },
+  CANCELLED:  { bg: "#FEE2E2", color: "#991B1B", label: "Cancelled" },
+};
+
 const DELIVERABLE_STATUS_STYLES: Record<
   string,
   { bg: string; color: string; label: string }
@@ -106,10 +117,20 @@ export default async function ClientProjectPage({
           dueDate: true,
           fileUrl: true,
           submittedAt: true,
+          trackId: true,
         },
       },
       phases: { orderBy: { order: "asc" } },
       paymentMilestones: { orderBy: { dueDate: "asc" } },
+      tracks: {
+        orderBy: { order: "asc" },
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          deliverables: { select: { id: true, status: true } },
+        },
+      },
     },
   });
 
@@ -506,6 +527,85 @@ export default async function ClientProjectPage({
             </div>
           ))}
         </div>
+
+        {/* ── 3b. Engagement Tracks ── */}
+        {project.tracks.length > 0 && (
+          <div
+            className="bg-white rounded-2xl p-6"
+            style={{ border: "1px solid #e5eaf0" }}
+          >
+            <h2
+              className="text-sm font-semibold mb-5"
+              style={{ color: "#0F2744" }}
+            >
+              Work Tracks
+            </h2>
+            <div className="space-y-3">
+              {project.tracks.map((track) => {
+                const tStyle =
+                  TRACK_STATUS_STYLES[track.status] ?? TRACK_STATUS_STYLES.OPEN;
+                const totalDeliverables = track.deliverables.length;
+                const completedDeliverables = track.deliverables.filter(
+                  (d: { status: string }) =>
+                    d.status === "APPROVED" || d.status === "DELIVERED_TO_CLIENT"
+                ).length;
+                const progressPct =
+                  totalDeliverables > 0
+                    ? Math.round((completedDeliverables / totalDeliverables) * 100)
+                    : 0;
+
+                return (
+                  <div
+                    key={track.id}
+                    className="rounded-xl px-5 py-4"
+                    style={{
+                      border: "1px solid #e5eaf0",
+                      background: "#FAFBFC",
+                    }}
+                  >
+                    <div className="flex items-center justify-between gap-4 flex-wrap mb-2">
+                      <div className="flex items-center gap-2.5">
+                        <p
+                          className="text-sm font-medium"
+                          style={{ color: "#0F2744" }}
+                        >
+                          {track.name}
+                        </p>
+                        <span
+                          className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+                          style={{
+                            background: tStyle.bg,
+                            color: tStyle.color,
+                          }}
+                        >
+                          {tStyle.label}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        {completedDeliverables}/{totalDeliverables} deliverables
+                      </p>
+                    </div>
+                    {totalDeliverables > 0 && (
+                      <div
+                        className="h-1.5 rounded-full w-full overflow-hidden"
+                        style={{ background: "#e5eaf0" }}
+                      >
+                        <div
+                          className="h-full rounded-full transition-all"
+                          style={{
+                            width: `${progressPct}%`,
+                            background:
+                              progressPct === 100 ? "#D4AF37" : "#0F2744",
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* ── 4. Payment Milestones ── */}
         <div

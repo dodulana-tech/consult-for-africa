@@ -34,6 +34,9 @@ export async function POST(req: NextRequest) {
           },
         },
       },
+      track: {
+        select: { name: true, description: true, status: true },
+      },
     },
   });
 
@@ -47,6 +50,7 @@ export async function POST(req: NextRequest) {
 PROJECT: ${deliverable.engagement.name} (${deliverable.engagement.serviceType.replace(/_/g, " ")})
 CLIENT: ${deliverable.engagement.client.name} (${deliverable.engagement.client.type.replace(/_/g, " ")})
 PROJECT CONTEXT: ${deliverable.engagement.description}
+${deliverable.track ? `WORKSTREAM TRACK: "${deliverable.track.name}"${deliverable.track.description ? ` - ${deliverable.track.description}` : ""} (${deliverable.track.status})\nThis deliverable is part of the above track. Consider whether it adequately addresses the track's scope.` : ""}
 
 DELIVERABLE NAME: ${deliverable.name}
 DELIVERABLE DESCRIPTION: ${deliverable.description}

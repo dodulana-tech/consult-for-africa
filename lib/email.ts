@@ -100,6 +100,7 @@ export async function emailDeliverableSubmitted({
   projectName,
   deliverableId,
   projectId,
+  trackName,
 }: {
   emEmail: string;
   emName: string;
@@ -108,6 +109,7 @@ export async function emailDeliverableSubmitted({
   projectName: string;
   deliverableId: string;
   projectId: string;
+  trackName?: string;
 }) {
   await send(
     emEmail,
@@ -117,6 +119,7 @@ export async function emailDeliverableSubmitted({
       ${p(`Hi ${emName}, a new deliverable has been submitted and is waiting for your review.`)}
       ${infoTable([
         ["Project", projectName],
+        ...(trackName ? [["Track", trackName] as [string, string]] : []),
         ["Deliverable", deliverableName],
         ["Submitted by", consultantName],
       ])}
@@ -199,6 +202,7 @@ export async function emailTimesheetApproved({
   totalAmount,
   currency,
   projectName,
+  trackName,
 }: {
   consultantEmail: string;
   consultantName: string;
@@ -206,6 +210,7 @@ export async function emailTimesheetApproved({
   totalAmount: number;
   currency: string;
   projectName: string;
+  trackName?: string;
 }) {
   const formatted = currency === "USD"
     ? `$${totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
@@ -219,6 +224,7 @@ export async function emailTimesheetApproved({
       ${p(`Hi ${consultantName}, your timesheet has been approved and is queued for payment.`)}
       ${infoTable([
         ["Project", projectName],
+        ...(trackName ? [["Track", trackName] as [string, string]] : []),
         ["Hours", `${totalHours}h`],
         ["Amount", formatted],
         ["Status", "Approved, payment processing"],
@@ -867,12 +873,12 @@ export async function emailEMChanged({
 }
 
 export async function emailAssignmentCreated({
-  consultantEmail, consultantName, projectName, role, rateType, rateAmount, currency,
+  consultantEmail, consultantName, projectName, role, rateType, rateAmount, currency, trackName,
 }: {
-  consultantEmail: string; consultantName: string; projectName: string; role: string; rateType: string; rateAmount: string; currency: string;
+  consultantEmail: string; consultantName: string; projectName: string; role: string; rateType: string; rateAmount: string; currency: string; trackName?: string;
 }) {
   await send(consultantEmail, `Assignment request: ${role} on ${projectName}`,
-    layout(`${h1("New Assignment Request")}${p(`You have been requested for a role on a CFA engagement. Please review and respond.`)}${infoTable([["Project", projectName], ["Role", role], ["Rate", `${currency} ${rateAmount} (${rateType})`]])}${p("You will need to accept this assignment before it becomes active.")}${btn("Review Assignment", `${BASE_URL}/opportunities`)}`)
+    layout(`${h1("New Assignment Request")}${p(`You have been requested for a role on a CFA engagement. Please review and respond.`)}${infoTable([["Project", projectName], ...(trackName ? [["Track", trackName] as [string, string]] : []), ["Role", role], ["Rate", `${currency} ${rateAmount} (${rateType})`]])}${p("You will need to accept this assignment before it becomes active.")}${btn("Review Assignment", `${BASE_URL}/opportunities`)}`)
   );
 }
 

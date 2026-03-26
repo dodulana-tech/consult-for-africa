@@ -38,6 +38,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     include: {
       consultant: { select: { name: true, email: true } },
       assignment: { include: { engagement: { select: { name: true } } } },
+      track: { select: { name: true } },
     },
   });
 
@@ -49,6 +50,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       totalAmount: entry.billableAmount ? Number(entry.billableAmount) : 0,
       currency: entry.currency,
       projectName: entry.assignment.engagement.name,
+      trackName: entry.track?.name ?? undefined,
     });
   } else if (reason) {
     await emailTimesheetRejected({

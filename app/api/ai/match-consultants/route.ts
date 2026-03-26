@@ -119,12 +119,32 @@ export async function POST(req: NextRequest) {
 
   const {
     projectId,
+    trackId,
     requiredExpertise = [],
     serviceType = "",
     durationWeeks = 12,
   } = await req.json();
 
   if (!projectId) return new Response("projectId required", { status: 400 });
+
+  // Optionally fetch track context to enrich matching
+  let trackContext = "";
+  if (trackId) {
+    const track = await prisma.engagementTrack.findUnique({
+      where: { id: trackId },
+      include: {
+        staffingRequests: {
+          where: { status: "OPEN" },
+          select: { skillsRequired: true, role: true },
+        },
+      },
+    });
+    if (track) {
+      const trackSkills = track.staffingRequests.flatMap((sr) => sr.skillsRequired);
+      const uniqueSkills = [...new Set(trackSkills)];
+      trackContext = `Matching for the "${track.name}" workstream${uniqueSkills.length > 0 ? ` which requires ${uniqueSkills.join(", ")}` : ""}`;
+    }
+  }
 
   // Fetch project
   const project = await prisma.engagement.findUnique({
@@ -251,7 +271,7 @@ export async function POST(req: NextRequest) {
           content: `You are matching consultants for a consulting project. Write a single concise sentence (max 20 words) explaining why each consultant is a good match. Be specific. Use plain language. No em dashes.
 
 Project: "${project.name}" (${project.serviceType.replace(/_/g, " ")} for ${project.client.name}, ${project.client.type.replace(/_/g, " ")})
-Required expertise: ${expertiseRequired.join(", ") || "General consulting"}
+${trackContext ? `Track context: ${trackContext}\n` : ""}Required expertise: ${expertiseRequired.join(", ") || "General consulting"}
 
 Consultants:
 ${JSON.stringify(consultantSummaries, null, 2)}

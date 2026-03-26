@@ -23,8 +23,10 @@ export async function GET(req: NextRequest) {
       return margins();
     case "client-history":
       return clientHistory(searchParams);
+    case "track-profitability":
+      return trackProfitability(searchParams);
     default:
-      return new Response("type parameter required: ar-aging, revenue, margins, client-history", { status: 400 });
+      return new Response("type parameter required: ar-aging, revenue, margins, client-history, track-profitability", { status: 400 });
   }
 }
 
@@ -336,5 +338,138 @@ async function clientHistory(searchParams: URLSearchParams) {
       engagementName: inv.engagement?.name ?? null,
       paymentCount: inv.payments.length,
     })),
+  });
+}
+
+/* ── Track profitability per engagement ─────────────────────────────────────── */
+
+async function trackProfitability(searchParams: URLSearchParams) {
+  const engagementId = searchParams.get("engagementId");
+  if (!engagementId) return new Response("engagementId parameter required", { status: 400 });
+
+  const engagement = await prisma.engagement.findUnique({
+    where: { id: engagementId },
+    select: { id: true, name: true, budgetCurrency: true },
+  });
+  if (!engagement) return new Response("Engagement not found", { status: 404 });
+
+  const dateFrom = searchParams.get("dateFrom");
+  const dateTo = searchParams.get("dateTo");
+
+  const dateFilter: { gte?: Date; lte?: Date } = {};
+  if (dateFrom) dateFilter.gte = new Date(dateFrom);
+  if (dateTo) dateFilter.lte = new Date(dateTo);
+  const hasDateFilter = Object.keys(dateFilter).length > 0;
+
+  // Get all tracks for this engagement
+  const tracks = await prisma.engagementTrack.findMany({
+    where: { engagementId },
+    select: { id: true, name: true, status: true, budgetAmount: true, budgetCurrency: true },
+    orderBy: { order: "asc" },
+  });
+
+  // For each track: compute billed (from invoice line items linked to track time entries) and cost
+  const trackResults = await Promise.all(
+    tracks.map(async (track) => {
+      // Cost: approved/paid time entries on this track
+      const costAgg = await prisma.timeEntry.aggregate({
+        where: {
+          trackId: track.id,
+          status: { in: ["APPROVED", "PAID"] },
+          ...(hasDateFilter ? { date: dateFilter } : {}),
+        },
+        _sum: { billableAmount: true, hours: true },
+      });
+
+      // Billed: invoice line items whose descriptions reference this track
+      // We look at invoices for this engagement and match line items containing [TrackName]
+      const invoiceLineItems = await prisma.invoiceLineItem.findMany({
+        where: {
+          invoice: {
+            engagementId,
+            status: { notIn: ["CANCELLED", "WRITTEN_OFF", "DRAFT"] },
+            ...(hasDateFilter && dateFilter.gte ? { issuedDate: { gte: dateFilter.gte } } : {}),
+            ...(hasDateFilter && dateTo ? { issuedDate: { lte: new Date(dateTo) } } : {}),
+          },
+          description: { contains: `[${track.name}]` },
+        },
+        select: { amount: true },
+      });
+
+      const billed = invoiceLineItems.reduce((sum, li) => sum + Number(li.amount), 0);
+      const cost = Number(costAgg._sum.billableAmount ?? 0);
+      const hours = Number(costAgg._sum.hours ?? 0);
+      const margin = billed - cost;
+      const marginPct = billed > 0 ? Math.round((margin / billed) * 10000) / 100 : 0;
+
+      return {
+        trackId: track.id,
+        trackName: track.name,
+        trackStatus: track.status,
+        budgetAmount: track.budgetAmount ? Number(track.budgetAmount) : null,
+        budgetCurrency: track.budgetCurrency,
+        totalBilled: Math.round(billed * 100) / 100,
+        totalCost: Math.round(cost * 100) / 100,
+        totalHours: Math.round(hours * 100) / 100,
+        margin: Math.round(margin * 100) / 100,
+        marginPct,
+      };
+    })
+  );
+
+  // Also compute untracked (project-level, no track)
+  const untrackedCostAgg = await prisma.timeEntry.aggregate({
+    where: {
+      assignment: { engagementId },
+      trackId: null,
+      status: { in: ["APPROVED", "PAID"] },
+      ...(hasDateFilter ? { date: dateFilter } : {}),
+    },
+    _sum: { billableAmount: true, hours: true },
+  });
+
+  const untrackedLineItems = await prisma.invoiceLineItem.findMany({
+    where: {
+      invoice: {
+        engagementId,
+        status: { notIn: ["CANCELLED", "WRITTEN_OFF", "DRAFT"] },
+        ...(hasDateFilter && dateFilter.gte ? { issuedDate: { gte: dateFilter.gte } } : {}),
+        ...(hasDateFilter && dateTo ? { issuedDate: { lte: new Date(dateTo) } } : {}),
+      },
+      NOT: tracks.length > 0
+        ? { OR: tracks.map((t) => ({ description: { contains: `[${t.name}]` } })) }
+        : undefined,
+    },
+    select: { amount: true },
+  });
+
+  const untrackedBilled = untrackedLineItems.reduce((sum, li) => sum + Number(li.amount), 0);
+  const untrackedCost = Number(untrackedCostAgg._sum.billableAmount ?? 0);
+  const untrackedHours = Number(untrackedCostAgg._sum.hours ?? 0);
+  const untrackedMargin = untrackedBilled - untrackedCost;
+
+  const totalBilled = trackResults.reduce((a, b) => a + b.totalBilled, 0) + untrackedBilled;
+  const totalCost = trackResults.reduce((a, b) => a + b.totalCost, 0) + untrackedCost;
+
+  return Response.json({
+    engagementId: engagement.id,
+    engagementName: engagement.name,
+    currency: engagement.budgetCurrency,
+    ...(dateFrom ? { dateFrom } : {}),
+    ...(dateTo ? { dateTo } : {}),
+    tracks: trackResults,
+    untracked: {
+      totalBilled: Math.round(untrackedBilled * 100) / 100,
+      totalCost: Math.round(untrackedCost * 100) / 100,
+      totalHours: Math.round(untrackedHours * 100) / 100,
+      margin: Math.round(untrackedMargin * 100) / 100,
+      marginPct: untrackedBilled > 0 ? Math.round((untrackedMargin / untrackedBilled) * 10000) / 100 : 0,
+    },
+    summary: {
+      totalBilled: Math.round(totalBilled * 100) / 100,
+      totalCost: Math.round(totalCost * 100) / 100,
+      totalMargin: Math.round((totalBilled - totalCost) * 100) / 100,
+      avgMarginPct: totalBilled > 0 ? Math.round(((totalBilled - totalCost) / totalBilled) * 10000) / 100 : 0,
+    },
   });
 }

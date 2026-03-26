@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   if (!projectId) return new Response("projectId required", { status: 400 });
 
   // Fetch full project state using separate queries for reliability
-  const [project, assignments, milestones, deliverables, invoices] = await Promise.all([
+  const [project, assignments, milestones, deliverables, invoices, tracks] = await Promise.all([
     prisma.engagement.findUnique({
       where: { id: projectId },
       include: {
@@ -43,6 +43,22 @@ export async function POST(req: NextRequest) {
     prisma.invoice.findMany({
       where: { engagementId: projectId },
       select: { status: true, total: true, dueDate: true },
+    }),
+    prisma.engagementTrack.findMany({
+      where: { engagementId: projectId },
+      include: {
+        _count: { select: { assignments: true, deliverables: true } },
+        assignments: {
+          where: { status: { in: ["ACTIVE", "PENDING"] } },
+          select: {
+            trackRole: true,
+            consultant: { select: { name: true } },
+          },
+        },
+        deliverables: {
+          select: { status: true },
+        },
+      },
     }),
   ]);
 
@@ -128,13 +144,42 @@ export async function POST(req: NextRequest) {
       status: project.client.status,
     },
     qualityConcerns: highRevisionConsultants,
+    tracks: tracks.map((t) => {
+      const trackDeliverables = t.deliverables;
+      const approvedCount = trackDeliverables.filter(
+        (d) => ["APPROVED", "DELIVERED_TO_CLIENT"].includes(d.status)
+      ).length;
+      return {
+        name: t.name,
+        status: t.status,
+        assignedConsultants: t.assignments.map((a) => ({
+          name: a.consultant.name,
+          role: a.trackRole ?? "Unspecified",
+        })),
+        staffingCount: t._count.assignments,
+        deliverableCount: t._count.deliverables,
+        deliverableProgress: trackDeliverables.length > 0
+          ? `${approvedCount}/${trackDeliverables.length} approved`
+          : "No deliverables",
+        hasLead: t.assignments.some((a) => a.trackRole === "Track Lead"),
+      };
+    }),
   };
+
+  const trackRiskContext = tracks.length > 0
+    ? `\nTRACK-LEVEL ANALYSIS:\nThis project has ${tracks.length} workstream track(s). Analyze each for staffing gaps, missing leads, and deliverable progress:\n${tracks.map((t) => {
+        const assigned = t.assignments.map((a) => `${a.consultant.name} (${a.trackRole ?? "no role"})`).join(", ") || "UNSTAFFED";
+        const approvedDels = t.deliverables.filter((d) => ["APPROVED", "DELIVERED_TO_CLIENT"].includes(d.status)).length;
+        const hasLead = t.assignments.some((a) => a.trackRole === "Track Lead");
+        return `- "${t.name}" [${t.status}]: Team: ${assigned} | Lead assigned: ${hasLead ? "Yes" : "NO"} | Deliverables: ${approvedDels}/${t.deliverables.length} approved`;
+      }).join("\n")}\n`
+    : "";
 
   const prompt = `You are a senior management consulting risk analyst. Analyze this project's health and predict risks.
 
 PROJECT DATA:
 ${JSON.stringify(projectData, null, 2)}
-
+${trackRiskContext}
 Analyze this data and provide a risk assessment. Be specific and data-driven. No em dashes.
 
 Return ONLY a JSON object with this exact structure:
