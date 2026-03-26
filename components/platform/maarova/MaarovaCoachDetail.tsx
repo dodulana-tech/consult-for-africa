@@ -1562,8 +1562,7 @@ export default function MaarovaCoachDetail({ coach, matches, invoices }: Props) 
     }
 
     const rating = coach.avgSessionRating ?? 0;
-    const fullStars = Math.floor(rating);
-    const hasHalf = rating - fullStars >= 0.5;
+    const fullStars = Math.round(rating);
 
     return (
       <div className="space-y-5">
@@ -1613,8 +1612,8 @@ export default function MaarovaCoachDetail({ coach, matches, invoices }: Props) 
                     <Star
                       key={i}
                       size={22}
-                      fill={i < fullStars ? "#D4A574" : i === fullStars && hasHalf ? "url(#half)" : "none"}
-                      stroke={i < fullStars || (i === fullStars && hasHalf) ? "#D4A574" : "#CBD5E1"}
+                      fill={i < fullStars ? "#D4A574" : "none"}
+                      stroke={i < fullStars ? "#D4A574" : "#CBD5E1"}
                       strokeWidth={1.5}
                     />
                   ))}

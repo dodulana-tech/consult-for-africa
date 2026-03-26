@@ -143,16 +143,30 @@ export async function PUT(
   if (body.country !== undefined) data.country = body.country.trim();
   if (body.city !== undefined) data.city = body.city?.trim() || null;
   if (body.yearsExperience !== undefined) {
-    data.yearsExperience = parseInt(String(body.yearsExperience), 10);
+    const parsedYears = parseInt(String(body.yearsExperience), 10);
+    if (isNaN(parsedYears) || parsedYears < 0) {
+      return Response.json({ error: "Years of experience must be a valid positive number" }, { status: 400 });
+    }
+    data.yearsExperience = parsedYears;
   }
   if (body.maxClients !== undefined) {
-    data.maxClients = parseInt(String(body.maxClients), 10);
+    const parsedMaxClients = parseInt(String(body.maxClients), 10);
+    if (isNaN(parsedMaxClients) || parsedMaxClients < 0) {
+      return Response.json({ error: "Max clients must be a valid positive number" }, { status: 400 });
+    }
+    data.maxClients = parsedMaxClients;
   }
   if (body.languages !== undefined) data.languages = body.languages;
   if (body.timezone !== undefined) data.timezone = body.timezone.trim();
   if (body.healthcareExperience !== undefined) data.healthcareExperience = body.healthcareExperience;
   if (body.developmentFocus !== undefined) data.developmentFocus = body.developmentFocus;
-  if (body.hourlyRate !== undefined) data.hourlyRate = body.hourlyRate;
+  if (body.hourlyRate !== undefined) {
+    const parsedRate = body.hourlyRate != null ? parseFloat(String(body.hourlyRate)) : null;
+    if (parsedRate !== null && (isNaN(parsedRate) || parsedRate < 0)) {
+      return Response.json({ error: "Hourly rate must be a valid positive number" }, { status: 400 });
+    }
+    data.hourlyRate = parsedRate;
+  }
   if (body.currency !== undefined) data.currency = body.currency.trim();
   if (body.avatarUrl !== undefined) data.avatarUrl = body.avatarUrl?.trim() || null;
   if (body.isActive !== undefined) data.isActive = body.isActive;

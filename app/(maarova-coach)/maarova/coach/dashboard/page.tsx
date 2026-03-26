@@ -24,12 +24,20 @@ const STATUS_LABELS: Record<string, { label: string; bg: string; text: string }>
 export default function CoachDashboardPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  function loadClients() {
+    setLoading(true);
+    setError(null);
+    fetch("/api/maarova/coach/clients")
+      .then((r) => { if (!r.ok) throw new Error("Failed to load"); return r.json(); })
+      .then((data) => setClients(data.clients ?? []))
+      .catch(() => setError("Could not load clients. Please try refreshing."))
+      .finally(() => setLoading(false));
+  }
 
   useEffect(() => {
-    fetch("/api/maarova/coach/clients")
-      .then((r) => r.json())
-      .then((data) => setClients(data.clients ?? []))
-      .finally(() => setLoading(false));
+    loadClients();
   }, []);
 
   return (
@@ -38,6 +46,15 @@ export default function CoachDashboardPage() {
         <h1 className="text-2xl font-bold text-gray-900">Your Clients</h1>
         <p className="text-gray-500 text-sm mt-1">Active coaching engagements</p>
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 flex items-center justify-between">
+          <p className="text-sm text-red-700">{error}</p>
+          <button onClick={loadClients} className="text-sm font-medium text-red-700 hover:text-red-900 ml-3 whitespace-nowrap">
+            Retry
+          </button>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
@@ -64,9 +81,9 @@ export default function CoachDashboardPage() {
                   <div>
                     <h3 className="text-sm font-bold group-hover:underline" style={{ color: "#0F2744" }}>{c.user.name}</h3>
                     <p className="text-xs text-gray-400">{c.user.title ?? c.user.organisation}</p>
-                    {c.user.department && <p className="text-[10px] text-gray-300">{c.user.department}</p>}
+                    {c.user.department && <p className="text-[11px] text-gray-300">{c.user.department}</p>}
                   </div>
-                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${statusCfg.bg} ${statusCfg.text}`}>
+                  <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${statusCfg.bg} ${statusCfg.text}`}>
                     {statusCfg.label}
                   </span>
                 </div>
@@ -82,7 +99,7 @@ export default function CoachDashboardPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 text-[10px] text-gray-400">
+                <div className="flex items-center gap-3 text-[11px] text-gray-400">
                   <span>{c.goalCount} goals</span>
                   <span>{c.programme.replace(/_/g, " ")}</span>
                   {c.nextSession && (

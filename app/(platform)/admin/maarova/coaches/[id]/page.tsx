@@ -131,7 +131,7 @@ export default async function MaarovaCoachDetailPage({ params }: Props) {
     <div className="flex flex-col flex-1 overflow-hidden">
       <TopBar
         title={coach.name}
-        subtitle={`${coach.title} - ${vettingLabel}`}
+        subtitle={`${coach.title ?? "Coach"} - ${vettingLabel}`}
         backHref="/admin/maarova/coaches"
       />
       <MaarovaCoachDetail

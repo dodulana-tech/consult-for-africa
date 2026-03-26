@@ -138,6 +138,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
   const [assignForm, setAssignForm] = useState({ title: "", description: "", dimension: "", targetDate: "" });
   const [saving, setSaving] = useState(false);
   const [matchId, setMatchId] = useState("");
+  const [error, setError] = useState<string | null>(null);
   // Session management
   const [showSchedule, setShowSchedule] = useState(false);
   const [scheduleForm, setScheduleForm] = useState({ scheduledAt: "", focusAreas: "", meetingLink: "" });
@@ -178,13 +179,15 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
     params.then(({ matchId: id }) => {
       setMatchId(id);
       fetch(`/api/maarova/coach/clients/${id}`)
-        .then((r) => r.json())
+        .then((r) => { if (!r.ok) throw new Error("Failed to load client"); return r.json(); })
         .then(setData)
+        .catch(() => setError("Could not load client data. Please try refreshing."))
         .finally(() => setLoading(false));
     });
   }, [params]);
 
   async function refreshData() {
+    if (!matchId) return;
     const res = await fetch(`/api/maarova/coach/clients/${matchId}`);
     setData(await res.json());
   }
@@ -199,8 +202,9 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
       });
       await refreshData();
       setEditingNotes(null);
-    } catch {}
-    finally { setSavingNotes(false); }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally { setSavingNotes(false); }
   }
 
   async function handleAssign(e: React.FormEvent) {
@@ -216,8 +220,9 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
       await refreshData();
       setAssignForm({ title: "", description: "", dimension: "", targetDate: "" });
       setShowAssign(false);
-    } catch {}
-    finally { setSaving(false); }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally { setSaving(false); }
   }
 
   async function handleScheduleChemistryCall(e: React.FormEvent) {
@@ -232,8 +237,9 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
       if (!res.ok) throw new Error("Failed");
       await refreshData();
       setChemistryForm({ scheduledAt: "", meetingLink: "" });
-    } catch {}
-    finally { setChemistrySaving(false); }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally { setChemistrySaving(false); }
   }
 
   async function handleCompleteChemistryCall(proceed: boolean) {
@@ -254,8 +260,9 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
       setChemistryOutcome(null);
       setChemistryNotes("");
       setChemistryRating(0);
-    } catch {}
-    finally { setChemistrySaving(false); }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally { setChemistrySaving(false); }
   }
 
   async function handleScheduleSession(e: React.FormEvent) {
@@ -276,8 +283,9 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
       await refreshData();
       setScheduleForm({ scheduledAt: "", focusAreas: "", meetingLink: "" });
       setShowSchedule(false);
-    } catch {}
-    finally { setSchedulingSaving(false); }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally { setSchedulingSaving(false); }
   }
 
   async function handleCompleteSession(sessionId: string) {
@@ -324,15 +332,19 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
         goalRatings: [], midPointReflection: "", graduationNotes: "",
         sustainabilityPlan: [], newGoalTitle: "", newGoalDescription: "", newGoalDimension: "",
       });
-    } catch {}
-    finally { setCompleteSaving(false); }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally { setCompleteSaving(false); }
   }
 
   async function handleCancelSession(sessionId: string) {
+    if (!window.confirm("Cancel this session?")) return;
     try {
       await fetch(`/api/maarova/coach/sessions/${sessionId}`, { method: "DELETE" });
       await refreshData();
-    } catch {}
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    }
   }
 
   if (loading) {
@@ -372,6 +384,15 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
           </div>
         </div>
       </div>
+
+      {error && (
+        <div className="mx-4 sm:mx-8 mb-4 p-3 rounded-lg bg-red-50 border border-red-200 flex items-center justify-between">
+          <p className="text-sm text-red-700">{error}</p>
+          <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600 ml-3">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+      )}
 
       {/* Chemistry Call Section */}
       {isPendingMatch && (

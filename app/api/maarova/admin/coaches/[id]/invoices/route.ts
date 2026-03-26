@@ -31,8 +31,9 @@ export async function POST(
     return Response.json({ error: "Description is required" }, { status: 400 });
   }
 
-  if (!amount || amount <= 0) {
-    return Response.json({ error: "Amount must be greater than zero" }, { status: 400 });
+  const parsedAmount = parseFloat(String(amount));
+  if (isNaN(parsedAmount) || parsedAmount <= 0) {
+    return Response.json({ error: "Amount must be a positive number" }, { status: 400 });
   }
 
   // Generate invoice number: INV-COACHID_SHORT-TIMESTAMP
@@ -47,7 +48,7 @@ export async function POST(
       matchId: matchId || null,
       organisationId: coach.organisationId || null,
       status: "DRAFT",
-      amount,
+      amount: parsedAmount,
       currency: currency || "NGN",
       description: description.trim(),
       lineItems: lineItems || null,

@@ -119,6 +119,19 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Years of experience is required" }, { status: 400 });
   }
 
+  const parsedYears = parseInt(String(yearsExperience), 10);
+  if (isNaN(parsedYears) || parsedYears < 0) {
+    return Response.json({ error: "Years of experience must be a valid positive number" }, { status: 400 });
+  }
+  const parsedMaxClients = maxClients ? parseInt(String(maxClients), 10) : 8;
+  if (isNaN(parsedMaxClients) || parsedMaxClients < 0) {
+    return Response.json({ error: "Max clients must be a valid positive number" }, { status: 400 });
+  }
+  const parsedHourlyRate = hourlyRate != null ? parseFloat(String(hourlyRate)) : null;
+  if (parsedHourlyRate !== null && (isNaN(parsedHourlyRate) || parsedHourlyRate < 0)) {
+    return Response.json({ error: "Hourly rate must be a valid positive number" }, { status: 400 });
+  }
+
   const normEmail = email.trim().toLowerCase();
   const existing = await prisma.maarovaCoach.findUnique({ where: { email: normEmail } });
   if (existing) {
@@ -135,14 +148,14 @@ export async function POST(req: NextRequest) {
       city: city?.trim() || null,
       specialisms,
       certifications,
-      yearsExperience: parseInt(String(yearsExperience), 10),
+      yearsExperience: parsedYears,
       organisationId: organisationId || null,
       languages: Array.isArray(languages) && languages.length > 0 ? languages : ["English"],
       timezone: timezone?.trim() || "Africa/Lagos",
       healthcareExperience: healthcareExperience ?? false,
       developmentFocus: Array.isArray(developmentFocus) ? developmentFocus : [],
-      maxClients: maxClients ? parseInt(String(maxClients), 10) : 8,
-      hourlyRate: hourlyRate ?? null,
+      maxClients: parsedMaxClients,
+      hourlyRate: parsedHourlyRate,
       currency: currency?.trim() || "NGN",
       avatarUrl: avatarUrl?.trim() || null,
       vettingStatus: "APPLIED",

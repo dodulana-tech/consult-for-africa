@@ -343,6 +343,32 @@ function AddCoachPanel({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  useEffect(() => {
+    if (open) {
+      setForm({
+        name: "",
+        email: "",
+        title: "",
+        bio: "",
+        specialisms: [],
+        certifications: [],
+        yearsExperience: "",
+        country: "Nigeria",
+        city: "",
+        languages: ["English"],
+        timezone: "Africa/Lagos",
+        healthcareExperience: false,
+        developmentFocus: [],
+        maxClients: "8",
+        hourlyRate: "",
+        currency: "NGN",
+      });
+      setError("");
+      setSuccess("");
+      setSubmitting(false);
+    }
+  }, [open]);
+
   const update = <K extends keyof typeof form>(
     key: K,
     value: (typeof form)[K]
@@ -1253,19 +1279,27 @@ function EnablePortalButton({
   onDone: () => void;
 }) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const enable = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!confirm("Enable portal access for this coach? They will receive login credentials via email.")) return;
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(
         `/api/maarova/admin/coaches/${coachId}/enable`,
         { method: "POST" }
       );
-      if (res.ok) onDone();
-    } catch {
-      // silent
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to enable portal");
+      }
+      onDone();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to enable portal";
+      setError(msg);
+      alert(msg);
     } finally {
       setLoading(false);
     }

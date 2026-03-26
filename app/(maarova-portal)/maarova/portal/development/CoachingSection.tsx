@@ -150,6 +150,7 @@ export default function CoachingSection({ existingMatch, hasReport, userName }: 
   const [loading, setLoading] = useState(false);
   const [selecting, setSelecting] = useState<string | null>(null);
   const [showBrowse, setShowBrowse] = useState(false);
+  const [coachesLoaded, setCoachesLoaded] = useState(false);
   const [viewingCoach, setViewingCoach] = useState<Coach | null>(null);
   const [showCoachProfile, setShowCoachProfile] = useState(false);
   const [showChangeCoach, setShowChangeCoach] = useState(false);
@@ -163,7 +164,7 @@ export default function CoachingSection({ existingMatch, hasReport, userName }: 
 
   // Load available coaches
   useEffect(() => {
-    if (showBrowse && recommendedCoaches.length === 0 && otherCoaches.length === 0) {
+    if (showBrowse && !coachesLoaded) {
       setLoading(true);
       fetch("/api/maarova/coaching/coaches")
         .then((r) => r.json())
@@ -177,9 +178,9 @@ export default function CoachingSection({ existingMatch, hasReport, userName }: 
           }
         })
         .catch(() => setError("Could not load coaches"))
-        .finally(() => setLoading(false));
+        .finally(() => { setLoading(false); setCoachesLoaded(true); });
     }
-  }, [showBrowse, recommendedCoaches.length, otherCoaches.length]);
+  }, [showBrowse, coachesLoaded]);
 
   async function selectCoach(coachId: string) {
     setSelecting(coachId);
@@ -223,6 +224,7 @@ export default function CoachingSection({ existingMatch, hasReport, userName }: 
       setShowChangeCoach(false);
       setRecommendedCoaches([]);
       setOtherCoaches([]);
+      setCoachesLoaded(false);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");

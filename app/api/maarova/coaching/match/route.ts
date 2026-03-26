@@ -101,43 +101,62 @@ export async function POST(req: NextRequest) {
   const endDate = new Date();
   endDate.setMonth(endDate.getMonth() + durationMonths);
 
-  // Create the match
-  const match = await prisma.maarovaCoachingMatch.create({
-    data: {
-      userId: session.sub,
-      coachId: coach.id,
-      status: "PENDING_MATCH",
-      programme: selectedProgramme,
-      startDate,
-      endDate,
-      matchRationale: report
-        ? `Matched based on leadership profile: ${report.leadershipArchetype ?? "Assessment completed"}`
-        : "Matched by user selection",
-      sessionsScheduled: selectedProgramme === "coaching_lite_3_month" ? 6 : selectedProgramme === "intensive_12_month" ? 24 : 12,
-    },
-    include: {
-      coach: {
-        select: {
-          id: true,
-          name: true,
-          title: true,
-          bio: true,
-          specialisms: true,
-          certifications: true,
-          country: true,
-          city: true,
-          yearsExperience: true,
-          avatarUrl: true,
+  // Use transaction to prevent race condition on coach capacity
+  try {
+    const [match] = await prisma.$transaction(async (tx) => {
+      // Re-check capacity inside transaction
+      const freshCoach = await tx.maarovaCoach.findUnique({
+        where: { id: coachId },
+        select: { activeClients: true, maxClients: true },
+      });
+      if (!freshCoach || freshCoach.activeClients >= freshCoach.maxClients) {
+        throw new Error("CAPACITY_EXCEEDED");
+      }
+
+      const newMatch = await tx.maarovaCoachingMatch.create({
+        data: {
+          userId: session.sub,
+          coachId: coach.id,
+          status: "PENDING_MATCH",
+          programme: selectedProgramme,
+          startDate,
+          endDate,
+          matchRationale: report
+            ? `Matched based on leadership profile: ${report.leadershipArchetype ?? "Assessment completed"}`
+            : "Matched by user selection",
+          sessionsScheduled: selectedProgramme === "coaching_lite_3_month" ? 6 : selectedProgramme === "intensive_12_month" ? 24 : 12,
         },
-      },
-    },
-  });
+        include: {
+          coach: {
+            select: {
+              id: true,
+              name: true,
+              title: true,
+              bio: true,
+              specialisms: true,
+              certifications: true,
+              country: true,
+              city: true,
+              yearsExperience: true,
+              avatarUrl: true,
+            },
+          },
+        },
+      });
 
-  // Increment coach's active clients
-  await prisma.maarovaCoach.update({
-    where: { id: coach.id },
-    data: { activeClients: { increment: 1 } },
-  });
+      await tx.maarovaCoach.update({
+        where: { id: coachId },
+        data: { activeClients: { increment: 1 } },
+      });
 
-  return Response.json({ match }, { status: 201 });
+      return [newMatch];
+    });
+
+    return Response.json({ match }, { status: 201 });
+  } catch (err) {
+    if (err instanceof Error && err.message === "CAPACITY_EXCEEDED") {
+      return Response.json({ error: "This coach is currently at capacity. Please select another." }, { status: 400 });
+    }
+    throw err;
+  }
 }

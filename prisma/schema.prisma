@@ -1986,6 +1986,10 @@ model MaarovaCoach {
   totalSessions    Int        @default(0)
   completedEngagements Int    @default(0)
 
+  // Password reset
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -2244,6 +2248,7 @@ model MaarovaCoachingSession {
   coacheeFeedback String?          @db.Text
 
   createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
 
   @@index([matchId, scheduledAt])
 }
@@ -2270,6 +2275,7 @@ model MaarovaCoachingInvoice {
   updatedAt       DateTime             @updatedAt
 
   @@index([coachId])
+  @@index([matchId])
   @@index([organisationId])
   @@index([status])
 }

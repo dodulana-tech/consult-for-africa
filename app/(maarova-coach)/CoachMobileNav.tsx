@@ -25,7 +25,7 @@ export default function CoachMobileNav({
           </div>
           <span className="text-white font-semibold text-sm">Coach Portal</span>
         </div>
-        <button onClick={() => setOpen(!open)} className="text-white p-1">
+        <button onClick={() => setOpen(!open)} className="text-white p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
           {open ? (
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -43,7 +43,7 @@ export default function CoachMobileNav({
           <div className="lg:hidden fixed inset-0 z-40 bg-black/50" onClick={() => setOpen(false)} />
           <div className="lg:hidden fixed top-0 right-0 bottom-0 z-50 w-[85vw] max-w-72 flex flex-col overflow-y-auto" style={{ backgroundColor: "#0f1a2a" }}>
             <div className="flex items-center justify-end px-4 py-3 border-b border-white/10">
-              <button onClick={() => setOpen(false)} className="text-white p-1">
+              <button onClick={() => setOpen(false)} className="text-white p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>

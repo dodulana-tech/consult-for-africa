@@ -82,29 +82,46 @@ export async function POST(req: NextRequest) {
   });
   if (!coach) return Response.json({ error: "Coach not found" }, { status: 404 });
 
-  // Generate invoice number: INV-YYMMDD-XXXX
+  // Generate invoice number: INV-YYMMDD-XXXX with retry on collision
   const now = new Date();
   const yy = String(now.getFullYear()).slice(-2);
   const mm = String(now.getMonth() + 1).padStart(2, "0");
   const dd = String(now.getDate()).padStart(2, "0");
-  const rand = randomBytes(2).toString("hex").toUpperCase();
-  const invoiceNumber = `INV-${yy}${mm}${dd}-${rand}`;
 
-  const invoice = await prisma.maarovaCoachingInvoice.create({
-    data: {
-      invoiceNumber,
-      coachId,
-      amount: parseFloat(String(amount)),
-      currency: coach.currency,
-      description: description.trim(),
-      matchId: matchId || null,
-      organisationId: organisationId || null,
-      lineItems: lineItems ?? null,
-      dueAt: dueAt ? new Date(dueAt) : null,
-      notes: notes?.trim() || null,
-      status: "DRAFT",
-    },
-  });
+  let invoice;
+  const MAX_RETRIES = 3;
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    const rand = randomBytes(2).toString("hex").toUpperCase();
+    const invoiceNumber = `INV-${yy}${mm}${dd}-${rand}`;
+    try {
+      invoice = await prisma.maarovaCoachingInvoice.create({
+        data: {
+          invoiceNumber,
+          coachId,
+          amount: parseFloat(String(amount)),
+          currency: coach.currency,
+          description: description.trim(),
+          matchId: matchId || null,
+          organisationId: organisationId || null,
+          lineItems: lineItems ?? null,
+          dueAt: dueAt ? new Date(dueAt) : null,
+          notes: notes?.trim() || null,
+          status: "DRAFT",
+        },
+      });
+      break;
+    } catch (err: unknown) {
+      const isUniqueViolation =
+        err instanceof Error && "code" in err && (err as { code: string }).code === "P2002";
+      if (!isUniqueViolation || attempt === MAX_RETRIES - 1) {
+        throw err;
+      }
+    }
+  }
+
+  if (!invoice) {
+    return Response.json({ error: "Failed to generate a unique invoice number. Please try again." }, { status: 500 });
+  }
 
   return Response.json({
     invoice: {

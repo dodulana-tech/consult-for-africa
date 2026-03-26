@@ -30,7 +30,7 @@ export async function GET() {
   const report = await prisma.maarovaReport.findFirst({
     where: {
       userId: session.sub,
-      status: "DELIVERED",
+      status: { in: ["READY", "DELIVERED"] },
     },
     orderBy: { generatedAt: "desc" },
     select: {
@@ -77,8 +77,8 @@ export async function GET() {
   // 5. Build context and rank
   const ctx: UserMatchContext = {
     coachingPriorities,
-    orgCountry: user.organisation.country,
-    orgType: user.organisation.type,
+    orgCountry: user.organisation?.country ?? "Nigeria",
+    orgType: user.organisation?.type ?? "private_hospital",
   };
 
   const { recommended, others } = rankCoaches(available, ctx);

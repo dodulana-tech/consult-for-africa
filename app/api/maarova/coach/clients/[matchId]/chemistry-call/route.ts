@@ -82,6 +82,10 @@ export async function POST(
 
   // --- Complete a chemistry call ---
   if (action === "complete") {
+    if (match.status !== "PENDING_MATCH") {
+      return Response.json({ error: "Chemistry call can only be completed on a pending match" }, { status: 400 });
+    }
+
     const { notes, rating, proceed } = body;
 
     if (typeof proceed !== "boolean") {
@@ -109,6 +113,14 @@ export async function POST(
         chemistryCallRating: rating ?? null,
       },
     });
+
+    if (!proceed) {
+      // Decrement coach's active clients since match was created with increment
+      await prisma.maarovaCoach.update({
+        where: { id: session.sub },
+        data: { activeClients: { decrement: 1 } },
+      });
+    }
 
     return Response.json({
       match: {

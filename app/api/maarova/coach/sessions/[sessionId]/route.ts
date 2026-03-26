@@ -49,6 +49,13 @@ export async function PATCH(
 
   // Complete the session
   if (status === "COMPLETED") {
+    if (coachingSession.status === "COMPLETED") {
+      return Response.json({ error: "Session is already completed" }, { status: 400 });
+    }
+    if (coachingSession.status === "CANCELLED") {
+      return Response.json({ error: "Cannot complete a cancelled session" }, { status: 400 });
+    }
+
     updateData.status = "COMPLETED";
     updateData.completedAt = new Date();
     if (duration) updateData.duration = parseInt(String(duration), 10);
@@ -59,65 +66,69 @@ export async function PATCH(
     const newCompleted = coachingSession.match.sessionsCompleted + 1;
     const isEngagementComplete = newCompleted >= coachingSession.match.sessionsScheduled;
 
-    // Update match: increment completed count, update lastSessionAt
-    const matchUpdate: Record<string, unknown> = {
-      sessionsCompleted: { increment: 1 },
-      lastSessionAt: new Date(),
-    };
+    await prisma.$transaction(async (tx) => {
+      // Update match: increment completed count, update lastSessionAt
+      const matchUpdate: Record<string, unknown> = {
+        sessionsCompleted: { increment: 1 },
+        lastSessionAt: new Date(),
+      };
 
-    if (isEngagementComplete) {
-      matchUpdate.status = "COMPLETED";
-      matchUpdate.endDate = new Date();
-    }
+      if (isEngagementComplete) {
+        matchUpdate.status = "COMPLETED";
+        matchUpdate.endDate = new Date();
+      }
 
-    await prisma.maarovaCoachingMatch.update({
-      where: { id: coachingSession.matchId },
-      data: matchUpdate,
-    });
+      // Find next scheduled session for nextSessionAt
+      const nextSession = await tx.maarovaCoachingSession.findFirst({
+        where: {
+          matchId: coachingSession.matchId,
+          status: "SCHEDULED",
+          id: { not: sessionId },
+          scheduledAt: { gt: new Date() },
+        },
+        orderBy: { scheduledAt: "asc" },
+        select: { scheduledAt: true },
+      });
 
-    // Find next scheduled session and update nextSessionAt on match
-    const nextSession = await prisma.maarovaCoachingSession.findFirst({
-      where: {
-        matchId: coachingSession.matchId,
-        status: "SCHEDULED",
-        id: { not: sessionId },
-        scheduledAt: { gt: new Date() },
-      },
-      orderBy: { scheduledAt: "asc" },
-      select: { scheduledAt: true },
-    });
+      matchUpdate.nextSessionAt = nextSession?.scheduledAt ?? null;
 
-    await prisma.maarovaCoachingMatch.update({
-      where: { id: coachingSession.matchId },
-      data: { nextSessionAt: nextSession?.scheduledAt ?? null },
-    });
+      await tx.maarovaCoachingMatch.update({
+        where: { id: coachingSession.matchId },
+        data: matchUpdate,
+      });
 
-    // Update coach stats: increment totalSessions
-    const coachUpdate: Record<string, unknown> = {
-      totalSessions: { increment: 1 },
-    };
+      // Update coach stats: increment totalSessions
+      const coachUpdate: Record<string, unknown> = {
+        totalSessions: { increment: 1 },
+      };
 
-    // If the engagement just completed, update coach engagement counters
-    if (isEngagementComplete) {
-      coachUpdate.completedEngagements = { increment: 1 };
-      coachUpdate.activeClients = { decrement: 1 };
-    }
+      // If the engagement just completed, update coach engagement counters
+      if (isEngagementComplete) {
+        const coach = await tx.maarovaCoach.findUnique({
+          where: { id: session.sub },
+          select: { activeClients: true },
+        });
+        coachUpdate.completedEngagements = { increment: 1 };
+        coachUpdate.activeClients = Math.max(0, (coach?.activeClients ?? 1) - 1);
+      }
 
-    await prisma.maarovaCoach.update({
-      where: { id: session.sub },
-      data: coachUpdate,
+      await tx.maarovaCoach.update({
+        where: { id: session.sub },
+        data: coachUpdate,
+      });
     });
   }
 
   // Cancel the session
   if (status === "CANCELLED") {
-    updateData.status = "CANCELLED";
+    if (coachingSession.status === "CANCELLED") {
+      return Response.json({ error: "Session is already cancelled" }, { status: 400 });
+    }
+    if (coachingSession.status === "COMPLETED") {
+      return Response.json({ error: "Cannot cancel a completed session" }, { status: 400 });
+    }
 
-    // Decrement scheduled count
-    await prisma.maarovaCoachingMatch.update({
-      where: { id: coachingSession.matchId },
-      data: { sessionsScheduled: { decrement: 1 } },
-    });
+    updateData.status = "CANCELLED";
   }
 
   // Update fields without status change
@@ -174,13 +185,7 @@ export async function DELETE(
     return Response.json({ error: "Cannot delete a completed session" }, { status: 400 });
   }
 
-  await prisma.$transaction([
-    prisma.maarovaCoachingSession.delete({ where: { id: sessionId } }),
-    prisma.maarovaCoachingMatch.update({
-      where: { id: coachingSession.matchId },
-      data: { sessionsScheduled: { decrement: 1 } },
-    }),
-  ]);
+  await prisma.maarovaCoachingSession.delete({ where: { id: sessionId } });
 
   return Response.json({ success: true });
 }

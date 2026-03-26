@@ -81,41 +81,40 @@ export async function POST(req: NextRequest) {
   });
   const existingEmails = new Set(existingCoaches.map((c) => c.email));
 
+  const toSkip = validCoaches.filter((c) => existingEmails.has(c.normEmail));
+  const toCreate = validCoaches.filter((c) => !existingEmails.has(c.normEmail));
+  const skipped = toSkip.length;
+
+  const now = new Date();
+  const createData = toCreate.map((c) => ({
+    name: c.name.trim(),
+    email: c.normEmail,
+    title: c.title.trim(),
+    bio: c.bio.trim(),
+    country: c.country.trim(),
+    city: c.city?.trim() || null,
+    specialisms: c.specialisms,
+    certifications: c.certifications,
+    yearsExperience: parseInt(String(c.yearsExperience), 10),
+    organisationId: c.organisationId || null,
+    languages: Array.isArray(c.languages) && c.languages.length > 0 ? c.languages : ["English"],
+    timezone: c.timezone?.trim() || "Africa/Lagos",
+    healthcareExperience: c.healthcareExperience ?? false,
+    developmentFocus: Array.isArray(c.developmentFocus) ? c.developmentFocus : [],
+    maxClients: c.maxClients ? parseInt(String(c.maxClients), 10) : 8,
+    hourlyRate: c.hourlyRate ?? null,
+    currency: c.currency?.trim() || "NGN",
+    avatarUrl: c.avatarUrl?.trim() || null,
+    vettingStatus: "APPLIED" as const,
+    applicationDate: now,
+  }));
+
   let created = 0;
-  let skipped = 0;
-
-  for (const c of validCoaches) {
-    if (existingEmails.has(c.normEmail)) {
-      skipped++;
-      continue;
-    }
-
-    await prisma.maarovaCoach.create({
-      data: {
-        name: c.name.trim(),
-        email: c.normEmail,
-        title: c.title.trim(),
-        bio: c.bio.trim(),
-        country: c.country.trim(),
-        city: c.city?.trim() || null,
-        specialisms: c.specialisms,
-        certifications: c.certifications,
-        yearsExperience: parseInt(String(c.yearsExperience), 10),
-        organisationId: c.organisationId || null,
-        languages: Array.isArray(c.languages) && c.languages.length > 0 ? c.languages : ["English"],
-        timezone: c.timezone?.trim() || "Africa/Lagos",
-        healthcareExperience: c.healthcareExperience ?? false,
-        developmentFocus: Array.isArray(c.developmentFocus) ? c.developmentFocus : [],
-        maxClients: c.maxClients ? parseInt(String(c.maxClients), 10) : 8,
-        hourlyRate: c.hourlyRate ?? null,
-        currency: c.currency?.trim() || "NGN",
-        avatarUrl: c.avatarUrl?.trim() || null,
-        vettingStatus: "APPLIED",
-        applicationDate: new Date(),
-      },
+  if (createData.length > 0) {
+    const result = await prisma.$transaction(async (tx) => {
+      return tx.maarovaCoach.createMany({ data: createData });
     });
-
-    created++;
+    created = result.count;
   }
 
   return Response.json({ created, skipped, errors });

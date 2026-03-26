@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   // Verify the match belongs to this coach and is in an eligible status
   const match = await prisma.maarovaCoachingMatch.findFirst({
     where: { id: matchId, coachId: session.sub, status: { in: ["MATCHED", "ACTIVE"] } },
-    select: { id: true, userId: true, sessionsScheduled: true, sessionsCompleted: true, status: true },
+    select: { id: true, userId: true, sessionsScheduled: true, sessionsCompleted: true, status: true, programme: true },
   });
 
   if (!match) {
@@ -58,39 +58,51 @@ export async function POST(req: NextRequest) {
   // Auto-calculate session number: completed + currently scheduled + 1
   const sessionNumber = match.sessionsCompleted + scheduledCount + 1;
 
-  // Total sessions from the match (sessionsScheduled tracks the programme total)
-  // We use sessionsScheduled + 1 since we are about to increment it
-  const total = match.sessionsScheduled + 1;
-  const sessionTemplate = getSessionTemplate(sessionNumber, total);
+  // Look up programme's fixed session count
+  const PROGRAMME_SESSIONS: Record<string, number> = {
+    coaching_lite_3_month: 6,
+    standard_6_month: 12,
+    intensive_12_month: 24,
+  };
+  const programmeTotal = PROGRAMME_SESSIONS[match.programme] ?? 12;
 
-  // Create the session
-  const coachingSession = await prisma.maarovaCoachingSession.create({
-    data: {
-      matchId,
-      scheduledAt: scheduledDate,
-      focusAreas: Array.isArray(focusAreas) ? focusAreas : [],
-      meetingLink: meetingLink?.trim() || null,
-      status: "SCHEDULED",
-      sessionNumber,
-      sessionTemplate,
-    },
-  });
+  if (sessionNumber > programmeTotal) {
+    return Response.json({ error: `Programme limit of ${programmeTotal} sessions reached` }, { status: 400 });
+  }
 
-  // Update match: increment scheduled count, set nextSessionAt, activate if needed
-  const updateData: Record<string, unknown> = {
-    sessionsScheduled: { increment: 1 },
+  const sessionTemplate = getSessionTemplate(sessionNumber, programmeTotal);
+
+  // Update match: set nextSessionAt, activate if needed
+  const matchUpdateData: Record<string, unknown> = {
     nextSessionAt: scheduledDate,
   };
 
   // If first session is being scheduled on a MATCHED engagement, transition to ACTIVE
   if (match.status === "MATCHED") {
-    updateData.status = "ACTIVE";
-    updateData.startDate = new Date();
+    matchUpdateData.status = "ACTIVE";
+    matchUpdateData.startDate = new Date();
   }
 
-  await prisma.maarovaCoachingMatch.update({
-    where: { id: matchId },
-    data: updateData,
+  // Create session and update match in a transaction to prevent duplicate session numbers
+  const coachingSession = await prisma.$transaction(async (tx) => {
+    const created = await tx.maarovaCoachingSession.create({
+      data: {
+        matchId,
+        scheduledAt: scheduledDate,
+        focusAreas: Array.isArray(focusAreas) ? focusAreas : [],
+        meetingLink: meetingLink?.trim() || null,
+        status: "SCHEDULED",
+        sessionNumber,
+        sessionTemplate,
+      },
+    });
+
+    await tx.maarovaCoachingMatch.update({
+      where: { id: matchId },
+      data: matchUpdateData,
+    });
+
+    return created;
   });
 
   // Email the coachee about the scheduled session

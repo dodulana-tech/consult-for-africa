@@ -23,11 +23,22 @@ export async function POST(
 
   const coach = await prisma.maarovaCoach.findUnique({
     where: { id },
-    select: { id: true, name: true, email: true, isPortalEnabled: true },
+    select: { id: true, name: true, email: true, isPortalEnabled: true, vettingStatus: true },
   });
 
   if (!coach) {
     return Response.json({ error: "Coach not found" }, { status: 404 });
+  }
+
+  if (coach.vettingStatus !== "APPROVED") {
+    return Response.json({ error: "Coach must be approved before enabling portal access" }, { status: 400 });
+  }
+
+  if (coach.isPortalEnabled) {
+    return Response.json(
+      { error: "Portal is already enabled for this coach. Use password reset if they need new credentials." },
+      { status: 409 },
+    );
   }
 
   const tempPassword = randomBytes(12).toString("base64url") + "!1A";
