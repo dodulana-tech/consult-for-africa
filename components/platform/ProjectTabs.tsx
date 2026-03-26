@@ -381,21 +381,21 @@ export default function ProjectTabs({
     <div className="flex flex-col flex-1 overflow-hidden">
       {/* Tab bar */}
       <div
-        className="flex items-center gap-0.5 px-6 shrink-0"
-        style={{ background: "#fff", borderBottom: "1px solid #e5eaf0" }}
+        className="flex items-center gap-0.5 px-3 sm:px-6 shrink-0 overflow-x-auto scrollbar-none"
+        style={{ background: "#fff", borderBottom: "1px solid #e5eaf0", WebkitOverflowScrolling: "touch" }}
       >
         <Link
           href="/projects"
-          className="flex items-center gap-1.5 mr-4 text-xs text-gray-400 hover:text-gray-700 transition-colors py-4"
+          className="flex items-center gap-1.5 mr-2 sm:mr-4 text-xs text-gray-400 hover:text-gray-700 transition-colors py-3 sm:py-4 shrink-0"
         >
           <ArrowLeft size={13} />
-          Back
+          <span className="hidden sm:inline">Back</span>
         </Link>
         {tabs.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => setTab(key)}
-            className="flex items-center gap-2 px-4 py-4 text-sm font-medium transition-colors border-b-2 -mb-px"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap shrink-0"
             style={{
               borderColor: tab === key ? "#D4AF37" : "transparent",
               color: tab === key ? "#0F2744" : "#6B7280",
@@ -669,21 +669,21 @@ function OverviewTab({
 
           {/* Inline update form */}
           <div className="mt-3 max-w-3xl">
-            <div className="flex items-start gap-2">
-              <textarea
-                value={updateContent}
-                onChange={(e) => onContentChange(e.target.value)}
-                placeholder="Post a project update..."
-                rows={1}
-                className="flex-1 text-xs rounded-lg px-3 py-2 resize-none focus:outline-none"
-                style={{ border: "1px solid #e5eaf0", background: "#F9FAFB" }}
-                onFocus={(e) => { e.currentTarget.rows = 3; }}
-                onBlur={(e) => { if (!e.currentTarget.value) e.currentTarget.rows = 1; }}
-              />
+            <textarea
+              value={updateContent}
+              onChange={(e) => onContentChange(e.target.value)}
+              placeholder="Post a project update..."
+              rows={1}
+              className="w-full text-sm rounded-lg px-3 py-2 resize-none focus:outline-none mb-2"
+              style={{ border: "1px solid #e5eaf0", background: "#F9FAFB" }}
+              onFocus={(e) => { e.currentTarget.rows = 3; }}
+              onBlur={(e) => { if (!e.currentTarget.value) e.currentTarget.rows = 1; }}
+            />
+            <div className="flex items-center gap-2">
               <select
                 value={updateType}
                 onChange={(e) => onTypeChange(e.target.value)}
-                className="text-[10px] rounded-lg px-2 py-2 focus:outline-none shrink-0"
+                className="text-xs rounded-lg px-2 py-2 focus:outline-none"
                 style={{ border: "1px solid #e5eaf0", color: "#374151" }}
               >
                 <option value="GENERAL">General</option>
@@ -695,7 +695,7 @@ function OverviewTab({
               <button
                 onClick={onPost}
                 disabled={!updateContent.trim() || posting}
-                className="flex items-center gap-1 px-3 py-2 rounded-lg text-[10px] font-semibold disabled:opacity-50 shrink-0"
+                className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold disabled:opacity-50 shrink-0"
                 style={{ background: "#0F2744", color: "#fff" }}
               >
                 {posting ? <Loader2 size={11} className="animate-spin" /> : <Send size={11} />}
@@ -703,7 +703,7 @@ function OverviewTab({
               </button>
             </div>
             {updateError && (
-              <p className="mt-1 text-[10px] text-red-500 flex items-center gap-1">
+              <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
                 <AlertCircle size={10} />
                 {updateError}
               </p>
