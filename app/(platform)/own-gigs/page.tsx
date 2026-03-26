@@ -62,7 +62,7 @@ export default async function OwnGigsPage() {
     <>
       <TopBar title="My Gigs" subtitle="Manage your own consulting engagements" />
 
-      <div className="p-6 max-w-7xl mx-auto space-y-6">
+      <div className="p-3 sm:p-4 md:p-6 max-w-7xl mx-auto space-y-6">
         {/* Stats + CTA */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex gap-6">
@@ -104,15 +104,16 @@ export default async function OwnGigsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+            <div className="overflow-x-auto scrollbar-thin">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/60">
                   <th className="text-left px-4 py-3 font-medium text-slate-500">Project</th>
                   <th className="text-left px-4 py-3 font-medium text-slate-500">Client</th>
                   <th className="text-left px-4 py-3 font-medium text-slate-500">Status</th>
-                  <th className="text-left px-4 py-3 font-medium text-slate-500">Fee Model</th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500 hidden md:table-cell">Fee Model</th>
                   <th className="text-right px-4 py-3 font-medium text-slate-500">Budget</th>
-                  <th className="text-left px-4 py-3 font-medium text-slate-500">Team</th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500 hidden md:table-cell">Team</th>
                   {isElevated && <th className="text-left px-4 py-3 font-medium text-slate-500">Owner</th>}
                   <th className="px-4 py-3" />
                 </tr>
@@ -139,7 +140,7 @@ export default async function OwnGigsPage() {
                           {g.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-slate-500 text-xs">
+                      <td className="px-4 py-3 text-slate-500 text-xs hidden md:table-cell">
                         {g.ownGigFeeModel && FEE_LABELS[g.ownGigFeeModel]}
                         {g.ownGigFeeModel === "PERCENTAGE" && g.ownGigFeePct && (
                           <span className="ml-1 font-medium">{Number(g.ownGigFeePct)}%</span>
@@ -151,7 +152,7 @@ export default async function OwnGigsPage() {
                       <td className="px-4 py-3 text-right text-slate-600">
                         {g.budgetCurrency} {Number(g.budgetAmount).toLocaleString()}
                       </td>
-                      <td className="px-4 py-3 text-slate-500">{g._count.assignments}</td>
+                      <td className="px-4 py-3 text-slate-500 hidden md:table-cell">{g._count.assignments}</td>
                       {isElevated && (
                         <td className="px-4 py-3 text-slate-500">{g.ownGigOwner?.name ?? "—"}</td>
                       )}
@@ -165,6 +166,7 @@ export default async function OwnGigsPage() {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>

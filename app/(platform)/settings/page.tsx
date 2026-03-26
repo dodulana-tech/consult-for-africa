@@ -37,7 +37,7 @@ export default async function SettingsPage() {
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       <TopBar title="Settings" subtitle="Account and preferences" />
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
         <div className="max-w-2xl space-y-6">
           {/* Profile */}
           <div className="rounded-xl bg-white p-5" style={{ border: "1px solid #e5eaf0" }}>

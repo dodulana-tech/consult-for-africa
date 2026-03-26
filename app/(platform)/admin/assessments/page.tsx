@@ -68,7 +68,7 @@ export default async function AdminAssessmentsPage() {
         title="Assessment Reviews"
         subtitle={`${rows.length} completed assessment${rows.length === 1 ? "" : "s"} awaiting review`}
       />
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
         <div
           className="rounded-xl overflow-hidden"
           style={{ background: "#fff", border: "1px solid #e5eaf0" }}
@@ -80,7 +80,7 @@ export default async function AdminAssessmentsPage() {
                 <th className="text-left px-4 py-3 font-semibold" style={{ color: "#0F2744" }}>
                   Candidate
                 </th>
-                <th className="text-left px-4 py-3 font-semibold" style={{ color: "#0F2744" }}>
+                <th className="text-left px-4 py-3 font-semibold hidden md:table-cell" style={{ color: "#0F2744" }}>
                   Specialty
                 </th>
                 <th className="text-left px-4 py-3 font-semibold" style={{ color: "#0F2744" }}>
@@ -95,7 +95,7 @@ export default async function AdminAssessmentsPage() {
                 <th className="text-center px-4 py-3 font-semibold" style={{ color: "#0F2744" }}>
                   Flags
                 </th>
-                <th className="text-center px-4 py-3 font-semibold" style={{ color: "#0F2744" }}>
+                <th className="text-center px-4 py-3 font-semibold hidden md:table-cell" style={{ color: "#0F2744" }}>
                   Tabs / Pastes
                 </th>
                 <th className="text-center px-4 py-3 font-semibold" style={{ color: "#0F2744" }}>
@@ -124,7 +124,7 @@ export default async function AdminAssessmentsPage() {
                     <p className="font-medium text-gray-900">{row.name}</p>
                     <p className="text-xs text-gray-400">{row.email}</p>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
+                  <td className="px-4 py-3 text-gray-600 hidden md:table-cell">
                     {row.specialty.replace(/_/g, " ")}
                   </td>
                   <td className="px-4 py-3 text-gray-500 text-xs">
@@ -170,7 +170,7 @@ export default async function AdminAssessmentsPage() {
                       <span className="text-xs text-gray-400">0</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-center text-xs text-gray-500">
+                  <td className="px-4 py-3 text-center text-xs text-gray-500 hidden md:table-cell">
                     {row.totalTabs} / {row.totalPastes}
                   </td>
                   <td className="px-4 py-3 text-center">

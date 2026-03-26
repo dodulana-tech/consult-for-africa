@@ -36,7 +36,7 @@ export default async function ConsultantsPage() {
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       <TopBar title="Consultant Network" subtitle={`${consultants.length} consultants`} />
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
         <div className="max-w-4xl space-y-6">
           {/* Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -78,7 +78,7 @@ export default async function ConsultantsPage() {
                           {c.user.name}
                         </p>
                         <span
-                          className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+                          className="text-xs px-2 py-0.5 rounded-full font-medium"
                           style={{
                             background: c.tier === "ELITE" ? "#FEF3C7" : "#F3F4F6",
                             color: c.tier === "ELITE" ? "#D97706" : "#6B7280",
@@ -99,7 +99,7 @@ export default async function ConsultantsPage() {
                           : "-"}
                       </p>
                       {c.isDiaspora && (
-                        <span className="text-[10px] text-blue-500">Diaspora</span>
+                        <span className="text-xs text-blue-500">Diaspora</span>
                       )}
                     </div>
                   </div>
@@ -126,14 +126,14 @@ export default async function ConsultantsPage() {
                     {c.expertiseAreas.slice(0, 4).map((area) => (
                       <span
                         key={area}
-                        className="px-2 py-0.5 rounded-full text-[10px]"
+                        className="px-2 py-0.5 rounded-full text-xs"
                         style={{ background: "#F3F4F6", color: "#6B7280" }}
                       >
                         {area.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()).replace(/Em As Service/, "EM-as-a-Service")}
                       </span>
                     ))}
                     {c.expertiseAreas.length > 4 && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] text-gray-400">
+                      <span className="px-2 py-0.5 rounded-full text-xs text-gray-400">
                         +{c.expertiseAreas.length - 4}
                       </span>
                     )}

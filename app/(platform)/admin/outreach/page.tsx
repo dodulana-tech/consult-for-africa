@@ -50,7 +50,7 @@ export default function OutreachCampaignsPage() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -103,15 +103,15 @@ export default function OutreachCampaignsPage() {
                       <h3 className="text-sm font-bold" style={{ color: "#0F2744" }}>{c.name}</h3>
                       <p className="text-xs text-gray-400">{c.month} | Created by {c.createdBy.name}</p>
                     </div>
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>{c.status}</span>
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>{c.status}</span>
                   </div>
                   {c.description && <p className="text-xs text-gray-500 mb-3">{c.description}</p>}
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-center">
-                    <div><p className="text-lg font-bold" style={{ color: "#0F2744" }}>{c.targetCount}</p><p className="text-[10px] text-gray-400">Targets</p></div>
-                    <div><p className="text-lg font-bold" style={{ color: "#D97706" }}>{c.sentCount}</p><p className="text-[10px] text-gray-400">Invited</p></div>
-                    <div><p className="text-lg font-bold" style={{ color: "#2563EB" }}>{c.respondedCount}</p><p className="text-[10px] text-gray-400">Responded</p></div>
-                    <div><p className="text-lg font-bold" style={{ color: "#059669" }}>{c.assessmentCount}</p><p className="text-[10px] text-gray-400">Assessed</p></div>
-                    <div><p className="text-lg font-bold" style={{ color: "#7C3AED" }}>{conversionRate}%</p><p className="text-[10px] text-gray-400">Conversion</p></div>
+                    <div><p className="text-lg font-bold" style={{ color: "#0F2744" }}>{c.targetCount}</p><p className="text-xs text-gray-400">Targets</p></div>
+                    <div><p className="text-lg font-bold" style={{ color: "#D97706" }}>{c.sentCount}</p><p className="text-xs text-gray-400">Invited</p></div>
+                    <div><p className="text-lg font-bold" style={{ color: "#2563EB" }}>{c.respondedCount}</p><p className="text-xs text-gray-400">Responded</p></div>
+                    <div><p className="text-lg font-bold" style={{ color: "#059669" }}>{c.assessmentCount}</p><p className="text-xs text-gray-400">Assessed</p></div>
+                    <div><p className="text-lg font-bold" style={{ color: "#7C3AED" }}>{conversionRate}%</p><p className="text-xs text-gray-400">Conversion</p></div>
                   </div>
                 </Link>
               );

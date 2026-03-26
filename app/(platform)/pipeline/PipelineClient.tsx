@@ -98,7 +98,7 @@ const STATUS_STYLES: Record<string, { bg: string; text: string }> = {
 function Badge({ status }: { status: string }) {
   const st = STATUS_STYLES[status] ?? { bg: "bg-gray-100", text: "text-gray-600" };
   return (
-    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>
+    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>
       {status.replace(/_/g, " ")}
     </span>
   );
@@ -116,7 +116,7 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
   ];
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {tabs.map((t) => (
@@ -185,15 +185,15 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
               <p className="text-xs text-gray-300 mt-1">Leads are created from website enquiries, demo requests, referrals, or manual entry.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto scrollbar-thin">
             <table className="w-full">
               <thead>
-                <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
+                <tr className="text-left text-xs font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
                   <th className="px-4 py-3">Organisation</th>
                   <th className="px-4 py-3">Source</th>
                   <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Score</th>
-                  <th className="px-4 py-3">Service Line</th>
+                  <th className="px-4 py-3 hidden md:table-cell">Score</th>
+                  <th className="px-4 py-3 hidden md:table-cell">Service Line</th>
                   <th className="px-4 py-3">Owner</th>
                   <th className="px-4 py-3">Date</th>
                 </tr>
@@ -205,23 +205,23 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
                       <Link href={`/leads/${lead.id}`} className="hover:underline">
                         <p className="text-sm font-medium" style={{ color: "#0F2744" }}>{lead.organizationName}</p>
                       </Link>
-                      <p className="text-[10px] text-gray-400">{lead.contactName}{lead.contactEmail ? ` | ${lead.contactEmail}` : ""}</p>
+                      <p className="text-xs text-gray-400">{lead.contactName}{lead.contactEmail ? ` | ${lead.contactEmail}` : ""}</p>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
                         {lead.source.replace(/_/g, " ")}
                       </span>
                     </td>
                     <td className="px-4 py-3"><Badge status={lead.status} /></td>
-                    <td className="px-4 py-3">
-                      {lead.qualificationScore ? <Badge status={lead.qualificationScore} /> : <span className="text-[10px] text-gray-300">Unscored</span>}
+                    <td className="px-4 py-3 hidden md:table-cell">
+                      {lead.qualificationScore ? <Badge status={lead.qualificationScore} /> : <span className="text-xs text-gray-300">Unscored</span>}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 hidden md:table-cell">
                       {lead.serviceLineHook ? (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 truncate max-w-[120px] inline-block">
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 truncate max-w-[120px] inline-block">
                           {lead.serviceLineHook.split(" ").slice(0, 3).join(" ")}
                         </span>
-                      ) : <span className="text-[10px] text-gray-300">-</span>}
+                      ) : <span className="text-xs text-gray-300">-</span>}
                     </td>
                     <td className="px-4 py-3 text-xs text-gray-500">{lead.assignedTo?.name ?? <span className="text-gray-300">Unassigned</span>}</td>
                     <td className="px-4 py-3 text-xs text-gray-400">
@@ -249,14 +249,14 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
               )}
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto scrollbar-thin">
             <table className="w-full">
               <thead>
-                <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
+                <tr className="text-left text-xs font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
                   <th className="px-4 py-3">Organisation</th>
                   <th className="px-4 py-3">Contact</th>
                   <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Service Lines</th>
+                  <th className="px-4 py-3 hidden md:table-cell">Service Lines</th>
                   <th className="px-4 py-3">Date</th>
                 </tr>
               </thead>
@@ -268,15 +268,15 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
                         <p className="text-sm font-medium" style={{ color: "#0F2744" }}>{call.organizationName}</p>
                       </Link>
                       {call.convertedToClient && (
-                        <span className="text-[10px] text-green-600">Converted</span>
+                        <span className="text-xs text-green-600">Converted</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">{call.contactName}</td>
                     <td className="px-4 py-3"><Badge status={call.status} /></td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 hidden md:table-cell">
                       <div className="flex flex-wrap gap-1">
                         {call.aiServiceLineMatch.slice(0, 2).map((sl, i) => (
-                          <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 truncate max-w-[100px]">
+                          <span key={i} className="text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 truncate max-w-[100px]">
                             {sl.split(" ").slice(0, 2).join(" ")}
                           </span>
                         ))}
@@ -302,14 +302,14 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
               <p className="text-gray-400 text-sm">No proposals yet.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto scrollbar-thin">
             <table className="w-full">
               <thead>
-                <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
+                <tr className="text-left text-xs font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
                   <th className="px-4 py-3">Proposal</th>
                   <th className="px-4 py-3">Client</th>
                   <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Budget</th>
+                  <th className="px-4 py-3 hidden md:table-cell">Budget</th>
                   <th className="px-4 py-3">Date</th>
                 </tr>
               </thead>
@@ -323,7 +323,7 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">{p.clientName}</td>
                     <td className="px-4 py-3"><Badge status={p.status} /></td>
-                    <td className="px-4 py-3 text-xs text-gray-500">{p.budgetRange ?? "-"}</td>
+                    <td className="px-4 py-3 hidden md:table-cell text-xs text-gray-500">{p.budgetRange ?? "-"}</td>
                     <td className="px-4 py-3 text-xs text-gray-400">
                       {new Date(p.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                     </td>
@@ -349,13 +349,13 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
               <p className="text-gray-400 text-sm">No pending expansion requests.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto scrollbar-thin">
             <table className="w-full">
               <thead>
-                <tr className="text-left text-[10px] font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
+                <tr className="text-left text-xs font-semibold uppercase tracking-wider text-gray-500" style={{ background: "#F9FAFB" }}>
                   <th className="px-4 py-3">Client</th>
                   <th className="px-4 py-3">Suggested Service</th>
-                  <th className="px-4 py-3">Rationale</th>
+                  <th className="px-4 py-3 hidden md:table-cell">Rationale</th>
                   <th className="px-4 py-3">Date</th>
                 </tr>
               </thead>
@@ -368,7 +368,7 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">{er.suggestedService}</td>
-                    <td className="px-4 py-3 text-xs text-gray-500 max-w-[300px] truncate">{er.rationale}</td>
+                    <td className="px-4 py-3 hidden md:table-cell text-xs text-gray-500 max-w-[300px] truncate">{er.rationale}</td>
                     <td className="px-4 py-3 text-xs text-gray-400">
                       {new Date(er.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                     </td>
@@ -477,7 +477,7 @@ function StaffingTab({ staffingRequests, isElevated }: { staffingRequests: Props
                 </p>
                 <div className="flex flex-wrap gap-1 mt-2">
                   {(sr.skillsRequired ?? []).slice(0, 4).map((s, i) => (
-                    <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{s}</span>
+                    <span key={i} className="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{s}</span>
                   ))}
                 </div>
               </div>
@@ -508,7 +508,7 @@ function StaffingTab({ staffingRequests, isElevated }: { staffingRequests: Props
                               <p className="text-sm font-semibold" style={{ color: "#0F2744" }}>{exp.consultant.name}</p>
                               <p className="text-xs text-gray-500">{p?.title ?? exp.consultant.email}</p>
                               {p && (
-                                <div className="flex items-center gap-2 mt-1 text-[10px] text-gray-400">
+                                <div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
                                   <span>{p.location}</span>
                                   <span>{p.yearsExperience}yr exp</span>
                                   <span className="capitalize">{p.tier.toLowerCase()}</span>
@@ -526,7 +526,7 @@ function StaffingTab({ staffingRequests, isElevated }: { staffingRequests: Props
                           {p?.expertiseAreas && (
                             <div className="flex flex-wrap gap-1 mt-2">
                               {p.expertiseAreas.slice(0, 4).map((area, i) => (
-                                <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">{area.replace(/_/g, " ")}</span>
+                                <span key={i} className="text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">{area.replace(/_/g, " ")}</span>
                               ))}
                             </div>
                           )}
@@ -536,21 +536,21 @@ function StaffingTab({ staffingRequests, isElevated }: { staffingRequests: Props
                               <button
                                 onClick={() => handleAction(sr.id, exp.id, "SHORTLISTED")}
                                 disabled={actionLoading === exp.id}
-                                className="text-[10px] font-medium px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+                                className="text-xs font-medium px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 disabled:opacity-50"
                               >
                                 Shortlist
                               </button>
                               <button
                                 onClick={() => handleAction(sr.id, exp.id, "SELECTED")}
                                 disabled={actionLoading === exp.id}
-                                className="text-[10px] font-medium px-2.5 py-1 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 disabled:opacity-50"
+                                className="text-xs font-medium px-2.5 py-1 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 disabled:opacity-50"
                               >
                                 Select & Assign
                               </button>
                               <button
                                 onClick={() => handleAction(sr.id, exp.id, "PASSED")}
                                 disabled={actionLoading === exp.id}
-                                className="text-[10px] font-medium px-2.5 py-1 rounded-lg text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                                className="text-xs font-medium px-2.5 py-1 rounded-lg text-gray-400 hover:text-gray-600 disabled:opacity-50"
                               >
                                 Pass
                               </button>
@@ -561,14 +561,14 @@ function StaffingTab({ staffingRequests, isElevated }: { staffingRequests: Props
                               <button
                                 onClick={() => handleAction(sr.id, exp.id, "SELECTED")}
                                 disabled={actionLoading === exp.id}
-                                className="text-[10px] font-medium px-2.5 py-1 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 disabled:opacity-50"
+                                className="text-xs font-medium px-2.5 py-1 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 disabled:opacity-50"
                               >
                                 Select & Assign
                               </button>
                               <button
                                 onClick={() => handleAction(sr.id, exp.id, "PASSED")}
                                 disabled={actionLoading === exp.id}
-                                className="text-[10px] font-medium px-2.5 py-1 rounded-lg text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                                className="text-xs font-medium px-2.5 py-1 rounded-lg text-gray-400 hover:text-gray-600 disabled:opacity-50"
                               >
                                 Pass
                               </button>

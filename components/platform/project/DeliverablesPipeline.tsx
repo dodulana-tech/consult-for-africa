@@ -50,7 +50,7 @@ export default function DeliverablesPipeline({ deliverables }: { deliverables: D
 
           return (
             <div key={stage.key} className="flex items-center gap-3">
-              <span className="text-xs text-gray-500 w-20 shrink-0">{stage.label}</span>
+              <span className="text-xs text-gray-500 w-16 sm:w-20 shrink-0">{stage.label}</span>
               <div className="flex-1 h-5 rounded bg-gray-50 overflow-hidden relative">
                 <div
                   className="h-full rounded transition-all"

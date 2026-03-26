@@ -236,7 +236,7 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
               {/* Engagement Type Selector */}
               <div>
                 <label className="text-xs font-medium text-gray-500 block mb-2">Engagement Type</label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {ENGAGEMENT_TYPES.map((t) => (
                     <button
                       key={t.value}
@@ -263,7 +263,7 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
               </div>
 
               {/* Common Fields */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="col-span-2">
                   <label className="text-xs font-medium text-gray-500 block mb-1">Engagement Name</label>
                   <input
@@ -374,7 +374,7 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
               {/* PROJECT: Budget, Methodology, Pricing & Staffing */}
               {form.engagementType === "PROJECT" && (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs font-medium text-gray-500 block mb-1">Budget</label>
                       <input
@@ -442,7 +442,7 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
                   {/* Pricing & Staffing Constraints */}
                   <div className="pt-2 border-t" style={{ borderColor: "#e5eaf0" }}>
                     <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Pricing & Staffing</p>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="text-xs font-medium text-gray-500 block mb-1">Budget Sensitivity</label>
                         <select value={form.budgetSensitivity} onChange={(e) => set("budgetSensitivity", e.target.value)} className={inputClass} style={inputStyle}>
@@ -486,7 +486,7 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
               {form.engagementType === "RETAINER" && (
                 <div className="pt-2 border-t" style={{ borderColor: "#e5eaf0" }}>
                   <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Retainer Details</p>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs font-medium text-gray-500 block mb-1">Monthly Fee</label>
                       <input
@@ -553,7 +553,7 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
               {form.engagementType === "SECONDMENT" && (
                 <div className="pt-2 border-t" style={{ borderColor: "#e5eaf0" }}>
                   <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Secondment Details</p>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs font-medium text-gray-500 block mb-1">Monthly Fee</label>
                       <input
@@ -613,7 +613,7 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
               {form.engagementType === "FRACTIONAL" && (
                 <div className="pt-2 border-t" style={{ borderColor: "#e5eaf0" }}>
                   <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Fractional Placement Details</p>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs font-medium text-gray-500 block mb-1">Placed Individual Name</label>
                       <input
@@ -688,7 +688,7 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
               {form.engagementType === "TRANSFORMATION" && (
                 <div className="pt-2 border-t" style={{ borderColor: "#e5eaf0" }}>
                   <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Transformation Details</p>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs font-medium text-gray-500 block mb-1">Equity Stake (%)</label>
                       <input
@@ -785,7 +785,7 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
               {form.engagementType === "TRANSACTION" && (
                 <div className="pt-2 border-t" style={{ borderColor: "#e5eaf0" }}>
                   <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Transaction Details</p>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs font-medium text-gray-500 block mb-1">Mandate Type</label>
                       <div className="relative">

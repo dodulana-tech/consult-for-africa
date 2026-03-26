@@ -46,7 +46,7 @@ export default async function DiscoveryCallsPage() {
         }
       />
 
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
         {calls.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-gray-500">No discovery calls yet.</p>

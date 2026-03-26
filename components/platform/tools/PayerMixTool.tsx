@@ -69,7 +69,7 @@ export default function PayerMixTool() {
       <div className="overflow-x-auto rounded-xl border" style={{ borderColor: "#e5eaf0" }}>
         <table className="w-full text-xs">
           <thead><tr style={{ background: "#0F2744" }}>
-            <th className="text-left px-3 py-2 text-white font-medium min-w-[150px]">Payer</th>
+            <th className="text-left px-3 py-2 text-white font-medium min-w-0">Payer</th>
             <th className="text-right px-3 py-2 text-white font-medium">Patients</th>
             <th className="text-right px-3 py-2 text-white font-medium">Revenue (NGN)</th>
             <th className="text-right px-3 py-2 text-white font-medium">Rev %</th>

@@ -70,7 +70,7 @@ export default async function AdminPartnersPage() {
         subtitle={`${totalPartners} partner${totalPartners !== 1 ? "s" : ""}`}
         action={<NewPartnerForm />}
       />
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
         <div className="max-w-4xl space-y-6">
           {/* Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
@@ -121,13 +121,13 @@ export default async function AdminPartnersPage() {
                             {p.name}
                           </p>
                           <span
-                            className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+                            className="text-xs px-2 py-0.5 rounded-full font-medium"
                             style={statusStyle}
                           >
                             {p.status === "PROSPECT" ? "Prospect" : p.status === "ONBOARDING" ? "Onboarding" : p.status === "ACTIVE" ? "Active" : p.status === "INACTIVE" ? "Inactive" : p.status}
                           </span>
                           <span
-                            className="text-[10px] px-2 py-0.5 rounded-full"
+                            className="text-xs px-2 py-0.5 rounded-full"
                             style={{ background: "#F3F4F6", color: "#6B7280" }}
                           >
                             {TYPE_LABELS[p.type] ?? p.type}

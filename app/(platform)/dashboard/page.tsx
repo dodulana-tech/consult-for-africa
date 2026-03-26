@@ -284,32 +284,32 @@ export default async function DashboardPage() {
 
         {/* Personal impact counter (consultants) */}
         {impact && (
-          <div className="rounded-xl p-4 flex items-center gap-6" style={{ background: "#0F2744" }}>
+          <div className="rounded-xl p-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-6" style={{ background: "#0F2744" }}>
             <div className="text-center">
               <p className="text-xl font-bold text-white">{impact.projectsContributed}</p>
-              <p className="text-[10px] text-white/50 uppercase tracking-wide">Projects</p>
+              <p className="text-xs text-white/50 uppercase tracking-wide">Projects</p>
             </div>
-            <div className="w-px h-8 bg-white/15" />
+            <div className="w-px h-8 bg-white/15 hidden sm:block" />
             <div className="text-center">
               <p className="text-xl font-bold text-white">{impact.deliverablesApproved}</p>
-              <p className="text-[10px] text-white/50 uppercase tracking-wide">Deliverables</p>
+              <p className="text-xs text-white/50 uppercase tracking-wide">Deliverables</p>
             </div>
-            <div className="w-px h-8 bg-white/15" />
+            <div className="w-px h-8 bg-white/15 hidden sm:block" />
             <div className="text-center">
               <p className="text-xl font-bold" style={{ color: "#D4AF37" }}>{impact.totalHours}h</p>
-              <p className="text-[10px] text-white/50 uppercase tracking-wide">Hours</p>
+              <p className="text-xs text-white/50 uppercase tracking-wide">Hours</p>
             </div>
             {impact.avgClientSatisfaction && (
               <>
-                <div className="w-px h-8 bg-white/15" />
+                <div className="w-px h-8 bg-white/15 hidden sm:block" />
                 <div className="text-center">
                   <p className="text-xl font-bold text-white">{impact.avgClientSatisfaction}/5</p>
-                  <p className="text-[10px] text-white/50 uppercase tracking-wide">Rating</p>
+                  <p className="text-xs text-white/50 uppercase tracking-wide">Rating</p>
                 </div>
               </>
             )}
             <div className="flex-1" />
-            <p className="text-[10px] text-white/40">Your CFA Impact</p>
+            <p className="text-xs text-white/40">Your CFA Impact</p>
           </div>
         )}
 
@@ -319,7 +319,7 @@ export default async function DashboardPage() {
             <div className="flex items-center gap-2 mb-1">
               <Inbox size={14} className="text-blue-500" />
               <h2 className="text-sm font-semibold text-gray-900">Assignment Requests</h2>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium">
+              <span className="text-xs px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium">
                 {pendingAssignments.length} pending
               </span>
             </div>
@@ -333,7 +333,7 @@ export default async function DashboardPage() {
                 <div>
                   {a.track && (
                     <span
-                      className="text-[10px] px-2 py-0.5 rounded-full font-medium inline-block mb-1"
+                      className="text-xs px-2 py-0.5 rounded-full font-medium inline-block mb-1"
                       style={{ background: "#DBEAFE", color: "#1E40AF" }}
                     >
                       {a.track.name}

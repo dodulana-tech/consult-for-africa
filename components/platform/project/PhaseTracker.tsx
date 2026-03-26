@@ -201,7 +201,7 @@ export default function PhaseTracker({
             className="w-full text-sm rounded-lg px-3 py-2 focus:outline-none"
             style={{ border: "1px solid #e5eaf0", background: "#fff" }}
           />
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
               <label className="text-[10px] text-gray-500 mb-1 block">Start date</label>
               <input

@@ -48,15 +48,15 @@ export default function FMEATool() {
         <table className="w-full text-xs">
           <thead>
             <tr style={{ background: "#0F2744" }}>
-              <th className="text-left px-3 py-2 text-white font-medium min-w-[140px]">Process Step</th>
-              <th className="text-left px-3 py-2 text-white font-medium min-w-[140px]">Failure Mode</th>
-              <th className="text-left px-3 py-2 text-white font-medium min-w-[120px]">Effect</th>
-              <th className="text-left px-3 py-2 text-white font-medium min-w-[120px]">Cause</th>
+              <th className="text-left px-3 py-2 text-white font-medium min-w-0">Process Step</th>
+              <th className="text-left px-3 py-2 text-white font-medium min-w-0">Failure Mode</th>
+              <th className="text-left px-3 py-2 text-white font-medium min-w-0">Effect</th>
+              <th className="text-left px-3 py-2 text-white font-medium min-w-0">Cause</th>
               <th className="text-center px-2 py-2 text-white font-medium w-14">S</th>
               <th className="text-center px-2 py-2 text-white font-medium w-14">O</th>
               <th className="text-center px-2 py-2 text-white font-medium w-14">D</th>
               <th className="text-center px-2 py-2 text-white font-medium w-16">RPN</th>
-              <th className="text-left px-3 py-2 text-white font-medium min-w-[150px]">Action</th>
+              <th className="text-left px-3 py-2 text-white font-medium min-w-0">Action</th>
               <th className="w-8"></th>
             </tr>
           </thead>
