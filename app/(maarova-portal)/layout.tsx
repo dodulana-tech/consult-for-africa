@@ -136,7 +136,7 @@ export default async function MaarovaPortalLayout({
           {isManager && (
             <>
               <div className="pt-4 pb-2 px-3">
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">
                   Management
                 </p>
               </div>
@@ -157,7 +157,7 @@ export default async function MaarovaPortalLayout({
           {isHR && (
             <>
               <div className="pt-4 pb-2 px-3">
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">
                   Organisation
                 </p>
               </div>

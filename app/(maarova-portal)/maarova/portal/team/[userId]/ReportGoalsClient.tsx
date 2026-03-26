@@ -198,14 +198,14 @@ export default function ReportGoalsClient({ userId }: { userId: string }) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-medium text-sm" style={{ color: "#0F2744" }}>{goal.title}</h3>
-                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>
                         {st.label}
                       </span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "#0F2744" + "10", color: "#0F2744" }}>
+                      <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "#0F2744" + "10", color: "#0F2744" }}>
                         {goal.dimension}
                       </span>
                       {goal.managerValidated && (
-                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-green-50 text-green-700">
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-50 text-green-700">
                           Validated
                         </span>
                       )}
