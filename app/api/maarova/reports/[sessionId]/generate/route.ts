@@ -1,3 +1,5 @@
+export const maxDuration = 120;
+
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
