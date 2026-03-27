@@ -11,6 +11,15 @@
   --text-body: #1f2937;
   --text-muted: #6b7280;
   --surface-muted: #F8FAFC;
+
+  /* Safe area insets for notch / home indicator */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+
+  /* Bottom tab bar height */
+  --bottom-tab-height: 56px;
 }
 
 /* =========================================
@@ -20,10 +29,13 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   body {
     @apply bg-white text-gray-900 antialiased;
+    overscroll-behavior-y: contain;
   }
 
   h1, h2, h3, h4 {
@@ -36,6 +48,16 @@
 
   a {
     @apply transition-colors duration-200;
+  }
+
+  /* Native-like press feedback on interactive elements.
+     Excluded on elements managed by framer-motion (they use whileTap). */
+  button:not([data-motion]):active,
+  a:not([data-motion]):active,
+  [role="button"]:not([data-motion]):active {
+    transform: scale(0.97);
+    opacity: 0.85;
+    transition: transform 50ms ease, opacity 50ms ease;
   }
 }
 

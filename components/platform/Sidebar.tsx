@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { useState } from "react";
 import {
   LayoutDashboard,
   Briefcase,
@@ -28,13 +27,13 @@ import {
   Radio,
   ClipboardList,
   Video,
-  Menu,
   X,
   FileText,
   BarChart3,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import type { LucideIcon } from "lucide-react";
+import { useNavStore } from "@/lib/stores/navigation";
 
 interface NavItem {
   label: string;
@@ -142,7 +141,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const role = session?.user?.role ?? "";
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { drawerOpen: mobileOpen, closeDrawer: closeMobile } = useNavStore();
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === href;
@@ -193,7 +192,7 @@ export default function Sidebar() {
                     <Link
                       key={href}
                       href={href}
-                      onClick={() => setMobileOpen(false)}
+                      onClick={() => closeMobile()}
                       className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all group"
                       style={{
                         background: active ? "#EFF6FF" : "transparent",
@@ -224,7 +223,7 @@ export default function Sidebar() {
         {role !== "ACADEMY_LEARNER" && (
           <Link
             href="/refer"
-            onClick={() => setMobileOpen(false)}
+            onClick={() => closeMobile()}
             className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all"
             style={{
               background: pathname === "/refer" ? "#EFF6FF" : "transparent",
@@ -237,7 +236,7 @@ export default function Sidebar() {
         )}
         <Link
           href="/settings"
-          onClick={() => setMobileOpen(false)}
+          onClick={() => closeMobile()}
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all"
           style={{ color: "#64748B" }}
         >
@@ -258,27 +257,20 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile top bar */}
+      {/* Mobile top bar - brand only, navigation via bottom tabs */}
       <div
-        className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14"
+        className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center px-4 h-14"
         style={{ background: "#fff", borderBottom: "1px solid #E2E8F0" }}
       >
         <div className="flex items-center gap-2">
           <Image src="/logo-cfa.png" alt="C4A" width={24} height={24} style={{ mixBlendMode: "multiply" }} />
           <span className="font-semibold text-sm" style={{ color: "#0F2744" }}>CFA</span>
         </div>
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-1.5 rounded-lg hover:bg-gray-100"
-          style={{ color: "#64748B" }}
-        >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
       </div>
 
       {/* Mobile overlay */}
       {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-black/40" onClick={() => setMobileOpen(false)} />
+        <div className="lg:hidden fixed inset-0 z-40 bg-black/40" onClick={closeMobile} />
       )}
 
       {/* Desktop sidebar */}
@@ -297,7 +289,7 @@ export default function Sidebar() {
         style={{ background: "#ffffff", borderLeft: "1px solid #E2E8F0" }}
       >
         <div className="flex items-center justify-end px-4 h-14" style={{ borderBottom: "1px solid #E2E8F0" }}>
-          <button onClick={() => setMobileOpen(false)} className="p-1.5 rounded-lg hover:bg-gray-100" style={{ color: "#64748B" }}>
+          <button onClick={() => closeMobile()} className="p-1.5 rounded-lg hover:bg-gray-100" style={{ color: "#64748B" }}>
             <X size={20} />
           </button>
         </div>

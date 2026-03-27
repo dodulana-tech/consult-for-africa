@@ -4,7 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import TopBar from "@/components/platform/TopBar";
 import StatusBadge from "@/components/platform/StatusBadge";
 import TierChanger from "./TierChanger";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, formatEnumLabel } from "@/lib/utils";
 import {
   MapPin,
   Star,
@@ -192,7 +192,7 @@ export default async function ConsultantProfilePage({
                   className="px-3 py-1 rounded-full text-xs"
                   style={{ background: "#F0F4FF", color: "#0F2744" }}
                 >
-                  {area.replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                  {formatEnumLabel(area)}
                 </span>
               ))}
             </div>

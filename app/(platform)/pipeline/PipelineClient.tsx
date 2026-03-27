@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { formatEnumLabel } from "@/lib/utils";
 
 type Tab = "leads" | "discovery" | "proposals" | "staffing" | "expansions";
 
@@ -526,7 +527,7 @@ function StaffingTab({ staffingRequests, isElevated }: { staffingRequests: Props
                           {p?.expertiseAreas && (
                             <div className="flex flex-wrap gap-1 mt-2">
                               {p.expertiseAreas.slice(0, 4).map((area, i) => (
-                                <span key={i} className="text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">{area.replace(/_/g, " ")}</span>
+                                <span key={i} className="text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">{formatEnumLabel(area)}</span>
                               ))}
                             </div>
                           )}

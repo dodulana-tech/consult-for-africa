@@ -5,7 +5,7 @@ import Link from "next/link";
 import TopBar from "@/components/platform/TopBar";
 import StatusBadge from "@/components/platform/StatusBadge";
 import { MapPin, Star, Users, ChevronRight } from "lucide-react";
-import { formatCompactCurrency } from "@/lib/utils";
+import { formatCompactCurrency, formatEnumLabel } from "@/lib/utils";
 
 
 export default async function ConsultantsPage() {
@@ -129,7 +129,7 @@ export default async function ConsultantsPage() {
                         className="px-2 py-0.5 rounded-full text-xs"
                         style={{ background: "#F3F4F6", color: "#6B7280" }}
                       >
-                        {area.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()).replace(/Em As Service/, "EM-as-a-Service")}
+                        {formatEnumLabel(area)}
                       </span>
                     ))}
                     {c.expertiseAreas.length > 4 && (

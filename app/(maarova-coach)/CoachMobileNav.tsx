@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import CoachLogoutButton from "./CoachLogoutButton";
+import { useNavStore } from "@/lib/stores/navigation";
 
 export default function CoachMobileNav({
   userName,
@@ -11,12 +11,13 @@ export default function CoachMobileNav({
   userName: string;
   navItems: { label: string; href: string }[];
 }) {
-  const [open, setOpen] = useState(false);
+  const { drawerOpen: open, closeDrawer } = useNavStore();
 
   return (
     <>
+      {/* Mobile top bar - brand only */}
       <div
-        className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 py-3 border-b border-white/10"
+        className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center px-4 py-3 border-b border-white/10"
         style={{ backgroundColor: "#0f1a2a" }}
       >
         <div className="flex items-center gap-2">
@@ -25,25 +26,15 @@ export default function CoachMobileNav({
           </div>
           <span className="text-white font-semibold text-sm">Coach Portal</span>
         </div>
-        <button onClick={() => setOpen(!open)} className="text-white p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
-          {open ? (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          )}
-        </button>
       </div>
 
+      {/* Mobile drawer (triggered by bottom tab "More") */}
       {open && (
         <>
-          <div className="lg:hidden fixed inset-0 z-40 bg-black/50" onClick={() => setOpen(false)} />
+          <div className="lg:hidden fixed inset-0 z-40 bg-black/50" onClick={closeDrawer} />
           <div className="lg:hidden fixed top-0 right-0 bottom-0 z-50 w-[85vw] max-w-72 flex flex-col overflow-y-auto" style={{ backgroundColor: "#0f1a2a" }}>
             <div className="flex items-center justify-end px-4 py-3 border-b border-white/10">
-              <button onClick={() => setOpen(false)} className="text-white p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
+              <button onClick={closeDrawer} className="text-white p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -54,7 +45,7 @@ export default function CoachMobileNav({
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => setOpen(false)}
+                  onClick={closeDrawer}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors text-sm font-medium"
                 >
                   {item.label}

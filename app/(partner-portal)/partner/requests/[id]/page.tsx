@@ -3,6 +3,7 @@ import { getPartnerPortalSession } from "@/lib/partnerPortalAuth";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import PartnerPortalLogoutButton from "@/components/partner-portal/LogoutButton";
+import { formatEnumLabel } from "@/lib/utils";
 import DeploymentResponseButtons from "./DeploymentResponseButtons";
 
 const STATUS_STYLES: Record<string, { bg: string; color: string; label: string }> = {
@@ -367,7 +368,7 @@ export default async function RequestDetailPage({
                                       className="text-[11px] px-2 py-0.5 rounded-full"
                                       style={{ background: "#EFF6FF", color: "#1D4ED8" }}
                                     >
-                                      {area}
+                                      {formatEnumLabel(area)}
                                     </span>
                                   ))}
                                 </div>

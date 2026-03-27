@@ -4,6 +4,18 @@ export function cn(...inputs: ClassValue[]) {
   return inputs.filter(Boolean).join(" ");
 }
 
+// ─── Enum Label ──────────────────────────────────────────────────────────────
+
+/** Convert SCREAMING_SNAKE enum values to Title Case labels.
+ *  e.g. "CLINICAL_GOVERNANCE" -> "Clinical Governance" */
+export function formatEnumLabel(value: string): string {
+  return value
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .replace(/\bAnd\b/g, "&")
+    .replace(/\bEm As A Service\b/, "EM-as-a-Service");
+}
+
 // ─── Currency ─────────────────────────────────────────────────────────────────
 
 export function formatCurrency(amount: number, currency: "NGN" | "USD"): string {

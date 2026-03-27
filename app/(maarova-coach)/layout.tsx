@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import CoachLogoutButton from "./CoachLogoutButton";
 import CoachMobileNav from "./CoachMobileNav";
+import CoachBottomTabs from "./CoachBottomTabs";
 
 const navItems = [
   { label: "Dashboard", href: "/maarova/coach/dashboard" },
@@ -63,7 +64,8 @@ export default async function CoachPortalLayout({
       {/* Mobile Nav */}
       <CoachMobileNav userName={session.name} navItems={navItems} />
 
-      <main className="flex-1 overflow-y-auto pt-14 lg:pt-0">{children}</main>
+      <main className="flex-1 overflow-y-auto pt-14 lg:pt-0 pb-[calc(var(--bottom-tab-height)+env(safe-area-inset-bottom,0px))] lg:pb-0">{children}</main>
+      <CoachBottomTabs />
     </div>
   );
 }

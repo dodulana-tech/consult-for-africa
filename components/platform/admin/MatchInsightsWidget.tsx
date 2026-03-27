@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatEnumLabel } from "@/lib/utils";
 
 interface ScoreBreakdown {
   expertiseMatch: number;
@@ -207,7 +208,7 @@ export default function MatchInsightsWidget({ requestId, requestStatus }: Props)
                             key={area}
                             className="text-[10px] px-1.5 py-0.5 rounded bg-gray-50 text-gray-500"
                           >
-                            {area.replace(/_/g, " ")}
+                            {formatEnumLabel(area)}
                           </span>
                         ))}
                       </div>

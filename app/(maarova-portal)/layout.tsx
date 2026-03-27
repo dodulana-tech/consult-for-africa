@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import MaarovaLogoutButton from "./MaarovaLogoutButton";
 import MaarovaMobileNav from "./MaarovaMobileNav";
+import MaarovaBottomTabs from "./MaarovaBottomTabs";
 
 const baseNavItems = [
   { label: "Dashboard", href: "/maarova/portal/dashboard", icon: "grid" },
@@ -200,9 +201,12 @@ export default async function MaarovaPortalLayout({
       />
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto pt-14 lg:pt-0">
+      <main className="flex-1 overflow-y-auto pt-14 lg:pt-0 pb-[calc(var(--bottom-tab-height)+env(safe-area-inset-bottom,0px))] lg:pb-0">
         {children}
       </main>
+
+      {/* Mobile bottom tabs */}
+      <MaarovaBottomTabs hasManagerAccess={isManager} hasHRAccess={isHR} />
     </div>
   );
 }

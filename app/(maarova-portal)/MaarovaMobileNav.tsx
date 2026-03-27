@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import MaarovaLogoutButton from "./MaarovaLogoutButton";
+import { useNavStore } from "@/lib/stores/navigation";
 
 export default function MaarovaMobileNav({
   userName,
@@ -14,14 +14,14 @@ export default function MaarovaMobileNav({
   userEmail: string;
   navItems: { label: string; href: string; icon: string }[];
 }) {
-  const [open, setOpen] = useState(false);
+  const { drawerOpen: open, closeDrawer } = useNavStore();
   const pathname = usePathname();
 
   return (
     <>
-      {/* Mobile top bar */}
+      {/* Mobile top bar - brand only, navigation via bottom tabs */}
       <div
-        className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 py-3 border-b border-white/10"
+        className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center px-4 py-3 border-b border-white/10"
         style={{ backgroundColor: "#0f1a2a" }}
       >
         <div className="flex items-center gap-2">
@@ -30,29 +30,14 @@ export default function MaarovaMobileNav({
           </div>
           <span className="text-white font-semibold text-sm">Maarova</span>
         </div>
-        <button
-          onClick={() => setOpen(!open)}
-          className="text-white p-1"
-          aria-label="Toggle menu"
-        >
-          {open ? (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          )}
-        </button>
       </div>
 
-      {/* Mobile slide-out menu */}
+      {/* Mobile slide-out drawer (triggered by "More" tab) */}
       {open && (
         <>
           <div
             className="lg:hidden fixed inset-0 z-40 bg-black/50"
-            onClick={() => setOpen(false)}
+            onClick={closeDrawer}
           />
           <div
             className="lg:hidden fixed top-0 right-0 bottom-0 z-50 w-[85vw] max-w-72 flex flex-col overflow-y-auto"
@@ -60,7 +45,7 @@ export default function MaarovaMobileNav({
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
               <span className="text-white font-semibold text-sm">Menu</span>
-              <button onClick={() => setOpen(false)} className="text-white p-1">
+              <button onClick={closeDrawer} className="text-white p-1">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -74,7 +59,7 @@ export default function MaarovaMobileNav({
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() => setOpen(false)}
+                    onClick={closeDrawer}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       isActive
                         ? "bg-white/10 text-white"

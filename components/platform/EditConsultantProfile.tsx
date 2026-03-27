@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CheckCircle2, AlertCircle, Plus, X } from "lucide-react";
+import { formatEnumLabel } from "@/lib/utils";
 
 type Profile = {
   title: string;
@@ -169,7 +170,7 @@ export default function EditConsultantProfile({ initialProfile }: { initialProfi
               className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs"
               style={{ background: "#F0F4FF", color: "#0F2744" }}
             >
-              {area}
+              {formatEnumLabel(area)}
               <button type="button" onClick={() => removeExpertise(area)} className="hover:text-red-500">
                 <X size={10} />
               </button>
