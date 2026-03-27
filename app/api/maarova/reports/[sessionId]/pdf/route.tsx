@@ -310,10 +310,23 @@ export async function GET(
     return new Response("Report not ready", { status: 400 });
   }
 
-  // Load logo as base64
-  const logoPath = path.join(process.cwd(), "public", "logo-cfa.png");
-  const logoBuffer = fs.readFileSync(logoPath);
-  const logoBase64 = `data:image/png;base64,${logoBuffer.toString("base64")}`;
+  // Load logo as base64 — use fetch since public/ isn't on the filesystem in serverless
+  let logoBase64 = "";
+  try {
+    const logoPath = path.join(process.cwd(), "public", "logo-cfa.png");
+    const logoBuffer = fs.readFileSync(logoPath);
+    logoBase64 = `data:image/png;base64,${logoBuffer.toString("base64")}`;
+  } catch {
+    // Fallback: fetch from the public URL
+    try {
+      const origin = process.env.NEXT_PUBLIC_APP_URL || "https://consultforafrica.com";
+      const res = await fetch(`${origin}/logo-cfa.png`);
+      if (res.ok) {
+        const buf = Buffer.from(await res.arrayBuffer());
+        logoBase64 = `data:image/png;base64,${buf.toString("base64")}`;
+      }
+    } catch {}
+  }
 
   // Build module scores
   const moduleScores = session.moduleResponses
@@ -350,15 +363,16 @@ export async function GET(
       />,
     );
 
-    const pdfBytes = Buffer.from(rawBuffer);
-    return new Response(pdfBytes as unknown as BodyInit, {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new Response(rawBuffer as any, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="Maarova-Leadership-Profile-${session.user.name.replace(/\s+/g, "-")}.pdf"`,
       },
     });
-  } catch (err) {
-    console.error("[PDF] renderToBuffer failed:", err);
-    return new Response("PDF generation failed", { status: 500 });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[PDF] renderToBuffer failed:", msg, err);
+    return Response.json({ error: "PDF generation failed", detail: msg }, { status: 500 });
   }
 }
