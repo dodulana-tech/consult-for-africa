@@ -87,10 +87,10 @@ function RadarChart({
 }: {
   data: { dimension: string; score: number; benchmark: number }[];
 }) {
-  const size = 400;
+  const size = 500;
   const cx = size / 2;
   const cy = size / 2;
-  const maxRadius = 140;
+  const maxRadius = 150;
   const levels = 5;
   const n = data.length;
   const angleSlice = (Math.PI * 2) / n;
@@ -149,7 +149,7 @@ function RadarChart({
     const r = (d.score / 100) * maxRadius;
     const p = polar(angle, r);
     // Label position: outside the max radius
-    const labelR = maxRadius + 45;
+    const labelR = maxRadius + 55;
     const lp = polar(angle, labelR);
     // Score badge position: just outside the score point
     const scoreR = Math.max(r + 18, maxRadius * 0.15);
@@ -197,7 +197,7 @@ function RadarChart({
     <div className="flex flex-col items-center">
       <svg
         viewBox={`0 0 ${size} ${size}`}
-        className="w-full max-w-[400px]"
+        className="w-full max-w-[480px]"
         role="img"
         aria-label="Leadership fingerprint"
       >
