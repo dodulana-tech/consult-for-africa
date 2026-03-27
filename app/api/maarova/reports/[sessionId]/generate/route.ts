@@ -106,6 +106,10 @@ export async function POST(
     }
   }
 
+  const has360 = assessmentSession.moduleResponses.some(
+    (mr) => mr.module.type === "THREE_SIXTY" && mr.status === "COMPLETED"
+  );
+
   const demographicContext = [
     user.title ? `Title: ${user.title}` : null,
     user.department ? `Department: ${user.department}` : null,
