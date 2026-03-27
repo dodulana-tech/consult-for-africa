@@ -5,7 +5,10 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  timeout: 90_000, // 90s max for API call
+});
 
 const MODULE_LABELS: Record<string, string> = {
   DISC: "Behavioural Style (DISC)",
@@ -162,8 +165,8 @@ Provide exactly 3 signature strengths (the top 3 scoring dimensions). Provide 3-
     const startTime = Date.now();
 
     const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 6000,
+      model: "claude-haiku-4-5-20241022",
+      max_tokens: 4096,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
     });

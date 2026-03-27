@@ -2561,80 +2561,234 @@ function TimelineTab({ project }: { project: Project }) {
         </form>
       )}
 
-      {/* Milestones */}
-      <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #e5eaf0" }}>
-        {milestones.length === 0 ? (
-          <div className="bg-white p-10 text-center">
-            <Flag size={28} className="text-gray-300 mx-auto mb-2" />
-            <p className="text-gray-500 text-sm">No milestones defined yet.</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-gray-50 bg-white">
-            {milestones.map((m, i) => {
-              const due = new Date(m.dueDate);
-              const overdue = due < new Date() && m.status !== "COMPLETED" && m.status !== "SKIPPED";
+      {/* Unified Timeline: Milestones + Tracks + Deliverables */}
+      {(() => {
+        type TimelineEntry =
+          | { kind: "milestone"; date: Date; data: (typeof milestones)[number] }
+          | { kind: "track"; date: Date; data: (typeof project.tracks)[number] }
+          | { kind: "deliverable"; date: Date; data: (typeof project.deliverables)[number] };
 
-              const iconMap: Record<string, typeof CheckCircle2> = {
-                COMPLETED: CheckCircle2,
-                DELAYED: XCircle,
-                SKIPPED: XCircle,
-                IN_PROGRESS: Circle,
-                PENDING: Circle,
-              };
-              const MIcon = iconMap[m.status] ?? Circle;
-              const iconColor =
-                m.status === "COMPLETED"
-                  ? "#10B981"
-                  : m.status === "DELAYED" || overdue
-                  ? "#EF4444"
-                  : m.status === "IN_PROGRESS"
-                  ? "#3B82F6"
-                  : "#D1D5DB";
+        const entries: TimelineEntry[] = [];
 
-              return (
-                <div key={m.id} className="flex items-start gap-4 px-5 py-4 group">
-                  <div className="flex flex-col items-center gap-1 shrink-0">
-                    <button
-                      onClick={() => cycleStatus(m.id, m.status)}
-                      disabled={updatingId === m.id}
-                      className="transition-transform hover:scale-110 disabled:opacity-50"
-                      title="Click to cycle status"
-                    >
-                      <MIcon size={18} style={{ color: iconColor }} />
-                    </button>
-                    {i < milestones.length - 1 && (
-                      <div className="w-0.5 h-6 bg-gray-100" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm font-medium text-gray-900">{m.name}</p>
-                      <div className="flex items-center gap-2">
-                        <StatusBadge status={m.status} />
-                        <button onClick={() => deleteMilestone(m.id)} className="text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs">x</button>
+        milestones.forEach((m) =>
+          entries.push({ kind: "milestone", date: new Date(m.dueDate), data: m })
+        );
+        project.tracks.forEach((t) => {
+          const d = t.endDate ?? t.startDate;
+          if (d) entries.push({ kind: "track", date: new Date(d), data: t });
+        });
+        project.deliverables.forEach((d) => {
+          if (d.dueDate) entries.push({ kind: "deliverable", date: new Date(d.dueDate), data: d });
+        });
+
+        entries.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+        if (entries.length === 0) {
+          return (
+            <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #e5eaf0" }}>
+              <div className="bg-white p-10 text-center">
+                <Flag size={28} className="text-gray-300 mx-auto mb-2" />
+                <p className="text-gray-500 text-sm">No milestones, tracks, or deliverables defined yet.</p>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #e5eaf0" }}>
+            <div className="divide-y divide-gray-50 bg-white">
+              {entries.map((entry, i) => {
+                const now = new Date();
+
+                if (entry.kind === "milestone") {
+                  const m = entry.data;
+                  const due = new Date(m.dueDate);
+                  const overdue = due < now && m.status !== "COMPLETED" && m.status !== "SKIPPED";
+
+                  const iconMap: Record<string, typeof CheckCircle2> = {
+                    COMPLETED: CheckCircle2,
+                    DELAYED: XCircle,
+                    SKIPPED: XCircle,
+                    IN_PROGRESS: Circle,
+                    PENDING: Circle,
+                  };
+                  const MIcon = iconMap[m.status] ?? Circle;
+                  const iconColor =
+                    m.status === "COMPLETED"
+                      ? "#10B981"
+                      : m.status === "DELAYED" || overdue
+                      ? "#EF4444"
+                      : m.status === "IN_PROGRESS"
+                      ? "#3B82F6"
+                      : "#D1D5DB";
+
+                  return (
+                    <div key={`ms-${m.id}`} className="flex items-start gap-4 px-5 py-4 group">
+                      <div className="flex flex-col items-center gap-1 shrink-0">
+                        <button
+                          onClick={() => cycleStatus(m.id, m.status)}
+                          disabled={updatingId === m.id}
+                          className="transition-transform hover:scale-110 disabled:opacity-50"
+                          title="Click to cycle status"
+                        >
+                          <MIcon size={18} style={{ color: iconColor }} />
+                        </button>
+                        {i < entries.length - 1 && (
+                          <div className="w-0.5 h-6 bg-gray-100" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Flag size={14} style={{ color: "#D4AF37" }} />
+                            <p className="text-sm font-medium text-gray-900">{m.name}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ background: "#FEF9E7", color: "#92711F" }}>Milestone</span>
+                            <StatusBadge status={m.status} />
+                            <button onClick={() => deleteMilestone(m.id)} className="text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs">x</button>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{m.description}</p>
+                        <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
+                          <span className={overdue ? "text-red-500 font-medium" : ""}>
+                            Due {formatDate(due)}
+                          </span>
+                          {m.completionDate && (
+                            <>
+                              <span>·</span>
+                              <span className="text-emerald-600">
+                                Completed {formatDate(new Date(m.completionDate))}
+                              </span>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{m.description}</p>
-                    <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
-                      <span className={overdue ? "text-red-500 font-medium" : ""}>
-                        Due {formatDate(due)}
-                      </span>
-                      {m.completionDate && (
-                        <>
-                          <span>·</span>
-                          <span className="text-emerald-600">
-                            Completed {formatDate(new Date(m.completionDate))}
-                          </span>
-                        </>
+                  );
+                }
+
+                if (entry.kind === "track") {
+                  const t = entry.data;
+                  const trackIconColor =
+                    t.status === "COMPLETED"
+                      ? "#10B981"
+                      : t.status === "ACTIVE" || t.status === "IN_PROGRESS"
+                      ? "#3B82F6"
+                      : "#D1D5DB";
+
+                  return (
+                    <div key={`tr-${t.id}`} className="flex items-start gap-4 px-5 py-4">
+                      <div className="flex flex-col items-center gap-1 shrink-0">
+                        <div className="w-[18px] h-[18px] flex items-center justify-center">
+                          <Layers size={16} style={{ color: trackIconColor }} />
+                        </div>
+                        {i < entries.length - 1 && (
+                          <div className="w-0.5 h-6 bg-gray-100" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Layers size={14} style={{ color: "#0F2744" }} />
+                            <p className="text-sm font-medium text-gray-900">{t.name}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ background: "#EEF2FF", color: "#4338CA" }}>Track</span>
+                            <StatusBadge status={t.status} />
+                          </div>
+                        </div>
+                        {t.description && (
+                          <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{t.description}</p>
+                        )}
+                        <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
+                          {t.startDate && <span>{formatDate(new Date(t.startDate))}</span>}
+                          {t.startDate && t.endDate && <span>-</span>}
+                          {t.endDate && <span>{formatDate(new Date(t.endDate))}</span>}
+                          {t.team.length > 0 && (
+                            <>
+                              <span>·</span>
+                              <span>{t.team.length} member{t.team.length !== 1 ? "s" : ""}</span>
+                            </>
+                          )}
+                          {t.deliverables.length > 0 && (
+                            <>
+                              <span>·</span>
+                              <span>{t.deliverables.length} deliverable{t.deliverables.length !== 1 ? "s" : ""}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                // deliverable
+                const d = entry.data;
+                const due = d.dueDate ? new Date(d.dueDate) : null;
+                const overdue = due && due < now && d.status !== "COMPLETED" && d.status !== "APPROVED";
+                const delivIconColor =
+                  d.status === "COMPLETED" || d.status === "APPROVED"
+                    ? "#10B981"
+                    : d.status === "IN_PROGRESS" || d.status === "SUBMITTED"
+                    ? "#3B82F6"
+                    : overdue
+                    ? "#EF4444"
+                    : "#D1D5DB";
+
+                return (
+                  <div key={`dl-${d.id}`} className="flex items-start gap-4 px-5 py-4">
+                    <div className="flex flex-col items-center gap-1 shrink-0">
+                      <div className="w-[18px] h-[18px] flex items-center justify-center">
+                        <FileCheck size={16} style={{ color: delivIconColor }} />
+                      </div>
+                      {i < entries.length - 1 && (
+                        <div className="w-0.5 h-6 bg-gray-100" />
                       )}
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <FileCheck size={14} style={{ color: "#0F2744" }} />
+                          <p className="text-sm font-medium text-gray-900">{d.name}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ background: "#F0FDF4", color: "#15803D" }}>Deliverable</span>
+                          <StatusBadge status={d.status} />
+                        </div>
+                      </div>
+                      {d.description && (
+                        <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{d.description}</p>
+                      )}
+                      <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
+                        {due && (
+                          <span className={overdue ? "text-red-500 font-medium" : ""}>
+                            Due {formatDate(due)}
+                          </span>
+                        )}
+                        {d.assignment?.consultant?.name && (
+                          <>
+                            <span>·</span>
+                            <span>{d.assignment.consultant.name}</span>
+                          </>
+                        )}
+                        {d.submittedAt && (
+                          <>
+                            <span>·</span>
+                            <span className="text-emerald-600">
+                              Submitted {formatDate(new Date(d.submittedAt))}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        )}
-      </div>
+        );
+      })()}
     </div>
   );
 }
