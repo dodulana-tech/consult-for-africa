@@ -1447,7 +1447,6 @@ function TeamTab({ project, isEM }: { project: Project; isEM: boolean }) {
   const [nuruBuildingProfiles, setNuruBuildingProfiles] = useState(false);
   const [nuruProfiles, setNuruProfiles] = useState<Array<{ role: string; description: string; skills: string[]; hoursPerWeek: number; rateType: string; rationale: string }>>([]);
   const [localStaffingRequests, setLocalStaffingRequests] = useState(project.staffingRequests);
-  const [creatingProfileIdx, setCreatingProfileIdx] = useState<number | null>(null);
   const [expandedRequestId, setExpandedRequestId] = useState<string | null>(null);
   const [expressions, setExpressions] = useState<Array<{ id: string; note: string | null; status: string; consultant: { id: string; name: string; email: string; profile: { title: string; location: string; tier: string; yearsExperience: number } | null } }>>([]);
   const [loadingExpressions, setLoadingExpressions] = useState(false);
@@ -1558,32 +1557,19 @@ function TeamTab({ project, isEM }: { project: Project; isEM: boolean }) {
     finally { setNuruBuildingProfiles(false); }
   }
 
-  async function createFromProfile(profile: typeof nuruProfiles[0], idx: number) {
-    setCreatingProfileIdx(idx);
-    try {
-      await fetch("/api/staffing", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          projectId: project.id,
-          role: profile.role,
-          description: profile.description,
-          skillsRequired: profile.skills,
-          hoursPerWeek: profile.hoursPerWeek,
-          rateType: profile.rateType || "MONTHLY",
-          urgency: "normal",
-        }),
-      });
-      setStaffingSuccess(`Staffing request posted: ${profile.role}`);
-      setNuruProfiles((prev) => prev.filter((_, i) => i !== idx));
-      // Refresh requests
-      const refreshRes = await fetch(`/api/staffing?projectId=${project.id}`);
-      if (refreshRes.ok) {
-        // Will show on next page load
-      }
-      setTimeout(() => setStaffingSuccess(null), 3000);
-    } catch {}
-    finally { setCreatingProfileIdx(null); }
+  function editFromProfile(profile: typeof nuruProfiles[0], idx: number) {
+    setStaffingForm({
+      role: profile.role,
+      description: profile.description,
+      skillsRequired: Array.isArray(profile.skills) ? profile.skills.join(", ") : "",
+      hoursPerWeek: String(profile.hoursPerWeek || 20),
+      duration: "",
+      rateType: profile.rateType || "MONTHLY",
+      rateBudget: "",
+      urgency: "normal",
+    });
+    setShowStaffingForm(true);
+    setNuruProfiles((prev) => prev.filter((_, i) => i !== idx));
   }
 
   async function createStaffingRequest(e: React.FormEvent) {
@@ -1999,12 +1985,11 @@ function TeamTab({ project, isEM }: { project: Project; isEM: boolean }) {
                         <p className="text-[10px] text-gray-400 mt-1.5">{profile.hoursPerWeek}h/wk | {profile.rateType} | {profile.rationale}</p>
                       </div>
                       <button
-                        onClick={() => createFromProfile(profile, idx)}
-                        disabled={creatingProfileIdx === idx}
-                        className="text-xs px-3 py-1.5 rounded-lg text-white font-medium shrink-0 disabled:opacity-50"
+                        onClick={() => editFromProfile(profile, idx)}
+                        className="text-xs px-3 py-1.5 rounded-lg text-white font-medium shrink-0"
                         style={{ background: "#0F2744" }}
                       >
-                        {creatingProfileIdx === idx ? "Posting..." : "Post Request"}
+                        Edit &amp; Post
                       </button>
                     </div>
                   </div>
