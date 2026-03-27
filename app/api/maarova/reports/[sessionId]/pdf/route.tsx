@@ -1,3 +1,6 @@
+export const runtime = "nodejs";
+export const maxDuration = 30;
+
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
@@ -327,29 +330,35 @@ export async function GET(
     })
     .filter((m) => Object.keys(m.scores).length > 0);
 
-  const pdfBuffer = await renderToBuffer(
-    <LeadershipReport
-      userName={session.user.name}
-      userTitle={session.user.title}
-      orgName={session.user.organisation?.name ?? null}
-      completedAt={session.completedAt?.toISOString() ?? null}
-      archetype={report.leadershipArchetype}
-      narrative={report.archetypeNarrative}
-      strengths={(report.signatureStrengths as PDFProps["strengths"]) ?? []}
-      executiveSummary={report.executiveSummary}
-      strengthsAnalysis={report.strengthsAnalysis}
-      nextEdge={report.nextLeadershipEdge ?? report.developmentAreas}
-      blindSpots={report.blindSpotAnalysis}
-      coachingPriorities={(report.coachingPriorities as PDFProps["coachingPriorities"]) ?? []}
-      moduleScores={moduleScores}
-      logoBase64={logoBase64}
-    />,
-  );
+  try {
+    const rawBuffer = await renderToBuffer(
+      <LeadershipReport
+        userName={session.user.name}
+        userTitle={session.user.title}
+        orgName={session.user.organisation?.name ?? null}
+        completedAt={session.completedAt?.toISOString() ?? null}
+        archetype={report.leadershipArchetype}
+        narrative={report.archetypeNarrative}
+        strengths={(report.signatureStrengths as PDFProps["strengths"]) ?? []}
+        executiveSummary={report.executiveSummary}
+        strengthsAnalysis={report.strengthsAnalysis}
+        nextEdge={report.nextLeadershipEdge ?? report.developmentAreas}
+        blindSpots={report.blindSpotAnalysis}
+        coachingPriorities={(report.coachingPriorities as PDFProps["coachingPriorities"]) ?? []}
+        moduleScores={moduleScores}
+        logoBase64={logoBase64}
+      />,
+    );
 
-  return new Response(Buffer.from(pdfBuffer), {
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="Maarova-Leadership-Profile-${session.user.name.replace(/\s+/g, "-")}.pdf"`,
-    },
-  });
+    const pdfBytes = Buffer.from(rawBuffer);
+    return new Response(pdfBytes as unknown as BodyInit, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="Maarova-Leadership-Profile-${session.user.name.replace(/\s+/g, "-")}.pdf"`,
+      },
+    });
+  } catch (err) {
+    console.error("[PDF] renderToBuffer failed:", err);
+    return new Response("PDF generation failed", { status: 500 });
+  }
 }

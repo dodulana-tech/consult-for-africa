@@ -154,6 +154,9 @@ export default function RiskRegister({
     try {
       const res = await fetch(`/api/projects/${projectId}/risks/suggest`, { method: "POST" });
       if (!res.ok) {
+        let detail = "";
+        try { const j = await res.json(); detail = j.detail ? ` (${j.detail})` : ""; } catch {}
+        console.error("Risk suggest failed:", res.status, detail);
         setSuggestError("Could not load AI suggestions. You can still add a custom risk below.");
         return;
       }

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
 
+export const maxDuration = 30;
+
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -98,8 +100,9 @@ No em dashes. Be specific to Nigerian healthcare context.`;
 
     const suggestions = JSON.parse(jsonMatch[0]);
     return Response.json({ suggestions });
-  } catch (err) {
-    console.error("Risk suggestion error:", err);
-    return new Response("AI suggestions unavailable", { status: 500 });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("Risk suggestion error:", msg, err);
+    return Response.json({ error: "AI suggestions unavailable", detail: msg }, { status: 500 });
   }
 }
