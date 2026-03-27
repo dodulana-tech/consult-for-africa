@@ -127,46 +127,19 @@ ${scoreLines.join("\n")}
 Based on these assessment results, generate a detailed leadership profile report as JSON with this exact structure:
 
 {
-  "leadershipArchetype": "A concise 2-4 word archetype name (e.g., 'The Strategic Clinician', 'The Empathetic Transformer')",
-  "archetypeNarrative": "A 3-4 sentence narrative in second person. Begin with 'Your leadership serves your community through...'",
+  "leadershipArchetype": "A concise 2-4 word archetype name grounded in leadership identity (e.g., 'The Strategic Clinician', 'The Empathetic Transformer', 'The Systems Builder', 'The Bridge-Builder')",
+  "archetypeNarrative": "A 3-4 sentence narrative in second person that describes how this leader's community experiences their leadership. Begin with 'Your leadership serves your community through...' Frame relationally, not evaluatively. Reference their strongest dimensions.",
   "signatureStrengths": [
     {
-      "dimension": "The dimension name",
-      "title": "A memorable 3-5 word strength label",
+      "dimension": "The dimension name (e.g., Emotional Intelligence, Values Alignment)",
+      "title": "A memorable 3-5 word strength label (e.g., 'Deep Emotional Attunement', 'Unwavering Ethical Compass')",
       "description": "One sentence describing how this strength manifests in their healthcare leadership context"
     }
   ],
-  "executiveSummary": "A 3-4 paragraph executive summary. Lead with archetype and strengths. Contextualise within African healthcare.",
-  "strengthsAnalysis": "A 3-4 paragraph analysis of what this leader does well. Use 'others experience your leadership as...' framing.",
-  "nextLeadershipEdge": "A 3-4 paragraph analysis of where growth would be most catalytic. Strengths-based language.",
-  "blindSpotAnalysis": "A 2-3 paragraph analysis using the Hogan overused-strengths frame.",
-  "howOthersExperienceYou": "A 2-3 paragraph synthesis of how colleagues experience this leader based on DISC, EQ, and values.",
-  "leadershipUnderPressure": "A 2-3 paragraph synthesis of stress patterns from DISC, EQ regulation, CILTI friction, and values conflicts.",
-  "disc": {
-    "profileSummary": "2 paragraphs on their DISC behavioural profile and what it means in practice.",
-    "communicationDos": ["5 specific do's for communicating with this leader"],
-    "communicationDonts": ["5 specific don'ts"],
-    "underPressure": "1 paragraph on behaviour changes under stress."
-  },
-  "values": {
-    "profileSummary": "2 paragraphs on their values structure and motivational drivers.",
-    "topThree": [
-      {"value": "Value name", "rank": 1, "interpretation": "1 paragraph interpreting this value for this leader."}
-    ],
-    "healthcareAlignment": "1 paragraph on values alignment with African healthcare and Ubuntu."
-  },
-  "emotionalIntelligence": {
-    "profileSummary": "2 paragraphs on overall EQ capability and how the four dimensions interact.",
-    "underPressure": "1 paragraph on EQ under pressure with practical strategies."
-  },
-  "cilti": {
-    "profileSummary": "2 paragraphs on clinical-to-leadership identity transition.",
-    "transitionStage": "'High Risk' or 'Transitioning' or 'Emerging Leader' or 'Established Leader'"
-  },
-  "cultureTeam": {
-    "profileSummary": "2 paragraphs on culture preference and team dynamics.",
-    "engagementProfile": "1 paragraph on what drives their engagement."
-  },
+  "executiveSummary": "A 3-4 paragraph executive summary. Lead with their archetype and signature strengths. Contextualise within African healthcare leadership. Reference how their profile serves their teams and communities. Do not mention numerical scores.",
+  "strengthsAnalysis": "A 3-4 paragraph analysis of what this leader does well. Describe observable behaviours, not scores. Use 'others experience your leadership as...' framing.",
+  "nextLeadershipEdge": "A 3-4 paragraph analysis framed as 'where focused growth would have the most catalytic impact on your leadership and your community'. Be constructive, specific, and contextualise within African healthcare. Use strengths-based language throughout.",
+  "blindSpotAnalysis": "A 2-3 paragraph analysis of areas where others may experience the leader differently from how they see themselves. Use the Hogan 'overused strengths' frame: high scores can tip into overextension under stress.",
   "coachingPriorities": [
     {
       "priority": 1,
@@ -177,11 +150,11 @@ Based on these assessment results, generate a detailed leadership profile report
     }
   ],
   "dimensionInterpretations": {
-    "Dimension Name": "A 2-3 sentence interpretation of this dimension in context."
+    "Dimension Name": "A 2-3 sentence interpretation of this dimension in context. Include what it means, how it shows up in their leadership, and one developmental angle. Never state the raw number."
   }
 }
 
-Provide exactly 3 signature strengths. Provide 3-5 coaching priorities ordered by impact. topThree = 3 highest-scoring values with ranks 1,2,3. One dimensionInterpretation per scored dimension. Return ONLY the JSON object, no other text.`;
+Provide exactly 3 signature strengths (the top 3 scoring dimensions). Provide 3-5 coaching priorities ordered by impact. The dimensionInterpretations should have one entry per dimension from the scores above. Return ONLY the JSON object, no other text.`;
 
   let reportData: Record<string, unknown>;
   try {
