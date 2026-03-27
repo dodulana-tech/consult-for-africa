@@ -1,5 +1,15 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import ToastProvider from "@/components/shared/ToastProvider";
+import { Analytics } from "@vercel/analytics/next";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0F2744",
+};
 
 export const metadata: Metadata = {
   title: {
@@ -52,7 +62,6 @@ export const metadata: Metadata = {
     follow: true,
   },
   other: {
-    "theme-color": "#0F2744",
     "mobile-web-app-capable": "yes",
   },
 };
@@ -62,6 +71,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="bg-white text-gray-900 antialiased">
         {children}
+        <Analytics />
+        <ToastProvider />
       </body>
     </html>
   );
