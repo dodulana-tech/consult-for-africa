@@ -60,7 +60,10 @@ export async function POST(
     where: { sessionId },
   });
 
-  if (existingReport && existingReport.status === "READY") {
+  const url = new URL(_req.url);
+  const forceRegenerate = url.searchParams.get("regenerate") === "true";
+
+  if (existingReport && existingReport.status === "READY" && !forceRegenerate) {
     return NextResponse.json({ report: existingReport });
   }
 

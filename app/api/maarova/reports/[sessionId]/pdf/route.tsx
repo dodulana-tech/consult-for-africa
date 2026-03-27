@@ -387,273 +387,272 @@ function LeadershipReport(props: PDFProps) {
         <PageFooter dateStr={dateStr} />
       </Page>
 
-      {/* ═══ SECTION DIVIDER: Behavioural Style ═══ */}
-      <Page size="A4" style={s.coverPage}>
-        <View style={s.sectionDivider}>
-          <Text style={s.sectionDividerLabel}>Section One</Text>
-          <View style={s.sectionDividerAccent} />
-          <Text style={s.sectionDividerTitle}>Behavioural Style</Text>
-          <Text style={s.sectionDividerDesc}>Your DISC profile reveals how you naturally approach tasks, interact with people, handle pace and change, and apply rules and structure. Understanding your behavioural style is the foundation for effective communication and leadership.</Text>
-        </View>
-      </Page>
-
-      {/* DISC: Scores + Profile Summary */}
-      <Page size="A4" style={s.page}>
-        <PageHeader logoBase64={props.logoBase64} title="Behavioural Style (DISC)" userName={props.userName} />
-        {scoresByType.DISC && (
-          <View style={{ marginBottom: 16 }}>
-            <Text style={s.subSectionTitle}>Your DISC Scores</Text>
-            <ScoreBars scores={scoresByType.DISC} />
-          </View>
-        )}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Your Behavioural Profile</Text>
-          <Paragraphs text={disc.profileSummary} />
-        </View>
-        <PageFooter dateStr={dateStr} />
-      </Page>
-
-      {/* DISC: Character Insights + Communication Guide */}
-      <Page size="A4" style={s.page}>
-        <PageHeader logoBase64={props.logoBase64} title="Behavioural Style (DISC)" userName={props.userName} />
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Character Insights</Text>
-          <Paragraphs text={disc.characterInsights} />
-        </View>
-
-        {disc.communicationDos && (
-          <View style={s.guideBox}>
-            <Text style={s.guideTitle}>How Others Should Communicate With You</Text>
-            <BulletList items={disc.communicationDos} />
-          </View>
-        )}
-        {disc.communicationDonts && (
-          <View style={s.guideBox}>
-            <Text style={s.guideTitle}>What to Avoid When Communicating With You</Text>
-            <BulletList items={disc.communicationDonts} />
-          </View>
-        )}
-        <PageFooter dateStr={dateStr} />
-      </Page>
-
-      {/* DISC: Value to Org + Ideal Environment + Under Pressure */}
-      <Page size="A4" style={s.page}>
-        <PageHeader logoBase64={props.logoBase64} title="Behavioural Style (DISC)" userName={props.userName} />
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Your Value to the Organisation</Text>
-          <Paragraphs text={disc.valueToOrganisation} />
-        </View>
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Your Ideal Environment</Text>
-          <Paragraphs text={disc.idealEnvironment} />
-        </View>
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Your Behaviour Under Pressure</Text>
-          <Paragraphs text={disc.underPressure} />
-        </View>
-        <PageFooter dateStr={dateStr} />
-      </Page>
-
-      {/* ═══ SECTION DIVIDER: Values ═══ */}
-      <Page size="A4" style={s.coverPage}>
-        <View style={s.sectionDivider}>
-          <Text style={s.sectionDividerLabel}>Section Two</Text>
-          <View style={s.sectionDividerAccent} />
-          <Text style={s.sectionDividerTitle}>Values and Motivational Drivers</Text>
-          <Text style={s.sectionDividerDesc}>Your values are the hidden motivators behind every decision you make. They determine what engages you, what frustrates you, and where you find meaning in your work. Understanding them is essential for sustained motivation and purposeful leadership.</Text>
-        </View>
-      </Page>
-
-      {/* Values: Scores + Profile Summary */}
-      <Page size="A4" style={s.page}>
-        <PageHeader logoBase64={props.logoBase64} title="Values & Motivational Drivers" userName={props.userName} />
-        {scoresByType.VALUES_DRIVERS && (
-          <View style={{ marginBottom: 16 }}>
-            <Text style={s.subSectionTitle}>Your Values Ranking</Text>
-            <ScoreBars scores={scoresByType.VALUES_DRIVERS} />
-          </View>
-        )}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Your Values Profile</Text>
-          <Paragraphs text={values.profileSummary} />
-        </View>
-        <PageFooter dateStr={dateStr} />
-      </Page>
-
-      {/* Values: Top 3 Deep Dives */}
-      <Page size="A4" style={s.page}>
-        <PageHeader logoBase64={props.logoBase64} title="Values & Motivational Drivers" userName={props.userName} />
-        <Text style={s.sectionTitle}>Your Top Three Values</Text>
-        {(values.topThree as ValueInterpretation[] | undefined)?.map((v, i) => (
-          <View key={i} style={s.section}>
-            <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 6 }}>
-              <Text style={[s.valueRank, { fontSize: 14 }]}>{v.rank}</Text>
-              <Text style={[s.subSectionTitle, { marginTop: 0, marginBottom: 0 }]}>{v.value}</Text>
+      {/* ═══ SECTION: Behavioural Style (only if expanded content exists) ═══ */}
+      {disc.profileSummary && (
+        <>
+          <Page size="A4" style={s.coverPage}>
+            <View style={s.sectionDivider}>
+              <Text style={s.sectionDividerLabel}>Section One</Text>
+              <View style={s.sectionDividerAccent} />
+              <Text style={s.sectionDividerTitle}>Behavioural Style</Text>
+              <Text style={s.sectionDividerDesc}>Your DISC profile reveals how you naturally approach tasks, interact with people, handle pace and change, and apply rules and structure. Understanding your behavioural style is the foundation for effective communication and leadership.</Text>
             </View>
-            <Paragraphs text={v.interpretation} style={s.smallParagraph} />
-          </View>
-        ))}
-        <PageFooter dateStr={dateStr} />
-      </Page>
+          </Page>
 
-      {/* Values: Middle + Lower + Healthcare Alignment */}
-      <Page size="A4" style={s.page}>
-        <PageHeader logoBase64={props.logoBase64} title="Values & Motivational Drivers" userName={props.userName} />
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Your Situational Values</Text>
-          <Paragraphs text={values.middleValues} />
-        </View>
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Your Lower-Influence Values</Text>
-          <Paragraphs text={values.lowerValues} />
-        </View>
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Values Alignment in Healthcare Leadership</Text>
-          <Paragraphs text={values.healthcareAlignment} />
-        </View>
-        <PageFooter dateStr={dateStr} />
-      </Page>
+          <Page size="A4" style={s.page}>
+            <PageHeader logoBase64={props.logoBase64} title="Behavioural Style (DISC)" userName={props.userName} />
+            {scoresByType.DISC && (
+              <View style={{ marginBottom: 16 }}>
+                <Text style={s.subSectionTitle}>Your DISC Scores</Text>
+                <ScoreBars scores={scoresByType.DISC} />
+              </View>
+            )}
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Your Behavioural Profile</Text>
+              <Paragraphs text={disc.profileSummary} />
+            </View>
+            <PageFooter dateStr={dateStr} />
+          </Page>
 
-      {/* ═══ SECTION DIVIDER: EQ ═══ */}
-      <Page size="A4" style={s.coverPage}>
-        <View style={s.sectionDivider}>
-          <Text style={s.sectionDividerLabel}>Section Three</Text>
-          <View style={s.sectionDividerAccent} />
-          <Text style={s.sectionDividerTitle}>Emotional Intelligence</Text>
-          <Text style={s.sectionDividerDesc}>Emotional intelligence is the capacity to recognise, understand, and manage your own emotions and those of others. In healthcare leadership, it directly impacts clinical outcomes, team cohesion, and patient trust.</Text>
-        </View>
-      </Page>
+          <Page size="A4" style={s.page}>
+            <PageHeader logoBase64={props.logoBase64} title="Behavioural Style (DISC)" userName={props.userName} />
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Character Insights</Text>
+              <Paragraphs text={disc.characterInsights} />
+            </View>
+            {disc.communicationDos && (
+              <View style={s.guideBox}>
+                <Text style={s.guideTitle}>How Others Should Communicate With You</Text>
+                <BulletList items={disc.communicationDos} />
+              </View>
+            )}
+            {disc.communicationDonts && (
+              <View style={s.guideBox}>
+                <Text style={s.guideTitle}>What to Avoid When Communicating With You</Text>
+                <BulletList items={disc.communicationDonts} />
+              </View>
+            )}
+            <PageFooter dateStr={dateStr} />
+          </Page>
 
-      {/* EQ: Scores + Summary */}
-      <Page size="A4" style={s.page}>
-        <PageHeader logoBase64={props.logoBase64} title="Emotional Intelligence" userName={props.userName} />
-        {scoresByType.EMOTIONAL_INTEL && (
-          <View style={{ marginBottom: 16 }}>
-            <Text style={s.subSectionTitle}>Your EQ Scores</Text>
-            <ScoreBars scores={scoresByType.EMOTIONAL_INTEL} />
-          </View>
-        )}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Your Emotional Intelligence Profile</Text>
-          <Paragraphs text={eq.profileSummary} />
-        </View>
-        <PageFooter dateStr={dateStr} />
-      </Page>
+          <Page size="A4" style={s.page}>
+            <PageHeader logoBase64={props.logoBase64} title="Behavioural Style (DISC)" userName={props.userName} />
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Your Value to the Organisation</Text>
+              <Paragraphs text={disc.valueToOrganisation} />
+            </View>
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Your Ideal Environment</Text>
+              <Paragraphs text={disc.idealEnvironment} />
+            </View>
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Your Behaviour Under Pressure</Text>
+              <Paragraphs text={disc.underPressure} />
+            </View>
+            <PageFooter dateStr={dateStr} />
+          </Page>
+        </>
+      )}
 
-      {/* EQ: Dimension Breakdowns + Under Pressure */}
-      <Page size="A4" style={s.page}>
-        <PageHeader logoBase64={props.logoBase64} title="Emotional Intelligence" userName={props.userName} />
-        {eq.dimensions && (
-          <>
-            {Object.entries(eq.dimensions as Record<string, string>).map(([dim, text]) => (
+      {/* ═══ SECTION: Values (only if expanded content exists) ═══ */}
+      {values.profileSummary && (
+        <>
+          <Page size="A4" style={s.coverPage}>
+            <View style={s.sectionDivider}>
+              <Text style={s.sectionDividerLabel}>Section Two</Text>
+              <View style={s.sectionDividerAccent} />
+              <Text style={s.sectionDividerTitle}>Values and Motivational Drivers</Text>
+              <Text style={s.sectionDividerDesc}>Your values are the hidden motivators behind every decision you make. They determine what engages you, what frustrates you, and where you find meaning in your work. Understanding them is essential for sustained motivation and purposeful leadership.</Text>
+            </View>
+          </Page>
+
+          <Page size="A4" style={s.page}>
+            <PageHeader logoBase64={props.logoBase64} title="Values & Motivational Drivers" userName={props.userName} />
+            {scoresByType.VALUES_DRIVERS && (
+              <View style={{ marginBottom: 16 }}>
+                <Text style={s.subSectionTitle}>Your Values Ranking</Text>
+                <ScoreBars scores={scoresByType.VALUES_DRIVERS} />
+              </View>
+            )}
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Your Values Profile</Text>
+              <Paragraphs text={values.profileSummary} />
+            </View>
+            <PageFooter dateStr={dateStr} />
+          </Page>
+
+          <Page size="A4" style={s.page}>
+            <PageHeader logoBase64={props.logoBase64} title="Values & Motivational Drivers" userName={props.userName} />
+            <Text style={s.sectionTitle}>Your Top Three Values</Text>
+            {(values.topThree as ValueInterpretation[] | undefined)?.map((v, i) => (
+              <View key={i} style={s.section}>
+                <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 6 }}>
+                  <Text style={[s.valueRank, { fontSize: 14 }]}>{v.rank}</Text>
+                  <Text style={[s.subSectionTitle, { marginTop: 0, marginBottom: 0 }]}>{v.value}</Text>
+                </View>
+                <Paragraphs text={v.interpretation} style={s.smallParagraph} />
+              </View>
+            ))}
+            <PageFooter dateStr={dateStr} />
+          </Page>
+
+          <Page size="A4" style={s.page}>
+            <PageHeader logoBase64={props.logoBase64} title="Values & Motivational Drivers" userName={props.userName} />
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Your Situational Values</Text>
+              <Paragraphs text={values.middleValues} />
+            </View>
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Your Lower-Influence Values</Text>
+              <Paragraphs text={values.lowerValues} />
+            </View>
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Values Alignment in Healthcare Leadership</Text>
+              <Paragraphs text={values.healthcareAlignment} />
+            </View>
+            <PageFooter dateStr={dateStr} />
+          </Page>
+        </>
+      )}
+
+      {/* ═══ SECTION: EQ (only if expanded content exists) ═══ */}
+      {eq.profileSummary && (
+        <>
+          <Page size="A4" style={s.coverPage}>
+            <View style={s.sectionDivider}>
+              <Text style={s.sectionDividerLabel}>Section Three</Text>
+              <View style={s.sectionDividerAccent} />
+              <Text style={s.sectionDividerTitle}>Emotional Intelligence</Text>
+              <Text style={s.sectionDividerDesc}>Emotional intelligence is the capacity to recognise, understand, and manage your own emotions and those of others. In healthcare leadership, it directly impacts clinical outcomes, team cohesion, and patient trust.</Text>
+            </View>
+          </Page>
+
+          <Page size="A4" style={s.page}>
+            <PageHeader logoBase64={props.logoBase64} title="Emotional Intelligence" userName={props.userName} />
+            {scoresByType.EMOTIONAL_INTEL && (
+              <View style={{ marginBottom: 16 }}>
+                <Text style={s.subSectionTitle}>Your EQ Scores</Text>
+                <ScoreBars scores={scoresByType.EMOTIONAL_INTEL} />
+              </View>
+            )}
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Your Emotional Intelligence Profile</Text>
+              <Paragraphs text={eq.profileSummary} />
+            </View>
+            <PageFooter dateStr={dateStr} />
+          </Page>
+
+          <Page size="A4" style={s.page}>
+            <PageHeader logoBase64={props.logoBase64} title="Emotional Intelligence" userName={props.userName} />
+            {eq.dimensions && Object.entries(eq.dimensions as Record<string, string>).map(([dim, text]) => (
               <View key={dim} style={s.section}>
                 <Text style={s.subSectionTitle}>{DIM_LABELS[dim] ?? dim}</Text>
                 <Paragraphs text={text} style={s.smallParagraph} />
               </View>
             ))}
-          </>
-        )}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Under Pressure</Text>
-          <Paragraphs text={eq.underPressure} />
-        </View>
-        <PageFooter dateStr={dateStr} />
-      </Page>
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Under Pressure</Text>
+              <Paragraphs text={eq.underPressure} />
+            </View>
+            <PageFooter dateStr={dateStr} />
+          </Page>
+        </>
+      )}
 
-      {/* ═══ SECTION DIVIDER: CILTI ═══ */}
-      <Page size="A4" style={s.coverPage}>
-        <View style={s.sectionDivider}>
-          <Text style={s.sectionDividerLabel}>Section Four</Text>
-          <View style={s.sectionDividerAccent} />
-          <Text style={s.sectionDividerTitle}>Clinical-Leadership Identity</Text>
-          <Text style={s.sectionDividerDesc}>The transition from clinical expert to organisational leader is one of the most significant identity shifts in a healthcare career. This section maps where you are on that journey and how to navigate it with intention.</Text>
-        </View>
-      </Page>
+      {/* ═══ SECTION: CILTI (only if expanded content exists) ═══ */}
+      {cilti.profileSummary && (
+        <>
+          <Page size="A4" style={s.coverPage}>
+            <View style={s.sectionDivider}>
+              <Text style={s.sectionDividerLabel}>Section Four</Text>
+              <View style={s.sectionDividerAccent} />
+              <Text style={s.sectionDividerTitle}>Clinical-Leadership Identity</Text>
+              <Text style={s.sectionDividerDesc}>The transition from clinical expert to organisational leader is one of the most significant identity shifts in a healthcare career. This section maps where you are on that journey and how to navigate it with intention.</Text>
+            </View>
+          </Page>
 
-      {/* CILTI: Scores + Summary + Transition Stage */}
-      <Page size="A4" style={s.page}>
-        <PageHeader logoBase64={props.logoBase64} title="Clinical-Leadership Identity" userName={props.userName} />
-        {scoresByType.CILTI && (
-          <View style={{ marginBottom: 16 }}>
-            <Text style={s.subSectionTitle}>Your CILTI Scores</Text>
-            <ScoreBars scores={scoresByType.CILTI} />
-          </View>
-        )}
-        {cilti.transitionStage && (
-          <View style={s.infoCard}>
-            <Text style={s.infoCardTitle}>Your Transition Stage</Text>
-            <Text style={{ fontSize: 14, fontWeight: 700, color: navy }}>{cilti.transitionStage}</Text>
-          </View>
-        )}
-        <View style={s.section}>
-          <Paragraphs text={cilti.profileSummary} />
-        </View>
-        <PageFooter dateStr={dateStr} />
-      </Page>
+          <Page size="A4" style={s.page}>
+            <PageHeader logoBase64={props.logoBase64} title="Clinical-Leadership Identity" userName={props.userName} />
+            {scoresByType.CILTI && (
+              <View style={{ marginBottom: 16 }}>
+                <Text style={s.subSectionTitle}>Your CILTI Scores</Text>
+                <ScoreBars scores={scoresByType.CILTI} />
+              </View>
+            )}
+            {cilti.transitionStage && (
+              <View style={s.infoCard}>
+                <Text style={s.infoCardTitle}>Your Transition Stage</Text>
+                <Text style={{ fontSize: 14, fontWeight: 700, color: navy }}>{cilti.transitionStage}</Text>
+              </View>
+            )}
+            <View style={s.section}>
+              <Paragraphs text={cilti.profileSummary} />
+            </View>
+            <PageFooter dateStr={dateStr} />
+          </Page>
 
-      {/* CILTI: Dimension Breakdowns + Roadmap */}
-      <Page size="A4" style={s.page}>
-        <PageHeader logoBase64={props.logoBase64} title="Clinical-Leadership Identity" userName={props.userName} />
-        {cilti.dimensions && (
-          <>
-            {Object.entries(cilti.dimensions as Record<string, string>).map(([dim, text]) => (
+          <Page size="A4" style={s.page}>
+            <PageHeader logoBase64={props.logoBase64} title="Clinical-Leadership Identity" userName={props.userName} />
+            {cilti.dimensions && Object.entries(cilti.dimensions as Record<string, string>).map(([dim, text]) => (
               <View key={dim} style={s.section}>
                 <Text style={s.subSectionTitle}>{DIM_LABELS[dim] ?? dim}</Text>
                 <Paragraphs text={text} style={s.smallParagraph} />
               </View>
             ))}
-          </>
-        )}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Your Transition Roadmap</Text>
-          <Paragraphs text={cilti.transitionRoadmap} />
-        </View>
-        <PageFooter dateStr={dateStr} />
-      </Page>
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Your Transition Roadmap</Text>
+              <Paragraphs text={cilti.transitionRoadmap} />
+            </View>
+            <PageFooter dateStr={dateStr} />
+          </Page>
+        </>
+      )}
 
-      {/* ═══ SECTION DIVIDER: Culture & Team ═══ */}
-      <Page size="A4" style={s.coverPage}>
-        <View style={s.sectionDivider}>
-          <Text style={s.sectionDividerLabel}>Section Five</Text>
-          <View style={s.sectionDividerAccent} />
-          <Text style={s.sectionDividerTitle}>Culture and Team Dynamics</Text>
-          <Text style={s.sectionDividerDesc}>How you build culture and lead teams shapes the daily experience of everyone around you. This section examines your preferred culture style, team effectiveness approach, and engagement drivers.</Text>
-        </View>
-      </Page>
+      {/* ═══ SECTION: Culture & Team (only if expanded content exists) ═══ */}
+      {ct.profileSummary && (
+        <>
+          <Page size="A4" style={s.coverPage}>
+            <View style={s.sectionDivider}>
+              <Text style={s.sectionDividerLabel}>Section Five</Text>
+              <View style={s.sectionDividerAccent} />
+              <Text style={s.sectionDividerTitle}>Culture and Team Dynamics</Text>
+              <Text style={s.sectionDividerDesc}>How you build culture and lead teams shapes the daily experience of everyone around you. This section examines your preferred culture style, team effectiveness approach, and engagement drivers.</Text>
+            </View>
+          </Page>
 
-      {/* Culture: Scores + Summary */}
-      <Page size="A4" style={s.page}>
-        <PageHeader logoBase64={props.logoBase64} title="Culture & Team Dynamics" userName={props.userName} />
-        {scoresByType.CULTURE_TEAM && (
-          <View style={{ marginBottom: 16 }}>
-            <Text style={s.subSectionTitle}>Your Culture and Team Scores</Text>
-            <ScoreBars scores={scoresByType.CULTURE_TEAM} />
-          </View>
-        )}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Your Culture and Team Profile</Text>
-          <Paragraphs text={ct.profileSummary} />
-        </View>
-        <PageFooter dateStr={dateStr} />
-      </Page>
+          <Page size="A4" style={s.page}>
+            <PageHeader logoBase64={props.logoBase64} title="Culture & Team Dynamics" userName={props.userName} />
+            {scoresByType.CULTURE_TEAM && (
+              <View style={{ marginBottom: 16 }}>
+                <Text style={s.subSectionTitle}>Your Culture and Team Scores</Text>
+                <ScoreBars scores={scoresByType.CULTURE_TEAM} />
+              </View>
+            )}
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Your Culture and Team Profile</Text>
+              <Paragraphs text={ct.profileSummary} />
+            </View>
+            <PageFooter dateStr={dateStr} />
+          </Page>
 
-      {/* Culture: CVF + Team Effectiveness + Engagement */}
-      <Page size="A4" style={s.page}>
-        <PageHeader logoBase64={props.logoBase64} title="Culture & Team Dynamics" userName={props.userName} />
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Culture Style Interpretation</Text>
-          <Paragraphs text={ct.cvfInterpretation} />
-        </View>
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Team Effectiveness</Text>
-          <Paragraphs text={ct.teamEffectiveness} />
-        </View>
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>What Drives Your Engagement</Text>
-          <Paragraphs text={ct.engagementProfile} />
-        </View>
-        <PageFooter dateStr={dateStr} />
-      </Page>
+          <Page size="A4" style={s.page}>
+            <PageHeader logoBase64={props.logoBase64} title="Culture & Team Dynamics" userName={props.userName} />
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Culture Style Interpretation</Text>
+              <Paragraphs text={ct.cvfInterpretation} />
+            </View>
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Team Effectiveness</Text>
+              <Paragraphs text={ct.teamEffectiveness} />
+            </View>
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>What Drives Your Engagement</Text>
+              <Paragraphs text={ct.engagementProfile} />
+            </View>
+            <PageFooter dateStr={dateStr} />
+          </Page>
+        </>
+      )}
 
       {/* ═══ 360 FEEDBACK (conditional) ═══ */}
       {props.has360 && threeSixty && (
@@ -708,14 +707,16 @@ function LeadershipReport(props: PDFProps) {
           <Text style={s.sectionTitle}>Strengths Analysis</Text>
           <Paragraphs text={r.strengthsAnalysis} />
         </View>
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>How Others Experience Your Leadership</Text>
-          <Paragraphs text={r.howOthersExperienceYou} />
-        </View>
+        {r.howOthersExperienceYou && (
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>How Others Experience Your Leadership</Text>
+            <Paragraphs text={r.howOthersExperienceYou} />
+          </View>
+        )}
         <PageFooter dateStr={dateStr} />
       </Page>
 
-      {/* Integrated: Next Edge + Blind Spots + Under Pressure */}
+      {/* Integrated: Next Edge + Blind Spots */}
       <Page size="A4" style={s.page}>
         <PageHeader logoBase64={props.logoBase64} title="Integrated Leadership Profile" userName={props.userName} />
         <View style={s.section}>
@@ -729,14 +730,17 @@ function LeadershipReport(props: PDFProps) {
         <PageFooter dateStr={dateStr} />
       </Page>
 
-      <Page size="A4" style={s.page}>
-        <PageHeader logoBase64={props.logoBase64} title="Integrated Leadership Profile" userName={props.userName} />
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Your Leadership Under Pressure</Text>
-          <Paragraphs text={r.leadershipUnderPressure} />
-        </View>
-        <PageFooter dateStr={dateStr} />
-      </Page>
+      {/* Under Pressure (only if expanded content exists) */}
+      {r.leadershipUnderPressure && (
+        <Page size="A4" style={s.page}>
+          <PageHeader logoBase64={props.logoBase64} title="Integrated Leadership Profile" userName={props.userName} />
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>Your Leadership Under Pressure</Text>
+            <Paragraphs text={r.leadershipUnderPressure} />
+          </View>
+          <PageFooter dateStr={dateStr} />
+        </Page>
+      )}
 
       {/* ═══ DEVELOPMENT ROADMAP ═══ */}
       <Page size="A4" style={s.coverPage}>

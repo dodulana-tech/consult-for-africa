@@ -1080,8 +1080,8 @@ export default function MaarovaResultDetailPage() {
               </div>
             )}
 
-          {/* Download PDF */}
-          <div className="flex justify-end">
+          {/* Download PDF + Regenerate */}
+          <div className="flex justify-end gap-3">
             <button
               onClick={async () => {
                 setPdfLoading(true);
@@ -1124,6 +1124,43 @@ export default function MaarovaResultDetailPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   Download PDF
+                </>
+              )}
+            </button>
+            <button
+              onClick={async () => {
+                if (!confirm("This will regenerate your report with the latest analysis engine. Continue?")) return;
+                setGenerating(true);
+                setError(null);
+                try {
+                  const res = await fetch(`/api/maarova/reports/${sessionId}/generate?regenerate=true`, { method: "POST" });
+                  if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Failed"); }
+                  const data = await res.json();
+                  setReport({ ...data.report, fullReportContent: data.report.fullReportContent });
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : "Failed to regenerate report");
+                } finally {
+                  setGenerating(false);
+                }
+              }}
+              disabled={generating}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors border hover:bg-gray-50 disabled:opacity-50"
+              style={{ borderColor: "#D4A574", color: "#D4A574" }}
+            >
+              {generating ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" />
+                    <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" className="opacity-75" />
+                  </svg>
+                  Regenerating...
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Regenerate Report
                 </>
               )}
             </button>
