@@ -50,6 +50,41 @@ interface ReportData {
   fullReportContent: {
     archetypeDescription?: string;
     dimensionInterpretations?: Record<string, string>;
+    disc?: {
+      profileSummary?: string;
+      characterInsights?: string;
+      communicationDos?: string[];
+      communicationDonts?: string[];
+      valueToOrganisation?: string;
+      idealEnvironment?: string;
+      underPressure?: string;
+    };
+    values?: {
+      profileSummary?: string;
+      topThree?: { value: string; rank: number; interpretation: string }[];
+      middleValues?: string;
+      lowerValues?: string;
+      healthcareAlignment?: string;
+    };
+    emotionalIntelligence?: {
+      profileSummary?: string;
+      dimensions?: Record<string, string>;
+      underPressure?: string;
+    };
+    cilti?: {
+      profileSummary?: string;
+      transitionStage?: string;
+      dimensions?: Record<string, string>;
+      transitionRoadmap?: string;
+    };
+    cultureTeam?: {
+      profileSummary?: string;
+      cvfInterpretation?: string;
+      teamEffectiveness?: string;
+      engagementProfile?: string;
+    };
+    howOthersExperienceYou?: string;
+    leadershipUnderPressure?: string;
   } | null;
   generatedAt: string | null;
   pdfUrl: string | null;
@@ -60,6 +95,45 @@ function scoreZone(score: number): { label: string; color: string; bg: string } 
   if (score >= 60) return { label: "Natural Strength", color: "#065F46", bg: "#D1FAE5" };
   if (score >= 40) return { label: "Developing", color: "#1E40AF", bg: "#DBEAFE" };
   return { label: "Emerging", color: "#6B7280", bg: "#F3F4F6" };
+}
+
+// ─── Helper: Expandable Module Deep Dive ──────────────────────────────────────
+
+function ModuleDeepDive({ title, defaultOpen, children }: { title: string; defaultOpen?: boolean; children: React.ReactNode }) {
+  const [open, setOpen] = useState(defaultOpen ?? false);
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50 transition-colors text-left"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(212,165,116,0.12)" }}>
+            <svg className="w-4 h-4" style={{ color: "#D4A574" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h2 className="text-base font-bold" style={{ color: "#0F2744" }}>{title}</h2>
+        </div>
+        <svg className={`w-5 h-5 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && <div className="px-4 sm:px-5 pb-5 border-t border-gray-100 pt-4">{children}</div>}
+    </div>
+  );
+}
+
+function NarrativeSection({ title, text }: { title?: string; text?: string | null }) {
+  if (!text) return null;
+  return (
+    <div className="mb-4">
+      {title && <h3 className="text-sm font-semibold mb-2" style={{ color: "#0F2744" }}>{title}</h3>}
+      <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
+        {text.split("\n\n").map((p, i) => <p key={i} className="mb-2 last:mb-0">{p}</p>)}
+      </div>
+    </div>
+  );
 }
 
 interface SessionData {
@@ -432,10 +506,7 @@ export default function MaarovaResultDetailPage() {
   }
 
   const reportReady = report && report.status === "READY";
-  const fullContent = report?.fullReportContent as {
-    archetypeDescription?: string;
-    dimensionInterpretations?: Record<string, string>;
-  } | null;
+  const fullContent = report?.fullReportContent as ReportData["fullReportContent"];
 
   return (
     <div className="p-4 sm:p-8 max-w-5xl mx-auto pb-20">
@@ -704,6 +775,103 @@ export default function MaarovaResultDetailPage() {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          )}
+
+          {/* Module Deep Dives */}
+          {fullContent?.disc?.profileSummary && (
+            <ModuleDeepDive title="Behavioural Style (DISC)" defaultOpen={false}>
+              <NarrativeSection title="Your Behavioural Profile" text={fullContent.disc.profileSummary} />
+              <NarrativeSection title="Character Insights" text={fullContent.disc.characterInsights} />
+              {fullContent.disc.communicationDos && fullContent.disc.communicationDos.length > 0 && (
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="rounded-lg p-4" style={{ backgroundColor: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.15)" }}>
+                    <h4 className="text-sm font-semibold text-green-800 mb-2">How Others Should Communicate With You</h4>
+                    <ul className="space-y-1.5">{fullContent.disc.communicationDos.map((item, i) => <li key={i} className="text-sm text-gray-700 flex gap-2"><span className="text-green-500 mt-0.5">&#10003;</span>{item}</li>)}</ul>
+                  </div>
+                  {fullContent.disc.communicationDonts && (
+                    <div className="rounded-lg p-4" style={{ backgroundColor: "rgba(239,68,68,0.04)", border: "1px solid rgba(239,68,68,0.12)" }}>
+                      <h4 className="text-sm font-semibold text-red-800 mb-2">What to Avoid</h4>
+                      <ul className="space-y-1.5">{fullContent.disc.communicationDonts.map((item, i) => <li key={i} className="text-sm text-gray-700 flex gap-2"><span className="text-red-400 mt-0.5">&#10007;</span>{item}</li>)}</ul>
+                    </div>
+                  )}
+                </div>
+              )}
+              <NarrativeSection title="Your Value to the Organisation" text={fullContent.disc.valueToOrganisation} />
+              <NarrativeSection title="Your Ideal Environment" text={fullContent.disc.idealEnvironment} />
+              <NarrativeSection title="Your Behaviour Under Pressure" text={fullContent.disc.underPressure} />
+            </ModuleDeepDive>
+          )}
+
+          {fullContent?.values?.profileSummary && (
+            <ModuleDeepDive title="Values and Motivational Drivers" defaultOpen={false}>
+              <NarrativeSection title="Your Values Profile" text={fullContent.values.profileSummary} />
+              {fullContent.values.topThree?.map((v, i) => (
+                <div key={i} className="mt-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold text-white" style={{ backgroundColor: "#D4A574" }}>{v.rank}</span>
+                    <h4 className="text-sm font-bold" style={{ color: "#0F2744" }}>{v.value}</h4>
+                  </div>
+                  <NarrativeSection text={v.interpretation} />
+                </div>
+              ))}
+              <NarrativeSection title="Your Situational Values" text={fullContent.values.middleValues} />
+              <NarrativeSection title="Your Lower-Influence Values" text={fullContent.values.lowerValues} />
+              <NarrativeSection title="Values Alignment in Healthcare Leadership" text={fullContent.values.healthcareAlignment} />
+            </ModuleDeepDive>
+          )}
+
+          {fullContent?.emotionalIntelligence?.profileSummary && (
+            <ModuleDeepDive title="Emotional Intelligence" defaultOpen={false}>
+              <NarrativeSection title="Your EQ Profile" text={fullContent.emotionalIntelligence.profileSummary} />
+              {fullContent.emotionalIntelligence.dimensions && Object.entries(fullContent.emotionalIntelligence.dimensions).map(([dim, text]) => (
+                <NarrativeSection key={dim} title={dim.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())} text={text} />
+              ))}
+              <NarrativeSection title="Under Pressure" text={fullContent.emotionalIntelligence.underPressure} />
+            </ModuleDeepDive>
+          )}
+
+          {fullContent?.cilti?.profileSummary && (
+            <ModuleDeepDive title="Clinical-Leadership Identity" defaultOpen={false}>
+              {fullContent.cilti.transitionStage && (
+                <div className="mb-4 rounded-lg p-3 inline-flex items-center gap-2" style={{ backgroundColor: "rgba(212,165,116,0.1)", border: "1px solid rgba(212,165,116,0.25)" }}>
+                  <span className="text-xs uppercase tracking-wider font-semibold" style={{ color: "#D4A574" }}>Transition Stage:</span>
+                  <span className="text-sm font-bold" style={{ color: "#0F2744" }}>{fullContent.cilti.transitionStage}</span>
+                </div>
+              )}
+              <NarrativeSection text={fullContent.cilti.profileSummary} />
+              {fullContent.cilti.dimensions && Object.entries(fullContent.cilti.dimensions).map(([dim, text]) => (
+                <NarrativeSection key={dim} title={dim.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())} text={text} />
+              ))}
+              <NarrativeSection title="Your Transition Roadmap" text={fullContent.cilti.transitionRoadmap} />
+            </ModuleDeepDive>
+          )}
+
+          {fullContent?.cultureTeam?.profileSummary && (
+            <ModuleDeepDive title="Culture and Team Dynamics" defaultOpen={false}>
+              <NarrativeSection title="Your Culture and Team Profile" text={fullContent.cultureTeam.profileSummary} />
+              <NarrativeSection title="Culture Style Interpretation" text={fullContent.cultureTeam.cvfInterpretation} />
+              <NarrativeSection title="Team Effectiveness" text={fullContent.cultureTeam.teamEffectiveness} />
+              <NarrativeSection title="What Drives Your Engagement" text={fullContent.cultureTeam.engagementProfile} />
+            </ModuleDeepDive>
+          )}
+
+          {/* Cross-Module Insights */}
+          {fullContent?.howOthersExperienceYou && (
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6" style={{ borderLeft: "4px solid #D4A574" }}>
+              <h2 className="text-lg font-bold mb-3" style={{ color: "#0F2744" }}>How Others Experience Your Leadership</h2>
+              <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
+                {fullContent.howOthersExperienceYou.split("\n\n").map((p, i) => <p key={i} className="mb-3 last:mb-0">{p}</p>)}
+              </div>
+            </div>
+          )}
+
+          {fullContent?.leadershipUnderPressure && (
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6" style={{ borderLeft: "4px solid #0F2744" }}>
+              <h2 className="text-lg font-bold mb-3" style={{ color: "#0F2744" }}>Your Leadership Under Pressure</h2>
+              <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
+                {fullContent.leadershipUnderPressure.split("\n\n").map((p, i) => <p key={i} className="mb-3 last:mb-0">{p}</p>)}
               </div>
             </div>
           )}
