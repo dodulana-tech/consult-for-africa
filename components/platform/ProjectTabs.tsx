@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -59,6 +59,7 @@ import {
   timelineProgress,
   healthBg,
   healthColor,
+  formatEnumLabel,
 } from "@/lib/utils";
 
 type Tab = "overview" | "tracks" | "team" | "deliverables" | "timeline" | "calls" | "transform" | "playbook" | "debrief";
@@ -320,7 +321,9 @@ export default function ProjectTabs({
   userId: string;
   userRole: string;
 }) {
-  const [tab, setTab] = useState<Tab>("overview");
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get("tab") as Tab) || "overview";
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [delivFilter, setDelivFilter] = useState("all");
   const [updateContent, setUpdateContent] = useState("");
   const [updateType, setUpdateType] = useState("GENERAL");
@@ -1706,18 +1709,20 @@ function TeamTab({ project, isEM }: { project: Project; isEM: boolean }) {
                 </div>
 
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-semibold text-gray-900">
-                    {a.rateCurrency === "USD"
-                      ? `$${a.rateAmount}/${a.rateType === "HOURLY" ? "hr" : "mo"}`
-                      : `${formatCompactCurrency(a.rateAmount, "NGN")}/${a.rateType === "HOURLY" ? "hr" : "mo"}`}
-                  </p>
+                  {a.rateAmount > 0 && (
+                    <p className="text-sm font-semibold text-gray-900">
+                      {a.rateCurrency === "USD"
+                        ? `$${a.rateAmount}/${a.rateType === "HOURLY" ? "hr" : "mo"}`
+                        : `${formatCompactCurrency(a.rateAmount, "NGN")}/${a.rateType === "HOURLY" ? "hr" : "mo"}`}
+                    </p>
+                  )}
                   <p className="text-xs text-gray-400 mt-0.5">{a.role}</p>
                 </div>
               </div>
 
               {/* Performance row */}
               <div
-                className="mt-4 pt-4 flex items-center gap-6 text-xs text-gray-500"
+                className="mt-4 pt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-gray-500"
                 style={{ borderTop: "1px solid #f0f0f0" }}
               >
                 <span>
@@ -1729,7 +1734,7 @@ function TeamTab({ project, isEM }: { project: Project; isEM: boolean }) {
                 <span>
                   <span className="font-semibold text-gray-800">{totalHours.toFixed(0)}h</span> logged
                 </span>
-                {p?.expertiseAreas && (
+                {p?.expertiseAreas && p.expertiseAreas.length > 0 && (
                   <div className="flex flex-wrap gap-1">
                     {p.expertiseAreas.slice(0, 3).map((area) => (
                       <span
@@ -1737,7 +1742,7 @@ function TeamTab({ project, isEM }: { project: Project; isEM: boolean }) {
                         className="px-2 py-0.5 rounded-full text-[10px]"
                         style={{ background: "#F3F4F6", color: "#6B7280" }}
                       >
-                        {area}
+                        {formatEnumLabel(area)}
                       </span>
                     ))}
                   </div>
