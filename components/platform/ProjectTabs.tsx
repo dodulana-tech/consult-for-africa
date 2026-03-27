@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -30,6 +31,7 @@ import {
   BookOpen,
   ClipboardList,
   Layers,
+  Trash2,
 } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import TransformOS from "./project/TransformOS";
@@ -1138,7 +1140,11 @@ function OverviewTab({
 // ─── Tracks Tab ──────────────────────────────────────────────────────────────
 
 function TracksTab({ project, isEM }: { project: Project; isEM: boolean }) {
+  const router = useRouter();
   const [tracks, setTracks] = useState(project.tracks);
+
+  // Sync with server props when they change (e.g. after router.refresh)
+  useEffect(() => { setTracks(project.tracks); }, [project.tracks]);
   const [showAdd, setShowAdd] = useState(false);
   const [addName, setAddName] = useState("");
   const [addDesc, setAddDesc] = useState("");
@@ -1152,6 +1158,8 @@ function TracksTab({ project, isEM }: { project: Project; isEM: boolean }) {
       const data = await res.json();
       setTracks(data.tracks);
     }
+    // Also refresh server component data so tab switches show fresh data
+    router.refresh();
   }
 
   async function createTrack(name: string, description: string) {
@@ -1176,6 +1184,21 @@ function TracksTab({ project, isEM }: { project: Project; isEM: boolean }) {
       body: JSON.stringify({ trackId, status }),
     });
     await refresh();
+  }
+
+  async function deleteTrack(trackId: string, name: string) {
+    if (!confirm(`Delete track "${name}"? This cannot be undone.`)) return;
+    const res = await fetch(`/api/projects/${project.id}/tracks`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ trackId }),
+    });
+    if (res.ok) {
+      await refresh();
+    } else {
+      const text = await res.text();
+      alert(text || "Could not delete track.");
+    }
   }
 
   async function askNuru() {
@@ -1342,6 +1365,9 @@ function TracksTab({ project, isEM }: { project: Project; isEM: boolean }) {
                       {track.status === "PAUSED" && (
                         <button onClick={() => updateTrackStatus(track.id, "ACTIVE")} className="text-[10px] px-2 py-1 rounded text-green-700 bg-green-50 hover:bg-green-100">Resume</button>
                       )}
+                      <button onClick={() => deleteTrack(track.id, track.name)} className="p-1 rounded text-gray-300 hover:text-red-500 hover:bg-red-50" title="Delete track">
+                        <Trash2 size={12} />
+                      </button>
                     </div>
                   )}
                 </div>
@@ -1432,8 +1458,12 @@ function TracksTab({ project, isEM }: { project: Project; isEM: boolean }) {
 // ─── Team Tab ─────────────────────────────────────────────────────────────────
 
 function TeamTab({ project, isEM }: { project: Project; isEM: boolean }) {
+  const router = useRouter();
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [assignments, setAssignments] = useState(project.assignments);
+
+  // Sync with server props when they change
+  useEffect(() => { setAssignments(project.assignments); }, [project.assignments]);
   const [showStaffingForm, setShowStaffingForm] = useState(false);
   const [staffingForm, setStaffingForm] = useState({
     role: "", description: "", skillsRequired: "", hoursPerWeek: "20",
@@ -1596,6 +1626,7 @@ function TeamTab({ project, isEM }: { project: Project; isEM: boolean }) {
       setStaffingSuccess("Staffing request created. Consultants will be notified.");
       setStaffingForm({ role: "", description: "", skillsRequired: "", hoursPerWeek: "20", duration: "", rateType: "MONTHLY", rateBudget: "", urgency: "normal" });
       setShowStaffingForm(false);
+      router.refresh();
       setTimeout(() => setStaffingSuccess(null), 5000);
     } catch {}
     finally { setStaffingSaving(false); }
