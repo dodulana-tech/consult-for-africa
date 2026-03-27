@@ -114,11 +114,9 @@ export async function POST(
     user.yearsInRole != null ? `Years in Current Role: ${user.yearsInRole}` : null,
   ].filter(Boolean).join("\n");
 
-  /* ─── PHASE 1: Core report (same structure that worked before, plus module summaries) ─── */
+  const systemPrompt = `You are a senior organisational psychologist at Consult for Africa generating a comprehensive Maarova Leadership Profile report for an African healthcare leader. Your reports are psychometrically grounded, contextually sensitive to African healthcare (Ubuntu, communal leadership, African health system realities), written in formal British English, and actionable. Never use em dashes. Never use deficit language like "weakness". Frame growth areas as "emerging capabilities" or "next leadership edge". Do not state raw numerical scores in narrative text. Write in second person ("you", "your").`;
 
-  const systemPrompt = `You are a senior organisational psychologist at Consult for Africa generating a Maarova leadership profile report for an African healthcare leader. Your reports are psychometrically grounded, contextually sensitive to African healthcare (referencing Ubuntu, communal leadership, and African health system realities), actionable, written in formal British English, and empathetic but honest. Never use em dashes in your writing. Use commas, semicolons, colons, or separate sentences instead. Never use deficit language like "weakness" or "below average". Frame growth areas as "emerging capabilities" or "next leadership edge". Do not produce an overall composite score.`;
-
-  const userPrompt = `Generate a comprehensive leadership profile report for the following healthcare leader.
+  const userPrompt = `Generate a comprehensive leadership profile report for the following healthcare leader. This will fill a 20-page professional PDF, so be detailed and specific.
 
 LEADER PROFILE:
 Name: ${user.name}
@@ -127,37 +125,69 @@ ${demographicContext}
 ASSESSMENT SCORES (scaled 0-100):
 ${scoreLines.join("\n")}
 
-Based on these assessment results, generate a detailed leadership profile report as JSON with this exact structure:
+${has360 ? "This leader completed 360-Degree Feedback. Include threeSixty section." : "No 360 feedback. Set threeSixty to null."}
+
+Return ONLY valid JSON with this structure. Each narrative field should be 2-3 rich paragraphs unless specified otherwise. Be personalised and specific, not generic.
 
 {
-  "leadershipArchetype": "A concise 2-4 word archetype name grounded in leadership identity (e.g., 'The Strategic Clinician', 'The Empathetic Transformer', 'The Systems Builder', 'The Bridge-Builder')",
-  "archetypeNarrative": "A 3-4 sentence narrative in second person that describes how this leader's community experiences their leadership. Begin with 'Your leadership serves your community through...' Frame relationally, not evaluatively. Reference their strongest dimensions.",
-  "signatureStrengths": [
-    {
-      "dimension": "The dimension name (e.g., Emotional Intelligence, Values Alignment)",
-      "title": "A memorable 3-5 word strength label (e.g., 'Deep Emotional Attunement', 'Unwavering Ethical Compass')",
-      "description": "One sentence describing how this strength manifests in their healthcare leadership context"
-    }
-  ],
-  "executiveSummary": "A 3-4 paragraph executive summary. Lead with their archetype and signature strengths. Contextualise within African healthcare leadership. Reference how their profile serves their teams and communities. Do not mention numerical scores.",
-  "strengthsAnalysis": "A 3-4 paragraph analysis of what this leader does well. Describe observable behaviours, not scores. Use 'others experience your leadership as...' framing.",
-  "nextLeadershipEdge": "A 3-4 paragraph analysis framed as 'where focused growth would have the most catalytic impact on your leadership and your community'. Be constructive, specific, and contextualise within African healthcare. Use strengths-based language throughout.",
-  "blindSpotAnalysis": "A 2-3 paragraph analysis of areas where others may experience the leader differently from how they see themselves. Use the Hogan 'overused strengths' frame: high scores can tip into overextension under stress.",
-  "coachingPriorities": [
-    {
-      "priority": 1,
-      "title": "Specific coaching priority title",
-      "description": "2-3 sentence description of the coaching focus area",
-      "suggestedActions": ["Action 1", "Action 2", "Action 3"],
-      "timeframe": "30 days or 60 days or 90 days"
-    }
-  ],
-  "dimensionInterpretations": {
-    "Dimension Name": "A 2-3 sentence interpretation of this dimension in context. Include what it means, how it shows up in their leadership, and one developmental angle. Never state the raw number."
-  }
+  "leadershipArchetype": "2-4 word archetype (e.g. 'The Strategic Clinician')",
+  "archetypeNarrative": "3-4 sentences starting with 'Your leadership serves your community through...'",
+  "signatureStrengths": [{"dimension":"name","title":"3-5 word label","description":"2 sentences on how it manifests"}],
+  "executiveSummary": "3-4 paragraphs. Lead with archetype, contextualise in African healthcare, discuss interplay between dimensions.",
+  "disc": {
+    "profileSummary": "2-3 paragraphs on their DISC profile, primary/adapted styles, day-to-day leadership impact.",
+    "characterInsights": "2-3 paragraphs of personalised character insights. How colleagues experience this person.",
+    "communicationDos": ["5-6 specific do's for communicating with this leader"],
+    "communicationDonts": ["5-6 specific don'ts"],
+    "valueToOrganisation": "1-2 paragraphs on the value this style brings to a healthcare organisation.",
+    "idealEnvironment": "1 paragraph on where this leader thrives.",
+    "underPressure": "1-2 paragraphs on behaviour under stress, triggers, management strategies."
+  },
+  "values": {
+    "profileSummary": "2-3 paragraphs on their values structure and motivational signature.",
+    "topThree": [{"value":"Value name","rank":1,"interpretation":"2-3 paragraphs: what it means, strengths, development tips."}],
+    "middleValues": "1-2 paragraphs on situation-dependent middle values.",
+    "lowerValues": "1-2 paragraphs on lower values and awareness of blind spots.",
+    "healthcareAlignment": "1-2 paragraphs on values alignment with African healthcare leadership and Ubuntu."
+  },
+  "emotionalIntelligence": {
+    "profileSummary": "2-3 paragraphs on overall EQ capability.",
+    "dimensions": {
+      "selfAwareness": "1-2 paragraphs interpreting this dimension.",
+      "empathy": "1-2 paragraphs in context of healthcare and Ubuntu.",
+      "socialSkills": "1-2 paragraphs on relationship management.",
+      "emotionalRegulation": "1-2 paragraphs on pressure handling and triggers."
+    },
+    "underPressure": "1-2 paragraphs on EQ under pressure with practical strategies."
+  },
+  "cilti": {
+    "profileSummary": "2-3 paragraphs on clinical-to-leadership identity transition.",
+    "transitionStage": "'High Risk' or 'Transitioning' or 'Emerging Leader' or 'Established Leader'",
+    "dimensions": {
+      "clinicalIdentity": "1-2 paragraphs.",
+      "leadershipIdentity": "1-2 paragraphs.",
+      "transitionReadiness": "1-2 paragraphs.",
+      "identityFriction": "1-2 paragraphs."
+    },
+    "transitionRoadmap": "1-2 paragraphs with specific next steps."
+  },
+  "cultureTeam": {
+    "profileSummary": "2-3 paragraphs on culture and team dynamics.",
+    "cvfInterpretation": "1-2 paragraphs on CVF quadrant dominance and tensions.",
+    "teamEffectiveness": "1-2 paragraphs on team building approach.",
+    "engagementProfile": "1-2 paragraphs on engagement drivers."
+  },
+  ${has360 ? `"threeSixty": {"summary":"2-3 paragraphs","blindSpots":"1-2 paragraphs","hiddenStrengths":"1-2 paragraphs","stakeholderThemes":"1-2 paragraphs"},` : `"threeSixty": null,`}
+  "strengthsAnalysis": "2-3 paragraphs on what this leader does well. Observable behaviours, cross-module.",
+  "nextLeadershipEdge": "2-3 paragraphs on where growth would be most catalytic. Strengths-based.",
+  "blindSpotAnalysis": "2 paragraphs using Hogan overused-strengths frame.",
+  "howOthersExperienceYou": "2 paragraphs on how colleagues experience this leader.",
+  "leadershipUnderPressure": "2 paragraphs on stress transformation patterns and de-escalation.",
+  "coachingPriorities": [{"priority":1,"title":"title","description":"2-3 sentences","suggestedActions":["action1","action2","action3"],"timeframe":"Zero to thirty days / One to three months / Three to six months / Six to twelve months"}],
+  "dimensionInterpretations": {"DimensionName": "2 sentence interpretation."}
 }
 
-Provide exactly 3 signature strengths (the top 3 scoring dimensions). Provide 3-5 coaching priorities ordered by impact. The dimensionInterpretations should have one entry per dimension from the scores above. Return ONLY the JSON object, no other text.`;
+RULES: Exactly 3 signatureStrengths (top scoring). 4-5 coachingPriorities with varied timeframes. topThree = 3 highest-scoring values with ranks 1,2,3. One dimensionInterpretation per scored dimension. Return ONLY JSON.`;
 
   let reportData: Record<string, unknown>;
   try {
@@ -166,7 +196,7 @@ Provide exactly 3 signature strengths (the top 3 scoring dimensions). Provide 3-
 
     const message = await anthropic.messages.create({
       model: "claude-haiku-4-5-20241022",
-      max_tokens: 4096,
+      max_tokens: 8192,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
     });
