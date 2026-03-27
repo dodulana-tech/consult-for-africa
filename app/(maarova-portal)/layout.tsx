@@ -104,7 +104,7 @@ export default async function MaarovaPortalLayout({
         <div className="px-6 py-6 border-b border-white/10">
           <div className="flex items-center gap-3">
             <Image
-              src="/cfa-logo-white.svg"
+              src="/logo-cfa.png"
               alt="C4A"
               width={32}
               height={32}
