@@ -579,7 +579,7 @@ export default function MaarovaResultDetailPage() {
             Generate Your Leadership Report
           </h2>
           <p className="text-gray-500 mb-6 max-w-md mx-auto">
-            Our AI will analyse your assessment scores and generate a detailed
+            Maarova will analyse your assessment scores and generate a detailed
             leadership profile report with personalised insights.
           </p>
           {error && (
