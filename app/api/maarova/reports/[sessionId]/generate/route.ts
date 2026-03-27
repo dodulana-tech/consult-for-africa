@@ -158,24 +158,31 @@ Provide exactly 3 signature strengths (the top 3 scoring dimensions). Provide 3-
 
   let reportData: Record<string, unknown>;
   try {
+    console.log("[Maarova] Starting AI report generation for session:", sessionId);
+    const startTime = Date.now();
+
     const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
+      model: "claude-sonnet-4-5-20241022",
       max_tokens: 6000,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
     });
 
+    console.log("[Maarova] AI response received in", Date.now() - startTime, "ms, stop_reason:", message.stop_reason);
+
     const raw = (message.content[0] as { text: string }).text;
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("No JSON in response");
+    if (!jsonMatch) throw new Error("No JSON in response. Raw: " + raw.slice(0, 200));
     reportData = JSON.parse(jsonMatch[0]);
+    console.log("[Maarova] Report JSON parsed successfully");
   } catch (err) {
-    console.error("Maarova report generation error:", err);
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error("[Maarova] Report generation FAILED:", errMsg, err);
     await prisma.maarovaReport.delete({
       where: { id: reportRecord.id },
     }).catch(() => {});
     return NextResponse.json(
-      { error: "Failed to generate report. Please try again." },
+      { error: `Report generation failed: ${errMsg.slice(0, 100)}` },
       { status: 500 }
     );
   }
