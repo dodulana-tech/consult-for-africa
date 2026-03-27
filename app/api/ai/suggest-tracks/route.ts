@@ -4,11 +4,13 @@ import { getNuruContext } from "@/lib/nuruContext";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
 
+export const maxDuration = 30;
+
 const anthropic = new Anthropic();
 
 /**
  * POST /api/ai/suggest-tracks
- * Nuru suggests workstream tracks for an engagement based on its type, scope, and context.
+ * Nuru suggests MECE workstream tracks for an engagement based on its type, scope, and context.
  */
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -34,51 +36,64 @@ export async function POST(req: NextRequest) {
 
   const nuruContext = await getNuruContext();
 
-  const prompt = `You are Nuru, CFA's internal strategy advisor. Suggest workstream tracks for this engagement.
+  const prompt = `You are Nuru, CFA's internal strategy advisor. Suggest MECE workstream tracks for this engagement.
 
 ENGAGEMENT:
 - Name: ${engagement.name}
 - Client: ${engagement.client.name} (${engagement.client.type})
 - Type: ${engagement.engagementType}
 - Service: ${engagement.serviceType}
-- Description: ${engagement.description}
+- Description: ${(engagement.description || "").substring(0, 500)}
 - Timeline: ${engagement.startDate.toISOString().split("T")[0]} to ${engagement.endDate?.toISOString().split("T")[0] ?? "ongoing"}
 - Budget: ${engagement.budgetAmount ? `${engagement.budgetCurrency} ${Number(engagement.budgetAmount).toLocaleString()}` : "Not set"}
 
-${engagement.deliverables.length > 0 ? `EXISTING DELIVERABLES:\n${engagement.deliverables.map((d) => `- ${d.name} (${d.status})`).join("\n")}` : "No deliverables yet."}
+${engagement.deliverables.length > 0 ? `DELIVERABLES:\n${engagement.deliverables.map((d) => `- ${d.name} (${d.status})`).join("\n")}` : "No deliverables yet."}
 
-${engagement.phases.length > 0 ? `EXISTING PHASES:\n${engagement.phases.map((p) => `- ${p.name} (${p.status})`).join("\n")}` : ""}
+${engagement.phases.length > 0 ? `PHASES:\n${engagement.phases.map((p) => `- ${p.name} (${p.status})`).join("\n")}` : ""}
 
 ${engagement.tracks.length > 0 ? `EXISTING TRACKS (avoid duplicates):\n${engagement.tracks.map((t) => `- ${t.name}`).join("\n")}` : ""}
 
 ${nuruContext}
 
-INSTRUCTIONS:
-- Suggest 3-6 workstream tracks that organize the work logically
-- Each track should be a parallel workstream (not sequential phases)
+CRITICAL REQUIREMENTS - MECE TRACKS:
+Your tracks MUST be MECE (Mutually Exclusive, Collectively Exhaustive):
+
+1. MUTUALLY EXCLUSIVE: No two tracks should overlap in scope. Every deliverable, activity, and responsibility must belong to exactly one track. If "clinical governance" is a track, no other track should include clinical governance activities.
+
+2. COLLECTIVELY EXHAUSTIVE: Together, the tracks must cover 100% of the engagement scope. Nothing in the project description, deliverables, or expected outcomes should fall outside of a track. Ask yourself: "If we completed all tracks, would the full engagement be delivered?"
+
+3. VALIDATION CHECK before returning:
+   - Can each deliverable be assigned to exactly one track? If not, tracks overlap.
+   - Does the project description mention any work area not covered by a track? If so, tracks are incomplete.
+   - Would a consulting engagement manager see gaps or overlaps? Fix them.
+
+ADDITIONAL RULES:
+- Suggest 4-7 workstream tracks that organize the work logically
+- Each track is a parallel workstream (not sequential phases)
 - Consider the client type, service type, and engagement scope
-- For healthcare consulting, think about: clinical operations, financial performance, HR/talent, quality/accreditation, digital/IT, governance, patient experience, supply chain, etc.
-- Each track should have a clear owner (single track lead) with possible support roles
-- Suggest what kind of consultant each track needs (seniority, skills)
+- For healthcare: clinical operations, financial performance, HR/talent, quality/accreditation, digital/IT, governance, patient experience, supply chain, etc.
+- Name tracks clearly so scope boundaries are obvious
+- No em dashes in any text
 
 Return ONLY valid JSON:
 {
   "tracks": [
     {
-      "name": "<track name, e.g. Clinical Operations>",
-      "description": "<1-2 sentences describing the workstream scope>",
+      "name": "<track name>",
+      "description": "<1-2 sentences describing the workstream scope and boundaries>",
       "suggestedRole": "<e.g. Senior Consultant - Clinical Operations>",
       "suggestedSkills": ["<skill1>", "<skill2>"],
-      "suggestedDeliverables": ["<deliverable name 1>", "<deliverable name 2>"],
+      "suggestedDeliverables": ["<deliverable 1>", "<deliverable 2>"],
       "estimatedWeeks": <number>
     }
-  ]
+  ],
+  "meceValidation": "<1 sentence confirming tracks are MECE and any notes on boundary decisions>"
 }`;
 
   try {
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 2000,
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 1500,
       messages: [{ role: "user", content: prompt }],
     });
 
@@ -91,9 +106,10 @@ Return ONLY valid JSON:
     }
 
     const parsed = JSON.parse(text.slice(start, end + 1));
-    return Response.json({ tracks: parsed.tracks ?? [] });
-  } catch (err) {
-    console.error("[ai/suggest-tracks] failed", err);
-    return Response.json({ error: "Failed to generate track suggestions" }, { status: 500 });
+    return Response.json({ tracks: parsed.tracks ?? [], meceValidation: parsed.meceValidation ?? null });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[ai/suggest-tracks] failed", msg, err);
+    return Response.json({ error: "Failed to generate track suggestions", detail: msg }, { status: 500 });
   }
 }
