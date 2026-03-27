@@ -458,16 +458,21 @@ export default function MaarovaResultDetailPage() {
     fetchData();
   }, [fetchData]);
 
-  async function generateReport() {
+  async function generateReport(regenerate = false) {
     setGenerating(true);
     setError(null);
     try {
-      const res = await fetch(`/api/maarova/reports/${sessionId}/generate`, {
-        method: "POST",
-      });
+      const url = `/api/maarova/reports/${sessionId}/generate${regenerate ? "?regenerate=true" : ""}`;
+      const res = await fetch(url, { method: "POST" });
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to generate report");
+        let errMsg = "Failed to generate report. Please try again.";
+        try {
+          const data = await res.json();
+          errMsg = data.error || errMsg;
+        } catch {
+          if (res.status === 504) errMsg = "Report generation timed out. Please try again.";
+        }
+        throw new Error(errMsg);
       }
       const data = await res.json();
       setReport({
@@ -1128,20 +1133,9 @@ export default function MaarovaResultDetailPage() {
               )}
             </button>
             <button
-              onClick={async () => {
+              onClick={() => {
                 if (!confirm("This will regenerate your report with the latest analysis engine. Continue?")) return;
-                setGenerating(true);
-                setError(null);
-                try {
-                  const res = await fetch(`/api/maarova/reports/${sessionId}/generate?regenerate=true`, { method: "POST" });
-                  if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Failed"); }
-                  const data = await res.json();
-                  setReport({ ...data.report, fullReportContent: data.report.fullReportContent });
-                } catch (err) {
-                  setError(err instanceof Error ? err.message : "Failed to regenerate report");
-                } finally {
-                  setGenerating(false);
-                }
+                generateReport(true);
               }}
               disabled={generating}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors border hover:bg-gray-50 disabled:opacity-50"
