@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { ChevronDown, ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ChevronDown, ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import NotificationsDrawer from "./NotificationsDrawer";
 
@@ -14,7 +16,15 @@ interface TopBarProps {
 
 export default function TopBar({ title, subtitle, backHref, action }: TopBarProps) {
   const { data: session } = useSession();
+  const router = useRouter();
+  const [refreshing, setRefreshing] = useState(false);
   const user = session?.user;
+
+  function handleRefresh() {
+    setRefreshing(true);
+    router.refresh();
+    setTimeout(() => setRefreshing(false), 800);
+  }
 
   const initials = user?.name
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -39,6 +49,13 @@ export default function TopBar({ title, subtitle, backHref, action }: TopBarProp
 
       <div className="flex items-center gap-3">
         {action}
+        <button
+          onClick={handleRefresh}
+          className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
+          title="Refresh"
+        >
+          <RefreshCw size={15} className={refreshing ? "animate-spin" : ""} />
+        </button>
         <NotificationsDrawer />
 
         {/* User */}
