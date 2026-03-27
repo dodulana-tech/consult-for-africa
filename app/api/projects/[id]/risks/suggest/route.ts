@@ -49,48 +49,27 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
 
   const existingRiskTitles = project.risks.map((r) => r.title);
 
-  const prompt = `You are a senior healthcare management consulting risk analyst at Consult For Africa, specializing in Nigerian and African healthcare systems.
+  const prompt = `You are a risk analyst at Consult For Africa (Nigerian healthcare consulting).
 
-Analyze this project and suggest the most relevant risks to add to the risk register. Consider the specific service type, client type, Nigerian context, and current project state.
+PROJECT: ${project.name}
+Service: ${project.serviceType.replace(/_/g, " ")}
+Client: ${project.client.name} (${project.client.type})
+Status: ${project.status} | Risk: ${project.riskLevel}
+Timeline: ${daysLeft} days left | Budget: ${budgetPct}% spent (${project.budgetCurrency})
+Team: ${project.assignments.map((a) => `${a.consultant.name} (${a.role})`).join(", ") || "None assigned"}
+Milestones: ${project.milestones.length} total, ${project.milestones.filter((m) => m.status !== "COMPLETED" && m.dueDate < now).length} overdue
+Description: ${(project.description || "").substring(0, 300)}
+Existing risks: ${existingRiskTitles.length > 0 ? existingRiskTitles.join(", ") : "None"}
 
-PROJECT:
-- Name: ${project.name}
-- Service: ${project.serviceType.replace(/_/g, " ")}
-- Description: ${project.description}
-- Client: ${project.client.name} (${project.client.type})
-- Status: ${project.status} | Risk Level: ${project.riskLevel}
-- Timeline: ${daysLeft} days remaining
-- Budget: ${budgetPct}% spent (${project.budgetCurrency})
-- Team: ${project.assignments.map((a) => `${a.consultant.name} (${a.role})`).join(", ") || "Not yet assigned"}
-- Milestones: ${project.milestones.length} total, ${project.milestones.filter((m) => m.status !== "COMPLETED" && m.dueDate < now).length} overdue
-- Already logged risks: ${existingRiskTitles.length > 0 ? existingRiskTitles.join(", ") : "None yet"}
+Generate 6 specific risks for this Nigerian healthcare project. Don't repeat existing risks. Return ONLY a JSON array:
+[{"title":"max 8 words","description":"2 sentences why this is risky","category":"Operational|Timeline|Budget|Quality|Client|Team|Regulatory|Technology","severity":"GREEN|AMBER|RED","likelihood":3,"impact":3,"mitigation":"specific action"}]
 
-Generate 6 highly specific, actionable risks for this project. Do NOT repeat any already-logged risks. Prioritize risks that are:
-1. Specific to this service type in Nigerian healthcare
-2. Relevant to the current project phase
-3. Based on common failure patterns in African healthcare consulting
-
-Return ONLY a JSON array:
-[
-  {
-    "title": "Concise risk title (max 8 words)",
-    "description": "2-3 sentence description of why this is a risk in this specific context",
-    "category": "one of: Operational | Timeline | Budget | Quality | Client | Team | Regulatory | Technology",
-    "severity": "GREEN | AMBER | RED",
-    "likelihood": 3,
-    "impact": 3,
-    "mitigation": "Specific, actionable mitigation strategy for this project"
-  }
-]
-
-severity: GREEN=low impact, AMBER=moderate, RED=high/critical
-likelihood and impact: 1-5 scale (1=very low, 5=very high)
-No em dashes. Be specific to Nigerian healthcare context.`;
+No markdown, no explanation, just the JSON array. No em dashes.`;
 
   try {
     const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 1500,
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 1200,
       messages: [{ role: "user", content: prompt }],
     });
 
