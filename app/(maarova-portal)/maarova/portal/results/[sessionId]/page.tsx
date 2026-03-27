@@ -593,7 +593,7 @@ export default function MaarovaResultDetailPage() {
             </div>
           )}
           <button
-            onClick={generateReport}
+            onClick={() => generateReport()}
             disabled={generating}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-white text-sm font-medium transition-all disabled:opacity-60"
             style={{ backgroundColor: "#D4A574" }}
