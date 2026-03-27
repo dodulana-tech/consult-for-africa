@@ -162,7 +162,7 @@ Provide exactly 3 signature strengths (the top 3 scoring dimensions). Provide 3-
     const startTime = Date.now();
 
     const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-5-20241022",
+      model: "claude-sonnet-4-6",
       max_tokens: 6000,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
