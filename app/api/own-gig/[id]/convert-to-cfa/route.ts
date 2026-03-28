@@ -74,5 +74,5 @@ export async function POST(
     });
   });
 
-  return Response.json({ message: "Gig converted to full CFA engagement. Referral credit created." });
+  return Response.json({ message: "Gig converted to full C4A engagement. Referral credit created." });
 }

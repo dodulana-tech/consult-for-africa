@@ -440,14 +440,14 @@ export default function ApplicationForm() {
               </p>
               <p className="text-xs text-gray-400 mb-3">
                 In 400-800 words, articulate: (1) your specific expertise and how it maps to healthcare challenges in Africa,
-                (2) a concrete example of institutional impact you have driven, and (3) why CFA specifically.
+                (2) a concrete example of institutional impact you have driven, and (3) why Consult For Africa specifically.
                 Avoid generic statements. Write as you would for a hospital CEO or board audience.
               </p>
               <textarea
                 value={form.coverLetter}
                 onChange={(e) => set("coverLetter", e.target.value)}
                 rows={12}
-                placeholder={"Dear CFA Selection Committee,\n\nI am writing to express my interest in joining the Consult For Africa network as a...\n\nIn my current role as..., I led...\n\nThe specific value I would bring to CFA engagements is..."}
+                placeholder={"Dear Consult For Africa Selection Committee,\n\nI am writing to express my interest in joining the Consult For Africa network as a...\n\nIn my current role as..., I led...\n\nThe specific value I would bring to C4A engagements is..."}
                 className={`${inputClass} resize-none`}
                 style={inputStyle}
               />

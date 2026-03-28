@@ -195,7 +195,7 @@ export default function NewOwnGigPage() {
             <div className="space-y-5">
               <h2 className="text-lg font-bold text-[#0F2744]">Platform Fee</h2>
               <p className="text-sm text-slate-500">
-                CFA provides the tools, client portal, EM oversight, and operational support for your gig.
+                C4A provides the tools, client portal, EM oversight, and operational support for your gig.
                 The standard rate is {PLATFORM_FEE_PCT}%. You may propose a different rate within the allowed range.
               </p>
 
@@ -233,7 +233,7 @@ export default function NewOwnGigPage() {
                 )}
                 {Number(feePct) < PLATFORM_FEE_PCT && (
                   <p className="text-xs text-amber-600">
-                    Below standard rate. Subject to approval by CFA.
+                    Below standard rate. Subject to approval by C4A.
                   </p>
                 )}
               </div>
@@ -245,7 +245,7 @@ export default function NewOwnGigPage() {
                 <Info size={14} className="shrink-0 mt-0.5" style={{ color: "#3B82F6" }} />
                 <span>
                   This covers your assigned EM, client portal access, project tools, quality assurance,
-                  and CFA branding. The fee is deducted from project payments before consultant payouts.
+                  and C4A branding. The fee is deducted from project payments before consultant payouts.
                 </span>
               </div>
 

@@ -34,7 +34,7 @@ export default function Network() {
           Multidisciplinary. African-Rooted. Execution-Ready.
         </h2>
         <p className="text-center text-gray-500 text-sm max-w-xl mx-auto mb-14">
-          CFA&apos;s consultant network covers every domain of healthcare management.
+          The C4A consultant network covers every domain of healthcare management.
           Every engagement draws from the right expertise for the specific challenge.
         </p>
 

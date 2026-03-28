@@ -94,7 +94,7 @@ export default function AICoachPage() {
           <div>
             <p className="text-sm font-semibold text-gray-900">Nuru</p>
             <p className="text-[11px] text-gray-400">
-              Context-aware: knows your CFA roadmap, current phase, and progress.
+              Context-aware: knows your C4A roadmap, current phase, and progress.
             </p>
           </div>
         </div>

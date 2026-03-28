@@ -36,7 +36,7 @@ export default function Process() {
       <div className="max-w-5xl mx-auto">
         <p className="uppercase tracking-[0.2em] text-xs text-white/50 mb-3 text-center">How We Work</p>
         <h2 className="text-2xl md:text-3xl font-semibold text-white text-center mb-14">
-          The CFA Execution Model
+          The C4A Execution Model
         </h2>
 
         <div className="grid md:grid-cols-5 gap-4">

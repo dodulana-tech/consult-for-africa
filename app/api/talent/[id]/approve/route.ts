@@ -106,7 +106,7 @@ export async function POST(
   // Auto-create Maarova portal credentials for MAAROVA/FULL tiers
   if (assessmentLevel === "MAAROVA" || assessmentLevel === "FULL") {
     try {
-      // Find or create the CFA internal organisation
+      // Find or create the C4A internal organisation
       let cfaOrg = await prisma.maarovaOrganisation.findFirst({
         where: { name: "Consult For Africa" },
         select: { id: true, name: true },

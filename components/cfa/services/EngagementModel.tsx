@@ -44,7 +44,7 @@ export default function EngagementModel() {
             Execution, Not Advice
           </h2>
           <p className="mt-4 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
-            Every CFA engagement follows the same five-stage model. Diagnostic first,
+            Every Consult For Africa engagement follows the same five-stage model. Diagnostic first,
             always. Results delivered in every phase, not just at the end.
           </p>
         </div>

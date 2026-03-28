@@ -679,7 +679,7 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
                     </div>
                   </div>
                   <p className="text-[10px] text-amber-600 mt-2 px-2 py-1.5 rounded" style={{ background: "#FFFBEB" }}>
-                    Placed individual is not a CFA employee. Arrangement is broker-only.
+                    Placed individual is not a C4A employee. Arrangement is broker-only.
                   </p>
                 </div>
               )}

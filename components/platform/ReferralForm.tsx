@@ -24,19 +24,19 @@ const TYPE_OPTIONS: { type: ReferralType; icon: typeof UserPlus; label: string; 
     type: "CLIENT",
     icon: Building2,
     label: "Potential Client",
-    description: "A hospital, government body, or development organisation that could benefit from CFA services.",
+    description: "A hospital, government body, or development organisation that could benefit from C4A services.",
   },
   {
     type: "CONSULTANT",
     icon: UserPlus,
     label: "Consultant",
-    description: "A healthcare professional or operations expert you think would be a strong CFA consultant.",
+    description: "A healthcare professional or operations expert you think would be a strong C4A consultant.",
   },
   {
     type: "STAFF",
     icon: Users,
     label: "Staff / Leadership",
-    description: "Someone suited for an Engagement Manager, Director, or other internal CFA role.",
+    description: "Someone suited for an Engagement Manager, Director, or other internal C4A role.",
   },
 ];
 
@@ -137,7 +137,7 @@ export default function ReferralForm({ myReferrals }: { myReferrals: MyReferral[
             <UserPlus size={18} className="text-white" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-white">Grow the CFA Network</h2>
+            <h2 className="text-sm font-semibold text-white">Grow the C4A Network</h2>
             <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.65)" }}>
               Know a healthcare organisation that needs transformation support? A talented consultant or potential team member?
               Refer them here and we will take it from there.
@@ -152,7 +152,7 @@ export default function ReferralForm({ myReferrals }: { myReferrals: MyReferral[
           >
             <CheckCircle size={32} className="text-emerald-500 mx-auto mb-3" />
             <p className="font-semibold text-gray-900">Referral submitted</p>
-            <p className="text-sm text-gray-500 mt-1">The CFA team will follow up. Thank you for growing the network.</p>
+            <p className="text-sm text-gray-500 mt-1">The C4A team will follow up. Thank you for growing the network.</p>
             <button
               onClick={reset}
               className="mt-4 px-4 py-2 rounded-lg text-sm font-semibold text-white"
@@ -294,7 +294,7 @@ export default function ReferralForm({ myReferrals }: { myReferrals: MyReferral[
                       placeholder={
                         selectedType === "CLIENT"
                           ? "Describe their needs, the size of the opportunity, how you know them..."
-                          : "How do you know them? What makes them a strong fit for CFA?"
+                          : "How do you know them? What makes them a strong fit for C4A?"
                       }
                       rows={4}
                       className="w-full text-sm rounded-lg px-3 py-2.5 resize-none focus:outline-none"

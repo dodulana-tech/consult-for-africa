@@ -8,7 +8,7 @@ interface Message {
 }
 
 const GREETING =
-  "Hi, I am Nuru, CFA's AI assistant. How can I help you learn about our healthcare consulting services?";
+  "Hi, I am Nuru, Consult For Africa's AI assistant. How can I help you learn about our healthcare consulting services?";
 
 export default function NuruChat() {
   const [open, setOpen] = useState(false);
@@ -139,7 +139,7 @@ export default function NuruChat() {
               </div>
               <div>
                 <p className="font-semibold text-sm leading-tight">Nuru</p>
-                <p className="text-[11px] text-gray-300">CFA AI Assistant</p>
+                <p className="text-[11px] text-gray-300">C4A AI Assistant</p>
               </div>
             </div>
             <button
@@ -198,7 +198,7 @@ export default function NuruChat() {
             <input
               ref={inputRef}
               type="text"
-              placeholder="Ask about CFA's services..."
+              placeholder="Ask about our services..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={loading}

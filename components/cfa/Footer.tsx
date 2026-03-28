@@ -60,7 +60,7 @@ export default function Footer() {
           <ul className="space-y-2 text-white/70 text-sm">
             <li>
               <Link href="/about" className="hover:text-white transition-colors">
-                About CFA
+                About C4A
               </Link>
             </li>
             <li>

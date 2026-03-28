@@ -737,7 +737,7 @@ export default function TransformOS({
                       </p>
                     </div>
                     <div className="rounded-lg p-3" style={{ background: "#F9FAFB", border: "1px solid #e5eaf0" }}>
-                      <p className="text-[10px] text-gray-400 mb-1">Total CFA Return</p>
+                      <p className="text-[10px] text-gray-400 mb-1">Total C4A Return</p>
                       <p className="text-sm font-bold text-gray-900">
                         {num(exitDossier.totalCfaReturn) != null ? formatCompactCurrency(num(exitDossier.totalCfaReturn)!, "NGN") : "-"}
                       </p>

@@ -92,5 +92,5 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     },
   });
 
-  return Response.json({ success: true, message: "NDA signed. Awaiting CFA countersignature." });
+  return Response.json({ success: true, message: "NDA signed. Awaiting C4A countersignature." });
 }

@@ -370,7 +370,7 @@ export default function DiscoveryCallDetail({
               </div>
               <div>
                 <h3 className="text-sm font-bold" style={{ color: "#0F2744" }}>Nuru</h3>
-                <p className="text-[10px] text-gray-400">CFA Intelligence</p>
+                <p className="text-[10px] text-gray-400">C4A Intelligence</p>
               </div>
             </div>
 

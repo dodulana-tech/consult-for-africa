@@ -422,7 +422,7 @@ export default function OnboardingPage() {
                 Set up your profile
               </h1>
               <p className="text-gray-500 text-sm mb-6">
-                This information will appear on your consultant profile within CFA.
+                This information will appear on your consultant profile within Consult For Africa.
               </p>
 
               <div className="space-y-5">

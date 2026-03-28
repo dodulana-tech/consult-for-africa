@@ -264,7 +264,7 @@ export default function Sidebar() {
       >
         <div className="flex items-center gap-2">
           <Image src="/logo-cfa.png" alt="C4A" width={24} height={24} style={{ mixBlendMode: "multiply" }} />
-          <span className="font-semibold text-sm" style={{ color: "#0F2744" }}>CFA</span>
+          <span className="font-semibold text-sm" style={{ color: "#0F2744" }}>C4A</span>
         </div>
       </div>
 

@@ -205,7 +205,7 @@ export default function AdminReferralsManager({
                     {/* Convert confirmation for consultant referrals */}
                     {convertingId === r.id && (
                       <div className="mt-3 p-3 rounded-lg" style={{ background: "#F0FDF4", border: "1px solid #BBF7D0" }}>
-                        <p className="text-xs font-semibold text-emerald-800 mb-2">Convert to CFA Consultant</p>
+                        <p className="text-xs font-semibold text-emerald-800 mb-2">Convert to C4A Consultant</p>
                         <p className="text-[11px] text-emerald-700 mb-3">This will create a platform account, send an invite email, and start the onboarding process.</p>
                         <label className="text-[11px] text-emerald-700 block mb-1">Assessment Level</label>
                         <select

@@ -47,7 +47,7 @@ export default function FounderSidebar() {
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
         <p className="text-sm font-bold leading-tight" style={{ color: "#D4AF37" }}>
-          CFA Founder
+          C4A Founder
         </p>
         <p className="text-[10px] leading-tight mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
           Command Center

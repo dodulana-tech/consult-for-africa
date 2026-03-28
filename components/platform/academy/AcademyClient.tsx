@@ -198,7 +198,7 @@ export default function AcademyClient({
           <div className="flex items-center gap-3 mb-1">
             <GraduationCap size={20} className="text-white/70" />
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/50">
-              CFA Academy
+              C4A Academy
             </p>
           </div>
           <h1 className="text-2xl font-semibold text-white mb-6">Training & Certification</h1>

@@ -382,14 +382,14 @@ export default function NewStaffingRequestPage() {
                 onChange={(e) =>
                   setBudgetPerDay(e.target.value ? parseFloat(e.target.value) : "")
                 }
-                placeholder="Leave blank for CFA to propose"
+                placeholder="Leave blank for C4A to propose"
                 className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-colors"
                 style={inputStyle}
                 onFocus={(e) => (e.currentTarget.style.borderColor = "#0F2744")}
                 onBlur={(e) => (e.currentTarget.style.borderColor = "#e5eaf0")}
               />
               <p className="text-[11px] text-gray-400 mt-1">
-                Optional. Leave blank for CFA to propose a rate.
+                Optional. Leave blank for C4A to propose a rate.
               </p>
             </div>
 

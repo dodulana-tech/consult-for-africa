@@ -22,7 +22,7 @@ export async function POST(
   const lead = await prisma.lead.findUnique({ where: { id } });
   if (!lead) return Response.json({ error: "Not found" }, { status: 404 });
 
-  const prompt = `You are Nuru, the internal intelligence system for Consult For Africa (CFA), a premium healthcare management consulting firm embedding execution teams inside hospitals across Africa.
+  const prompt = `You are Nuru, the internal intelligence system for Consult For Africa (C4A), a premium healthcare management consulting firm embedding execution teams inside hospitals across Africa.
 
 Qualify this lead and provide research intelligence to help the team prepare for outreach.
 
@@ -42,7 +42,7 @@ ${lead.knownPainPoints.length > 0 ? `\nKnown Pain Points:\n${lead.knownPainPoint
 ${lead.serviceLineHook ? `\nService Line Hook: ${lead.serviceLineHook}` : ""}
 ${lead.outreachStrategy ? `\nOutreach Strategy: ${lead.outreachStrategy}` : ""}
 
-CFA SERVICE LINES:
+C4A SERVICE LINES:
 1. Hospital Turnaround & Financial Recovery
 2. Strategy, Growth & Commercial Performance
 3. Clinical Governance & Accreditation
@@ -60,7 +60,7 @@ Return ONLY valid JSON:
   "suggestedServiceLines": ["<matching service line 1>", "<service line 2>"],
   "suggestedPainPoints": ["<likely pain point based on org type and context>"],
   "suggestedDecisionMakers": ["<likely roles to target: e.g. CEO, MD, COO, Board Chair>"],
-  "outreachAngle": "<1-2 sentences: how should CFA approach this org? What's the opening hook?>",
+  "outreachAngle": "<1-2 sentences: how should C4A approach this org? What's the opening hook?>",
   "estimatedEngagementSize": "<SMALL (under N5M) | MEDIUM (N5M-20M) | LARGE (N20M+) | UNKNOWN>",
   "researchNotes": "<any relevant context about this type of org, common challenges, regulatory environment>"
 }`;

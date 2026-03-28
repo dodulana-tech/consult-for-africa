@@ -170,7 +170,7 @@ export default function NewLeadPage() {
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Service Line Hook</label>
                   <select value={form.serviceLineHook} onChange={(e) => setForm((p) => ({ ...p, serviceLineHook: e.target.value }))} className={inputClass} style={inputStyle}>
-                    <option value="">Which CFA service fits?</option>
+                    <option value="">Which C4A service fits?</option>
                     {SERVICE_LINES.map((sl) => <option key={sl} value={sl}>{sl}</option>)}
                   </select>
                 </div>

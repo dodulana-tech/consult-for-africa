@@ -27,7 +27,7 @@ export default async function Credibility() {
   const stats = [
     { value: "135+ yrs", label: "Combined senior leadership across the partner network" },
     { value: "$1.1M+", label: "Annual savings delivered in a single engagement" },
-    { value: "20+", label: "Senior operators in the CFA network" },
+    { value: "20+", label: "Senior operators in the C4A network" },
     { value: `${activeEngagements}`, label: "Active engagements across the continent" },
   ];
 

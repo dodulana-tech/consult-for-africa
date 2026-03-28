@@ -65,7 +65,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
       return Response.json({ error: "NDA is not pending Party B signature" }, { status: 400 });
     }
 
-    // CFA countersign - only elevated roles
+    // C4A countersign - only elevated roles
     const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
     if (!ELEVATED.includes(session.user.role)) {
       return Response.json({ error: "Only Directors/Partners can countersign" }, { status: 403 });
