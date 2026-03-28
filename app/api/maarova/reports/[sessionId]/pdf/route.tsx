@@ -13,21 +13,13 @@ import {
   Image,
   StyleSheet,
   renderToBuffer,
-  Font,
 } from "@react-pdf/renderer";
 import path from "path";
 import fs from "fs";
 
 /* ─── Fonts ──────────────────────────────────────────────────────────────── */
-
-Font.register({
-  family: "Inter",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.woff2", fontWeight: 400 },
-    { src: "https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fAZ9hiA.woff2", fontWeight: 600 },
-    { src: "https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYAZ9hiA.woff2", fontWeight: 700 },
-  ],
-});
+// Using built-in Helvetica to avoid fontkit glyph subsetting crashes
+// with Google Fonts woff2 in @react-pdf/renderer v4.3.2
 
 /* ─── Brand Colours ──────────────────────────────────────────────────────── */
 
@@ -42,8 +34,8 @@ const white = "#FFFFFF";
 
 const s = StyleSheet.create({
   // Pages
-  page: { fontFamily: "Inter", fontSize: 9.5, color: darkGray, padding: 50, paddingBottom: 70 },
-  coverPage: { fontFamily: "Inter", backgroundColor: navy, padding: 0 },
+  page: { fontFamily: "Helvetica", fontSize: 9.5, color: darkGray, padding: 50, paddingBottom: 70 },
+  coverPage: { fontFamily: "Helvetica", backgroundColor: navy, padding: 0 },
 
   // Cover
   coverInner: { flex: 1, justifyContent: "center", alignItems: "center", padding: 60 },
