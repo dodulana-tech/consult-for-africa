@@ -15,7 +15,7 @@ export default async function MaarovaDashboardPage() {
       }),
       prisma.maarovaAssessmentSession.findFirst({
         where: { userId: session.sub },
-        orderBy: { createdAt: "desc" },
+        orderBy: [{ status: "asc" }, { createdAt: "desc" }],
         include: {
           moduleResponses: {
             include: { module: { select: { name: true, type: true, order: true } } },

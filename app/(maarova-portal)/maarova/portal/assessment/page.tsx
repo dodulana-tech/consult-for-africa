@@ -70,7 +70,7 @@ export default async function AssessmentLauncherPage() {
   const auth = await getMaarovaSession();
   if (!auth) redirect("/maarova/portal/login");
 
-  // Get active session: completed sessions always visible, incomplete only if not expired
+  // Prefer completed session, fall back to active incomplete session
   const session = await prisma.maarovaAssessmentSession.findFirst({
     where: {
       userId: auth.sub,
@@ -79,7 +79,7 @@ export default async function AssessmentLauncherPage() {
         { status: { in: ["NOT_STARTED", "IN_PROGRESS"] }, expiresAt: { gt: new Date() } },
       ],
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ status: "asc" }, { createdAt: "desc" }], // COMPLETED sorts before IN_PROGRESS/NOT_STARTED
     include: {
       moduleResponses: {
         include: {
