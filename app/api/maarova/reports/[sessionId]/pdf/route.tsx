@@ -32,78 +32,89 @@ const white = "#FFFFFF";
 
 /* ─── Styles ─────────────────────────────────────────────────────────────── */
 
+/* Score color by range */
+function scoreColor(score: number): string {
+  if (score >= 80) return navy;
+  if (score >= 60) return "#2D4A6F";
+  if (score >= 40) return gold;
+  return "#C9B99A";
+}
+
 const s = StyleSheet.create({
   // Pages
-  page: { fontFamily: "Helvetica", fontSize: 9.5, color: darkGray, paddingTop: 40, paddingBottom: 60, paddingLeft: 45, paddingRight: 45 },
+  page: { fontFamily: "Helvetica", fontSize: 10, color: darkGray, paddingTop: 54, paddingBottom: 65, paddingLeft: 50, paddingRight: 50 },
   coverPage: { fontFamily: "Helvetica", backgroundColor: navy, padding: 0 },
 
   // Cover
   coverInner: { flex: 1, justifyContent: "center", alignItems: "center", padding: 60 },
+  coverBorder: { position: "absolute", top: 20, left: 20, right: 20, bottom: 20, borderWidth: 0.5, borderColor: "rgba(212,165,116,0.3)" },
+  coverConfidential: { position: "absolute", top: 30, left: 0, right: 0, textAlign: "center", fontSize: 7, color: "rgba(212,165,116,0.4)", letterSpacing: 4 },
   coverLogo: { width: 64, height: 64, marginBottom: 40 },
-  coverLabel: { fontSize: 10, color: gold, letterSpacing: 3, textTransform: "uppercase" as const, marginBottom: 12 },
+  coverLabel: { fontSize: 9, color: gold, letterSpacing: 3.5, textTransform: "uppercase" as const, marginBottom: 14 },
   coverTitle: { fontSize: 28, fontWeight: 700, color: white, marginBottom: 6, textAlign: "center" },
-  coverSubtitle: { fontSize: 14, color: "rgba(255,255,255,0.6)", marginBottom: 40, textAlign: "center" },
+  coverSubtitle: { fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 40, textAlign: "center" },
   coverDivider: { width: 60, height: 2, backgroundColor: gold, marginBottom: 40 },
   coverName: { fontSize: 20, fontWeight: 700, color: white, marginBottom: 8, textAlign: "center" },
-  coverMeta: { fontSize: 10, color: "rgba(255,255,255,0.5)", textAlign: "center", marginBottom: 4 },
+  coverMeta: { fontSize: 10, color: "rgba(255,255,255,0.45)", textAlign: "center", marginBottom: 4 },
+  coverAccentLine: { width: 120, height: 0.5, backgroundColor: "rgba(212,165,116,0.4)", marginTop: 32 },
 
   // Header
-  headerBar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 24, paddingBottom: 12, borderBottomWidth: 2, borderBottomColor: gold },
+  headerBar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20, paddingBottom: 10, borderBottomWidth: 2, borderBottomColor: gold },
   logo: { width: 28, height: 28 },
   headerText: { textAlign: "right" },
-  headerTitle: { fontSize: 7, color: gray, letterSpacing: 1.5, textTransform: "uppercase" as const },
+  headerTitle: { fontSize: 7.5, color: gray, letterSpacing: 1.5, textTransform: "uppercase" as const },
   headerName: { fontSize: 10, fontWeight: 700, color: navy, marginTop: 2 },
 
   // Section Title Page (navy background dividers)
   sectionDivider: { flex: 1, backgroundColor: navy, justifyContent: "center", padding: 60 },
-  sectionDividerLabel: { fontSize: 9, color: gold, letterSpacing: 2.5, textTransform: "uppercase" as const, marginBottom: 12 },
+  sectionDividerLabel: { fontSize: 8, color: gold, letterSpacing: 3, textTransform: "uppercase" as const, marginBottom: 14 },
   sectionDividerTitle: { fontSize: 24, fontWeight: 700, color: white, marginBottom: 16 },
-  sectionDividerDesc: { fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.7, maxWidth: 380 },
+  sectionDividerDesc: { fontSize: 11, color: "rgba(255,255,255,0.55)", lineHeight: 1.7, maxWidth: 400 },
   sectionDividerAccent: { width: 40, height: 2, backgroundColor: gold, marginBottom: 20 },
 
   // Archetype hero
-  archetypeBox: { backgroundColor: navy, borderRadius: 10, padding: 28, marginBottom: 20, textAlign: "center" },
-  archetypeLabel: { fontSize: 7, color: gold, letterSpacing: 2, textTransform: "uppercase" as const, marginBottom: 6 },
-  archetypeName: { fontSize: 20, fontWeight: 700, color: white, marginBottom: 8 },
-  archetypeNarrative: { fontSize: 9, color: "rgba(255,255,255,0.7)", lineHeight: 1.6, maxWidth: 380, marginLeft: "auto", marginRight: "auto" },
+  archetypeBox: { backgroundColor: navy, borderRadius: 10, padding: 30, marginBottom: 20, textAlign: "center" },
+  archetypeLabel: { fontSize: 7.5, color: gold, letterSpacing: 2.5, textTransform: "uppercase" as const, marginBottom: 8 },
+  archetypeName: { fontSize: 22, fontWeight: 700, color: white, marginBottom: 10 },
+  archetypeNarrative: { fontSize: 9.5, color: "rgba(255,255,255,0.65)", lineHeight: 1.65, maxWidth: 400, marginLeft: "auto", marginRight: "auto" },
 
   // Strength cards
-  strengthsRow: { flexDirection: "row", gap: 10, marginBottom: 20 },
-  strengthCard: { flex: 1, borderLeftWidth: 3, borderLeftColor: gold, borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 6, padding: 10 },
-  strengthDim: { fontSize: 6.5, color: gray, marginBottom: 2, textTransform: "uppercase" as const, letterSpacing: 0.5 },
-  strengthTitle: { fontSize: 9, fontWeight: 700, color: navy, marginBottom: 3 },
-  strengthDesc: { fontSize: 8, color: gray, lineHeight: 1.5 },
+  strengthsRow: { flexDirection: "row", gap: 14, marginBottom: 20 },
+  strengthCard: { flex: 1, borderLeftWidth: 3, borderLeftColor: gold, borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 6, padding: 14 },
+  strengthDim: { fontSize: 7, color: gray, marginBottom: 3, textTransform: "uppercase" as const, letterSpacing: 1 },
+  strengthTitle: { fontSize: 10, fontWeight: 700, color: navy, marginBottom: 4 },
+  strengthDesc: { fontSize: 8.5, color: gray, lineHeight: 1.55 },
 
   // Sections
-  section: { marginBottom: 12 },
-  sectionTitle: { fontSize: 11, fontWeight: 700, color: navy, marginBottom: 6, paddingBottom: 4, borderBottomWidth: 1, borderBottomColor: lightGray },
-  subSectionTitle: { fontSize: 10, fontWeight: 700, color: navy, marginBottom: 4, marginTop: 8 },
-  paragraph: { fontSize: 8.5, color: darkGray, lineHeight: 1.65, marginBottom: 5 },
-  smallParagraph: { fontSize: 8, color: darkGray, lineHeight: 1.6, marginBottom: 4 },
+  section: { marginBottom: 16 },
+  sectionTitle: { fontSize: 11.5, fontWeight: 700, color: navy, marginBottom: 8, paddingBottom: 5, borderBottomWidth: 1, borderBottomColor: lightGray },
+  subSectionTitle: { fontSize: 10, fontWeight: 700, color: navy, marginBottom: 5, marginTop: 10, letterSpacing: 0.3 },
+  paragraph: { fontSize: 10, color: darkGray, lineHeight: 1.65, marginBottom: 8 },
+  smallParagraph: { fontSize: 9, color: darkGray, lineHeight: 1.6, marginBottom: 6 },
 
   // Score bars
-  dimRow: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
-  dimLabel: { width: 120, fontSize: 8.5, color: darkGray },
-  dimBarBg: { flex: 1, height: 7, backgroundColor: lightGray, borderRadius: 3.5 },
-  dimBar: { height: 7, borderRadius: 3.5 },
-  dimScore: { width: 28, textAlign: "right", fontSize: 8.5, fontWeight: 700, color: navy },
+  dimRow: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
+  dimLabel: { width: 130, fontSize: 9.5, color: darkGray },
+  dimBarBg: { flex: 1, height: 10, backgroundColor: lightGray, borderRadius: 2, position: "relative" },
+  dimBar: { height: 10, borderRadius: 2 },
+  dimScore: { width: 32, textAlign: "right", fontSize: 10, fontWeight: 700, color: navy },
 
   // Lists
-  listItem: { fontSize: 8.5, color: darkGray, marginBottom: 3, paddingLeft: 12 },
-  listContainer: { marginBottom: 10 },
+  listItem: { fontSize: 9.5, color: darkGray, marginBottom: 4, paddingLeft: 12 },
+  listContainer: { marginBottom: 12 },
 
   // Communication guide boxes
-  guideBox: { backgroundColor: lightGray, borderRadius: 6, padding: 12, marginBottom: 10 },
-  guideTitle: { fontSize: 9, fontWeight: 700, color: navy, marginBottom: 6 },
+  guideBox: { backgroundColor: lightGray, borderRadius: 8, padding: 14, marginBottom: 12 },
+  guideTitle: { fontSize: 9.5, fontWeight: 700, color: navy, marginBottom: 8 },
 
   // Coaching priorities
-  priorityBox: { backgroundColor: lightGray, borderRadius: 6, padding: 12, marginBottom: 8 },
-  priorityHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 5 },
-  priorityNum: { fontSize: 7, fontWeight: 700, color: white, backgroundColor: navy, borderRadius: 8, width: 16, height: 16, textAlign: "center", lineHeight: 16 },
-  priorityTitle: { fontSize: 9, fontWeight: 700, color: navy, flex: 1, marginLeft: 6 },
-  priorityTimeframe: { fontSize: 7.5, color: gold, fontWeight: 600 },
-  priorityDesc: { fontSize: 8.5, color: gray, lineHeight: 1.5, marginBottom: 4 },
-  actionItem: { fontSize: 8, color: darkGray, marginBottom: 2, paddingLeft: 10 },
+  priorityBox: { backgroundColor: lightGray, borderRadius: 8, padding: 14, marginBottom: 10 },
+  priorityHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 6 },
+  priorityNum: { fontSize: 8, fontWeight: 700, color: white, backgroundColor: navy, borderRadius: 10, width: 20, height: 20, textAlign: "center", lineHeight: 20 },
+  priorityTitle: { fontSize: 10, fontWeight: 700, color: navy, flex: 1, marginLeft: 8 },
+  priorityTimeframe: { fontSize: 8, color: gold, fontWeight: 700 },
+  priorityDesc: { fontSize: 9.5, color: gray, lineHeight: 1.55, marginBottom: 5 },
+  actionItem: { fontSize: 9, color: darkGray, marginBottom: 3, paddingLeft: 12 },
 
   // Values ranking
   valueRow: { flexDirection: "row", alignItems: "center", marginBottom: 5 },
@@ -195,7 +206,11 @@ function ScoreBars({ scores }: { scores: Record<string, number> }) {
         <View key={dim} style={s.dimRow}>
           <Text style={s.dimLabel}>{DIM_LABELS[dim] ?? dim}</Text>
           <View style={s.dimBarBg}>
-            <View style={[s.dimBar, { width: `${Math.min(score, 100)}%`, backgroundColor: `rgba(212,165,116,${0.4 + (score / 100) * 0.6})` }]} />
+            <View style={[s.dimBar, { width: `${Math.min(score, 100)}%`, backgroundColor: scoreColor(score) }]} />
+            {/* Quartile markers */}
+            <View style={{ position: "absolute", left: "25%", top: 0, width: 1, height: 10, backgroundColor: "rgba(255,255,255,0.5)" }} />
+            <View style={{ position: "absolute", left: "50%", top: 0, width: 1, height: 10, backgroundColor: "rgba(255,255,255,0.5)" }} />
+            <View style={{ position: "absolute", left: "75%", top: 0, width: 1, height: 10, backgroundColor: "rgba(255,255,255,0.5)" }} />
           </View>
           <Text style={s.dimScore}>{Math.round(score)}</Text>
         </View>
@@ -294,6 +309,8 @@ function LeadershipReport(props: PDFProps) {
     <Document>
       {/* ═══ COVER PAGE ═══ */}
       <Page size="A4" style={s.coverPage}>
+        <View style={s.coverBorder} />
+        <Text style={s.coverConfidential}>CONFIDENTIAL</Text>
         <View style={s.coverInner}>
           {props.logoBase64 && <Image src={props.logoBase64} style={s.coverLogo} />}
           <Text style={s.coverLabel}>Maarova Leadership Profile</Text>
@@ -304,9 +321,10 @@ function LeadershipReport(props: PDFProps) {
           {props.userTitle && <Text style={s.coverMeta}>{props.userTitle}</Text>}
           {props.orgName && <Text style={s.coverMeta}>{props.orgName}</Text>}
           <Text style={[s.coverMeta, { marginTop: 20 }]}>{dateStr}</Text>
+          <View style={s.coverAccentLine} />
         </View>
         <View style={{ position: "absolute", bottom: 30, left: 0, right: 0, alignItems: "center" }}>
-          <Text style={{ fontSize: 7, color: "rgba(255,255,255,0.3)" }}>Produced by Consult For Africa</Text>
+          <Text style={{ fontSize: 7, color: "rgba(255,255,255,0.25)", letterSpacing: 1 }}>Produced by Consult For Africa</Text>
         </View>
       </Page>
 
