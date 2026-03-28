@@ -203,7 +203,7 @@ RULES: Exactly 3 signatureStrengths (top scoring). 4-5 coachingPriorities with v
 
     const message = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 4096,
+      max_tokens: 8192,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
     });
@@ -213,7 +213,31 @@ RULES: Exactly 3 signatureStrengths (top scoring). 4-5 coachingPriorities with v
     const raw = (message.content[0] as { text: string }).text;
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("No JSON in response. Raw: " + raw.slice(0, 200));
-    reportData = JSON.parse(jsonMatch[0]);
+    let jsonStr = jsonMatch[0];
+
+    // If truncated (stop_reason=max_tokens), try to repair the JSON
+    if (message.stop_reason === "max_tokens") {
+      console.log("[Maarova] Response truncated, attempting JSON repair");
+      // Close any open strings, arrays, objects
+      let openBraces = 0, openBrackets = 0, inString = false;
+      for (let i = 0; i < jsonStr.length; i++) {
+        const ch = jsonStr[i];
+        if (ch === '"' && jsonStr[i - 1] !== '\\') inString = !inString;
+        if (!inString) {
+          if (ch === '{') openBraces++;
+          else if (ch === '}') openBraces--;
+          else if (ch === '[') openBrackets++;
+          else if (ch === ']') openBrackets--;
+        }
+      }
+      if (inString) jsonStr += '"';
+      // Trim trailing comma
+      jsonStr = jsonStr.replace(/,\s*$/, '');
+      for (let i = 0; i < openBrackets; i++) jsonStr += ']';
+      for (let i = 0; i < openBraces; i++) jsonStr += '}';
+    }
+
+    reportData = JSON.parse(jsonStr);
     console.log("[Maarova] Report JSON parsed successfully");
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
