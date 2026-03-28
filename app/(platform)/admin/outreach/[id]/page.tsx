@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 
 interface Target {
@@ -57,6 +57,55 @@ export default function CampaignDetailPage() {
   // Inline edit
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ name: "", title: "", organization: "", email: "", linkedinUrl: "", city: "", source: "" });
+
+  // Dropdown menu for secondary actions
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenuId(null);
+      }
+    }
+    if (openMenuId) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [openMenuId]);
+
+  function daysSince(dateStr: string | null): number {
+    if (!dateStr) return 0;
+    const diff = Date.now() - new Date(dateStr).getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  }
+
+  function getInviteAgeLabel(t: Target): { text: string; color: string; bg: string } | null {
+    if (t.status !== "INVITED" || !t.invitedAt) return null;
+    const days = daysSince(t.invitedAt);
+    if (days >= 7) {
+      return { text: `No response (${days}d)`, color: "#92400E", bg: "#FEF3C7" };
+    }
+    return { text: `Invited ${days}d ago`, color: "#2563EB", bg: "#EFF6FF" };
+  }
+
+  function getTargetBorderColor(t: Target): string {
+    switch (t.status) {
+      case "RESPONDED":
+      case "ASSESSMENT_STARTED":
+      case "ASSESSMENT_COMPLETED":
+        return "#059669";
+      case "DECLINED":
+        return "#DC2626";
+      case "NO_RESPONSE":
+        return "#D97706";
+      case "INVITED": {
+        const days = daysSince(t.invitedAt);
+        return days >= 7 ? "#D97706" : "#2563EB";
+      }
+      default:
+        return "#e5eaf0";
+    }
+  }
 
   function startEdit(t: Target) {
     setEditingId(t.id);
@@ -285,8 +334,11 @@ export default function CampaignDetailPage() {
             {targets.map((t) => {
               const statusConfig = TARGET_STATUSES.find((s) => s.value === t.status) ?? TARGET_STATUSES[0];
               const isEditing = editingId === t.id;
+              const ageLabel = getInviteAgeLabel(t);
+              const borderColor = getTargetBorderColor(t);
+              const hasSecondaryActions = t.status === "INVITED" || t.status === "IDENTIFIED" || t.status === "NO_RESPONSE";
               return (
-                <div key={t.id} className="bg-white rounded-xl border p-4" style={{ borderColor: isEditing ? "#D4AF37" : "#e5eaf0" }}>
+                <div key={t.id} className="bg-white rounded-xl border p-4" style={{ borderColor: isEditing ? "#D4AF37" : "#e5eaf0", borderLeftWidth: isEditing ? undefined : "3px", borderLeftColor: isEditing ? "#D4AF37" : borderColor }}>
                   {isEditing ? (
                     <div className="space-y-3">
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -308,13 +360,23 @@ export default function CampaignDetailPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <span className="text-sm font-semibold" style={{ color: "#0F2744" }}>{t.name}</span>
                           <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: statusConfig.bg, color: statusConfig.color }}>
                             {statusConfig.label}
                           </span>
+                          {ageLabel && (
+                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: ageLabel.bg, color: ageLabel.color }}>
+                              {ageLabel.text}
+                            </span>
+                          )}
+                          {t.status === "RESPONDED" && t.respondedAt && (
+                            <span className="text-[10px] text-gray-400">
+                              responded {daysSince(t.respondedAt)}d ago
+                            </span>
+                          )}
                         </div>
                         <p className="text-xs text-gray-500">
                           {t.title && `${t.title} | `}{t.organization ?? ""}{t.city ? ` | ${t.city}` : ""}
@@ -327,53 +389,70 @@ export default function CampaignDetailPage() {
                       </div>
 
                       {/* Action buttons */}
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <button
                           onClick={() => startEdit(t)}
                           className="text-xs px-2 py-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50"
                         >
                           Edit
                         </button>
+                        {/* Primary action button */}
                         {statusConfig.next && (
                           <button
                             onClick={() => updateTargetStatus(t.id, statusConfig.next!)}
                             className="text-xs font-medium px-3 py-1.5 rounded-lg text-white"
-                            style={{ background: "#0F2744" }}
+                            style={{ background: t.status === "INVITED" ? "#059669" : "#0F2744" }}
                           >
                             {statusConfig.nextLabel}
                           </button>
                         )}
-                        {t.status === "IDENTIFIED" && (
-                          <button
-                            onClick={() => updateTargetStatus(t.id, "NO_RESPONSE")}
-                            className="text-xs px-2 py-1.5 rounded-lg text-gray-400 hover:text-red-500"
-                          >
-                            Skip
-                          </button>
-                        )}
-                        {(t.status === "INVITED" || t.status === "NO_RESPONSE") && t.email && (
-                          <button
-                            onClick={() => updateTargetStatus(t.id, "INVITED")}
-                            className="text-xs px-2 py-1.5 rounded-lg text-blue-600 hover:bg-blue-50"
-                          >
-                            Resend Invite
-                          </button>
-                        )}
-                        {t.status === "INVITED" && (
-                          <button
-                            onClick={() => updateTargetStatus(t.id, "DECLINED")}
-                            className="text-xs px-2 py-1.5 rounded-lg text-gray-400 hover:text-red-500"
-                          >
-                            Declined
-                          </button>
-                        )}
-                        {t.status === "INVITED" && (
-                          <button
-                            onClick={() => updateTargetStatus(t.id, "NO_RESPONSE")}
-                            className="text-xs px-2 py-1.5 rounded-lg text-gray-400"
-                          >
-                            No Response
-                          </button>
+                        {/* Secondary actions dropdown */}
+                        {hasSecondaryActions && (
+                          <div className="relative" ref={openMenuId === t.id ? menuRef : undefined}>
+                            <button
+                              onClick={() => setOpenMenuId(openMenuId === t.id ? null : t.id)}
+                              className="text-xs px-1.5 py-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50"
+                              aria-label="More actions"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor" /><circle cx="12" cy="12" r="1.5" fill="currentColor" /><circle cx="12" cy="19" r="1.5" fill="currentColor" /></svg>
+                            </button>
+                            {openMenuId === t.id && (
+                              <div className="absolute right-0 top-full mt-1 bg-white rounded-lg border shadow-lg py-1 z-20 min-w-[140px]" style={{ borderColor: "#e5eaf0" }}>
+                                {t.status === "IDENTIFIED" && (
+                                  <button
+                                    onClick={() => { updateTargetStatus(t.id, "NO_RESPONSE"); setOpenMenuId(null); }}
+                                    className="w-full text-left text-xs px-3 py-2 text-gray-600 hover:bg-gray-50"
+                                  >
+                                    Skip target
+                                  </button>
+                                )}
+                                {(t.status === "INVITED" || t.status === "NO_RESPONSE") && t.email && (
+                                  <button
+                                    onClick={() => { updateTargetStatus(t.id, "INVITED"); setOpenMenuId(null); }}
+                                    className="w-full text-left text-xs px-3 py-2 text-blue-600 hover:bg-blue-50"
+                                  >
+                                    Resend invite
+                                  </button>
+                                )}
+                                {t.status === "INVITED" && (
+                                  <>
+                                    <button
+                                      onClick={() => { updateTargetStatus(t.id, "DECLINED"); setOpenMenuId(null); }}
+                                      className="w-full text-left text-xs px-3 py-2 text-red-600 hover:bg-red-50"
+                                    >
+                                      Mark declined
+                                    </button>
+                                    <button
+                                      onClick={() => { updateTargetStatus(t.id, "NO_RESPONSE"); setOpenMenuId(null); }}
+                                      className="w-full text-left text-xs px-3 py-2 text-amber-700 hover:bg-amber-50"
+                                    >
+                                      Mark no response
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
