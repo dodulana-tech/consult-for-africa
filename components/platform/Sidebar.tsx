@@ -259,8 +259,8 @@ export default function Sidebar() {
     <>
       {/* Mobile top bar - brand only, navigation via bottom tabs */}
       <div
-        className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center px-4 h-14"
-        style={{ background: "#fff", borderBottom: "1px solid #E2E8F0" }}
+        className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center px-4 pb-3"
+        style={{ background: "#fff", borderBottom: "1px solid #E2E8F0", paddingTop: "max(env(safe-area-inset-top, 12px), 12px)" }}
       >
         <div className="flex items-center gap-2">
           <Image src="/logo-cfa.png" alt="C4A" width={24} height={24} style={{ mixBlendMode: "multiply" }} />

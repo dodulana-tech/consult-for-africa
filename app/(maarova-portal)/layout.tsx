@@ -201,7 +201,7 @@ export default async function MaarovaPortalLayout({
       />
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto pt-14 lg:pt-0 pb-[calc(var(--bottom-tab-height)+env(safe-area-inset-bottom,0px))] lg:pb-0">
+      <main className="flex-1 overflow-y-auto pt-[calc(3.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-[calc(var(--bottom-tab-height)+env(safe-area-inset-bottom,0px))] lg:pb-0">
         {children}
       </main>
 

@@ -21,8 +21,8 @@ export default function MaarovaMobileNav({
     <>
       {/* Mobile top bar - brand only, navigation via bottom tabs */}
       <div
-        className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center px-4 py-3 border-b border-white/10"
-        style={{ backgroundColor: "#0f1a2a" }}
+        className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center px-4 pb-3 border-b border-white/10"
+        style={{ backgroundColor: "#0f1a2a", paddingTop: "max(env(safe-area-inset-top, 12px), 12px)" }}
       >
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: "#D4A574" }}>
