@@ -73,15 +73,17 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "flatMonthlyFee is required for FLAT_MONTHLY model" }, { status: 400 });
   }
 
-  // ─── Budget tier limit check ──────────────────────────────────────────────
+  // ─── Budget tier limit check (respects override) ─────────────────────────
   if (budgetAmount && Number(budgetAmount) > 0) {
     const profile = await prisma.consultantProfile.findUnique({
       where: { userId: session.user.id },
-      select: { tier: true },
+      select: { tier: true, ownGigOverride: true },
     });
     const tier = (profile?.tier ?? "INTERN") as "INTERN" | "EMERGING" | "STANDARD" | "EXPERIENCED" | "ELITE";
     const currency = (budgetCurrency ?? "NGN") as "NGN" | "USD";
-    const budgetCheck = checkBudgetWithinTierLimits(tier, Number(budgetAmount), currency);
+    const override = profile?.ownGigOverride as { enabled: boolean; maxBudgetNGN: number; maxBudgetUSD: number; minFeePct: number } | null;
+    const activeOverride = override?.enabled ? override as Parameters<typeof checkBudgetWithinTierLimits>[3] : null;
+    const budgetCheck = checkBudgetWithinTierLimits(tier, Number(budgetAmount), currency, activeOverride);
     if (!budgetCheck.allowed) {
       return Response.json({ error: budgetCheck.reason }, { status: 400 });
     }

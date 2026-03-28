@@ -25,6 +25,16 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
     return Response.json({ error: "Reason is required" }, { status: 400 });
   }
 
+  const mc = Number(maxConcurrent ?? 1);
+  const bn = Number(maxBudgetNGN ?? 5_000_000);
+  const bu = Number(maxBudgetUSD ?? 3_500);
+  const fp = Number(minFeePct ?? 10);
+
+  if (isNaN(mc) || mc < 1 || mc > 100) return Response.json({ error: "maxConcurrent must be 1-100" }, { status: 400 });
+  if (isNaN(bn) || bn < 0) return Response.json({ error: "maxBudgetNGN must be positive" }, { status: 400 });
+  if (isNaN(bu) || bu < 0) return Response.json({ error: "maxBudgetUSD must be positive" }, { status: 400 });
+  if (isNaN(fp) || fp < 5 || fp > 20) return Response.json({ error: "minFeePct must be 5-20" }, { status: 400 });
+
   const profile = await prisma.consultantProfile.findUnique({
     where: { userId: consultantId },
     select: { id: true },
@@ -36,10 +46,10 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
 
   const override = {
     enabled: true,
-    maxConcurrent: Number(maxConcurrent ?? 1),
-    maxBudgetNGN: Number(maxBudgetNGN ?? 5_000_000),
-    maxBudgetUSD: Number(maxBudgetUSD ?? 3_500),
-    minFeePct: Number(minFeePct ?? 10),
+    maxConcurrent: mc,
+    maxBudgetNGN: bn,
+    maxBudgetUSD: bu,
+    minFeePct: fp,
     reason: reason.trim(),
     grantedBy: session.user.id,
     grantedAt: new Date().toISOString(),

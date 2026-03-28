@@ -58,7 +58,7 @@ const TIER_PRIVILEGES: Record<
   EMERGING:    { maxConcurrent: 0, maxBudgetNGN: 0,        maxBudgetUSD: 0,     minFeePct: 12 },
   STANDARD:    { maxConcurrent: 1, maxBudgetNGN: 5_000_000, maxBudgetUSD: 3_500,  minFeePct: 10 },
   EXPERIENCED: { maxConcurrent: 3, maxBudgetNGN: 20_000_000, maxBudgetUSD: 15_000, minFeePct: 10 },
-  ELITE:       { maxConcurrent: Infinity, maxBudgetNGN: Infinity, maxBudgetUSD: Infinity, minFeePct: 8 },
+  ELITE:       { maxConcurrent: 999, maxBudgetNGN: 999_999_999, maxBudgetUSD: 999_999, minFeePct: 8 },
 };
 
 // ─── Tier promotion thresholds ───────────────────────────────────────────────
@@ -233,13 +233,13 @@ export async function calculateTierScore(consultantId: string): Promise<TierScor
       const nextRequired = TIER_THRESHOLDS.STANDARD;
       reason = `Own gigs unlock at the Standard tier. You need ${Math.max(0, nextRequired.hours - totalPlatformHours)} more hours, ${Math.max(0, nextRequired.completedProjects - completedProjects)} more completed projects, and a ${nextRequired.avgRating}+ rating.`;
     } else {
-      reason = `As a ${currentTier.toLowerCase()} consultant, you can run up to ${priv.maxConcurrent === Infinity ? "unlimited" : priv.maxConcurrent} concurrent own gig${priv.maxConcurrent !== 1 ? "s" : ""}.`;
+      reason = `As a ${currentTier.toLowerCase()} consultant, you can run up to ${priv.maxConcurrent >= 999 ? "unlimited" : priv.maxConcurrent} concurrent own gig${priv.maxConcurrent !== 1 ? "s" : ""}.`;
     }
     ownGigEligibility = {
       eligible,
-      maxConcurrent: priv.maxConcurrent === Infinity ? -1 : priv.maxConcurrent,
-      maxBudgetNGN: priv.maxBudgetNGN === Infinity ? -1 : priv.maxBudgetNGN,
-      maxBudgetUSD: priv.maxBudgetUSD === Infinity ? -1 : priv.maxBudgetUSD,
+      maxConcurrent: priv.maxConcurrent >= 999 ? -1 : priv.maxConcurrent,
+      maxBudgetNGN: priv.maxBudgetNGN >= 999 ? -1 : priv.maxBudgetNGN,
+      maxBudgetUSD: priv.maxBudgetUSD >= 999 ? -1 : priv.maxBudgetUSD,
       minFeePct: priv.minFeePct,
       reason,
       isOverride: false,
@@ -297,7 +297,10 @@ export async function checkOwnGigLimits(
 
   const override = parseOverride(profile?.ownGigOverride);
   const tier = (profile?.tier ?? "INTERN") as ConsultantTier;
-  const maxConcurrent = override ? override.maxConcurrent : TIER_PRIVILEGES[tier].maxConcurrent;
+  const priv = override
+    ? { maxConcurrent: override.maxConcurrent, maxBudgetNGN: override.maxBudgetNGN, maxBudgetUSD: override.maxBudgetUSD, minFeePct: override.minFeePct }
+    : TIER_PRIVILEGES[tier];
+  const maxConcurrent = priv.maxConcurrent;
 
   if (maxConcurrent === 0) {
     return { allowed: false, reason: "Your current tier does not allow own gigs.", activeCount: 0 };
@@ -311,7 +314,7 @@ export async function checkOwnGigLimits(
     },
   });
 
-  if (maxConcurrent !== Infinity && activeCount >= maxConcurrent) {
+  if (maxConcurrent < 999 && activeCount >= maxConcurrent) {
     return {
       allowed: false,
       reason: `You have reached the maximum of ${maxConcurrent} concurrent own gig${maxConcurrent !== 1 ? "s" : ""}.`,
@@ -319,7 +322,7 @@ export async function checkOwnGigLimits(
     };
   }
 
-  const remaining = maxConcurrent === Infinity ? "unlimited" : maxConcurrent - activeCount;
+  const remaining = maxConcurrent >= 999 ? "unlimited" : maxConcurrent - activeCount;
   return {
     allowed: true,
     reason: `You can create ${remaining} more own gig${remaining !== 1 ? "s" : ""}.`,
@@ -334,12 +337,15 @@ export function checkBudgetWithinTierLimits(
   tier: ConsultantTier,
   budgetAmount: number,
   currency: "NGN" | "USD",
+  override?: OwnGigOverride | null,
 ): { allowed: boolean; reason: string } {
-  const priv = TIER_PRIVILEGES[tier];
-  const maxBudget = currency === "NGN" ? priv.maxBudgetNGN : priv.maxBudgetUSD;
+  const src = override
+    ? { maxBudgetNGN: override.maxBudgetNGN, maxBudgetUSD: override.maxBudgetUSD }
+    : TIER_PRIVILEGES[tier];
+  const maxBudget = currency === "NGN" ? src.maxBudgetNGN : src.maxBudgetUSD;
   const symbol = currency === "NGN" ? "N" : "$";
 
-  if (maxBudget === Infinity) {
+  if (maxBudget >= 999) {
     return { allowed: true, reason: "No budget cap for your tier." };
   }
 
@@ -356,6 +362,6 @@ export function checkBudgetWithinTierLimits(
 /**
  * Minimum fee percentage allowed for a tier.
  */
-export function getMinFeePct(tier: ConsultantTier): number {
-  return TIER_PRIVILEGES[tier].minFeePct;
+export function getMinFeePct(tier: ConsultantTier, override?: OwnGigOverride | null): number {
+  return override ? override.minFeePct : TIER_PRIVILEGES[tier].minFeePct;
 }
