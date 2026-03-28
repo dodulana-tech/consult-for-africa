@@ -340,6 +340,7 @@ model ConsultantProfile {
   interests       String[]              // topics consultant wants to work on
   averageRating   Decimal?  @db.Decimal(3, 2)
   totalProjects   Int       @default(0)
+  ownGigOverride  Json?                       // Admin override for own gig access: { enabled, maxConcurrent, maxBudgetNGN, maxBudgetUSD, minFeePct, reason, grantedBy, grantedAt }
   bankName        String?
   accountNumber   String?
   accountName     String?

@@ -35,7 +35,7 @@ export default async function InsightsPage() {
     featuredBlogPosts?.[0] ?? featuredPublication ?? null;
 
   return (
-    <main className="pt-24 pb-20 bg-[var(--surface-muted)] min-h-screen">
+    <main className="pb-20 bg-[var(--surface-muted)] min-h-screen" style={{ paddingTop: "calc(var(--navbar-height, 4rem) + 2rem)" }}>
       <div className="max-w-6xl mx-auto px-6">
         {/* Page header */}
         <div className="text-center max-w-2xl mx-auto mb-12">

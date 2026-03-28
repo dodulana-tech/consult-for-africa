@@ -4,6 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import TopBar from "@/components/platform/TopBar";
 import StatusBadge from "@/components/platform/StatusBadge";
 import TierChanger from "./TierChanger";
+import OwnGigOverride from "./OwnGigOverride";
 import { formatCurrency, formatDate, formatEnumLabel } from "@/lib/utils";
 import {
   MapPin,
@@ -158,6 +159,15 @@ export default async function ConsultantProfilePage({
               </p>
             )}
           </div>
+
+          {/* Own Gig Override (admin only) */}
+          {isElevated && (
+            <OwnGigOverride
+              consultantId={user.id}
+              consultantName={user.name}
+              currentOverride={profile.ownGigOverride as { enabled: boolean; maxConcurrent: number; maxBudgetNGN: number; maxBudgetUSD: number; minFeePct: number; reason: string; grantedBy: string; grantedAt: string } | null}
+            />
+          )}
 
           {/* Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

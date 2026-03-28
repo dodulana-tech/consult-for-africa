@@ -4,6 +4,17 @@ import { prisma } from "@/lib/prisma";
 
 type ConsultantTier = "INTERN" | "EMERGING" | "STANDARD" | "EXPERIENCED" | "ELITE";
 
+export interface OwnGigOverride {
+  enabled: boolean;
+  maxConcurrent: number;
+  maxBudgetNGN: number;
+  maxBudgetUSD: number;
+  minFeePct: number;
+  reason: string;
+  grantedBy: string;
+  grantedAt: string;
+}
+
 export interface OwnGigEligibility {
   eligible: boolean;
   maxConcurrent: number;
@@ -11,6 +22,7 @@ export interface OwnGigEligibility {
   maxBudgetUSD: number;
   minFeePct: number;
   reason: string;
+  isOverride: boolean;
 }
 
 export interface NextTierRequirements {
@@ -33,6 +45,7 @@ export interface TierScore {
   monthsOnPlatform: number;
   ownGigEligibility: OwnGigEligibility;
   nextTierRequirements: NextTierRequirements | null;
+  override: OwnGigOverride | null;
 }
 
 // ─── Tier privilege map ──────────────────────────────────────────────────────
@@ -78,6 +91,22 @@ export const TIER_BADGES: Record<ConsultantTier, { bg: string; color: string; la
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function parseOverride(raw: unknown): OwnGigOverride | null {
+  if (!raw || typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  if (!o.enabled) return null;
+  return {
+    enabled: true,
+    maxConcurrent: Number(o.maxConcurrent ?? 1),
+    maxBudgetNGN: Number(o.maxBudgetNGN ?? 5_000_000),
+    maxBudgetUSD: Number(o.maxBudgetUSD ?? 3_500),
+    minFeePct: Number(o.minFeePct ?? 10),
+    reason: String(o.reason ?? ""),
+    grantedBy: String(o.grantedBy ?? ""),
+    grantedAt: String(o.grantedAt ?? ""),
+  };
+}
 
 function monthsBetween(a: Date, b: Date): number {
   const years = b.getFullYear() - a.getFullYear();
@@ -129,8 +158,10 @@ function getNextTier(current: ConsultantTier): ConsultantTier | null {
 export async function calculateTierScore(consultantId: string): Promise<TierScore> {
   const profile = await prisma.consultantProfile.findUnique({
     where: { userId: consultantId },
-    select: { tier: true },
+    select: { tier: true, ownGigOverride: true },
   });
+
+  const override = parseOverride(profile?.ownGigOverride);
 
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: consultantId },
@@ -181,25 +212,39 @@ export async function calculateTierScore(consultantId: string): Promise<TierScor
 
   const suggestedTier = suggestTier(totalPlatformHours, averageRating, completedProjects, monthsOnPlatform);
 
-  // Eligibility
-  const priv = TIER_PRIVILEGES[currentTier];
-  const eligible = priv.maxConcurrent > 0;
-  let reason: string;
-  if (!eligible) {
-    const nextRequired = TIER_THRESHOLDS.STANDARD;
-    reason = `Own gigs unlock at the Standard tier. You need ${Math.max(0, nextRequired.hours - totalPlatformHours)} more hours, ${Math.max(0, nextRequired.completedProjects - completedProjects)} more completed projects, and a ${nextRequired.avgRating}+ rating.`;
-  } else {
-    reason = `As a ${currentTier.toLowerCase()} consultant, you can run up to ${priv.maxConcurrent === Infinity ? "unlimited" : priv.maxConcurrent} concurrent own gig${priv.maxConcurrent !== 1 ? "s" : ""}.`;
-  }
+  // Eligibility (override takes precedence)
+  let ownGigEligibility: OwnGigEligibility;
 
-  const ownGigEligibility: OwnGigEligibility = {
-    eligible,
-    maxConcurrent: priv.maxConcurrent === Infinity ? -1 : priv.maxConcurrent,
-    maxBudgetNGN: priv.maxBudgetNGN === Infinity ? -1 : priv.maxBudgetNGN,
-    maxBudgetUSD: priv.maxBudgetUSD === Infinity ? -1 : priv.maxBudgetUSD,
-    minFeePct: priv.minFeePct,
-    reason,
-  };
+  if (override) {
+    ownGigEligibility = {
+      eligible: true,
+      maxConcurrent: override.maxConcurrent,
+      maxBudgetNGN: override.maxBudgetNGN,
+      maxBudgetUSD: override.maxBudgetUSD,
+      minFeePct: override.minFeePct,
+      reason: `Own gig access granted by admin: ${override.reason}`,
+      isOverride: true,
+    };
+  } else {
+    const priv = TIER_PRIVILEGES[currentTier];
+    const eligible = priv.maxConcurrent > 0;
+    let reason: string;
+    if (!eligible) {
+      const nextRequired = TIER_THRESHOLDS.STANDARD;
+      reason = `Own gigs unlock at the Standard tier. You need ${Math.max(0, nextRequired.hours - totalPlatformHours)} more hours, ${Math.max(0, nextRequired.completedProjects - completedProjects)} more completed projects, and a ${nextRequired.avgRating}+ rating.`;
+    } else {
+      reason = `As a ${currentTier.toLowerCase()} consultant, you can run up to ${priv.maxConcurrent === Infinity ? "unlimited" : priv.maxConcurrent} concurrent own gig${priv.maxConcurrent !== 1 ? "s" : ""}.`;
+    }
+    ownGigEligibility = {
+      eligible,
+      maxConcurrent: priv.maxConcurrent === Infinity ? -1 : priv.maxConcurrent,
+      maxBudgetNGN: priv.maxBudgetNGN === Infinity ? -1 : priv.maxBudgetNGN,
+      maxBudgetUSD: priv.maxBudgetUSD === Infinity ? -1 : priv.maxBudgetUSD,
+      minFeePct: priv.minFeePct,
+      reason,
+      isOverride: false,
+    };
+  }
 
   // Next tier requirements
   const next = getNextTier(currentTier);
@@ -227,6 +272,7 @@ export async function calculateTierScore(consultantId: string): Promise<TierScor
     monthsOnPlatform,
     ownGigEligibility,
     nextTierRequirements,
+    override,
   };
 }
 
@@ -246,17 +292,17 @@ export async function checkOwnGigLimits(
 ): Promise<{ allowed: boolean; reason: string; activeCount: number }> {
   const profile = await prisma.consultantProfile.findUnique({
     where: { userId: consultantId },
-    select: { tier: true },
+    select: { tier: true, ownGigOverride: true },
   });
 
+  const override = parseOverride(profile?.ownGigOverride);
   const tier = (profile?.tier ?? "INTERN") as ConsultantTier;
-  const priv = TIER_PRIVILEGES[tier];
+  const maxConcurrent = override ? override.maxConcurrent : TIER_PRIVILEGES[tier].maxConcurrent;
 
-  if (priv.maxConcurrent === 0) {
+  if (maxConcurrent === 0) {
     return { allowed: false, reason: "Your current tier does not allow own gigs.", activeCount: 0 };
   }
 
-  // Count active own gigs (PLANNING, ACTIVE, ON_HOLD are all "in progress")
   const activeCount = await prisma.engagement.count({
     where: {
       isOwnGig: true,
@@ -265,17 +311,18 @@ export async function checkOwnGigLimits(
     },
   });
 
-  if (priv.maxConcurrent !== Infinity && activeCount >= priv.maxConcurrent) {
+  if (maxConcurrent !== Infinity && activeCount >= maxConcurrent) {
     return {
       allowed: false,
-      reason: `You have reached the maximum of ${priv.maxConcurrent} concurrent own gig${priv.maxConcurrent !== 1 ? "s" : ""} for the ${tier.toLowerCase()} tier.`,
+      reason: `You have reached the maximum of ${maxConcurrent} concurrent own gig${maxConcurrent !== 1 ? "s" : ""}.`,
       activeCount,
     };
   }
 
+  const remaining = maxConcurrent === Infinity ? "unlimited" : maxConcurrent - activeCount;
   return {
     allowed: true,
-    reason: `You can create ${priv.maxConcurrent === Infinity ? "unlimited" : priv.maxConcurrent - activeCount} more own gig${priv.maxConcurrent - activeCount !== 1 ? "s" : ""}.`,
+    reason: `You can create ${remaining} more own gig${remaining !== 1 ? "s" : ""}.`,
     activeCount,
   };
 }

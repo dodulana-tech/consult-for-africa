@@ -45,7 +45,7 @@ export default async function BlogPostPage({ params }: Props) {
   relatedPosts = await getRelatedPostsByCategory(post.categoryTitle, post._id);
 
   return (
-    <main className="pt-20 pb-20 bg-white min-h-screen">
+    <main className="pb-20 bg-white min-h-screen" style={{ paddingTop: "calc(var(--navbar-height, 4rem) + 1rem)" }}>
       {/* Hero */}
       <div className="bg-[var(--surface-muted)]">
         <div className="max-w-4xl mx-auto px-6 py-12 md:py-16">
