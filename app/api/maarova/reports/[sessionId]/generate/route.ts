@@ -199,7 +199,7 @@ RULES: Exactly 3 signatureStrengths (top scoring). 4-5 coachingPriorities with v
     const startTime = Date.now();
 
     const message = await anthropic.messages.create({
-      model: "claude-haiku-4-5-20241001",
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 8192,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
