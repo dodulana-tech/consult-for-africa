@@ -72,7 +72,7 @@ export default function MaarovaMobileNav({
               })}
             </nav>
 
-            <div className="px-4 py-4 border-t border-white/10">
+            <div className="px-4 py-4 border-t border-white/10 pb-[calc(1rem+var(--bottom-tab-height,56px)+env(safe-area-inset-bottom,0px))]">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium text-white" style={{ backgroundColor: "#D4A574" }}>
                   {userName.charAt(0).toUpperCase()}

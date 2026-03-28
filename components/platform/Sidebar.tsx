@@ -294,7 +294,7 @@ export default function Sidebar() {
             <X size={20} />
           </button>
         </div>
-        <div className="flex flex-col flex-1 overflow-y-auto">
+        <div className="flex flex-col flex-1 overflow-y-auto pb-[calc(var(--bottom-tab-height,56px)+env(safe-area-inset-bottom,0px))]">
           {navContent}
         </div>
       </aside>
