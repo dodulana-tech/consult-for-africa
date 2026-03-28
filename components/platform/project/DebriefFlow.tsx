@@ -75,9 +75,11 @@ const STEPS = [
 export default function DebriefFlow({
   engagementId,
   engagementName,
+  isEM,
 }: {
   engagementId: string;
   engagementName: string;
+  isEM: boolean;
 }) {
   const [debrief, setDebrief] = useState<Debrief | null>(null);
   const [loading, setLoading] = useState(true);
@@ -210,24 +212,28 @@ export default function DebriefFlow({
         <FileSearch className="mx-auto mb-3 text-gray-300" size={40} />
         <h3 className="text-sm font-semibold text-gray-700 mb-1">No Debrief Yet</h3>
         <p className="text-xs text-gray-500 mb-4">
-          Capture learnings, outcomes, and insights from the {engagementName} engagement.
+          {isEM
+            ? `Capture learnings, outcomes, and insights from the ${engagementName} engagement.`
+            : "No debrief has been started for this engagement yet."}
         </p>
-        <button
-          onClick={createDebrief}
-          disabled={creating}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50"
-          style={{ background: "#0F2744" }}
-        >
-          {creating ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-          Start Debrief
-        </button>
+        {isEM && (
+          <button
+            onClick={createDebrief}
+            disabled={creating}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50"
+            style={{ background: "#0F2744" }}
+          >
+            {creating ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+            Start Debrief
+          </button>
+        )}
       </div>
     );
   }
 
   const statusConfig = STATUS_CONFIG[debrief.status] ?? STATUS_CONFIG.PENDING;
   const StatusIcon = statusConfig.icon;
-  const isEditable = debrief.status === "PENDING" || debrief.status === "SUBMITTED";
+  const isEditable = isEM && (debrief.status === "PENDING" || debrief.status === "SUBMITTED");
   const step = STEPS[currentStep];
 
   return (
@@ -249,7 +255,7 @@ export default function DebriefFlow({
             <StatusIcon size={10} />
             {statusConfig.label}
           </span>
-          {isEditable && (
+          {isEM && isEditable && (
             <div className="flex items-center gap-2">
               <button
                 onClick={saveDraft}

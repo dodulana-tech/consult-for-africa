@@ -7,41 +7,45 @@ export default async function MaarovaDashboardPage() {
   const session = await getMaarovaSession();
   if (!session) redirect("/maarova/portal/login");
 
-  const [user, assessmentSession, coachingMatch, developmentGoals] =
-    await Promise.all([
-      prisma.maarovaUser.findUnique({
-        where: { id: session.sub },
-        select: { name: true, title: true, department: true, organisation: { select: { name: true } } },
-      }),
-      prisma.maarovaAssessmentSession.findFirst({
-        where: { userId: session.sub },
-        orderBy: [{ status: "asc" }, { createdAt: "desc" }],
-        include: {
-          moduleResponses: {
-            include: { module: { select: { name: true, type: true, order: true } } },
-            orderBy: { module: { order: "asc" } },
-          },
-          report: {
-            select: {
-              leadershipArchetype: true,
-              archetypeNarrative: true,
-              signatureStrengths: true,
-              status: true,
-            },
-          },
-        },
-      }),
-      prisma.maarovaCoachingMatch.findFirst({
-        where: { userId: session.sub, status: { in: ["MATCHED", "ACTIVE"] } },
-        orderBy: { createdAt: "desc" },
-        include: { coach: { select: { name: true, specialisms: true } } },
-      }),
-      prisma.maarovaDevelopmentGoal.findMany({
-        where: { userId: session.sub },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-      }),
-    ]);
+  const sessionInclude = {
+    moduleResponses: {
+      include: { module: { select: { name: true, type: true, order: true } } },
+      orderBy: { module: { order: "asc" } } as const,
+    },
+    report: {
+      select: { leadershipArchetype: true, archetypeNarrative: true, signatureStrengths: true, status: true },
+    },
+  };
+
+  const [user, coachingMatch, developmentGoals] = await Promise.all([
+    prisma.maarovaUser.findUnique({
+      where: { id: session.sub },
+      select: { name: true, title: true, department: true, organisation: { select: { name: true } } },
+    }),
+    prisma.maarovaCoachingMatch.findFirst({
+      where: { userId: session.sub, status: { in: ["MATCHED", "ACTIVE"] } },
+      orderBy: { createdAt: "desc" },
+      include: { coach: { select: { name: true, specialisms: true } } },
+    }),
+    prisma.maarovaDevelopmentGoal.findMany({
+      where: { userId: session.sub },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    }),
+  ]);
+
+  // Prefer completed session over empty/active ones
+  const assessmentSession =
+    (await prisma.maarovaAssessmentSession.findFirst({
+      where: { userId: session.sub, status: "COMPLETED" },
+      orderBy: { createdAt: "desc" },
+      include: sessionInclude,
+    })) ??
+    (await prisma.maarovaAssessmentSession.findFirst({
+      where: { userId: session.sub, status: { in: ["IN_PROGRESS", "NOT_STARTED"] }, expiresAt: { gt: new Date() } },
+      orderBy: { createdAt: "desc" },
+      include: sessionInclude,
+    }));
 
   const firstName = (user?.name ?? session.name).split(" ")[0];
   const coreModules = assessmentSession?.moduleResponses.filter(

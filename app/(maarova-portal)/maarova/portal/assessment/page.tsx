@@ -71,25 +71,27 @@ export default async function AssessmentLauncherPage() {
   if (!auth) redirect("/maarova/portal/login");
 
   // Prefer completed session, fall back to active incomplete session
-  const session = await prisma.maarovaAssessmentSession.findFirst({
-    where: {
-      userId: auth.sub,
-      OR: [
-        { status: "COMPLETED" },
-        { status: { in: ["NOT_STARTED", "IN_PROGRESS"] }, expiresAt: { gt: new Date() } },
-      ],
-    },
-    orderBy: [{ status: "asc" }, { createdAt: "desc" }], // COMPLETED sorts before IN_PROGRESS/NOT_STARTED
-    include: {
-      moduleResponses: {
-        include: {
-          module: true,
-          itemResponses: { select: { id: true } },
-        },
-        orderBy: { module: { order: "asc" } },
+  const sessionInclude = {
+    moduleResponses: {
+      include: {
+        module: true,
+        itemResponses: { select: { id: true } },
       },
+      orderBy: { module: { order: "asc" } } as const,
     },
-  });
+  };
+
+  const session =
+    (await prisma.maarovaAssessmentSession.findFirst({
+      where: { userId: auth.sub, status: "COMPLETED" },
+      orderBy: { createdAt: "desc" },
+      include: sessionInclude,
+    })) ??
+    (await prisma.maarovaAssessmentSession.findFirst({
+      where: { userId: auth.sub, status: { in: ["IN_PROGRESS", "NOT_STARTED"] }, expiresAt: { gt: new Date() } },
+      orderBy: { createdAt: "desc" },
+      include: sessionInclude,
+    }));
 
   const coreResponses = session
     ? session.moduleResponses.filter((mr) => mr.module.type !== "THREE_SIXTY")

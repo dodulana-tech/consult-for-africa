@@ -71,7 +71,7 @@ const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
   PLAYBOOK: { bg: "#FFFBEB", text: "#D97706" },
 };
 
-export default function PlaybookBuilder({ engagementId }: { engagementId: string }) {
+export default function PlaybookBuilder({ engagementId, isEM }: { engagementId: string; isEM: boolean }) {
   const [playbook, setPlaybook] = useState<Playbook | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -214,17 +214,21 @@ export default function PlaybookBuilder({ engagementId }: { engagementId: string
         <BookOpen className="mx-auto mb-3 text-gray-300" size={40} />
         <h3 className="text-sm font-semibold text-gray-700 mb-1">No Playbook Yet</h3>
         <p className="text-xs text-gray-500 mb-4">
-          Create a playbook to organise frameworks, templates, and assets for each engagement phase.
+          {isEM
+            ? "Create a playbook to organise frameworks, templates, and assets for each engagement phase."
+            : "No playbook has been created for this engagement yet."}
         </p>
-        <button
-          onClick={createPlaybook}
-          disabled={creating}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50"
-          style={{ background: "#0F2744" }}
-        >
-          {creating ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-          Create Playbook
-        </button>
+        {isEM && (
+          <button
+            onClick={createPlaybook}
+            disabled={creating}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50"
+            style={{ background: "#0F2744" }}
+          >
+            {creating ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+            Create Playbook
+          </button>
+        )}
       </div>
     );
   }
@@ -251,28 +255,38 @@ export default function PlaybookBuilder({ engagementId }: { engagementId: string
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Status toggle */}
-          {(["DRAFT", "ACTIVE", "ARCHIVED"] as const).map((s) => {
-            const st = STATUS_STYLES[s];
-            const Icon = st.icon;
-            const isActive = playbook.status === s;
-            return (
-              <button
-                key={s}
-                onClick={() => updateStatus(s)}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-opacity"
-                style={{
-                  background: isActive ? st.bg : "transparent",
-                  color: isActive ? st.text : "#9CA3AF",
-                  border: isActive ? "none" : "1px solid #e5eaf0",
-                  opacity: isActive ? 1 : 0.6,
-                }}
-              >
-                <Icon size={10} />
-                {s}
-              </button>
-            );
-          })}
+          {/* Status toggle (EM only) / Status badge (read-only) */}
+          {isEM ? (
+            (["DRAFT", "ACTIVE", "ARCHIVED"] as const).map((s) => {
+              const st = STATUS_STYLES[s];
+              const Icon = st.icon;
+              const isActive = playbook.status === s;
+              return (
+                <button
+                  key={s}
+                  onClick={() => updateStatus(s)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-opacity"
+                  style={{
+                    background: isActive ? st.bg : "transparent",
+                    color: isActive ? st.text : "#9CA3AF",
+                    border: isActive ? "none" : "1px solid #e5eaf0",
+                    opacity: isActive ? 1 : 0.6,
+                  }}
+                >
+                  <Icon size={10} />
+                  {s}
+                </button>
+              );
+            })
+          ) : (
+            <span
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
+              style={{ background: statusStyle.bg, color: statusStyle.text }}
+            >
+              <StatusIcon size={10} />
+              {playbook.status}
+            </span>
+          )}
         </div>
       </div>
 
@@ -316,7 +330,7 @@ export default function PlaybookBuilder({ engagementId }: { engagementId: string
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    {playbook.status === "DRAFT" && (
+                    {isEM && playbook.status === "DRAFT" && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -365,25 +379,29 @@ export default function PlaybookBuilder({ engagementId }: { engagementId: string
                                   {link.asset.assetType.replace(/_/g, " ")}
                                 </span>
                               </div>
-                              <button
-                                onClick={() => unlinkAsset(link.id)}
-                                className="text-gray-300 hover:text-red-400 p-1 flex-shrink-0"
-                              >
-                                <X size={12} />
-                              </button>
+                              {isEM && (
+                                <button
+                                  onClick={() => unlinkAsset(link.id)}
+                                  className="text-gray-300 hover:text-red-400 p-1 flex-shrink-0"
+                                >
+                                  <X size={12} />
+                                </button>
+                              )}
                             </div>
                           );
                         })}
                       </div>
                     )}
 
-                    <button
-                      onClick={() => setLinkModalPhase(phase.name)}
-                      className="inline-flex items-center gap-1 text-xs font-medium mt-2 px-2.5 py-1.5 rounded-lg hover:bg-gray-50"
-                      style={{ color: "#0F2744" }}
-                    >
-                      <Plus size={12} /> Link Asset
-                    </button>
+                    {isEM && (
+                      <button
+                        onClick={() => setLinkModalPhase(phase.name)}
+                        className="inline-flex items-center gap-1 text-xs font-medium mt-2 px-2.5 py-1.5 rounded-lg hover:bg-gray-50"
+                        style={{ color: "#0F2744" }}
+                      >
+                        <Plus size={12} /> Link Asset
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -393,7 +411,7 @@ export default function PlaybookBuilder({ engagementId }: { engagementId: string
       </div>
 
       {/* Add Phase */}
-      {playbook.status === "DRAFT" && (
+      {isEM && playbook.status === "DRAFT" && (
         <div className="flex gap-4 pl-7">
           {addingPhase ? (
             <div className="flex items-center gap-2">

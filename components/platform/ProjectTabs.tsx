@@ -491,14 +491,15 @@ export default function ProjectTabs({
               exitMonths={project.transformExitMonths ?? 36}
               boardSeat={project.transformBoardSeat ?? false}
               stepInTrigger={project.transformStepInTrigger ?? null}
+              isEM={["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(userRole)}
             />
           </div>
         )}
         {tab === "playbook" && (
-          <PlaybookBuilder engagementId={project.id} />
+          <PlaybookBuilder engagementId={project.id} isEM={["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(userRole)} />
         )}
         {tab === "debrief" && (
-          <DebriefFlow engagementId={project.id} engagementName={project.name} />
+          <DebriefFlow engagementId={project.id} engagementName={project.name} isEM={["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(userRole)} />
         )}
       </main>
     </div>

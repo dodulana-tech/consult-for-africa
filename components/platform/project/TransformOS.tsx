@@ -77,6 +77,7 @@ interface TransformOSProps {
   exitMonths: number;
   boardSeat: boolean;
   stepInTrigger: number | null;
+  isEM: boolean;
 }
 
 /* ── RAG thresholds (mirror server) ─────────────────────────────────────────── */
@@ -367,6 +368,7 @@ export default function TransformOS({
   exitMonths,
   boardSeat,
   stepInTrigger,
+  isEM,
 }: TransformOSProps) {
   const [snapshots, setSnapshots] = useState<KPISnapshot[]>([]);
   const [exitDossier, setExitDossier] = useState<ExitDossierData | null>(null);
@@ -559,26 +561,28 @@ export default function TransformOS({
         </div>
       )}
 
-      {/* ── Record KPIs Button / Form ─────────────────────────────────────────── */}
-      {showKPIForm ? (
-        <KPIEntryForm
-          engagementId={engagementId}
-          hospitalId={hospitalId}
-          onSaved={(snap) => {
-            setSnapshots((prev) => [snap, ...prev]);
-            setShowKPIForm(false);
-          }}
-          onCancel={() => setShowKPIForm(false)}
-        />
-      ) : (
-        <button
-          onClick={() => setShowKPIForm(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-colors"
-          style={{ background: "#0F2744", color: "#fff" }}
-        >
-          <Plus size={14} />
-          Record KPIs
-        </button>
+      {/* ── Record KPIs Button / Form (EM only) ──────────────────────────────── */}
+      {isEM && (
+        showKPIForm ? (
+          <KPIEntryForm
+            engagementId={engagementId}
+            hospitalId={hospitalId}
+            onSaved={(snap) => {
+              setSnapshots((prev) => [snap, ...prev]);
+              setShowKPIForm(false);
+            }}
+            onCancel={() => setShowKPIForm(false)}
+          />
+        ) : (
+          <button
+            onClick={() => setShowKPIForm(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-colors"
+            style={{ background: "#0F2744", color: "#fff" }}
+          >
+            <Plus size={14} />
+            Record KPIs
+          </button>
+        )
       )}
 
       {/* ── Historical Snapshots ──────────────────────────────────────────────── */}
