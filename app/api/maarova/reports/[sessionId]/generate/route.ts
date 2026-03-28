@@ -257,8 +257,8 @@ RULES: topThree = 3 highest-scoring values with ranks 1,2,3. Return ONLY JSON.`,
       return JSON.parse(str);
     };
 
-    const coreReport = parseJson((resultA.content[0] as { text: string }).text, resultA.stop_reason);
-    const moduleReport = parseJson((resultB.content[0] as { text: string }).text, resultB.stop_reason);
+    const coreReport = parseJson((resultA.content[0] as { text: string }).text, resultA.stop_reason ?? "end_turn");
+    const moduleReport = parseJson((resultB.content[0] as { text: string }).text, resultB.stop_reason ?? "end_turn");
 
     // Merge: core report + module deep dives
     reportData = { ...coreReport, ...moduleReport };
