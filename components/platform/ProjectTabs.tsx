@@ -439,6 +439,7 @@ export default function ProjectTabs({
             onTypeChange={setUpdateType}
             onPost={postUpdate}
             isEM={["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(userRole)}
+            isConsultant={userRole === "CONSULTANT"}
             userRole={userRole}
           />
         )}
@@ -452,6 +453,7 @@ export default function ProjectTabs({
           <TeamTab
             project={project}
             isEM={["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(userRole)}
+            isConsultant={userRole === "CONSULTANT"}
           />
         )}
         {tab === "deliverables" && (
@@ -515,6 +517,7 @@ function OverviewTab({
   onTypeChange,
   onPost,
   isEM,
+  isConsultant,
   userRole,
 }: {
   project: Project;
@@ -532,6 +535,7 @@ function OverviewTab({
   onTypeChange: (v: string) => void;
   onPost: () => void;
   isEM: boolean;
+  isConsultant: boolean;
   userRole: string;
 }) {
   const isDirectorPlus = ["DIRECTOR", "PARTNER", "ADMIN"].includes(userRole);
@@ -726,14 +730,16 @@ function OverviewTab({
       </div>
 
       {/* Key metric cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          label="Budget Used"
-          value={`${budgetPct}%`}
-          sub={`${formatCompactCurrency(project.actualSpent, project.budgetCurrency)} of ${formatCompactCurrency(project.budgetAmount, project.budgetCurrency)}`}
-          color={budgetPct > 90 ? "#EF4444" : budgetPct > 75 ? "#F59E0B" : "#10B981"}
-          icon={Briefcase}
-        />
+      <div className={`grid grid-cols-2 ${isConsultant ? "lg:grid-cols-3" : "lg:grid-cols-4"} gap-4`}>
+        {!isConsultant && (
+          <MetricCard
+            label="Budget Used"
+            value={`${budgetPct}%`}
+            sub={`${formatCompactCurrency(project.actualSpent, project.budgetCurrency)} of ${formatCompactCurrency(project.budgetAmount, project.budgetCurrency)}`}
+            color={budgetPct > 90 ? "#EF4444" : budgetPct > 75 ? "#F59E0B" : "#10B981"}
+            icon={Briefcase}
+          />
+        )}
         <MetricCard
           label="Timeline"
           value={days < 0 ? `${Math.abs(days)}d overdue` : `${days}d left`}
@@ -800,17 +806,21 @@ function OverviewTab({
 
         {/* Right column (1/3 width) */}
         <div className="space-y-5">
-          {/* Team Workload */}
-          <TeamWorkload assignments={project.assignments} />
+          {/* Team Workload - hidden from consultants (shows rates) */}
+          {!isConsultant && (
+            <TeamWorkload assignments={project.assignments} />
+          )}
 
-          {/* Financial P&L */}
-          <FinancialPL
-            projectId={project.id}
-            budgetAmount={project.budgetAmount}
-            actualSpent={project.actualSpent}
-            budgetCurrency={project.budgetCurrency}
-            canManage={canManageFinancials}
-          />
+          {/* Financial P&L - hidden from consultants */}
+          {!isConsultant && (
+            <FinancialPL
+              projectId={project.id}
+              budgetAmount={project.budgetAmount}
+              actualSpent={project.actualSpent}
+              budgetCurrency={project.budgetCurrency}
+              canManage={canManageFinancials}
+            />
+          )}
 
           {/* Activity feed */}
           <div
@@ -869,8 +879,8 @@ function OverviewTab({
             )}
           </div>
 
-          {/* Internal notes */}
-          {project.notes && (
+          {/* Internal notes - hidden from consultants */}
+          {!isConsultant && project.notes && (
             <div
               className="rounded-xl p-4 text-xs text-gray-600 leading-relaxed"
               style={{ background: "#FFFBEB", border: "1px solid #FDE68A" }}
@@ -882,8 +892,8 @@ function OverviewTab({
         </div>
       </div>
 
-      {/* Type-specific panels */}
-      {project.engagementType === "RETAINER" && (
+      {/* Type-specific panels - hidden from consultants (contain fees, deal terms) */}
+      {!isConsultant && project.engagementType === "RETAINER" && (
         <div
           className="rounded-xl p-5"
           style={{ background: "#fff", border: "1px solid #e5eaf0", borderLeft: "4px solid #8B5CF6" }}
@@ -945,7 +955,7 @@ function OverviewTab({
         </div>
       )}
 
-      {project.engagementType === "SECONDMENT" && (
+      {!isConsultant && project.engagementType === "SECONDMENT" && (
         <div
           className="rounded-xl p-5"
           style={{ background: "#fff", border: "1px solid #e5eaf0", borderLeft: "4px solid #14B8A6" }}
@@ -983,7 +993,7 @@ function OverviewTab({
         </div>
       )}
 
-      {project.engagementType === "FRACTIONAL" && (
+      {!isConsultant && project.engagementType === "FRACTIONAL" && (
         <div
           className="rounded-xl p-5"
           style={{ background: "#fff", border: "1px solid #e5eaf0", borderLeft: "4px solid #F97316" }}
@@ -1024,7 +1034,7 @@ function OverviewTab({
         </div>
       )}
 
-      {project.engagementType === "TRANSFORMATION" && (
+      {!isConsultant && project.engagementType === "TRANSFORMATION" && (
         <div
           className="rounded-xl p-5"
           style={{ background: "#fff", border: "1px solid #e5eaf0", borderLeft: "4px solid #22C55E" }}
@@ -1083,7 +1093,7 @@ function OverviewTab({
         </div>
       )}
 
-      {project.engagementType === "TRANSACTION" && (
+      {!isConsultant && project.engagementType === "TRANSACTION" && (
         <div
           className="rounded-xl p-5"
           style={{ background: "#fff", border: "1px solid #e5eaf0", borderLeft: "4px solid #EAB308" }}
@@ -1460,7 +1470,7 @@ function TracksTab({ project, isEM }: { project: Project; isEM: boolean }) {
 
 // ─── Team Tab ─────────────────────────────────────────────────────────────────
 
-function TeamTab({ project, isEM }: { project: Project; isEM: boolean }) {
+function TeamTab({ project, isEM, isConsultant = false }: { project: Project; isEM: boolean; isConsultant?: boolean }) {
   const router = useRouter();
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [assignments, setAssignments] = useState(project.assignments);
@@ -1709,7 +1719,7 @@ function TeamTab({ project, isEM }: { project: Project; isEM: boolean }) {
                 </div>
 
                 <div className="text-right shrink-0">
-                  {a.rateAmount > 0 && (
+                  {!isConsultant && a.rateAmount > 0 && (
                     <p className="text-sm font-semibold text-gray-900">
                       {a.rateCurrency === "USD"
                         ? `$${a.rateAmount}/${a.rateType === "HOURLY" ? "hr" : "mo"}`
@@ -1921,7 +1931,7 @@ function TeamTab({ project, isEM }: { project: Project; isEM: boolean }) {
                       </div>
                       <span className="text-[10px] text-gray-400">
                         {sr.hoursPerWeek}h/wk | {sr.rateType.replace(/_/g, " ")}
-                        {sr.rateBudget ? ` | ${sr.rateCurrency} ${sr.rateBudget.toLocaleString()}` : ""}
+                        {!isConsultant && sr.rateBudget ? ` | ${sr.rateCurrency} ${sr.rateBudget.toLocaleString()}` : ""}
                       </span>
                     </div>
                     <p className="text-xs text-gray-500 line-clamp-1">{sr.description}</p>
