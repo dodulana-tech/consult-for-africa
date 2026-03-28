@@ -33,7 +33,7 @@ export default function Navbar() {
         scrolled ? "shadow-lg shadow-black/[0.06]" : ""
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between" style={{ height: "calc(4rem + env(safe-area-inset-top, 0px))", paddingTop: "env(safe-area-inset-top, 0px)" }}>
 
         {/* LOGO */}
         <Link href="/" className="flex items-center gap-3">
