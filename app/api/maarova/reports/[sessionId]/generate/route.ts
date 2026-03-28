@@ -7,8 +7,11 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
-  timeout: 90_000, // 90s max for API call
+  timeout: 50_000, // 50s max for API call, fail fast
 });
+
+// Log API key presence at module load
+console.log("[Maarova] Anthropic SDK initialized, key present:", !!process.env.ANTHROPIC_API_KEY, "key prefix:", process.env.ANTHROPIC_API_KEY?.slice(0, 12));
 
 const MODULE_LABELS: Record<string, string> = {
   DISC: "Behavioural Style (DISC)",
@@ -200,7 +203,7 @@ RULES: Exactly 3 signatureStrengths (top scoring). 4-5 coachingPriorities with v
 
     const message = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 8192,
+      max_tokens: 4096,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
     });
