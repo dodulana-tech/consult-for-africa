@@ -462,9 +462,15 @@ export default function ProjectTabs({
             filter={delivFilter}
             onFilterChange={setDelivFilter}
             filteredDeliverables={filteredDeliverables}
+            isEM={["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(userRole)}
           />
         )}
-        {tab === "timeline" && <TimelineTab project={project} />}
+        {tab === "timeline" && (
+          <TimelineTab
+            project={project}
+            isEM={["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(userRole)}
+          />
+        )}
         {tab === "calls" && (
           <CallsTab
             project={project}
@@ -2065,11 +2071,13 @@ function DeliverablesTab({
   filter,
   onFilterChange,
   filteredDeliverables,
+  isEM,
 }: {
   project: Project;
   filter: string;
   onFilterChange: (f: string) => void;
   filteredDeliverables: Deliverable[];
+  isEM: boolean;
 }) {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -2214,14 +2222,16 @@ function DeliverablesTab({
             </button>
           ))}
         </div>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0"
-          style={{ background: showForm ? "#F3F4F6" : "#0F2744", color: showForm ? "#374151" : "#fff" }}
-        >
-          {showForm ? <X size={12} /> : <Plus size={12} />}
-          {showForm ? "Cancel" : "Add Deliverable"}
-        </button>
+        {isEM && (
+          <button
+            onClick={() => setShowForm((v) => !v)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0"
+            style={{ background: showForm ? "#F3F4F6" : "#0F2744", color: showForm ? "#374151" : "#fff" }}
+          >
+            {showForm ? <X size={12} /> : <Plus size={12} />}
+            {showForm ? "Cancel" : "Add Deliverable"}
+          </button>
+        )}
       </div>
 
       {/* Add deliverable form */}
@@ -2384,12 +2394,12 @@ function DeliverablesTab({
                   {d.assignment ? (
                     <span className="inline-flex items-center gap-1">
                       {d.assignment.consultant.name}
-                      <AssignDeliverableDropdown deliverableId={d.id} projectId={project.id} assignments={project.assignments} currentAssignmentId={d.assignment?.id ?? null} onAssigned={() => window.location.reload()} />
+                      {isEM && <AssignDeliverableDropdown deliverableId={d.id} projectId={project.id} assignments={project.assignments} currentAssignmentId={d.assignment?.id ?? null} onAssigned={() => window.location.reload()} />}
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 text-amber-500">
                       Unassigned
-                      <AssignDeliverableDropdown deliverableId={d.id} projectId={project.id} assignments={project.assignments} currentAssignmentId={null} onAssigned={() => window.location.reload()} />
+                      {isEM && <AssignDeliverableDropdown deliverableId={d.id} projectId={project.id} assignments={project.assignments} currentAssignmentId={null} onAssigned={() => window.location.reload()} />}
                     </span>
                   )}
                   {d.dueDate && (
@@ -2414,8 +2424,8 @@ function DeliverablesTab({
                   </p>
                 )}
 
-                {/* Deliverable fee */}
-                <DeliverableFeeEditor deliverable={d} projectServiceType={project.serviceType} budgetSensitivity={project.budgetSensitivity} consultantTierMin={project.consultantTierMin} consultantTierMax={project.consultantTierMax} />
+                {/* Deliverable fee - EM only */}
+                {isEM && <DeliverableFeeEditor deliverable={d} projectServiceType={project.serviceType} budgetSensitivity={project.budgetSensitivity} consultantTierMin={project.consultantTierMin} consultantTierMax={project.consultantTierMax} />}
               </div>
 
               <div className="flex flex-col items-end gap-1.5 shrink-0">
@@ -2439,7 +2449,7 @@ function DeliverablesTab({
                     <ChevronRight size={12} />
                   </Link>
                 )}
-                {d.status === "DRAFT" && (
+                {isEM && d.status === "DRAFT" && (
                   <button
                     onClick={async () => {
                       if (!confirm(`Delete "${d.name}"?`)) return;
@@ -2466,7 +2476,7 @@ function DeliverablesTab({
 
 // ─── Timeline Tab ─────────────────────────────────────────────────────────────
 
-function TimelineTab({ project }: { project: Project }) {
+function TimelineTab({ project, isEM }: { project: Project; isEM: boolean }) {
   const startDate = new Date(project.startDate);
   const endDate = new Date(project.endDate);
   const [milestones, setMilestones] = useState(project.milestones);
