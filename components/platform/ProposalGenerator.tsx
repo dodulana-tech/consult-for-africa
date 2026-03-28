@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sparkles, FileText, Plus, X, Copy, CheckCircle2, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Sparkles, FileText, Plus, X, Copy, CheckCircle2, AlertCircle, ChevronDown, ChevronUp, MessageSquareText, ListChecks, Loader2 } from "lucide-react";
 
 type ProposalContent = {
   executiveSummary: string;
@@ -21,6 +21,8 @@ type ProposalMetadata = {
   timeline: string;
   generatedAt: string;
 };
+
+type InputMode = "quick" | "detailed";
 
 const CLIENT_TYPES = [
   { value: "PRIVATE_ELITE", label: "Elite Private Hospital" },
@@ -81,6 +83,9 @@ const inputStyle = { borderColor: "#e5eaf0" };
 const labelClass = "text-xs font-medium text-gray-500 block mb-1";
 
 export default function ProposalGenerator() {
+  const [inputMode, setInputMode] = useState<InputMode>("quick");
+  const [freeText, setFreeText] = useState("");
+  const [assistLoading, setAssistLoading] = useState(false);
   const [form, setForm] = useState({
     clientName: "",
     contactName: "",
@@ -102,6 +107,45 @@ export default function ProposalGenerator() {
       if (cached) setResult(JSON.parse(cached));
     } catch {}
   }, []);
+
+  async function handleAssist() {
+    if (!freeText.trim() || freeText.trim().length < 20) {
+      setError("Please provide at least a short description (20+ characters).");
+      return;
+    }
+    setError("");
+    setAssistLoading(true);
+    try {
+      const res = await fetch("/api/proposals/assist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ freeText }),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => null);
+        setError(errData?.error || "Failed to process notes. Please try again.");
+        return;
+      }
+      const data = await res.json();
+      setForm({
+        clientName: data.clientName || "",
+        contactName: data.contactName || "",
+        clientType: data.clientType || "PRIVATE_ELITE",
+        serviceType: data.serviceType || "HOSPITAL_OPERATIONS",
+        projectName: data.projectName || "",
+        budgetRange: data.budgetRange || "",
+        timeline: data.timeline || "12 weeks",
+        problems: data.problems?.length > 0 ? data.problems : [""],
+        goals: data.goals?.length > 0 ? data.goals : [""],
+      });
+      // Switch to detailed view so user can review pre-filled fields
+      setInputMode("detailed");
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setAssistLoading(false);
+    }
+  }
 
   function setField(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -278,7 +322,37 @@ ${content.nextSteps.map((s, i) => `${i + 1}. ${s}`).join("\n")}`;
   }
 
   return (
-    <form onSubmit={generate} className="space-y-5">
+    <div className="space-y-5">
+      {/* Mode Toggle */}
+      <div className="flex items-center gap-1 p-1 rounded-xl" style={{ background: "#F3F4F6" }}>
+        <button
+          type="button"
+          onClick={() => setInputMode("quick")}
+          className="flex items-center gap-1.5 flex-1 justify-center px-4 py-2 rounded-lg text-xs font-medium transition-all"
+          style={{
+            background: inputMode === "quick" ? "#FFFFFF" : "transparent",
+            color: inputMode === "quick" ? "#0F2744" : "#6B7280",
+            boxShadow: inputMode === "quick" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+          }}
+        >
+          <MessageSquareText size={13} />
+          Quick Brief
+        </button>
+        <button
+          type="button"
+          onClick={() => setInputMode("detailed")}
+          className="flex items-center gap-1.5 flex-1 justify-center px-4 py-2 rounded-lg text-xs font-medium transition-all"
+          style={{
+            background: inputMode === "detailed" ? "#FFFFFF" : "transparent",
+            color: inputMode === "detailed" ? "#0F2744" : "#6B7280",
+            boxShadow: inputMode === "detailed" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+          }}
+        >
+          <ListChecks size={13} />
+          Detailed Form
+        </button>
+      </div>
+
       {error && (
         <div className="flex items-center gap-2 p-3 rounded-lg text-sm text-red-600" style={{ background: "#FEF2F2" }}>
           <AlertCircle size={13} />
@@ -286,6 +360,54 @@ ${content.nextSteps.map((s, i) => `${i + 1}. ${s}`).join("\n")}`;
         </div>
       )}
 
+      {/* Quick Brief Mode */}
+      {inputMode === "quick" && (
+        <div className="space-y-4">
+          <div className="rounded-xl bg-white p-5" style={{ border: "1px solid #e5eaf0" }}>
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">Paste your notes</h3>
+            <p className="text-xs text-gray-400 mb-3">
+              Discovery call notes, meeting brief, email thread, or any free-text description.
+              Nuru will extract the key details and pre-fill the proposal form.
+            </p>
+            <textarea
+              value={freeText}
+              onChange={(e) => setFreeText(e.target.value)}
+              placeholder={"e.g. Had a call with Dr. Folasade at Lagoon Hospital today. They're struggling with revenue leakage, estimating NGN 15-20M/month lost. Want us to do a full operations review. Budget around NGN 40-50M, looking at a 12-week engagement. Key issues: billing errors, no follow-up on outstanding invoices, pharmacy stock management..."}
+              rows={10}
+              className={inputClass}
+              style={{ ...inputStyle, resize: "vertical", minHeight: 180 }}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={handleAssist}
+            disabled={assistLoading || freeText.trim().length < 20}
+            className="w-full py-3 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50"
+            style={{ background: "#0F2744" }}
+          >
+            {assistLoading ? (
+              <>
+                <Loader2 size={14} className="animate-spin" />
+                Nuru is reading your notes...
+              </>
+            ) : (
+              <>
+                <Sparkles size={14} />
+                Extract and Pre-fill Form
+              </>
+            )}
+          </button>
+          {assistLoading && (
+            <p className="text-center text-xs text-gray-400">
+              This takes a few seconds. The form will be pre-filled when ready.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Detailed Form Mode */}
+      {inputMode === "detailed" && (
+    <form onSubmit={generate} className="space-y-5">
       {/* Client info */}
       <div className="rounded-xl bg-white p-5" style={{ border: "1px solid #e5eaf0" }}>
         <h3 className="text-sm font-semibold text-gray-900 mb-4">Client Details</h3>
@@ -411,5 +533,7 @@ ${content.nextSteps.map((s, i) => `${i + 1}. ${s}`).join("\n")}`;
         </p>
       )}
     </form>
+      )}
+    </div>
   );
 }
