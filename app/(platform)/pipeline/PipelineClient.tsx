@@ -134,7 +134,7 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 mb-4 border-b" style={{ borderColor: "#e5eaf0" }}>
+      <div className="flex items-center gap-1 mb-4 border-b overflow-x-auto" style={{ borderColor: "#e5eaf0" }}>
         {tabs.map((t) => (
           <button
             key={t.key}

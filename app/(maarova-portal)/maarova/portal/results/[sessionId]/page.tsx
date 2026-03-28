@@ -58,6 +58,11 @@ interface ReportData {
       valueToOrganisation?: string;
       idealEnvironment?: string;
       underPressure?: string;
+      howToMotivateMe?: string[];
+      howToManageMe?: string[];
+      selfPerception?: string;
+      othersPerception?: string;
+      highStressPerception?: string;
     };
     values?: {
       profileSummary?: string;
@@ -806,6 +811,39 @@ export default function MaarovaResultDetailPage() {
               <NarrativeSection title="Your Value to the Organisation" text={fullContent.disc.valueToOrganisation} />
               <NarrativeSection title="Your Ideal Environment" text={fullContent.disc.idealEnvironment} />
               <NarrativeSection title="Your Behaviour Under Pressure" text={fullContent.disc.underPressure} />
+              {fullContent.disc.howToMotivateMe && fullContent.disc.howToManageMe && (
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="rounded-lg p-4" style={{ backgroundColor: "rgba(212,165,116,0.06)", borderLeft: "3px solid #D4A574" }}>
+                    <h4 className="text-sm font-semibold mb-2" style={{ color: "#0F2744" }}>How to Motivate and Engage Me</h4>
+                    <ul className="space-y-1.5">{fullContent.disc.howToMotivateMe.map((item, i) => <li key={i} className="text-sm text-gray-700 flex gap-2"><span style={{ color: "#D4A574" }}>&#8250;</span>{item}</li>)}</ul>
+                  </div>
+                  <div className="rounded-lg p-4" style={{ backgroundColor: "rgba(15,39,68,0.03)", borderLeft: "3px solid #0F2744" }}>
+                    <h4 className="text-sm font-semibold mb-2" style={{ color: "#0F2744" }}>How to Manage Me</h4>
+                    <ul className="space-y-1.5">{fullContent.disc.howToManageMe.map((item, i) => <li key={i} className="text-sm text-gray-700 flex gap-2"><span style={{ color: "#0F2744" }}>&#8250;</span>{item}</li>)}</ul>
+                  </div>
+                </div>
+              )}
+              {fullContent.disc.selfPerception && (
+                <div className="mt-4 space-y-3">
+                  <h4 className="text-sm font-semibold" style={{ color: "#0F2744" }}>See Yourself as Others See You</h4>
+                  <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(6,95,70,0.04)", borderLeft: "3px solid #10B981" }}>
+                    <p className="text-xs font-semibold text-green-800 mb-1">How You See Yourself</p>
+                    <p className="text-sm text-gray-700">{fullContent.disc.selfPerception}</p>
+                  </div>
+                  {fullContent.disc.othersPerception && (
+                    <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(212,165,116,0.06)", borderLeft: "3px solid #D4A574" }}>
+                      <p className="text-xs font-semibold text-amber-800 mb-1">Under Moderate Pressure</p>
+                      <p className="text-sm text-gray-700">{fullContent.disc.othersPerception}</p>
+                    </div>
+                  )}
+                  {fullContent.disc.highStressPerception && (
+                    <div className="rounded-lg p-3" style={{ backgroundColor: "rgba(239,68,68,0.04)", borderLeft: "3px solid #EF4444" }}>
+                      <p className="text-xs font-semibold text-red-800 mb-1">Under Significant Stress</p>
+                      <p className="text-sm text-gray-700">{fullContent.disc.highStressPerception}</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </ModuleDeepDive>
           )}
 

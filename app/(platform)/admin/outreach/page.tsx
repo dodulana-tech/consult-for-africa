@@ -64,7 +64,7 @@ export default function OutreachCampaignsPage() {
 
         {showCreate && (
           <form onSubmit={create} className="bg-white rounded-xl border p-5 mb-6 space-y-3" style={{ borderColor: "#e5eaf0" }}>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Campaign Name</label>
                 <input required value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ borderColor: "#e5eaf0" }} placeholder="e.g. March 2026 - Lagos Hospital CEOs" />

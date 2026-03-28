@@ -62,7 +62,7 @@ export default async function MaarovaDashboardPage() {
     <div className="p-4 sm:p-8 max-w-5xl mx-auto">
       {/* Greeting */}
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
           Welcome back, {firstName}
         </h1>
         <p className="text-gray-500 mt-1 text-sm">
@@ -81,7 +81,7 @@ export default async function MaarovaDashboardPage() {
           <p className="text-xs uppercase tracking-wider mb-3" style={{ color: "#D4A574" }}>
             Your Leadership Archetype
           </p>
-          <h2 className="text-2xl font-bold text-white mb-3">
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-3">
             {report.leadershipArchetype}
           </h2>
           {report.archetypeNarrative && (

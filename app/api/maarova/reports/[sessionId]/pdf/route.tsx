@@ -34,7 +34,7 @@ const white = "#FFFFFF";
 
 const s = StyleSheet.create({
   // Pages
-  page: { fontFamily: "Helvetica", fontSize: 9.5, color: darkGray, padding: 50, paddingBottom: 70 },
+  page: { fontFamily: "Helvetica", fontSize: 9.5, color: darkGray, paddingTop: 40, paddingBottom: 60, paddingLeft: 45, paddingRight: 45 },
   coverPage: { fontFamily: "Helvetica", backgroundColor: navy, padding: 0 },
 
   // Cover
@@ -75,11 +75,11 @@ const s = StyleSheet.create({
   strengthDesc: { fontSize: 8, color: gray, lineHeight: 1.5 },
 
   // Sections
-  section: { marginBottom: 16 },
-  sectionTitle: { fontSize: 12, fontWeight: 700, color: navy, marginBottom: 8, paddingBottom: 5, borderBottomWidth: 1, borderBottomColor: lightGray },
-  subSectionTitle: { fontSize: 10, fontWeight: 700, color: navy, marginBottom: 6, marginTop: 10 },
-  paragraph: { fontSize: 9, color: darkGray, lineHeight: 1.7, marginBottom: 6 },
-  smallParagraph: { fontSize: 8.5, color: darkGray, lineHeight: 1.6, marginBottom: 5 },
+  section: { marginBottom: 12 },
+  sectionTitle: { fontSize: 11, fontWeight: 700, color: navy, marginBottom: 6, paddingBottom: 4, borderBottomWidth: 1, borderBottomColor: lightGray },
+  subSectionTitle: { fontSize: 10, fontWeight: 700, color: navy, marginBottom: 4, marginTop: 8 },
+  paragraph: { fontSize: 8.5, color: darkGray, lineHeight: 1.65, marginBottom: 5 },
+  smallParagraph: { fontSize: 8, color: darkGray, lineHeight: 1.6, marginBottom: 4 },
 
   // Score bars
   dimRow: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
@@ -115,7 +115,7 @@ const s = StyleSheet.create({
   infoCardTitle: { fontSize: 9, fontWeight: 700, color: navy, marginBottom: 4 },
 
   // Footer
-  footer: { position: "absolute", bottom: 22, left: 50, right: 50, flexDirection: "row", justifyContent: "space-between", alignItems: "center", borderTopWidth: 1, borderTopColor: lightGray, paddingTop: 6 },
+  footer: { position: "absolute", bottom: 18, left: 45, right: 45, flexDirection: "row", justifyContent: "space-between", alignItems: "center", borderTopWidth: 1, borderTopColor: lightGray, paddingTop: 5 },
   footerText: { fontSize: 6.5, color: "#9CA3AF" },
   footerGold: { fontSize: 6.5, color: gold, fontWeight: 600 },
   footerPage: { fontSize: 6.5, color: "#9CA3AF" },
@@ -443,6 +443,53 @@ function LeadershipReport(props: PDFProps) {
             </View>
             <PageFooter dateStr={dateStr} />
           </Page>
+
+          {/* DISC: How to Motivate & Manage Me */}
+          {disc.howToMotivateMe && (
+            <Page size="A4" style={s.page}>
+              <PageHeader logoBase64={props.logoBase64} title="Behavioural Style (DISC)" userName={props.userName} />
+              <View style={{ flexDirection: "row", gap: 16 }}>
+                <View style={{ flex: 1 }}>
+                  <View style={[s.guideBox, { backgroundColor: "rgba(212,165,116,0.06)", borderLeftWidth: 3, borderLeftColor: gold }]}>
+                    <Text style={s.guideTitle}>How to Motivate and Engage Me</Text>
+                    <BulletList items={disc.howToMotivateMe} />
+                  </View>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <View style={[s.guideBox, { backgroundColor: "rgba(15,39,68,0.03)", borderLeftWidth: 3, borderLeftColor: navy }]}>
+                    <Text style={s.guideTitle}>How to Manage Me</Text>
+                    <BulletList items={disc.howToManageMe} />
+                  </View>
+                </View>
+              </View>
+              <PageFooter dateStr={dateStr} />
+            </Page>
+          )}
+
+          {/* DISC: How I See Me vs How Others See Me */}
+          {disc.selfPerception && (
+            <Page size="A4" style={s.page}>
+              <PageHeader logoBase64={props.logoBase64} title="Behavioural Style (DISC)" userName={props.userName} />
+              <Text style={s.sectionTitle}>See Yourself as Others See You</Text>
+              <Text style={[s.paragraph, { fontStyle: "italic", marginBottom: 12 }]}>Understanding how you come across at different stress levels is the first step to more intentional leadership.</Text>
+
+              <View style={s.infoCard}>
+                <Text style={[s.infoCardTitle, { color: "#065F46" }]}>How You See Yourself</Text>
+                <Paragraphs text={disc.selfPerception} style={s.smallParagraph} />
+              </View>
+
+              <View style={[s.infoCard, { backgroundColor: "rgba(212,165,116,0.08)", borderLeftColor: gold }]}>
+                <Text style={[s.infoCardTitle, { color: "#92400E" }]}>Under Moderate Pressure, Others May See You As...</Text>
+                <Paragraphs text={disc.othersPerception} style={s.smallParagraph} />
+              </View>
+
+              <View style={[s.infoCard, { backgroundColor: "rgba(239,68,68,0.04)", borderLeftColor: "#EF4444" }]}>
+                <Text style={[s.infoCardTitle, { color: "#991B1B" }]}>Under Significant Stress, Others May See You As...</Text>
+                <Paragraphs text={disc.highStressPerception} style={s.smallParagraph} />
+              </View>
+              <PageFooter dateStr={dateStr} />
+            </Page>
+          )}
         </>
       )}
 
@@ -764,29 +811,68 @@ function LeadershipReport(props: PDFProps) {
         <PageFooter dateStr={dateStr} />
       </Page>
 
-      {/* ═══ ACTION PLAN (only if user has development goals) ═══ */}
+      {/* ═══ ACTION PLAN (filled goals if they exist) ═══ */}
       {props.developmentGoals.length > 0 && (
         <Page size="A4" style={s.page}>
           <PageHeader logoBase64={props.logoBase64} title="My Development Goals" userName={props.userName} />
-          <Text style={s.sectionTitle}>Your Action Plan</Text>
+          <Text style={s.sectionTitle}>Your Active Development Goals</Text>
           {props.developmentGoals.map((goal, i) => (
-            <View key={i} style={[s.priorityBox, { marginBottom: 10 }]}>
+            <View key={i} style={[s.priorityBox, { marginBottom: 8 }]}>
               <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}>
                 <Text style={[s.priorityNum, { backgroundColor: gold }]}>{i + 1}</Text>
                 <Text style={s.priorityTitle}>{goal.title}</Text>
               </View>
               {goal.description && <Text style={s.priorityDesc}>{goal.description}</Text>}
               <View style={{ flexDirection: "row", gap: 16, marginTop: 4 }}>
-                <Text style={{ fontSize: 7.5, color: gray }}>Dimension: {DIM_LABELS[goal.dimension] ?? goal.dimension}</Text>
-                <Text style={{ fontSize: 7.5, color: gray }}>Status: {goal.status.replace(/_/g, " ")}</Text>
-                <Text style={{ fontSize: 7.5, color: gray }}>Progress: {goal.progress}%</Text>
-                {goal.targetDate && <Text style={{ fontSize: 7.5, color: gray }}>Target: {new Date(goal.targetDate).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}</Text>}
+                <Text style={{ fontSize: 7, color: gray }}>Dimension: {DIM_LABELS[goal.dimension] ?? goal.dimension}</Text>
+                <Text style={{ fontSize: 7, color: gray }}>Status: {goal.status.replace(/_/g, " ")}</Text>
+                <Text style={{ fontSize: 7, color: gray }}>Progress: {goal.progress}%</Text>
+                {goal.targetDate && <Text style={{ fontSize: 7, color: gray }}>Target: {new Date(goal.targetDate).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}</Text>}
               </View>
             </View>
           ))}
           <PageFooter dateStr={dateStr} />
         </Page>
       )}
+
+      {/* ═══ ACTION PLAN TEMPLATE (always present) ═══ */}
+      <Page size="A4" style={s.page}>
+        <PageHeader logoBase64={props.logoBase64} title="My Action Plan" userName={props.userName} />
+        <Text style={s.sectionTitle}>My Action Plan</Text>
+        <Text style={[s.paragraph, { marginBottom: 14 }]}>
+          The key to development is to take action now. Use this template to capture your immediate commitments based on the insights in this report. Set a date to begin and a date to review.
+        </Text>
+        {[1, 2, 3].map((num) => (
+          <View key={num} style={{ borderWidth: 1, borderColor: "#E5E7EB", borderStyle: "dashed", borderRadius: 6, padding: 14, marginBottom: 12 }}>
+            <Text style={{ fontSize: 10, fontWeight: 700, color: navy, marginBottom: 8 }}>Action {num}</Text>
+            <View style={{ flexDirection: "row", gap: 20, marginBottom: 8 }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 7.5, color: gray, marginBottom: 3 }}>What will I do?</Text>
+                <View style={{ borderBottomWidth: 1, borderBottomColor: "#E5E7EB", height: 18 }} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 7.5, color: gray, marginBottom: 3 }}>Why is this important to me?</Text>
+                <View style={{ borderBottomWidth: 1, borderBottomColor: "#E5E7EB", height: 18 }} />
+              </View>
+            </View>
+            <View style={{ flexDirection: "row", gap: 20 }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 7.5, color: gray, marginBottom: 3 }}>What will I gain from it?</Text>
+                <View style={{ borderBottomWidth: 1, borderBottomColor: "#E5E7EB", height: 18 }} />
+              </View>
+              <View style={{ width: 90 }}>
+                <Text style={{ fontSize: 7.5, color: gray, marginBottom: 3 }}>Date to Begin</Text>
+                <View style={{ borderBottomWidth: 1, borderBottomColor: "#E5E7EB", height: 18 }} />
+              </View>
+              <View style={{ width: 90 }}>
+                <Text style={{ fontSize: 7.5, color: gray, marginBottom: 3 }}>Date to Review</Text>
+                <View style={{ borderBottomWidth: 1, borderBottomColor: "#E5E7EB", height: 18 }} />
+              </View>
+            </View>
+          </View>
+        ))}
+        <PageFooter dateStr={dateStr} />
+      </Page>
     </Document>
   );
 }

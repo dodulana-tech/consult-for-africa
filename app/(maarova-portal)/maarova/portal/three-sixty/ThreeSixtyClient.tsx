@@ -330,8 +330,8 @@ export default function ThreeSixtyClient({ request, userName }: Props) {
                   style={{ borderColor: "#e5eaf0" }}
                 >
                   {newRaters.map((rater, i) => (
-                    <div key={i} className="flex items-end gap-3 flex-wrap">
-                      <div className="flex-1 min-w-[150px]">
+                    <div key={i} className="flex flex-col sm:flex-row sm:items-end gap-3">
+                      <div className="flex-1 min-w-0 sm:min-w-[150px]">
                         {i === 0 && (
                           <label className="block text-xs font-medium text-gray-600 mb-1">
                             Name
@@ -348,7 +348,7 @@ export default function ThreeSixtyClient({ request, userName }: Props) {
                           placeholder="Full name"
                         />
                       </div>
-                      <div className="flex-1 min-w-[180px]">
+                      <div className="flex-1 min-w-0 sm:min-w-[180px]">
                         {i === 0 && (
                           <label className="block text-xs font-medium text-gray-600 mb-1">
                             Email
@@ -366,7 +366,7 @@ export default function ThreeSixtyClient({ request, userName }: Props) {
                           placeholder="email@example.com"
                         />
                       </div>
-                      <div className="w-40">
+                      <div className="w-full sm:w-40">
                         {i === 0 && (
                           <label className="block text-xs font-medium text-gray-600 mb-1">
                             Role

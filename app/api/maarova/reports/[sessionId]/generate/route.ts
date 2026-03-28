@@ -162,63 +162,68 @@ RULES: 3 signatureStrengths (top scoring). 4-5 coachingPriorities with varied ti
 
   const callB = anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
-    max_tokens: 5000,
+    max_tokens: 6000,
     system: systemPrompt,
     messages: [{
       role: "user",
       content: `${scoreContext}
 
-Return ONLY valid JSON with detailed module-level interpretations. Each narrative field: 2 paragraphs of 3-4 sentences.
+Return ONLY valid JSON with detailed module interpretations. Each narrative: 1-2 paragraphs of 3-4 sentences. Be specific and personalised.
 
 {
   "disc": {
-    "profileSummary": "2 paragraphs on their DISC profile, primary/adapted styles, day-to-day leadership impact.",
+    "profileSummary": "2 paragraphs on DISC profile, primary/adapted styles, day-to-day impact.",
     "characterInsights": "2 paragraphs of personalised character insights. How colleagues experience this person.",
     "communicationDos": ["6 specific do's for communicating with this leader"],
-    "communicationDonts": ["6 specific don'ts"],
-    "valueToOrganisation": "1-2 paragraphs on value this style brings to healthcare.",
-    "idealEnvironment": "1 paragraph on where this leader thrives.",
-    "underPressure": "1-2 paragraphs on behaviour under stress, triggers, strategies."
+    "communicationDonts": ["6 specific don'ts that would cause friction"],
+    "valueToOrganisation": "1 paragraph on value this style brings to healthcare.",
+    "idealEnvironment": "1 paragraph describing the work environment where this leader thrives. Be specific: type of team, pace, structure, autonomy level.",
+    "underPressure": "1-2 paragraphs on behaviour under stress, triggers, and what colleagues observe.",
+    "howToMotivateMe": ["8 specific statements starting with 'I need...' or 'I thrive when...' that describe what motivates and engages this leader based on their DISC+Values profile. Make each actionable for a manager."],
+    "howToManageMe": ["8 specific statements starting with 'Manage me by...' or 'Give me...' that describe how a manager should lead this person for best results. Based on DISC+Values+EQ profile."],
+    "selfPerception": "1 paragraph: 'When things are calm, you likely see yourself as...' describing how this leader views themselves at their best.",
+    "othersPerception": "1 paragraph: 'Under moderate pressure, colleagues may experience you as...' describing how stress shifts others' perception.",
+    "highStressPerception": "1 paragraph: 'Under significant stress, others may see you as...' describing the most challenging version of this leader."
   },
   "values": {
-    "profileSummary": "2 paragraphs on their values structure and motivational signature.",
-    "topThree": [{"value":"Value name","rank":1,"interpretation":"2 paragraphs: what it means, strengths, development tips."}],
-    "middleValues": "1 paragraph on situation-dependent middle values.",
-    "lowerValues": "1 paragraph on lower values and blind spots.",
-    "healthcareAlignment": "1-2 paragraphs on values alignment with African healthcare and Ubuntu."
+    "profileSummary": "2 paragraphs on values structure and motivational signature.",
+    "topThree": [{"value":"Value name","rank":1,"interpretation":"2 paragraphs: what it means, strengths from this value, value to the organisation, tips for development."}],
+    "middleValues": "1 paragraph on situation-dependent middle values and when they surface.",
+    "lowerValues": "1 paragraph on lower values (not deficit, simply less pull) and awareness of blind spots.",
+    "healthcareAlignment": "1-2 paragraphs on values alignment with African healthcare and Ubuntu philosophy."
   },
   "emotionalIntelligence": {
-    "profileSummary": "2 paragraphs on overall EQ capability.",
+    "profileSummary": "2 paragraphs on overall EQ capability and how dimensions interact.",
     "dimensions": {
-      "selfAwareness": "1-2 paragraphs.",
-      "empathy": "1-2 paragraphs in context of healthcare and Ubuntu.",
-      "socialSkills": "1-2 paragraphs on relationship management.",
-      "emotionalRegulation": "1-2 paragraphs on pressure handling."
+      "selfAwareness": "1-2 paragraphs: what it looks like in practice, how it serves leadership, growth edge.",
+      "empathy": "1-2 paragraphs in context of healthcare, Ubuntu, and team relationships.",
+      "socialSkills": "1-2 paragraphs on relationship management, influence, and conflict resolution.",
+      "emotionalRegulation": "1-2 paragraphs on pressure handling, triggers, and resilience strategies."
     },
-    "underPressure": "1-2 paragraphs on EQ under pressure with practical strategies."
+    "underPressure": "1-2 paragraphs on EQ under pressure with practical de-escalation strategies."
   },
   "cilti": {
-    "profileSummary": "2 paragraphs on clinical-to-leadership identity transition.",
+    "profileSummary": "2 paragraphs on clinical-to-leadership identity transition journey.",
     "transitionStage": "'High Risk' or 'Transitioning' or 'Emerging Leader' or 'Established Leader'",
     "dimensions": {
-      "clinicalIdentity": "1-2 paragraphs.",
-      "leadershipIdentity": "1-2 paragraphs.",
-      "transitionReadiness": "1-2 paragraphs.",
-      "identityFriction": "1-2 paragraphs."
+      "clinicalIdentity": "1-2 paragraphs on clinical identity strength and what it means.",
+      "leadershipIdentity": "1-2 paragraphs on how fully they have embraced leadership.",
+      "transitionReadiness": "1-2 paragraphs on psychological readiness to lead.",
+      "identityFriction": "1-2 paragraphs on tension between identities and how it manifests."
     },
-    "transitionRoadmap": "1-2 paragraphs with specific next steps."
+    "transitionRoadmap": "1-2 paragraphs with specific next steps for the identity journey."
   },
   "cultureTeam": {
-    "profileSummary": "2 paragraphs on culture and team dynamics.",
-    "cvfInterpretation": "1-2 paragraphs on CVF quadrant dominance.",
-    "teamEffectiveness": "1-2 paragraphs on team building.",
-    "engagementProfile": "1-2 paragraphs on engagement drivers."
+    "profileSummary": "2 paragraphs on culture preference and team dynamics.",
+    "cvfInterpretation": "1-2 paragraphs on CVF quadrant dominance and tensions between quadrants.",
+    "teamEffectiveness": "1-2 paragraphs on how they build teams and maintain effectiveness.",
+    "engagementProfile": "1-2 paragraphs on what drives their engagement: autonomy, mastery, purpose, recognition, belonging."
   }${has360 ? `,
   "threeSixty": {
-    "summary": "2 paragraphs on 360 feedback.",
-    "blindSpots": "1-2 paragraphs.",
-    "hiddenStrengths": "1-2 paragraphs.",
-    "stakeholderThemes": "1-2 paragraphs."
+    "summary": "2 paragraphs on 360 feedback themes.",
+    "blindSpots": "1-2 paragraphs on self-overestimation areas.",
+    "hiddenStrengths": "1-2 paragraphs on strengths others see that self does not.",
+    "stakeholderThemes": "1-2 paragraphs on common themes across rater groups."
   }` : ""}
 }
 

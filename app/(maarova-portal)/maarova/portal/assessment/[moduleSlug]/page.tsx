@@ -511,7 +511,7 @@ function ForcedChoiceInput({
 
   return (
     <div className="space-y-0">
-      <div className="grid grid-cols-[1fr_64px_64px] sm:grid-cols-[1fr_72px_72px] gap-1 sm:gap-2 mb-2">
+      <div className="grid grid-cols-[1fr_48px_48px] sm:grid-cols-[1fr_72px_72px] gap-1 sm:gap-2 mb-2">
         <span className="text-xs text-gray-400 pl-1">Statement</span>
         <span className="text-xs text-gray-400 text-center">Most</span>
         <span className="text-xs text-gray-400 text-center">Least</span>
@@ -519,7 +519,7 @@ function ForcedChoiceInput({
       {rawOptions.map((opt, i) => (
         <div
           key={`${opt.dimension}-${i}`}
-          className="grid grid-cols-[1fr_64px_64px] sm:grid-cols-[1fr_72px_72px] gap-1 sm:gap-2 items-center py-2.5 border-b border-gray-50 last:border-0"
+          className="grid grid-cols-[1fr_48px_48px] sm:grid-cols-[1fr_72px_72px] gap-1 sm:gap-2 items-center py-2.5 border-b border-gray-50 last:border-0"
         >
           <span className="text-sm text-gray-700">{opt.label}</span>
           <div className="flex justify-center">
@@ -761,7 +761,7 @@ function FrequencyInput({
 
   return (
     <div>
-      <div className="grid grid-cols-5 gap-1">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-1">
         {labels.map((label, i) => {
           const val = i + 1;
           const isSelected = current.value === val;
