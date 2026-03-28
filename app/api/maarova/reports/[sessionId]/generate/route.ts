@@ -156,7 +156,7 @@ Return ONLY valid JSON. Each narrative field: 2 paragraphs of 3-4 sentences.
   "dimensionInterpretations": {"DimensionName": "2 sentence interpretation per scored dimension."}
 }
 
-RULES: 3 signatureStrengths (top scoring). 4-5 coachingPriorities with varied timeframes. One dimensionInterpretation per dimension. Return ONLY JSON.`,
+RULES: 3 signatureStrengths (top scoring). 4-5 coachingPriorities with varied timeframes. One dimensionInterpretation per dimension. Return ONLY raw JSON. No markdown fences, no explanation, no text outside the JSON object.`,
     }],
   });
 
@@ -222,7 +222,7 @@ Return ONLY valid JSON with detailed module-level interpretations. Each narrativ
   }` : ""}
 }
 
-RULES: topThree = 3 highest-scoring values with ranks 1,2,3. Return ONLY JSON.`,
+RULES: topThree = 3 highest-scoring values with ranks 1,2,3. Return ONLY raw JSON. No markdown fences, no explanation, no text outside the JSON object.`,
     }],
   });
 
@@ -238,7 +238,9 @@ RULES: topThree = 3 highest-scoring values with ranks 1,2,3. Return ONLY JSON.`,
     console.log("[Maarova] Call B:", resultB.stop_reason, resultB.usage.output_tokens, "tokens");
 
     const parseJson = (text: string, stopReason: string) => {
-      const match = text.match(/\{[\s\S]*\}/);
+      // Strip markdown code fences if present
+      let cleaned = text.replace(/```json\s*/gi, "").replace(/```\s*/g, "");
+      const match = cleaned.match(/\{[\s\S]*\}/);
       if (!match) throw new Error("No JSON found");
       let str = match[0];
       if (stopReason === "max_tokens") {
