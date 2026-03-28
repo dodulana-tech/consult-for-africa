@@ -121,103 +121,156 @@ export async function POST(
     user.yearsInRole != null ? `Years in Current Role: ${user.yearsInRole}` : null,
   ].filter(Boolean).join("\n");
 
-  const systemPrompt = `You are a senior organisational psychologist generating a Maarova Leadership Profile. Never use em dashes. Write in British English, second person. Be concise and personalised.`;
+  const systemPrompt = `You are a senior organisational psychologist generating a Maarova Leadership Profile for an African healthcare leader. Never use em dashes. Write in British English, second person. Be personalised and specific, not generic. Reference Ubuntu, communal leadership, and African health system realities where relevant.`;
 
-  const userPrompt = `Generate a leadership profile report for the following healthcare leader.
+  const scoreContext = `LEADER: ${user.name}\n${demographicContext}\n\nSCORES (0-100):\n${scoreLines.join("\n")}`;
 
-LEADER PROFILE:
-Name: ${user.name}
-${demographicContext}
+  // ─── TWO PARALLEL API CALLS for speed ───
+  // Call A: Core report (~4K tokens, ~40s)
+  // Call B: Module deep dives (~4K tokens, ~40s)
+  // Running in parallel = ~40s total instead of ~90s sequential
 
-ASSESSMENT SCORES (scaled 0-100):
-${scoreLines.join("\n")}
+  const callA = anthropic.messages.create({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 5000,
+    system: systemPrompt,
+    messages: [{
+      role: "user",
+      content: `${scoreContext}
 
-${has360 ? "This leader completed 360 Feedback. Include threeSixty section." : "Set threeSixty to null."}
-
-Return ONLY valid JSON with this structure. Each narrative field should be 1 rich paragraph (4-6 sentences) unless specified otherwise.
+Return ONLY valid JSON. Each narrative field: 2 paragraphs of 3-4 sentences.
 
 {
-  "leadershipArchetype": "2-4 word archetype",
-  "archetypeNarrative": "3 sentences starting with 'Your leadership serves your community through...'",
-  "signatureStrengths": [{"dimension":"name","title":"3-5 word label","description":"1-2 sentences"}],
-  "executiveSummary": "2 paragraphs. Lead with archetype, contextualise in African healthcare.",
-  "disc": {
-    "profileSummary": "1 paragraph on DISC profile and leadership impact.",
-    "communicationDos": ["5 specific do's for communicating with this leader"],
-    "communicationDonts": ["5 specific don'ts"],
-    "underPressure": "1 paragraph on behaviour under stress."
-  },
-  "values": {
-    "profileSummary": "1 paragraph on values structure.",
-    "topThree": [{"value":"Value name","rank":1,"interpretation":"1 paragraph each."}],
-    "healthcareAlignment": "1 paragraph on values alignment with African healthcare and Ubuntu."
-  },
-  "emotionalIntelligence": {
-    "profileSummary": "1 paragraph on EQ capability.",
-    "underPressure": "1 paragraph on EQ under pressure."
-  },
-  "cilti": {
-    "profileSummary": "1 paragraph on clinical-to-leadership transition.",
-    "transitionStage": "'High Risk' or 'Transitioning' or 'Emerging Leader' or 'Established Leader'"
-  },
-  "cultureTeam": {
-    "profileSummary": "1 paragraph on culture preference and team dynamics."
-  },
-  ${has360 ? `"threeSixty": {"summary":"1 paragraph","blindSpots":"1 paragraph","hiddenStrengths":"1 paragraph"},` : `"threeSixty": null,`}
-  "strengthsAnalysis": "1 paragraph on strengths across modules.",
-  "nextLeadershipEdge": "1 paragraph on catalytic growth areas.",
-  "blindSpotAnalysis": "1 paragraph using Hogan overused-strengths frame.",
-  "howOthersExperienceYou": "1 paragraph on how colleagues experience this leader.",
-  "leadershipUnderPressure": "1 paragraph on stress patterns and de-escalation.",
-  "coachingPriorities": [{"priority":1,"title":"title","description":"2 sentences","suggestedActions":["a1","a2","a3"],"timeframe":"timeframe"}],
-  "dimensionInterpretations": {"DimensionName": "1 sentence interpretation."}
+  "leadershipArchetype": "2-4 word archetype (e.g. 'The Strategic Clinician')",
+  "archetypeNarrative": "3-4 sentences starting with 'Your leadership serves your community through...'",
+  "signatureStrengths": [{"dimension":"name","title":"3-5 word label","description":"2 sentences"}],
+  "executiveSummary": "3 paragraphs. Lead with archetype, contextualise in African healthcare, discuss interplay between dimensions.",
+  "strengthsAnalysis": "2 paragraphs on what this leader does well. Observable behaviours, cross-module.",
+  "nextLeadershipEdge": "2 paragraphs on where growth would be most catalytic. Strengths-based.",
+  "blindSpotAnalysis": "2 paragraphs using Hogan overused-strengths frame.",
+  "howOthersExperienceYou": "2 paragraphs on how colleagues experience this leader.",
+  "leadershipUnderPressure": "2 paragraphs on stress patterns drawing from DISC, EQ, CILTI.",
+  "coachingPriorities": [{"priority":1,"title":"title","description":"3 sentences","suggestedActions":["a1","a2","a3"],"timeframe":"timeframe"}],
+  "dimensionInterpretations": {"DimensionName": "2 sentence interpretation per scored dimension."}
 }
 
-RULES: 3 signatureStrengths. 4 coachingPriorities with varied timeframes. topThree = 3 highest-scoring values. One dimensionInterpretation per dimension. Return ONLY JSON.`;
+RULES: 3 signatureStrengths (top scoring). 4-5 coachingPriorities with varied timeframes. One dimensionInterpretation per dimension. Return ONLY JSON.`,
+    }],
+  });
+
+  const callB = anthropic.messages.create({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 5000,
+    system: systemPrompt,
+    messages: [{
+      role: "user",
+      content: `${scoreContext}
+
+Return ONLY valid JSON with detailed module-level interpretations. Each narrative field: 2 paragraphs of 3-4 sentences.
+
+{
+  "disc": {
+    "profileSummary": "2 paragraphs on their DISC profile, primary/adapted styles, day-to-day leadership impact.",
+    "characterInsights": "2 paragraphs of personalised character insights. How colleagues experience this person.",
+    "communicationDos": ["6 specific do's for communicating with this leader"],
+    "communicationDonts": ["6 specific don'ts"],
+    "valueToOrganisation": "1-2 paragraphs on value this style brings to healthcare.",
+    "idealEnvironment": "1 paragraph on where this leader thrives.",
+    "underPressure": "1-2 paragraphs on behaviour under stress, triggers, strategies."
+  },
+  "values": {
+    "profileSummary": "2 paragraphs on their values structure and motivational signature.",
+    "topThree": [{"value":"Value name","rank":1,"interpretation":"2 paragraphs: what it means, strengths, development tips."}],
+    "middleValues": "1 paragraph on situation-dependent middle values.",
+    "lowerValues": "1 paragraph on lower values and blind spots.",
+    "healthcareAlignment": "1-2 paragraphs on values alignment with African healthcare and Ubuntu."
+  },
+  "emotionalIntelligence": {
+    "profileSummary": "2 paragraphs on overall EQ capability.",
+    "dimensions": {
+      "selfAwareness": "1-2 paragraphs.",
+      "empathy": "1-2 paragraphs in context of healthcare and Ubuntu.",
+      "socialSkills": "1-2 paragraphs on relationship management.",
+      "emotionalRegulation": "1-2 paragraphs on pressure handling."
+    },
+    "underPressure": "1-2 paragraphs on EQ under pressure with practical strategies."
+  },
+  "cilti": {
+    "profileSummary": "2 paragraphs on clinical-to-leadership identity transition.",
+    "transitionStage": "'High Risk' or 'Transitioning' or 'Emerging Leader' or 'Established Leader'",
+    "dimensions": {
+      "clinicalIdentity": "1-2 paragraphs.",
+      "leadershipIdentity": "1-2 paragraphs.",
+      "transitionReadiness": "1-2 paragraphs.",
+      "identityFriction": "1-2 paragraphs."
+    },
+    "transitionRoadmap": "1-2 paragraphs with specific next steps."
+  },
+  "cultureTeam": {
+    "profileSummary": "2 paragraphs on culture and team dynamics.",
+    "cvfInterpretation": "1-2 paragraphs on CVF quadrant dominance.",
+    "teamEffectiveness": "1-2 paragraphs on team building.",
+    "engagementProfile": "1-2 paragraphs on engagement drivers."
+  }${has360 ? `,
+  "threeSixty": {
+    "summary": "2 paragraphs on 360 feedback.",
+    "blindSpots": "1-2 paragraphs.",
+    "hiddenStrengths": "1-2 paragraphs.",
+    "stakeholderThemes": "1-2 paragraphs."
+  }` : ""}
+}
+
+RULES: topThree = 3 highest-scoring values with ranks 1,2,3. Return ONLY JSON.`,
+    }],
+  });
 
   let reportData: Record<string, unknown>;
   try {
-    console.log("[Maarova] Starting AI report generation for session:", sessionId);
+    console.log("[Maarova] Starting PARALLEL AI report generation for session:", sessionId);
     const startTime = Date.now();
 
-    const message = await anthropic.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 5000,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }],
-    });
+    const [resultA, resultB] = await Promise.all([callA, callB]);
 
-    console.log("[Maarova] AI response received in", Date.now() - startTime, "ms, stop_reason:", message.stop_reason);
+    console.log("[Maarova] Both calls completed in", Date.now() - startTime, "ms");
+    console.log("[Maarova] Call A:", resultA.stop_reason, resultA.usage.output_tokens, "tokens");
+    console.log("[Maarova] Call B:", resultB.stop_reason, resultB.usage.output_tokens, "tokens");
 
-    const raw = (message.content[0] as { text: string }).text;
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("No JSON in response. Raw: " + raw.slice(0, 200));
-    let jsonStr = jsonMatch[0];
-
-    // If truncated (stop_reason=max_tokens), try to repair the JSON
-    if (message.stop_reason === "max_tokens") {
-      console.log("[Maarova] Response truncated, attempting JSON repair");
-      // Close any open strings, arrays, objects
-      let openBraces = 0, openBrackets = 0, inString = false;
-      for (let i = 0; i < jsonStr.length; i++) {
-        const ch = jsonStr[i];
-        if (ch === '"' && jsonStr[i - 1] !== '\\') inString = !inString;
-        if (!inString) {
-          if (ch === '{') openBraces++;
-          else if (ch === '}') openBraces--;
-          else if (ch === '[') openBrackets++;
-          else if (ch === ']') openBrackets--;
+    const parseJson = (text: string, stopReason: string) => {
+      const match = text.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error("No JSON found");
+      let str = match[0];
+      if (stopReason === "max_tokens") {
+        let braces = 0, brackets = 0, inStr = false;
+        for (let i = 0; i < str.length; i++) {
+          const ch = str[i];
+          if (ch === '"' && str[i - 1] !== '\\') inStr = !inStr;
+          if (!inStr) {
+            if (ch === '{') braces++; else if (ch === '}') braces--;
+            if (ch === '[') brackets++; else if (ch === ']') brackets--;
+          }
         }
+        if (inStr) str += '"';
+        str = str.replace(/,\s*$/, '');
+        for (let i = 0; i < brackets; i++) str += ']';
+        for (let i = 0; i < braces; i++) str += '}';
       }
-      if (inString) jsonStr += '"';
-      // Trim trailing comma
-      jsonStr = jsonStr.replace(/,\s*$/, '');
-      for (let i = 0; i < openBrackets; i++) jsonStr += ']';
-      for (let i = 0; i < openBraces; i++) jsonStr += '}';
+      return JSON.parse(str);
+    };
+
+    const coreReport = parseJson((resultA.content[0] as { text: string }).text, resultA.stop_reason);
+    const moduleReport = parseJson((resultB.content[0] as { text: string }).text, resultB.stop_reason);
+
+    // Merge: core report + module deep dives
+    reportData = { ...coreReport, ...moduleReport };
+
+    // Deep merge module objects (don't overwrite core disc/values with module disc/values)
+    for (const key of ["disc", "values", "emotionalIntelligence", "cilti", "cultureTeam", "threeSixty"]) {
+      if (moduleReport[key] && typeof moduleReport[key] === "object") {
+        reportData[key] = { ...(coreReport[key] as Record<string, unknown> ?? {}), ...(moduleReport[key] as Record<string, unknown>) };
+      }
     }
 
-    reportData = JSON.parse(jsonStr);
-    console.log("[Maarova] Report JSON parsed successfully");
+    console.log("[Maarova] Report merged successfully");
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
     console.error("[Maarova] Report generation FAILED:", errMsg, err);
