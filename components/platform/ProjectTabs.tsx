@@ -2553,11 +2553,13 @@ function TimelineTab({ project, isEM }: { project: Project; isEM: boolean }) {
       </div>
 
       {/* Add milestone */}
-      <div className="flex justify-end">
-        <button onClick={() => setShowAdd(!showAdd)} className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white" style={{ background: "#0F2744" }}>
-          {showAdd ? "Cancel" : "Add Milestone"}
-        </button>
-      </div>
+      {isEM && (
+        <div className="flex justify-end">
+          <button onClick={() => setShowAdd(!showAdd)} className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white" style={{ background: "#0F2744" }}>
+            {showAdd ? "Cancel" : "Add Milestone"}
+          </button>
+        </div>
+      )}
 
       {showAdd && (
         <form onSubmit={addMilestone} className="rounded-xl p-5 space-y-3" style={{ background: "#fff", border: "1px solid #e5eaf0" }}>
@@ -2645,14 +2647,18 @@ function TimelineTab({ project, isEM }: { project: Project; isEM: boolean }) {
                   return (
                     <div key={`ms-${m.id}`} className="flex items-start gap-4 px-5 py-4 group">
                       <div className="flex flex-col items-center gap-1 shrink-0">
-                        <button
-                          onClick={() => cycleStatus(m.id, m.status)}
-                          disabled={updatingId === m.id}
-                          className="transition-transform hover:scale-110 disabled:opacity-50"
-                          title="Click to cycle status"
-                        >
+                        {isEM ? (
+                          <button
+                            onClick={() => cycleStatus(m.id, m.status)}
+                            disabled={updatingId === m.id}
+                            className="transition-transform hover:scale-110 disabled:opacity-50"
+                            title="Click to cycle status"
+                          >
+                            <MIcon size={18} style={{ color: iconColor }} />
+                          </button>
+                        ) : (
                           <MIcon size={18} style={{ color: iconColor }} />
-                        </button>
+                        )}
                         {i < entries.length - 1 && (
                           <div className="w-0.5 h-6 bg-gray-100" />
                         )}
@@ -2666,7 +2672,7 @@ function TimelineTab({ project, isEM }: { project: Project; isEM: boolean }) {
                           <div className="flex items-center gap-2">
                             <span className="text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ background: "#FEF9E7", color: "#92711F" }}>Milestone</span>
                             <StatusBadge status={m.status} />
-                            <button onClick={() => deleteMilestone(m.id)} className="text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs">x</button>
+                            {isEM && <button onClick={() => deleteMilestone(m.id)} className="text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs">x</button>}
                           </div>
                         </div>
                         <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{m.description}</p>
