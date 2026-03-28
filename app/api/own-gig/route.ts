@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { emailOwnGigPendingReview } from "@/lib/email";
+import { getOwnGigEligibility, checkOwnGigLimits, checkBudgetWithinTierLimits } from "@/lib/consultantTier";
 
 const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
 
@@ -36,6 +37,17 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Only consultants can create own gigs" }, { status: 403 });
   }
 
+  // ─── Tier eligibility checks ──────────────────────────────────────────────
+  const eligibility = await getOwnGigEligibility(session.user.id);
+  if (!eligibility.eligible) {
+    return Response.json({ error: eligibility.reason }, { status: 403 });
+  }
+
+  const limits = await checkOwnGigLimits(session.user.id);
+  if (!limits.allowed) {
+    return Response.json({ error: limits.reason }, { status: 400 });
+  }
+
   const body = await req.json();
   const {
     clientName, clientEmail, clientPhone, clientContactName,
@@ -59,6 +71,25 @@ export async function POST(req: NextRequest) {
 
   if (feeModel === "FLAT_MONTHLY" && (!flatMonthlyFee || flatMonthlyFee <= 0)) {
     return Response.json({ error: "flatMonthlyFee is required for FLAT_MONTHLY model" }, { status: 400 });
+  }
+
+  // ─── Budget tier limit check ──────────────────────────────────────────────
+  if (budgetAmount && Number(budgetAmount) > 0) {
+    const profile = await prisma.consultantProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { tier: true },
+    });
+    const tier = (profile?.tier ?? "INTERN") as "INTERN" | "EMERGING" | "STANDARD" | "EXPERIENCED" | "ELITE";
+    const currency = (budgetCurrency ?? "NGN") as "NGN" | "USD";
+    const budgetCheck = checkBudgetWithinTierLimits(tier, Number(budgetAmount), currency);
+    if (!budgetCheck.allowed) {
+      return Response.json({ error: budgetCheck.reason }, { status: 400 });
+    }
+  }
+
+  // ─── Min fee percentage from tier ─────────────────────────────────────────
+  if (feeModel === "PERCENTAGE" && feePct < eligibility.minFeePct) {
+    return Response.json({ error: `Minimum platform fee for your tier is ${eligibility.minFeePct}%` }, { status: 400 });
   }
 
   const engagementType = rawType ?? "PROJECT";

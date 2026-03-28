@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getConsultantCapacity } from "@/lib/capacity";
 import { redirect } from "next/navigation";
-import { Briefcase, FileCheck, AlertTriangle, Clock, TrendingUp, XCircle, Gauge, Inbox, Sparkles } from "lucide-react";
+import { Briefcase, FileCheck, AlertTriangle, Clock, TrendingUp, XCircle, Gauge, Inbox, Sparkles, Shield } from "lucide-react";
 import Link from "next/link";
 import TopBar from "@/components/platform/TopBar";
 import StatCard from "@/components/platform/StatCard";
@@ -11,6 +11,7 @@ import StatusBadge from "@/components/platform/StatusBadge";
 import ConsultantCapacityWidget from "@/components/platform/ConsultantCapacityWidget";
 import { formatDate, timeAgo, budgetUtilization, daysRemaining, timelineProgress } from "@/lib/utils";
 import { getDashboardInsights, getPersonalImpact } from "@/lib/dashboardInsights";
+import { calculateTierScore, TIER_BADGES } from "@/lib/consultantTier";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -89,6 +90,7 @@ export default async function DashboardPage() {
     : 0;
 
   const capacity = isConsultant ? await getConsultantCapacity(userId) : null;
+  const tierScore = isConsultant ? await calculateTierScore(userId) : null;
 
   // ─── Recent updates ───────────────────────────────────────────────────────
   const recentUpdates = await prisma.engagementUpdate.findMany({
@@ -365,6 +367,101 @@ export default async function DashboardPage() {
             openOpportunities={openOpportunities}
           />
         )}
+
+        {/* Your C4A Standing */}
+        {isConsultant && tierScore && (() => {
+          const tb = TIER_BADGES[tierScore.currentTier];
+          const next = tierScore.nextTierRequirements;
+          const elig = tierScore.ownGigEligibility;
+
+          // Threshold targets for next tier progress bars
+          const THRESHOLDS: Record<string, { hours: number; projects: number; months: number; rating: number | null }> = {
+            EMERGING: { hours: 50, projects: 1, months: 0, rating: null },
+            STANDARD: { hours: 200, projects: 2, months: 3, rating: 3.5 },
+            EXPERIENCED: { hours: 500, projects: 5, months: 6, rating: 4.0 },
+            ELITE: { hours: 1000, projects: 10, months: 12, rating: 4.5 },
+          };
+          const target = next ? THRESHOLDS[next.tier] : null;
+
+          return (
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <Shield size={16} className="text-[#0F2744]" />
+                  <h2 className="text-sm font-semibold text-[#0F2744]">Your C4A Standing</h2>
+                </div>
+                <span
+                  className="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                  style={{ backgroundColor: tb.bg, color: tb.color }}
+                >
+                  {tb.label}
+                </span>
+              </div>
+
+              {/* Progress to next tier */}
+              {next && target && (
+                <div className="space-y-2.5">
+                  <p className="text-xs text-slate-500">Progress to {TIER_BADGES[next.tier]?.label ?? next.tier} tier</p>
+                  <div className="space-y-2">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-600">Hours</span>
+                        <span className="text-slate-400">{Math.round(tierScore.totalPlatformHours)} / {target.hours}</span>
+                      </div>
+                      <div className="h-1.5 rounded-full" style={{ background: "#e5eaf0" }}>
+                        <div className="h-1.5 rounded-full" style={{ width: `${Math.min(100, (tierScore.totalPlatformHours / target.hours) * 100)}%`, background: "#D4A574" }} />
+                      </div>
+                    </div>
+                    <div className="space-y-0.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-600">Projects</span>
+                        <span className="text-slate-400">{tierScore.completedProjects} / {target.projects}</span>
+                      </div>
+                      <div className="h-1.5 rounded-full" style={{ background: "#e5eaf0" }}>
+                        <div className="h-1.5 rounded-full" style={{ width: `${Math.min(100, (tierScore.completedProjects / target.projects) * 100)}%`, background: "#D4A574" }} />
+                      </div>
+                    </div>
+                    {target.months > 0 && (
+                      <div className="space-y-0.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-slate-600">Months</span>
+                          <span className="text-slate-400">{tierScore.monthsOnPlatform} / {target.months}</span>
+                        </div>
+                        <div className="h-1.5 rounded-full" style={{ background: "#e5eaf0" }}>
+                          <div className="h-1.5 rounded-full" style={{ width: `${Math.min(100, (tierScore.monthsOnPlatform / target.months) * 100)}%`, background: "#D4A574" }} />
+                        </div>
+                      </div>
+                    )}
+                    {target.rating !== null && (
+                      <div className="space-y-0.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-slate-600">Rating</span>
+                          <span className="text-slate-400">{tierScore.averageRating.toFixed(1)} / {target.rating}</span>
+                        </div>
+                        <div className="h-1.5 rounded-full" style={{ background: "#e5eaf0" }}>
+                          <div className="h-1.5 rounded-full" style={{ width: `${Math.min(100, (tierScore.averageRating / target.rating) * 100)}%`, background: "#D4A574" }} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Own gig eligibility */}
+              <div className="pt-1">
+                {elig.eligible ? (
+                  <p className="text-xs text-green-700">
+                    Own gigs available. {elig.maxConcurrent === -1 ? "Unlimited" : `Up to ${elig.maxConcurrent}`} concurrent gig{elig.maxConcurrent !== 1 ? "s" : ""}.
+                  </p>
+                ) : (
+                  <p className="text-xs text-slate-500">
+                    {next ? `${next.hoursNeeded > 0 ? `${next.hoursNeeded} more hours` : ""}${next.hoursNeeded > 0 && next.projectsNeeded > 0 ? " and " : ""}${next.projectsNeeded > 0 ? `${next.projectsNeeded} more project${next.projectsNeeded !== 1 ? "s" : ""}` : ""} to unlock own gigs` : "Keep building your track record to unlock own gigs."}
+                  </p>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

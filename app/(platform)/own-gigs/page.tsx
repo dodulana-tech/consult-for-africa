@@ -3,7 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import TopBar from "@/components/platform/TopBar";
-import { Plus, ChevronRight, Briefcase } from "lucide-react";
+import { Plus, ChevronRight, Briefcase, Shield, Lock, TrendingUp } from "lucide-react";
+import { calculateTierScore, TIER_BADGES } from "@/lib/consultantTier";
 
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   PLANNING:  { bg: "#EFF6FF", color: "#1D4ED8" },
@@ -65,6 +66,9 @@ export default async function OwnGigsPage() {
   });
   const feesThisMonth = Number(pendingFees._sum.feeAmount ?? 0);
 
+  // Tier data for consultants
+  const tierScore = role === "CONSULTANT" ? await calculateTierScore(userId) : null;
+
   return (
     <>
       <TopBar title="My Gigs" subtitle="Manage your own consulting engagements" />
@@ -91,7 +95,7 @@ export default async function OwnGigsPage() {
             </div>
           </div>
 
-          {role === "CONSULTANT" && (
+          {role === "CONSULTANT" && tierScore?.ownGigEligibility.eligible && (
             <Link
               href="/own-gigs/new"
               className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white"
@@ -101,6 +105,86 @@ export default async function OwnGigsPage() {
             </Link>
           )}
         </div>
+
+        {/* Tier status banner */}
+        {tierScore && role === "CONSULTANT" && (() => {
+          const tb = TIER_BADGES[tierScore.currentTier];
+          const elig = tierScore.ownGigEligibility;
+          const next = tierScore.nextTierRequirements;
+
+          if (!elig.eligible) {
+            // Not eligible for own gigs
+            const THRESHOLDS: Record<string, { hours: number; projects: number; months: number; rating: number | null }> = {
+              EMERGING: { hours: 50, projects: 1, months: 0, rating: null },
+              STANDARD: { hours: 200, projects: 2, months: 3, rating: 3.5 },
+              EXPERIENCED: { hours: 500, projects: 5, months: 6, rating: 4.0 },
+              ELITE: { hours: 1000, projects: 10, months: 12, rating: 4.5 },
+            };
+            const target = THRESHOLDS.STANDARD; // Own gigs unlock at STANDARD
+            return (
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: "#FEF2F2" }}>
+                    <Lock size={16} className="text-red-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-[#0F2744]">Own gigs are not yet available</p>
+                      <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ backgroundColor: tb.bg, color: tb.color }}>{tb.label}</span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">{elig.reason}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { label: "Hours", value: tierScore.totalPlatformHours, max: target.hours },
+                    { label: "Projects", value: tierScore.completedProjects, max: target.projects },
+                    { label: "Months", value: tierScore.monthsOnPlatform, max: target.months },
+                    ...(target.rating ? [{ label: "Rating", value: tierScore.averageRating, max: target.rating }] : []),
+                  ].map((item) => (
+                    <div key={item.label} className="space-y-1">
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className="text-slate-500">{item.label}</span>
+                        <span className="text-slate-400">{typeof item.value === "number" && item.value % 1 !== 0 ? item.value.toFixed(1) : Math.round(item.value)} / {item.max}</span>
+                      </div>
+                      <div className="h-1.5 rounded-full" style={{ background: "#e5eaf0" }}>
+                        <div className="h-1.5 rounded-full" style={{ width: `${Math.min(100, (item.value / item.max) * 100)}%`, background: "#D4A574" }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          }
+
+          // Eligible: show limits
+          const activeOwnGigs = gigs.filter((g) => ["PLANNING", "ACTIVE", "ON_HOLD"].includes(g.status)).length;
+          const maxConc = elig.maxConcurrent;
+          const atLimit = maxConc !== -1 && activeOwnGigs >= maxConc;
+
+          return (
+            <div
+              className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-xl px-4 py-3"
+              style={{ background: atLimit ? "#FEF3C7" : "#e5eaf0", border: `1px solid ${atLimit ? "#FDE68A" : "#d0d8e3"}` }}
+            >
+              <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                <Shield size={14} className="text-[#0F2744] shrink-0" />
+                <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold shrink-0" style={{ backgroundColor: tb.bg, color: tb.color }}>{tb.label}</span>
+                <span className="text-xs text-slate-600 truncate">
+                  {atLimit
+                    ? `You have reached your limit of ${maxConc} concurrent own gig${maxConc !== 1 ? "s" : ""} for this tier.`
+                    : `${maxConc === -1 ? "Unlimited" : `${activeOwnGigs} of ${maxConc}`} concurrent gig${maxConc !== 1 ? "s" : ""} used${elig.maxBudgetNGN > 0 && elig.maxBudgetNGN !== -1 ? ` · Max budget: \u20A6${elig.maxBudgetNGN.toLocaleString()} / $${elig.maxBudgetUSD.toLocaleString()}` : ""}${elig.minFeePct < 10 ? ` · Min fee: ${elig.minFeePct}%` : ""}`
+                  }
+                </span>
+              </div>
+              {next && (
+                <span className="text-[10px] text-slate-400 shrink-0">
+                  {next.hoursNeeded > 0 ? `${next.hoursNeeded}h` : ""}{next.hoursNeeded > 0 && next.projectsNeeded > 0 ? " + " : ""}{next.projectsNeeded > 0 ? `${next.projectsNeeded} project${next.projectsNeeded !== 1 ? "s" : ""}` : ""} to {TIER_BADGES[next.tier]?.label ?? next.tier}
+                </span>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Gig list */}
         {gigs.length === 0 ? (

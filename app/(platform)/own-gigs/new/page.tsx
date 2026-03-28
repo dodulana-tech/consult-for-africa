@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import TopBar from "@/components/platform/TopBar";
-import { ArrowLeft, ArrowRight, Check, Loader2, Info } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2, Info, Lock, TrendingUp } from "lucide-react";
 
 const SERVICE_TYPES = [
   { value: "HOSPITAL_OPERATIONS", label: "Hospital Operations" },
@@ -25,6 +25,55 @@ const PLATFORM_FEE_PCT = 12;
 
 const STEPS = ["Client", "Project", "Platform Fee", "Review"];
 
+const TIER_BADGES: Record<string, { bg: string; color: string; label: string }> = {
+  INTERN:      { bg: "#F3F4F6", color: "#6B7280", label: "Intern" },
+  EMERGING:    { bg: "#DBEAFE", color: "#1D4ED8", label: "Emerging" },
+  STANDARD:    { bg: "#D1FAE5", color: "#065F46", label: "Standard" },
+  EXPERIENCED: { bg: "#FEF3C7", color: "#92400E", label: "Experienced" },
+  ELITE:       { bg: "#0F2744", color: "#D4A574", label: "Elite" },
+};
+
+interface TierData {
+  currentTier: string;
+  totalPlatformHours: number;
+  completedProjects: number;
+  averageRating: number;
+  monthsOnPlatform: number;
+  ownGigEligibility: {
+    eligible: boolean;
+    maxConcurrent: number;
+    maxBudgetNGN: number;
+    maxBudgetUSD: number;
+    minFeePct: number;
+    reason: string;
+  };
+  nextTierRequirements: {
+    tier: string;
+    hoursNeeded: number;
+    ratingsNeeded: number;
+    projectsNeeded: number;
+    monthsNeeded: number;
+  } | null;
+}
+
+function ProgressBar({ value, max, label }: { value: number; max: number; label: string }) {
+  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between text-xs">
+        <span className="text-slate-600">{label}</span>
+        <span className="text-slate-500">{Math.round(value)} / {max}</span>
+      </div>
+      <div className="h-2 rounded-full" style={{ background: "#e5eaf0" }}>
+        <div
+          className="h-2 rounded-full transition-all"
+          style={{ width: `${pct}%`, background: "#D4A574" }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function NewOwnGigPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -32,6 +81,10 @@ export default function NewOwnGigPage() {
   const [error, setError] = useState("");
   const [feeAccepted, setFeeAccepted] = useState(false);
   const [feePct, setFeePct] = useState(String(PLATFORM_FEE_PCT));
+
+  // Tier data
+  const [tierData, setTierData] = useState<TierData | null>(null);
+  const [tierLoading, setTierLoading] = useState(true);
 
   // Client fields
   const [clientName, setClientName] = useState("");
@@ -50,7 +103,23 @@ export default function NewOwnGigPage() {
 
   const budget = Number(budgetAmount || 0);
   const platformFee = Math.round(budget * Number(feePct) / 100);
-  const symbol = budgetCurrency === "NGN" ? "₦" : "$";
+  const symbol = budgetCurrency === "NGN" ? "\u20A6" : "$";
+
+  useEffect(() => {
+    fetch("/api/consultant/tier")
+      .then((r) => r.json())
+      .then((d) => setTierData(d))
+      .catch(() => {})
+      .finally(() => setTierLoading(false));
+  }, []);
+
+  // Set min fee from tier
+  useEffect(() => {
+    if (tierData?.ownGigEligibility) {
+      const minFee = tierData.ownGigEligibility.minFeePct;
+      if (Number(feePct) < minFee) setFeePct(String(minFee));
+    }
+  }, [tierData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const canNext = () => {
     if (step === 0) return clientName && clientContactName && clientEmail;
@@ -91,14 +160,135 @@ export default function NewOwnGigPage() {
     }
   }
 
-  const inputCls = "w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/40 focus:border-[#D4AF37]";
+  const inputCls = "w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A574]/40 focus:border-[#D4A574]";
   const labelCls = "block text-xs font-medium text-slate-600 mb-1.5";
+
+  if (tierLoading) {
+    return (
+      <>
+        <TopBar title="New Own Gig" subtitle="Set up a project for your own client" />
+        <div className="p-6 flex items-center justify-center min-h-[300px]">
+          <Loader2 size={24} className="animate-spin text-slate-400" />
+        </div>
+      </>
+    );
+  }
+
+  // Not eligible: show explanation and progress
+  if (tierData && !tierData.ownGigEligibility.eligible) {
+    const tb = TIER_BADGES[tierData.currentTier] ?? TIER_BADGES.INTERN;
+    const next = tierData.nextTierRequirements;
+
+    // Calculate progress toward STANDARD (the tier that unlocks own gigs)
+    const stdHours = 200;
+    const stdProjects = 2;
+    const stdMonths = 3;
+
+    return (
+      <>
+        <TopBar title="New Own Gig" subtitle="Set up a project for your own client" />
+        <div className="p-6 max-w-2xl mx-auto space-y-6">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "#FEF2F2" }}>
+                <Lock size={18} className="text-red-500" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-[#0F2744]">Own Gigs Not Yet Available</h2>
+                <p className="text-sm text-slate-500">{tierData.ownGigEligibility.reason}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500">Current tier:</span>
+              <span
+                className="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                style={{ backgroundColor: tb.bg, color: tb.color }}
+              >
+                {tb.label}
+              </span>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center gap-2 text-sm font-semibold text-[#0F2744]">
+                <TrendingUp size={14} />
+                <span>Progress to Standard Tier</span>
+              </div>
+              <ProgressBar
+                label="Platform hours"
+                value={tierData.totalPlatformHours}
+                max={stdHours}
+              />
+              <ProgressBar
+                label="Completed projects"
+                value={tierData.completedProjects}
+                max={stdProjects}
+              />
+              <ProgressBar
+                label="Months on platform"
+                value={tierData.monthsOnPlatform}
+                max={stdMonths}
+              />
+              {tierData.averageRating > 0 && (
+                <ProgressBar
+                  label="Average rating"
+                  value={tierData.averageRating}
+                  max={3.5}
+                />
+              )}
+            </div>
+
+            {next && (
+              <div
+                className="rounded-lg p-3 text-xs text-slate-600 space-y-1"
+                style={{ background: "#e5eaf0" }}
+              >
+                <p className="font-semibold text-[#0F2744]">What you need next:</p>
+                {next.hoursNeeded > 0 && <p>{next.hoursNeeded} more approved hours</p>}
+                {next.projectsNeeded > 0 && <p>{next.projectsNeeded} more completed project{next.projectsNeeded !== 1 ? "s" : ""}</p>}
+                {next.monthsNeeded > 0 && <p>{next.monthsNeeded} more month{next.monthsNeeded !== 1 ? "s" : ""} on the platform</p>}
+                {next.ratingsNeeded > 0 && <p>Rating needs to improve by {next.ratingsNeeded} points</p>}
+              </div>
+            )}
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  const minFee = tierData?.ownGigEligibility.minFeePct ?? 10;
 
   return (
     <>
       <TopBar title="New Own Gig" subtitle="Set up a project for your own client" />
 
       <div className="p-6 max-w-2xl mx-auto">
+        {/* Tier info banner */}
+        {tierData && (
+          <div
+            className="flex items-center gap-3 rounded-xl px-4 py-3 mb-6 text-sm"
+            style={{ background: "#e5eaf0", border: "1px solid #d0d8e3" }}
+          >
+            {(() => {
+              const tb = TIER_BADGES[tierData.currentTier] ?? TIER_BADGES.STANDARD;
+              return (
+                <span
+                  className="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold shrink-0"
+                  style={{ backgroundColor: tb.bg, color: tb.color }}
+                >
+                  {tb.label}
+                </span>
+              );
+            })()}
+            <span className="text-slate-600 text-xs">
+              {tierData.ownGigEligibility.reason}
+              {tierData.ownGigEligibility.maxBudgetNGN > 0 && tierData.ownGigEligibility.maxBudgetNGN !== -1 && (
+                <> · Max budget: {"\u20A6"}{tierData.ownGigEligibility.maxBudgetNGN.toLocaleString()} / ${tierData.ownGigEligibility.maxBudgetUSD.toLocaleString()}</>
+              )}
+            </span>
+          </div>
+        )}
+
         {/* Step indicator */}
         <div className="flex items-center gap-2 mb-8">
           {STEPS.map((s, i) => (
@@ -178,11 +368,16 @@ export default function NewOwnGigPage() {
                 <div>
                   <label className={labelCls}>Budget</label>
                   <input className={inputCls} type="number" value={budgetAmount} onChange={(e) => setBudgetAmount(e.target.value)} placeholder="5000000" />
+                  {tierData && tierData.ownGigEligibility.maxBudgetNGN > 0 && tierData.ownGigEligibility.maxBudgetNGN !== -1 && (
+                    <p className="text-xs text-slate-400 mt-1">
+                      Max: {budgetCurrency === "NGN" ? `\u20A6${tierData.ownGigEligibility.maxBudgetNGN.toLocaleString()}` : `$${tierData.ownGigEligibility.maxBudgetUSD.toLocaleString()}`}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className={labelCls}>Currency</label>
                   <select className={inputCls} value={budgetCurrency} onChange={(e) => setBudgetCurrency(e.target.value)}>
-                    <option value="NGN">NGN (₦)</option>
+                    <option value="NGN">NGN ({"\u20A6"})</option>
                     <option value="USD">USD ($)</option>
                   </select>
                 </div>
@@ -208,13 +403,13 @@ export default function NewOwnGigPage() {
                   <span className="text-base font-bold text-[#0F2744]">{feePct}%</span>
                 </div>
                 <input
-                  type="range" min="10" max="15" step="0.5"
+                  type="range" min={minFee} max="15" step="0.5"
                   value={feePct}
                   onChange={(e) => setFeePct(e.target.value)}
                   className="w-full accent-[#D4AF37]"
                 />
                 <div className="flex justify-between text-[10px] text-slate-400">
-                  <span>10%</span>
+                  <span>{minFee}%{minFee < 10 ? " (tier benefit)" : ""}</span>
                   <span className="font-semibold text-[#D4AF37]">{PLATFORM_FEE_PCT}% standard</span>
                   <span>15%</span>
                 </div>
