@@ -128,7 +128,8 @@ function NewMeetingForm() {
       if (!res.ok) throw new Error(data.error || "Failed to create meeting");
       router.push(`/meetings/${data.meeting.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Meeting creation failed:", err);
+      setError("Unable to create the meeting. Please try again.");
     } finally {
       setSaving(false);
     }

@@ -80,7 +80,8 @@ function NewDiscoveryCallForm() {
 
       router.push(`/discovery-calls/${data.call.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Discovery call creation failed:", err);
+      setError("Unable to create the discovery call. Please try again.");
     } finally {
       setSaving(false);
     }

@@ -84,7 +84,8 @@ export default function MaarovaDemoPage() {
       setStatus("success");
     } catch (err) {
       setStatus("error");
-      setErrorMsg(err instanceof Error ? err.message : "Something went wrong.");
+      console.error("Demo request failed:", err);
+      setErrorMsg("Unable to submit your request. Please try again.");
     }
   }
 

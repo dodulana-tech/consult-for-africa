@@ -62,7 +62,8 @@ export default function NewLeadPage() {
       if (!res.ok) throw new Error(data.error || "Failed");
       router.push(`/leads/${data.lead.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Lead creation failed:", err);
+      setError("Unable to create the lead. Please try again.");
     } finally {
       setSaving(false);
     }

@@ -1297,7 +1297,8 @@ function EnablePortalButton({
       }
       onDone();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to enable portal";
+      console.error("Coach portal enable failed:", err);
+      const msg = "Unable to enable the coach portal. Please try again.";
       setError(msg);
       alert(msg);
     } finally {

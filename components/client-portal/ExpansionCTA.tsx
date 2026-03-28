@@ -50,7 +50,8 @@ export default function ExpansionCTA({ projectId }: { projectId?: string }) {
 
       setSubmitted(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      console.error("Expansion request failed:", err);
+      setError("Unable to submit your request. Please try again.");
     } finally {
       setSubmitting(false);
     }

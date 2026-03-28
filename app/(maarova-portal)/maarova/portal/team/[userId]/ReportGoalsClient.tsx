@@ -86,7 +86,8 @@ export default function ReportGoalsClient({ userId }: { userId: string }) {
       setAssignForm({ title: "", description: "", dimension: "", targetDate: "" });
       setShowAssign(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Goal assignment failed:", err);
+      setError("Unable to save the goal. Please try again.");
     } finally {
       setSaving(false);
     }

@@ -1215,8 +1215,7 @@ function TracksTab({ project, isEM }: { project: Project; isEM: boolean }) {
     if (res.ok) {
       await refresh();
     } else {
-      const text = await res.text();
-      alert(text || "Could not delete track.");
+      alert("Could not delete this track. Please try again.");
     }
   }
 

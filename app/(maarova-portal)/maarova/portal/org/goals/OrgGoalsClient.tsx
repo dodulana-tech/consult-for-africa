@@ -87,7 +87,8 @@ export default function OrgGoalsClient() {
       setForm({ userId: "", title: "", description: "", dimension: "", targetDate: "" });
       setShowAssign(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Goal assignment failed:", err);
+      setError("Unable to assign the goal. Please try again.");
     } finally {
       setSaving(false);
     }

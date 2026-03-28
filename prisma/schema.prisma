@@ -50,6 +50,13 @@ enum OwnGigFeeModel {
   FLAT_MONTHLY
 }
 
+enum OwnGigApprovalStatus {
+  PENDING
+  APPROVED
+  NEEDS_CHANGES
+  REJECTED
+}
+
 enum ClientType {
   PRIVATE_ELITE
   PRIVATE_MIDTIER
@@ -303,6 +310,7 @@ model User {
   paymentsConfirmed      Payment[]          @relation("PaymentConfirmer")
   creditNotesCreated     CreditNote[]       @relation("CreditNoteCreator")
   ownGigEngagements      Engagement[]       @relation("OwnGigOwner")
+  ownGigReviews          Engagement[]       @relation("OwnGigReviewer")
   ownGigFees             OwnGigPlatformFee[] @relation("OwnGigFeeConsultant")
   trackPurchases         TrackPurchase[]
   sourceApplicationId    String?            // TalentApplication ID that created this ACADEMY_LEARNER account
@@ -469,6 +477,14 @@ model Engagement {
   ownGigFeeModel          OwnGigFeeModel?
   ownGigFeePct            Decimal?      @db.Decimal(5, 2)  // 10-15% for PERCENTAGE model
   ownGigFlatMonthlyFee    Decimal?      @db.Decimal(14, 2) // for FLAT_MONTHLY model
+  ownGigApprovalStatus    OwnGigApprovalStatus?
+  ownGigApprovalNote      String?       @db.Text
+  ownGigSubmittedAt       DateTime?
+  ownGigReviewedAt        DateTime?
+  ownGigReviewedById      String?
+  ownGigReviewedBy        User?         @relation("OwnGigReviewer", fields: [ownGigReviewedById], references: [id])
+  ownGigConflictFlag      Boolean       @default(false)
+  ownGigConflictNote      String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

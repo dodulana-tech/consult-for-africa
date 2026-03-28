@@ -42,7 +42,7 @@ export default function ExternalSignPage({ params }: { params: Promise<{ token: 
         if (!r.ok) throw new Error(data.error);
         setNda(data.nda);
       })
-      .catch((err) => setError(err.message))
+      .catch((err) => { console.error("NDA load failed:", err); setError("Unable to load this NDA. The link may be invalid or expired."); })
       .finally(() => setLoading(false));
   }, [token]);
 
@@ -59,7 +59,8 @@ export default function ExternalSignPage({ params }: { params: Promise<{ token: 
       if (!res.ok) throw new Error(data.error);
       setSigned(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to sign");
+      console.error("NDA sign failed:", err);
+      setError("Unable to sign the NDA. Please try again.");
     } finally {
       setSigning(false);
     }

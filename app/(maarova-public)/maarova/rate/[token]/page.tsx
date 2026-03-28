@@ -144,11 +144,8 @@ export default function PublicRateTokenPage() {
       }
       setSubmitted(true);
     } catch (err) {
-      alert(
-        err instanceof Error
-          ? err.message
-          : "Failed to submit. Please try again."
-      );
+      console.error("Rating submission failed:", err);
+      alert("Unable to submit your response. Please try again.");
     } finally {
       setSubmitting(false);
     }

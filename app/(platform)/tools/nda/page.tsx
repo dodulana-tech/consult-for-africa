@@ -128,7 +128,8 @@ export default function NdaToolPage() {
         partyAEmail: "", partyBName: "", partyBTitle: "", engagementId: "", clientId: "", consultantId: "",
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create NDA");
+      console.error("NDA creation failed:", err);
+      setError("Unable to create the NDA. Please try again.");
     } finally {
       setCreating(false);
     }

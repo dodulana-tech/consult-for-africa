@@ -106,10 +106,10 @@ export default function ModuleViewer({
         setQuizResult(data);
         setShowExplanations(true);
       } else {
-        alert(data.error || "Failed to submit quiz");
+        alert("Unable to submit your quiz. Please try again.");
       }
     } catch {
-      alert("Failed to submit quiz");
+      alert("Unable to submit your quiz. Please try again.");
     } finally {
       setSubmitting(false);
     }

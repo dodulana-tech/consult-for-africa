@@ -26,7 +26,8 @@ export default function CoachLoginPage() {
       if (!res.ok) throw new Error(data.error || "Invalid credentials");
       router.push("/maarova/coach/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Coach login failed:", err);
+      setError("Unable to sign in. Please check your credentials and try again.");
     } finally {
       setLoading(false);
     }

@@ -508,10 +508,10 @@ export default function ThreeSixtyClient({ request, userName }: Props) {
                                         alert(`Invite resent to ${invite.raterEmail}`);
                                       } else {
                                         const data = await res.json();
-                                        alert(data.error || "Failed to resend");
+                                        alert("Unable to resend this invite. Please try again.");
                                       }
                                     } catch {
-                                      alert("Failed to resend invite");
+                                      alert("Unable to resend this invite. Please try again.");
                                     }
                                   }}
                                   className="text-xs font-medium px-2.5 py-1 rounded-lg border transition-colors hover:bg-gray-50"

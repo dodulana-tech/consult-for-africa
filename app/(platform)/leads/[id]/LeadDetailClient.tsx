@@ -72,7 +72,8 @@ export default function LeadDetailClient({ lead: initialLead }: { lead: LeadData
       const data = await refreshRes.json();
       setLead(data.lead);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed");
+      console.error("Lead qualification failed:", err);
+      setError("Unable to qualify this lead. Please try again.");
     } finally {
       setQualifying(false);
     }
@@ -92,8 +93,10 @@ export default function LeadDetailClient({ lead: initialLead }: { lead: LeadData
       setLead(data.lead);
       setOutreachForm({ channel: "EMAIL", notes: "", response: "" });
       setShowOutreach(false);
-    } catch {}
-    finally { setOutreachSaving(false); }
+    } catch (err) {
+      console.error("Outreach log failed:", err);
+      setError("Unable to save outreach. Please try again.");
+    } finally { setOutreachSaving(false); }
   }
 
   async function updateStatus(status: string) {

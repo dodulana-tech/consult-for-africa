@@ -72,7 +72,8 @@ export default function OrgUsersClient() {
       setSuccess("Updated successfully");
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("User update failed:", err);
+      setError("Unable to update the user. Please try again.");
     } finally {
       setSaving(false);
     }

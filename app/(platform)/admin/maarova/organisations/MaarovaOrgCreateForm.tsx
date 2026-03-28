@@ -71,7 +71,8 @@ export default function MaarovaOrgCreateForm() {
       setOpen(false);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Organisation creation failed:", err);
+      setError("Unable to create the organisation. Please try again.");
     } finally {
       setSaving(false);
     }

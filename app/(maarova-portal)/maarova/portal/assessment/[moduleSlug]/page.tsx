@@ -63,7 +63,8 @@ function useSessionId(): { sessionId: string | null; sessionError: string | null
         }
       })
       .catch((err) => {
-        setSessionError(err.message ?? "Failed to start session. Please try again.");
+        console.error("Session start failed:", err);
+        setSessionError("Failed to start session. Please try again.");
       });
   }, []);
   return { sessionId, sessionError };
@@ -125,7 +126,8 @@ export default function AssessmentModulePage({
         setLoading(false);
       })
       .catch((err) => {
-        setError(err.message);
+        console.error("Module load failed:", err);
+        setError("Unable to load this assessment module. Please try again.");
         setLoading(false);
       });
   }, [sessionId, moduleSlug]);

@@ -208,7 +208,8 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
       setEditingOrg(false);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Org update failed:", err);
+      setError("Unable to update the organisation. Please try again.");
     } finally {
       setSavingOrg(false);
     }
@@ -233,7 +234,8 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
       setSuccess(`Organisation ${org.isActive ? "deactivated" : "activated"}.`);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Org status toggle failed:", err);
+      setError("Unable to update the organisation status. Please try again.");
     } finally {
       setActionLoading(null);
     }
@@ -273,7 +275,8 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
       setShowAddUser(false);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("User create failed:", err);
+      setError("Unable to create the user. Please try again.");
     } finally {
       setSavingUser(false);
     }
@@ -321,7 +324,8 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
       setEditingUserId(null);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("User update failed:", err);
+      setError("Unable to update the user. Please try again.");
     } finally {
       setSavingEditUser(false);
     }
@@ -337,12 +341,13 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
       const res = await fetch(`/api/maarova/admin/users/${userId}/enable`, {
         method: "POST",
       });
-      if (!res.ok) throw new Error(await res.text() || "Failed to enable portal");
+      if (!res.ok) throw new Error("enable portal failed");
 
       setSuccess("Portal enabled and invite sent.");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Portal enable failed:", err);
+      setError("Unable to enable the portal. Please try again.");
     } finally {
       setActionLoading(null);
     }
@@ -356,12 +361,13 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
       const res = await fetch(`/api/maarova/admin/users/${userId}/disable`, {
         method: "POST",
       });
-      if (!res.ok) throw new Error(await res.text() || "Failed to disable portal");
+      if (!res.ok) throw new Error("disable portal failed");
 
       setSuccess("Portal access disabled.");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Portal disable failed:", err);
+      setError("Unable to disable the portal. Please try again.");
     } finally {
       setActionLoading(null);
     }
@@ -375,12 +381,13 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
       const res = await fetch(`/api/maarova/admin/users/${userId}/enable`, {
         method: "POST",
       });
-      if (!res.ok) throw new Error(await res.text() || "Failed to resend invite");
+      if (!res.ok) throw new Error("resend invite failed");
 
       setSuccess("Invite resent with new credentials.");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Invite resend failed:", err);
+      setError("Unable to resend the invite. Please try again.");
     } finally {
       setActionLoading(null);
     }
@@ -445,7 +452,8 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
       setShowBulkUpload(false);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Bulk upload failed:", err);
+      setError("Unable to upload users. Please try again.");
     } finally {
       setUploadingBulk(false);
     }

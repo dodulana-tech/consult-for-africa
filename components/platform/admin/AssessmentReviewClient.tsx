@@ -142,7 +142,8 @@ export default function AssessmentReviewClient({
       setSaved(true);
       setReviewAction(action);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      console.error("Assessment review save failed:", err);
+      setError("Unable to save your review. Please try again.");
     } finally {
       setSaving(false);
     }

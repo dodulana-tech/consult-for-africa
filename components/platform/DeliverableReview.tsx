@@ -190,7 +190,8 @@ export default function DeliverableReview({
       setShowManage(false);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to reassign.");
+      console.error("Deliverable reassign failed:", err);
+      setError("Unable to reassign this deliverable. Please try again.");
     } finally {
       setReassigning(false);
     }

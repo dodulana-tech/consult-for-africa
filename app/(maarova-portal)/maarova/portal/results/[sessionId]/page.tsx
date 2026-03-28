@@ -453,7 +453,8 @@ export default function MaarovaResultDetailPage() {
       setSession(data.session);
       setReport(data.report);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load results");
+      console.error("Results load failed:", err);
+      setError("Unable to load your results. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -485,9 +486,8 @@ export default function MaarovaResultDetailPage() {
         fullReportContent: data.report.fullReportContent,
       });
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to generate report"
-      );
+      console.error("Report generation failed:", err);
+      setError("Unable to generate the report. Please try again.");
     } finally {
       setGenerating(false);
     }

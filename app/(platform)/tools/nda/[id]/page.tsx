@@ -83,7 +83,8 @@ export default function NdaDetailPage({ params }: { params: Promise<{ id: string
       const updated = await fetch(`/api/ndas/${id}`).then((r) => r.json());
       setNda(updated.nda);
     } catch (err) {
-      setSignError(err instanceof Error ? err.message : "Failed to sign");
+      console.error("NDA sign failed:", err);
+      setSignError("Unable to sign the NDA. Please try again.");
     } finally {
       setSigning(false);
     }

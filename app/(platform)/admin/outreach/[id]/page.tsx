@@ -179,9 +179,9 @@ export default function CampaignDetailPage() {
     setError("");
     try {
       const res = await fetch(`/api/admin/outreach/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) });
-      if (!res.ok) { const d = await res.json(); setError(d.error || "Failed"); return; }
+      if (!res.ok) { setError("Unable to update the campaign status. Please try again."); return; }
       await refresh();
-    } catch { setError("Network error"); }
+    } catch { setError("Unable to reach the server. Please check your connection."); }
   }
 
   async function askNuru() {

@@ -119,8 +119,8 @@ export default function FileUpload({
         setState("success");
         onUpload({ key, url: publicUrl, filename: file.name });
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Upload failed. Please try again.";
-        setError(message);
+        console.error("File upload failed:", err);
+        setError("Upload failed. Please check your connection and try again.");
         setState("error");
       }
     },

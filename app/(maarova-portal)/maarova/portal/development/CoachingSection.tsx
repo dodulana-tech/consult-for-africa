@@ -199,7 +199,8 @@ export default function CoachingSection({ existingMatch, hasReport, userName }: 
       setShowChangeCoach(false);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Coach selection failed:", err);
+      setError("Unable to select this coach. Please try again.");
     } finally {
       setSelecting(null);
     }
@@ -227,7 +228,8 @@ export default function CoachingSection({ existingMatch, hasReport, userName }: 
       setCoachesLoaded(false);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Coach change failed:", err);
+      setError("Unable to change your coach. Please try again.");
     } finally {
       setChangingCoach(false);
     }
@@ -258,7 +260,8 @@ export default function CoachingSection({ existingMatch, hasReport, userName }: 
       setFeedbackRating(0);
       setFeedbackText("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not submit feedback");
+      console.error("Feedback submission failed:", err);
+      setError("Unable to submit your feedback. Please try again.");
     } finally {
       setFeedbackSaving(false);
     }

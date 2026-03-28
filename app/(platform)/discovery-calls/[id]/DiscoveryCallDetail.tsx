@@ -119,7 +119,8 @@ export default function DiscoveryCallDetail({
       setAnalysis(data.analysis);
       setCall(data.call);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Analysis failed");
+      console.error("Discovery call analysis failed:", err);
+      setError("Unable to run the analysis. Please try again.");
     } finally {
       setAnalyzing(false);
     }
@@ -139,7 +140,8 @@ export default function DiscoveryCallDetail({
       if (!res.ok) throw new Error(data.error || "Conversion failed");
       router.push(`/clients/${data.client.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Conversion failed");
+      console.error("Discovery call conversion failed:", err);
+      setError("Unable to convert this call. Please try again.");
     } finally {
       setConverting(false);
     }

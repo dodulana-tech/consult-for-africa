@@ -560,7 +560,7 @@ export default function InvoiceDetailPage() {
                             body: JSON.stringify({ status: "DRAFT" }),
                           });
                           if (res.ok) fetchInvoice();
-                          else alert(await res.text());
+                          else alert("Unable to revert this invoice. Please try again.");
                         } catch { /* silently handle */ }
                       }}
                       className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-gray-50 transition-colors text-gray-700"

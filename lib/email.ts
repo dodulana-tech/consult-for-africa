@@ -1451,3 +1451,134 @@ export async function emailTrackPurchaseConfirmation({
     `)
   );
 }
+
+// ─── Own Gig Approval Emails ─────────────────────────────────────────────────
+
+export async function emailOwnGigPendingReview({
+  adminEmail,
+  adminName,
+  consultantName,
+  projectName,
+  clientName,
+  engagementId,
+  hasConflict,
+}: {
+  adminEmail: string;
+  adminName: string;
+  consultantName: string;
+  projectName: string;
+  clientName: string;
+  engagementId: string;
+  hasConflict: boolean;
+}) {
+  const conflictWarning = hasConflict
+    ? `<p style="margin:8px 0 16px;padding:8px 12px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:6px;font-size:13px;color:#92400E;">Potential client conflict detected. Please review carefully.</p>`
+    : "";
+  await send(
+    adminEmail,
+    `Own gig pending review: ${projectName}`,
+    layout(`
+      ${h1("New Own Gig Submitted")}
+      ${p(`Hi ${adminName}, ${consultantName} has submitted a new own gig for approval.`)}
+      ${conflictWarning}
+      ${infoTable([
+        ["Project", projectName],
+        ["Client", clientName],
+        ["Submitted by", consultantName],
+      ])}
+      ${btn("Review Now", `${BASE_URL}/admin/own-gig-approvals`)}
+    `)
+  );
+}
+
+export async function emailOwnGigApproved({
+  consultantEmail,
+  consultantName,
+  projectName,
+  clientName,
+  engagementId,
+  note,
+}: {
+  consultantEmail: string;
+  consultantName: string;
+  projectName: string;
+  clientName: string;
+  engagementId: string;
+  note?: string;
+}) {
+  const noteSection = note ? p(`Note from reviewer: ${note}`) : "";
+  await send(
+    consultantEmail,
+    `Your own gig has been approved: ${projectName}`,
+    layout(`
+      ${h1("Own Gig Approved")}
+      ${p(`Hi ${consultantName}, your own gig has been approved. You can now proceed with project delivery.`)}
+      ${infoTable([
+        ["Project", projectName],
+        ["Client", clientName],
+      ])}
+      ${noteSection}
+      ${btn("View Project", `${BASE_URL}/projects/${engagementId}`)}
+    `)
+  );
+}
+
+export async function emailOwnGigRejected({
+  consultantEmail,
+  consultantName,
+  projectName,
+  clientName,
+  note,
+}: {
+  consultantEmail: string;
+  consultantName: string;
+  projectName: string;
+  clientName: string;
+  note: string;
+}) {
+  await send(
+    consultantEmail,
+    `Your own gig was not approved: ${projectName}`,
+    layout(`
+      ${h1("Own Gig Not Approved")}
+      ${p(`Hi ${consultantName}, your own gig submission was not approved.`)}
+      ${infoTable([
+        ["Project", projectName],
+        ["Client", clientName],
+        ["Reason", note],
+      ])}
+      ${p("If you have questions, please reach out to your engagement manager or a partner.")}
+    `)
+  );
+}
+
+export async function emailOwnGigChangesRequested({
+  consultantEmail,
+  consultantName,
+  projectName,
+  clientName,
+  note,
+  engagementId,
+}: {
+  consultantEmail: string;
+  consultantName: string;
+  projectName: string;
+  clientName: string;
+  note: string;
+  engagementId: string;
+}) {
+  await send(
+    consultantEmail,
+    `Changes requested for your own gig: ${projectName}`,
+    layout(`
+      ${h1("Changes Requested")}
+      ${p(`Hi ${consultantName}, a reviewer has requested changes to your own gig submission before it can be approved.`)}
+      ${infoTable([
+        ["Project", projectName],
+        ["Client", clientName],
+        ["Requested changes", note],
+      ])}
+      ${btn("View Gig", `${BASE_URL}/projects/${engagementId}`)}
+    `)
+  );
+}

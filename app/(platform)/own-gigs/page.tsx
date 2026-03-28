@@ -19,6 +19,13 @@ const FEE_LABELS: Record<string, string> = {
   FLAT_MONTHLY: "Flat monthly",
 };
 
+const APPROVAL_BADGES: Record<string, { bg: string; color: string; label: string }> = {
+  PENDING:        { bg: "#FEF3C7", color: "#92400E", label: "Pending Approval" },
+  APPROVED:       { bg: "#D1FAE5", color: "#065F46", label: "Approved" },
+  NEEDS_CHANGES:  { bg: "#FFF7ED", color: "#9A3412", label: "Changes Requested" },
+  REJECTED:       { bg: "#FEE2E2", color: "#991B1B", label: "Rejected" },
+};
+
 export default async function OwnGigsPage() {
   const session = await auth();
   if (!session) redirect("/login");

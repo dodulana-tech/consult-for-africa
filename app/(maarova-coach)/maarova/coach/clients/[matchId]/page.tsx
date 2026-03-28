@@ -203,7 +203,8 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
       await refreshData();
       setEditingNotes(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Coach action failed:", err);
+      setError("Something unexpected happened. Please try again.");
     } finally { setSavingNotes(false); }
   }
 
@@ -221,7 +222,8 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
       setAssignForm({ title: "", description: "", dimension: "", targetDate: "" });
       setShowAssign(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Coach action failed:", err);
+      setError("Something unexpected happened. Please try again.");
     } finally { setSaving(false); }
   }
 
@@ -238,7 +240,8 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
       await refreshData();
       setChemistryForm({ scheduledAt: "", meetingLink: "" });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Coach action failed:", err);
+      setError("Something unexpected happened. Please try again.");
     } finally { setChemistrySaving(false); }
   }
 
@@ -261,7 +264,8 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
       setChemistryNotes("");
       setChemistryRating(0);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Coach action failed:", err);
+      setError("Something unexpected happened. Please try again.");
     } finally { setChemistrySaving(false); }
   }
 
@@ -284,7 +288,8 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
       setScheduleForm({ scheduledAt: "", focusAreas: "", meetingLink: "" });
       setShowSchedule(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Coach action failed:", err);
+      setError("Something unexpected happened. Please try again.");
     } finally { setSchedulingSaving(false); }
   }
 
@@ -333,7 +338,8 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
         sustainabilityPlan: [], newGoalTitle: "", newGoalDescription: "", newGoalDimension: "",
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Coach action failed:", err);
+      setError("Something unexpected happened. Please try again.");
     } finally { setCompleteSaving(false); }
   }
 
@@ -343,7 +349,8 @@ export default function ClientDetailPage({ params }: { params: Promise<{ matchId
       await fetch(`/api/maarova/coach/sessions/${sessionId}`, { method: "DELETE" });
       await refreshData();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Coach action failed:", err);
+      setError("Something unexpected happened. Please try again.");
     }
   }
 

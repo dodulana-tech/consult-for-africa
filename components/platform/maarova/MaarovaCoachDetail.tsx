@@ -449,7 +449,8 @@ export default function MaarovaCoachDetail({ coach, matches, invoices }: Props) 
       setEditing(false);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Coach update failed:", err);
+      setError("Unable to update the coach profile. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -470,7 +471,8 @@ export default function MaarovaCoachDetail({ coach, matches, invoices }: Props) 
       setSuccess("Portal enabled and credentials sent.");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Portal enable failed:", err);
+      setError("Unable to enable the coach portal. Please try again.");
     } finally {
       setPortalLoading(false);
     }
@@ -511,7 +513,8 @@ export default function MaarovaCoachDetail({ coach, matches, invoices }: Props) 
       setInterviewScoreInput("");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Vetting action failed:", err);
+      setError("Unable to update the vetting status. Please try again.");
     } finally {
       setVettingLoading(false);
     }
@@ -561,7 +564,8 @@ export default function MaarovaCoachDetail({ coach, matches, invoices }: Props) 
       setLineItems([{ description: "", qty: "1", unitPrice: "" }]);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Invoice create failed:", err);
+      setError("Unable to create the invoice. Please try again.");
     } finally {
       setInvoiceLoading(false);
     }
@@ -588,7 +592,8 @@ export default function MaarovaCoachDetail({ coach, matches, invoices }: Props) 
       setSuccess(`Invoice ${action === "send" ? "sent" : action === "mark_paid" ? "marked as paid" : "cancelled"}.`);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Invoice action failed:", err);
+      setError("Unable to update the invoice. Please try again.");
     } finally {
       setInvoiceActionLoading(null);
     }

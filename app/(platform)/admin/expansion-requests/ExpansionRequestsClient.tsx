@@ -63,7 +63,8 @@ export default function ExpansionRequestsClient({
       setSuccess(`Request updated to ${newStatus}`);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Expansion request update failed:", err);
+      setError("Unable to update the request. Please try again.");
     } finally {
       setUpdating(null);
     }

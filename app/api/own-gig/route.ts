@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { emailOwnGigPendingReview } from "@/lib/email";
 
 const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
 
@@ -25,7 +26,7 @@ async function generateOwnGigCode(): Promise<string> {
 }
 
 /**
- * POST /api/own-gig — create an own gig engagement
+ * POST /api/own-gig — create an own gig engagement (pending approval)
  */
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -61,6 +62,24 @@ export async function POST(req: NextRequest) {
   }
 
   const engagementType = rawType ?? "PROJECT";
+
+  // Conflict check: fuzzy match on client name or email domain
+  const emailDomain = clientEmail.split("@")[1]?.toLowerCase() ?? "";
+  const existingClients = await prisma.client.findMany({
+    where: {
+      OR: [
+        { name: { contains: clientName, mode: "insensitive" } },
+        ...(emailDomain ? [{ email: { endsWith: `@${emailDomain}`, mode: "insensitive" as const } }] : []),
+      ],
+    },
+    select: { id: true, name: true, email: true },
+    take: 5,
+  });
+
+  const hasConflict = existingClients.length > 0;
+  const conflictNote = hasConflict
+    ? `Potential overlap with existing client(s): ${existingClients.map((c) => `${c.name} (${c.email})`).join(", ")}`
+    : null;
 
   // Auto-assign least-loaded EM
   const ems = await prisma.user.findMany({
@@ -107,7 +126,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Create engagement
+    // Create engagement (pending approval, no assignment yet)
     const engagement = await tx.engagement.create({
       data: {
         clientId: client.id,
@@ -126,26 +145,36 @@ export async function POST(req: NextRequest) {
         ownGigFeeModel: feeModel,
         ownGigFeePct: feeModel === "PERCENTAGE" ? Number(feePct) : null,
         ownGigFlatMonthlyFee: feeModel === "FLAT_MONTHLY" ? Number(flatMonthlyFee) : null,
-      },
-    });
-
-    // Auto-assign consultant as lead
-    await tx.assignment.create({
-      data: {
-        engagementId: engagement.id,
-        consultantId: session.user.id,
-        role: "Lead Consultant",
-        responsibilities: "Own gig lead — full project delivery",
-        status: "ACTIVE",
-        startDate: startDate ? new Date(startDate) : new Date(),
-        rateAmount: 0,
-        rateCurrency: budgetCurrency ?? "NGN",
-        rateType: "FIXED_PROJECT",
+        ownGigApprovalStatus: "PENDING",
+        ownGigSubmittedAt: new Date(),
+        ownGigConflictFlag: hasConflict,
+        ownGigConflictNote: conflictNote,
       },
     });
 
     return engagement;
   });
+
+  // Notify admins about pending own gig
+  try {
+    const admins = await prisma.user.findMany({
+      where: { role: { in: ["DIRECTOR", "PARTNER", "ADMIN"] } },
+      select: { email: true, name: true },
+    });
+    for (const admin of admins) {
+      await emailOwnGigPendingReview({
+        adminEmail: admin.email!,
+        adminName: admin.name ?? "Admin",
+        consultantName: session.user.name ?? "A consultant",
+        projectName,
+        clientName,
+        engagementId: result.id,
+        hasConflict,
+      });
+    }
+  } catch (err) {
+    console.error("[own-gig] Failed to send admin notification emails:", err);
+  }
 
   return Response.json(result, { status: 201 });
 }
@@ -181,6 +210,10 @@ export async function GET() {
       ownGigFeeModel: true,
       ownGigFeePct: true,
       ownGigFlatMonthlyFee: true,
+      ownGigApprovalStatus: true,
+      ownGigApprovalNote: true,
+      ownGigConflictFlag: true,
+      ownGigSubmittedAt: true,
       createdAt: true,
       client: { select: { id: true, name: true } },
       ownGigOwner: { select: { id: true, name: true } },

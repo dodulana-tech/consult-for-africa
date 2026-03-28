@@ -144,11 +144,11 @@ export default function AcademyClient({
         if (data.requiresPayment) {
           handlePurchase(trackId);
         } else {
-          alert(data.error || "Failed to enroll");
+          alert("Unable to enrol in this track. Please try again.");
         }
       }
     } catch {
-      alert("Failed to enroll");
+      alert("Unable to enrol in this track. Please try again.");
     } finally {
       setEnrolling(null);
     }
@@ -166,10 +166,10 @@ export default function AcademyClient({
       if (res.ok && data.authorizationUrl) {
         window.location.href = data.authorizationUrl;
       } else {
-        alert(data.error || "Failed to initialize payment");
+        alert("Unable to start payment. Please try again.");
       }
     } catch {
-      alert("Failed to initialize payment");
+      alert("Unable to start payment. Please try again.");
     } finally {
       setPurchasing(null);
     }

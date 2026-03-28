@@ -70,9 +70,8 @@ export default function SatisfactionPulse({ projectId }: { projectId: string }) 
       setSubmitted(true);
       setExistingPulse({ score, feedback: feedback.trim() || null, period: "" });
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Something went wrong."
-      );
+      console.error("Satisfaction pulse submission failed:", err);
+      setError("Unable to submit your feedback. Please try again.");
     } finally {
       setSubmitting(false);
     }

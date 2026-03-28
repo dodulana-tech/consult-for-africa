@@ -121,7 +121,8 @@ export default function DeliverableDetailPage({
       const data: DeliverableData = await res.json();
       setDeliverable(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      console.error("Deliverable load failed:", err);
+      setError("Unable to load this deliverable. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -161,7 +162,8 @@ export default function DeliverableDetailPage({
       // Refresh deliverable to get updated comments
       await fetchDeliverable();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to post comment");
+      console.error("Comment post failed:", err);
+      alert("Unable to post your comment. Please try again.");
     } finally {
       setSubmitting(false);
     }
