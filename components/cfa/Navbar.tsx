@@ -32,8 +32,9 @@ export default function Navbar() {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 glass-nav ${
         scrolled ? "shadow-lg shadow-black/[0.06]" : ""
       }`}
+      style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between" style={{ height: "calc(4rem + env(safe-area-inset-top, 0px))", paddingTop: "env(safe-area-inset-top, 0px)" }}>
+      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
 
         {/* LOGO */}
         <Link href="/" className="flex items-center gap-3">

@@ -20,6 +20,9 @@
 
   /* Bottom tab bar height */
   --bottom-tab-height: 56px;
+
+  /* Navbar height including safe area */
+  --navbar-height: calc(4rem + env(safe-area-inset-top, 0px));
 }
 
 /* =========================================
