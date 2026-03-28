@@ -118,6 +118,7 @@ export default async function OwnGigsPage() {
                   <th className="text-left px-4 py-3 font-medium text-slate-500">Project</th>
                   <th className="text-left px-4 py-3 font-medium text-slate-500">Client</th>
                   <th className="text-left px-4 py-3 font-medium text-slate-500">Status</th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500">Approval</th>
                   <th className="text-left px-4 py-3 font-medium text-slate-500 hidden md:table-cell">Fee Model</th>
                   <th className="text-right px-4 py-3 font-medium text-slate-500">Budget</th>
                   <th className="text-left px-4 py-3 font-medium text-slate-500 hidden md:table-cell">Team</th>
@@ -146,6 +147,27 @@ export default async function OwnGigsPage() {
                         >
                           {g.status}
                         </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        {(() => {
+                          const ab = g.ownGigApprovalStatus ? APPROVAL_BADGES[g.ownGigApprovalStatus] : null;
+                          if (!ab) return null;
+                          return (
+                            <div>
+                              <span
+                                className="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                                style={{ backgroundColor: ab.bg, color: ab.color }}
+                              >
+                                {ab.label}
+                              </span>
+                              {(g.ownGigApprovalStatus === "NEEDS_CHANGES" || g.ownGigApprovalStatus === "REJECTED") && g.ownGigApprovalNote && (
+                                <p className="text-xs text-slate-500 mt-1 max-w-[200px] truncate" title={g.ownGigApprovalNote}>
+                                  {g.ownGigApprovalNote}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-3 text-slate-500 text-xs hidden md:table-cell">
                         {g.ownGigFeeModel && FEE_LABELS[g.ownGigFeeModel]}

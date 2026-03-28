@@ -49,7 +49,7 @@ export async function PATCH(
 
   const gig = await prisma.engagement.findUnique({
     where: { id },
-    select: { id: true, isOwnGig: true, ownGigOwnerId: true },
+    select: { id: true, isOwnGig: true, ownGigOwnerId: true, ownGigApprovalStatus: true },
   });
 
   if (!gig || !gig.isOwnGig) {
@@ -60,6 +60,16 @@ export async function PATCH(
   const isElevated = ELEVATED.includes(session.user.role);
   if (!isOwner && !isElevated) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  // Block status changes to ACTIVE if not approved
+  if (body.status === "ACTIVE" && gig.ownGigApprovalStatus !== "APPROVED") {
+    return Response.json({ error: "Cannot activate an own gig that has not been approved" }, { status: 400 });
+  }
+
+  // Block inviting collaborators/clients if not approved
+  if ((body.inviteCollaborator || body.inviteClient) && gig.ownGigApprovalStatus !== "APPROVED") {
+    return Response.json({ error: "Cannot invite collaborators or clients to an unapproved own gig" }, { status: 400 });
   }
 
   const allowedFields: Record<string, unknown> = {};
