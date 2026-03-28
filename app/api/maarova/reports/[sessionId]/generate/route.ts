@@ -121,7 +121,9 @@ export async function POST(
     user.yearsInRole != null ? `Years in Current Role: ${user.yearsInRole}` : null,
   ].filter(Boolean).join("\n");
 
-  const systemPrompt = `You are a senior organisational psychologist generating a Maarova Leadership Profile for an African healthcare leader. Never use em dashes. Write in British English, second person. Be personalised and specific, not generic. Reference Ubuntu, communal leadership, and African health system realities where relevant.`;
+  const systemPrompt = `You are a senior organisational psychologist generating a Maarova Leadership Profile for an African healthcare leader. Never use em dashes. Write in British English, second person. Be personalised and specific, not generic. Reference Ubuntu, communal leadership, and African health system realities where relevant.
+
+CRITICAL: You must ONLY reference information explicitly provided in the leader profile and scores below. Do NOT invent, assume, or hallucinate any biographical details such as years of experience, qualifications, certifications, fellowships, specialisations, institutional affiliations, or career history. If a detail is not provided, do not mention it. Base all interpretations solely on the assessment scores provided.`;
 
   const scoreContext = `LEADER: ${user.name}\n${demographicContext}\n\nSCORES (0-100):\n${scoreLines.join("\n")}`;
 
