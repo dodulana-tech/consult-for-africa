@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import TopBar from "@/components/platform/TopBar";
-import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2, Info } from "lucide-react";
 
 const SERVICE_TYPES = [
   { value: "HOSPITAL_OPERATIONS", label: "Hospital Operations" },
@@ -21,13 +21,17 @@ const ENGAGEMENT_TYPES = [
   { value: "RETAINER", label: "Retainer" },
 ];
 
-const STEPS = ["Client", "Project", "Fee Model", "Review"];
+const PLATFORM_FEE_PCT = 12;
+
+const STEPS = ["Client", "Project", "Platform Fee", "Review"];
 
 export default function NewOwnGigPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [feeAccepted, setFeeAccepted] = useState(false);
+  const [feePct, setFeePct] = useState(String(PLATFORM_FEE_PCT));
 
   // Client fields
   const [clientName, setClientName] = useState("");
@@ -44,18 +48,14 @@ export default function NewOwnGigPage() {
   const [budgetAmount, setBudgetAmount] = useState("");
   const [budgetCurrency, setBudgetCurrency] = useState("NGN");
 
-  // Fee fields
-  const [feeModel, setFeeModel] = useState<"PERCENTAGE" | "FLAT_MONTHLY">("PERCENTAGE");
-  const [feePct, setFeePct] = useState("12");
-  const [flatMonthlyFee, setFlatMonthlyFee] = useState("");
+  const budget = Number(budgetAmount || 0);
+  const platformFee = Math.round(budget * Number(feePct) / 100);
+  const symbol = budgetCurrency === "NGN" ? "₦" : "$";
 
   const canNext = () => {
     if (step === 0) return clientName && clientContactName && clientEmail;
     if (step === 1) return projectName && serviceType;
-    if (step === 2) {
-      if (feeModel === "PERCENTAGE") return Number(feePct) >= 10 && Number(feePct) <= 15;
-      return Number(flatMonthlyFee) > 0;
-    }
+    if (step === 2) return feeAccepted;
     return true;
   };
 
@@ -71,11 +71,10 @@ export default function NewOwnGigPage() {
           clientName, clientEmail, clientPhone, clientContactName,
           projectName, description, serviceType, engagementType,
           startDate: startDate || undefined,
-          budgetAmount: budgetAmount ? Number(budgetAmount) : 0,
+          budgetAmount: budget,
           budgetCurrency,
-          feeModel,
-          feePct: feeModel === "PERCENTAGE" ? Number(feePct) : undefined,
-          flatMonthlyFee: feeModel === "FLAT_MONTHLY" ? Number(flatMonthlyFee) : undefined,
+          feeModel: "PERCENTAGE",
+          feePct: Number(feePct),
         }),
       });
 
@@ -191,82 +190,74 @@ export default function NewOwnGigPage() {
             </div>
           )}
 
-          {/* Step 2: Fee Model */}
+          {/* Step 2: Platform Fee */}
           {step === 2 && (
             <div className="space-y-5">
-              <h2 className="text-lg font-bold text-[#0F2744]">Platform Fee Model</h2>
-              <p className="text-sm text-slate-500">Choose how CFA earns from this engagement. You get the tools, portal, and EM oversight.</p>
+              <h2 className="text-lg font-bold text-[#0F2744]">Platform Fee</h2>
+              <p className="text-sm text-slate-500">
+                CFA provides the tools, client portal, EM oversight, and operational support for your gig.
+                The standard rate is {PLATFORM_FEE_PCT}%. You may propose a different rate within the allowed range.
+              </p>
 
-              <div className="space-y-3">
-                <label
-                  className={`flex items-start gap-4 rounded-xl border p-4 cursor-pointer transition ${
-                    feeModel === "PERCENTAGE" ? "border-[#D4AF37] bg-[#D4AF37]/5" : "border-slate-200"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="feeModel"
-                    checked={feeModel === "PERCENTAGE"}
-                    onChange={() => setFeeModel("PERCENTAGE")}
-                    className="mt-1 accent-[#D4AF37]"
-                  />
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm text-[#0F2744]">Percentage of project value</p>
-                    <p className="text-xs text-slate-500 mt-0.5">CFA takes 10-15% of the total project budget</p>
-                    {feeModel === "PERCENTAGE" && (
-                      <div className="mt-3">
-                        <label className="text-xs text-slate-500">Fee percentage: {feePct}%</label>
-                        <input
-                          type="range" min="10" max="15" step="0.5"
-                          value={feePct}
-                          onChange={(e) => setFeePct(e.target.value)}
-                          className="w-full mt-1 accent-[#D4AF37]"
-                        />
-                        <div className="flex justify-between text-[10px] text-slate-400">
-                          <span>10%</span>
-                          <span>15%</span>
-                        </div>
-                        {budgetAmount && (
-                          <p className="text-xs text-[#D4AF37] font-medium mt-2">
-                            CFA fee: {budgetCurrency === "NGN" ? "₦" : "$"}
-                            {(Number(budgetAmount) * Number(feePct) / 100).toLocaleString()}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </label>
-
-                <label
-                  className={`flex items-start gap-4 rounded-xl border p-4 cursor-pointer transition ${
-                    feeModel === "FLAT_MONTHLY" ? "border-[#D4AF37] bg-[#D4AF37]/5" : "border-slate-200"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="feeModel"
-                    checked={feeModel === "FLAT_MONTHLY"}
-                    onChange={() => setFeeModel("FLAT_MONTHLY")}
-                    className="mt-1 accent-[#D4AF37]"
-                  />
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm text-[#0F2744]">Flat monthly fee</p>
-                    <p className="text-xs text-slate-500 mt-0.5">Fixed monthly amount regardless of project value</p>
-                    {feeModel === "FLAT_MONTHLY" && (
-                      <div className="mt-3">
-                        <label className="text-xs text-slate-500">Monthly fee ({budgetCurrency})</label>
-                        <input
-                          type="number"
-                          className={inputCls + " mt-1"}
-                          value={flatMonthlyFee}
-                          onChange={(e) => setFlatMonthlyFee(e.target.value)}
-                          placeholder="50000"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </label>
+              <div
+                className="rounded-xl p-5 space-y-4"
+                style={{ background: "#F8FAFC", border: "1px solid #e5eaf0" }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-600">Your proposed rate</span>
+                  <span className="text-base font-bold text-[#0F2744]">{feePct}%</span>
+                </div>
+                <input
+                  type="range" min="10" max="15" step="0.5"
+                  value={feePct}
+                  onChange={(e) => setFeePct(e.target.value)}
+                  className="w-full accent-[#D4AF37]"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400">
+                  <span>10%</span>
+                  <span className="font-semibold text-[#D4AF37]">{PLATFORM_FEE_PCT}% standard</span>
+                  <span>15%</span>
+                </div>
+                {budget > 0 && (
+                  <>
+                    <div className="h-px" style={{ background: "#e5eaf0" }} />
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-slate-600">Project budget</span>
+                      <span className="text-sm font-semibold text-slate-800">{symbol}{budget.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-slate-800">Platform fee</span>
+                      <span className="text-base font-bold" style={{ color: "#D4AF37" }}>{symbol}{platformFee.toLocaleString()}</span>
+                    </div>
+                  </>
+                )}
+                {Number(feePct) < PLATFORM_FEE_PCT && (
+                  <p className="text-xs text-amber-600">
+                    Below standard rate. Subject to approval by CFA.
+                  </p>
+                )}
               </div>
+
+              <div
+                className="flex items-start gap-2.5 rounded-lg p-3 text-xs text-slate-500"
+                style={{ background: "#EFF6FF", border: "1px solid #BFDBFE" }}
+              >
+                <Info size={14} className="shrink-0 mt-0.5" style={{ color: "#3B82F6" }} />
+                <span>
+                  This covers your assigned EM, client portal access, project tools, quality assurance,
+                  and CFA branding. The fee is deducted from project payments before consultant payouts.
+                </span>
+              </div>
+
+              <label className="flex items-center gap-3 cursor-pointer pt-2">
+                <input
+                  type="checkbox"
+                  checked={feeAccepted}
+                  onChange={(e) => setFeeAccepted(e.target.checked)}
+                  className="w-4 h-4 rounded accent-[#D4AF37]"
+                />
+                <span className="text-sm text-slate-700">I accept the platform fee terms</span>
+              </label>
             </div>
           )}
 
@@ -289,16 +280,14 @@ export default function NewOwnGigPage() {
                 <div>
                   <p className="text-xs text-slate-400">Budget</p>
                   <p className="font-medium text-[#0F2744]">
-                    {budgetCurrency === "NGN" ? "₦" : "$"}{Number(budgetAmount || 0).toLocaleString()}
+                    {symbol}{budget.toLocaleString()}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400">Fee Model</p>
+                  <p className="text-xs text-slate-400">Platform Fee</p>
                   <p className="font-medium text-[#0F2744]">
-                    {feeModel === "PERCENTAGE"
-                      ? `${feePct}% of project value`
-                      : `${budgetCurrency === "NGN" ? "₦" : "$"}${Number(flatMonthlyFee).toLocaleString()}/month`
-                    }
+                    {feePct}%{budget > 0 ? ` (${symbol}${platformFee.toLocaleString()})` : ""}
+                    {Number(feePct) < PLATFORM_FEE_PCT && <span className="text-xs text-amber-600 ml-1">(pending approval)</span>}
                   </p>
                 </div>
               </div>
