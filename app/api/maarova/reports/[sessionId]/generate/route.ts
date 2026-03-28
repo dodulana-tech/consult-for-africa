@@ -276,9 +276,17 @@ RULES: topThree = 3 highest-scoring values with ranks 1,2,3. Return ONLY JSON.`,
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
     console.error("[Maarova] Report generation FAILED:", errMsg, err);
-    await prisma.maarovaReport.delete({
-      where: { id: reportRecord.id },
-    }).catch(() => {});
+    // If the report had existing content, restore to READY instead of deleting
+    if (existingReport?.fullReportContent) {
+      await prisma.maarovaReport.update({
+        where: { id: reportRecord.id },
+        data: { status: "READY" },
+      }).catch(() => {});
+    } else {
+      await prisma.maarovaReport.delete({
+        where: { id: reportRecord.id },
+      }).catch(() => {});
+    }
     return NextResponse.json(
       { error: `Report generation failed: ${errMsg.slice(0, 100)}` },
       { status: 500 }
