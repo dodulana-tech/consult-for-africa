@@ -37,7 +37,7 @@ export default function CoachLoginPage() {
     <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #0f1a2a, #1a2d44)" }}>
       <div className="w-full max-w-sm mx-auto px-6">
         <div className="text-center mb-8">
-          <Image src="/cfa-logo-white.svg" alt="C4A" width={48} height={48} className="mx-auto mb-4 rounded" />
+          <Image src="/logo-cfa.png" alt="C4A" width={48} height={48} className="mx-auto mb-4 rounded" />
           <h1 className="text-2xl font-bold text-white">Maarova</h1>
           <p className="text-gray-400 text-sm mt-1">Coach Portal</p>
         </div>

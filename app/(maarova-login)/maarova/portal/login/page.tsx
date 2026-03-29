@@ -49,7 +49,7 @@ export default function MaarovaLoginPage() {
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Image
-              src="/cfa-logo-white.svg"
+              src="/logo-cfa.png"
               alt="C4A"
               width={40}
               height={40}

@@ -27,7 +27,7 @@ export default async function CoachPortalLayout({
       <aside className="hidden lg:flex w-64 flex-col flex-shrink-0" style={{ backgroundColor: "#0f1a2a" }}>
         <div className="px-6 py-6 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <Image src="/cfa-logo-white.svg" alt="C4A" width={32} height={32} className="rounded" />
+            <Image src="/logo-cfa.png" alt="C4A" width={32} height={32} className="rounded" />
             <div>
               <span className="text-white font-semibold text-lg tracking-tight">Maarova</span>
               <p className="text-gray-400 text-xs">Coach Portal</p>
