@@ -18,6 +18,8 @@ import {
   Download,
   Mail,
   Loader2,
+  Save,
+  X,
 } from "lucide-react";
 import ProposalGenerator from "@/components/platform/ProposalGenerator";
 
@@ -98,6 +100,12 @@ export default function ProposalsList() {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [editing, setEditing] = useState(false);
+  const [editContent, setEditContent] = useState("");
+  const [editTitle, setEditTitle] = useState("");
+  const [editChallenges, setEditChallenges] = useState<string[]>([]);
+  const [editObjectives, setEditObjectives] = useState<string[]>([]);
+  const [saveLoading, setSaveLoading] = useState(false);
 
   const fetchProposals = useCallback(async () => {
     try {
@@ -187,6 +195,48 @@ export default function ProposalsList() {
     }
   }, [selectedId]);
 
+  const startEditing = useCallback(() => {
+    if (!detail) return;
+    setEditTitle(detail.title);
+    setEditContent(detail.content);
+    setEditChallenges([...detail.challenges]);
+    setEditObjectives([...detail.objectives]);
+    setEditing(true);
+  }, [detail]);
+
+  const saveEdits = useCallback(async () => {
+    if (!selectedId) return;
+    setSaveLoading(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/proposals/${selectedId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: editTitle,
+          content: editContent,
+          challenges: editChallenges.filter((c) => c.trim()),
+          objectives: editObjectives.filter((o) => o.trim()),
+        }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setDetail(updated);
+        setProposals((prev) =>
+          prev.map((p) => (p.id === selectedId ? { ...p, title: updated.title } : p)),
+        );
+        setEditing(false);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Failed to save changes");
+      }
+    } catch {
+      setError("Network error");
+    } finally {
+      setSaveLoading(false);
+    }
+  }, [selectedId, editTitle, editContent, editChallenges, editObjectives]);
+
   const filtered = statusFilter === "ALL" ? proposals : proposals.filter((p) => p.status === statusFilter);
 
   // Generate view
@@ -220,7 +270,10 @@ export default function ProposalsList() {
             </p>
           </div>
         </div>
-        <ProposalGenerator />
+        <ProposalGenerator onProposalCreated={(id) => {
+          setView("detail");
+          openDetail(id);
+        }} />
       </div>
     );
   }
@@ -332,8 +385,17 @@ export default function ProposalsList() {
         {/* Header */}
         <div className="rounded-xl bg-white p-5 mb-4" style={{ border: "1px solid #e5eaf0" }}>
           <div className="flex items-start justify-between mb-3">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">{detail.title}</h2>
+            <div className="flex-1 min-w-0 mr-3">
+              {editing ? (
+                <input
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full text-lg font-semibold text-gray-900 border rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
+                  style={{ borderColor: "#e5eaf0" }}
+                />
+              ) : (
+                <h2 className="text-lg font-semibold text-gray-900">{detail.title}</h2>
+              )}
               <p className="text-sm text-gray-500 mt-0.5">{detail.clientName}</p>
             </div>
             <StatusBadge status={detail.status} />
@@ -386,51 +448,130 @@ export default function ProposalsList() {
           </div>
 
           {/* Actions */}
-          {(actions.length > 0 || detail.status === "DRAFT") && (
-            <div className="flex items-center gap-2 mt-4 pt-4" style={{ borderTop: "1px solid #F3F4F6" }}>
-              {actions.map((action) => (
+          <div className="flex items-center gap-2 mt-4 pt-4 flex-wrap" style={{ borderTop: "1px solid #F3F4F6" }}>
+            {editing ? (
+              <>
                 <button
-                  key={action.status}
-                  onClick={() => updateStatus(action.status)}
-                  disabled={actionLoading}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50"
-                  style={action.style}
+                  onClick={saveEdits}
+                  disabled={saveLoading}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-50"
+                  style={{ background: "#0F2744" }}
                 >
-                  {action.label}
+                  {saveLoading ? <Loader2 size={11} className="animate-spin" /> : <Save size={11} />}
+                  {saveLoading ? "Saving..." : "Save Changes"}
                 </button>
-              ))}
-              <button
-                onClick={downloadPDF}
-                disabled={pdfLoading}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50"
-                style={{ background: "#F0F4FF", color: "#0F2744" }}
-              >
-                {pdfLoading ? <Loader2 size={11} className="animate-spin" /> : <Download size={11} />}
-                {pdfLoading ? "Generating..." : "Download PDF"}
-              </button>
-              <button
-                onClick={draftEmail}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium"
-                style={{ background: "#FEF3C7", color: "#92400E" }}
-              >
-                <Mail size={11} /> Draft Email
-              </button>
-              {detail.status === "DRAFT" && (
                 <button
-                  onClick={deleteProposal}
-                  disabled={actionLoading}
-                  className="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 disabled:opacity-50"
-                  style={{ background: "#FEF2F2" }}
+                  onClick={() => setEditing(false)}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium"
+                  style={{ background: "#F3F4F6", color: "#374151" }}
                 >
-                  <Trash2 size={11} /> Delete
+                  <X size={11} /> Cancel
                 </button>
-              )}
-            </div>
-          )}
+              </>
+            ) : (
+              <>
+                {(detail.status === "DRAFT" || detail.status === "REVIEW") && (
+                  <button
+                    onClick={startEditing}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium"
+                    style={{ background: "#F0F4FF", color: "#0F2744" }}
+                  >
+                    <Edit3 size={11} /> Edit
+                  </button>
+                )}
+                {actions.map((action) => (
+                  <button
+                    key={action.status}
+                    onClick={() => updateStatus(action.status)}
+                    disabled={actionLoading}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50"
+                    style={action.style}
+                  >
+                    {action.label}
+                  </button>
+                ))}
+                <button
+                  onClick={downloadPDF}
+                  disabled={pdfLoading}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50"
+                  style={{ background: "#F0F4FF", color: "#0F2744" }}
+                >
+                  {pdfLoading ? <Loader2 size={11} className="animate-spin" /> : <Download size={11} />}
+                  {pdfLoading ? "Generating..." : "Download PDF"}
+                </button>
+                <button
+                  onClick={draftEmail}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium"
+                  style={{ background: "#FEF3C7", color: "#92400E" }}
+                >
+                  <Mail size={11} /> Draft Email
+                </button>
+                {detail.status === "DRAFT" && (
+                  <button
+                    onClick={deleteProposal}
+                    disabled={actionLoading}
+                    className="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 disabled:opacity-50"
+                    style={{ background: "#FEF2F2" }}
+                  >
+                    <Trash2 size={11} /> Delete
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         </div>
 
         {/* Challenges & Objectives */}
-        {(detail.challenges.length > 0 || detail.objectives.length > 0) && (
+        {editing ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div className="rounded-xl bg-white p-4" style={{ border: "1px solid #e5eaf0" }}>
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Challenges</h3>
+              <div className="space-y-2">
+                {editChallenges.map((c, i) => (
+                  <div key={i} className="flex gap-2">
+                    <input
+                      value={c}
+                      onChange={(e) => { const u = [...editChallenges]; u[i] = e.target.value; setEditChallenges(u); }}
+                      className="flex-1 text-sm border rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
+                      style={{ borderColor: "#e5eaf0" }}
+                    />
+                    {editChallenges.length > 1 && (
+                      <button onClick={() => setEditChallenges(editChallenges.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-500 px-1">
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button onClick={() => setEditChallenges([...editChallenges, ""])} className="flex items-center gap-1 text-xs font-medium" style={{ color: "#0F2744" }}>
+                  <Plus size={12} /> Add
+                </button>
+              </div>
+            </div>
+            <div className="rounded-xl bg-white p-4" style={{ border: "1px solid #e5eaf0" }}>
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Objectives</h3>
+              <div className="space-y-2">
+                {editObjectives.map((o, i) => (
+                  <div key={i} className="flex gap-2">
+                    <input
+                      value={o}
+                      onChange={(e) => { const u = [...editObjectives]; u[i] = e.target.value; setEditObjectives(u); }}
+                      className="flex-1 text-sm border rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
+                      style={{ borderColor: "#e5eaf0" }}
+                    />
+                    {editObjectives.length > 1 && (
+                      <button onClick={() => setEditObjectives(editObjectives.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-500 px-1">
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button onClick={() => setEditObjectives([...editObjectives, ""])} className="flex items-center gap-1 text-xs font-medium" style={{ color: "#0F2744" }}>
+                  <Plus size={12} /> Add
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (detail.challenges.length > 0 || detail.objectives.length > 0) ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             {detail.challenges.length > 0 && (
               <div className="rounded-xl bg-white p-4" style={{ border: "1px solid #e5eaf0" }}>
@@ -457,14 +598,23 @@ export default function ProposalsList() {
               </div>
             )}
           </div>
-        )}
+        ) : null}
 
         {/* Content */}
         <div className="rounded-xl bg-white p-5" style={{ border: "1px solid #e5eaf0" }}>
           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Proposal Content</h3>
-          <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-            {detail.content}
-          </div>
+          {editing ? (
+            <textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              className="w-full text-sm text-gray-700 leading-relaxed border rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
+              style={{ borderColor: "#e5eaf0", minHeight: 400, resize: "vertical" }}
+            />
+          ) : (
+            <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+              {detail.content}
+            </div>
+          )}
         </div>
       </div>
     );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sparkles, FileText, Plus, X, Copy, CheckCircle2, AlertCircle, ChevronDown, ChevronUp, MessageSquareText, ListChecks, Loader2 } from "lucide-react";
+import { Sparkles, FileText, Plus, X, Copy, CheckCircle2, AlertCircle, ChevronDown, ChevronUp, MessageSquareText, ListChecks, Loader2, Edit3 } from "lucide-react";
 
 type ProposalContent = {
   executiveSummary: string;
@@ -82,7 +82,7 @@ const inputClass = "w-full rounded-lg border px-3 py-2 text-sm focus:outline-non
 const inputStyle = { borderColor: "#e5eaf0" };
 const labelClass = "text-xs font-medium text-gray-500 block mb-1";
 
-export default function ProposalGenerator() {
+export default function ProposalGenerator({ onProposalCreated }: { onProposalCreated?: (id: string) => void } = {}) {
   const [inputMode, setInputMode] = useState<InputMode>("quick");
   const [freeText, setFreeText] = useState("");
   const [assistLoading, setAssistLoading] = useState(false);
@@ -99,7 +99,7 @@ export default function ProposalGenerator() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [result, setResult] = useState<{ content: ProposalContent; metadata: ProposalMetadata } | null>(null);
+  const [result, setResult] = useState<{ content: ProposalContent; metadata: ProposalMetadata; formalProposalId?: string } | null>(null);
 
   useEffect(() => {
     try {
@@ -197,7 +197,7 @@ export default function ProposalGenerator() {
         return;
       }
       const data = await res.json();
-      const newResult = { content: data.content, metadata: data.metadata };
+      const newResult = { content: data.content, metadata: data.metadata, formalProposalId: data.formalProposalId };
       setResult(newResult);
       try { sessionStorage.setItem("cfa_proposal_result", JSON.stringify(newResult)); } catch {}
     } catch {
@@ -256,6 +256,15 @@ ${content.nextSteps.map((s, i) => `${i + 1}. ${s}`).join("\n")}`;
           </div>
           <div className="flex gap-2">
             <CopyButton text={fullText} />
+            {result.formalProposalId && onProposalCreated && (
+              <button
+                onClick={() => onProposalCreated(result.formalProposalId!)}
+                className="text-xs px-3 py-1.5 rounded-lg font-medium flex items-center gap-1"
+                style={{ background: "#0F2744", color: "#FFFFFF" }}
+              >
+                <Edit3 size={10} /> View & Edit
+              </button>
+            )}
             <button
               onClick={() => { setResult(null); try { sessionStorage.removeItem("cfa_proposal_result"); } catch {} }}
               className="text-xs px-3 py-1.5 rounded-lg font-medium"
