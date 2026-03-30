@@ -348,9 +348,9 @@ export function ProposalPdf({ data }: { data: ProposalPdfData }) {
         <Text style={s.coverDate}>{formatDate(data.createdAt)}</Text>
       </Page>
 
-      {/* Content Pages */}
-      <Page size="A4" style={s.page}>
-        {/* Header */}
+      {/* Content Pages - wrap enabled so content flows across pages */}
+      <Page size="A4" style={s.page} wrap>
+        {/* Header - repeated on every page */}
         <View style={s.headerBar} fixed>
           <Text style={s.brandName}>
             CONSULT <Text style={{ color: gold }}>FOR</Text> AFRICA
@@ -399,15 +399,35 @@ export function ProposalPdf({ data }: { data: ProposalPdfData }) {
           </View>
         )}
 
-        {/* Parsed content sections */}
-        {sections.map((section, i) => (
-          <View key={i} wrap={false}>
-            <Text style={s.sectionTitle}>{prettySectionTitle(section.title)}</Text>
-            <Text style={s.contentBlock}>{section.body}</Text>
-          </View>
-        ))}
+        {/* Parsed content sections - each section keeps title with first part of body */}
+        {sections.map((section, i) => {
+          const lines = section.body.split("\n");
+          const isNumberedList = lines.every(
+            (l) => !l.trim() || /^\d+[\.\)]\s/.test(l.trim()),
+          );
 
-        {/* Footer */}
+          return (
+            <View key={i}>
+              <Text style={s.sectionTitle}>{prettySectionTitle(section.title)}</Text>
+              {isNumberedList ? (
+                lines
+                  .filter((l) => l.trim())
+                  .map((l, li) => (
+                    <View key={li} style={s.bulletItem}>
+                      <Text style={s.bulletDot}>&#8226;</Text>
+                      <Text style={s.bulletText}>
+                        {l.trim().replace(/^\d+[\.\)]\s*/, "")}
+                      </Text>
+                    </View>
+                  ))
+              ) : (
+                <Text style={s.contentBlock}>{section.body}</Text>
+              )}
+            </View>
+          );
+        })}
+
+        {/* Footer - repeated on every page */}
         <View style={s.footer} fixed>
           <Text style={s.footerLeft}>Consult For Africa | Confidential</Text>
           <Text

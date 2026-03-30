@@ -43,14 +43,38 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
   }
 
   // Load logo as base64 data URI
+  // Try multiple paths: Vercel bundles files differently from local dev
   let logoBase64: string | null = null;
-  try {
-    const logoPath = path.join(process.cwd(), "public", "logo-cfa.png");
-    const logoBuffer = fs.readFileSync(logoPath);
-    logoBase64 = `data:image/png;base64,${logoBuffer.toString("base64")}`;
-  } catch {
-    // Logo not available, skip it
-    console.warn("[proposals/pdf] Could not load logo from filesystem");
+  const logoPaths = [
+    path.join(process.cwd(), "public", "logo-cfa.png"),
+    path.join(process.cwd(), ".next", "static", "media", "logo-cfa.png"),
+    path.resolve("public", "logo-cfa.png"),
+  ];
+  for (const logoPath of logoPaths) {
+    try {
+      if (fs.existsSync(logoPath)) {
+        const logoBuffer = fs.readFileSync(logoPath);
+        logoBase64 = `data:image/png;base64,${logoBuffer.toString("base64")}`;
+        break;
+      }
+    } catch {
+      // Try next path
+    }
+  }
+  // Fallback: fetch from the app's own public URL
+  if (!logoBase64) {
+    try {
+      const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000";
+      const logoRes = await fetch(`${baseUrl}/logo-cfa.png`);
+      if (logoRes.ok) {
+        const buf = Buffer.from(await logoRes.arrayBuffer());
+        logoBase64 = `data:image/png;base64,${buf.toString("base64")}`;
+      }
+    } catch {
+      console.warn("[proposals/pdf] Could not load logo via HTTP fallback");
+    }
   }
 
   const pdfData: ProposalPdfData = {
