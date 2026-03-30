@@ -106,6 +106,7 @@ export default function ProposalsList() {
   const [editChallenges, setEditChallenges] = useState<string[]>([]);
   const [editObjectives, setEditObjectives] = useState<string[]>([]);
   const [saveLoading, setSaveLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   const fetchProposals = useCallback(async () => {
     try {
@@ -315,8 +316,6 @@ export default function ProposalsList() {
     };
 
     const actions = nextActions[detail.status] ?? [];
-
-    const [pdfLoading, setPdfLoading] = useState(false);
 
     async function downloadPDF() {
       if (!detail) return;
