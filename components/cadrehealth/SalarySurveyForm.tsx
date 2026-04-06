@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CADRE_OPTIONS, NIGERIAN_STATES } from "@/lib/cadreHealth/cadres";
+import { getRolesForCadre } from "@/lib/cadreHealth/roles";
 
 const FACILITY_TYPE_OPTIONS = [
   { value: "PUBLIC_TERTIARY", label: "Public Tertiary (Teaching Hospital)" },
@@ -28,10 +29,17 @@ export default function SalarySurveyForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  const [facilitySearch, setFacilitySearch] = useState("");
+  const [facilitySuggestions, setFacilitySuggestions] = useState<{ id: string; name: string; slug: string; state: string; city: string; type: string }[]>([]);
+  const [selectedFacility, setSelectedFacility] = useState<{ id: string; name: string } | null>(null);
+  const [searchTimeout, setSearchTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+
   const [form, setForm] = useState({
     cadre: "",
     role: "",
     facilityType: "",
+    facilityId: "",
+    facilityName: "",
     state: "",
     city: "",
     yearsOfExperience: "",
@@ -43,6 +51,31 @@ export default function SalarySurveyForm() {
     paidOnTime: true,
     averagePayDelayDays: "",
   });
+
+  const handleFacilitySearch = (query: string) => {
+    setFacilitySearch(query);
+    setSelectedFacility(null);
+    update({ facilityId: "", facilityName: query });
+    if (searchTimeout) clearTimeout(searchTimeout);
+    if (query.length < 2) { setFacilitySuggestions([]); return; }
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/cadre/hospitals/search?q=${encodeURIComponent(query)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setFacilitySuggestions(data.facilities || []);
+        }
+      } catch { /* ignore */ }
+    }, 300);
+    setSearchTimeout(t);
+  };
+
+  const selectFacility = (f: { id: string; name: string; state: string; city: string; type: string }) => {
+    setSelectedFacility({ id: f.id, name: f.name });
+    setFacilitySearch(f.name);
+    setFacilitySuggestions([]);
+    update({ facilityId: f.id, facilityName: f.name, state: f.state, city: f.city, facilityType: f.type });
+  };
 
   const update = (partial: Partial<typeof form>) =>
     setForm((prev) => ({ ...prev, ...partial }));
@@ -66,6 +99,7 @@ export default function SalarySurveyForm() {
           cadre: form.cadre,
           role: form.role,
           facilityType: form.facilityType,
+          facilityId: form.facilityId || null,
           state: form.state,
           city: form.city || null,
           yearsOfExperience: parseInt(form.yearsOfExperience) || null,
@@ -162,14 +196,26 @@ export default function SalarySurveyForm() {
             <label className="mb-1.5 block text-sm font-medium text-gray-700">
               Job title / role
             </label>
-            <input
-              type="text"
+            <select
               value={form.role}
               onChange={(e) => update({ role: e.target.value })}
-              placeholder="e.g. Senior Registrar, Staff Nurse"
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-[#0B3C5D] focus:outline-none focus:ring-1 focus:ring-[#0B3C5D]"
-            />
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-[#0B3C5D] focus:outline-none focus:ring-1 focus:ring-[#0B3C5D]"
+            >
+              <option value="">Select your role</option>
+              {getRolesForCadre(form.cadre).map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+              <option value="OTHER">Other (specify below)</option>
+            </select>
+            {form.role === "OTHER" && (
+              <input
+                type="text"
+                onChange={(e) => update({ role: e.target.value || "OTHER" })}
+                placeholder="Type your role"
+                className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-[#0B3C5D] focus:outline-none focus:ring-1 focus:ring-[#0B3C5D]"
+              />
+            )}
           </div>
 
           <div>
@@ -189,6 +235,44 @@ export default function SalarySurveyForm() {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+              Facility / hospital name
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={facilitySearch}
+                onChange={(e) => handleFacilitySearch(e.target.value)}
+                placeholder="Start typing to search (e.g. LUTH, Reddington, FMC...)"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-[#0B3C5D] focus:outline-none focus:ring-1 focus:ring-[#0B3C5D]"
+              />
+              {selectedFacility && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-600">
+                  Matched
+                </span>
+              )}
+              {facilitySuggestions.length > 0 && (
+                <div className="absolute z-20 mt-1 w-full rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+                  {facilitySuggestions.map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => selectFacility(f)}
+                      className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 transition"
+                    >
+                      <span className="font-medium text-gray-900">{f.name}</span>
+                      <span className="ml-2 text-xs text-gray-400">{f.city}, {f.state}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <p className="mt-1 text-[11px] text-gray-400">
+              {selectedFacility ? "Facility matched from our database" : "Type to search. If not found, we will add it."}
+            </p>
           </div>
 
           <div>

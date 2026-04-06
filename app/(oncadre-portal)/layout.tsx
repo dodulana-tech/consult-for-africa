@@ -6,7 +6,7 @@ const navItems = [
   { href: "/oncadre/dashboard", label: "Dashboard", icon: "home" },
   { href: "/oncadre/profile", label: "Profile", icon: "user" },
   { href: "/oncadre/salary-map", label: "Salary Map", icon: "salary" },
-  { href: "/oncadre/hospitals", label: "Hospitals", icon: "hospital" },
+  { href: "/oncadre/explore", label: "Hospitals", icon: "hospital" },
   { href: "/oncadre/referrals", label: "Referrals", icon: "referral" },
 ];
 

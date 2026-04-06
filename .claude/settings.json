@@ -135,7 +135,8 @@
     "additionalDirectories": [
       "/Users/debo/consult-for-africa/app/(client-portal)/client/projects/[id]/report",
       "/Users/debo/consult-for-africa/app/api/admin/consultants/[id]",
-      "/Users/debo/consult-for-africa/app/(platform)/proposals"
+      "/Users/debo/consult-for-africa/app/(platform)/proposals",
+      "/Users/debo/consult-for-africa/app/(oncadre-portal)/oncadre/explore"
     ]
   }
 }
