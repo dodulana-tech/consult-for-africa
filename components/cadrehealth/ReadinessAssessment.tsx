@@ -140,6 +140,9 @@ const CERT_OPTIONS = ["BLS", "ACLS", "ATLS", "ALSO", "NRP", "PALS", "Other"];
 export default function ReadinessAssessment() {
   const [step, setStep] = useState(0);
   const [scores, setScores] = useState<Scores | null>(null);
+  const [capture, setCapture] = useState({ firstName: "", lastName: "", email: "", phone: "" });
+  const [captureError, setCaptureError] = useState("");
+  const [captureLoading, setCaptureLoading] = useState(false);
   const [form, setForm] = useState<FormData>({
     cadre: "",
     yearsOfExperience: 0,
@@ -168,25 +171,182 @@ export default function ReadinessAssessment() {
         : [...prev.additionalCerts, cert],
     }));
 
-  const handleSubmit = () => {
+  // Step 3 -> compute scores, go to capture gate (step 4)
+  const handleQuizComplete = () => {
     const result = computeScores(form);
     setScores(result);
-    setStep(4);
+    setStep(4); // capture gate
+  };
+
+  // Step 4 -> submit capture info, save to backend, reveal results (step 5)
+  const handleCaptureSubmit = async () => {
+    if (!capture.firstName.trim() || !capture.email.trim()) {
+      setCaptureError("Name and email are required to see your results.");
+      return;
+    }
+    if (!capture.email.includes("@")) {
+      setCaptureError("Please enter a valid email address.");
+      return;
+    }
+    setCaptureError("");
+    setCaptureLoading(true);
+    try {
+      await fetch("/api/cadre/readiness", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          scores,
+          capture: {
+            firstName: capture.firstName.trim(),
+            lastName: capture.lastName.trim(),
+            email: capture.email.trim().toLowerCase(),
+            phone: capture.phone.trim(),
+          },
+        }),
+      });
+    } catch {
+      // non-blocking - still show results even if save fails
+    } finally {
+      setCaptureLoading(false);
+      setStep(5); // reveal results
+    }
   };
 
   const isMedDent = form.cadre === "MEDICINE" || form.cadre === "DENTISTRY";
 
   /* ─── step renderers ──────────────────────────────────────────────────── */
 
+  // Step 5: Full results
+  if (step === 5 && scores) {
+    return <ResultCard scores={scores} form={form} capture={capture} onReset={() => { setStep(0); setScores(null); setCapture({ firstName: "", lastName: "", email: "", phone: "" }); }} />;
+  }
+
+  // Step 4: Capture gate
   if (step === 4 && scores) {
-    return <ResultCard scores={scores} form={form} onReset={() => { setStep(0); setScores(null); }} />;
+    return (
+      <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+        {/* Teaser - show domestic score only, blurred international */}
+        <div className="mb-6 rounded-xl bg-[#0B3C5D] p-5 text-white">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs text-white/40">Your score is ready</span>
+            <span className="rounded-md bg-[#D4AF37]/20 px-2 py-0.5 text-[10px] font-semibold text-[#D4AF37]">CadreHealth</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="relative h-16 w-16 shrink-0">
+              <svg className="h-16 w-16 -rotate-90" viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="27" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="4" />
+                <circle cx="32" cy="32" r="27" fill="none" stroke="#10B981" strokeWidth="4" strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 27}`}
+                  strokeDashoffset={`${2 * Math.PI * 27 * (1 - scores.domestic / 100)}`}
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-base font-bold">{scores.domestic}%</span>
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Domestic Employability</p>
+              <p className="text-xs text-white/50 mt-0.5">
+                {scores.domestic >= 70 ? "Strong profile" : scores.domestic >= 50 ? "Room to grow" : "Significant gaps to close"}
+              </p>
+            </div>
+          </div>
+          {/* Blurred international */}
+          <div className="mt-4 grid grid-cols-4 gap-2 relative">
+            <div className="absolute inset-0 backdrop-blur-sm bg-white/5 rounded-lg z-10 flex items-center justify-center">
+              <span className="text-xs font-medium text-white/70">Enter your details to see full results</span>
+            </div>
+            {["UK", "US", "Canada", "Gulf"].map((c) => (
+              <div key={c} className="rounded-md bg-white/5 p-2 text-center">
+                <div className="text-sm font-bold text-white/30">--</div>
+                <div className="text-[9px] text-white/20">{c}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Capture form */}
+        <h3 className="text-lg font-bold text-gray-900">
+          Almost there. See your full results.
+        </h3>
+        <p className="mt-1 text-sm text-gray-500">
+          Enter your details to unlock your international readiness scores,
+          personalized gap analysis, and career roadmap.
+        </p>
+
+        {captureError && (
+          <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
+            {captureError}
+          </div>
+        )}
+
+        <div className="mt-5 space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-600">First name *</label>
+              <input
+                type="text"
+                value={capture.firstName}
+                onChange={(e) => setCapture(p => ({ ...p, firstName: e.target.value }))}
+                placeholder="Chioma"
+                className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#0B3C5D] focus:outline-none focus:ring-1 focus:ring-[#0B3C5D]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-600">Last name</label>
+              <input
+                type="text"
+                value={capture.lastName}
+                onChange={(e) => setCapture(p => ({ ...p, lastName: e.target.value }))}
+                placeholder="Okafor"
+                className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#0B3C5D] focus:outline-none focus:ring-1 focus:ring-[#0B3C5D]"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-600">Email address *</label>
+            <input
+              type="email"
+              value={capture.email}
+              onChange={(e) => setCapture(p => ({ ...p, email: e.target.value }))}
+              placeholder="chioma@example.com"
+              className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#0B3C5D] focus:outline-none focus:ring-1 focus:ring-[#0B3C5D]"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-600">Phone (WhatsApp)</label>
+            <input
+              type="tel"
+              value={capture.phone}
+              onChange={(e) => setCapture(p => ({ ...p, phone: e.target.value }))}
+              placeholder="08012345678"
+              className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#0B3C5D] focus:outline-none focus:ring-1 focus:ring-[#0B3C5D]"
+            />
+          </div>
+        </div>
+
+        <button
+          onClick={handleCaptureSubmit}
+          disabled={captureLoading || !capture.firstName.trim() || !capture.email.trim()}
+          className="mt-5 w-full rounded-lg py-3.5 text-sm font-semibold text-[#06090f] transition hover:opacity-90 disabled:opacity-50"
+          style={{ background: "#D4AF37" }}
+        >
+          {captureLoading ? "Loading..." : "See my full results"}
+        </button>
+
+        <p className="mt-3 text-center text-[11px] text-gray-400">
+          Your data is confidential. We will never share it without your permission.
+        </p>
+      </div>
+    );
   }
 
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
       {/* Progress bar */}
       <div className="mb-8 flex gap-2">
-        {[0, 1, 2, 3].map((i) => (
+        {[0, 1, 2, 3, 4].map((i) => (
           <div
             key={i}
             className={`h-1.5 flex-1 rounded-full transition-colors ${
@@ -440,7 +600,7 @@ export default function ReadinessAssessment() {
               Back
             </button>
             <button
-              onClick={handleSubmit}
+              onClick={handleQuizComplete}
               className="flex-1 rounded-lg bg-[#D4AF37] py-3 text-base font-semibold text-[#0B3C5D] transition hover:bg-[#C4A030]"
             >
               See my score
@@ -522,14 +682,17 @@ function ScoreRing({ score, label, color }: { score: number; label: string; colo
 function ResultCard({
   scores,
   form,
+  capture,
   onReset,
 }: {
   scores: Scores;
   form: FormData;
+  capture: { firstName: string; lastName: string; email: string; phone: string };
   onReset: () => void;
 }) {
   const cadreLabel =
     CADRE_OPTIONS.find((c) => c.value === form.cadre)?.label ?? form.cadre;
+  const displayName = capture.firstName ? `${capture.firstName}${capture.lastName ? ` ${capture.lastName}` : ""}` : "Your";
 
   return (
     <div className="space-y-8">
@@ -538,7 +701,7 @@ function ResultCard({
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-gray-900">
-              Your Career Readiness Score
+              {displayName}&apos;s Career Readiness
             </h2>
             <p className="mt-1 text-sm text-gray-500">
               {cadreLabel} &middot; {form.yearsOfExperience} years experience

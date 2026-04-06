@@ -30,6 +30,10 @@ export async function POST(req: NextRequest) {
         canadaScore: body.scores.canada,
         gulfScore: body.scores.gulf,
         gapAnalysis: body.scores.gaps,
+        captureFirstName: body.capture?.firstName || null,
+        captureLastName: body.capture?.lastName || null,
+        captureEmail: body.capture?.email || null,
+        capturePhone: body.capture?.phone || null,
         ipAddress: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || null,
       },
     });

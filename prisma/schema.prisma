@@ -3568,6 +3568,7 @@ enum CadreOpenTo {
   CONSULTING
   INTERNATIONAL
   SHORT_MISSION
+  MEDEVAC
   REMOTE
 }
 
@@ -3947,6 +3948,12 @@ model CadreReadinessAssessment {
   canadaScore           Int                     // 0-100
   gulfScore             Int                     // 0-100
   gapAnalysis           Json?                   // structured gap breakdown
+
+  // Lead capture (collected before showing results)
+  captureFirstName      String?
+  captureLastName       String?
+  captureEmail          String?
+  capturePhone          String?
 
   // Tracking
   ipAddress             String?

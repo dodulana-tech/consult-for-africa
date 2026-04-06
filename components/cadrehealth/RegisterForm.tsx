@@ -10,6 +10,7 @@ const OPEN_TO_OPTIONS = [
   { value: "CONSULTING", label: "Consulting" },
   { value: "INTERNATIONAL", label: "International opportunities" },
   { value: "SHORT_MISSION", label: "Short missions / medical outreach" },
+  { value: "MEDEVAC", label: "Medical evacuation / patient transfer" },
   { value: "REMOTE", label: "Remote / telemedicine" },
 ];
 
