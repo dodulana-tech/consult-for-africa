@@ -222,7 +222,16 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-500">
+          <p className="mt-4 text-center text-sm">
+            <Link
+              href="/oncadre/forgot-password"
+              className="text-gray-500 hover:text-[#0B3C5D] hover:underline transition-colors duration-200"
+            >
+              Forgot your password?
+            </Link>
+          </p>
+
+          <p className="mt-4 text-center text-sm text-gray-500">
             Don&apos;t have an account?{" "}
             <Link
               href="/oncadre/register"

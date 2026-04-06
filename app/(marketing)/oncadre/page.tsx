@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import NewsletterSignup from "@/components/cadrehealth/NewsletterSignup";
 
 const cadres = [
   "Doctors", "Nurses", "Midwives", "Pharmacists", "Lab Scientists",
@@ -333,6 +334,13 @@ export default function CadreHealthLanding() {
         </div>
       </section>
 
+      {/* ═══════════════ NEWSLETTER ═══════════════ */}
+      <section className="relative" style={{ background: "#0B3C5D" }}>
+        <div className="relative mx-auto max-w-3xl px-6 py-12">
+          <NewsletterSignup />
+        </div>
+      </section>
+
       {/* ═══════════════ FINAL CTA ═══════════════ */}
       <section className="relative overflow-hidden" style={{ background: "#06090f" }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 80% at 50% 50%, rgba(11,60,93,0.35) 0%, transparent 60%)" }} />
@@ -357,6 +365,13 @@ export default function CadreHealthLanding() {
           <p className="mt-4 text-[11px]" style={{ color: "rgba(255,255,255,0.25)" }}>
             Free forever. No card required.
           </p>
+
+          {/* Footer links */}
+          <div className="mt-10 flex justify-center gap-4 text-[11px]" style={{ color: "rgba(255,255,255,0.3)" }}>
+            <Link href="/oncadre/terms" className="hover:text-white/50 transition-colors">Terms of Service</Link>
+            <span>|</span>
+            <Link href="/oncadre/privacy" className="hover:text-white/50 transition-colors">Privacy Policy</Link>
+          </div>
         </div>
       </section>
     </main>

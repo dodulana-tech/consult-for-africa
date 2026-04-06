@@ -8,6 +8,7 @@ import ProfileCredentials from "./ProfileCredentials";
 import ProfileQualifications from "./ProfileQualifications";
 import ProfileCPD from "./ProfileCPD";
 import ProfileWorkHistory from "./ProfileWorkHistory";
+import CVUploadBuilder from "@/components/cadrehealth/CVUploadBuilder";
 
 export default async function ProfilePage() {
   const session = await getCadreSession();
@@ -127,6 +128,33 @@ export default async function ProfilePage() {
           Dashboard
         </Link>
       </div>
+
+      {/* Quick Setup: CV Upload */}
+      {professional.profileCompleteness < 60 && (
+        <div
+          className="rounded-2xl border p-6"
+          style={{
+            borderColor: "#D4AF37",
+            background: "linear-gradient(135deg, #FFFDF5, #FFF)",
+          }}
+        >
+          <div className="mb-4 flex items-center gap-3">
+            <div
+              className="flex h-10 w-10 items-center justify-center rounded-xl"
+              style={{ background: "linear-gradient(135deg, #D4AF37, #c4a030)" }}
+            >
+              <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Quick Setup</h2>
+              <p className="text-sm text-gray-500">Upload your CV to auto-fill your profile in seconds</p>
+            </div>
+          </div>
+          <CVUploadBuilder />
+        </div>
+      )}
 
       {/* Profile completeness bar */}
       {professional.profileCompleteness < 100 && (

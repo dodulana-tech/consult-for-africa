@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getCadreShortLabel } from "@/lib/cadreHealth/cadres";
 import { REVIEW_DIMENSIONS, CATEGORY_DIMENSIONS } from "@/lib/cadreHealth/reviewDimensions";
 import HospitalReviewFormWrapper from "./ReviewFormWrapper";
+import ShareButtons from "@/components/cadrehealth/ShareButtons";
 
 /* ---- Helpers ---- */
 
@@ -491,6 +492,15 @@ export default async function HospitalDeepDivePage({
           </div>
         </div>
       </section>
+
+      {/* Share buttons */}
+      <div className="rounded-xl border border-gray-100 bg-white px-5 py-3.5" style={{ boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}>
+        <ShareButtons
+          title="Share this hospital"
+          text={`Check out reviews for ${facility.name} on CadreHealth`}
+          url={`https://consultforafrica.com/oncadre/explore/${facility.slug}`}
+        />
+      </div>
 
       {/* ================================================================== */}
       {/* B. RATING BREAKDOWN (12 dimensions)                                */}

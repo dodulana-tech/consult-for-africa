@@ -2,6 +2,29 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 
+export async function GET() {
+  try {
+    const session = await getCadreSession();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const professional = await prisma.cadreProfessional.findUnique({
+      where: { id: session.sub },
+      select: { emailVerified: true },
+    });
+
+    if (!professional) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ emailVerified: professional.emailVerified });
+  } catch (error) {
+    console.error("Profile GET error:", error);
+    return NextResponse.json({ error: "Failed to fetch profile" }, { status: 500 });
+  }
+}
+
 export async function PATCH(req: NextRequest) {
   try {
     const session = await getCadreSession();

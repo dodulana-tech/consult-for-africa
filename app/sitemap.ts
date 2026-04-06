@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
-import { CADRE_DEFINITIONS } from "@/lib/cadreHealth/cadres";
+import { CADRE_DEFINITIONS, NIGERIAN_STATES } from "@/lib/cadreHealth/cadres";
 import { EXAM_GUIDES } from "@/lib/cadreHealth/examData";
 import { MIGRATION_COUNTRY_SLUGS } from "@/lib/cadreHealth/migrationData";
 
@@ -36,6 +36,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: "/oncadre/salaries", priority: 0.9, changeFrequency: "weekly" as const },
     { url: "/oncadre/exams", priority: 0.9, changeFrequency: "weekly" as const },
     { url: "/oncadre/migrate", priority: 0.9, changeFrequency: "weekly" as const },
+    { url: "/oncadre/jobs", priority: 0.9, changeFrequency: "daily" as const },
+    // CadreHealth - salary structure pages
+    { url: "/oncadre/salaries/conmess", priority: 0.9, changeFrequency: "monthly" as const },
+    { url: "/oncadre/salaries/conhess", priority: 0.9, changeFrequency: "monthly" as const },
+    // CadreHealth - comparison & ranking pages
+    { url: "/oncadre/hospitals/compare", priority: 0.8, changeFrequency: "weekly" as const },
+    { url: "/oncadre/hospitals/best", priority: 0.9, changeFrequency: "weekly" as const },
+    // CadreHealth - legal pages
+    { url: "/oncadre/terms", priority: 0.3, changeFrequency: "monthly" as const },
+    { url: "/oncadre/privacy", priority: 0.3, changeFrequency: "monthly" as const },
   ];
 
   // Dynamic hospital pages (programmatic SEO)
@@ -80,6 +90,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
+  // State directory pages
+  const stateRoutes: MetadataRoute.Sitemap = NIGERIAN_STATES.map((state) => ({
+    url: `${base}/oncadre/states/${state.toLowerCase().replace(/\s+/g, "-")}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
+
+  // State best hospitals pages
+  const stateBestRoutes: MetadataRoute.Sitemap = NIGERIAN_STATES.map((state) => ({
+    url: `${base}/oncadre/hospitals/best/${state.toLowerCase().replace(/\s+/g, "-")}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+
   return [
     ...staticRoutes.map(({ url, priority, changeFrequency }) => ({
       url: `${base}${url}`,
@@ -91,5 +117,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...cadreRoutes,
     ...examRoutes,
     ...migrationRoutes,
+    ...stateRoutes,
+    ...stateBestRoutes,
   ];
 }

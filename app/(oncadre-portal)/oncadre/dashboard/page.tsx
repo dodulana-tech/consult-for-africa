@@ -214,6 +214,19 @@ export default async function CadreDashboard() {
           accent="#F59E0B"
         />
 
+        {/* Profile views */}
+        <DashCard
+          title="Profile Views"
+          value={professional.profileViews.toString()}
+          subtitle={
+            professional.lastViewedAt
+              ? `Last viewed ${professional.lastViewedAt.toLocaleDateString()}`
+              : "Employers can find you here"
+          }
+          href="/oncadre/profile"
+          accent="#EC4899"
+        />
+
         {/* Hospital reviews */}
         <DashCard
           title="Hospital Reviews"

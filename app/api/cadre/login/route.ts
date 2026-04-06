@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { signCadreJWT } from "@/lib/cadreAuth";
 import crypto from "crypto";
 import { cookies } from "next/headers";
+import { rateLimit, getClientIp } from "@/lib/cadreHealth/rateLimit";
 
 function verifyPassword(password: string, stored: string): boolean {
   const [salt, hash] = stored.split(":");
@@ -14,6 +15,15 @@ function verifyPassword(password: string, stored: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 10 login attempts per hour per IP
+  const ip = getClientIp(req.headers);
+  if (!rateLimit(`login:${ip}`, 10, 60 * 60 * 1000)) {
+    return NextResponse.json(
+      { error: "Too many login attempts. Please try again later." },
+      { status: 429 }
+    );
+  }
+
   try {
     const { email, password } = await req.json();
 

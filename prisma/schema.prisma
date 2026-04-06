@@ -3653,6 +3653,14 @@ model CadreProfessional {
   includesAllowances    Boolean?
   locumDailyRate        Decimal?                @db.Decimal(10, 2)
 
+  // Password reset
+  passwordResetToken    String?
+  passwordResetExpiry   DateTime?
+
+  // Email verification
+  emailVerified         Boolean                 @default(false)
+  emailVerifyToken      String?
+
   // Referral tracking
   referredById          String?
   referredBy            CadreProfessional?      @relation("Referrals", fields: [referredById], references: [id])
@@ -3682,6 +3690,12 @@ model CadreProfessional {
   outreachRecord        CadreOutreachRecord?
   whatsAppMessages      CadreWhatsAppMessage[]
   facilityReferrals     CadreFacilityReferral[] @relation("FacilityReferrals")
+  careerReports         CadreCareerReport[]
+  advisorMessages       CadreAdvisorMessage[]
+
+  // Profile analytics
+  profileViews          Int                     @default(0)
+  lastViewedAt          DateTime?
 
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
@@ -3838,6 +3852,7 @@ model CadreFacility {
   workHistories         CadreWorkHistory[]
   currentStaff          CadreProfessional[]     @relation("CurrentStaff")
   mandates              CadreMandate[]
+  employerAccount       CadreEmployerAccount?
 
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
@@ -3846,6 +3861,27 @@ model CadreFacility {
   @@index([type])
   @@index([slug])
   @@index([overallRating])
+}
+
+// ─── CadreHealth: Employer Accounts ───
+
+model CadreEmployerAccount {
+  id                    String                  @id @default(cuid())
+  facilityId            String?                 @unique
+  facility              CadreFacility?          @relation(fields: [facilityId], references: [id])
+
+  companyName           String
+  contactName           String
+  contactEmail          String                  @unique
+  contactPhone          String?
+  passwordHash          String
+
+  isVerified            Boolean                 @default(false)
+
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@index([contactEmail])
 }
 
 // ─── CadreHealth: Facility Reviews (Glassdoor model) ───
@@ -4047,6 +4083,10 @@ model CadreMandate {
   publishedAt           DateTime?
   closedAt              DateTime?
 
+  // Public job board
+  isPublished           Boolean                 @default(false)
+  applicationCount      Int                     @default(0)
+
   // Relations
   matches               CadreMandateMatch[]
 
@@ -4056,6 +4096,7 @@ model CadreMandate {
   @@index([status])
   @@index([cadre])
   @@index([type])
+  @@index([isPublished, status])
 }
 
 // ─── CadreHealth: Mandate-Professional Matching ───
@@ -4208,4 +4249,48 @@ model CadreFacilityReferral {
 
   @@index([referredById])
   @@index([status])
+}
+
+// ─── CadreHealth: Career Intelligence Reports ───
+
+model CadreCareerReport {
+  id                    String                  @id @default(cuid())
+  professionalId        String
+  professional          CadreProfessional       @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  marketPosition        Json?    // percentile, peer comparison
+  compensationBenchmark Json?    // salary range, where they fall
+  skillsGap             Json?    // missing certs/quals with impact scores
+  careerPaths           Json?    // 3 suggested trajectories
+  internationalReadiness Json?   // country-by-country assessment
+  nextSteps             Json?    // prioritized action items
+  fullReport            Json?    // raw response
+
+  createdAt             DateTime @default(now())
+
+  @@index([professionalId, createdAt])
+}
+
+// ─── CadreHealth: Career Advisor Messages ───
+
+model CadreAdvisorMessage {
+  id                    String                  @id @default(cuid())
+  professionalId        String
+  professional          CadreProfessional       @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  role                  String   // "user" or "advisor"
+  content               String   @db.Text
+
+  createdAt             DateTime @default(now())
+
+  @@index([professionalId, createdAt])
+}
+
+// ─── CadreHealth: Newsletter Subscribers ───
+
+model CadreNewsletterSubscriber {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  source        String   @default("landing") // landing, readiness, etc.
+  subscribedAt  DateTime @default(now())
 }

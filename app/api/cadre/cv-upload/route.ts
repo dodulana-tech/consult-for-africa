@@ -1,0 +1,182 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getCadreSession } from "@/lib/cadreAuth";
+import Anthropic from "@anthropic-ai/sdk";
+import { PDFParse } from "pdf-parse";
+
+const anthropic = new Anthropic();
+
+const CADRE_VALUES = [
+  "MEDICINE",
+  "DENTISTRY",
+  "NURSING",
+  "MIDWIFERY",
+  "PHARMACY",
+  "MEDICAL_LABORATORY_SCIENCE",
+  "RADIOGRAPHY_IMAGING",
+  "REHABILITATION_THERAPY",
+  "OPTOMETRY",
+  "COMMUNITY_HEALTH",
+  "ENVIRONMENTAL_HEALTH",
+  "NUTRITION_DIETETICS",
+  "PSYCHOLOGY_SOCIAL_WORK",
+  "PUBLIC_HEALTH",
+  "HEALTH_ADMINISTRATION",
+  "BIOMEDICAL_ENGINEERING",
+] as const;
+
+const SYSTEM_PROMPT = `You are a professional CV data extraction specialist for CadreHealth, a Nigerian healthcare career platform. Extract structured professional information from the healthcare CV text provided.
+
+Return ONLY valid JSON with the following structure (no markdown, no explanation):
+
+{
+  "fullName": "string or null",
+  "firstName": "string or null",
+  "lastName": "string or null",
+  "email": "string or null",
+  "phone": "string or null",
+  "cadre": "one of: ${CADRE_VALUES.join(", ")}",
+  "subSpecialty": "string or null",
+  "yearsOfExperience": "number or null (estimate from work history dates if not stated)",
+  "qualifications": [
+    {
+      "type": "PRIMARY_DEGREE | POSTGRADUATE | FELLOWSHIP | CERTIFICATION | INTERNATIONAL_EXAM",
+      "name": "e.g. MBBS, BNSc, B.Pharm, MSc Public Health, FWACS, etc.",
+      "institution": "string or null",
+      "yearObtained": "number or null"
+    }
+  ],
+  "workHistory": [
+    {
+      "facilityName": "string",
+      "role": "string",
+      "department": "string or null",
+      "startDate": "YYYY-MM-DD or null (use first day of month/year if only month/year given)",
+      "endDate": "YYYY-MM-DD or null",
+      "isCurrent": "boolean"
+    }
+  ],
+  "credentials": [
+    {
+      "type": "PRACTICING_LICENSE | FULL_REGISTRATION | COGS | SPECIALIST_REGISTRATION | ADDITIONAL_LICENSE",
+      "regulatoryBody": "MDCN | NMCN | PCN | MLSCN | RRBN | MRTB | ODORBN | CHPRBN | EHORECON | ICNDN | COREN",
+      "licenseNumber": "string or null"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "e.g. ACLS, BLS, IELTS, PLAB Part 1, etc.",
+      "score": "string or null (e.g. IELTS band score)",
+      "type": "CERTIFICATION | INTERNATIONAL_EXAM"
+    }
+  ],
+  "summary": "Brief 1-2 sentence professional summary based on the CV"
+}
+
+Rules:
+- Map the professional to the most appropriate cadre from the list above
+- For Nigerian healthcare professionals, identify MDCN/NMCN/PCN numbers as credentials
+- Distinguish between primary degrees (MBBS, BNSc, B.Pharm) and postgraduate qualifications
+- IELTS, OET, PLAB, USMLE are INTERNATIONAL_EXAM type
+- ACLS, BLS, ATLS are CERTIFICATION type
+- If dates are ambiguous, make reasonable estimates
+- Return null for fields you cannot determine
+- Do not fabricate information not present in the CV`;
+
+export async function POST(req: NextRequest) {
+  try {
+    const session = await getCadreSession();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const formData = await req.formData();
+    const file = formData.get("file") as File | null;
+
+    if (!file) {
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    }
+
+    const allowedTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json(
+        { error: "Only PDF and DOCX files are accepted" },
+        { status: 415 }
+      );
+    }
+
+    // 10MB limit
+    if (file.size > 10 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: "File size must be under 10MB" },
+        { status: 413 }
+      );
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    let extractedText = "";
+
+    if (file.type === "application/pdf") {
+      const parser = new PDFParse({ data: new Uint8Array(buffer) });
+      const textResult = await parser.getText();
+      extractedText = textResult.text;
+      await parser.destroy();
+    } else {
+      // For DOCX, extract raw text from the XML
+      // A basic approach: DOCX is a zip file, we can extract text nodes
+      extractedText = buffer.toString("utf-8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    }
+
+    if (!extractedText || extractedText.trim().length < 50) {
+      return NextResponse.json(
+        { error: "Could not extract sufficient text from the file. Please ensure the document contains readable text." },
+        { status: 422 }
+      );
+    }
+
+    // Truncate to avoid token limits
+    const truncatedText = extractedText.slice(0, 15000);
+
+    const message = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 4096,
+      system: SYSTEM_PROMPT,
+      messages: [
+        {
+          role: "user",
+          content: `Extract structured data from this healthcare CV:\n\n${truncatedText}`,
+        },
+      ],
+    });
+
+    const responseText =
+      message.content[0].type === "text" ? message.content[0].text : "";
+
+    // Parse JSON from response (handle potential markdown wrapping)
+    let parsed;
+    try {
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error("No JSON found");
+      parsed = JSON.parse(jsonMatch[0]);
+    } catch {
+      return NextResponse.json(
+        { error: "Failed to parse extracted data. Please try again." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: parsed,
+    });
+  } catch (error) {
+    console.error("CV upload error:", error);
+    return NextResponse.json(
+      { error: "Failed to process CV. Please try again." },
+      { status: 500 }
+    );
+  }
+}

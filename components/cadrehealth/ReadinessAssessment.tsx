@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { CADRE_OPTIONS } from "@/lib/cadreHealth/cadres";
+import ShareButtons from "@/components/cadrehealth/ShareButtons";
 
 /* ─── types ────────────────────────────────────────────────────────────────── */
 
@@ -727,6 +728,15 @@ function ResultCard({
           <ScoreRing score={scores.canada} label="Canada" color="#EF4444" />
           <ScoreRing score={scores.gulf} label="Gulf States" color="#F59E0B" />
         </div>
+      </div>
+
+      {/* Share buttons */}
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <p className="mb-3 text-sm font-medium text-gray-700">Share your results</p>
+        <ShareButtons
+          text={`Just checked my career readiness on CadreHealth. Domestic: ${scores.domestic}%, UK: ${scores.uk}%, US: ${scores.us}%, Gulf: ${scores.gulf}%. Check yours:`}
+          url={typeof window !== "undefined" ? `${window.location.origin}/oncadre/readiness` : "https://consultforafrica.com/oncadre/readiness"}
+        />
       </div>
 
       {/* Gap analysis */}

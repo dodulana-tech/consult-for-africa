@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { CADRE_OPTIONS, NIGERIAN_STATES, getCadreLabel } from "@/lib/cadreHealth/cadres";
+import ShareButtons from "@/components/cadrehealth/ShareButtons";
 
 const FACILITY_TYPE_OPTIONS = [
   { value: "", label: "All facility types" },
@@ -221,6 +222,15 @@ export default function SalaryMapExplorer({
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Share salary data */}
+          <div className="rounded-xl border border-gray-100 bg-white px-5 py-3.5 shadow-sm">
+            <ShareButtons
+              title="Share"
+              text="Check out anonymous salary data for Nigerian healthcare professionals on CadreHealth"
+              url={typeof window !== "undefined" ? window.location.href : "https://consultforafrica.com/oncadre/salary-map"}
+            />
           </div>
 
           {/* Mobile cards - hidden on desktop */}

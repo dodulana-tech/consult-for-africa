@@ -1,13 +1,20 @@
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { getCadreSession } from "@/lib/cadreAuth";
 import Link from "next/link";
+import LogoutButton from "./LogoutButton";
+import EmailVerificationBanner from "./EmailVerificationBanner";
+import CadreHealthAnalytics from "@/components/cadrehealth/Analytics";
 
 const navItems = [
   { href: "/oncadre/dashboard", label: "Dashboard", icon: "home" },
   { href: "/oncadre/profile", label: "Profile", icon: "user" },
   { href: "/oncadre/salary-map", label: "Salary Map", icon: "salary" },
   { href: "/oncadre/explore", label: "Hospitals", icon: "hospital" },
+  { href: "/oncadre/cv-generator", label: "CV", icon: "cv" },
   { href: "/oncadre/referrals", label: "Referrals", icon: "referral" },
+  { href: "/oncadre/career-report", label: "Assessment", icon: "assessment" },
+  { href: "/oncadre/advisor", label: "Advisor", icon: "advisor" },
 ];
 
 export default async function OncadrePortalLayout({
@@ -71,6 +78,7 @@ export default async function OncadrePortalLayout({
               {session.firstName?.[0]}
               {session.lastName?.[0]}
             </div>
+            <LogoutButton />
           </div>
         </div>
       </nav>
@@ -99,10 +107,18 @@ export default async function OncadrePortalLayout({
         </div>
       </nav>
 
+      {/* Email verification banner */}
+      <EmailVerificationBanner professionalId={session.sub} />
+
       {/* Content */}
       <main className="mx-auto max-w-7xl px-4 py-8 pb-24 sm:px-6 sm:pb-8 lg:px-8">
         {children}
       </main>
+
+      {/* Analytics */}
+      <Suspense fallback={null}>
+        <CadreHealthAnalytics />
+      </Suspense>
     </div>
   );
 }
@@ -135,10 +151,28 @@ function NavIcon({ icon }: { icon: string }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
         </svg>
       );
+    case "cv":
+      return (
+        <svg className={cls} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+        </svg>
+      );
     case "referral":
       return (
         <svg className={cls} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      );
+    case "assessment":
+      return (
+        <svg className={cls} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      );
+    case "advisor":
+      return (
+        <svg className={cls} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
         </svg>
       );
     default:
