@@ -15,13 +15,19 @@ function requireEnv(name: string): string {
   return val;
 }
 
-const s3 = new S3Client({
-  region: process.env.AWS_REGION ?? "us-east-1",
-  credentials: {
-    accessKeyId: requireEnv("AWS_ACCESS_KEY_ID"),
-    secretAccessKey: requireEnv("AWS_SECRET_ACCESS_KEY"),
-  },
-});
+let _s3: S3Client | null = null;
+function getS3(): S3Client {
+  if (!_s3) {
+    _s3 = new S3Client({
+      region: process.env.AWS_REGION ?? "us-east-1",
+      credentials: {
+        accessKeyId: requireEnv("AWS_ACCESS_KEY_ID"),
+        secretAccessKey: requireEnv("AWS_SECRET_ACCESS_KEY"),
+      },
+    });
+  }
+  return _s3;
+}
 
 const BUCKET = process.env.AWS_S3_BUCKET ?? "cfa-platform";
 
@@ -120,7 +126,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
       );
 
       const key = `ndas/${updated.id}/signed-${Date.now()}.pdf`;
-      await s3.send(
+      await getS3().send(
         new PutObjectCommand({
           Bucket: BUCKET,
           Key: key,
