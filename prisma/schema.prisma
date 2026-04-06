@@ -3526,3 +3526,606 @@ model ExchangeRate {
   @@unique([fromCurrency, toCurrency, effectiveDate])
   @@index([effectiveDate])
 }
+
+// ─── CadreHealth: Healthcare Workforce Platform ──────────────────────────────
+
+enum CadreProfessionalCadre {
+  MEDICINE
+  DENTISTRY
+  NURSING
+  MIDWIFERY
+  PHARMACY
+  MEDICAL_LABORATORY_SCIENCE
+  RADIOGRAPHY_IMAGING
+  REHABILITATION_THERAPY
+  OPTOMETRY
+  COMMUNITY_HEALTH
+  ENVIRONMENTAL_HEALTH
+  NUTRITION_DIETETICS
+  PSYCHOLOGY_SOCIAL_WORK
+  PUBLIC_HEALTH
+  HEALTH_ADMINISTRATION
+  BIOMEDICAL_ENGINEERING
+}
+
+enum CadreAccountStatus {
+  UNVERIFIED       // registered but license not yet verified
+  PENDING_REVIEW   // license submitted, awaiting verification
+  VERIFIED         // license verified against regulatory body
+  SUSPENDED        // account suspended (integrity issue)
+}
+
+enum CadreAvailability {
+  ACTIVELY_LOOKING     // open to offers now
+  OPEN_TO_OFFERS       // not actively searching but would consider
+  DOING_LOCUM          // primarily doing locum/shift work
+  NOT_LOOKING          // employed, not interested right now
+}
+
+enum CadreOpenTo {
+  PERMANENT
+  LOCUM
+  CONSULTING
+  INTERNATIONAL
+  SHORT_MISSION
+  REMOTE
+}
+
+enum CadreVerificationStatus {
+  NOT_SUBMITTED
+  PENDING
+  VERIFIED
+  FAILED
+  EXPIRED
+}
+
+enum CadreFacilityType {
+  PUBLIC_TERTIARY         // teaching hospitals, FMCs
+  PUBLIC_SECONDARY        // state/general hospitals
+  PUBLIC_PRIMARY          // PHCs
+  PRIVATE_TERTIARY
+  PRIVATE_SECONDARY
+  PRIVATE_CLINIC
+  FAITH_BASED
+  NGO
+  MILITARY
+  INTERNATIONAL           // NHS, Gulf, etc.
+}
+
+enum CadreMandateStatus {
+  OPEN
+  SOURCING
+  SHORTLISTED
+  INTERVIEWING
+  OFFER_EXTENDED
+  PLACED
+  CLOSED
+  CANCELLED
+}
+
+enum CadreMandateType {
+  PERMANENT
+  LOCUM
+  CONTRACT
+  CONSULTING
+  INTERNATIONAL
+}
+
+// ─── CadreHealth: Professional Profile ───
+
+model CadreProfessional {
+  id                    String                  @id @default(cuid())
+  email                 String                  @unique
+  phone                 String?
+  passwordHash          String
+  firstName             String
+  lastName              String
+  photo                 String?
+
+  // Professional identity
+  cadre                 CadreProfessionalCadre
+  subSpecialty           String?                // free text within cadre
+  yearsOfExperience     Int?
+  currentRole           String?
+  currentFacility       String?
+  currentFacilityId     String?
+  currentFacilityRef    CadreFacility?          @relation("CurrentStaff", fields: [currentFacilityId], references: [id])
+
+  // Location
+  state                 String?
+  city                  String?
+  country               String                  @default("Nigeria")
+  isDiaspora            Boolean                 @default(false)
+  diasporaCountry       String?
+
+  // Status
+  accountStatus         CadreAccountStatus      @default(UNVERIFIED)
+  availability          CadreAvailability?
+  openTo                CadreOpenTo[]
+  noticePeriodWeeks     Int?
+  availableFrom         DateTime?
+
+  // Salary (for salary map - self-reported, anonymized)
+  monthlySalary         Decimal?                @db.Decimal(12, 2)
+  salaryCurrency        String?                 @default("NGN")
+  salaryReportedAt      DateTime?
+  includesAllowances    Boolean?
+  locumDailyRate        Decimal?                @db.Decimal(10, 2)
+
+  // Referral tracking
+  referredById          String?
+  referredBy            CadreProfessional?      @relation("Referrals", fields: [referredById], references: [id])
+  referrals             CadreProfessional[]     @relation("Referrals")
+  referralCode          String?                 @unique
+
+  // Career readiness score (cached from last assessment)
+  readinessScoreDomestic Int?
+  readinessScoreUK       Int?
+  readinessScoreUS       Int?
+  readinessScoreCanada   Int?
+  readinessScoreGulf     Int?
+  readinessComputedAt    DateTime?
+
+  // Profile completeness
+  profileCompleteness    Int                     @default(0) // 0-100
+
+  // Relations
+  credentials           CadreCredential[]
+  qualifications        CadreQualification[]
+  cpdEntries            CadreCPDEntry[]
+  workHistory           CadreWorkHistory[]
+  facilityReviews       CadreFacilityReview[]
+  salaryReports         CadreSalaryReport[]
+  mandateMatches        CadreMandateMatch[]
+  readinessAssessments  CadreReadinessAssessment[]
+  outreachRecord        CadreOutreachRecord?
+  whatsAppMessages      CadreWhatsAppMessage[]
+
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@index([cadre])
+  @@index([state, city])
+  @@index([accountStatus])
+  @@index([availability])
+  @@index([readinessScoreDomestic])
+}
+
+// ─── CadreHealth: Regulatory Credentials ───
+
+model CadreCredential {
+  id                    String                  @id @default(cuid())
+  professionalId        String
+  professional          CadreProfessional       @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  // What credential
+  type                  String                  // PRACTICING_LICENSE, FULL_REGISTRATION, COGS, SPECIALIST_REGISTRATION, ADDITIONAL_LICENSE
+  regulatoryBody        String                  // MDCN, NMCN, PCN, MLSCN, RRBN, MRTB, ODORBN, CHPRBN, EHORECON, ICNDN, COREN
+  licenseNumber         String?
+  issuedDate            DateTime?
+  expiryDate            DateTime?
+
+  // Verification
+  verificationStatus    CadreVerificationStatus @default(NOT_SUBMITTED)
+  verifiedAt            DateTime?
+  verifiedBy            String?                 // admin user ID who verified
+  documentUrl           String?                 // uploaded certificate/license
+
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@index([professionalId])
+  @@index([type, verificationStatus])
+  @@index([expiryDate])
+}
+
+// ─── CadreHealth: Qualifications ───
+
+model CadreQualification {
+  id                    String                  @id @default(cuid())
+  professionalId        String
+  professional          CadreProfessional       @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  type                  String                  // PRIMARY_DEGREE, POSTGRADUATE, FELLOWSHIP, CERTIFICATION, INTERNATIONAL_EXAM
+  name                  String                  // e.g. "MBBS", "FWACP", "ACLS", "PLAB 1", "IELTS"
+  institution           String?
+  yearObtained          Int?
+  score                 String?                 // for exams like IELTS "7.5", PLAB "Pass"
+  expiryDate            DateTime?               // for time-limited certs like IELTS, ACLS
+  documentUrl           String?
+  verificationStatus    CadreVerificationStatus @default(NOT_SUBMITTED)
+
+  createdAt             DateTime                @default(now())
+
+  @@index([professionalId])
+  @@index([type])
+}
+
+// ─── CadreHealth: CPD Tracker ───
+
+model CadreCPDEntry {
+  id                    String                  @id @default(cuid())
+  professionalId        String
+  professional          CadreProfessional       @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  activity              String                  // description of CPD activity
+  category              String                  // CONFERENCE, WORKSHOP, ONLINE_COURSE, PUBLICATION, TEACHING, CLINICAL_AUDIT, SELF_STUDY
+  provider              String?                 // who provided the CPD
+  points                Decimal                 @db.Decimal(5, 1)
+  dateCompleted         DateTime
+  certificateUrl        String?
+  verified              Boolean                 @default(false)
+
+  createdAt             DateTime                @default(now())
+
+  @@index([professionalId])
+  @@index([dateCompleted])
+}
+
+// ─── CadreHealth: Work History ───
+
+model CadreWorkHistory {
+  id                    String                  @id @default(cuid())
+  professionalId        String
+  professional          CadreProfessional       @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  facilityId            String?
+  facility              CadreFacility?          @relation(fields: [facilityId], references: [id])
+  facilityName          String                  // stored even if facility not in system
+  role                  String
+  department            String?
+  startDate             DateTime
+  endDate               DateTime?
+  isCurrent             Boolean                 @default(false)
+
+  // Facility-side confirmation
+  confirmedByFacility   Boolean                 @default(false)
+  confirmedAt           DateTime?
+  confirmedBy           String?
+
+  createdAt             DateTime                @default(now())
+
+  @@index([professionalId])
+  @@index([facilityId])
+}
+
+// ─── CadreHealth: Facilities (Hospitals, Clinics, etc.) ───
+
+model CadreFacility {
+  id                    String                  @id @default(cuid())
+  name                  String
+  slug                  String                  @unique // for SEO: /hospitals/luth
+  type                  CadreFacilityType
+  state                 String
+  city                  String
+  address               String?
+  website               String?
+  bedCount              Int?
+  isVerified            Boolean                 @default(false)
+
+  // Aggregate ratings (computed, cached)
+  overallRating         Decimal?                @db.Decimal(3, 2) // 1.00 - 5.00
+  compensationRating    Decimal?                @db.Decimal(3, 2)
+  payTimelinessRating   Decimal?                @db.Decimal(3, 2)
+  workloadRating        Decimal?                @db.Decimal(3, 2)
+  equipmentRating       Decimal?                @db.Decimal(3, 2)
+  managementRating      Decimal?                @db.Decimal(3, 2)
+  safetyRating          Decimal?                @db.Decimal(3, 2)
+  trainingRating        Decimal?                @db.Decimal(3, 2)
+  accommodationRating   Decimal?                @db.Decimal(3, 2)
+  totalReviews          Int                     @default(0)
+  wouldRecommendPct     Decimal?                @db.Decimal(5, 2) // 0-100
+
+  // Relations
+  reviews               CadreFacilityReview[]
+  salaryReports         CadreSalaryReport[]
+  workHistories         CadreWorkHistory[]
+  currentStaff          CadreProfessional[]     @relation("CurrentStaff")
+  mandates              CadreMandate[]
+
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@index([state, city])
+  @@index([type])
+  @@index([slug])
+  @@index([overallRating])
+}
+
+// ─── CadreHealth: Facility Reviews (Glassdoor model) ───
+
+model CadreFacilityReview {
+  id                    String                  @id @default(cuid())
+  professionalId        String
+  professional          CadreProfessional       @relation(fields: [professionalId], references: [id])
+  facilityId            String
+  facility              CadreFacility           @relation(fields: [facilityId], references: [id])
+
+  // Ratings (1-5 scale)
+  overallRating         Int                     // 1-5
+  compensationRating    Int?                    // 1-5
+  payTimelinessRating   Int?                    // 1-5 (do they pay on time?)
+  workloadRating        Int?                    // 1-5 (call duty fairness)
+  equipmentRating       Int?                    // 1-5 (does equipment work?)
+  managementRating      Int?                    // 1-5
+  safetyRating          Int?                    // 1-5 (staff safety)
+  trainingRating        Int?                    // 1-5 (career development)
+  accommodationRating   Int?                    // 1-5 (staff quarters)
+
+  // Content
+  pros                  String?                 @db.Text
+  cons                  String?                 @db.Text
+  advice                String?                 @db.Text // advice to management
+  wouldRecommend        Boolean?
+
+  // Context
+  roleAtFacility        String?
+  cadreAtFacility       CadreProfessionalCadre?
+  employmentType        String?                 // FULL_TIME, LOCUM, NYSC, HOUSE_OFFICER, RESIDENCY
+  workedFromYear        Int?
+  workedToYear          Int?
+  isCurrentEmployee     Boolean                 @default(false)
+
+  // Moderation
+  isApproved            Boolean                 @default(true)
+  isFlagged             Boolean                 @default(false)
+  flagReason            String?
+  helpfulCount          Int                     @default(0)
+
+  createdAt             DateTime                @default(now())
+
+  @@unique([professionalId, facilityId]) // one review per facility per person
+  @@index([facilityId])
+  @@index([overallRating])
+  @@index([createdAt])
+}
+
+// ─── CadreHealth: Salary Reports (anonymous, aggregated) ───
+
+model CadreSalaryReport {
+  id                    String                  @id @default(cuid())
+  professionalId        String
+  professional          CadreProfessional       @relation(fields: [professionalId], references: [id])
+  facilityId            String?
+  facility              CadreFacility?          @relation(fields: [facilityId], references: [id])
+
+  // Core salary data
+  cadre                 CadreProfessionalCadre
+  role                  String                  // e.g. "House Officer", "Registrar", "Consultant"
+  facilityType          CadreFacilityType?
+  state                 String
+  city                  String?
+  yearsOfExperience     Int?
+
+  // Compensation breakdown
+  baseSalary            Decimal                 @db.Decimal(12, 2)
+  currency              String                  @default("NGN")
+  allowances            Decimal?                @db.Decimal(12, 2) // housing, transport, hazard, etc.
+  callDutyPay           Decimal?                @db.Decimal(12, 2)
+  locumIncome           Decimal?                @db.Decimal(12, 2) // supplementary locum income
+  totalMonthlyTakeHome  Decimal?                @db.Decimal(12, 2)
+
+  // Pay reliability
+  paidOnTime            Boolean?
+  averagePayDelayDays   Int?
+
+  reportedAt            DateTime                @default(now())
+
+  @@index([cadre, state])
+  @@index([facilityId])
+  @@index([reportedAt])
+}
+
+// ─── CadreHealth: Career Readiness Assessment ───
+
+model CadreReadinessAssessment {
+  id                    String                  @id @default(cuid())
+  professionalId        String?                 // null for anonymous/pre-registration assessments
+  professional          CadreProfessional?      @relation(fields: [professionalId], references: [id])
+
+  // Input data (the questionnaire answers)
+  cadre                 CadreProfessionalCadre
+  yearsOfExperience     Int
+  hasFullRegistration   Boolean
+  hasPracticingLicense  Boolean
+  hasCOGS               Boolean
+  postgraduateLevel     String?                 // NONE, MASTERS, FELLOWSHIP, DOCTORATE
+  ieltsScore            Decimal?                @db.Decimal(3, 1)
+  oetPassed             Boolean?
+  plab1Passed           Boolean?
+  plab2Passed           Boolean?
+  usmlePassed           String?                 // NONE, STEP1, STEP2, STEP3
+  cpdPointsCurrent      Int?
+  cpdPointsRequired     Int?
+  additionalCerts       String[]                // ACLS, BLS, ATLS, etc.
+
+  // Computed scores
+  domesticScore         Int                     // 0-100
+  ukScore               Int                     // 0-100
+  usScore               Int                     // 0-100
+  canadaScore           Int                     // 0-100
+  gulfScore             Int                     // 0-100
+  gapAnalysis           Json?                   // structured gap breakdown
+
+  // Tracking
+  ipAddress             String?
+  wasShared             Boolean                 @default(false) // did they share the result?
+  convertedToProfile    Boolean                 @default(false) // did they create a profile after?
+
+  createdAt             DateTime                @default(now())
+
+  @@index([professionalId])
+  @@index([cadre])
+  @@index([createdAt])
+}
+
+// ─── CadreHealth: Recruitment Mandates ───
+
+model CadreMandate {
+  id                    String                  @id @default(cuid())
+  title                 String                  // "Medical Director - House of Refuge"
+  description           String?                 @db.Text
+  facilityId            String?
+  facility              CadreFacility?          @relation(fields: [facilityId], references: [id])
+  facilityName          String?                 // if facility not in system yet
+  clientContact         String?
+
+  // Requirements
+  cadre                 CadreProfessionalCadre
+  subSpecialty           String?
+  minYearsExperience    Int?
+  requiredQualifications String[]
+  preferredQualifications String[]
+  valuesRequirements    String?                 // e.g. "Christian faith" for House of Refuge
+  locationState         String?
+  locationCity          String?
+  isRemoteOk            Boolean                 @default(false)
+  isRelocationRequired  Boolean                 @default(false)
+
+  // Terms
+  type                  CadreMandateType
+  salaryRangeMin        Decimal?                @db.Decimal(12, 2)
+  salaryRangeMax        Decimal?                @db.Decimal(12, 2)
+  salaryCurrency        String?                 @default("NGN")
+  urgency               String?                 // LOW, MEDIUM, HIGH, URGENT
+
+  // Pipeline
+  status                CadreMandateStatus      @default(OPEN)
+  publishedAt           DateTime?
+  closedAt              DateTime?
+
+  // Relations
+  matches               CadreMandateMatch[]
+
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@index([status])
+  @@index([cadre])
+  @@index([type])
+}
+
+// ─── CadreHealth: Mandate-Professional Matching ───
+
+model CadreMandateMatch {
+  id                    String                  @id @default(cuid())
+  mandateId             String
+  mandate               CadreMandate            @relation(fields: [mandateId], references: [id], onDelete: Cascade)
+  professionalId        String
+  professional          CadreProfessional       @relation(fields: [professionalId], references: [id])
+
+  // Matching
+  matchScore            Int?                    // 0-100 AI-computed
+  matchExplanation      String?                 @db.Text
+  rank                  Int?
+
+  // Pipeline
+  status                String                  @default("MATCHED") // MATCHED, CONTACTED, INTERESTED, INTERVIEWING, OFFERED, PLACED, DECLINED, WITHDRAWN
+  contactedAt           DateTime?
+  respondedAt           DateTime?
+  response              String?                 // INTERESTED, NOT_INTERESTED, NO_RESPONSE
+  notes                 String?                 @db.Text
+
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@unique([mandateId, professionalId])
+  @@index([mandateId])
+  @@index([professionalId])
+  @@index([status])
+}
+
+// ─── CadreHealth: Outreach & Engagement ──────────────────────────────────────
+
+enum CadreOutreachStatus {
+  PENDING          // not yet contacted
+  ENRICHING        // running email/phone verification
+  READY            // enriched, ready for outreach
+  WHATSAPP_SENT    // template message sent
+  WHATSAPP_REPLIED // professional replied, Claude engaging
+  SMS_SENT         // SMS fallback sent
+  EMAIL_SENT       // email fallback sent
+  CONVERTED        // claimed profile / set password
+  NOT_INTERESTED   // opted out
+  UNREACHABLE      // all channels failed
+  EMIGRATED        // confirmed abroad (still valuable)
+  RETIRED          // no longer practising
+}
+
+enum CadreOutreachChannel {
+  WHATSAPP
+  SMS
+  EMAIL
+}
+
+model CadreOutreachRecord {
+  id                    String                  @id @default(cuid())
+  professionalId        String
+  professional          CadreProfessional       @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  // Current state
+  status                CadreOutreachStatus     @default(PENDING)
+  tier                  String?                 // A, B, C
+
+  // Data enrichment results
+  emailValid            Boolean?
+  emailActivityScore    Int?                    // 0-100 from ZeroBounce
+  phoneActive           Boolean?
+  phoneCarrier          String?
+  phoneRoaming          Boolean?                // emigration signal
+  hasWhatsApp           Boolean?
+
+  // Outreach tracking
+  whatsAppSentAt        DateTime?
+  whatsAppDeliveredAt   DateTime?
+  whatsAppReadAt        DateTime?
+  whatsAppRepliedAt     DateTime?
+  smsSentAt             DateTime?
+  emailSentAt           DateTime?
+
+  // Conversion
+  convertedAt           DateTime?
+  profileClaimedAt      DateTime?
+
+  // Meta
+  lastContactedAt       DateTime?
+  contactAttempts       Int                     @default(0)
+  nextContactAt         DateTime?               // scheduled next attempt
+  notes                 String?
+
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@unique([professionalId])
+  @@index([status])
+  @@index([tier])
+  @@index([nextContactAt])
+}
+
+model CadreWhatsAppMessage {
+  id                    String                  @id @default(cuid())
+  professionalId        String
+  professional          CadreProfessional       @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  // Message details
+  direction             String                  // INBOUND, OUTBOUND
+  channel               CadreOutreachChannel    @default(WHATSAPP)
+  content               String                  @db.Text
+  whatsAppMessageId     String?                 // Meta message ID
+  templateName          String?                 // for outbound template messages
+
+  // Claude processing
+  intentDetected        String?                 // INTERESTED, NOT_INTERESTED, QUESTION, EMIGRATED, RETIRED, PROFILE_UPDATE, UNKNOWN
+  profileUpdates        Json?                   // structured updates Claude extracted
+  claudeModelUsed       String?
+
+  // Status
+  deliveryStatus        String?                 // sent, delivered, read, failed
+  errorMessage          String?
+
+  createdAt             DateTime                @default(now())
+
+  @@index([professionalId, createdAt])
+  @@index([direction])
+  @@index([createdAt])
+}

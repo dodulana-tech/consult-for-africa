@@ -30,6 +30,7 @@ import {
   X,
   FileText,
   BarChart3,
+  Stethoscope,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import type { LucideIcon } from "lucide-react";
@@ -114,6 +115,16 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
+    title: "CadreHealth",
+    items: [
+      { label: "Dashboard",       href: "/admin/cadrehealth",            icon: Stethoscope },
+      { label: "Mandates",        href: "/admin/cadrehealth/mandates",   icon: ClipboardList },
+      { label: "Outreach",        href: "/admin/cadrehealth/outreach",   icon: Radio },
+      { label: "Import",          href: "/admin/cadrehealth/import",     icon: UserPlus },
+    ],
+    roles: ["DIRECTOR", "PARTNER", "ADMIN"],
+  },
+  {
     title: "Finance",
     items: [
       { label: "Invoices",        href: "/finance/invoices",  icon: FileText },
@@ -128,6 +139,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Onboarding",     href: "/admin/onboarding", icon: ClipboardList },
       { label: "Assessments",    href: "/admin/assessments", icon: FileSearch },
       { label: "Outreach",       href: "/admin/outreach", icon: Share2 },
+      { label: "Referrals",      href: "/admin/referrals", icon: Share2 },
       { label: "Maarova",        href: "/admin/maarova",  icon: Brain },
       { label: "Partners",       href: "/admin/partners",     icon: Building2 },
       { label: "Satisfaction",   href: "/admin/satisfaction", icon: HeartPulse },
