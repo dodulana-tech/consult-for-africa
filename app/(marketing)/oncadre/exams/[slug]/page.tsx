@@ -6,6 +6,7 @@ import {
   getExamBySlug,
   getAllExamSlugs,
 } from "@/lib/cadreHealth/examData";
+import DataDisclaimer from "@/components/cadrehealth/DataDisclaimer";
 
 /* ─── Static Params ────────────────────────────────────────────────────────── */
 
@@ -585,6 +586,14 @@ export default async function ExamDetailPage({
             </div>
           </div>
         </div>
+      </div>
+      {/* Disclaimer */}
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 pb-10">
+        <DataDisclaimer
+          sources={[
+            { name: exam.administeredBy, url: "#" },
+          ]}
+        />
       </div>
     </main>
   );

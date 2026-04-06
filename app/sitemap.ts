@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { CADRE_DEFINITIONS } from "@/lib/cadreHealth/cadres";
 import { EXAM_GUIDES } from "@/lib/cadreHealth/examData";
+import { MIGRATION_COUNTRY_SLUGS } from "@/lib/cadreHealth/migrationData";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = "https://consultforafrica.com";
@@ -33,6 +34,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // CadreHealth - SEO content pages
     { url: "/oncadre/hospitals", priority: 0.9, changeFrequency: "weekly" as const },
     { url: "/oncadre/salaries", priority: 0.9, changeFrequency: "weekly" as const },
+    { url: "/oncadre/exams", priority: 0.9, changeFrequency: "weekly" as const },
+    { url: "/oncadre/migrate", priority: 0.9, changeFrequency: "weekly" as const },
   ];
 
   // Dynamic hospital pages (programmatic SEO)
@@ -61,6 +64,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  // Dynamic exam guide pages
+  const examRoutes: MetadataRoute.Sitemap = EXAM_GUIDES.map((e) => ({
+    url: `${base}/oncadre/exams/${e.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
+  }));
+
+  // Migration country pathway pages
+  const migrationRoutes: MetadataRoute.Sitemap = MIGRATION_COUNTRY_SLUGS.map((slug) => ({
+    url: `${base}/oncadre/migrate/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly" as const,
+    priority: 0.9,
+  }));
+
   return [
     ...staticRoutes.map(({ url, priority, changeFrequency }) => ({
       url: `${base}${url}`,
@@ -70,5 +89,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...hospitalRoutes,
     ...cadreRoutes,
+    ...examRoutes,
+    ...migrationRoutes,
   ];
 }
