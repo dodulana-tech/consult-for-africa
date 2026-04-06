@@ -10,6 +10,39 @@ const cadres = [
   "Psychologists", "Public Health", "Health Admin", "Biomedical Engineers",
 ];
 
+const features = [
+  { name: "Career Readiness Score", desc: "Free assessment with UK, US, Canada, and Gulf scores.", href: "/oncadre/readiness", color: "#10B981" },
+  { name: "Salary Intelligence", desc: "Real pay data by cadre, facility, and city.", href: "/oncadre/salaries", color: "#F59E0B" },
+  { name: "Hospital Reviews", desc: "12-dimension reviews from verified staff.", href: "/oncadre/hospitals", color: "#3B82F6" },
+  { name: "Career Intelligence Report", desc: "Market positioning and skills gap analysis.", href: "/oncadre/career-report", color: "#8B5CF6" },
+  { name: "Career Advisor", desc: "Personalized career guidance for your cadre.", href: "/oncadre/advisor", color: "#EC4899" },
+  { name: "Job Board", desc: "Browse and apply to healthcare roles.", href: "/oncadre/jobs", color: "#EF4444" },
+  { name: "Mentorship", desc: "Diaspora mentors from MANSAG, ANPA, and DFC.", href: "/oncadre/mentorship", color: "#D4AF37" },
+  { name: "CV Builder", desc: "Build and export a professional CV.", href: "/oncadre/cv-generator", color: "#06B6D4" },
+  { name: "Credential Wallet", desc: "Licenses, CPD, COGS tracked with reminders.", href: "/oncadre/profile", color: "#6366F1" },
+  { name: "Migration Pathways", desc: "Step-by-step guides for 10 countries.", href: "/oncadre/migrate", color: "#F97316" },
+  { name: "Exam Guides", desc: "Prep guides for 13 professional exams.", href: "/oncadre/exams", color: "#14B8A6" },
+];
+
+const migrationCountries = [
+  { flag: "🇬🇧", name: "United Kingdom" },
+  { flag: "🇺🇸", name: "United States" },
+  { flag: "🇨🇦", name: "Canada" },
+  { flag: "🇦🇺", name: "Australia" },
+  { flag: "🇳🇿", name: "New Zealand" },
+  { flag: "🇦🇪", name: "UAE" },
+  { flag: "🇸🇦", name: "Saudi Arabia" },
+  { flag: "🇶🇦", name: "Qatar" },
+  { flag: "🇮🇪", name: "Ireland" },
+  { flag: "🇿🇦", name: "South Africa" },
+];
+
+const exams = [
+  "PLAB 1 & 2", "USMLE Step 1-3", "NMC CBT", "NMC OSCE", "OET",
+  "IELTS Academic", "KAPS", "NAPLEX", "PEBC", "DHA", "HAAD",
+  "SCFHS", "AMC",
+];
+
 export default function CadreHealthLanding() {
   return (
     <main className="bg-[#FAFAFA]">
@@ -148,8 +181,10 @@ export default function CadreHealthLanding() {
         </div>
       </section>
 
-      {/* ═══════════════ SALARY MAP ═══════════════ */}
-      <section className="py-20">
+      {/* ═══════════════ SECTION A: TOP 3 FEATURES WITH MOCKUPS ═══════════════ */}
+
+      {/* Salary Map (left copy, right mockup) */}
+      <section className="py-20 bg-[#F8F9FB]">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div className="max-w-lg">
@@ -158,12 +193,10 @@ export default function CadreHealthLanding() {
                 They won&apos;t tell you<br />what they earn. We will.
               </h2>
               <p className="mt-4 text-[15px] leading-relaxed text-gray-500">
-                What does a staff nurse at Reddington take home? How much
-                does FMC Abeokuta pay registrars? Verified data. Every cadre.
-                Every city. You share yours anonymously, you see everyone else&apos;s.
+                Verified pay data across every cadre and city. You share yours anonymously, you see everyone else&apos;s.
               </p>
-              <Link href="/oncadre/register" className="mt-6 inline-flex items-center text-sm font-semibold text-amber-600 transition hover:text-amber-700">
-                Unlock the salary map &rarr;
+              <Link href="/oncadre/salaries" className="mt-6 inline-flex items-center text-sm font-semibold text-amber-600 transition hover:text-amber-700">
+                Explore salary data &rarr;
               </Link>
             </div>
             <div className="rounded-2xl p-6" style={{ background: "#fff", border: "1px solid #E8EBF0", boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)" }}>
@@ -201,11 +234,9 @@ export default function CadreHealthLanding() {
         </div>
       </section>
 
-      {/* ═══════════════ HOSPITAL REVIEWS ═══════════════ */}
-      <section className="relative overflow-hidden text-white py-20" style={{ background: "#0B3C5D" }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 70% at 20% 50%, rgba(14,77,110,0.5) 0%, transparent 55%)" }} />
-        <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.025, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: "180px" }} />
-        <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+      {/* Hospital Reviews (right copy, left mockup) */}
+      <section className="py-20 bg-[#F8F9FB]">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div className="order-2 lg:order-1 space-y-3">
               {[
@@ -213,37 +244,35 @@ export default function CadreHealthLanding() {
                 { name: "Reddington Hospital, VI", type: "Private Hospital", rating: 4.3, reviews: 23, eq: 4.5, pay: 4.7, train: 3.8 },
                 { name: "FMC Abeokuta", type: "Federal Medical Centre", rating: 3.6, reviews: 31, eq: 2.9, pay: 3.2, train: 3.9 },
               ].map((h) => (
-                <div key={h.name} className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <div key={h.name} className="rounded-xl p-4" style={{ background: "#fff", border: "1px solid #E8EBF0", boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}>
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-[13px] font-semibold text-white/90">{h.name}</p>
-                      <p className="text-[10px] text-white/35 mt-0.5">{h.type}</p>
+                      <p className="text-[13px] font-semibold text-gray-900">{h.name}</p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">{h.type}</p>
                     </div>
-                    <div className="flex items-center gap-1.5 rounded-md px-2 py-1" style={{ background: "rgba(255,255,255,0.06)" }}>
-                      <span className="text-xs text-amber-400">&#9733;</span>
-                      <span className="text-xs font-bold text-white">{h.rating}</span>
-                      <span className="text-[10px] text-white/40">({h.reviews})</span>
+                    <div className="flex items-center gap-1.5 rounded-md px-2 py-1 bg-gray-50">
+                      <span className="text-xs text-amber-500">&#9733;</span>
+                      <span className="text-xs font-bold text-gray-900">{h.rating}</span>
+                      <span className="text-[10px] text-gray-400">({h.reviews})</span>
                     </div>
                   </div>
                   <div className="mt-3 flex gap-2">
-                    <DarkBadge label="Equipment" score={h.eq} />
-                    <DarkBadge label="Pay on time" score={h.pay} />
-                    <DarkBadge label="Training" score={h.train} />
+                    <LightBadge label="Equipment" score={h.eq} />
+                    <LightBadge label="Pay on time" score={h.pay} />
+                    <LightBadge label="Training" score={h.train} />
                   </div>
                 </div>
               ))}
             </div>
             <div className="order-1 lg:order-2 max-w-lg">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: "#D4AF37" }}>Hospital Reviews</p>
-              <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl leading-snug">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-blue-600">Hospital Reviews</p>
+              <h2 className="mt-3 text-2xl font-bold text-gray-900 sm:text-3xl leading-snug">
                 Know before you go.
               </h2>
-              <p className="mt-4 text-[15px] leading-relaxed text-white/50">
-                Does the CT scanner work? Do they pay on time? How brutal is the
-                call schedule? Anonymous reviews from verified healthcare staff.
-                Not patients. The people who actually work there.
+              <p className="mt-4 text-[15px] leading-relaxed text-gray-500">
+                Does the CT scanner work? Do they pay on time? Anonymous reviews from verified healthcare staff. Not patients. The people who actually work there.
               </p>
-              <Link href="/oncadre/hospitals" className="mt-6 inline-flex items-center text-sm font-semibold transition" style={{ color: "#D4AF37" }}>
+              <Link href="/oncadre/hospitals" className="mt-6 inline-flex items-center text-sm font-semibold text-blue-600 transition hover:text-blue-700">
                 Browse hospital reviews &rarr;
               </Link>
             </div>
@@ -251,8 +280,8 @@ export default function CadreHealthLanding() {
         </div>
       </section>
 
-      {/* ═══════════════ CREDENTIAL WALLET ═══════════════ */}
-      <section className="py-20">
+      {/* Credential Wallet (left copy, right mockup) */}
+      <section className="py-20 bg-[#F8F9FB]">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div className="max-w-lg">
@@ -261,11 +290,9 @@ export default function CadreHealthLanding() {
                 Never scramble for<br />documents again.
               </h2>
               <p className="mt-4 text-[15px] leading-relaxed text-gray-500">
-                Practicing license expiring? CPD points short? COGS not applied
-                for? Your credentials tracked in one place with reminders.
-                Verified. Portable. Ready when you are.
+                Practicing license expiring? CPD points short? Your credentials tracked in one place with reminders. Verified. Portable. Ready when you are.
               </p>
-              <Link href="/oncadre/register" className="mt-6 inline-flex items-center text-sm font-semibold text-violet-600 transition hover:text-violet-700">
+              <Link href="/oncadre/profile" className="mt-6 inline-flex items-center text-sm font-semibold text-violet-600 transition hover:text-violet-700">
                 Build your profile &rarr;
               </Link>
             </div>
@@ -302,34 +329,229 @@ export default function CadreHealthLanding() {
         </div>
       </section>
 
-      {/* ═══════════════ STAY OR GO ═══════════════ */}
-      <section className="bg-white py-20 border-t border-gray-200/60">
+      {/* ═══════════════ SECTION B: FEATURE GRID ═══════════════ */}
+      <section className="py-20 bg-white border-t border-[#E8EBF0]">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: "#D4AF37" }}>Platform</p>
+            <h2 className="mt-3 text-2xl font-bold text-gray-900 sm:text-3xl">Everything in one place</h2>
+            <p className="mt-3 text-sm text-gray-400 max-w-lg mx-auto">
+              One platform for salary data, hospital reviews, credentials, career planning, mentorship, and migration support.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((f) => (
+              <Link
+                key={f.name}
+                href={f.href}
+                className="group relative rounded-xl bg-white p-5 transition hover:shadow-md"
+                style={{ border: "1px solid #E8EBF0" }}
+              >
+                <div className="absolute top-0 left-5 right-5 h-[3px] rounded-b-full" style={{ backgroundColor: f.color }} />
+                <p className="mt-1 text-[14px] font-bold text-gray-900">{f.name}</p>
+                <p className="mt-1 text-[13px] leading-relaxed text-gray-400">{f.desc}</p>
+                <span className="mt-3 inline-flex items-center text-[12px] font-semibold transition group-hover:translate-x-0.5" style={{ color: f.color }}>
+                  Explore &rarr;
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ SECTION C: MENTORSHIP SPOTLIGHT ═══════════════ */}
+      <section className="relative overflow-hidden text-white py-20" style={{ background: "#0B3C5D" }}>
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 70% at 50% 30%, rgba(14,77,110,0.5) 0%, transparent 55%)" }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.025, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: "180px" }} />
+
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: "#D4AF37" }}>Mentorship</p>
+            <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl leading-snug">
+              Learn from those who walked the path.
+            </h2>
+            <p className="mt-4 text-[15px] leading-relaxed text-white/50">
+              Connect with senior professionals and diaspora experts from MANSAG, ANPA, and Doctors Foundation for Care.
+            </p>
+          </div>
+
+          {/* Partner badges */}
+          <div className="flex flex-wrap justify-center gap-3 mb-12">
+            {[
+              { name: "MANSAG", region: "UK" },
+              { name: "ANPA", region: "Americas" },
+              { name: "DFC", region: "Global" },
+              { name: "NDF-SA", region: "South Africa" },
+            ].map((p) => (
+              <div
+                key={p.name}
+                className="flex items-center gap-2 rounded-full px-4 py-2"
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                }}
+              >
+                <span className="text-[13px] font-semibold text-white/80">{p.name}</span>
+                <span className="text-[10px] text-white/35">{p.region}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Mentor cards */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                initials: "AO",
+                name: "Dr. A. Okonkwo",
+                cadre: "Consultant Physician",
+                country: "United Kingdom",
+                partner: "MANSAG",
+                areas: ["PLAB prep", "NHS career path", "Specialty training"],
+                available: true,
+              },
+              {
+                initials: "FK",
+                name: "Pharm. F. Kalu",
+                cadre: "Clinical Pharmacist",
+                country: "United States",
+                partner: "ANPA",
+                areas: ["NAPLEX strategy", "Residency matching", "Licensing"],
+                available: true,
+              },
+              {
+                initials: "NE",
+                name: "Dr. N. Eze",
+                cadre: "Nursing Director",
+                country: "Canada",
+                partner: "DFC",
+                areas: ["NMC registration", "Settlement tips", "Leadership"],
+                available: false,
+              },
+            ].map((m) => (
+              <div
+                key={m.name}
+                className="rounded-xl p-5"
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  backdropFilter: "blur(16px)",
+                  WebkitBackdropFilter: "blur(16px)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                }}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-10 w-10 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: "rgba(212,175,55,0.15)", color: "#D4AF37" }}>
+                    {m.initials}
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-semibold text-white/90">{m.name}</p>
+                    <p className="text-[11px] text-white/40">{m.cadre}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="rounded-md px-2 py-0.5 text-[10px] font-medium text-white/60" style={{ background: "rgba(255,255,255,0.06)" }}>
+                    {m.country}
+                  </span>
+                  <span className="rounded-md px-2 py-0.5 text-[10px] font-semibold" style={{ background: "rgba(212,175,55,0.12)", color: "#D4AF37" }}>
+                    {m.partner}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {m.areas.map((a) => (
+                    <span key={a} className="rounded-md px-2 py-0.5 text-[10px] text-white/45" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                      {a}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className={`h-1.5 w-1.5 rounded-full ${m.available ? "bg-emerald-400" : "bg-white/20"}`} />
+                  <span className="text-[10px] text-white/40">{m.available ? "Available for mentees" : "Waitlist open"}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link href="/oncadre/mentorship" className="px-7 py-3.5 rounded-lg font-semibold text-[#06090f] text-center transition hover:opacity-90" style={{ background: "#D4AF37" }}>
+              Find a Mentor
+            </Link>
+            <Link href="/oncadre/mentorship#become" className="px-7 py-3.5 rounded-lg text-white text-center transition hover:bg-white/[0.08] text-sm font-medium" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
+              Become a Mentor
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ SECTION D: RESOURCES ═══════════════ */}
+      <section className="py-20 bg-[#F8F9FB]">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: "#D4AF37" }}>Resources</p>
+            <h2 className="mt-3 text-2xl font-bold text-gray-900 sm:text-3xl">Plan your next move</h2>
+          </div>
+          <div className="grid gap-8 lg:grid-cols-2">
+            {/* Migration Pathways */}
+            <div className="rounded-2xl bg-white p-6" style={{ border: "1px solid #E8EBF0" }}>
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h3 className="text-[15px] font-bold text-gray-900">Migration Pathways</h3>
+                  <p className="text-[12px] text-gray-400 mt-0.5">Step-by-step guides for 10 countries</p>
+                </div>
+                <Link href="/oncadre/migrate" className="text-[12px] font-semibold transition hover:opacity-80" style={{ color: "#F97316" }}>
+                  View all &rarr;
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {migrationCountries.map((c) => (
+                  <div key={c.name} className="flex items-center gap-2.5 rounded-lg bg-[#F8F9FB] px-3 py-2.5">
+                    <span className="text-base">{c.flag}</span>
+                    <span className="text-[13px] font-medium text-gray-700">{c.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Exam Guides */}
+            <div className="rounded-2xl bg-white p-6" style={{ border: "1px solid #E8EBF0" }}>
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h3 className="text-[15px] font-bold text-gray-900">Exam Guides</h3>
+                  <p className="text-[12px] text-gray-400 mt-0.5">Prep guides for 13 professional exams</p>
+                </div>
+                <Link href="/oncadre/exams" className="text-[12px] font-semibold transition hover:opacity-80" style={{ color: "#14B8A6" }}>
+                  View all &rarr;
+                </Link>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {exams.map((e) => (
+                  <span key={e} className="rounded-lg bg-[#F8F9FB] px-3.5 py-2 text-[13px] font-medium text-gray-700" style={{ border: "1px solid #E8EBF0" }}>
+                    {e}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ SECTION E: FOR EMPLOYERS ═══════════════ */}
+      <section className="py-20 bg-[#FCFCFD] border-t border-[#E8EBF0]">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-            Whether you stay or go, you need this.
+          <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: "#0B3C5D" }}>For Employers</p>
+          <h2 className="mt-3 text-2xl font-bold text-gray-900 sm:text-3xl">
+            Hiring healthcare professionals?
           </h2>
-          <p className="mt-3 text-sm text-gray-400">
-            CadreHealth works for your career wherever it takes you.
+          <p className="mt-4 text-[15px] leading-relaxed text-gray-500 max-w-xl mx-auto">
+            Access 4,200+ verified professionals across 16 cadres. Post roles, search by specialty and readiness, review verified credentials.
           </p>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 text-left">
-            <div className="rounded-xl p-6" style={{ background: "#fff", border: "1px solid #E8EBF0", boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}>
-              <p className="text-sm font-bold text-gray-900">Building your career here?</p>
-              <ul className="mt-4 space-y-2.5 text-[13px] text-gray-600">
-                <Li>Find locum shifts that pay what you deserve</Li>
-                <Li>See if your salary matches the market</Li>
-                <Li>Research any facility before you accept</Li>
-                <Li>Never miss a license renewal or CPD deadline</Li>
-              </ul>
-            </div>
-            <div className="rounded-xl p-6" style={{ background: "#fff", border: "1px solid #E8EBF0", boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}>
-              <p className="text-sm font-bold text-gray-900">Planning your next move?</p>
-              <ul className="mt-4 space-y-2.5 text-[13px] text-gray-600">
-                <Li>Know your UK, US, Canada, Gulf readiness score</Li>
-                <Li>Track IELTS, PLAB, NMC CBT, OET, USMLE progress</Li>
-                <Li>Build a verified credential wallet that travels</Li>
-                <Li>Read reviews from Nigerians who went before you</Li>
-              </ul>
-            </div>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link href="/oncadre/employer/register" className="px-7 py-3.5 rounded-lg font-semibold text-white text-center transition hover:opacity-90" style={{ background: "#0B3C5D" }}>
+              Post a Role
+            </Link>
+            <Link href="/oncadre/employer/register" className="px-7 py-3.5 rounded-lg text-center transition hover:bg-gray-50 text-sm font-medium text-gray-700" style={{ border: "1px solid #E8EBF0" }}>
+              Search Professionals
+            </Link>
           </div>
         </div>
       </section>
@@ -380,21 +602,13 @@ export default function CadreHealthLanding() {
 
 /* ─── Sub-components ───────────────────────────────────────────────────── */
 
-function DarkBadge({ label, score }: { label: string; score: number }) {
+function LightBadge({ label, score }: { label: string; score: number }) {
   const color = score >= 4 ? "#10B981" : score >= 3 ? "#F59E0B" : "#EF4444";
   return (
-    <div className="rounded-md px-2.5 py-1" style={{ background: "rgba(255,255,255,0.04)" }}>
-      <p className="text-[10px] text-white/35">{label}</p>
+    <div className="rounded-md px-2.5 py-1 bg-gray-50">
+      <p className="text-[10px] text-gray-400">{label}</p>
       <p className="text-xs font-bold" style={{ color }}>{score.toFixed(1)}</p>
     </div>
   );
 }
 
-function Li({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="flex gap-2.5">
-      <span className="mt-0.5 shrink-0 text-xs" style={{ color: "#D4AF37" }}>&#10003;</span>
-      {children}
-    </li>
-  );
-}

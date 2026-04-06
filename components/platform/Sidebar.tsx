@@ -122,6 +122,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Outreach",        href: "/admin/cadrehealth/outreach",   icon: Radio },
       { label: "Import",          href: "/admin/cadrehealth/import",     icon: UserPlus },
       { label: "Referrals",       href: "/admin/cadrehealth/referrals",  icon: Share2 },
+      { label: "Mentorship",      href: "/admin/cadrehealth/mentorship", icon: Users },
     ],
     roles: ["DIRECTOR", "PARTNER", "ADMIN"],
   },

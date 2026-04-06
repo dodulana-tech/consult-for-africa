@@ -3692,6 +3692,8 @@ model CadreProfessional {
   facilityReferrals     CadreFacilityReferral[] @relation("FacilityReferrals")
   careerReports         CadreCareerReport[]
   advisorMessages       CadreAdvisorMessage[]
+  mentorProfile         CadreMentorProfile?
+  menteeMentorships     CadreMentorship[]       @relation("MenteeMentorships")
 
   // Profile analytics
   profileViews          Int                     @default(0)
@@ -4293,4 +4295,103 @@ model CadreNewsletterSubscriber {
   email         String   @unique
   source        String   @default("landing") // landing, readiness, etc.
   subscribedAt  DateTime @default(now())
+}
+
+// ─── CadreHealth: Mentorship ───
+
+enum CadreMentorStatus {
+  PENDING      // applied to be mentor, awaiting approval
+  ACTIVE       // approved and available
+  PAUSED       // temporarily unavailable
+  INACTIVE     // deactivated
+}
+
+enum CadreMentorshipStatus {
+  REQUESTED    // mentee requested
+  ACTIVE       // mentor accepted
+  COMPLETED    // mentorship ended naturally
+  DECLINED     // mentor declined
+  CANCELLED    // either party cancelled
+}
+
+model CadreMentorProfile {
+  id                    String                  @id @default(cuid())
+  professionalId        String                  @unique
+  professional          CadreProfessional       @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  status                CadreMentorStatus       @default(PENDING)
+
+  // What they mentor on
+  mentorAreas           String[]                // e.g. "UK Migration", "Fellowship Preparation", "Career Transition"
+  mentorCadres          String[]                // which cadres they can mentor (CadreProfessionalCadre values)
+  bio                   String?                 @db.Text
+  maxMentees            Int                     @default(3)
+  currentMenteeCount    Int                     @default(0)
+
+  // Availability
+  availabilityType      String                  @default("ASYNC") // ASYNC, SCHEDULED, BOTH
+  availabilityNote      String?                 // e.g. "Weekday evenings WAT"
+
+  // Partner organization
+  partnerOrg            String?                 // MANSAG, ANPA, DFC, NDF_SA, OTHER
+  partnerOrgVerified    Boolean                 @default(false)
+
+  // Diaspora info
+  countryOfPractice     String?                 // where they currently practise
+  yearsAbroad           Int?
+
+  // Stats
+  totalMentorships      Int                     @default(0)
+  averageRating         Decimal?                @db.Decimal(3, 2)
+  totalRatings          Int                     @default(0)
+
+  mentorships           CadreMentorship[]       @relation("MentorMentorships")
+
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@index([status])
+  @@index([partnerOrg])
+}
+
+model CadreMentorship {
+  id                    String                  @id @default(cuid())
+  mentorProfileId       String
+  mentorProfile         CadreMentorProfile      @relation("MentorMentorships", fields: [mentorProfileId], references: [id])
+  menteeId              String
+  mentee                CadreProfessional       @relation("MenteeMentorships", fields: [menteeId], references: [id])
+
+  status                CadreMentorshipStatus   @default(REQUESTED)
+  topic                 String                  // what they want help with
+  message               String?                 @db.Text // initial message from mentee
+
+  // Tracking
+  acceptedAt            DateTime?
+  completedAt           DateTime?
+  lastActivityAt        DateTime?
+
+  // Rating (by mentee after completion)
+  rating                Int?                    // 1-5
+  feedback              String?                 @db.Text
+
+  messages              CadreMentorshipMessage[]
+
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@index([mentorProfileId])
+  @@index([menteeId])
+  @@index([status])
+}
+
+model CadreMentorshipMessage {
+  id                    String                  @id @default(cuid())
+  mentorshipId          String
+  mentorship            CadreMentorship         @relation(fields: [mentorshipId], references: [id], onDelete: Cascade)
+  senderId              String                  // professional ID of sender
+  content               String                  @db.Text
+
+  createdAt             DateTime                @default(now())
+
+  @@index([mentorshipId, createdAt])
 }
