@@ -29,14 +29,14 @@ const EMPLOYMENT_TYPE_LABELS: Record<string, string> = {
 };
 
 const DIMENSION_DEFINITIONS = [
-  { key: "compensationRating", label: "Compensation", icon: "💰" },
-  { key: "payTimelinessRating", label: "Pay Timeliness", icon: "⏰" },
-  { key: "workloadRating", label: "Workload", icon: "📋" },
-  { key: "equipmentRating", label: "Equipment", icon: "🔧" },
-  { key: "managementRating", label: "Management", icon: "👥" },
-  { key: "safetyRating", label: "Safety", icon: "🛡️" },
-  { key: "trainingRating", label: "Training", icon: "📚" },
-  { key: "accommodationRating", label: "Accommodation", icon: "🏠" },
+  { key: "compensationRating", label: "Compensation" },
+  { key: "payTimelinessRating", label: "Pay Timeliness" },
+  { key: "workloadRating", label: "Workload" },
+  { key: "equipmentRating", label: "Equipment" },
+  { key: "managementRating", label: "Management" },
+  { key: "safetyRating", label: "Safety" },
+  { key: "trainingRating", label: "Training" },
+  { key: "accommodationRating", label: "Accommodation" },
 ] as const;
 
 function facilityTypeLabel(type: string): string {
@@ -56,12 +56,9 @@ function ratingTextColor(rating: number): string {
 }
 
 function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+  if (amount >= 1_000_000) return `\u20A6${(amount / 1_000_000).toFixed(1)}M`;
+  if (amount >= 1_000) return `\u20A6${Math.round(amount / 1_000)}k`;
+  return `\u20A6${Math.round(amount).toLocaleString()}`;
 }
 
 function Stars({
