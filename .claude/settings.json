@@ -130,7 +130,8 @@
       "Bash(grep -n \"TODO\\\\|FIXME\\\\|HACK\\\\|BUG\\\\|XXX\\\\|BROKEN\\\\|INCOMPLETE\" /Users/debo/consult-for-africa/app/api/meetings/**/*.ts)",
       "Bash(xargs kill:*)",
       "Bash(npm run:*)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" --connect-timeout 5 https://aws-1-us-east-1.pooler.supabase.com)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" --connect-timeout 5 https://aws-1-us-east-1.pooler.supabase.com)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/oncadre/migrate/uk)"
     ],
     "additionalDirectories": [
       "/Users/debo/consult-for-africa/app/(client-portal)/client/projects/[id]/report",

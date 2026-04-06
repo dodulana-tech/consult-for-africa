@@ -15,12 +15,13 @@ export function generateStaticParams() {
 
 /* ─── Dynamic Metadata ─────────────────────────────────────────────────────── */
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
 }: {
-  params: { country: string };
-}): Metadata {
-  const pathway = getMigrationPathway(params.country);
+  params: Promise<{ country: string }>;
+}): Promise<Metadata> {
+  const { country } = await params;
+  const pathway = getMigrationPathway(country);
   if (!pathway) return {};
 
   const title = `How to Work in ${pathway.country} as a Nigerian Doctor, Nurse, or Healthcare Professional | CadreHealth`;
@@ -62,12 +63,13 @@ export function generateMetadata({
 
 /* ─── Page ─────────────────────────────────────────────────────────────────── */
 
-export default function CountryPathwayPage({
+export default async function CountryPathwayPage({
   params,
 }: {
-  params: { country: string };
+  params: Promise<{ country: string }>;
 }) {
-  const pathway = getMigrationPathway(params.country);
+  const { country } = await params;
+  const pathway = getMigrationPathway(country);
   if (!pathway) notFound();
 
   const relatedCountries = MIGRATION_PATHWAYS.filter(
