@@ -3818,6 +3818,20 @@ model CadreFacility {
   totalReviews          Int                     @default(0)
   wouldRecommendPct     Decimal?                @db.Decimal(5, 2) // 0-100
 
+  // Extended aggregate ratings (v2)
+  interCadreRating      Decimal?                @db.Decimal(3, 2)
+  fairnessRating        Decimal?                @db.Decimal(3, 2)
+  harassmentRating      Decimal?                @db.Decimal(3, 2)
+  worklifeRating        Decimal?                @db.Decimal(3, 2)
+  clinicalGovernanceRating Decimal?              @db.Decimal(3, 2)
+  integrityRating       Decimal?                @db.Decimal(3, 2)
+
+  // Key binary aggregates
+  paidOnTimePct         Decimal?                @db.Decimal(5, 2) // % who say paid on time
+  witnessedBullyingPct  Decimal?                @db.Decimal(5, 2)
+  wouldBringFamilyPct   Decimal?                @db.Decimal(5, 2) // % who would bring family for treatment
+  situationImprovingPct Decimal?                @db.Decimal(5, 2)
+
   // Relations
   reviews               CadreFacilityReview[]
   salaryReports         CadreSalaryReport[]
@@ -3853,6 +3867,37 @@ model CadreFacilityReview {
   safetyRating          Int?                    // 1-5 (staff safety)
   trainingRating        Int?                    // 1-5 (career development)
   accommodationRating   Int?                    // 1-5 (staff quarters)
+
+  // Extended dimensions (v2) - each is 1-5 scale, null if not answered
+  interCadreRating      Int?                    // Inter-cadre relationships
+  fairnessRating        Int?                    // Fairness, inclusion & discrimination
+  harassmentRating      Int?                    // Safety, harassment & dignity
+  worklifeRating        Int?                    // Work-life balance
+  clinicalGovernanceRating Int?                  // Clinical governance & patient care
+  integrityRating       Int?                    // Institutional integrity
+
+  // Detailed sub-questions (stored as JSON for flexibility)
+  detailedResponses     Json?                   // Full detailed responses keyed by question ID
+
+  // Key binary questions (indexed for aggregation)
+  paidOnTime            Boolean?                // salary paid on time
+  salaryDelayMonths     String?                 // "0" / "1-2" / "3-5" / "6+"
+  witnessedInterCadreBullying Boolean?
+  witnessedEthnicDiscrimination Boolean?
+  witnessedReligiousDiscrimination Boolean?
+  witnessedGenderDiscrimination Boolean?
+  witnessedSexualHarassment Boolean?
+  witnessedVerbalAbuse  Boolean?
+  callDuration          String?                 // "<12hrs" / "12-24hrs" / "24-36hrs" / "36hrs+"
+  getPostCallOff        String?                 // "ALWAYS" / "SOMETIMES" / "NEVER"
+  wouldBringFamilyHere  String?                 // "YES" / "NO" / "DEPENDS"
+  wouldRecommendToPatient String?               // "YES" / "NO" / "WITH_RESERVATIONS"
+  situationTrend        String?                 // "IMPROVING" / "SAME" / "DECLINING"
+  bestThing             String?                 @db.Text
+  worstThing            String?                 @db.Text
+
+  // Review completeness
+  isDetailedReview      Boolean                 @default(false)
 
   // Content
   pros                  String?                 @db.Text

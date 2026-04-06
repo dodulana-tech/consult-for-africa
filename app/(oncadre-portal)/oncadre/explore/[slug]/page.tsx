@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 import { getCadreShortLabel } from "@/lib/cadreHealth/cadres";
+import { REVIEW_DIMENSIONS, CATEGORY_DIMENSIONS } from "@/lib/cadreHealth/reviewDimensions";
 import HospitalReviewFormWrapper from "./ReviewFormWrapper";
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────── */
@@ -28,16 +29,12 @@ const EMPLOYMENT_TYPE_LABELS: Record<string, string> = {
   RESIDENCY: "Residency",
 };
 
-const DIMENSION_DEFINITIONS = [
-  { key: "compensationRating", label: "Compensation" },
-  { key: "payTimelinessRating", label: "Pay Timeliness" },
-  { key: "workloadRating", label: "Workload" },
-  { key: "equipmentRating", label: "Equipment" },
-  { key: "managementRating", label: "Management" },
-  { key: "safetyRating", label: "Safety" },
-  { key: "trainingRating", label: "Training" },
-  { key: "accommodationRating", label: "Accommodation" },
-] as const;
+// Build the 12-dimension definition list from our config
+const DIMENSION_DEFINITIONS = REVIEW_DIMENSIONS.map((d) => ({
+  key: d.ratingField,
+  label: d.label,
+  shortLabel: d.label.split(" & ")[0].split(",")[0], // shorter label for bars
+}));
 
 function facilityTypeLabel(type: string): string {
   return FACILITY_TYPE_LABELS[type] ?? type;
@@ -83,6 +80,36 @@ function Stars({
           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
         </svg>
       ))}
+    </div>
+  );
+}
+
+function InsightPill({
+  value,
+  label,
+  good,
+}: {
+  value: number;
+  label: string;
+  good: boolean;
+}) {
+  const color = good
+    ? value >= 70
+      ? "text-emerald-700 bg-emerald-50 border-emerald-200"
+      : value >= 40
+        ? "text-amber-700 bg-amber-50 border-amber-200"
+        : "text-red-700 bg-red-50 border-red-200"
+    : // For negative metrics (bullying), invert
+      value <= 20
+        ? "text-emerald-700 bg-emerald-50 border-emerald-200"
+        : value <= 50
+          ? "text-amber-700 bg-amber-50 border-amber-200"
+          : "text-red-700 bg-red-50 border-red-200";
+
+  return (
+    <div className={`rounded-lg border px-4 py-3 ${color}`}>
+      <span className="text-2xl font-bold">{Math.round(value)}%</span>
+      <p className="mt-0.5 text-sm leading-snug">{label}</p>
     </div>
   );
 }
@@ -221,6 +248,32 @@ export default async function HospitalDeepDivePage({
   const overallRating = facility.overallRating ? Number(facility.overallRating) : null;
   const recommendPct = facility.wouldRecommendPct ? Number(facility.wouldRecommendPct) : null;
 
+  // Binary aggregates
+  const paidOnTimePct = facility.paidOnTimePct ? Number(facility.paidOnTimePct) : null;
+  const witnessedBullyingPct = facility.witnessedBullyingPct ? Number(facility.witnessedBullyingPct) : null;
+  const wouldBringFamilyPct = facility.wouldBringFamilyPct ? Number(facility.wouldBringFamilyPct) : null;
+  const situationImprovingPct = facility.situationImprovingPct ? Number(facility.situationImprovingPct) : null;
+
+  // Call duration distribution from reviews
+  const callDurations = facility.reviews
+    .map((r) => r.callDuration)
+    .filter((v): v is string => v !== null);
+  const callDurationDist = callDurations.length > 0
+    ? {
+        "<12hrs": callDurations.filter((v) => v === "<12hrs").length,
+        "12-24hrs": callDurations.filter((v) => v === "12-24hrs").length,
+        "24-36hrs": callDurations.filter((v) => v === "24-36hrs").length,
+        "36hrs+": callDurations.filter((v) => v === "36hrs+").length,
+        total: callDurations.length,
+      }
+    : null;
+
+  const hasKeyInsights =
+    paidOnTimePct !== null ||
+    witnessedBullyingPct !== null ||
+    wouldBringFamilyPct !== null ||
+    situationImprovingPct !== null;
+
   return (
     <div className="space-y-8 pb-12">
       {/* Breadcrumb */}
@@ -354,7 +407,7 @@ export default async function HospitalDeepDivePage({
       </section>
 
       {/* ================================================================== */}
-      {/* B. RATING BREAKDOWN                                                */}
+      {/* B. RATING BREAKDOWN (12 dimensions)                                */}
       {/* ================================================================== */}
       {overallRating !== null && (
         <section className="rounded-2xl border border-[#E8EBF0] bg-white p-6 shadow-sm sm:p-8">
@@ -364,27 +417,29 @@ export default async function HospitalDeepDivePage({
           </p>
 
           <div className="mt-6 grid gap-8 lg:grid-cols-2">
-            {/* Dimension bars */}
-            <div className="space-y-4">
+            {/* All 12 dimension bars */}
+            <div className="space-y-3">
               {DIMENSION_DEFINITIONS.map((dim) => {
                 const val = facility[dim.key as keyof typeof facility];
                 const rating = val ? Number(val) : null;
                 if (rating === null) return null;
 
                 return (
-                  <div key={dim.key} className="flex items-center gap-3">
-                    <span className="w-32 shrink-0 text-sm text-gray-700 sm:w-36">
-                      {dim.label}
-                    </span>
-                    <div className="h-3 flex-1 overflow-hidden rounded-full bg-gray-100">
-                      <div
-                        className={`h-full rounded-full transition-all ${ratingBarColor(rating)}`}
-                        style={{ width: `${(rating / 5) * 100}%` }}
-                      />
+                  <div key={dim.key} className="group">
+                    <div className="flex items-center gap-3">
+                      <span className="w-40 shrink-0 text-sm text-gray-700 sm:w-44 leading-tight">
+                        {dim.shortLabel}
+                      </span>
+                      <div className="h-3 flex-1 overflow-hidden rounded-full bg-gray-100">
+                        <div
+                          className={`h-full rounded-full transition-all ${ratingBarColor(rating)}`}
+                          style={{ width: `${(rating / 5) * 100}%` }}
+                        />
+                      </div>
+                      <span className={`w-8 text-right text-sm font-semibold ${ratingTextColor(rating)}`}>
+                        {rating.toFixed(1)}
+                      </span>
                     </div>
-                    <span className={`w-8 text-right text-sm font-semibold ${ratingTextColor(rating)}`}>
-                      {rating.toFixed(1)}
-                    </span>
                   </div>
                 );
               })}
@@ -411,8 +466,79 @@ export default async function HospitalDeepDivePage({
                   );
                 })}
               </div>
+
+              {/* Call duration distribution */}
+              {callDurationDist && callDurationDist.total >= 3 && (
+                <div className="mt-6">
+                  <h3 className="mb-3 text-sm font-semibold text-gray-700">Call Duty Duration</h3>
+                  <div className="space-y-2">
+                    {(
+                      [
+                        { key: "<12hrs", label: "Under 12 hours" },
+                        { key: "12-24hrs", label: "12 to 24 hours" },
+                        { key: "24-36hrs", label: "24 to 36 hours" },
+                        { key: "36hrs+", label: "Over 36 hours" },
+                      ] as const
+                    ).map(({ key, label }) => {
+                      const count = callDurationDist[key];
+                      const pct = (count / callDurationDist.total) * 100;
+                      return (
+                        <div key={key} className="flex items-center gap-3">
+                          <span className="w-28 shrink-0 text-xs text-gray-600">{label}</span>
+                          <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-gray-100">
+                            <div
+                              className="h-full rounded-full bg-[#0B3C5D]/60 transition-all"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                          <span className="w-10 text-right text-xs text-gray-500">
+                            {Math.round(pct)}%
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Key Insights */}
+          {hasKeyInsights && (
+            <div className="mt-8 border-t border-[#E8EBF0] pt-6">
+              <h3 className="mb-4 text-sm font-semibold text-gray-700">Key Insights</h3>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {paidOnTimePct !== null && (
+                  <InsightPill
+                    value={paidOnTimePct}
+                    label="say they are paid on time"
+                    good={true}
+                  />
+                )}
+                {witnessedBullyingPct !== null && (
+                  <InsightPill
+                    value={witnessedBullyingPct}
+                    label="have witnessed inter-cadre bullying"
+                    good={false}
+                  />
+                )}
+                {wouldBringFamilyPct !== null && (
+                  <InsightPill
+                    value={wouldBringFamilyPct}
+                    label="would bring their family here for treatment"
+                    good={true}
+                  />
+                )}
+                {situationImprovingPct !== null && (
+                  <InsightPill
+                    value={situationImprovingPct}
+                    label="say the situation is improving"
+                    good={true}
+                  />
+                )}
+              </div>
+            </div>
+          )}
         </section>
       )}
 
@@ -575,6 +701,11 @@ export default async function HospitalDeepDivePage({
                         <span className="text-sm font-semibold text-gray-900">
                           {review.overallRating}/5
                         </span>
+                        {review.isDetailedReview && (
+                          <span className="inline-flex items-center rounded-full bg-[#0B3C5D]/10 px-2 py-0.5 text-[10px] font-semibold text-[#0B3C5D] uppercase tracking-wider">
+                            Detailed
+                          </span>
+                        )}
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
                         {review.cadreAtFacility && (
@@ -607,9 +738,9 @@ export default async function HospitalDeepDivePage({
                     </div>
                   </div>
 
-                  {/* Would recommend */}
-                  {review.wouldRecommend !== null && (
-                    <div className="mt-3">
+                  {/* Situation trend + key indicators */}
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {review.wouldRecommend !== null && (
                       <span
                         className={`inline-flex items-center gap-1.5 text-xs font-medium ${
                           review.wouldRecommend ? "text-emerald-600" : "text-red-600"
@@ -626,11 +757,57 @@ export default async function HospitalDeepDivePage({
                         )}
                         {review.wouldRecommend ? "Would recommend" : "Would not recommend"}
                       </span>
-                    </div>
-                  )}
+                    )}
+                    {review.situationTrend && (
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          review.situationTrend === "IMPROVING"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : review.situationTrend === "DECLINING"
+                              ? "bg-red-50 text-red-700"
+                              : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {review.situationTrend === "IMPROVING"
+                          ? "Situation improving"
+                          : review.situationTrend === "DECLINING"
+                            ? "Situation declining"
+                            : "Situation unchanged"}
+                      </span>
+                    )}
+                  </div>
 
                   {/* Review content */}
                   <div className="mt-4 space-y-4">
+                    {/* Best / worst thing (from detailed review) */}
+                    {review.bestThing && (
+                      <div>
+                        <div className="mb-1.5 flex items-center gap-2">
+                          <div className="h-4 w-1 rounded-full bg-emerald-500" />
+                          <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
+                            Best Thing
+                          </span>
+                        </div>
+                        <p className="text-sm leading-relaxed text-gray-700 pl-3">
+                          {review.bestThing}
+                        </p>
+                      </div>
+                    )}
+
+                    {review.worstThing && (
+                      <div>
+                        <div className="mb-1.5 flex items-center gap-2">
+                          <div className="h-4 w-1 rounded-full bg-red-500" />
+                          <span className="text-xs font-semibold uppercase tracking-wider text-red-700">
+                            Worst Thing
+                          </span>
+                        </div>
+                        <p className="text-sm leading-relaxed text-gray-700 pl-3">
+                          {review.worstThing}
+                        </p>
+                      </div>
+                    )}
+
                     {review.pros && (
                       <div>
                         <div className="mb-1.5 flex items-center gap-2">
@@ -664,7 +841,7 @@ export default async function HospitalDeepDivePage({
                         <div className="mb-1.5 flex items-center gap-2">
                           <div className="h-4 w-1 rounded-full bg-amber-500" />
                           <span className="text-xs font-semibold uppercase tracking-wider text-amber-700">
-                            Advice to Management
+                            Advice
                           </span>
                         </div>
                         <p className="text-sm leading-relaxed text-gray-700 pl-3">

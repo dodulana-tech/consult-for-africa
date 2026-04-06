@@ -49,6 +49,8 @@ export async function POST(
       data: {
         professionalId: session.sub,
         facilityId: facility.id,
+
+        // Core ratings (original 8 + overall)
         overallRating: body.overallRating,
         compensationRating: body.compensationRating || null,
         payTimelinessRating: body.payTimelinessRating || null,
@@ -58,10 +60,45 @@ export async function POST(
         safetyRating: body.safetyRating || null,
         trainingRating: body.trainingRating || null,
         accommodationRating: body.accommodationRating || null,
+
+        // Extended dimension ratings (v2)
+        interCadreRating: body.interCadreRating || null,
+        fairnessRating: body.fairnessRating || null,
+        harassmentRating: body.harassmentRating || null,
+        worklifeRating: body.worklifeRating || null,
+        clinicalGovernanceRating: body.clinicalGovernanceRating || null,
+        integrityRating: body.integrityRating || null,
+
+        // Detailed sub-question responses (JSON)
+        detailedResponses: body.detailedResponses || null,
+
+        // Binary questions
+        paidOnTime: body.paidOnTime ?? null,
+        salaryDelayMonths: body.salaryDelayMonths || null,
+        witnessedInterCadreBullying: body.witnessedInterCadreBullying ?? null,
+        witnessedEthnicDiscrimination: body.witnessedEthnicDiscrimination ?? null,
+        witnessedReligiousDiscrimination: body.witnessedReligiousDiscrimination ?? null,
+        witnessedGenderDiscrimination: body.witnessedGenderDiscrimination ?? null,
+        witnessedSexualHarassment: body.witnessedSexualHarassment ?? null,
+        witnessedVerbalAbuse: body.witnessedVerbalAbuse ?? null,
+        callDuration: body.callDuration || null,
+        getPostCallOff: body.getPostCallOff || null,
+        wouldBringFamilyHere: body.wouldBringFamilyHere || null,
+        wouldRecommendToPatient: body.wouldRecommendToPatient || null,
+        situationTrend: body.situationTrend || null,
+        bestThing: body.bestThing || null,
+        worstThing: body.worstThing || null,
+
+        // Review completeness
+        isDetailedReview: body.isDetailedReview || false,
+
+        // Content
         pros: body.pros || null,
         cons: body.cons || null,
         advice: body.advice || null,
         wouldRecommend: body.wouldRecommend ?? null,
+
+        // Context
         roleAtFacility: body.roleAtFacility || null,
         cadreAtFacility: body.cadreAtFacility || null,
         employmentType: body.employmentType || null,
@@ -84,7 +121,17 @@ export async function POST(
         safetyRating: true,
         trainingRating: true,
         accommodationRating: true,
+        interCadreRating: true,
+        fairnessRating: true,
+        harassmentRating: true,
+        worklifeRating: true,
+        clinicalGovernanceRating: true,
+        integrityRating: true,
         wouldRecommend: true,
+        paidOnTime: true,
+        witnessedInterCadreBullying: true,
+        wouldBringFamilyHere: true,
+        situationTrend: true,
       },
     });
 
@@ -93,12 +140,25 @@ export async function POST(
       return nums.length > 0 ? nums.reduce((a, b) => a + b, 0) / nums.length : null;
     };
 
+    const boolPct = (arr: (boolean | null)[], targetValue: boolean) => {
+      const answered = arr.filter((v): v is boolean => v !== null);
+      if (answered.length === 0) return null;
+      return (answered.filter((v) => v === targetValue).length / answered.length) * 100;
+    };
+
+    const choicePct = (arr: (string | null)[], targetValues: string[]) => {
+      const answered = arr.filter((v): v is string => v !== null);
+      if (answered.length === 0) return null;
+      return (answered.filter((v) => targetValues.includes(v)).length / answered.length) * 100;
+    };
+
     const recommendCount = allReviews.filter((r) => r.wouldRecommend === true).length;
     const recommendTotal = allReviews.filter((r) => r.wouldRecommend !== null).length;
 
     await prisma.cadreFacility.update({
       where: { id: facility.id },
       data: {
+        // Original aggregate ratings
         overallRating: avg(allReviews.map((r) => r.overallRating)),
         compensationRating: avg(allReviews.map((r) => r.compensationRating)),
         payTimelinessRating: avg(allReviews.map((r) => r.payTimelinessRating)),
@@ -108,6 +168,21 @@ export async function POST(
         safetyRating: avg(allReviews.map((r) => r.safetyRating)),
         trainingRating: avg(allReviews.map((r) => r.trainingRating)),
         accommodationRating: avg(allReviews.map((r) => r.accommodationRating)),
+
+        // Extended aggregate ratings (v2)
+        interCadreRating: avg(allReviews.map((r) => r.interCadreRating)),
+        fairnessRating: avg(allReviews.map((r) => r.fairnessRating)),
+        harassmentRating: avg(allReviews.map((r) => r.harassmentRating)),
+        worklifeRating: avg(allReviews.map((r) => r.worklifeRating)),
+        clinicalGovernanceRating: avg(allReviews.map((r) => r.clinicalGovernanceRating)),
+        integrityRating: avg(allReviews.map((r) => r.integrityRating)),
+
+        // Binary aggregates
+        paidOnTimePct: boolPct(allReviews.map((r) => r.paidOnTime), true),
+        witnessedBullyingPct: boolPct(allReviews.map((r) => r.witnessedInterCadreBullying), true),
+        wouldBringFamilyPct: choicePct(allReviews.map((r) => r.wouldBringFamilyHere), ["YES"]),
+        situationImprovingPct: choicePct(allReviews.map((r) => r.situationTrend), ["IMPROVING"]),
+
         totalReviews: allReviews.length,
         wouldRecommendPct: recommendTotal > 0 ? (recommendCount / recommendTotal) * 100 : null,
       },
