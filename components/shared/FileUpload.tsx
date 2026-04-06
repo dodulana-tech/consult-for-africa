@@ -77,6 +77,7 @@ export default function FileUpload({
             filename: file.name,
             contentType: file.type || "application/octet-stream",
             folder,
+            fileSize: file.size,
           }),
         });
 

@@ -7,6 +7,7 @@ const navItems = [
   { href: "/oncadre/profile", label: "Profile", icon: "user" },
   { href: "/oncadre/salary-map", label: "Salary Map", icon: "salary" },
   { href: "/oncadre/hospitals", label: "Hospitals", icon: "hospital" },
+  { href: "/oncadre/referrals", label: "Referrals", icon: "referral" },
 ];
 
 export default async function OncadrePortalLayout({

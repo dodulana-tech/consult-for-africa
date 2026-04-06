@@ -1,9 +1,12 @@
 import type { MetadataRoute } from "next";
+import { prisma } from "@/lib/prisma";
+import { CADRE_DEFINITIONS } from "@/lib/cadreHealth/cadres";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = "https://consultforafrica.com";
 
-  const routes = [
+  // Static routes
+  const staticRoutes = [
     { url: "/", priority: 1.0, changeFrequency: "weekly" as const },
     { url: "/about", priority: 0.9, changeFrequency: "monthly" as const },
     { url: "/services", priority: 0.9, changeFrequency: "monthly" as const },
@@ -13,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/contact", priority: 0.7, changeFrequency: "monthly" as const },
     { url: "/turnaround", priority: 0.8, changeFrequency: "monthly" as const },
     { url: "/insights", priority: 0.7, changeFrequency: "weekly" as const },
+    // Maarova
     { url: "/maarova", priority: 0.9, changeFrequency: "monthly" as const },
     { url: "/maarova/assessment", priority: 0.8, changeFrequency: "monthly" as const },
     { url: "/maarova/recruitment", priority: 0.8, changeFrequency: "monthly" as const },
@@ -20,12 +24,50 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/maarova/services", priority: 0.7, changeFrequency: "monthly" as const },
     { url: "/maarova/intelligence", priority: 0.7, changeFrequency: "monthly" as const },
     { url: "/maarova/demo", priority: 0.7, changeFrequency: "monthly" as const },
+    // CadreHealth - static pages
+    { url: "/oncadre", priority: 0.9, changeFrequency: "weekly" as const },
+    { url: "/oncadre/readiness", priority: 0.9, changeFrequency: "weekly" as const },
+    { url: "/oncadre/register", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/oncadre/login", priority: 0.5, changeFrequency: "monthly" as const },
+    // CadreHealth - SEO content pages
+    { url: "/oncadre/hospitals", priority: 0.9, changeFrequency: "weekly" as const },
+    { url: "/oncadre/salaries", priority: 0.9, changeFrequency: "weekly" as const },
   ];
 
-  return routes.map(({ url, priority, changeFrequency }) => ({
-    url: `${base}${url}`,
+  // Dynamic hospital pages (programmatic SEO)
+  let hospitalRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const hospitals = await prisma.cadreFacility.findMany({
+      select: { slug: true, updatedAt: true },
+      orderBy: { totalReviews: "desc" },
+    });
+
+    hospitalRoutes = hospitals.map((h) => ({
+      url: `${base}/oncadre/hospitals/${h.slug}`,
+      lastModified: h.updatedAt,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }));
+  } catch {
+    // DB unavailable during build - skip dynamic routes
+  }
+
+  // Dynamic cadre pages
+  const cadreRoutes: MetadataRoute.Sitemap = CADRE_DEFINITIONS.map((c) => ({
+    url: `${base}/oncadre/cadre/${c.value.toLowerCase().replace(/_/g, "-")}`,
     lastModified: new Date(),
-    changeFrequency,
-    priority,
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
   }));
+
+  return [
+    ...staticRoutes.map(({ url, priority, changeFrequency }) => ({
+      url: `${base}${url}`,
+      lastModified: new Date(),
+      changeFrequency,
+      priority,
+    })),
+    ...hospitalRoutes,
+    ...cadreRoutes,
+  ];
 }

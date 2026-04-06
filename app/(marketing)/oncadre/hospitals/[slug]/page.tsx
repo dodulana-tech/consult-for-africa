@@ -55,17 +55,49 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!facility) return { title: "Hospital Not Found | CadreHealth" };
 
+  const typeLabel = FACILITY_TYPE_LABELS[facility.type] || facility.type;
+  const location = [facility.city, facility.state].filter(Boolean).join(", ");
   const rating = facility.overallRating ? Number(facility.overallRating).toFixed(1) : null;
+
+  const title = rating
+    ? `${facility.name} Reviews - ${rating}/5 from ${facility.totalReviews} Staff | CadreHealth`
+    : `${facility.name} Reviews - Staff Reviews & Salary Data | CadreHealth`;
+
   const description = rating
-    ? `${facility.name} has a ${rating}/5 rating from ${facility.totalReviews} verified healthcare workers. Read anonymous reviews on compensation, equipment, management, and more.`
-    : `Read anonymous reviews of ${facility.name} from verified healthcare professionals. Compensation, equipment quality, management, safety, and more.`;
+    ? `${facility.name} (${typeLabel}, ${location}) rated ${rating}/5 by ${facility.totalReviews} verified healthcare workers. Anonymous reviews on salary, equipment, management, call duty, safety. Real data from real staff.`
+    : `Working at ${facility.name}? Read anonymous reviews from verified healthcare staff. Salary data, equipment quality, pay timeliness, management, call duty schedule, and more.`;
+
+  const keywords = [
+    `${facility.name} reviews`,
+    `${facility.name} salary`,
+    `${facility.name} working conditions`,
+    `${facility.name} staff reviews`,
+    `hospital reviews ${facility.state}`,
+    `${typeLabel} reviews Nigeria`,
+    `healthcare jobs ${location}`,
+    "hospital salary Nigeria",
+    "CadreHealth",
+  ].join(", ");
 
   return {
-    title: `${facility.name} Reviews | CadreHealth`,
+    title,
     description,
+    keywords,
     openGraph: {
-      title: `${facility.name} - Hospital Reviews | CadreHealth`,
+      title,
       description,
+      type: "website",
+      url: `https://consultforafrica.com/oncadre/hospitals/${slug}`,
+      siteName: "CadreHealth by Consult For Africa",
+      locale: "en_NG",
+    },
+    twitter: {
+      card: "summary",
+      title: `${facility.name} - Staff Reviews | CadreHealth`,
+      description,
+    },
+    alternates: {
+      canonical: `https://consultforafrica.com/oncadre/hospitals/${slug}`,
     },
   };
 }
@@ -152,11 +184,41 @@ export default async function HospitalDetailPage({ params }: Props) {
   // Salary summary
   const hasSalaryData = facility._count.salaryReports > 0;
 
+  // JSON-LD: LocalBusiness structured data
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: facility.name,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: facility.city,
+      addressRegion: facility.state,
+      addressCountry: "Nigeria",
+    },
+    url: `https://consultforafrica.com/oncadre/hospitals/${slug}`,
+  };
+  if (facility.website) {
+    jsonLd.sameAs = facility.website;
+  }
+  if (facility.totalReviews > 0 && overallRating !== null) {
+    jsonLd.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: overallRating.toFixed(1),
+      reviewCount: facility.totalReviews,
+      bestRating: 5,
+      worstRating: 1,
+    };
+  }
+
   return (
     <main
       className="min-h-screen bg-white pb-20"
       style={{ paddingTop: "calc(var(--navbar-height, 4rem) + 1rem)" }}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
         {/* Breadcrumb */}
         <nav className="mb-6 flex items-center gap-2 text-sm text-gray-500">

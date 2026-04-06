@@ -79,8 +79,8 @@ export async function POST(req: NextRequest) {
   const key = buildKey(folder, filename);
 
   try {
-    const uploadUrl = await generateUploadUrl(key, contentType);
-    const publicUrl = getPublicUrl(key);
+    const uploadUrl = await generateUploadUrl(key, contentType, 600, typeof fileSize === "number" ? fileSize : undefined);
+    const publicUrl = await getPublicUrl(key);
 
     return Response.json({
       uploadUrl,

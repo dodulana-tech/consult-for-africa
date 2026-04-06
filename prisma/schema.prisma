@@ -3680,6 +3680,7 @@ model CadreProfessional {
   readinessAssessments  CadreReadinessAssessment[]
   outreachRecord        CadreOutreachRecord?
   whatsAppMessages      CadreWhatsAppMessage[]
+  facilityReferrals     CadreFacilityReferral[] @relation("FacilityReferrals")
 
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
@@ -4128,4 +4129,31 @@ model CadreWhatsAppMessage {
   @@index([professionalId, createdAt])
   @@index([direction])
   @@index([createdAt])
+}
+
+// ─── CadreHealth: Facility Referrals ───
+
+model CadreFacilityReferral {
+  id                    String                  @id @default(cuid())
+  referredById          String
+  referredBy            CadreProfessional       @relation("FacilityReferrals", fields: [referredById], references: [id])
+
+  facilityName          String
+  contactName           String?
+  contactEmail          String?
+  contactPhone          String?
+  facilityType          CadreFacilityType?
+  state                 String?
+  city                  String?
+  needType              String                  // RECRUITMENT, LOCUM_STAFFING, CONSULTING, OTHER
+  notes                 String?                 @db.Text
+
+  status                String                  @default("PENDING") // PENDING, CONTACTED, CONVERTED, REJECTED
+  adminNotes            String?                 @db.Text
+
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@index([referredById])
+  @@index([status])
 }
