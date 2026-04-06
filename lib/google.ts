@@ -1,27 +1,22 @@
 import { google, calendar_v3 } from "googleapis";
 
-// ─── Google Service Account Auth ────────────────────────────────────────────
-// Uses a service account with domain-wide delegation to create
-// Google Calendar events with Google Meet links on behalf of users.
+// ─── Google OAuth2 Auth ─────────────────────────────────────────────────────
+// Uses OAuth2 with a refresh token to access Google Calendar.
 
 function getAuth() {
-  const credentials = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-  if (!credentials) {
-    throw new Error("GOOGLE_SERVICE_ACCOUNT_KEY env var is not set");
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
+
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error(
+      "Missing Google OAuth2 credentials. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REFRESH_TOKEN."
+    );
   }
 
-  const key = JSON.parse(credentials);
-  const impersonateEmail = process.env.GOOGLE_CALENDAR_IMPERSONATE_EMAIL;
-  if (!impersonateEmail) {
-    throw new Error("GOOGLE_CALENDAR_IMPERSONATE_EMAIL env var is not set");
-  }
-
-  return new google.auth.JWT({
-    email: key.client_email,
-    key: key.private_key,
-    scopes: ["https://www.googleapis.com/auth/calendar"],
-    subject: impersonateEmail, // domain-wide delegation
-  });
+  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
+  oauth2Client.setCredentials({ refresh_token: refreshToken });
+  return oauth2Client;
 }
 
 function getCalendar() {

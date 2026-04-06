@@ -1,6 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/prisma";
 import { sendMeetingSummary } from "@/lib/email";
+import { buildKey, r2Client, getPublicUrl } from "@/lib/r2";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { NuruMeetBot } from "./meet-bot";
 import { NuruTranscriber, TranscriptSegment } from "./transcriber";
 
@@ -19,6 +21,7 @@ import { NuruTranscriber, TranscriptSegment } from "./transcriber";
 
 // Track active sessions to prevent duplicate bots
 const activeSessions = new Map<string, NuruMeetingSession>();
+const MAX_CONCURRENT_SESSIONS = 5;
 
 export class NuruMeetingSession {
   private bot: NuruMeetBot;
@@ -58,6 +61,10 @@ export class NuruMeetingSession {
   }
 
   async start(): Promise<void> {
+    if (activeSessions.size >= MAX_CONCURRENT_SESSIONS) {
+      throw new Error(`Maximum concurrent Nuru sessions (${MAX_CONCURRENT_SESSIONS}) reached`);
+    }
+
     console.log(`[nuru:${this.meetingId}] Starting session...`);
 
     // Mark as joined in DB
@@ -172,8 +179,11 @@ Respond in this exact JSON format:
     let keyDecisions: string[] = [];
 
     try {
-      const text = response.content[0].type === "text" ? response.content[0].text : "";
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      const firstBlock = response.content[0];
+      const text = firstBlock?.type === "text" ? firstBlock.text : "";
+      // Strip markdown fences if present
+      const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "");
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         summary = parsed.summary || "";
@@ -207,6 +217,28 @@ Respond in this exact JSON format:
     });
 
     console.log(`[nuru:${this.meetingId}] Summary saved. Duration: ${durationMinutes}min`);
+
+    // Upload transcript to R2 for long-term storage
+    try {
+      const key = buildKey("recordings", `${this.meetingId}-transcript.txt`);
+      await r2Client.send(
+        new PutObjectCommand({
+          Bucket: process.env.R2_BUCKET_NAME ?? "cfa-uploads",
+          Key: key,
+          Body: transcript,
+          ContentType: "text/plain",
+          Metadata: { meetingId: this.meetingId, type: "transcript" },
+        })
+      );
+      const recordingUrl = await getPublicUrl(key);
+      await prisma.meeting.update({
+        where: { id: this.meetingId },
+        data: { recordingUrl, recordingBucket: "cfa-uploads", recordingKey: key },
+      });
+      console.log(`[nuru:${this.meetingId}] Transcript uploaded to R2: ${key}`);
+    } catch (err) {
+      console.error(`[nuru:${this.meetingId}] R2 upload failed:`, err);
+    }
 
     // Email summary to all participants (non-blocking)
     for (const participant of meeting.participants) {

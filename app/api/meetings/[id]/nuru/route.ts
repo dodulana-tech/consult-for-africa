@@ -51,6 +51,13 @@ export async function POST(req: NextRequest, ctx: Ctx) {
       return Response.json({ error: "Nuru is already in this meeting" }, { status: 409 });
     }
 
+    if (getActiveSessions().length >= 5) {
+      return Response.json(
+        { error: "Maximum concurrent Nuru sessions reached. Try again later." },
+        { status: 429 }
+      );
+    }
+
     const nuruSession = new NuruMeetingSession(id, meeting.meetLink);
 
     // Start in background (don't block the response)

@@ -92,7 +92,7 @@ export class NuruTranscriber {
    * Converts Float32Array to Int16 PCM before sending.
    */
   sendAudio(chunk: Float32Array): void {
-    if (!this.connection) return;
+    if (!this.connection?.socket) return;
 
     // Convert Float32 (-1.0 to 1.0) to Int16 PCM
     const pcm = new Int16Array(chunk.length);
@@ -101,13 +101,13 @@ export class NuruTranscriber {
       pcm[i] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
     }
 
-    this.connection.send(Buffer.from(pcm.buffer));
+    this.connection.socket.send(Buffer.from(pcm.buffer));
   }
 
   async stop(): Promise<string> {
     if (this.connection) {
       try {
-        this.connection.requestClose();
+        this.connection.socket?.close();
       } catch {
         // Connection may already be closed
       }
