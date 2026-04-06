@@ -97,7 +97,7 @@ export default function CadreHealthLanding() {
                 className="mt-7 font-semibold leading-[1.08] tracking-tight text-white"
                 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
               >
-                You trained for years.
+                Your next move is yours.
                 <br />
                 <span style={{ color: "#D4AF37" }}>
                   How ready are you?
