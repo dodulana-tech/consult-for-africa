@@ -53,6 +53,15 @@ const rows = [
     feeStructure: "Retainer plus success fee",
     bestFor: "Healthcare M&A, fundraising, or asset transactions",
   },
+  {
+    model: "Healthcare Recruitment",
+    href: "/oncadre",
+    duration: "Ongoing",
+    teamSize: "Dedicated account manager",
+    clientInvolvement: "Light. Post roles and review shortlists",
+    feeStructure: "Per-placement or subscription",
+    bestFor: "Hospitals needing permanent hires, locum staff, or workforce planning",
+  },
 ];
 
 const columns = [

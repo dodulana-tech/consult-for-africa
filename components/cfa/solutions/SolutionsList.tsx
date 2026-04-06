@@ -104,6 +104,22 @@ const solutions = [
     ],
     duration: "6 to 18 months",
   },
+  {
+    num: "07",
+    icon: UserCheck,
+    title: "Healthcare Recruitment",
+    tag: "CADREHEALTH",
+    href: "/oncadre",
+    summary:
+      "Finding and retaining qualified healthcare professionals is the single biggest challenge facing African hospitals. CadreHealth gives you access to 4,200+ verified professionals across 16 cadres.",
+    how: [
+      "Post permanent roles and source candidates from a verified talent pool",
+      "Fill locum and temporary staffing gaps within days",
+      "Pre-employment assessments and credential verification",
+      "Salary intelligence and workforce benchmarking",
+    ],
+    duration: "Ongoing",
+  },
 ];
 
 export default function SolutionsList() {
@@ -120,7 +136,7 @@ export default function SolutionsList() {
             className="font-semibold text-white leading-tight"
             style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)" }}
           >
-            Six Ways to Work With Us
+            Seven Ways to Work With Us
           </h2>
           <p className="mt-4 leading-relaxed" style={{ color: "rgba(255,255,255,0.5)", fontSize: "1.05rem" }}>
             Every healthcare organisation has different needs and constraints.

@@ -97,6 +97,20 @@ const services = [
     tag: "Powered by Maarova\u2122",
     href: "/maarova",
   },
+  {
+    num: "08",
+    title: "Healthcare Workforce Recruitment",
+    summary:
+      "Access a verified pool of 4,200+ healthcare professionals across 16 cadres. Whether you need permanent hires, locum staff, or structured workforce assessments, CadreHealth connects hospitals with the right talent, fast.",
+    points: [
+      "Permanent recruitment across clinical and non-clinical roles",
+      "Locum and temporary staffing for surge capacity",
+      "Structured pre-employment assessments and credential verification",
+      "Salary benchmarking and workforce analytics",
+    ],
+    tag: "Powered by CadreHealth",
+    href: "/oncadre",
+  },
 ];
 
 export default function CoreTransformation() {

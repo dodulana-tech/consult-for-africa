@@ -61,7 +61,7 @@ export default function SolutionsHero() {
           className="mt-6 max-w-lg leading-relaxed"
           style={{ fontSize: "clamp(0.95rem,1.4vw,1.1rem)", color: "rgba(255,255,255,0.55)" }}
         >
-          From advisory to transformation to transactions. Six engagement models
+          From advisory to transformation to recruitment. Seven engagement models
           designed for the unique challenges of healthcare delivery across the continent.
         </p>
       </div>

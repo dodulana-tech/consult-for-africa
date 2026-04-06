@@ -192,6 +192,30 @@ export default function TalentPage() {
         </div>
       </section>
 
+      {/* CadreHealth */}
+      <section className="py-16 px-6" style={{ background: "#EFF6FF", borderTop: "1px solid #e5eaf0", borderBottom: "1px solid #e5eaf0" }}>
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-xs font-medium uppercase tracking-[0.22em] mb-4" style={{ color: "#D4AF37" }}>
+            CadreHealth
+          </p>
+          <h2 className="text-2xl font-bold mb-4" style={{ color: "#0F2744" }}>
+            Looking for Clinical or Hospital Roles?
+          </h2>
+          <p className="text-sm text-gray-500 max-w-xl mx-auto leading-relaxed mb-6">
+            CadreHealth is CFA's healthcare workforce platform for doctors, nurses, pharmacists, and allied health professionals.
+            Get career readiness scores, salary intelligence, hospital reviews, and access to permanent and locum opportunities across Nigeria.
+          </p>
+          <Link
+            href="/oncadre"
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm"
+            style={{ background: "#0F2744", color: "#fff" }}
+          >
+            Explore CadreHealth
+            <ArrowRight size={15} />
+          </Link>
+        </div>
+      </section>
+
       {/* Specialties */}
       <section className="py-20 px-6" style={{ background: "#ffffff" }}>
         <div className="max-w-4xl mx-auto">

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { CADRE_DEFINITIONS } from "@/lib/cadreHealth/cadres";
+import { EXAM_GUIDES } from "@/lib/cadreHealth/examData";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = "https://consultforafrica.com";

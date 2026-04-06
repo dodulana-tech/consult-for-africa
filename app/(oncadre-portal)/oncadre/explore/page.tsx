@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import HospitalSearch from "./HospitalSearch";
 
-/* ─── Helpers ─────────────────────────────────────────────────────────────── */
+/* ---- Helpers ---- */
 
 const FACILITY_TYPE_LABELS: Record<string, string> = {
   PUBLIC_TERTIARY: "Public Tertiary",
@@ -37,6 +37,12 @@ function ratingBgColor(rating: number): string {
   return "bg-red-500";
 }
 
+function ratingBadgeBg(rating: number): string {
+  if (rating >= 4) return "rgba(16,185,129,0.1)";
+  if (rating >= 3) return "rgba(245,158,11,0.1)";
+  return "rgba(239,68,68,0.1)";
+}
+
 function Stars({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }) {
   const cls = size === "md" ? "h-5 w-5" : "h-4 w-4";
   return (
@@ -55,7 +61,7 @@ function Stars({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }) 
   );
 }
 
-/* ─── Dimension bars on cards ─────────────────────────────────────────────── */
+/* ---- Dimension bars on cards ---- */
 
 const TOP_DIMENSIONS = [
   { key: "compensationRating", label: "Compensation" },
@@ -77,7 +83,7 @@ interface FacilityWithRatings {
   managementRating: Prisma.Decimal | null;
 }
 
-/* ─── Page ────────────────────────────────────────────────────────────────── */
+/* ---- Page ---- */
 
 export default async function HospitalExplorerPage({
   searchParams,
@@ -157,27 +163,56 @@ export default async function HospitalExplorerPage({
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Explore Hospitals</h1>
+        <h1
+          className="font-bold text-gray-900"
+          style={{ fontSize: "clamp(1.5rem, 3vw, 1.75rem)" }}
+        >
+          Explore Hospitals
+        </h1>
         <p className="mt-1 text-gray-500">
           Honest reviews and salary data from verified healthcare professionals
         </p>
       </div>
 
       {/* User contribution badge */}
-      <div className="flex items-center gap-3 rounded-xl border border-[#E8EBF0] bg-white px-5 py-3 shadow-sm">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#0B3C5D]/10">
-          <svg className="h-5 w-5 text-[#0B3C5D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+      <div
+        className="flex items-center gap-4 rounded-2xl px-5 py-4 transition-all duration-200"
+        style={{
+          background: "linear-gradient(135deg, rgba(11,60,93,0.04), rgba(212,175,55,0.04))",
+          border: "1px solid #E8EBF0",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
+        }}
+      >
+        <div
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
+          style={{
+            background: "linear-gradient(135deg, #0B3C5D, #0E4D6E)",
+          }}
+        >
+          <svg className="h-5 w-5 text-[#D4AF37]" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
           </svg>
         </div>
         <div>
-          <p className="text-sm font-medium text-gray-900">
+          <p className="text-sm font-semibold text-gray-900">
             You have reviewed {userReviewCount} of {totalCount} facilities
           </p>
           <p className="text-xs text-gray-500">
             Every review helps colleagues make better career decisions
           </p>
         </div>
+        {userReviewCount > 0 && (
+          <div
+            className="ml-auto hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
+            style={{
+              background: "rgba(212,175,55,0.1)",
+              color: "#A38829",
+              border: "1px solid rgba(212,175,55,0.2)",
+            }}
+          >
+            Contributor
+          </div>
+        )}
       </div>
 
       {/* Search and filters */}
@@ -194,7 +229,13 @@ export default async function HospitalExplorerPage({
 
       {/* Hospital grid */}
       {facilities.length === 0 ? (
-        <div className="rounded-xl border border-[#E8EBF0] bg-white px-6 py-16 text-center">
+        <div
+          className="rounded-2xl bg-white px-6 py-16 text-center"
+          style={{
+            border: "1px solid #E8EBF0",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
+          }}
+        >
           <svg className="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
           </svg>
@@ -204,7 +245,7 @@ export default async function HospitalExplorerPage({
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {facilities.map((facility) => {
             const rating = facility.overallRating ? Number(facility.overallRating) : null;
             const recommendPct = facility.wouldRecommendPct ? Number(facility.wouldRecommendPct) : null;
@@ -213,15 +254,25 @@ export default async function HospitalExplorerPage({
               <Link
                 key={facility.slug}
                 href={`/oncadre/explore/${facility.slug}`}
-                className="group rounded-xl border border-[#E8EBF0] bg-white p-5 shadow-sm transition hover:border-[#0B3C5D]/20 hover:shadow-md"
+                className="group rounded-2xl bg-white p-5 transition-all duration-200 hover:scale-[1.01]"
+                style={{
+                  border: "1px solid #E8EBF0",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
+                }}
               >
                 {/* Name and type badge */}
                 <div className="mb-3">
-                  <h3 className="text-base font-semibold text-gray-900 group-hover:text-[#0B3C5D] transition-colors line-clamp-2">
+                  <h3 className="text-base font-semibold text-gray-900 group-hover:text-[#0B3C5D] transition-colors duration-200 line-clamp-2">
                     {facility.name}
                   </h3>
-                  <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center rounded-full bg-[#0B3C5D]/10 px-2.5 py-0.5 text-xs font-medium text-[#0B3C5D]">
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <span
+                      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-[#0B3C5D]"
+                      style={{
+                        background: "rgba(11,60,93,0.08)",
+                        border: "1px solid rgba(11,60,93,0.1)",
+                      }}
+                    >
                       {facilityTypeLabel(facility.type)}
                     </span>
                     <span className="text-xs text-gray-500">
@@ -234,7 +285,13 @@ export default async function HospitalExplorerPage({
                 <div className="mb-4 flex items-center gap-3">
                   {rating !== null ? (
                     <>
-                      <span className={`text-2xl font-bold ${ratingColor(rating)}`}>
+                      <span
+                        className="inline-flex items-center justify-center rounded-lg px-2.5 py-1 text-xl font-bold"
+                        style={{
+                          background: ratingBadgeBg(rating),
+                          color: rating >= 4 ? "#059669" : rating >= 3 ? "#D97706" : "#DC2626",
+                        }}
+                      >
                         {rating.toFixed(1)}
                       </span>
                       <div>
@@ -263,20 +320,23 @@ export default async function HospitalExplorerPage({
 
                 {/* Top dimension mini-bars */}
                 {rating !== null && (
-                  <div className="space-y-2">
+                  <div className="space-y-2.5 pt-3" style={{ borderTop: "1px solid #E8EBF0" }}>
                     {TOP_DIMENSIONS.map((dim) => {
                       const val = facility[dim.key] ? Number(facility[dim.key]) : null;
                       if (val === null) return null;
                       return (
                         <div key={dim.key} className="flex items-center gap-2">
                           <span className="w-24 shrink-0 text-xs text-gray-500">{dim.label}</span>
-                          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100">
+                          <div
+                            className="h-2 flex-1 overflow-hidden rounded-full"
+                            style={{ background: "#F0F1F4" }}
+                          >
                             <div
-                              className={`h-full rounded-full ${ratingBgColor(val)}`}
+                              className={`h-full rounded-full transition-all duration-500 ${ratingBgColor(val)}`}
                               style={{ width: `${(val / 5) * 100}%` }}
                             />
                           </div>
-                          <span className="w-6 text-right text-xs font-medium text-gray-600">
+                          <span className="w-7 text-right text-xs font-semibold text-gray-600">
                             {val.toFixed(1)}
                           </span>
                         </div>
