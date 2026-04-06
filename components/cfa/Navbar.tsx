@@ -22,6 +22,7 @@ export default function Navbar() {
     { label: "Services", href: "/services" },
     { label: "Solutions", href: "/solutions" },
     { label: "Maarova\u2122", href: "/maarova" },
+    { label: "CadreHealth", href: "/oncadre" },
     { label: "Insights", href: "/insights" },
     { label: "Careers",  href: "/careers" },
     { label: "Contact",  href: "/contact", highlight: true },

@@ -84,6 +84,11 @@ export default function Footer() {
               </Link>
             </li>
             <li>
+              <Link href="/oncadre" className="hover:text-white transition-colors">
+                CadreHealth
+              </Link>
+            </li>
+            <li>
               <Link href="/contact" className="hover:text-white transition-colors">
                 Partner With Us
               </Link>
