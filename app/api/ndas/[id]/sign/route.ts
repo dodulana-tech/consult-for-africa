@@ -9,11 +9,17 @@ import React from "react";
 
 type Ctx = { params: Promise<{ id: string }> };
 
+function requireEnv(name: string): string {
+  const val = process.env[name];
+  if (!val) throw new Error(`${name} environment variable is required`);
+  return val;
+}
+
 const s3 = new S3Client({
   region: process.env.AWS_REGION ?? "us-east-1",
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? "",
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? "",
+    accessKeyId: requireEnv("AWS_ACCESS_KEY_ID"),
+    secretAccessKey: requireEnv("AWS_SECRET_ACCESS_KEY"),
   },
 });
 

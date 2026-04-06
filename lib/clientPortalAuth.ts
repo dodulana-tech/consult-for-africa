@@ -34,7 +34,10 @@ export function verifyClientPortalToken(
       .createHmac("sha256", SECRET())
       .update(`${header}.${body}`)
       .digest("base64url");
-    if (sig !== expected) return null;
+    if (
+      sig.length !== expected.length ||
+      !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))
+    ) return null;
     const payload = JSON.parse(Buffer.from(body, "base64url").toString());
     if (payload.exp < Math.floor(Date.now() / 1000)) return null;
     return payload as { sub: string; clientId: string; name: string; email: string };

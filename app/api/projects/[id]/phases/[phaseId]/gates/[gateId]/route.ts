@@ -13,8 +13,17 @@ export async function PATCH(
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { gateId } = await params;
+  const { phaseId, gateId } = await params;
   const body = await req.json();
+
+  // Verify the gate belongs to the specified phase
+  const gate = await prisma.phaseGate.findFirst({
+    where: { id: gateId, phaseId },
+  });
+  if (!gate) {
+    return Response.json({ error: "Gate not found in this phase" }, { status: 404 });
+  }
+
   const updateData: Record<string, unknown> = {};
 
   if (body.name !== undefined) updateData.name = body.name.trim();
@@ -41,7 +50,16 @@ export async function DELETE(
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { gateId } = await params;
+  const { phaseId, gateId } = await params;
+
+  // Verify the gate belongs to the specified phase
+  const gate = await prisma.phaseGate.findFirst({
+    where: { id: gateId, phaseId },
+  });
+  if (!gate) {
+    return Response.json({ error: "Gate not found in this phase" }, { status: 404 });
+  }
+
   await prisma.phaseGate.delete({ where: { id: gateId } });
   return Response.json({ ok: true });
 }

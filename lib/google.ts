@@ -64,7 +64,7 @@ export async function createGoogleMeetMeeting(
     attendees: params.attendeeEmails.map((email) => ({ email })),
     conferenceData: {
       createRequest: {
-        requestId: `cfa-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        requestId: `cfa-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
         conferenceSolutionKey: { type: "hangoutsMeet" },
       },
     },

@@ -1,8 +1,16 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
+import { PDFParse } from "pdf-parse";
 
 const anthropic = new Anthropic();
+
+const ALLOWED_CV_HOSTS = new Set([
+  process.env.R2_PUBLIC_URL ? new URL(process.env.R2_PUBLIC_URL).hostname : "",
+  // Add other allowed hosts if needed
+].filter(Boolean));
+
+const MAX_CV_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -36,7 +44,47 @@ export async function POST(req: NextRequest) {
   const INJECTION_PATTERN = /(\bIGNORE\b|\bSYSTEM:\b|\[INST\]|###\s|\bOVERRIDE\b|\bFORGET\b)/gi;
   const sanitise = (s: string) => s.replace(INJECTION_PATTERN, "[removed]").trim();
 
-  const safeCvText = cvText ? sanitise(cvText).substring(0, 3000) : null;
+  // If a CV file was uploaded but no text pasted, try to extract text from the PDF
+  let extractedCvText = cvText || null;
+  if (!extractedCvText && cvFileUrl) {
+    try {
+      // Validate URL domain to prevent SSRF
+      const cvUrl = new URL(cvFileUrl);
+      if (cvUrl.protocol !== "https:" || !ALLOWED_CV_HOSTS.has(cvUrl.hostname)) {
+        console.warn("[talent/apply] Blocked CV fetch from untrusted host:", cvUrl.hostname);
+      } else {
+        const fileRes = await fetch(cvFileUrl, {
+          signal: AbortSignal.timeout(10_000), // 10s timeout
+        });
+        if (fileRes.ok) {
+          const contentLength = Number(fileRes.headers.get("content-length") || 0);
+          if (contentLength > MAX_CV_SIZE_BYTES) {
+            console.warn("[talent/apply] CV file too large:", contentLength);
+          } else {
+            const contentType = fileRes.headers.get("content-type") || "";
+            if (contentType.includes("pdf")) {
+              const arrayBuf = await fileRes.arrayBuffer();
+              if (arrayBuf.byteLength > MAX_CV_SIZE_BYTES) {
+                console.warn("[talent/apply] CV buffer too large:", arrayBuf.byteLength);
+              } else {
+                const buffer = Buffer.from(arrayBuf);
+                const parser = new PDFParse({ data: buffer });
+                const result = await parser.getText();
+                if (result.text) {
+                  extractedCvText = result.text;
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error("[talent/apply] CV text extraction failed", err);
+      // Continue without extracted text - do not block submission
+    }
+  }
+
+  const safeCvText = extractedCvText ? sanitise(extractedCvText).substring(0, 3000) : null;
   const safeCoverLetter = coverLetter ? sanitise(coverLetter).substring(0, 5000) : null;
 
   // AI Screening
@@ -105,7 +153,11 @@ Return ONLY valid JSON matching this exact structure:
       messages: [{ role: "user", content: screeningPrompt }],
     });
 
-    const text = (screening.content[0] as { type: string; text: string }).text.trim();
+    const firstBlock = screening.content[0];
+    if (!firstBlock || firstBlock.type !== "text" || !("text" in firstBlock)) {
+      throw new Error("Unexpected AI response format");
+    }
+    const text = (firstBlock as { type: "text"; text: string }).text.trim();
     // Find first { and its matching } to avoid greedy regex attacks
     const start = text.indexOf("{");
     const end = text.lastIndexOf("}");

@@ -91,6 +91,9 @@ function btn(text: string, href: string, color = "#D4AF37") {
 // ─── Email functions ──────────────────────────────────────────────────────────
 
 const BASE_URL = process.env.NEXTAUTH_URL ?? "";
+if (!BASE_URL && process.env.NODE_ENV === "production") {
+  throw new Error("NEXTAUTH_URL environment variable is required in production");
+}
 
 export async function emailDeliverableSubmitted({
   emEmail,

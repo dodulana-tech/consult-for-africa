@@ -7,8 +7,8 @@ const AUTH_ROUTES = ["/login"];
 export default auth((req) => {
   const { nextUrl, auth: session } = req;
   const isLoggedIn = !!session;
-  const isPlatformRoute = PLATFORM_ROUTES.some((r) => nextUrl.pathname.startsWith(r));
-  const isAuthRoute = AUTH_ROUTES.some((r) => nextUrl.pathname.startsWith(r));
+  const isPlatformRoute = PLATFORM_ROUTES.some((r) => nextUrl.pathname === r || nextUrl.pathname.startsWith(r + "/"));
+  const isAuthRoute = AUTH_ROUTES.some((r) => nextUrl.pathname === r || nextUrl.pathname.startsWith(r + "/"));
 
   if (isPlatformRoute && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", nextUrl));

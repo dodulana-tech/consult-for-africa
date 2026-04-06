@@ -68,39 +68,39 @@ export async function POST() {
     );
   }
 
-  // Create session with module responses
+  // Create session and increment slot atomically to prevent race conditions
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7);
 
-  const session = await prisma.maarovaAssessmentSession.create({
-    data: {
-      userId: user.id,
-      status: "NOT_STARTED",
-      sessionType: "full",
-      stream: org.stream,
-      expiresAt,
-      moduleResponses: {
-        create: modules.map((mod) => ({
-          moduleId: mod.id,
-          status: "NOT_STARTED",
-        })),
-      },
-    },
-    include: {
-      moduleResponses: {
-        include: {
-          module: true,
+  const [session] = await prisma.$transaction([
+    prisma.maarovaAssessmentSession.create({
+      data: {
+        userId: user.id,
+        status: "NOT_STARTED",
+        sessionType: "full",
+        stream: org.stream,
+        expiresAt,
+        moduleResponses: {
+          create: modules.map((mod) => ({
+            moduleId: mod.id,
+            status: "NOT_STARTED",
+          })),
         },
-        orderBy: { module: { order: "asc" } },
       },
-    },
-  });
-
-  // Increment used assessments
-  await prisma.maarovaOrganisation.update({
-    where: { id: org.id },
-    data: { usedAssessments: { increment: 1 } },
-  });
+      include: {
+        moduleResponses: {
+          include: {
+            module: true,
+          },
+          orderBy: { module: { order: "asc" } },
+        },
+      },
+    }),
+    prisma.maarovaOrganisation.update({
+      where: { id: org.id },
+      data: { usedAssessments: { increment: 1 } },
+    }),
+  ]);
 
   return NextResponse.json({ session });
 }

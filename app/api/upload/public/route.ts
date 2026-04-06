@@ -20,6 +20,14 @@ const RATE_LIMIT_MAX = 10;
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
+
+  // Periodically clean up stale entries to prevent memory leaks
+  if (rateLimitMap.size > 10_000) {
+    for (const [key, val] of rateLimitMap) {
+      if (now > val.resetAt) rateLimitMap.delete(key);
+    }
+  }
+
   const entry = rateLimitMap.get(ip);
 
   if (!entry || now > entry.resetAt) {
@@ -49,19 +57,34 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { filename?: string; contentType?: string; folder?: string };
+  let body: { filename?: string; contentType?: string; folder?: string; fileSize?: number };
   try {
     body = await req.json();
   } catch {
     return new Response("Invalid JSON body", { status: 400 });
   }
 
-  const { filename, contentType, folder } = body;
+  const { filename, contentType, folder, fileSize } = body;
 
   if (!filename || !contentType || !folder) {
     return Response.json(
       { error: "filename, contentType, and folder are required" },
       { status: 400 }
+    );
+  }
+
+  if (typeof fileSize !== "number" || fileSize <= 0) {
+    return Response.json(
+      { error: "fileSize is required and must be a positive number" },
+      { status: 400 }
+    );
+  }
+
+  const maxBytes = MAX_FILE_SIZE_MB * 1024 * 1024;
+  if (fileSize > maxBytes) {
+    return Response.json(
+      { error: `File is too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.` },
+      { status: 413 }
     );
   }
 
@@ -82,8 +105,8 @@ export async function POST(req: NextRequest) {
   const key = buildKey(folder, filename);
 
   try {
-    const uploadUrl = await generateUploadUrl(key, contentType);
-    const publicUrl = getPublicUrl(key);
+    const uploadUrl = await generateUploadUrl(key, contentType, 600, typeof fileSize === "number" ? fileSize : undefined);
+    const publicUrl = await getPublicUrl(key);
 
     return Response.json({
       uploadUrl,
