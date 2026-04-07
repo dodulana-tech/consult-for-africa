@@ -1,0 +1,14 @@
+import Navbar from "@/components/cfa/Navbar";
+import Footer from "@/components/cfa/Footer";
+import NuruChat from "@/components/cfa/NuruChat";
+
+export default function OncadreMarketingLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <Navbar />
+      {children}
+      <Footer />
+      <NuruChat />
+    </>
+  );
+}

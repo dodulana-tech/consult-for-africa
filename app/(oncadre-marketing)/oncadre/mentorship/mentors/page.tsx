@@ -347,7 +347,7 @@ export default async function BrowseMentorsPage({ searchParams }: PageProps) {
 
                   {/* CTA */}
                   <Link
-                    href={`/oncadre/login?redirect=/oncadre/mentorship&mentor=${mentor.id}`}
+                    href={`/oncadre/login?redirect=/oncadre/mentorship/my&mentor=${mentor.id}`}
                     className="mt-4 block w-full rounded-xl py-2.5 text-center text-sm font-semibold text-white transition-all hover:opacity-90"
                     style={{
                       background:
