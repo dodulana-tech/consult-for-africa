@@ -1,12 +1,35 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import type { ReferralStatus } from "@prisma/client";
+import type { ReferralStatus, ReferralType } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { sendInvite, emailMaarovaInvite } from "@/lib/email";
 
 const VALID_STATUSES: ReferralStatus[] = ["PENDING", "CONTACTED", "CONVERTED", "REJECTED"];
+const VALID_TYPES: ReferralType[] = ["CLIENT", "CONSULTANT", "STAFF"];
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await auth();
+  if (!session) return new Response("Unauthorized", { status: 401 });
+
+  const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
+  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+
+  const { id } = await params;
+  const referral = await prisma.referral.findUnique({ where: { id } });
+  if (!referral) return new Response("Referral not found", { status: 404 });
+
+  if (referral.status === "CONVERTED") {
+    return new Response("Cannot delete a converted referral", { status: 400 });
+  }
+
+  await prisma.referral.delete({ where: { id } });
+  return Response.json({ ok: true });
+}
 
 export async function PATCH(
   req: NextRequest,
@@ -19,10 +42,14 @@ export async function PATCH(
   if (!isAdmin) return new Response("Forbidden", { status: 403 });
 
   const { id } = await params;
-  const { status, assessmentLevel } = await req.json();
+  const body = await req.json();
+  const { status, assessmentLevel, name, email, phone, organisation, suggestedRole, notes, type } = body;
 
   if (!status || !VALID_STATUSES.includes(status)) {
     return new Response("Invalid status", { status: 400 });
+  }
+  if (type && !VALID_TYPES.includes(type)) {
+    return new Response("Invalid type", { status: 400 });
   }
 
   const referral = await prisma.referral.findUnique({ where: { id } });
@@ -176,7 +203,16 @@ export async function PATCH(
 
   const updated = await prisma.referral.update({
     where: { id },
-    data: { status },
+    data: {
+      status,
+      ...(name !== undefined && { name: name.trim() }),
+      ...(email !== undefined && { email: email.trim().toLowerCase() }),
+      ...(phone !== undefined && { phone: phone?.trim() || null }),
+      ...(organisation !== undefined && { organisation: organisation?.trim() || null }),
+      ...(suggestedRole !== undefined && { suggestedRole: suggestedRole?.trim() || null }),
+      ...(notes !== undefined && { notes: notes?.trim() || null }),
+      ...(type !== undefined && { type }),
+    },
   });
 
   return Response.json({ ok: true, referral: { ...updated, createdAt: updated.createdAt.toISOString(), updatedAt: updated.updatedAt.toISOString() } });
