@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import {
-  Building2, UserPlus, Users, Clock, ChevronDown,
+  Building2, UserPlus, Users, Clock,
   Pencil, Trash2, X, Loader2, Plus, AlertCircle,
+  CheckCircle, Phone, XCircle, RotateCcw, Send,
 } from "lucide-react";
 import { timeAgo } from "@/lib/utils";
 
@@ -43,7 +44,7 @@ const TYPE_LABELS: Record<string, string> = {
   STAFF: "Staff",
 };
 
-const STATUS_OPTIONS: ReferralStatus[] = ["PENDING", "CONTACTED", "CONVERTED", "REJECTED"];
+/* Status options kept for reference but actions now use explicit buttons */
 
 const STAFF_ROLES = ["Engagement Manager", "Director", "Partner", "Other"];
 
@@ -360,8 +361,142 @@ export default function AdminReferralsManager({
                         )}
                       </div>
 
-                      {/* Actions: status + edit + delete */}
-                      <div className="flex items-center gap-2 shrink-0">
+                      {/* Status badge */}
+                      <span
+                        className="text-[11px] font-semibold rounded-full px-3 py-1 shrink-0"
+                        style={{ background: statusStyle.bg, color: statusStyle.color }}
+                      >
+                        {statusStyle.label}
+                      </span>
+                    </div>
+
+                    {r.notes && (
+                      <p className="mt-3 text-xs text-gray-600 leading-relaxed p-3 rounded-lg" style={{ background: "#F9FAFB", border: "1px solid #e5eaf0" }}>
+                        {r.notes}
+                      </p>
+                    )}
+
+                    {/* Accept & Invite confirmation for consultant referrals */}
+                    {convertingId === r.id && (
+                      <div className="mt-3 p-3 rounded-lg" style={{ background: "#F0FDF4", border: "1px solid #BBF7D0" }}>
+                        <p className="text-xs font-semibold text-emerald-800 mb-2">Accept & Invite as C4A Consultant</p>
+                        <p className="text-[11px] text-emerald-700 mb-3">
+                          This will create a platform account for {r.name}, send them an invite email with login credentials, and start onboarding.
+                        </p>
+                        <label className="text-[11px] text-emerald-700 block mb-1">Assessment Level</label>
+                        <select
+                          value={convertLevel}
+                          onChange={(e) => setConvertLevel(e.target.value)}
+                          className="w-full rounded-lg border px-2 py-1.5 text-xs mb-3 focus:outline-none"
+                          style={{ borderColor: "#BBF7D0" }}
+                        >
+                          <option value="LIGHT">Light (profile only)</option>
+                          <option value="STANDARD">Standard (profile + proctored assessment)</option>
+                          <option value="MAAROVA">Maarova assessment only</option>
+                          <option value="FULL">Full (profile + assessment + Maarova)</option>
+                        </select>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => updateStatus(r.id, "CONVERTED", convertLevel)}
+                            disabled={updating === r.id}
+                            className="flex-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-60 flex items-center justify-center gap-1.5"
+                            style={{ background: "#059669" }}
+                          >
+                            {updating === r.id ? (
+                              <><Loader2 size={12} className="animate-spin" /> Creating account...</>
+                            ) : (
+                              <><Send size={12} /> Confirm and Send Invite</>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => { setConvertingId(null); setConvertError(""); }}
+                            className="px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 bg-white"
+                            style={{ border: "1px solid #e5eaf0" }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                        {convertError && (
+                          <p className="text-xs text-red-600 mt-2">{convertError}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Meta line */}
+                    <div className="flex items-center gap-3 mt-2 text-[11px] text-gray-400">
+                      <span className="flex items-center gap-1">
+                        <Clock size={10} />
+                        {timeAgo(new Date(r.createdAt))}
+                      </span>
+                      <span>Referred by {r.referrer.name}</span>
+                      <span className="capitalize">{r.referrer.role.toLowerCase().replace(/_/g, " ")}</span>
+                    </div>
+
+                    {/* Action bar */}
+                    <div className="flex items-center gap-2 mt-3 pt-3" style={{ borderTop: "1px solid #f0f0f0" }}>
+                      {(r.status === "PENDING" || r.status === "CONTACTED") && (
+                        <>
+                          <button
+                            onClick={() => {
+                              if (r.type === "CONSULTANT") {
+                                setConvertingId(r.id);
+                              } else {
+                                updateStatus(r.id, "CONVERTED");
+                              }
+                            }}
+                            disabled={updating === r.id}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
+                            style={{ background: "#059669" }}
+                          >
+                            <CheckCircle size={12} />
+                            {updating === r.id ? "Processing..." : "Accept & Invite"}
+                          </button>
+
+                          {r.status === "PENDING" && (
+                            <button
+                              onClick={() => updateStatus(r.id, "CONTACTED")}
+                              disabled={updating === r.id}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-blue-700 disabled:opacity-50 transition-colors hover:bg-blue-50"
+                              style={{ background: "#EFF6FF", border: "1px solid #DBEAFE" }}
+                            >
+                              <Phone size={11} />
+                              Mark Contacted
+                            </button>
+                          )}
+
+                          <button
+                            onClick={() => updateStatus(r.id, "REJECTED")}
+                            disabled={updating === r.id}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 disabled:opacity-50 transition-colors hover:bg-red-50"
+                            style={{ background: "#FEF2F2", border: "1px solid #FECACA" }}
+                          >
+                            <XCircle size={11} />
+                            Reject
+                          </button>
+                        </>
+                      )}
+
+                      {r.status === "REJECTED" && (
+                        <button
+                          onClick={() => updateStatus(r.id, "PENDING")}
+                          disabled={updating === r.id}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 disabled:opacity-50 transition-colors hover:bg-gray-50"
+                          style={{ background: "#F9FAFB", border: "1px solid #e5eaf0" }}
+                        >
+                          <RotateCcw size={11} />
+                          Reopen
+                        </button>
+                      )}
+
+                      {r.status === "CONVERTED" && (
+                        <p className="text-[11px] text-emerald-600 flex items-center gap-1">
+                          <CheckCircle size={11} />
+                          Invited and onboarding
+                        </p>
+                      )}
+
+                      {/* Edit / Delete always available on the right */}
+                      <div className="ml-auto flex items-center gap-1">
                         <button
                           onClick={() => openEdit(r)}
                           className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors"
@@ -369,7 +504,6 @@ export default function AdminReferralsManager({
                         >
                           <Pencil size={13} />
                         </button>
-
                         {!isConverted && (
                           deleteConfirm === r.id ? (
                             <div className="flex items-center gap-1">
@@ -378,7 +512,7 @@ export default function AdminReferralsManager({
                                 disabled={deletingId === r.id}
                                 className="px-2 py-1 rounded text-[10px] font-semibold text-white bg-red-500 hover:bg-red-600 disabled:opacity-50"
                               >
-                                {deletingId === r.id ? "..." : "Delete"}
+                                {deletingId === r.id ? "..." : "Confirm"}
                               </button>
                               <button
                                 onClick={() => setDeleteConfirm(null)}
@@ -397,84 +531,7 @@ export default function AdminReferralsManager({
                             </button>
                           )
                         )}
-
-                        <div className="relative ml-1">
-                          <select
-                            value={r.status}
-                            onChange={(e) => {
-                              const newStatus = e.target.value as ReferralStatus;
-                              if (newStatus === "CONVERTED" && r.type === "CONSULTANT" && r.status !== "CONVERTED") {
-                                setConvertingId(r.id);
-                              } else {
-                                updateStatus(r.id, newStatus);
-                              }
-                            }}
-                            disabled={updating === r.id}
-                            className="text-[11px] font-semibold rounded-full px-3 py-1 pr-6 appearance-none cursor-pointer focus:outline-none"
-                            style={{ background: statusStyle.bg, color: statusStyle.color, border: "none" }}
-                          >
-                            {STATUS_OPTIONS.map((s) => (
-                              <option key={s} value={s}>{STATUS_STYLES[s].label}</option>
-                            ))}
-                          </select>
-                          <ChevronDown size={10} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: statusStyle.color }} />
-                        </div>
                       </div>
-                    </div>
-
-                    {r.notes && (
-                      <p className="mt-3 text-xs text-gray-600 leading-relaxed p-3 rounded-lg" style={{ background: "#F9FAFB", border: "1px solid #e5eaf0" }}>
-                        {r.notes}
-                      </p>
-                    )}
-
-                    {/* Convert confirmation for consultant referrals */}
-                    {convertingId === r.id && (
-                      <div className="mt-3 p-3 rounded-lg" style={{ background: "#F0FDF4", border: "1px solid #BBF7D0" }}>
-                        <p className="text-xs font-semibold text-emerald-800 mb-2">Convert to C4A Consultant</p>
-                        <p className="text-[11px] text-emerald-700 mb-3">This will create a platform account, send an invite email, and start the onboarding process.</p>
-                        <label className="text-[11px] text-emerald-700 block mb-1">Assessment Level</label>
-                        <select
-                          value={convertLevel}
-                          onChange={(e) => setConvertLevel(e.target.value)}
-                          className="w-full rounded-lg border px-2 py-1.5 text-xs mb-3 focus:outline-none"
-                          style={{ borderColor: "#BBF7D0" }}
-                        >
-                          <option value="LIGHT">Light (profile only)</option>
-                          <option value="STANDARD">Standard (profile + proctored assessment)</option>
-                          <option value="MAAROVA">Maarova assessment only</option>
-                          <option value="FULL">Full (profile + assessment + Maarova)</option>
-                        </select>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => updateStatus(r.id, "CONVERTED", convertLevel)}
-                            disabled={updating === r.id}
-                            className="flex-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-60"
-                            style={{ background: "#059669" }}
-                          >
-                            {updating === r.id ? "Creating account..." : "Confirm and Send Invite"}
-                          </button>
-                          <button
-                            onClick={() => { setConvertingId(null); setConvertError(""); }}
-                            className="px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 bg-white"
-                            style={{ border: "1px solid #e5eaf0" }}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                        {convertError && (
-                          <p className="text-xs text-red-600 mt-2">{convertError}</p>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-3 mt-2 text-[11px] text-gray-400">
-                      <span className="flex items-center gap-1">
-                        <Clock size={10} />
-                        {timeAgo(new Date(r.createdAt))}
-                      </span>
-                      <span>Referred by {r.referrer.name}</span>
-                      <span className="capitalize">{r.referrer.role.toLowerCase().replace(/_/g, " ")}</span>
                     </div>
                   </div>
                 </div>
