@@ -156,6 +156,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const role = session?.user?.role ?? "";
+  const email = session?.user?.email ?? "";
   const { drawerOpen: mobileOpen, closeDrawer: closeMobile } = useNavStore();
 
   function isActive(href: string) {
@@ -235,6 +236,20 @@ export default function Sidebar() {
         className="px-3 py-3 space-y-0.5"
         style={{ borderTop: "1px solid #E2E8F0" }}
       >
+        {email === "debo.odulana@consultforafrica.com" && (
+          <Link
+            href="/founder"
+            onClick={() => closeMobile()}
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all"
+            style={{
+              background: pathname.startsWith("/founder") ? "#EFF6FF" : "transparent",
+              color: pathname.startsWith("/founder") ? "#0F2744" : "#64748B",
+            }}
+          >
+            <Sparkles size={16} style={{ color: pathname.startsWith("/founder") ? "#0F2744" : "#94A3B8" }} />
+            Founder Mode
+          </Link>
+        )}
         {role !== "ACADEMY_LEARNER" && (
           <Link
             href="/refer"
