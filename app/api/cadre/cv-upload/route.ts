@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCadreSession } from "@/lib/cadreAuth";
+import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
 import { PDFParse } from "pdf-parse";
 
@@ -166,6 +167,50 @@ export async function POST(req: NextRequest) {
         { error: "Failed to parse extracted data. Please try again." },
         { status: 500 }
       );
+    }
+
+    // Recalculate profile completeness after CV extraction
+    try {
+      const prof = await prisma.cadreProfessional.findUnique({
+        where: { id: session.sub },
+        select: {
+          phone: true,
+          cadre: true,
+          yearsOfExperience: true,
+          state: true,
+          openTo: true,
+          monthlySalary: true,
+          salaryReportedAt: true,
+          _count: {
+            select: {
+              credentials: true,
+              qualifications: true,
+              workHistory: true,
+            },
+          },
+        },
+      });
+
+      if (prof) {
+        let completeness = 20; // base
+        if (prof.phone) completeness += 5;
+        if (prof.cadre) completeness += 5;
+        if (prof.yearsOfExperience != null) completeness += 5;
+        if (prof.state) completeness += 5;
+        if (prof.openTo && prof.openTo.length > 0) completeness += 5;
+        if (prof._count.credentials > 0) completeness += 10;
+        if (prof._count.qualifications > 0) completeness += 10;
+        if (prof._count.workHistory > 0) completeness += 10;
+        if (prof.monthlySalary != null || prof.salaryReportedAt != null) completeness += 5;
+        if (completeness > 100) completeness = 100;
+
+        await prisma.cadreProfessional.update({
+          where: { id: session.sub },
+          data: { profileCompleteness: completeness },
+        });
+      }
+    } catch (e) {
+      console.error("Profile completeness recalculation error:", e);
     }
 
     return NextResponse.json({

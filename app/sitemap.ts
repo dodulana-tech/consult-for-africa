@@ -43,6 +43,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // CadreHealth - comparison & ranking pages
     { url: "/oncadre/hospitals/compare", priority: 0.8, changeFrequency: "weekly" as const },
     { url: "/oncadre/hospitals/best", priority: 0.9, changeFrequency: "weekly" as const },
+    // CadreHealth - mentorship
+    { url: "/oncadre/mentorship", priority: 0.8, changeFrequency: "weekly" as const },
+    { url: "/oncadre/mentorship/mentors", priority: 0.7, changeFrequency: "weekly" as const },
     // CadreHealth - legal pages
     { url: "/oncadre/terms", priority: 0.3, changeFrequency: "monthly" as const },
     { url: "/oncadre/privacy", priority: 0.3, changeFrequency: "monthly" as const },

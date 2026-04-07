@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
+import { notifyMentorshipAccepted } from "@/lib/cadreHealth/notifications";
 
 export async function GET(
   _req: NextRequest,
@@ -114,6 +115,25 @@ export async function PATCH(
           });
           return m;
         });
+
+        // Notify the mentee
+        try {
+          const mentor = await prisma.cadreProfessional.findUnique({
+            where: { id: session.sub },
+            select: { firstName: true, lastName: true },
+          });
+          const mentorName = mentor
+            ? `${mentor.firstName} ${mentor.lastName}`
+            : "Your mentor";
+          await notifyMentorshipAccepted(
+            mentorship.menteeId,
+            mentorName,
+            mentorship.id
+          );
+        } catch (notifErr) {
+          console.error("Failed to send mentorship accepted notification:", notifErr);
+        }
+
         return NextResponse.json({ mentorship: updated });
       }
 

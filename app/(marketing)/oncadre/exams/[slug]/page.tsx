@@ -547,6 +547,62 @@ export default async function ExamDetailPage({
               </div>
             )}
 
+            {/* Related Migration Pathways */}
+            {(() => {
+              const examCountryMap: Record<string, { slug: string; label: string; flag: string }[]> = {
+                "plab-1": [{ slug: "uk", label: "United Kingdom", flag: "🇬🇧" }],
+                "plab-2": [{ slug: "uk", label: "United Kingdom", flag: "🇬🇧" }],
+                "usmle-step-1": [{ slug: "us", label: "United States", flag: "🇺🇸" }],
+                "usmle-step-2-ck": [{ slug: "us", label: "United States", flag: "🇺🇸" }],
+                "nmc-cbt": [{ slug: "uk", label: "United Kingdom", flag: "🇬🇧" }],
+                "nmc-osce": [{ slug: "uk", label: "United Kingdom", flag: "🇬🇧" }],
+                "amc-mcq": [{ slug: "australia", label: "Australia", flag: "🇦🇺" }],
+                "prometric": [{ slug: "saudi-arabia", label: "Saudi Arabia", flag: "🇸🇦" }],
+              };
+              const countries = examCountryMap[slug] || [];
+              if (countries.length === 0) return null;
+              return (
+                <div
+                  className="rounded-xl border border-[#E8EBF0] bg-white p-5"
+                  style={{
+                    boxShadow:
+                      "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
+                  }}
+                >
+                  <h3 className="text-sm font-bold text-gray-900 mb-3">
+                    Related Migration Pathways
+                  </h3>
+                  <div className="space-y-2">
+                    {countries.map((c) => (
+                      <Link
+                        key={c.slug}
+                        href={`/oncadre/migrate/${c.slug}`}
+                        className="flex items-center gap-3 rounded-lg bg-[#F8F9FB] px-4 py-3 border border-[#E8EBF0]/60 text-sm transition hover:border-[#D4AF37]/40"
+                      >
+                        <span className="text-lg">{c.flag}</span>
+                        <span className="font-medium text-gray-900">
+                          Work in {c.label}
+                        </span>
+                        <svg
+                          className="ml-auto h-4 w-4 text-gray-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                          />
+                        </svg>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* CTA: Readiness Score */}
             <div className="rounded-xl bg-[#0B3C5D] p-5 text-white">
               <h3 className="text-sm font-bold">Check your readiness score</h3>

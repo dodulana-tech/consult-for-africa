@@ -3,6 +3,7 @@ import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
 import { getCadreLabel } from "@/lib/cadreHealth/cadres";
+import { rateLimit } from "@/lib/cadreHealth/rateLimit";
 
 const anthropic = new Anthropic();
 
@@ -34,6 +35,15 @@ export async function POST(req: NextRequest) {
     const session = await getCadreSession();
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Rate limit: 20 requests per hour per user
+    const allowed = rateLimit(`advisor:${session.sub}`, 20, 60 * 60 * 1000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "You have reached the daily advisor limit. Please try again later." },
+        { status: 429 }
+      );
     }
 
     const body = await req.json();

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCadreSession } from "@/lib/cadreAuth";
+import { notifyNewReview } from "@/lib/cadreHealth/notifications";
 
 // POST: Submit a facility review
 export async function POST(
@@ -187,6 +188,24 @@ export async function POST(
         wouldRecommendPct: recommendTotal > 0 ? (recommendCount / recommendTotal) * 100 : null,
       },
     });
+
+    // Notify professionals who list this facility as their current workplace
+    try {
+      const staffAtFacility = await prisma.cadreProfessional.findMany({
+        where: {
+          currentFacilityId: facility.id,
+          id: { not: session.sub }, // Don't notify the reviewer themselves
+        },
+        select: { id: true },
+      });
+      await Promise.allSettled(
+        staffAtFacility.map((p) =>
+          notifyNewReview(p.id, facility.name, facility.slug)
+        )
+      );
+    } catch (notifErr) {
+      console.error("Failed to send new review notifications:", notifErr);
+    }
 
     return NextResponse.json({ id: review.id });
   } catch (error) {

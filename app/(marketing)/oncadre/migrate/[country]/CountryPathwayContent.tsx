@@ -361,7 +361,7 @@ export default function CountryPathwayContent({
                 {pathway.country} and what gaps to close.
               </p>
               <Link
-                href="/oncadre/readiness"
+                href={`/oncadre/readiness?country=${pathway.slug}`}
                 className="mt-4 flex w-full items-center justify-center rounded-lg py-3 text-xs font-semibold text-[#06090f] transition hover:opacity-90"
                 style={{ background: "#D4AF37" }}
               >

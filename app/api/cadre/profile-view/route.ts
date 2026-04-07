@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCadreEmployerSession } from "@/lib/cadreEmployerAuth";
+import { notifyProfileView } from "@/lib/cadreHealth/notifications";
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,6 +29,13 @@ export async function POST(req: NextRequest) {
         lastViewedAt: new Date(),
       },
     });
+
+    // Notify the professional
+    try {
+      await notifyProfileView(professionalId, session.companyName || undefined);
+    } catch (notifErr) {
+      console.error("Failed to send profile view notification:", notifErr);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

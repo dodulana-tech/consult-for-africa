@@ -3694,6 +3694,7 @@ model CadreProfessional {
   advisorMessages       CadreAdvisorMessage[]
   mentorProfile         CadreMentorProfile?
   menteeMentorships     CadreMentorship[]       @relation("MenteeMentorships")
+  notifications         CadreNotification[]
 
   // Profile analytics
   profileViews          Int                     @default(0)
@@ -4394,4 +4395,22 @@ model CadreMentorshipMessage {
   createdAt             DateTime                @default(now())
 
   @@index([mentorshipId, createdAt])
+}
+
+// ─── CadreHealth: Notifications ───
+
+model CadreNotification {
+  id                    String                  @id @default(cuid())
+  professionalId        String
+  professional          CadreProfessional       @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  type                  String                  // LICENSE_EXPIRY, JOB_MATCH, MENTORSHIP_REQUEST, MENTORSHIP_ACCEPTED, NEW_REVIEW, SALARY_DATA, PROFILE_VIEW, SYSTEM
+  title                 String
+  message               String
+  link                  String?                 // URL to navigate to when clicked
+  isRead                Boolean                 @default(false)
+
+  createdAt             DateTime                @default(now())
+
+  @@index([professionalId, isRead, createdAt])
 }
