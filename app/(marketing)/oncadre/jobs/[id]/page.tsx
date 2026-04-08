@@ -2,6 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { getCadreLabel } from "@/lib/cadreHealth/cadres";
 import { getCadreSession } from "@/lib/cadreAuth";
 import ApplyButtonClient from "./ApplyButton";
+import ExpressApplyForm from "./ExpressApplyForm";
+import ShareButtons from "./ShareButtons";
+import JobAlertForm from "./JobAlertForm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -21,6 +24,12 @@ function formatSalary(min?: Decimal | null, max?: Decimal | null, currency?: str
   return `Up to ${fmt(max!)}`;
 }
 
+function formatAvgSalary(val: number, currency: string): string {
+  if (val >= 1_000_000) return `${currency} ${(val / 1_000_000).toFixed(1)}M`;
+  if (val >= 1_000) return `${currency} ${(val / 1_000).toFixed(0)}k`;
+  return `${currency} ${val.toLocaleString()}`;
+}
+
 const MANDATE_TYPE_LABELS: Record<string, string> = {
   PERMANENT: "Permanent",
   LOCUM: "Locum",
@@ -29,21 +38,38 @@ const MANDATE_TYPE_LABELS: Record<string, string> = {
   INTERNATIONAL: "International",
 };
 
+async function findJob(id: string) {
+  // Try slug first, then fall back to id
+  return prisma.cadreMandate.findFirst({
+    where: {
+      OR: [{ slug: id }, { id }],
+      isPublished: true,
+      status: "OPEN",
+    },
+    include: {
+      facility: {
+        select: { name: true, slug: true, state: true, city: true, type: true, overallRating: true, totalReviews: true },
+      },
+    },
+  });
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const job = await prisma.cadreMandate.findUnique({
-    where: { id },
-    select: { title: true, facilityName: true, facility: { select: { name: true } }, locationState: true },
-  });
+  const job = await findJob(id);
   if (!job) return { title: "Job Not Found | CadreHealth" };
   const facilityName = job.facility?.name || job.facilityName || "CadreHealth Partner";
+  const canonicalSlug = job.slug || job.id;
   return {
     title: `${job.title} at ${facilityName} | CadreHealth`,
     description: `Apply for ${job.title} at ${facilityName}${job.locationState ? ` in ${job.locationState}` : ""}. Healthcare jobs on CadreHealth.`,
+    alternates: {
+      canonical: `https://consultforafrica.com/oncadre/jobs/${canonicalSlug}`,
+    },
   };
 }
 
@@ -53,14 +79,7 @@ export default async function JobDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const job = await prisma.cadreMandate.findUnique({
-    where: { id, isPublished: true, status: "OPEN" },
-    include: {
-      facility: {
-        select: { name: true, slug: true, state: true, city: true, type: true, overallRating: true, totalReviews: true },
-      },
-    },
-  });
+  const job = await findJob(id);
 
   if (!job) notFound();
 
@@ -68,6 +87,8 @@ export default async function JobDetailPage({
   const salary = formatSalary(job.salaryRangeMin, job.salaryRangeMax, job.salaryCurrency);
   const facilityName = job.facility?.name || job.facilityName || "Confidential";
   const location = [job.locationCity, job.locationState].filter(Boolean).join(", ") || "Nigeria";
+  const canonicalSlug = job.slug || job.id;
+  const canonicalUrl = `https://consultforafrica.com/oncadre/jobs/${canonicalSlug}`;
 
   // Check if user already applied
   let hasApplied = false;
@@ -77,6 +98,33 @@ export default async function JobDetailPage({
     });
     hasApplied = !!existingMatch;
   }
+
+  // Average salary context
+  const avgSalary = await prisma.cadreSalaryReport.aggregate({
+    where: { cadre: job.cadre, state: job.locationState || undefined },
+    _avg: { baseSalary: true },
+    _count: true,
+  });
+  const avgSalaryValue = avgSalary._avg.baseSalary ? Number(avgSalary._avg.baseSalary) : null;
+  const avgSalaryCount = avgSalary._count;
+
+  // Related jobs
+  const relatedJobs = await prisma.cadreMandate.findMany({
+    where: { cadre: job.cadre, id: { not: job.id }, isPublished: true, status: "OPEN" },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      facilityName: true,
+      facility: { select: { name: true } },
+      locationState: true,
+      salaryRangeMin: true,
+      salaryRangeMax: true,
+      salaryCurrency: true,
+    },
+    take: 3,
+    orderBy: { createdAt: "desc" },
+  });
 
   // JSON-LD
   const jsonLd = {
@@ -113,7 +161,7 @@ export default async function JobDetailPage({
           },
         }
       : {}),
-    url: `https://consultforafrica.com/oncadre/jobs/${job.id}`,
+    url: canonicalUrl,
   };
 
   return (
@@ -207,6 +255,22 @@ export default async function JobDetailPage({
               {salary && (
                 <p className="mt-1 text-xs text-gray-400">per month</p>
               )}
+
+              {/* Salary context from CadreSalaryReport */}
+              {avgSalaryValue && avgSalaryCount >= 3 && (
+                <p className="mt-2 text-xs text-gray-400">
+                  Average for {getCadreLabel(job.cadre)}{job.locationState ? ` in ${job.locationState}` : ""}:{" "}
+                  <span className="font-medium text-gray-500">
+                    {formatAvgSalary(avgSalaryValue, job.salaryCurrency || "NGN")}/mo
+                  </span>{" "}
+                  (based on {avgSalaryCount} report{avgSalaryCount !== 1 ? "s" : ""})
+                </p>
+              )}
+
+              {/* Share buttons */}
+              <div className="mt-5 pt-4" style={{ borderTop: "1px solid #F0F1F4" }}>
+                <ShareButtons title={job.title} facility={facilityName} url={canonicalUrl} />
+              </div>
             </div>
 
             {/* Description */}
@@ -299,6 +363,46 @@ export default async function JobDetailPage({
                 </div>
               </div>
             )}
+
+            {/* Related Jobs */}
+            {relatedJobs.length > 0 && (
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  Similar {getCadreLabel(job.cadre)} Roles
+                </h2>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {relatedJobs.map((rj) => {
+                    const rjFacility = rj.facility?.name || rj.facilityName || "Confidential";
+                    const rjSalary = formatSalary(rj.salaryRangeMin, rj.salaryRangeMax, rj.salaryCurrency);
+                    return (
+                      <Link
+                        key={rj.id}
+                        href={`/oncadre/jobs/${rj.slug || rj.id}`}
+                        className="rounded-xl bg-white p-4 transition hover:shadow-md"
+                        style={{
+                          border: "1px solid #E8EBF0",
+                          boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                        }}
+                      >
+                        <p className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2">
+                          {rj.title}
+                        </p>
+                        <p className="mt-1.5 text-xs text-gray-500">{rjFacility}</p>
+                        {rj.locationState && (
+                          <p className="mt-0.5 text-xs text-gray-400">{rj.locationState}</p>
+                        )}
+                        {rjSalary && (
+                          <p className="mt-2 text-xs font-semibold text-gray-700">{rjSalary}</p>
+                        )}
+                        <span className="mt-2 inline-block text-xs font-medium text-[#0B3C5D]">
+                          View &rarr;
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -329,27 +433,7 @@ export default async function JobDetailPage({
               ) : session ? (
                 <ApplyButtonClient jobId={job.id} />
               ) : (
-                <div className="text-center">
-                  <p className="text-sm text-gray-600 mb-4">
-                    Sign in to apply for this position
-                  </p>
-                  <Link
-                    href={`/oncadre/login?return=/oncadre/jobs/${job.id}`}
-                    className="block w-full rounded-xl py-3 text-center text-sm font-semibold text-white transition hover:opacity-90"
-                    style={{
-                      background: "linear-gradient(135deg, #0B3C5D, #0E4D6E)",
-                      boxShadow: "0 2px 8px rgba(11,60,93,0.25)",
-                    }}
-                  >
-                    Sign in to Apply
-                  </Link>
-                  <p className="mt-3 text-xs text-gray-400">
-                    Don&apos;t have an account?{" "}
-                    <Link href="/oncadre/register" className="text-[#0B3C5D] font-medium hover:underline">
-                      Register free
-                    </Link>
-                  </p>
-                </div>
+                <ExpressApplyForm jobId={job.id} defaultCadre={job.cadre} />
               )}
 
               {job.applicationCount > 0 && (
@@ -397,10 +481,27 @@ export default async function JobDetailPage({
                 </Link>
               </div>
             )}
+
+            {/* Job alerts CTA */}
+            <div
+              className="rounded-2xl bg-white p-6"
+              style={{
+                border: "1px solid #E8EBF0",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
+              }}
+            >
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                Get alerts for {getCadreLabel(job.cadre)} roles
+                {job.locationState ? ` in ${job.locationState}` : ""}
+              </h3>
+              <p className="text-xs text-gray-400 mb-3">
+                Be the first to know when new positions are posted.
+              </p>
+              <JobAlertForm cadre={job.cadre} state={job.locationState || undefined} />
+            </div>
           </div>
         </div>
       </div>
     </main>
   );
 }
-

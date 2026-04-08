@@ -90,7 +90,13 @@ export default async function JobBoardPage({
 
   const jobs = await prisma.cadreMandate.findMany({
     where,
-    include: { facility: { select: { name: true, slug: true, state: true, city: true } } },
+    select: {
+      id: true, title: true, description: true, cadre: true, type: true, slug: true,
+      facilityId: true, facilityName: true, locationState: true, locationCity: true,
+      salaryRangeMin: true, salaryRangeMax: true, salaryCurrency: true, urgency: true,
+      createdAt: true,
+      facility: { select: { name: true, slug: true, state: true, city: true } },
+    },
     orderBy: [{ createdAt: "desc" }],
     take: 50,
   });
@@ -135,7 +141,7 @@ export default async function JobBoardPage({
               },
             }
           : {}),
-        url: `https://consultforafrica.com/oncadre/jobs/${job.id}`,
+        url: `https://consultforafrica.com/oncadre/jobs/${job.slug || job.id}`,
       },
     })),
   };
@@ -279,7 +285,7 @@ export default async function JobBoardPage({
               return (
                 <Link
                   key={job.id}
-                  href={`/oncadre/jobs/${job.id}`}
+                  href={`/oncadre/jobs/${job.slug || job.id}`}
                   className="group block rounded-2xl bg-white p-6 transition-all duration-200 hover:scale-[1.005]"
                   style={{
                     border: "1px solid #E8EBF0",

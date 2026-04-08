@@ -4094,6 +4094,7 @@ model CadreMandate {
 
   // Public job board
   isPublished           Boolean                 @default(false)
+  slug                  String?                 @unique
   applicationCount      Int                     @default(0)
 
   // Relations
@@ -4106,6 +4107,7 @@ model CadreMandate {
   @@index([cadre])
   @@index([type])
   @@index([isPublished, status])
+  @@index([slug])
 }
 
 // ─── CadreHealth: Mandate-Professional Matching ───
@@ -4301,6 +4303,8 @@ model CadreNewsletterSubscriber {
   id            String   @id @default(cuid())
   email         String   @unique
   source        String   @default("landing") // landing, readiness, etc.
+  cadreFilter   String?
+  stateFilter   String?
   subscribedAt  DateTime @default(now())
 }
 

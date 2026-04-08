@@ -127,6 +127,14 @@ const NAV_SECTIONS: NavSection[] = [
     roles: ["DIRECTOR", "PARTNER", "ADMIN"],
   },
   {
+    title: "Agent Channel",
+    items: [
+      { label: "Agents",            href: "/admin/agents",               icon: Users },
+      { label: "Opportunities",     href: "/admin/agent-opportunities",  icon: Briefcase },
+    ],
+    roles: ["DIRECTOR", "PARTNER", "ADMIN"],
+  },
+  {
     title: "Finance",
     items: [
       { label: "Invoices",        href: "/finance/invoices",  icon: FileText },
