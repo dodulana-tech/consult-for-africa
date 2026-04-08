@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
+import { emailAgentVerification } from "@/lib/email";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -27,6 +29,8 @@ export async function POST(req: NextRequest) {
 
   const passwordHash = await bcrypt.hash(password, 12);
 
+  const verificationToken = crypto.randomBytes(32).toString("hex");
+
   const agent = await prisma.salesAgent.create({
     data: {
       firstName: firstName.trim(),
@@ -42,9 +46,19 @@ export async function POST(req: NextRequest) {
       referralSource: referralSource?.trim() || null,
       status: "APPLIED",
       isPortalEnabled: true,
+      emailVerifyToken: verificationToken,
     },
     select: { id: true, firstName: true, email: true },
   });
+
+  const BASE_URL = process.env.NEXTAUTH_URL;
+  const verifyUrl = `${BASE_URL}/agent/verify?token=${verificationToken}`;
+
+  emailAgentVerification({
+    email: agent.email,
+    name: agent.firstName,
+    verifyUrl,
+  }).catch((err) => console.error("Failed to send agent verification email:", err));
 
   return Response.json({ ok: true, agentId: agent.id, firstName: agent.firstName });
 }

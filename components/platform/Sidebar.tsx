@@ -31,6 +31,7 @@ import {
   FileText,
   BarChart3,
   Stethoscope,
+  Banknote,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import type { LucideIcon } from "lucide-react";
@@ -131,6 +132,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: "Agents",            href: "/admin/agents",               icon: Users },
       { label: "Opportunities",     href: "/admin/agent-opportunities",  icon: Briefcase },
+      { label: "Payouts",           href: "/admin/agent-payouts",        icon: Banknote },
     ],
     roles: ["DIRECTOR", "PARTNER", "ADMIN"],
   },

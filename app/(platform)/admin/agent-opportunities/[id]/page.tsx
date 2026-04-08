@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import OpportunityStatusActions from "./OpportunityStatusActions";
 import AssignmentActions from "./AssignmentActions";
+import OpportunityEditForm from "./OpportunityEditForm";
+import ResourceUpload from "./ResourceUpload";
 
 export default async function AdminOpportunityDetailPage({
   params,
@@ -52,7 +54,31 @@ export default async function AdminOpportunityDetailPage({
           <h1 className="text-2xl font-bold tracking-tight" style={{ color: "#0F2744" }}>{opp.title}</h1>
           <p className="mt-0.5 text-sm text-gray-500">{opp.opportunityCode} / {opp.clientName} / {opp.productType}</p>
         </div>
-        <OpportunityStatusActions opportunityId={opp.id} currentStatus={opp.status} />
+        <div className="flex items-center gap-2 flex-wrap">
+          <OpportunityEditForm
+            opportunity={{
+              id: opp.id,
+              title: opp.title,
+              description: opp.description,
+              productType: opp.productType,
+              serviceCategory: opp.serviceCategory,
+              clientName: opp.clientName,
+              commissionType: opp.commissionType,
+              commissionValue: Number(opp.commissionValue),
+              commissionTiers: opp.commissionTiers,
+              territories: opp.territories,
+              targetIndustries: opp.targetIndustries,
+              targetDescription: opp.targetDescription,
+              expectedDealValueMin: opp.expectedDealValueMin ? Number(opp.expectedDealValueMin) : null,
+              expectedDealValueMax: opp.expectedDealValueMax ? Number(opp.expectedDealValueMax) : null,
+              startDate: opp.startDate.toISOString(),
+              endDate: opp.endDate ? opp.endDate.toISOString() : null,
+              maxAgents: opp.maxAgents,
+              notes: opp.notes,
+            }}
+          />
+          <OpportunityStatusActions opportunityId={opp.id} currentStatus={opp.status} />
+        </div>
       </div>
 
       {/* Stats */}
@@ -108,6 +134,13 @@ export default async function AdminOpportunityDetailPage({
           )}
         </div>
       </div>
+
+      {/* Resources */}
+      <ResourceUpload
+        opportunityId={opp.id}
+        pitchDeckUrl={opp.pitchDeckUrl}
+        briefingDocUrl={opp.briefingDocUrl}
+      />
 
       {/* Deals */}
       {opp.deals.length > 0 && (

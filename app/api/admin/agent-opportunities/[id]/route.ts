@@ -11,19 +11,59 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const { id } = await params;
   const body = await req.json();
 
-  const { status, title, description, commissionValue, maxAgents, endDate, notes } = body;
+  const {
+    status,
+    title,
+    description,
+    productType,
+    serviceCategory,
+    clientName,
+    commissionType,
+    commissionValue,
+    commissionTiers,
+    territories,
+    targetIndustries,
+    targetDescription,
+    expectedDealValueMin,
+    expectedDealValueMax,
+    startDate,
+    endDate,
+    maxAgents,
+    notes,
+    pitchDeckUrl,
+    briefingDocUrl,
+  } = body;
+
+  const data: Record<string, unknown> = {};
+
+  if (status !== undefined) data.status = status;
+  if (title !== undefined) data.title = title;
+  if (description !== undefined) data.description = description;
+  if (productType !== undefined) data.productType = productType;
+  if (serviceCategory !== undefined) data.serviceCategory = serviceCategory;
+  if (clientName !== undefined) data.clientName = clientName;
+  if (commissionType !== undefined) data.commissionType = commissionType;
+  if (commissionValue !== undefined) data.commissionValue = parseFloat(commissionValue);
+  if (commissionTiers !== undefined) data.commissionTiers = commissionTiers;
+  if (territories !== undefined) data.territories = territories;
+  if (targetIndustries !== undefined) data.targetIndustries = targetIndustries;
+  if (targetDescription !== undefined) data.targetDescription = targetDescription;
+  if (expectedDealValueMin !== undefined) {
+    data.expectedDealValueMin = expectedDealValueMin ? parseFloat(expectedDealValueMin) : null;
+  }
+  if (expectedDealValueMax !== undefined) {
+    data.expectedDealValueMax = expectedDealValueMax ? parseFloat(expectedDealValueMax) : null;
+  }
+  if (startDate !== undefined) data.startDate = new Date(startDate);
+  if (endDate !== undefined) data.endDate = endDate ? new Date(endDate) : null;
+  if (maxAgents !== undefined) data.maxAgents = maxAgents ? parseInt(maxAgents) : null;
+  if (notes !== undefined) data.notes = notes;
+  if (pitchDeckUrl !== undefined) data.pitchDeckUrl = pitchDeckUrl;
+  if (briefingDocUrl !== undefined) data.briefingDocUrl = briefingDocUrl;
 
   const updated = await prisma.agentOpportunity.update({
     where: { id },
-    data: {
-      ...(status ? { status } : {}),
-      ...(title ? { title } : {}),
-      ...(description ? { description } : {}),
-      ...(commissionValue !== undefined ? { commissionValue: parseFloat(commissionValue) } : {}),
-      ...(maxAgents !== undefined ? { maxAgents: maxAgents ? parseInt(maxAgents) : null } : {}),
-      ...(endDate !== undefined ? { endDate: endDate ? new Date(endDate) : null } : {}),
-      ...(notes !== undefined ? { notes } : {}),
-    },
+    data,
   });
 
   return Response.json(updated);

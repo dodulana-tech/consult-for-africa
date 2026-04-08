@@ -92,10 +92,16 @@ export default function AgentLoginPage() {
             </div>
           </div>
 
+          <div className="mt-2 text-right">
+            <Link href="/agent/forgot-password" className="text-sm text-gray-500 hover:underline">
+              Forgot password?
+            </Link>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
-            className="mt-6 w-full rounded-xl py-3 text-sm font-semibold text-white transition disabled:opacity-50"
+            className="mt-4 w-full rounded-xl py-3 text-sm font-semibold text-white transition disabled:opacity-50"
             style={{ background: "#0F2744" }}
           >
             {loading ? "Signing in..." : "Sign in"}

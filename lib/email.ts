@@ -1616,3 +1616,55 @@ export async function emailOwnGigChangesRequested({
     `)
   );
 }
+
+// ─── Agent Portal emails ─────────────────────────────────────────────────────
+
+export async function emailAgentPasswordReset({
+  email,
+  name,
+  resetUrl,
+}: {
+  email: string;
+  name: string;
+  resetUrl: string;
+}) {
+  const firstName = esc(name.split(" ")[0]);
+
+  await send(
+    email,
+    "Password Reset | Agent Portal",
+    layout(`
+      ${h1("Password Reset")}
+      ${p(`Hi ${firstName}, we received a request to reset your Agent Portal password.`)}
+      ${btn("Reset Password", resetUrl, "#0F2744")}
+      <p style="margin:16px 0;font-size:13px;color:#6B7280;line-height:1.6;">
+        This link will expire in 1 hour. If you did not request a password reset, you can safely ignore this email.
+      </p>
+    `)
+  );
+}
+
+export async function emailAgentVerification({
+  email,
+  name,
+  verifyUrl,
+}: {
+  email: string;
+  name: string;
+  verifyUrl: string;
+}) {
+  const firstName = esc(name.split(" ")[0]);
+
+  await send(
+    email,
+    "Verify Your Email | Agent Portal",
+    layout(`
+      ${h1("Verify Your Email")}
+      ${p(`Hi ${firstName}, thank you for registering as an agent. Please verify your email address to complete your setup.`)}
+      ${btn("Verify Email", verifyUrl, "#0F2744")}
+      <p style="margin:16px 0;font-size:13px;color:#6B7280;line-height:1.6;">
+        If you did not create an account, you can safely ignore this email.
+      </p>
+    `)
+  );
+}

@@ -3,6 +3,7 @@ import { redirect, notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import DealStageUpdater from "./DealStageUpdater";
+import DealProofUpload from "./DealProofUpload";
 
 const STAGE_ORDER = ["PROSPECT", "CONTACTED", "PITCHED", "NEGOTIATING", "VERBAL_COMMIT", "CLOSED_WON"];
 
@@ -217,6 +218,8 @@ export default async function AgentDealDetailPage({
               <DealStageUpdater dealId={deal.id} currentStage={deal.stage} />
             </div>
           )}
+
+          <DealProofUpload dealId={deal.id} currentProofUrl={deal.proofDocUrl} />
 
           {deal.notes && (
             <div className="rounded-2xl bg-white p-6 shadow-sm" style={{ border: "1px solid #E8EBF0" }}>

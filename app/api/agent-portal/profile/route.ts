@@ -6,11 +6,14 @@ export async function PATCH(req: Request) {
   if (!session) return new Response("Unauthorized", { status: 401 });
 
   const body = await req.json();
-  const { company, title, state, bio, linkedinUrl, industries, salesExperience, bankName, accountNumber, accountName } = body;
+  const { firstName, lastName, phone, company, title, state, bio, linkedinUrl, industries, salesExperience, bankName, accountNumber, accountName } = body;
 
   const updated = await prisma.salesAgent.update({
     where: { id: session.sub },
     data: {
+      ...(firstName !== undefined ? { firstName: firstName.trim() } : {}),
+      ...(lastName !== undefined ? { lastName: lastName.trim() } : {}),
+      ...(phone !== undefined ? { phone: phone.trim() } : {}),
       ...(company !== undefined ? { company: company || null } : {}),
       ...(title !== undefined ? { title: title || null } : {}),
       ...(state !== undefined ? { state: state || null } : {}),
