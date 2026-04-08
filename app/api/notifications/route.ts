@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
       type: u.type,
       projectId: u.engagement.id,
       projectName: u.engagement.name,
-      createdByName: u.createdBy.name,
+      createdByName: u.createdBy?.name ?? "C4A",
       createdAt: u.createdAt.toISOString(),
     })),
     badges: {

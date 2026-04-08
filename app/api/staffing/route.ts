@@ -42,7 +42,7 @@ export async function GET() {
       projectName: r.engagement.name,
       clientName: r.engagement.client.name,
       serviceType: r.engagement.serviceType,
-      createdBy: r.createdBy.name,
+      createdBy: r.createdBy?.name ?? "C4A",
       role: r.role,
       description: r.description,
       skillsRequired: r.skillsRequired,

@@ -167,7 +167,7 @@ export async function POST(req: NextRequest) {
         meetLink,
         scheduledAt: startTime,
         scheduledEndAt: endTime,
-        organizerName: meeting.organizer.name,
+        organizerName: meeting.organizer?.name ?? "C4A",
         nuruEnabled: meeting.nuruEnabled,
       }).catch((err) =>
         console.error(`[meetings] Failed to send invite to ${participant.email}:`, err)

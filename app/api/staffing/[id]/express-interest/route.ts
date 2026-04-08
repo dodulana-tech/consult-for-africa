@@ -58,7 +58,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     where: { id: staffingRequestId },
     select: { createdById: true, role: true, engagement: { select: { name: true } } },
   });
-  if (staffingReq) {
+  if (staffingReq && staffingReq.createdById) {
     const em = await prisma.user.findUnique({ where: { id: staffingReq.createdById }, select: { email: true } });
     if (em) {
       emailStaffingInterest({

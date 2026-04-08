@@ -63,7 +63,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   // Email the EM
   const em = deliverable.engagement.engagementManager;
-  await emailDeliverableSubmitted({
+  if (em) await emailDeliverableSubmitted({
     emEmail: em.email,
     emName: em.name,
     consultantName: deliverable.assignment?.consultant.name ?? "Consultant",

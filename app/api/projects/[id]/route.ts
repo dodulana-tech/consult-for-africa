@@ -82,10 +82,12 @@ export async function PATCH(
     });
 
     // Get old EM details for notification
-    const oldEM = await prisma.user.findUnique({
-      where: { id: project.engagementManagerId },
-      select: { name: true, email: true },
-    });
+    const oldEM = project.engagementManagerId
+      ? await prisma.user.findUnique({
+          where: { id: project.engagementManagerId },
+          select: { name: true, email: true },
+        })
+      : null;
 
     // Send email notifications
     if (oldEM) {

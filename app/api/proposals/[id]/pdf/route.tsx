@@ -88,7 +88,7 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
     objectives: proposal.objectives,
     content: proposal.content,
     createdAt: proposal.createdAt.toISOString(),
-    createdByName: proposal.createdBy.name || "Consult For Africa",
+    createdByName: proposal.createdBy?.name ?? "Consult For Africa",
     logoBase64,
   };
 

@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     to: nda.partyAEmail,
     recipientName: nda.partyAName,
     ndaType: typeLabel,
-    senderName: nda.createdBy.name,
+    senderName: nda.createdBy?.name ?? "C4A",
     senderOrg: "Consult For Africa",
     signingUrl,
     projectName: nda.engagement?.name,
