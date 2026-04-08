@@ -535,6 +535,68 @@ export default function CadreHealthLanding() {
         </div>
       </section>
 
+      {/* ═══════════════ JOBS BOARD ═══════════════ */}
+      <section className="py-20 bg-white border-t border-[#E8EBF0]">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <div className="text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: "#D4AF37" }}>Now Hiring</p>
+            <h2 className="mt-3 text-2xl font-bold text-gray-900 sm:text-3xl">
+              Open Healthcare Positions
+            </h2>
+            <p className="mt-4 text-[15px] leading-relaxed text-gray-500 max-w-xl mx-auto">
+              Browse verified roles from hospitals and healthcare organisations across Nigeria. Apply in 30 seconds, no account needed.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { title: "Medical Director", facility: "House of Refuge", location: "Lekki, Lagos", salary: "NGN 1.2M - 1.8M", tag: "Urgent", tagColor: "#DC2626" },
+              { title: "Clinical Lead / Head Counsellor", facility: "House of Refuge", location: "Lekki, Lagos", salary: "NGN 400K - 650K", tag: "Urgent", tagColor: "#DC2626" },
+              { title: "Nursing Officer", facility: "House of Refuge", location: "Lekki, Lagos", salary: "NGN 200K - 350K", tag: "Hiring", tagColor: "#059669" },
+            ].map((job) => (
+              <div
+                key={job.title}
+                className="rounded-2xl p-5 transition-all hover:shadow-md"
+                style={{ border: "1px solid #E8EBF0", background: "#FAFBFC" }}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{job.title}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{job.facility}</p>
+                  </div>
+                  <span
+                    className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold text-white"
+                    style={{ background: job.tagColor }}
+                  >
+                    {job.tag}
+                  </span>
+                </div>
+                <div className="mt-3 flex items-center gap-3 text-xs text-gray-400">
+                  <span>{job.location}</span>
+                  <span className="font-medium text-gray-700">{job.salary}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 text-center">
+            <Link
+              href="/oncadre/jobs"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg font-semibold text-white text-center transition hover:opacity-90"
+              style={{ background: "linear-gradient(135deg, #0B3C5D, #0E4D6E)", boxShadow: "0 2px 12px rgba(11,60,93,0.2)" }}
+            >
+              View All Open Positions
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+            <p className="mt-3 text-xs text-gray-400">
+              Employers: <Link href="/oncadre/employer/register" className="text-[#0B3C5D] font-medium hover:underline">post a role for free</Link>
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* ═══════════════ SECTION E: FOR EMPLOYERS ═══════════════ */}
       <section className="py-20 bg-[#FCFCFD] border-t border-[#E8EBF0]">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center">
