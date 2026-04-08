@@ -4,7 +4,9 @@ import Link from "next/link";
 import { getCadreLabel } from "@/lib/cadreHealth/cadres";
 import { MandateStatusControls } from "@/components/cadrehealth/MandateStatusControls";
 import { FindMatchesButton } from "@/components/cadrehealth/FindMatchesButton";
-import { ArrowLeft, MapPin, Clock, Mail, Phone } from "lucide-react";
+import { MandateEditForm } from "@/components/cadrehealth/MandateEditForm";
+import { ArrowLeft, MapPin, Clock, Mail, Phone, Pencil } from "lucide-react";
+import MandateTabSwitcher from "./MandateTabSwitcher";
 
 const STATUS_COLORS: Record<string, string> = {
   OPEN: "bg-emerald-50 text-emerald-700",
@@ -36,10 +38,14 @@ function formatCurrency(amount: number | null | undefined, currency: string | nu
 
 export default async function MandateDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ tab?: string }>;
 }) {
   const { id } = await params;
+  const { tab } = await searchParams;
+  const isEditMode = tab === "edit";
 
   const mandate = await prisma.cadreMandate.findUnique({
     where: { id },
@@ -70,6 +76,30 @@ export default async function MandateDetailPage({
   });
 
   if (!mandate) notFound();
+
+  // Serialise for client component
+  const editData = {
+    id: mandate.id,
+    title: mandate.title,
+    description: mandate.description,
+    cadre: mandate.cadre as string,
+    subSpecialty: mandate.subSpecialty,
+    minYearsExperience: mandate.minYearsExperience,
+    requiredQualifications: mandate.requiredQualifications,
+    preferredQualifications: mandate.preferredQualifications,
+    valuesRequirements: mandate.valuesRequirements,
+    locationState: mandate.locationState,
+    locationCity: mandate.locationCity,
+    isRemoteOk: mandate.isRemoteOk,
+    isRelocationRequired: mandate.isRelocationRequired,
+    type: mandate.type,
+    salaryRangeMin: mandate.salaryRangeMin ? Number(mandate.salaryRangeMin) : null,
+    salaryRangeMax: mandate.salaryRangeMax ? Number(mandate.salaryRangeMax) : null,
+    salaryCurrency: mandate.salaryCurrency ?? "NGN",
+    urgency: mandate.urgency,
+    facilityName: mandate.facilityName,
+    clientContact: mandate.clientContact,
+  };
 
   return (
     <div className="space-y-6">
@@ -119,205 +149,118 @@ export default async function MandateDetailPage({
         </span>
       </div>
 
-      {/* Details grid */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left column: info */}
-        <div className="space-y-6">
-          {mandate.description && (
-            <Card title="Description">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-600">
-                {mandate.description}
-              </p>
+      {/* Tab switcher */}
+      <MandateTabSwitcher currentTab={isEditMode ? "edit" : "overview"} mandateId={mandate.id} />
+
+      {isEditMode ? (
+        /* ─── Edit Mode ─── */
+        <MandateEditForm mandate={editData} />
+      ) : (
+        /* ─── Overview Mode ─── */
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Left column */}
+          <div className="space-y-6">
+            {mandate.description && (
+              <Card title="Description">
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-600">
+                  {mandate.description}
+                </p>
+              </Card>
+            )}
+
+            <Card title="Requirements">
+              <dl className="space-y-3 text-sm">
+                <Row label="Cadre" value={getCadreLabel(mandate.cadre)} />
+                {mandate.subSpecialty && <Row label="Sub-specialty" value={mandate.subSpecialty} />}
+                {mandate.minYearsExperience != null && <Row label="Min Experience" value={`${mandate.minYearsExperience} years`} />}
+                {mandate.requiredQualifications.length > 0 && <Row label="Required Quals" value={mandate.requiredQualifications.join(", ")} />}
+                {mandate.preferredQualifications.length > 0 && <Row label="Preferred Quals" value={mandate.preferredQualifications.join(", ")} />}
+                {mandate.valuesRequirements && <Row label="Values / Cultural" value={mandate.valuesRequirements} />}
+              </dl>
             </Card>
-          )}
 
-          <Card title="Requirements">
-            <dl className="space-y-3 text-sm">
-              <Row label="Cadre" value={getCadreLabel(mandate.cadre)} />
-              {mandate.subSpecialty && (
-                <Row label="Sub-specialty" value={mandate.subSpecialty} />
-              )}
-              {mandate.minYearsExperience != null && (
-                <Row label="Min Experience" value={`${mandate.minYearsExperience} years`} />
-              )}
-              {mandate.requiredQualifications.length > 0 && (
-                <Row
-                  label="Required Qualifications"
-                  value={mandate.requiredQualifications.join(", ")}
-                />
-              )}
-              {mandate.preferredQualifications.length > 0 && (
-                <Row
-                  label="Preferred Qualifications"
-                  value={mandate.preferredQualifications.join(", ")}
-                />
-              )}
-              {mandate.valuesRequirements && (
-                <Row label="Values / Cultural" value={mandate.valuesRequirements} />
-              )}
-            </dl>
-          </Card>
+            <Card title="Terms">
+              <dl className="space-y-3 text-sm">
+                <Row label="Type" value={mandate.type} />
+                <Row label="Location" value={[mandate.locationCity, mandate.locationState].filter(Boolean).join(", ") || "Not specified"} />
+                <Row label="Remote OK" value={mandate.isRemoteOk ? "Yes" : "No"} />
+                <Row label="Relocation" value={mandate.isRelocationRequired ? "Yes" : "No"} />
+                {(mandate.salaryRangeMin || mandate.salaryRangeMax) && (
+                  <Row label="Salary Range" value={`${formatCurrency(Number(mandate.salaryRangeMin), mandate.salaryCurrency)} - ${formatCurrency(Number(mandate.salaryRangeMax), mandate.salaryCurrency)}`} />
+                )}
+                {mandate.facility && <Row label="Facility" value={mandate.facility.name} />}
+                {!mandate.facility && mandate.facilityName && <Row label="Facility" value={mandate.facilityName} />}
+                {mandate.clientContact && <Row label="Client Contact" value={mandate.clientContact} />}
+              </dl>
+            </Card>
+          </div>
 
-          <Card title="Terms">
-            <dl className="space-y-3 text-sm">
-              <Row label="Type" value={mandate.type} />
-              <Row
-                label="Location"
-                value={
-                  [mandate.locationCity, mandate.locationState].filter(Boolean).join(", ") ||
-                  "Not specified"
-                }
-              />
-              <Row label="Remote OK" value={mandate.isRemoteOk ? "Yes" : "No"} />
-              <Row
-                label="Relocation Required"
-                value={mandate.isRelocationRequired ? "Yes" : "No"}
-              />
-              {(mandate.salaryRangeMin || mandate.salaryRangeMax) && (
-                <Row
-                  label="Salary Range"
-                  value={`${formatCurrency(
-                    Number(mandate.salaryRangeMin),
-                    mandate.salaryCurrency
-                  )} - ${formatCurrency(
-                    Number(mandate.salaryRangeMax),
-                    mandate.salaryCurrency
-                  )}`}
-                />
-              )}
-              {mandate.facility && (
-                <Row label="Facility" value={mandate.facility.name} />
-              )}
-              {!mandate.facility && mandate.facilityName && (
-                <Row label="Facility" value={mandate.facilityName} />
-              )}
-              {mandate.clientContact && (
-                <Row label="Client Contact" value={mandate.clientContact} />
-              )}
-            </dl>
-          </Card>
-        </div>
+          {/* Right column */}
+          <div className="space-y-6">
+            <Card title="Status">
+              <MandateStatusControls mandateId={mandate.id} currentStatus={mandate.status} />
+            </Card>
 
-        {/* Right column: controls + matches */}
-        <div className="space-y-6">
-          <Card title="Status">
-            <MandateStatusControls mandateId={mandate.id} currentStatus={mandate.status} />
-          </Card>
+            <Card title={`Matches (${mandate.matches.length})`} action={<FindMatchesButton mandateId={mandate.id} />} />
 
-          <Card
-            title={`Matches (${mandate.matches.length})`}
-            action={<FindMatchesButton mandateId={mandate.id} />}
-          />
-
-          {mandate.matches.length > 0 && (
-            <div className="space-y-3">
-              {mandate.matches.map((match) => (
-                <div
-                  key={match.id}
-                  className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:shadow-md"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <Link
-                        href={`/admin/cadrehealth/${match.professional.id}`}
-                        className="font-semibold hover:underline"
-                        style={{ color: "#0B3C5D" }}
-                      >
-                        {match.professional.firstName} {match.professional.lastName}
-                      </Link>
-                      <p className="mt-0.5 text-sm text-gray-500">
-                        {getCadreLabel(match.professional.cadre)}
-                        {match.professional.subSpecialty &&
-                          ` / ${match.professional.subSpecialty}`}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                      {match.matchScore != null && (
-                        <span
-                          className={`rounded-full px-2.5 py-1 text-xs font-bold ${
-                            match.matchScore >= 80
-                              ? "bg-emerald-50 text-emerald-700"
-                              : match.matchScore >= 60
-                              ? "bg-amber-50 text-amber-700"
-                              : "bg-red-50 text-red-600"
-                          }`}
-                        >
-                          {match.matchScore}%
+            {mandate.matches.length > 0 && (
+              <div className="space-y-3">
+                {mandate.matches.map((match) => (
+                  <div key={match.id} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <Link href={`/admin/cadrehealth/${match.professional.id}`} className="font-semibold hover:underline" style={{ color: "#0B3C5D" }}>
+                          {match.professional.firstName} {match.professional.lastName}
+                        </Link>
+                        <p className="mt-0.5 text-sm text-gray-500">
+                          {getCadreLabel(match.professional.cadre)}
+                          {match.professional.subSpecialty && ` / ${match.professional.subSpecialty}`}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        {match.matchScore != null && (
+                          <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${match.matchScore >= 80 ? "bg-emerald-50 text-emerald-700" : match.matchScore >= 60 ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-600"}`}>
+                            {match.matchScore}%
+                          </span>
+                        )}
+                        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${MATCH_STATUS_COLORS[match.status] || "bg-gray-100 text-gray-600"}`}>
+                          {match.status}
                         </span>
-                      )}
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                          MATCH_STATUS_COLORS[match.status] || "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        {match.status}
-                      </span>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-gray-400">
-                    {match.professional.yearsOfExperience != null && (
+                    <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-gray-400">
+                      {match.professional.yearsOfExperience != null && (
+                        <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" />{match.professional.yearsOfExperience} yrs exp</span>
+                      )}
                       <span className="inline-flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {match.professional.yearsOfExperience} yrs exp
+                        <MapPin className="h-3 w-3" />
+                        {[match.professional.city, match.professional.state].filter(Boolean).join(", ") || "N/A"}
                       </span>
-                    )}
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {[match.professional.city, match.professional.state]
-                        .filter(Boolean)
-                        .join(", ") || "Location N/A"}
-                    </span>
-                    {match.professional.availability && (
-                      <span>{match.professional.availability.replace(/_/g, " ")}</span>
-                    )}
-                  </div>
-
-                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-                    {match.professional.email && (
-                      <span className="inline-flex items-center gap-1">
-                        <Mail className="h-3 w-3" />
-                        {match.professional.email}
-                      </span>
-                    )}
-                    {match.professional.phone && (
-                      <span className="inline-flex items-center gap-1">
-                        <Phone className="h-3 w-3" />
-                        {match.professional.phone}
-                      </span>
+                      {match.professional.availability && <span>{match.professional.availability.replace(/_/g, " ")}</span>}
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                      {match.professional.email && <span className="inline-flex items-center gap-1"><Mail className="h-3 w-3" />{match.professional.email}</span>}
+                      {match.professional.phone && <span className="inline-flex items-center gap-1"><Phone className="h-3 w-3" />{match.professional.phone}</span>}
+                    </div>
+                    {match.matchExplanation && (
+                      <p className="mt-3 rounded-xl bg-gray-50 px-3 py-2 text-xs text-gray-500">{match.matchExplanation}</p>
                     )}
                   </div>
-
-                  {match.matchExplanation && (
-                    <p className="mt-3 rounded-xl bg-gray-50 px-3 py-2 text-xs text-gray-500">
-                      {match.matchExplanation}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
 
-function Card({
-  title,
-  action,
-  children,
-}: {
-  title: string;
-  action?: React.ReactNode;
-  children?: React.ReactNode;
-}) {
+function Card({ title, action, children }: { title: string; action?: React.ReactNode; children?: React.ReactNode }) {
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-bold tracking-tight" style={{ color: "#0F2744" }}>
-          {title}
-        </h2>
+        <h2 className="text-base font-bold tracking-tight" style={{ color: "#0F2744" }}>{title}</h2>
         {action}
       </div>
       {children && <div className="mt-4">{children}</div>}

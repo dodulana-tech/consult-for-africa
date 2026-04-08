@@ -57,11 +57,11 @@ export default function ExpressApplyForm({ jobId, defaultCadre }: { jobId: strin
         <p className="mt-1 text-sm text-gray-500">We will be in touch if there is a match.</p>
         {isNew && (
           <a
-            href="/oncadre/register"
+            href={`/oncadre/activate?email=${encodeURIComponent(form.email)}`}
             className="mt-4 inline-block rounded-lg px-4 py-2 text-xs font-semibold text-[#0B3C5D] transition hover:bg-[#0B3C5D]/5"
             style={{ border: "1px solid rgba(11,60,93,0.2)" }}
           >
-            Complete your CadreHealth profile to stand out
+            Set a password to track your application
           </a>
         )}
       </div>

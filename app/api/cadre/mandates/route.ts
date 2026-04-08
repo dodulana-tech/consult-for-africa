@@ -119,15 +119,44 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { status } = body;
+    const {
+      status, title, description, cadre, subSpecialty, minYearsExperience,
+      requiredQualifications, preferredQualifications, valuesRequirements,
+      locationState, locationCity, isRemoteOk, isRelocationRequired,
+      type, salaryRangeMin, salaryRangeMax, salaryCurrency, urgency,
+      facilityId, facilityName, clientContact,
+    } = body;
 
-    const updateData: Record<string, unknown> = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updateData: Record<string, any> = {};
+
     if (status) {
       updateData.status = status;
       if (status === "CLOSED" || status === "CANCELLED") {
         updateData.closedAt = new Date();
       }
     }
+
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description || null;
+    if (cadre !== undefined) updateData.cadre = cadre;
+    if (subSpecialty !== undefined) updateData.subSpecialty = subSpecialty || null;
+    if (minYearsExperience !== undefined) updateData.minYearsExperience = minYearsExperience;
+    if (Array.isArray(requiredQualifications)) updateData.requiredQualifications = requiredQualifications;
+    if (Array.isArray(preferredQualifications)) updateData.preferredQualifications = preferredQualifications;
+    if (valuesRequirements !== undefined) updateData.valuesRequirements = valuesRequirements || null;
+    if (locationState !== undefined) updateData.locationState = locationState || null;
+    if (locationCity !== undefined) updateData.locationCity = locationCity || null;
+    if (isRemoteOk !== undefined) updateData.isRemoteOk = isRemoteOk;
+    if (isRelocationRequired !== undefined) updateData.isRelocationRequired = isRelocationRequired;
+    if (type !== undefined) updateData.type = type;
+    if (salaryRangeMin !== undefined) updateData.salaryRangeMin = salaryRangeMin;
+    if (salaryRangeMax !== undefined) updateData.salaryRangeMax = salaryRangeMax;
+    if (salaryCurrency !== undefined) updateData.salaryCurrency = salaryCurrency;
+    if (urgency !== undefined) updateData.urgency = urgency || null;
+    if (facilityId !== undefined) updateData.facilityId = facilityId || null;
+    if (facilityName !== undefined) updateData.facilityName = facilityName || null;
+    if (clientContact !== undefined) updateData.clientContact = clientContact || null;
 
     const mandate = await prisma.cadreMandate.update({
       where: { id },
@@ -138,5 +167,21 @@ export async function PATCH(req: NextRequest) {
   } catch (error) {
     console.error("Error updating mandate:", error);
     return NextResponse.json({ error: "Failed to update mandate" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const url = new URL(req.url);
+    const id = url.searchParams.get("id");
+    if (!id) {
+      return NextResponse.json({ error: "Mandate ID required" }, { status: 400 });
+    }
+
+    await prisma.cadreMandate.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("Error deleting mandate:", error);
+    return NextResponse.json({ error: "Failed to delete mandate" }, { status: 500 });
   }
 }
