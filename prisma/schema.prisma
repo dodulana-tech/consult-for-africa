@@ -3624,7 +3624,7 @@ model CadreProfessional {
   id                    String                  @id @default(cuid())
   email                 String                  @unique
   phone                 String?
-  passwordHash          String
+  passwordHash          String?                 // null for express-apply leads; set on registration
   firstName             String
   lastName              String
   photo                 String?

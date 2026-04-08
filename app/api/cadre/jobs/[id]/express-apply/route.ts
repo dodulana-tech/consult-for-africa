@@ -50,7 +50,7 @@ export async function POST(
         phone: phone.trim(),
         cadre: cadre as any,
         accountStatus: "UNVERIFIED",
-        availabilityStatus: "ACTIVELY_LOOKING",
+        availability: "ACTIVELY_LOOKING",
       },
     });
   }
