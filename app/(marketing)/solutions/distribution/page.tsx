@@ -29,7 +29,7 @@ export default function DistributionPage() {
       {/* Hero */}
       <section className="relative overflow-hidden text-white" style={{ paddingTop: "5rem", minHeight: "65svh" }}><div className="absolute inset-0" style={{ background: "linear-gradient(155deg, #06090f 0%, #0a1a2e 40%, #0d2440 100%)" }} /><div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 80% at 80% 40%, rgba(212,175,55,0.08) 0%, transparent 60%)" }} /><div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 50% 60% at 20% 80%, rgba(20,130,200,0.1) 0%, transparent 50%)" }} /><div className="absolute inset-0 pointer-events-none opacity-[0.036]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: "180px" }} />
         <div className="relative max-w-7xl mx-auto px-6 py-24 md:py-32">
-          <p className="mb-6 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "#D4AF37" }}>CFA Engagement Model</p>
+          <p className="mb-6 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "#D4AF37" }}>C4A Engagement Model</p>
           <h1 className="font-bold leading-[1.08] tracking-tight text-white max-w-3xl" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>You Built the Product.<br /><span style={{ color: "#D4AF37" }}>We Build the Sales Channel.</span></h1>
           <div className="mt-6 w-16 h-[3px] rounded-full" style={{ background: "linear-gradient(90deg, #D4AF37, transparent)" }} />
           <p className="mt-8 max-w-2xl leading-relaxed text-lg" style={{ color: "rgba(255,255,255,0.6)" }}>
@@ -119,7 +119,7 @@ export default function DistributionPage() {
             </div>
           </div>
           <p className="mt-8 text-xs text-white/40 text-center max-w-2xl mx-auto">
-            All tiers include: Commission override (CFA retains 20-30% of commission pool as management fee). Agent commissions disbursed via CFA escrow for trust and transparency.
+            All tiers include: Commission override (C4A retains 10% of commission pool as management fee). Agent commissions disbursed via C4A escrow for trust and transparency.
           </p>
         </div>
       </section>

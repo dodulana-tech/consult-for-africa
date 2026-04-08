@@ -4,10 +4,10 @@ import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-  title: "Become a Sales Agent | CFA Agent Channel",
+  title: "Become a Sales Agent | C4A Agent Channel",
   description: "Sell healthcare products to people you already know. Commission-based. No startup cost. No cap on earnings.",
   openGraph: {
-    title: "Become a Sales Agent | CFA Agent Channel",
+    title: "Become a Sales Agent | C4A Agent Channel",
     description: "Sell healthcare products to people you already know. Get paid for every deal.",
     type: "website",
     images: ["/og-image.jpg"],
@@ -43,7 +43,7 @@ export default async function AgentPage() {
             {/* Copy */}
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "#D4AF37" }}>
-                CFA Agent Channel
+                C4A Agent Channel
               </p>
               <h1 className="mt-7 font-semibold leading-[1.08] tracking-tight text-white" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>
                 Sell healthcare.
