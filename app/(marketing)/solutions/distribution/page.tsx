@@ -47,7 +47,7 @@ export default function DistributionPage() {
               </div>
             ))}
           </div>
-          <div className="mt-10 flex flex-wrap gap-4"><Link href="/contact" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-sm transition hover:scale-[1.02]" style={{ background: "linear-gradient(135deg, #D4AF37, #b8962e)", color: "#06090f", boxShadow: "0 4px 20px rgba(212,175,55,0.3)" }}>List Your Product <ArrowRight size={15} /></Link><Link href="/agent" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-sm" style={{ border: "1px solid rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.8)" }}>I Want to Be an Agent</Link></div>
+          <div className="mt-10 flex flex-wrap gap-4"><Link href="/solutions/distribution/request" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-sm transition hover:scale-[1.02]" style={{ background: "linear-gradient(135deg, #D4AF37, #b8962e)", color: "#06090f", boxShadow: "0 4px 20px rgba(212,175,55,0.3)" }}>List Your Product <ArrowRight size={15} /></Link><Link href="/agent" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-sm" style={{ border: "1px solid rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.8)" }}>I Want to Be an Agent</Link></div>
         </div>
       </section>
 
@@ -69,6 +69,61 @@ export default function DistributionPage() {
       {/* Process */}
       <section className="py-24 px-6" style={{ background: "linear-gradient(145deg, #0a1e32 0%, #112e4a 100%)" }}><div className="max-w-5xl mx-auto"><p className="uppercase tracking-[0.2em] text-xs text-white/50 mb-3">How It Works</p><h2 className="text-2xl md:text-3xl font-bold text-white mb-14">From Product to Pipeline in 4 Weeks</h2><div className="space-y-5">{phases.map((phase) => (<div key={phase.num} className="glass-card p-7 grid md:grid-cols-[200px_1fr] gap-6"><div><div className="inline-flex items-center justify-center w-10 h-10 rounded-full text-xs font-bold mb-3" style={{ background: "rgba(212,175,55,0.12)", border: "1px solid rgba(212,175,55,0.35)", color: "#D4AF37" }}>{phase.num}</div><p className="font-semibold text-white text-base mb-1">{phase.name}</p><p className="text-xs" style={{ color: "#D4AF37" }}>{phase.weeks}</p></div><div><p className="text-white/70 text-sm leading-relaxed mb-4">{phase.desc}</p><div className="flex flex-wrap gap-2">{phase.deliverables.map((d) => (<span key={d} className="px-3 py-1 rounded-full text-xs" style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.1)" }}>{d}</span>))}</div></div></div>))}</div></div></section>
 
+      {/* Pricing */}
+      <section className="py-24 px-6" style={{ background: "linear-gradient(155deg, #0a1a2e 0%, #0d2440 60%, #112e4a 100%)" }}>
+        <div className="max-w-5xl mx-auto">
+          <p className="uppercase tracking-[0.2em] text-xs text-white/50 mb-3">Pricing</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Transparent Pricing</h2>
+          <p className="text-white/50 text-sm mb-12 max-w-lg">Three tiers. Pick what fits.</p>
+          <div className="grid md:grid-cols-3 gap-5">
+            {/* Starter */}
+            <div className="glass-card p-7 flex flex-col">
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] mb-1" style={{ color: "#D4AF37" }}>Starter</p>
+              <p className="text-2xl font-bold text-white mb-5">N200,000</p>
+              <ul className="space-y-2.5 text-sm text-white/70 flex-1">
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#D4AF37" }} />Commission structure design</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#D4AF37" }} />Up to 10 recruited agents</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#D4AF37" }} />Basic sales brief and tracking links</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#D4AF37" }} />Monthly performance summary</li>
+              </ul>
+              <p className="mt-5 text-xs text-white/40">Best for: Early-stage companies testing agent distribution</p>
+              <Link href="/solutions/distribution/request" className="mt-5 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition hover:opacity-90" style={{ background: "rgba(212,175,55,0.12)", border: "1px solid rgba(212,175,55,0.35)", color: "#D4AF37" }}>Get Started <ArrowRight size={14} /></Link>
+            </div>
+            {/* Growth */}
+            <div className="glass-card p-7 flex flex-col" style={{ border: "1px solid rgba(212,175,55,0.35)" }}>
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] mb-1" style={{ color: "#D4AF37" }}>Growth</p>
+              <p className="text-2xl font-bold text-white mb-5">N750,000</p>
+              <ul className="space-y-2.5 text-sm text-white/70 flex-1">
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#D4AF37" }} />Everything in Starter</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#D4AF37" }} />Up to 25 recruited agents</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#D4AF37" }} />Custom pitch deck and sales materials</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#D4AF37" }} />Territory planning and assignment</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#D4AF37" }} />Bi-weekly performance reviews</li>
+              </ul>
+              <p className="mt-5 text-xs text-white/40">Best for: Companies ready to scale distribution across Lagos</p>
+              <Link href="/solutions/distribution/request" className="mt-5 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition hover:scale-[1.02]" style={{ background: "linear-gradient(135deg, #D4AF37, #b8962e)", color: "#06090f", boxShadow: "0 4px 20px rgba(212,175,55,0.3)" }}>Get Started <ArrowRight size={14} /></Link>
+            </div>
+            {/* Enterprise */}
+            <div className="glass-card p-7 flex flex-col">
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] mb-1" style={{ color: "#D4AF37" }}>Enterprise</p>
+              <p className="text-2xl font-bold text-white mb-5">N2,000,000+</p>
+              <ul className="space-y-2.5 text-sm text-white/70 flex-1">
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#D4AF37" }} />Everything in Growth</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#D4AF37" }} />Unlimited agent recruitment</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#D4AF37" }} />Dedicated account manager</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#D4AF37" }} />Custom CRM integration</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#D4AF37" }} />Weekly reporting and agent coaching</li>
+              </ul>
+              <p className="mt-5 text-xs text-white/40">Best for: Established companies building a national sales channel</p>
+              <Link href="/solutions/distribution/request" className="mt-5 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition hover:opacity-90" style={{ background: "rgba(212,175,55,0.12)", border: "1px solid rgba(212,175,55,0.35)", color: "#D4AF37" }}>Get Started <ArrowRight size={14} /></Link>
+            </div>
+          </div>
+          <p className="mt-8 text-xs text-white/40 text-center max-w-2xl mx-auto">
+            All tiers include: Commission override (CFA retains 20-30% of commission pool as management fee). Agent commissions disbursed via CFA escrow for trust and transparency.
+          </p>
+        </div>
+      </section>
+
       {/* Who This Is For */}
       <section className="py-20 px-6" style={{ background: "#ffffff" }}><div className="max-w-4xl mx-auto"><p className="uppercase tracking-[0.2em] text-xs text-[#0B3C5D]/50 mb-3">Who This Is For</p><h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-10">This Works If...</h2><div className="space-y-3">{qualifies.map((q) => (<div key={q} className="flex items-start gap-4 p-4 rounded-xl" style={{ border: "1px solid #e5eaf0" }}><div className="w-2 h-2 rounded-full shrink-0 mt-1.5" style={{ background: "#D4AF37" }} /><span className="text-sm text-gray-700">{q}</span></div>))}</div>
 
@@ -80,7 +135,7 @@ export default function DistributionPage() {
             Send us your product details, pricing, and target market. We will come back with a commission model, an agent recruitment plan, and a timeline. No pitch deck required. Just the basics.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link href="/contact" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm" style={{ background: "#D4AF37", color: "#0F2744" }}>Start a Conversation <ArrowRight size={14} /></Link>
+            <Link href="/solutions/distribution/request" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm" style={{ background: "#D4AF37", color: "#0F2744" }}>List Your Product <ArrowRight size={14} /></Link>
             <a href="mailto:partnerships@consultforafrica.com" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-white/70 hover:text-white transition" style={{ border: "1px solid rgba(255,255,255,0.15)" }}>partnerships@consultforafrica.com</a>
           </div>
         </div>
