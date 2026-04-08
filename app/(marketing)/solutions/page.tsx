@@ -10,10 +10,10 @@ import PartnerCTA from "@/components/cfa/PartnerCTA";
 export const metadata: Metadata = {
   title: "Solutions | Consult For Africa",
   description:
-    "Seven engagement models for African healthcare. Advisory projects, retainer advisory, embedded secondments, fractional leadership, hospital transformation, transaction advisory, and healthcare recruitment.",
+    "Eight engagement models for African healthcare. Advisory, retainer, secondments, fractional leadership, transformation, transaction advisory, recruitment, and commercial distribution.",
   openGraph: {
     title: "Solutions | Consult For Africa",
-    description: "Seven engagement models designed for African healthcare challenges.",
+    description: "Eight engagement models designed for African healthcare challenges.",
     type: "website",
     images: ["/og-image.jpg"],
   },

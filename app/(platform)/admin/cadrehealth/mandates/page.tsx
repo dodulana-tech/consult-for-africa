@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { getCadreLabel } from "@/lib/cadreHealth/cadres";
 import { Plus } from "lucide-react";
+import ClickableRow from "./ClickableRow";
 
 const STATUS_COLORS: Record<string, string> = {
   OPEN: "bg-emerald-50 text-emerald-700",
@@ -69,11 +70,11 @@ export default async function MandatesPage() {
               </thead>
               <tbody>
                 {mandates.map((m) => (
-                  <tr key={m.id} className="border-b border-gray-50 transition-colors last:border-0 hover:bg-gray-50/60">
+                  <ClickableRow key={m.id} href={`/admin/cadrehealth/mandates/${m.id}`}>
                     <td className="px-6 py-4">
                       <Link
                         href={`/admin/cadrehealth/mandates/${m.id}`}
-                        className="font-semibold hover:underline"
+                        className="font-semibold group-hover:underline"
                         style={{ color: "#0B3C5D" }}
                       >
                         {m.title}
@@ -113,7 +114,7 @@ export default async function MandatesPage() {
                         {m._count.matches}
                       </span>
                     </td>
-                  </tr>
+                  </ClickableRow>
                 ))}
               </tbody>
             </table>

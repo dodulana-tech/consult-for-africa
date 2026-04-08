@@ -5,6 +5,7 @@ import {
   Crown,
   Building2,
   Handshake,
+  Megaphone,
 } from "lucide-react";
 
 const solutions = [
@@ -120,6 +121,22 @@ const solutions = [
     ],
     duration: "Ongoing",
   },
+  {
+    num: "08",
+    icon: Megaphone,
+    title: "Commercial Distribution",
+    tag: "AGENT CHANNEL",
+    href: "/solutions/distribution",
+    summary:
+      "Commission-based sales agent network for healthcare products and services. We recruit, credential, and manage independent agents who sell on your behalf.",
+    how: [
+      "Agent recruitment from our verified healthcare professional network",
+      "Structured commission models with deal tracking and attribution",
+      "Territory management and performance monitoring",
+      "Compliance oversight and quality assurance",
+    ],
+    duration: "Ongoing",
+  },
 ];
 
 export default function SolutionsList() {
@@ -136,7 +153,7 @@ export default function SolutionsList() {
             className="font-semibold text-white leading-tight"
             style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)" }}
           >
-            Seven Ways to Work With Us
+            Eight Ways to Work With Us
           </h2>
           <p className="mt-4 leading-relaxed" style={{ color: "rgba(255,255,255,0.5)", fontSize: "1.05rem" }}>
             Every healthcare organisation has different needs and constraints.
