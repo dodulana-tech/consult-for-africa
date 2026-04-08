@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -60,7 +60,23 @@ const FACILITY_TYPE_LABELS: Record<string, string> = {
 
 /* ---- Component ---- */
 
+export const dynamic = "force-dynamic";
+
 export default function HospitalComparePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0B3C5D] border-t-transparent" />
+        </div>
+      }
+    >
+      <HospitalCompareContent />
+    </Suspense>
+  );
+}
+
+function HospitalCompareContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
