@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getCadreLabel, getRegulatoryBody } from "@/lib/cadreHealth/cadres";
 import { VerifyButton } from "@/components/cadrehealth/VerifyButton";
+import { InviteProfessionalButton, InviteMentorButton, PushSingleToOutreachButton } from "@/components/cadrehealth/AdminActions";
 import { ArrowLeft } from "lucide-react";
 
 const ACCOUNT_STATUS_COLORS: Record<string, string> = {
@@ -97,7 +98,7 @@ export default async function ProfessionalDetailPage({
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span
             className={`rounded-full px-3.5 py-1.5 text-sm font-semibold ${
               ACCOUNT_STATUS_COLORS[professional.accountStatus] || "bg-gray-100 text-gray-600"
@@ -109,6 +110,13 @@ export default async function ProfessionalDetailPage({
             <VerifyButton professionalId={professional.id} />
           )}
         </div>
+      </div>
+
+      {/* Admin Actions */}
+      <div className="flex flex-wrap items-center gap-3">
+        <InviteProfessionalButton professionalId={professional.id} />
+        <InviteMentorButton professionalId={professional.id} />
+        <PushSingleToOutreachButton professionalId={professional.id} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

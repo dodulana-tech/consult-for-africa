@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { PushToOutreachButton } from "@/components/cadrehealth/AdminActions";
 import {
   Users,
   ShieldCheck,
@@ -80,6 +81,7 @@ export default async function CadreHealthAdmin() {
             >
               Import Professionals
             </Link>
+            <PushToOutreachButton mode="all" />
           </div>
         </div>
       </div>
