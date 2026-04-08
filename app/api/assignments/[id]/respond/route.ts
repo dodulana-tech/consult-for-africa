@@ -73,7 +73,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     });
 
     // Email EM
-    const em = await prisma.user.findUnique({ where: { id: assignment.engagement.engagementManagerId }, select: { email: true } });
+    const emId = assignment.engagement.engagementManagerId;
+    const em = emId ? await prisma.user.findUnique({ where: { id: emId }, select: { email: true } }) : null;
     if (em) {
       emailAssignmentResponse({ emEmail: em.email, consultantName: assignment.consultant.name, projectName: assignment.engagement.name, role: assignment.role, accepted: true }).catch(() => {});
     }
@@ -115,7 +116,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   });
 
   // Email EM
-  const emForDecline = await prisma.user.findUnique({ where: { id: assignment.engagement.engagementManagerId }, select: { email: true } });
+  const declineEmId = assignment.engagement.engagementManagerId;
+  const emForDecline = declineEmId ? await prisma.user.findUnique({ where: { id: declineEmId }, select: { email: true } }) : null;
   if (emForDecline) {
     emailAssignmentResponse({ emEmail: emForDecline.email, consultantName: assignment.consultant.name, projectName: assignment.engagement.name, role: assignment.role, accepted: false, reason: reason.trim() }).catch(() => {});
   }
