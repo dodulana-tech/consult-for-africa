@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { CADRE_OPTIONS } from "@/lib/cadreHealth/cadres";
-import { Upload, CheckCircle2, AlertCircle } from "lucide-react";
+import { Upload, CheckCircle2, AlertCircle, FileSpreadsheet, ArrowRight } from "lucide-react";
 
 type ParsedRow = Record<string, string>;
 
@@ -147,40 +147,72 @@ export default function ImportPage() {
 
   const previewRows = rows.slice(0, 10);
 
+  const glassCard = {
+    background: "rgba(255,255,255,0.72)",
+    backdropFilter: "blur(16px) saturate(200%)",
+    WebkitBackdropFilter: "blur(16px) saturate(200%)",
+  };
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight" style={{ color: "#0F2744" }}>
-          Import Professionals
-        </h1>
-        <p className="mt-0.5 text-sm text-gray-500">
-          Upload a CSV file to bulk import healthcare professionals
-        </p>
+    <div className="space-y-8">
+      {/* Hero Header */}
+      <div
+        className="relative overflow-hidden rounded-2xl p-6 sm:p-8"
+        style={{
+          background: "linear-gradient(135deg, #0F2744 0%, #0B3C5D 60%, #1a5a8a 100%)",
+        }}
+      >
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: "radial-gradient(circle at 80% 20%, rgba(212,175,55,0.08) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(26,157,217,0.1) 0%, transparent 50%)",
+          }}
+        />
+        <div className="relative">
+          <h1 className="text-2xl font-bold tracking-tight text-white">
+            Import Professionals
+          </h1>
+          <p className="mt-1 text-sm text-white/60">
+            Upload a CSV file to bulk import healthcare professionals
+          </p>
+        </div>
       </div>
 
       {error && (
-        <div className="flex items-start gap-3 rounded-2xl border border-red-100 bg-red-50 p-4">
+        <div className="flex items-start gap-3 rounded-2xl border border-red-200/60 p-4" style={{ background: "rgba(254,242,242,0.8)", backdropFilter: "blur(8px)" }}>
           <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
           <p className="text-sm font-medium text-red-700">{error}</p>
         </div>
       )}
 
       {result && (
-        <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-6">
+        <div
+          className="rounded-2xl border border-emerald-200/60 p-6"
+          style={{ background: "rgba(236,253,245,0.8)", backdropFilter: "blur(8px)" }}
+        >
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-emerald-600" />
             <h3 className="font-bold text-emerald-800">Import Complete</h3>
           </div>
           <div className="mt-4 grid grid-cols-3 gap-4">
-            <div className="rounded-xl bg-white p-4 text-center shadow-sm">
+            <div
+              className="rounded-xl p-4 text-center shadow-sm"
+              style={glassCard}
+            >
               <p className="text-2xl font-bold text-emerald-600">{result.imported}</p>
               <p className="mt-0.5 text-xs font-medium text-emerald-700">Imported</p>
             </div>
-            <div className="rounded-xl bg-white p-4 text-center shadow-sm">
+            <div
+              className="rounded-xl p-4 text-center shadow-sm"
+              style={glassCard}
+            >
               <p className="text-2xl font-bold text-amber-600">{result.skipped}</p>
               <p className="mt-0.5 text-xs font-medium text-amber-700">Skipped (duplicates)</p>
             </div>
-            <div className="rounded-xl bg-white p-4 text-center shadow-sm">
+            <div
+              className="rounded-xl p-4 text-center shadow-sm"
+              style={glassCard}
+            >
               <p className="text-2xl font-bold text-red-600">{result.errors}</p>
               <p className="mt-0.5 text-xs font-medium text-red-700">Errors</p>
             </div>
@@ -189,10 +221,14 @@ export default function ImportPage() {
       )}
 
       {/* Upload area */}
-      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <div
+        className="rounded-2xl border border-white/60 p-6 shadow-sm"
+        style={glassCard}
+      >
         <div
           onClick={() => fileRef.current?.click()}
-          className="cursor-pointer rounded-2xl border-2 border-dashed border-gray-200 p-10 text-center transition hover:border-[#0B3C5D]/30 hover:bg-gray-50/50"
+          className="group cursor-pointer rounded-2xl border-2 border-dashed border-gray-200/80 p-10 text-center transition-all hover:border-[#0B3C5D]/30"
+          style={{ background: "rgba(15,39,68,0.02)" }}
         >
           <input
             ref={fileRef}
@@ -201,13 +237,21 @@ export default function ImportPage() {
             onChange={handleFile}
             className="hidden"
           />
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0B3C5D]/8">
-            <Upload className="h-7 w-7" style={{ color: "#0B3C5D" }} />
+          <div
+            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl transition-transform group-hover:scale-105"
+            style={{ background: "rgba(11,60,93,0.06)", border: "1px solid rgba(11,60,93,0.1)" }}
+          >
+            {fileName ? (
+              <FileSpreadsheet className="h-8 w-8" style={{ color: "#0B3C5D" }} />
+            ) : (
+              <Upload className="h-8 w-8" style={{ color: "#0B3C5D" }} />
+            )}
           </div>
           {fileName ? (
             <>
               <p className="font-semibold text-gray-900">{fileName}</p>
               <p className="mt-0.5 text-sm text-gray-500">{rows.length} rows found</p>
+              <p className="mt-2 text-xs text-[#0B3C5D] font-medium">Click to change file</p>
             </>
           ) : (
             <>
@@ -215,6 +259,7 @@ export default function ImportPage() {
                 Click to upload a CSV file
               </p>
               <p className="mt-1 text-sm text-gray-400">or drag and drop</p>
+              <p className="mt-3 text-xs text-gray-400">Supports .csv and .txt formats</p>
             </>
           )}
         </div>
@@ -222,7 +267,10 @@ export default function ImportPage() {
 
       {/* Column mapping */}
       {headers.length > 0 && (
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <div
+          className="rounded-2xl border border-white/60 p-6 shadow-sm"
+          style={glassCard}
+        >
           <h2 className="mb-1 text-base font-bold tracking-tight" style={{ color: "#0F2744" }}>
             Column Mapping
           </h2>
@@ -241,7 +289,8 @@ export default function ImportPage() {
                   onChange={(e) =>
                     setMapping((prev) => ({ ...prev, [field.key]: e.target.value }))
                   }
-                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm shadow-sm transition focus:border-[#0B3C5D] focus:outline-none focus:ring-2 focus:ring-[#0B3C5D]/20"
+                  className="w-full rounded-xl border border-gray-200/80 px-4 py-2.5 text-sm shadow-sm transition focus:border-[#0B3C5D] focus:outline-none focus:ring-2 focus:ring-[#0B3C5D]/20"
+                  style={{ background: "rgba(255,255,255,0.8)" }}
                 >
                   <option value="">-- Select column --</option>
                   {headers.map((h) => (
@@ -258,8 +307,11 @@ export default function ImportPage() {
 
       {/* Preview */}
       {previewRows.length > 0 && (
-        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
-          <div className="border-b border-gray-100 px-6 py-5">
+        <div
+          className="overflow-hidden rounded-2xl border border-white/60 shadow-sm"
+          style={glassCard}
+        >
+          <div className="border-b border-gray-100/80 px-6 py-5">
             <h2 className="text-base font-bold tracking-tight" style={{ color: "#0F2744" }}>
               Preview
             </h2>
@@ -270,7 +322,7 @@ export default function ImportPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-gray-100" style={{ background: "#F8F9FB" }}>
+                <tr className="border-b border-gray-100/80" style={{ background: "rgba(15,39,68,0.03)" }}>
                   {headers.map((h) => (
                     <th key={h} className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
                       {h}
@@ -280,7 +332,7 @@ export default function ImportPage() {
               </thead>
               <tbody>
                 {previewRows.map((row, i) => (
-                  <tr key={i} className="border-b border-gray-50 last:border-0">
+                  <tr key={i} className="border-b border-gray-50/80 last:border-0 hover:bg-white/60">
                     {headers.map((h) => (
                       <td key={h} className="whitespace-nowrap px-4 py-2.5 text-gray-700">
                         {row[h] || <span className="text-gray-300">-</span>}
@@ -299,10 +351,17 @@ export default function ImportPage() {
         <div className="flex flex-col items-end gap-3">
           {importing && (
             <div className="w-full">
-              <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
+              <div
+                className="h-2.5 w-full overflow-hidden rounded-full"
+                style={{ background: "rgba(15,39,68,0.06)" }}
+              >
                 <div
                   className="h-2.5 rounded-full transition-all duration-500"
-                  style={{ width: `${progress}%`, background: "#0B3C5D" }}
+                  style={{
+                    width: `${progress}%`,
+                    background: "linear-gradient(90deg, #0B3C5D, #1a6fa8)",
+                    boxShadow: "0 0 12px rgba(11,60,93,0.3)",
+                  }}
                 />
               </div>
               <p className="mt-1.5 text-right text-xs font-medium text-gray-500">{progress}%</p>
@@ -311,9 +370,11 @@ export default function ImportPage() {
           <button
             onClick={handleImport}
             disabled={importing}
-            className="rounded-xl bg-[#0B3C5D] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0A3350] hover:shadow-md disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:shadow-md disabled:opacity-50"
+            style={{ background: "linear-gradient(135deg, #0B3C5D, #1a5a8a)" }}
           >
             {importing ? "Importing..." : `Import ${rows.length} Records`}
+            {!importing && <ArrowRight className="h-4 w-4" />}
           </button>
         </div>
       )}

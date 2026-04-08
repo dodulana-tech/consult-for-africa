@@ -146,7 +146,7 @@ USER CONTEXT:
       currency: p.budgetCurrency,
       spentPct: Math.round((Number(p.actualSpent) / Number(p.budgetAmount)) * 100),
       team: p.assignments.filter((a) => a.status === "ACTIVE").length,
-      em: p.engagementManager.name,
+      em: p.engagementManager?.name ?? "Unassigned",
       deliverables: p._count.deliverables,
       endDate: p.endDate?.toISOString().split("T")[0] ?? "ongoing",
     }));

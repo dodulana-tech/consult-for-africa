@@ -200,7 +200,7 @@ export default function OverviewTab({
                       >
                         {u.type.replace(/_/g, " ").toLowerCase()}
                       </span>
-                      <span className="text-[10px] text-gray-400">{u.createdBy.name}</span>
+                      <span className="text-[10px] text-gray-400">{u.createdBy?.name ?? "C4A"}</span>
                       <span className="text-gray-200 text-[10px]">·</span>
                       <span className="text-[10px] text-gray-400">{timeAgo(new Date(u.createdAt))}</span>
                       {u.clientVisible && (
@@ -418,7 +418,7 @@ export default function OverviewTab({
                         >
                           {u.type.replace(/_/g, " ").toLowerCase()}
                         </span>
-                        <span className="text-[10px] text-gray-400">{u.createdBy.name}</span>
+                        <span className="text-[10px] text-gray-400">{u.createdBy?.name ?? "C4A"}</span>
                         <span className="text-gray-200 text-[10px]">·</span>
                         <span className="text-[10px] text-gray-400">{timeAgo(new Date(u.createdAt))}</span>
                       </div>

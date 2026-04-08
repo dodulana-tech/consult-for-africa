@@ -66,7 +66,7 @@ export interface ProjectUpdate {
   type: string;
   clientVisible: boolean;
   createdAt: string;
-  createdBy: { name: string };
+  createdBy: { name: string } | null;
 }
 
 export interface PhaseGate {
@@ -180,7 +180,7 @@ export interface Project {
   engagementType: EngagementType;
   notes: string | null;
   client: { name: string; primaryContact: string; email: string; phone: string };
-  engagementManager: { id: string; name: string; email: string };
+  engagementManager: { id: string; name: string; email: string } | null;
   assignments: Assignment[];
   milestones: Milestone[];
   deliverables: Deliverable[];

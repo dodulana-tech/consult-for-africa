@@ -542,11 +542,11 @@ export default async function ClientDashboardPage() {
                     </div>
                     {project.engagementManager?.email && (
                       <a
-                        href={`mailto:${project.engagementManager!.email}`}
+                        href={`mailto:${project.engagementManager?.email}`}
                         className="text-[11px] font-medium hover:underline"
                         style={{ color: "#D4AF37" }}
                       >
-                        {project.engagementManager!.email}
+                        {project.engagementManager?.email}
                       </a>
                     )}
                   </div>
