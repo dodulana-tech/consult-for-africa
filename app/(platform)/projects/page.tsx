@@ -113,7 +113,7 @@ export default async function ProjectsPage() {
                           {isCritical && <AlertTriangle size={12} className="text-amber-500" />}
                         </div>
                         <p className="text-xs text-gray-500 mt-0.5">
-                          {p.client.name} &middot; EM: {p.engagementManager.name}
+                          {p.client.name} &middot; EM: {p.engagementManager?.name ?? "Unassigned"}
                         </p>
                       </div>
                       <div className="text-right shrink-0">

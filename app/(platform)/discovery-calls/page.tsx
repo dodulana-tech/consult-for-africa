@@ -108,7 +108,7 @@ export default async function DiscoveryCallsPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3 hidden md:table-cell">
-                        <span className="text-xs text-gray-500">{call.conductedBy.name}</span>
+                        <span className="text-xs text-gray-500">{call.conductedBy?.name ?? "Unknown"}</span>
                       </td>
                       <td className="px-4 py-3">
                         <span className="text-xs text-gray-400">

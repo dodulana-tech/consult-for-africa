@@ -3,6 +3,7 @@ import { getCadreLabel } from "@/lib/cadreHealth/cadres";
 import { getCadreSession } from "@/lib/cadreAuth";
 import ApplyButtonClient from "./ApplyButton";
 import ExpressApplyForm from "./ExpressApplyForm";
+import ApplyIntent from "./ApplyIntent";
 import ShareButtons from "./ShareButtons";
 import JobAlertForm from "./JobAlertForm";
 import Link from "next/link";
@@ -433,7 +434,7 @@ export default async function JobDetailPage({
               ) : session ? (
                 <ApplyButtonClient jobId={job.id} />
               ) : (
-                <ExpressApplyForm jobId={job.id} defaultCadre={job.cadre} />
+                <ApplyIntent jobId={job.id} defaultCadre={job.cadre} />
               )}
 
               {job.applicationCount > 0 && (

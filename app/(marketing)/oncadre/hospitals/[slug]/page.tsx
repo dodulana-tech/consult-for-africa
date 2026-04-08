@@ -156,6 +156,14 @@ export default async function HospitalDetailPage({ params }: Props) {
     hasContributed = reviewCount > 0;
   }
 
+  // Fetch open jobs for this facility
+  const openJobs = await prisma.cadreMandate.findMany({
+    where: { facilityId: facility.id, isPublished: true, status: "OPEN" },
+    select: { id: true, slug: true, title: true, cadre: true, type: true, salaryRangeMin: true, salaryRangeMax: true, salaryCurrency: true, urgency: true },
+    orderBy: { createdAt: "desc" },
+    take: 10,
+  });
+
   const overallRating = facility.overallRating ? Number(facility.overallRating) : null;
   const recommendPct = facility.wouldRecommendPct ? Number(facility.wouldRecommendPct) : null;
 
@@ -282,6 +290,95 @@ export default async function HospitalDetailPage({ params }: Props) {
             )}
           </div>
         </div>
+
+        {/* ─── About Section ─────────────────────────────────────────── */}
+        {facility.description && (
+          <div className="mt-6 rounded-xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
+            <h2 className="text-lg font-semibold text-gray-900">About {facility.name}</h2>
+            <div className="mt-3 space-y-3 text-sm leading-relaxed text-gray-600">
+              {facility.description.split("\n").filter(Boolean).map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </div>
+            {/* Quick facts */}
+            <div className="mt-5 flex flex-wrap gap-3">
+              {facility.yearEstablished && (
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-1.5 text-xs text-gray-600" style={{ border: "1px solid #E8EBF0" }}>
+                  <svg className="h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  Est. {facility.yearEstablished}
+                </span>
+              )}
+              {facility.bedCount && (
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-1.5 text-xs text-gray-600" style={{ border: "1px solid #E8EBF0" }}>
+                  <svg className="h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" /></svg>
+                  {facility.bedCount} beds
+                </span>
+              )}
+              {facility.address && (
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-1.5 text-xs text-gray-600" style={{ border: "1px solid #E8EBF0" }}>
+                  <svg className="h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  {facility.address}
+                </span>
+              )}
+              {facility.phone && (
+                <a href={`tel:${facility.phone}`} className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-1.5 text-xs text-[#0B3C5D] hover:bg-gray-100 transition" style={{ border: "1px solid #E8EBF0" }}>
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                  {facility.phone}
+                </a>
+              )}
+              {facility.email && (
+                <a href={`mailto:${facility.email}`} className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-1.5 text-xs text-[#0B3C5D] hover:bg-gray-100 transition" style={{ border: "1px solid #E8EBF0" }}>
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                  {facility.email}
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ─── Open Jobs ──────────────────────────────────────────────── */}
+        {openJobs.length > 0 && (
+          <div className="mt-6 rounded-xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Open Positions
+                <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">{openJobs.length}</span>
+              </h2>
+              <Link href="/oncadre/jobs" className="text-xs font-medium text-[#0B3C5D] hover:underline">
+                View all jobs
+              </Link>
+            </div>
+            <div className="mt-4 space-y-3">
+              {openJobs.map((job) => {
+                const salary = formatSalaryShort(job.salaryRangeMin, job.salaryRangeMax, job.salaryCurrency);
+                return (
+                  <Link
+                    key={job.id}
+                    href={`/oncadre/jobs/${job.slug || job.id}`}
+                    className="group flex items-center justify-between rounded-xl p-4 transition-all hover:bg-gray-50"
+                    style={{ border: "1px solid #E8EBF0" }}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-gray-900 group-hover:text-[#0B3C5D] transition-colors">{job.title}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        <span className="text-xs text-gray-500">{MANDATE_TYPE_LABELS[job.type] || job.type}</span>
+                        {salary && <span className="text-xs font-medium text-gray-700">{salary}</span>}
+                        {job.urgency === "HIGH" || job.urgency === "URGENT" ? (
+                          <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-white" style={{ background: job.urgency === "URGENT" ? "#DC2626" : "#D97706" }}>
+                            {job.urgency === "URGENT" ? "Urgent" : "Hiring"}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                    <svg className="h-4 w-4 shrink-0 text-gray-300 group-hover:text-[#0B3C5D] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* ─── Dimension Ratings Bar Chart ─────────────────────────────── */}
         {dimensions.length > 0 && (
@@ -604,6 +701,30 @@ export default async function HospitalDetailPage({ params }: Props) {
       </div>
     </main>
   );
+}
+
+/* ─── Salary & mandate helpers ────────────────────────────────────────────── */
+
+const MANDATE_TYPE_LABELS: Record<string, string> = {
+  PERMANENT: "Permanent",
+  LOCUM: "Locum",
+  CONTRACT: "Contract",
+  CONSULTING: "Consulting",
+  INTERNATIONAL: "International",
+};
+
+function formatSalaryShort(min: unknown, max: unknown, currency: string | null): string | null {
+  if (!min && !max) return null;
+  const cur = currency || "NGN";
+  const fmt = (n: unknown) => {
+    const val = Number(n);
+    if (val >= 1_000_000) return `${cur} ${(val / 1_000_000).toFixed(1)}M`;
+    if (val >= 1_000) return `${cur} ${(val / 1_000).toFixed(0)}k`;
+    return `${cur} ${val.toLocaleString()}`;
+  };
+  if (min && max) return `${fmt(min)} - ${fmt(max)}`;
+  if (min) return `From ${fmt(min)}`;
+  return `Up to ${fmt(max)}`;
 }
 
 /* ─── Star helpers (server-compatible, no SVG gradients) ──────────────────── */

@@ -666,7 +666,7 @@ export default async function ClientProjectPage({
                           {formatDateShort(new Date(update.createdAt))}
                         </span>
                         <span className="text-[11px] text-gray-400">
-                          by {update.createdBy.name}
+                          by {update.createdBy?.name ?? "C4A"}
                         </span>
                       </div>
                       <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
@@ -1031,22 +1031,22 @@ export default async function ClientProjectPage({
                 className="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
                 style={{ background: "#0F2744" }}
               >
-                {project.engagementManager.name.charAt(0).toUpperCase()}
+                {project.engagementManager?.name ?? "C4A".charAt(0).toUpperCase()}
               </div>
               <div>
                 <p
                   className="text-sm font-semibold"
                   style={{ color: "#0F2744" }}
                 >
-                  {project.engagementManager.name}
+                  {project.engagementManager?.name ?? "C4A"}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {project.engagementManager.email}
+                  {project.engagementManager?.email ?? "partnerships@consultforafrica.com"}
                 </p>
               </div>
             </div>
             <a
-              href={`mailto:${project.engagementManager.email}`}
+              href={`mailto:${project.engagementManager?.email ?? "partnerships@consultforafrica.com"}`}
               className="inline-flex items-center gap-2 text-xs font-semibold px-5 py-2.5 rounded-lg transition-opacity hover:opacity-90"
               style={{
                 background: "#0F2744",

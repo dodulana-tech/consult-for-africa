@@ -56,7 +56,7 @@ export default async function OpportunitiesPage() {
     projectName: r.engagement.name,
     clientName: r.engagement.client.name,
     serviceType: r.engagement.serviceType.replace(/_/g, " "),
-    createdBy: r.createdBy.name,
+    createdBy: r.createdBy?.name ?? "Unknown",
     role: r.role,
     description: r.description,
     skillsRequired: r.skillsRequired,

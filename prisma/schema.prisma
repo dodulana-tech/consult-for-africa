@@ -3821,11 +3821,15 @@ model CadreFacility {
   name                  String
   slug                  String                  @unique // for SEO: /hospitals/luth
   type                  CadreFacilityType
+  description           String?                 @db.Text
   state                 String
   city                  String
   address               String?
   website               String?
+  phone                 String?
+  email                 String?
   bedCount              Int?
+  yearEstablished       Int?
   isVerified            Boolean                 @default(false)
 
   // Aggregate ratings (computed, cached)

@@ -22,7 +22,7 @@ interface Referral {
   notes: string | null;
   status: string;
   createdAt: string;
-  referrer: { id: string; name: string; email: string; role: string };
+  referrer: { id: string; name: string; email: string; role: string } | null;
 }
 
 const STATUS_STYLES: Record<string, { bg: string; color: string; label: string }> = {
@@ -428,8 +428,8 @@ export default function AdminReferralsManager({
                         <Clock size={10} />
                         {timeAgo(new Date(r.createdAt))}
                       </span>
-                      <span>Referred by {r.referrer.name}</span>
-                      <span className="capitalize">{r.referrer.role.toLowerCase().replace(/_/g, " ")}</span>
+                      <span>Referred by {r.referrer?.name ?? "Unknown"}</span>
+                      <span className="capitalize">{r.referrer?.role?.toLowerCase().replace(/_/g, " ") ?? ""}</span>
                     </div>
 
                     {/* Action bar */}

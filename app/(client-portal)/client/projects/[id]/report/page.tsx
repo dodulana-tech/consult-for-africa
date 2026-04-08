@@ -278,11 +278,11 @@ export default async function ClientExecutiveSummaryPage({
                 className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0"
                 style={{ background: "#0F2744" }}
               >
-                {project.engagementManager.name.charAt(0).toUpperCase()}
+                {project.engagementManager?.name ?? "C4A".charAt(0).toUpperCase()}
               </div>
               <div>
                 <p className="text-xs font-medium" style={{ color: "#0F2744" }}>
-                  {project.engagementManager.name}
+                  {project.engagementManager?.name ?? "C4A"}
                 </p>
                 <p className="text-[11px] text-gray-400">Engagement Manager</p>
               </div>

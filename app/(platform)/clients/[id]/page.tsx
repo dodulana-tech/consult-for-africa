@@ -225,7 +225,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                         </span>
                       </div>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        EM: {p.engagementManager.name} &middot; {p._count.assignments} consultant
+                        EM: {p.engagementManager?.name ?? "Unassigned"} &middot; {p._count.assignments} consultant
                         {p._count.assignments !== 1 ? "s" : ""} &middot; {p._count.deliverables}{" "}
                         deliverable{p._count.deliverables !== 1 ? "s" : ""}
                       </p>

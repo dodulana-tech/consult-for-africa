@@ -358,7 +358,7 @@ export default async function ClientImpactDashboardPage({
             Questions about these results? Contact your engagement manager.
           </p>
           <a
-            href={`mailto:${project.engagementManager.email}`}
+            href={`mailto:${project.engagementManager?.email ?? "partnerships@consultforafrica.com"}`}
             className="inline-flex items-center gap-2 text-xs font-semibold px-5 py-2.5 rounded-lg transition-opacity hover:opacity-90"
             style={{ background: "#0F2744", color: "#fff" }}
           >
@@ -366,7 +366,7 @@ export default async function ClientImpactDashboardPage({
               <rect x="1.5" y="3" width="11" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.25" />
               <path d="M1.5 4.5L7 8L12.5 4.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            Contact {project.engagementManager.name}
+            Contact {project.engagementManager?.name ?? "your engagement manager"}
           </a>
         </div>
       </main>

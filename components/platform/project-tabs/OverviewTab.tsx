@@ -130,7 +130,7 @@ export default function OverviewTab({
             <span className="text-xs text-gray-400">{project.serviceType.replace(/_/g, " ")}</span>
             <span className="text-xs text-gray-300">|</span>
             <span className="text-xs text-gray-500">
-              {project.client.name} · EM: {project.engagementManager.name}
+              {project.client.name} · EM: {project.engagementManager?.name ?? "Unassigned"}
               {isDirectorPlus && (
                 <button
                   onClick={() => {

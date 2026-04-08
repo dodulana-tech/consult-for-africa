@@ -526,27 +526,29 @@ export default async function ClientDashboardPage() {
                         className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white"
                         style={{ background: "#0F2744" }}
                       >
-                        {project.engagementManager.name
+                        {project.engagementManager?.name
                           ?.split(" ")
                           .map((n) => n[0])
                           .join("")
                           .slice(0, 2)
-                          .toUpperCase()}
+                          .toUpperCase() ?? "C4"}
                       </div>
                       <div>
                         <p className="text-xs font-medium" style={{ color: "#0F2744" }}>
-                          {project.engagementManager.name}
+                          {project.engagementManager?.name ?? "Consult For Africa"}
                         </p>
                         <p className="text-[11px] text-gray-400">Engagement Manager</p>
                       </div>
                     </div>
-                    <a
-                      href={`mailto:${project.engagementManager.email}`}
-                      className="text-[11px] font-medium hover:underline"
-                      style={{ color: "#D4AF37" }}
-                    >
-                      {project.engagementManager.email}
-                    </a>
+                    {project.engagementManager?.email && (
+                      <a
+                        href={`mailto:${project.engagementManager!.email}`}
+                        className="text-[11px] font-medium hover:underline"
+                        style={{ color: "#D4AF37" }}
+                      >
+                        {project.engagementManager!.email}
+                      </a>
+                    )}
                   </div>
                 </div>
               );

@@ -22,7 +22,7 @@ interface ProjectCardProps {
     endDate: Date | null;
     serviceType: string;
     client: { name: string };
-    engagementManager: { name: string };
+    engagementManager: { name: string } | null;
     _count?: { assignments: number };
   };
 }
