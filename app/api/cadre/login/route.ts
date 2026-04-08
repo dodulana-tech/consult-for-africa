@@ -48,7 +48,8 @@ export async function POST(req: NextRequest) {
       where: { email: email.toLowerCase().trim() },
     });
 
-    if (!professional || !(await verifyPassword(password, professional.passwordHash))) {
+    const storedHash = professional?.passwordHash;
+    if (!professional || !storedHash || !(await verifyPassword(password, storedHash))) {
       return NextResponse.json(
         { error: "Invalid email or password" },
         { status: 401 }
