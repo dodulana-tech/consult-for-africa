@@ -191,8 +191,12 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         : null,
     })),
     updates: project.updates.map((u) => ({
-      ...u,
+      id: u.id,
+      content: u.content,
+      type: u.type,
+      clientVisible: u.clientVisible,
       createdAt: u.createdAt.toISOString(),
+      createdBy: u.createdBy ?? null,
     })),
     client: {
       ...project.client,
