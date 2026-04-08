@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { auth } from "@/auth";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -55,6 +56,9 @@ Rules:
 - Never make up facts about C4A. If unsure, suggest they contact hello@consultforafrica.com`;
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session) return new Response("Unauthorized", { status: 401 });
+
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     req.headers.get("x-real-ip") ??

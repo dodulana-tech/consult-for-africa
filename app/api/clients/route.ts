@@ -4,6 +4,19 @@ import { NextRequest } from "next/server";
 import { randomBytes } from "crypto";
 import bcrypt from "bcryptjs";
 import { emailClientPortalInvite } from "@/lib/email";
+import { z } from "zod";
+
+const createClientSchema = z.object({
+  name: z.string().trim().min(1, "Name is required"),
+  type: z.enum(["PRIVATE_ELITE", "PRIVATE_MIDTIER", "STARTUP", "SME", "GOVERNMENT", "DEVELOPMENT"]),
+  primaryContact: z.string().trim().min(1, "Primary contact is required"),
+  email: z.string().trim().email("Valid email is required"),
+  phone: z.string().trim().min(1, "Phone is required"),
+  address: z.string().trim().min(1, "Address is required"),
+  paymentTerms: z.coerce.number().optional().default(30),
+  currency: z.enum(["USD", "NGN"]).optional().default("NGN"),
+  notes: z.string().trim().nullable().optional(),
+});
 
 /** Generate a secure 14-char password meeting complexity requirements */
 function generatePassword(): string {
@@ -66,33 +79,27 @@ export async function POST(req: NextRequest) {
   const canCreate = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canCreate) return new Response("Forbidden", { status: 403 });
 
-  const {
-    name,
-    type,
-    primaryContact,
-    email,
-    phone,
-    address,
-    paymentTerms,
-    currency,
-    notes,
-  } = await req.json();
-
-  if (!name?.trim() || !type || !primaryContact?.trim() || !email?.trim() || !phone?.trim() || !address?.trim()) {
-    return new Response("name, type, primaryContact, email, phone, address are required", { status: 400 });
+  const parsed = createClientSchema.safeParse(await req.json());
+  if (!parsed.success) {
+    return Response.json(
+      { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
   }
+
+  const { name, type, primaryContact, email, phone, address, paymentTerms, currency, notes } = parsed.data;
 
   const client = await prisma.client.create({
     data: {
-      name: name.trim(),
+      name,
       type,
-      primaryContact: primaryContact.trim(),
-      email: email.trim().toLowerCase(),
-      phone: phone.trim(),
-      address: address.trim(),
-      paymentTerms: paymentTerms ? Number(paymentTerms) : 30,
-      currency: currency || "NGN",
-      notes: notes?.trim() ?? null,
+      primaryContact,
+      email: email.toLowerCase(),
+      phone,
+      address,
+      paymentTerms,
+      currency,
+      notes: notes ?? null,
     },
     select: {
       id: true,

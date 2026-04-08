@@ -4,26 +4,27 @@ import Link from "next/link";
 import { getCadreLabel } from "@/lib/cadreHealth/cadres";
 import { MandateStatusControls } from "@/components/cadrehealth/MandateStatusControls";
 import { FindMatchesButton } from "@/components/cadrehealth/FindMatchesButton";
+import { ArrowLeft, MapPin, Clock, Mail, Phone } from "lucide-react";
 
 const STATUS_COLORS: Record<string, string> = {
-  OPEN: "bg-green-100 text-green-700",
-  SOURCING: "bg-blue-100 text-blue-700",
-  SHORTLISTED: "bg-amber-100 text-amber-700",
-  INTERVIEWING: "bg-purple-100 text-purple-700",
-  OFFER_EXTENDED: "bg-indigo-100 text-indigo-700",
-  PLACED: "bg-emerald-100 text-emerald-700",
+  OPEN: "bg-emerald-50 text-emerald-700",
+  SOURCING: "bg-blue-50 text-blue-700",
+  SHORTLISTED: "bg-amber-50 text-amber-700",
+  INTERVIEWING: "bg-purple-50 text-purple-700",
+  OFFER_EXTENDED: "bg-indigo-50 text-indigo-700",
+  PLACED: "bg-emerald-50 text-emerald-700",
   CLOSED: "bg-gray-100 text-gray-600",
-  CANCELLED: "bg-red-100 text-red-600",
+  CANCELLED: "bg-red-50 text-red-600",
 };
 
 const MATCH_STATUS_COLORS: Record<string, string> = {
-  MATCHED: "bg-blue-100 text-blue-700",
-  CONTACTED: "bg-yellow-100 text-yellow-700",
-  INTERESTED: "bg-green-100 text-green-700",
-  INTERVIEWING: "bg-purple-100 text-purple-700",
-  OFFERED: "bg-indigo-100 text-indigo-700",
-  PLACED: "bg-emerald-100 text-emerald-700",
-  DECLINED: "bg-red-100 text-red-600",
+  MATCHED: "bg-blue-50 text-blue-700",
+  CONTACTED: "bg-amber-50 text-amber-700",
+  INTERESTED: "bg-emerald-50 text-emerald-700",
+  INTERVIEWING: "bg-purple-50 text-purple-700",
+  OFFERED: "bg-indigo-50 text-indigo-700",
+  PLACED: "bg-emerald-50 text-emerald-700",
+  DECLINED: "bg-red-50 text-red-600",
   WITHDRAWN: "bg-gray-100 text-gray-600",
 };
 
@@ -77,26 +78,29 @@ export default async function MandateDetailPage({
         <div>
           <Link
             href="/admin/cadrehealth/mandates"
-            className="mb-2 inline-block text-sm text-gray-500 hover:text-gray-700"
+            className="mb-3 inline-flex items-center gap-1.5 text-sm text-gray-400 transition hover:text-gray-600"
           >
-            &larr; All Mandates
+            <ArrowLeft className="h-3.5 w-3.5" />
+            All Mandates
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">{mandate.title}</h1>
-          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: "#0F2744" }}>
+            {mandate.title}
+          </h1>
+          <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm text-gray-500">
             <span>{getCadreLabel(mandate.cadre)}</span>
-            <span>&middot;</span>
+            <span className="text-gray-300">/</span>
             <span>{mandate.type}</span>
             {mandate.urgency && (
               <>
-                <span>&middot;</span>
+                <span className="text-gray-300">/</span>
                 <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                  className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                     mandate.urgency === "URGENT"
-                      ? "bg-red-100 text-red-700"
+                      ? "bg-red-50 text-red-700"
                       : mandate.urgency === "HIGH"
-                      ? "bg-orange-100 text-orange-700"
+                      ? "bg-orange-50 text-orange-700"
                       : mandate.urgency === "MEDIUM"
-                      ? "bg-yellow-100 text-yellow-700"
+                      ? "bg-amber-50 text-amber-700"
                       : "bg-gray-100 text-gray-600"
                   }`}
                 >
@@ -107,7 +111,7 @@ export default async function MandateDetailPage({
           </div>
         </div>
         <span
-          className={`shrink-0 rounded-full px-3 py-1 text-sm font-medium ${
+          className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold ${
             STATUS_COLORS[mandate.status] || "bg-gray-100 text-gray-600"
           }`}
         >
@@ -119,19 +123,15 @@ export default async function MandateDetailPage({
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Left column: info */}
         <div className="space-y-6">
-          {/* Description */}
           {mandate.description && (
-            <div className="rounded-xl border bg-white p-5">
-              <h2 className="mb-3 font-semibold text-gray-900">Description</h2>
-              <p className="whitespace-pre-wrap text-sm text-gray-600">
+            <Card title="Description">
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-600">
                 {mandate.description}
               </p>
-            </div>
+            </Card>
           )}
 
-          {/* Requirements */}
-          <div className="rounded-xl border bg-white p-5">
-            <h2 className="mb-3 font-semibold text-gray-900">Requirements</h2>
+          <Card title="Requirements">
             <dl className="space-y-3 text-sm">
               <Row label="Cadre" value={getCadreLabel(mandate.cadre)} />
               {mandate.subSpecialty && (
@@ -156,11 +156,9 @@ export default async function MandateDetailPage({
                 <Row label="Values / Cultural" value={mandate.valuesRequirements} />
               )}
             </dl>
-          </div>
+          </Card>
 
-          {/* Terms */}
-          <div className="rounded-xl border bg-white p-5">
-            <h2 className="mb-3 font-semibold text-gray-900">Terms</h2>
+          <Card title="Terms">
             <dl className="space-y-3 text-sm">
               <Row label="Type" value={mandate.type} />
               <Row
@@ -197,44 +195,37 @@ export default async function MandateDetailPage({
                 <Row label="Client Contact" value={mandate.clientContact} />
               )}
             </dl>
-          </div>
+          </Card>
         </div>
 
         {/* Right column: controls + matches */}
         <div className="space-y-6">
-          {/* Status controls */}
-          <div className="rounded-xl border bg-white p-5">
-            <h2 className="mb-3 font-semibold text-gray-900">Status</h2>
+          <Card title="Status">
             <MandateStatusControls mandateId={mandate.id} currentStatus={mandate.status} />
-          </div>
+          </Card>
 
-          {/* Find matches */}
-          <div className="rounded-xl border bg-white p-5">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-gray-900">
-                Matches ({mandate.matches.length})
-              </h2>
-              <FindMatchesButton mandateId={mandate.id} />
-            </div>
-          </div>
+          <Card
+            title={`Matches (${mandate.matches.length})`}
+            action={<FindMatchesButton mandateId={mandate.id} />}
+          />
 
-          {/* Match list */}
           {mandate.matches.length > 0 && (
             <div className="space-y-3">
               {mandate.matches.map((match) => (
                 <div
                   key={match.id}
-                  className="rounded-xl border bg-white p-4"
+                  className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:shadow-md"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                       <Link
                         href={`/admin/cadrehealth/${match.professional.id}`}
-                        className="font-medium text-[#0B3C5D] hover:underline"
+                        className="font-semibold hover:underline"
+                        style={{ color: "#0B3C5D" }}
                       >
                         {match.professional.firstName} {match.professional.lastName}
                       </Link>
-                      <p className="text-sm text-gray-500">
+                      <p className="mt-0.5 text-sm text-gray-500">
                         {getCadreLabel(match.professional.cadre)}
                         {match.professional.subSpecialty &&
                           ` / ${match.professional.subSpecialty}`}
@@ -243,19 +234,19 @@ export default async function MandateDetailPage({
                     <div className="flex shrink-0 items-center gap-2">
                       {match.matchScore != null && (
                         <span
-                          className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                          className={`rounded-full px-2.5 py-1 text-xs font-bold ${
                             match.matchScore >= 80
-                              ? "bg-green-100 text-green-700"
+                              ? "bg-emerald-50 text-emerald-700"
                               : match.matchScore >= 60
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-red-100 text-red-600"
+                              ? "bg-amber-50 text-amber-700"
+                              : "bg-red-50 text-red-600"
                           }`}
                         >
                           {match.matchScore}%
                         </span>
                       )}
                       <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                           MATCH_STATUS_COLORS[match.status] || "bg-gray-100 text-gray-600"
                         }`}
                       >
@@ -264,11 +255,15 @@ export default async function MandateDetailPage({
                     </div>
                   </div>
 
-                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400">
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-gray-400">
                     {match.professional.yearsOfExperience != null && (
-                      <span>{match.professional.yearsOfExperience} yrs exp</span>
+                      <span className="inline-flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {match.professional.yearsOfExperience} yrs exp
+                      </span>
                     )}
-                    <span>
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
                       {[match.professional.city, match.professional.state]
                         .filter(Boolean)
                         .join(", ") || "Location N/A"}
@@ -279,12 +274,24 @@ export default async function MandateDetailPage({
                   </div>
 
                   <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-                    {match.professional.email && <span>{match.professional.email}</span>}
-                    {match.professional.phone && <span>{match.professional.phone}</span>}
+                    {match.professional.email && (
+                      <span className="inline-flex items-center gap-1">
+                        <Mail className="h-3 w-3" />
+                        {match.professional.email}
+                      </span>
+                    )}
+                    {match.professional.phone && (
+                      <span className="inline-flex items-center gap-1">
+                        <Phone className="h-3 w-3" />
+                        {match.professional.phone}
+                      </span>
+                    )}
                   </div>
 
                   {match.matchExplanation && (
-                    <p className="mt-2 text-xs text-gray-400">{match.matchExplanation}</p>
+                    <p className="mt-3 rounded-xl bg-gray-50 px-3 py-2 text-xs text-gray-500">
+                      {match.matchExplanation}
+                    </p>
                   )}
                 </div>
               ))}
@@ -296,11 +303,33 @@ export default async function MandateDetailPage({
   );
 }
 
+function Card({
+  title,
+  action,
+  children,
+}: {
+  title: string;
+  action?: React.ReactNode;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-bold tracking-tight" style={{ color: "#0F2744" }}>
+          {title}
+        </h2>
+        {action}
+      </div>
+      {children && <div className="mt-4">{children}</div>}
+    </div>
+  );
+}
+
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
-      <dt className="w-44 shrink-0 font-medium text-gray-500">{label}</dt>
-      <dd className="text-gray-900">{value}</dd>
+      <dt className="w-44 shrink-0 text-sm font-medium text-gray-400">{label}</dt>
+      <dd className="text-sm text-gray-900">{value}</dd>
     </div>
   );
 }

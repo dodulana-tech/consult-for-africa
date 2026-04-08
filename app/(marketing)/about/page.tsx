@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+
+export const revalidate = 3600;
+
 import Image from "next/image";
 import Link from "next/link";
 import PartnerCTA from "@/components/cfa/PartnerCTA";

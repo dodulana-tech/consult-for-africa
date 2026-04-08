@@ -3,6 +3,35 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { emailOwnGigPendingReview } from "@/lib/email";
 import { getOwnGigEligibility, checkOwnGigLimits, checkBudgetWithinTierLimits } from "@/lib/consultantTier";
+import { z } from "zod";
+
+const createOwnGigSchema = z.object({
+  clientName: z.string().min(1, "Client name is required"),
+  clientEmail: z.string().email("Valid client email is required"),
+  clientPhone: z.string().optional(),
+  clientContactName: z.string().min(1, "Client contact name is required"),
+  projectName: z.string().min(1, "Project name is required"),
+  description: z.string().optional(),
+  serviceType: z.enum([
+    "HOSPITAL_OPERATIONS", "TURNAROUND", "EMBEDDED_LEADERSHIP", "CLINICAL_GOVERNANCE",
+    "DIGITAL_HEALTH", "HEALTH_SYSTEMS", "DIASPORA_EXPERTISE", "EM_AS_SERVICE",
+  ]),
+  engagementType: z.enum([
+    "PROJECT", "RETAINER", "SECONDMENT", "FRACTIONAL", "TRANSFORMATION", "TRANSACTION",
+  ]).optional(),
+  startDate: z.string().optional(),
+  budgetAmount: z.number().optional(),
+  budgetCurrency: z.enum(["USD", "NGN"]).optional().default("NGN"),
+  feeModel: z.enum(["PERCENTAGE", "FLAT_MONTHLY"], { message: "feeModel must be PERCENTAGE or FLAT_MONTHLY" }),
+  feePct: z.number().min(10).max(15).optional(),
+  flatMonthlyFee: z.number().positive().optional(),
+}).refine(
+  (data) => data.feeModel !== "PERCENTAGE" || (data.feePct !== undefined && data.feePct >= 10 && data.feePct <= 15),
+  { message: "feePct must be between 10 and 15 for PERCENTAGE model", path: ["feePct"] }
+).refine(
+  (data) => data.feeModel !== "FLAT_MONTHLY" || (data.flatMonthlyFee !== undefined && data.flatMonthlyFee > 0),
+  { message: "flatMonthlyFee is required for FLAT_MONTHLY model", path: ["flatMonthlyFee"] }
+);
 
 const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
 
@@ -48,30 +77,21 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: limits.reason }, { status: 400 });
   }
 
-  const body = await req.json();
+  const parsed = createOwnGigSchema.safeParse(await req.json());
+  if (!parsed.success) {
+    return Response.json(
+      { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
+  }
+
   const {
     clientName, clientEmail, clientPhone, clientContactName,
     projectName, description, serviceType,
     engagementType: rawType,
     startDate, budgetAmount, budgetCurrency,
     feeModel, feePct, flatMonthlyFee,
-  } = body;
-
-  if (!clientName || !clientEmail || !clientContactName || !projectName || !serviceType) {
-    return Response.json({ error: "clientName, clientEmail, clientContactName, projectName, and serviceType are required" }, { status: 400 });
-  }
-
-  if (!feeModel || !["PERCENTAGE", "FLAT_MONTHLY"].includes(feeModel)) {
-    return Response.json({ error: "feeModel must be PERCENTAGE or FLAT_MONTHLY" }, { status: 400 });
-  }
-
-  if (feeModel === "PERCENTAGE" && (!feePct || feePct < 10 || feePct > 15)) {
-    return Response.json({ error: "feePct must be between 10 and 15" }, { status: 400 });
-  }
-
-  if (feeModel === "FLAT_MONTHLY" && (!flatMonthlyFee || flatMonthlyFee <= 0)) {
-    return Response.json({ error: "flatMonthlyFee is required for FLAT_MONTHLY model" }, { status: 400 });
-  }
+  } = parsed.data;
 
   // ─── Budget tier limit check (respects override) ─────────────────────────
   if (budgetAmount && Number(budgetAmount) > 0) {
@@ -90,7 +110,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ─── Min fee percentage from tier ─────────────────────────────────────────
-  if (feeModel === "PERCENTAGE" && feePct < eligibility.minFeePct) {
+  if (feeModel === "PERCENTAGE" && feePct != null && feePct < eligibility.minFeePct) {
     return Response.json({ error: `Minimum platform fee for your tier is ${eligibility.minFeePct}%` }, { status: 400 });
   }
 

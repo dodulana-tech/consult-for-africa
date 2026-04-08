@@ -10,8 +10,6 @@ const anthropic = new Anthropic({
   timeout: 100_000, // 100s max for API call
 });
 
-// Log API key presence at module load
-console.log("[Maarova] Anthropic SDK initialized, key present:", !!process.env.ANTHROPIC_API_KEY, "key prefix:", process.env.ANTHROPIC_API_KEY?.slice(0, 12));
 
 const MODULE_LABELS: Record<string, string> = {
   DISC: "Behavioural Style (DISC)",

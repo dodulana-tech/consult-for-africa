@@ -1,17 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { signCadreJWT } from "@/lib/cadreAuth";
+import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { cookies } from "next/headers";
 import { sendCadreEmail } from "@/lib/cadreEmail";
 import { rateLimit, getClientIp } from "@/lib/cadreHealth/rateLimit";
+import { z } from "zod";
 
-function hashPassword(password: string): string {
-  const salt = crypto.randomBytes(16).toString("hex");
-  const hash = crypto
-    .pbkdf2Sync(password, salt, 100000, 64, "sha512")
-    .toString("hex");
-  return `${salt}:${hash}`;
+const registerSchema = z.object({
+  firstName: z.string().trim().min(1, "First name is required"),
+  lastName: z.string().trim().min(1, "Last name is required"),
+  email: z.string().trim().email("Valid email is required"),
+  phone: z.string().trim().optional(),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  cadre: z.enum([
+    "MEDICINE", "DENTISTRY", "NURSING", "MIDWIFERY", "PHARMACY",
+    "MEDICAL_LABORATORY_SCIENCE", "RADIOGRAPHY_IMAGING", "REHABILITATION_THERAPY",
+    "OPTOMETRY", "COMMUNITY_HEALTH", "ENVIRONMENTAL_HEALTH", "NUTRITION_DIETETICS",
+    "PSYCHOLOGY_SOCIAL_WORK", "PUBLIC_HEALTH", "HEALTH_ADMINISTRATION", "BIOMEDICAL_ENGINEERING",
+  ]),
+  subSpecialty: z.string().trim().optional(),
+  yearsOfExperience: z.number().nullable().optional(),
+  state: z.string().optional(),
+  city: z.string().trim().optional(),
+  isDiaspora: z.boolean().optional().default(false),
+  diasporaCountry: z.string().trim().optional(),
+  openTo: z.array(z.enum([
+    "PERMANENT", "LOCUM", "CONSULTING", "INTERNATIONAL", "SHORT_MISSION", "MEDEVAC", "REMOTE",
+  ])).optional().default([]),
+  referralCode: z.string().trim().optional(),
+});
+
+async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 12);
 }
 
 function generateReferralCode(): string {
@@ -29,7 +51,13 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body = await req.json();
+    const parsed = registerSchema.safeParse(await req.json());
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
 
     const {
       firstName,
@@ -46,26 +74,11 @@ export async function POST(req: NextRequest) {
       diasporaCountry,
       openTo,
       referralCode,
-    } = body;
-
-    // Validate required fields
-    if (!firstName || !lastName || !email || !password || !cadre) {
-      return NextResponse.json(
-        { error: "First name, last name, email, password, and cadre are required" },
-        { status: 400 }
-      );
-    }
-
-    if (password.length < 8) {
-      return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
-        { status: 400 }
-      );
-    }
+    } = parsed.data;
 
     // Check for existing email
     const existing = await prisma.cadreProfessional.findUnique({
-      where: { email: email.toLowerCase().trim() },
+      where: { email: email.toLowerCase() },
     });
     if (existing) {
       return NextResponse.json(
@@ -78,7 +91,7 @@ export async function POST(req: NextRequest) {
     let referredById: string | undefined;
     if (referralCode) {
       const referrer = await prisma.cadreProfessional.findUnique({
-        where: { referralCode: referralCode.toUpperCase().trim() },
+        where: { referralCode: referralCode.toUpperCase() },
       });
       if (referrer) referredById = referrer.id;
     }
@@ -97,20 +110,20 @@ export async function POST(req: NextRequest) {
     // Create professional
     const professional = await prisma.cadreProfessional.create({
       data: {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        email: email.toLowerCase().trim(),
-        phone: phone?.trim() || null,
-        passwordHash: hashPassword(password),
+        firstName,
+        lastName,
+        email: email.toLowerCase(),
+        phone: phone || null,
+        passwordHash: await hashPassword(password),
         cadre,
-        subSpecialty: subSpecialty?.trim() || null,
+        subSpecialty: subSpecialty || null,
         yearsOfExperience: yearsOfExperience || null,
         state: isDiaspora ? null : state || null,
-        city: isDiaspora ? null : city?.trim() || null,
-        isDiaspora: !!isDiaspora,
-        diasporaCountry: isDiaspora ? diasporaCountry?.trim() || null : null,
-        country: isDiaspora && diasporaCountry ? diasporaCountry.trim() : "Nigeria",
-        openTo: openTo || [],
+        city: isDiaspora ? null : city || null,
+        isDiaspora,
+        diasporaCountry: isDiaspora ? diasporaCountry || null : null,
+        country: isDiaspora && diasporaCountry ? diasporaCountry : "Nigeria",
+        openTo,
         referralCode: generateReferralCode(),
         referredById: referredById || null,
         profileCompleteness: completeness,

@@ -196,6 +196,7 @@ enum UpdateType {
   ISSUE
   CLIENT_FEEDBACK
   TEAM_CHANGE
+  WORK_STREAM_UPDATE
 }
 
 enum PhaseStatus {
@@ -395,6 +396,7 @@ model Client {
   leadsConverted    Lead[]         @relation("LeadConverted")
   ndas              Nda[]
   creditNotes       CreditNote[]
+  agentOpportunities AgentOpportunity[]
 
   @@index([type, status])
 }
@@ -403,8 +405,8 @@ model Engagement {
   id                  String           @id @default(cuid())
   clientId            String
   client              Client           @relation(fields: [clientId], references: [id])
-  engagementManagerId String
-  engagementManager   User             @relation("EngagementEM", fields: [engagementManagerId], references: [id])
+  engagementManagerId String?
+  engagementManager   User?            @relation("EngagementEM", fields: [engagementManagerId], references: [id], onDelete: SetNull)
 
   // Common fields
   name           String
@@ -474,7 +476,7 @@ model Engagement {
   // OWN GIG fields
   isOwnGig                Boolean       @default(false)
   ownGigOwnerId           String?
-  ownGigOwner             User?         @relation("OwnGigOwner", fields: [ownGigOwnerId], references: [id])
+  ownGigOwner             User?         @relation("OwnGigOwner", fields: [ownGigOwnerId], references: [id], onDelete: SetNull)
   ownGigFeeModel          OwnGigFeeModel?
   ownGigFeePct            Decimal?      @db.Decimal(5, 2)  // 10-15% for PERCENTAGE model
   ownGigFlatMonthlyFee    Decimal?      @db.Decimal(14, 2) // for FLAT_MONTHLY model
@@ -483,7 +485,7 @@ model Engagement {
   ownGigSubmittedAt       DateTime?
   ownGigReviewedAt        DateTime?
   ownGigReviewedById      String?
-  ownGigReviewedBy        User?         @relation("OwnGigReviewer", fields: [ownGigReviewedById], references: [id])
+  ownGigReviewedBy        User?         @relation("OwnGigReviewer", fields: [ownGigReviewedById], references: [id], onDelete: SetNull)
   ownGigConflictFlag      Boolean       @default(false)
   ownGigConflictNote      String?
 
@@ -513,6 +515,7 @@ model Engagement {
   internRotations        InternRotation[]
   billingSchedules       BillingSchedule[]
   creditNotes            CreditNote[]
+  agentOpportunities     AgentOpportunity[]
 
   @@map("Project")
   @@index([clientId])
@@ -527,7 +530,7 @@ model OwnGigPlatformFee {
   engagementId    String
   engagement      Engagement     @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   consultantId    String
-  consultant      User           @relation("OwnGigFeeConsultant", fields: [consultantId], references: [id])
+  consultant      User           @relation("OwnGigFeeConsultant", fields: [consultantId], references: [id], onDelete: Cascade)
 
   periodStart     DateTime
   periodEnd       DateTime
@@ -538,6 +541,7 @@ model OwnGigPlatformFee {
   status          String         @default("PENDING") // PENDING, INVOICED, PAID
 
   createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   @@index([engagementId])
   @@index([consultantId])
@@ -585,7 +589,7 @@ model Assignment {
   engagementId String           @map("projectId")
   engagement   Engagement       @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   consultantId String
-  consultant   User             @relation(fields: [consultantId], references: [id])
+  consultant   User             @relation(fields: [consultantId], references: [id], onDelete: Cascade)
 
   // Track assignment (optional - null means project-level floater)
   trackId      String?
@@ -696,7 +700,7 @@ model TimeEntry {
   assignmentId String
   assignment   Assignment      @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   consultantId String
-  consultant   User            @relation(fields: [consultantId], references: [id])
+  consultant   User            @relation(fields: [consultantId], references: [id], onDelete: Cascade)
   trackId      String?
   track        EngagementTrack? @relation(fields: [trackId], references: [id])
 
@@ -750,7 +754,7 @@ model Invoice {
 
   // Approval workflow
   approvedById    String?
-  approvedBy      User?         @relation("InvoiceApprover", fields: [approvedById], references: [id])
+  approvedBy      User?         @relation("InvoiceApprover", fields: [approvedById], references: [id], onDelete: SetNull)
   approvedAt      DateTime?
 
   // Billing context
@@ -786,14 +790,15 @@ model Invoice {
 }
 
 model EngagementUpdate {
-  id        String     @id @default(cuid())
-  engagementId String  @map("projectId")
-  engagement   Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
-  content   String     @db.Text
-  type      UpdateType @default(GENERAL)
-  createdById String
-  createdBy User       @relation(fields: [createdById], references: [id])
-  createdAt DateTime   @default(now())
+  id             String     @id @default(cuid())
+  engagementId   String     @map("projectId")
+  engagement     Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+  content        String     @db.Text
+  type           UpdateType @default(GENERAL)
+  clientVisible  Boolean    @default(false)
+  createdById    String?
+  createdBy      User?      @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt      DateTime   @default(now())
 
   @@map("ProjectUpdate")
   @@index([engagementId], map: "ProjectUpdate_projectId_createdAt_idx")
@@ -802,9 +807,9 @@ model EngagementUpdate {
 model Message {
   id          String      @id @default(cuid())
   engagementId String?    @map("projectId")
-  engagement   Engagement? @relation(fields: [engagementId], references: [id])
-  senderId    String
-  sender      User     @relation(fields: [senderId], references: [id])
+  engagement   Engagement? @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+  senderId    String?
+  sender      User?    @relation(fields: [senderId], references: [id], onDelete: SetNull)
   content     String   @db.Text
   attachments String[]
   isRead      Boolean  @default(false)
@@ -1003,8 +1008,8 @@ enum ReferralStatus {
 
 model Referral {
   id           String         @id @default(cuid())
-  referrerId   String
-  referrer     User           @relation(fields: [referrerId], references: [id])
+  referrerId   String?
+  referrer     User?          @relation(fields: [referrerId], references: [id], onDelete: SetNull)
   type         ReferralType
   name         String
   email        String
@@ -1063,7 +1068,7 @@ model Lead {
 
   // Ownership
   assignedToId       String?
-  assignedTo         User?    @relation("LeadOwner", fields: [assignedToId], references: [id])
+  assignedTo         User?    @relation("LeadOwner", fields: [assignedToId], references: [id], onDelete: SetNull)
 
   // Links
   existingClientId   String?
@@ -1164,7 +1169,7 @@ model TalentApplication {
   status          TalentApplicationStatus @default(SUBMITTED)
   reviewNotes     String? @db.Text
   reviewedById    String?
-  reviewedBy      User?   @relation("ApplicationReviewer", fields: [reviewedById], references: [id])
+  reviewedBy      User?   @relation("ApplicationReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
   reviewedAt      DateTime?
 
   // Onboarding link
@@ -1679,7 +1684,7 @@ model QuestionAnswer {
 model TrackPurchase {
   id              String        @id @default(cuid())
   userId          String
-  user            User          @relation(fields: [userId], references: [id])
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   trackId         String
   track           TrainingTrack @relation(fields: [trackId], references: [id])
   amountNGN       Decimal       @db.Decimal(10, 2)
@@ -1701,7 +1706,7 @@ model TrackPurchase {
 model AuditLog {
   id          String   @id @default(cuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   action      AuditAction
   entityType  String   // "Project", "Deliverable", "Risk", "Phase", "Client", etc.
   entityId    String
@@ -1723,8 +1728,8 @@ model StaffingRequest {
   id          String     @id @default(cuid())
   engagementId String    @map("projectId")
   engagement   Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
-  createdById String
-  createdBy   User     @relation("StaffingRequestCreator", fields: [createdById], references: [id])
+  createdById String?
+  createdBy   User?    @relation("StaffingRequestCreator", fields: [createdById], references: [id], onDelete: SetNull)
   trackId     String?
   track       EngagementTrack? @relation(fields: [trackId], references: [id])
 
@@ -1755,13 +1760,14 @@ model StaffingExpression {
   staffingRequestId String
   staffingRequest  StaffingRequest @relation(fields: [staffingRequestId], references: [id], onDelete: Cascade)
   consultantId     String
-  consultant       User            @relation("StaffingExpressions", fields: [consultantId], references: [id])
+  consultant       User            @relation("StaffingExpressions", fields: [consultantId], references: [id], onDelete: Cascade)
 
   note             String? @db.Text  // "I have deep turnaround experience..."
   status           String  @default("INTERESTED") // INTERESTED, SHORTLISTED, SELECTED, PASSED
   matchScore       Int?    // Nuru AI match score (0-100)
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([staffingRequestId, consultantId])
   @@index([consultantId])
@@ -1780,8 +1786,8 @@ model Proposal {
   id          String         @id @default(cuid())
   clientId    String?
   client      Client?        @relation(fields: [clientId], references: [id])
-  createdById String
-  createdBy   User           @relation(fields: [createdById], references: [id])
+  createdById String?
+  createdBy   User?          @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
   title       String
   clientName  String
@@ -2491,8 +2497,8 @@ model DiscoveryCall {
   lead                Lead?   @relation(fields: [leadId], references: [id])
 
   // Meta
-  conductedById      String
-  conductedBy        User    @relation(fields: [conductedById], references: [id])
+  conductedById      String?
+  conductedBy        User?   @relation(fields: [conductedById], references: [id], onDelete: SetNull)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -2541,8 +2547,8 @@ model Meeting {
   calendarEventId String?       // Google Calendar event ID for sync
 
   // Participants
-  organizerId     String
-  organizer       User          @relation("MeetingOrganizer", fields: [organizerId], references: [id])
+  organizerId     String?
+  organizer       User?         @relation("MeetingOrganizer", fields: [organizerId], references: [id], onDelete: SetNull)
   participants    MeetingParticipant[]
 
   // Links to other entities
@@ -2582,7 +2588,7 @@ model MeetingParticipant {
 
   // Internal user (optional - external participants won't have this)
   userId      String?
-  user        User?    @relation("MeetingParticipants", fields: [userId], references: [id])
+  user        User?    @relation("MeetingParticipants", fields: [userId], references: [id], onDelete: SetNull)
 
   // External participant info
   name        String
@@ -2656,15 +2662,15 @@ model Nda {
   clientId        String?
   client          Client?     @relation(fields: [clientId], references: [id])
   consultantId    String?     // User ID of consultant (for CONSULTANT_MASTER)
-  consultant      User?       @relation("ConsultantNdas", fields: [consultantId], references: [id])
+  consultant      User?       @relation("ConsultantNdas", fields: [consultantId], references: [id], onDelete: SetNull)
 
   // Signing token (for email-based signing by external parties)
   signingToken    String?   @unique
   signingTokenExp DateTime?
 
   // Audit
-  createdById     String
-  createdBy       User      @relation("NdaCreator", fields: [createdById], references: [id])
+  createdById     String?
+  createdBy       User?     @relation("NdaCreator", fields: [createdById], references: [id], onDelete: SetNull)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -2699,11 +2705,11 @@ model InternRotation {
   cohortId     String
   cohort       InternCohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
   internId     String       // User ID of the intern
-  intern       User         @relation("InternRotations", fields: [internId], references: [id])
+  intern       User         @relation("InternRotations", fields: [internId], references: [id], onDelete: Cascade)
   engagementId String?      @map("projectId")
   engagement   Engagement?  @relation(fields: [engagementId], references: [id])
   supervisorId String?
-  supervisor   User?        @relation("SupervisedRotations", fields: [supervisorId], references: [id])
+  supervisor   User?        @relation("SupervisedRotations", fields: [supervisorId], references: [id], onDelete: SetNull)
   startDate    DateTime
   endDate      DateTime
   status       String       @default("ACTIVE") // ACTIVE, COMPLETED, TERMINATED
@@ -2720,8 +2726,8 @@ model InternEvaluation {
   id           String         @id @default(cuid())
   rotationId   String
   rotation     InternRotation @relation(fields: [rotationId], references: [id], onDelete: Cascade)
-  evaluatorId  String
-  evaluator    User           @relation("InternEvaluations", fields: [evaluatorId], references: [id])
+  evaluatorId  String?
+  evaluator    User?          @relation("InternEvaluations", fields: [evaluatorId], references: [id], onDelete: SetNull)
   period       String         // e.g. "Month 1", "Final"
 
   // Scoring (1-5 each)
@@ -2753,8 +2759,8 @@ model OutreachCampaign {
   sentCount   Int      @default(0)
   respondedCount Int   @default(0)
   assessmentCount Int  @default(0) // how many actually took assessment
-  createdById String
-  createdBy   User     @relation("CampaignCreator", fields: [createdById], references: [id])
+  createdById String?
+  createdBy   User?    @relation("CampaignCreator", fields: [createdById], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -3417,7 +3423,7 @@ model Payment {
   receiptUrl      String?       // generated receipt URL
 
   confirmedById   String?
-  confirmedBy     User?         @relation("PaymentConfirmer", fields: [confirmedById], references: [id])
+  confirmedBy     User?         @relation("PaymentConfirmer", fields: [confirmedById], references: [id], onDelete: SetNull)
   confirmedAt     DateTime?
 
   createdAt DateTime @default(now())
@@ -3488,8 +3494,8 @@ model CreditNote {
   appliedToInvoiceId String?
   appliedToInvoice   Invoice? @relation("CreditNoteApplied", fields: [appliedToInvoiceId], references: [id])
 
-  createdById       String
-  createdBy         User    @relation("CreditNoteCreator", fields: [createdById], references: [id])
+  createdById       String?
+  createdBy         User?   @relation("CreditNoteCreator", fields: [createdById], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -4413,4 +4419,307 @@ model CadreNotification {
   createdAt             DateTime                @default(now())
 
   @@index([professionalId, isRead, createdAt])
+}
+
+// ─── AGENT PLATFORM ──────────────────────────────────────────────────────────
+
+enum AgentStatus {
+  APPLIED
+  VETTING
+  APPROVED
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum AgentOpportunityStatus {
+  DRAFT
+  OPEN
+  ASSIGNED
+  PAUSED
+  CLOSED
+  COMPLETED
+}
+
+enum AgentDealStage {
+  PROSPECT
+  CONTACTED
+  PITCHED
+  NEGOTIATING
+  VERBAL_COMMIT
+  CLOSED_WON
+  CLOSED_LOST
+  DISQUALIFIED
+}
+
+enum CommissionType {
+  FIXED_PER_DEAL
+  PERCENTAGE
+  TIERED
+  RECURRING
+}
+
+enum CommissionStatus {
+  PENDING
+  VERIFIED
+  APPROVED
+  PROCESSING
+  PAID
+  DISPUTED
+  CANCELLED
+}
+
+model SalesAgent {
+  id                String       @id @default(cuid())
+  email             String       @unique
+  phone             String
+  passwordHash      String?
+  firstName         String
+  lastName          String
+  photo             String?
+
+  company           String?
+  title             String?
+  bio               String?      @db.Text
+  location          String?
+  state             String?
+  country           String       @default("Nigeria")
+
+  industries        String[]
+  salesExperience   Int?
+  referralSource    String?
+  linkedinUrl       String?
+
+  status            AgentStatus  @default(APPLIED)
+  vettedById        String?
+  vettedAt          DateTime?
+  vetNotes          String?      @db.Text
+
+  bankName          String?
+  accountNumber     String?
+  accountName       String?
+
+  isPortalEnabled   Boolean      @default(false)
+  lastLoginAt       DateTime?
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+  emailVerified     Boolean      @default(false)
+  emailVerifyToken  String?
+
+  totalDeals        Int          @default(0)
+  totalRevenue      Decimal      @default(0) @db.Decimal(14, 2)
+  totalCommission   Decimal      @default(0) @db.Decimal(14, 2)
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  opportunityAssignments AgentOpportunityAssignment[]
+  deals                  AgentDeal[]
+  commissions            AgentCommission[]
+  payouts                AgentPayout[]
+  documents              AgentDocument[]
+
+  @@index([status])
+  @@index([email])
+}
+
+model AgentDocument {
+  id          String     @id @default(cuid())
+  agentId     String
+  agent       SalesAgent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  type        String
+  name        String
+  fileUrl     String
+  uploadedAt  DateTime   @default(now())
+  verifiedAt  DateTime?
+
+  @@index([agentId])
+}
+
+model AgentOpportunity {
+  id                String                  @id @default(cuid())
+  opportunityCode   String                  @unique
+
+  title             String
+  description       String                  @db.Text
+  productType       String
+  serviceCategory   String?
+
+  clientId          String?
+  client            Client?                 @relation(fields: [clientId], references: [id])
+  clientName        String
+
+  engagementId      String?
+  engagement        Engagement?             @relation(fields: [engagementId], references: [id])
+  trackId           String?
+
+  territories       String[]
+  targetIndustries  String[]
+  targetDescription String?                 @db.Text
+
+  commissionType    CommissionType
+  commissionValue   Decimal                 @db.Decimal(10, 2)
+  commissionCurrency Currency               @default(NGN)
+  commissionTiers   Json?
+  recurringMonths   Int?
+
+  expectedDealValueMin Decimal?             @db.Decimal(14, 2)
+  expectedDealValueMax Decimal?             @db.Decimal(14, 2)
+
+  startDate         DateTime
+  endDate           DateTime?
+  status            AgentOpportunityStatus  @default(DRAFT)
+  maxAgents         Int?
+
+  pitchDeckUrl      String?
+  briefingDocUrl    String?
+
+  createdById       String?
+  notes             String?                 @db.Text
+
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+
+  assignments       AgentOpportunityAssignment[]
+  deals             AgentDeal[]
+
+  @@index([status])
+  @@index([clientId])
+  @@index([engagementId])
+}
+
+model AgentOpportunityAssignment {
+  id              String             @id @default(cuid())
+  opportunityId   String
+  opportunity     AgentOpportunity   @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  agentId         String
+  agent           SalesAgent         @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  status          String             @default("APPLIED")
+  appliedAt       DateTime           @default(now())
+  approvedAt      DateTime?
+  approvedById    String?
+
+  assignedTerritory String?
+
+  dealsWon        Int                @default(0)
+  totalRevenue    Decimal            @default(0) @db.Decimal(14, 2)
+  totalCommission Decimal            @default(0) @db.Decimal(14, 2)
+
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@unique([opportunityId, agentId])
+  @@index([agentId])
+  @@index([opportunityId])
+}
+
+model AgentDeal {
+  id              String           @id @default(cuid())
+  dealCode        String           @unique
+  opportunityId   String
+  opportunity     AgentOpportunity @relation(fields: [opportunityId], references: [id])
+  agentId         String
+  agent           SalesAgent       @relation(fields: [agentId], references: [id])
+
+  prospectName    String
+  prospectOrg     String?
+  prospectEmail   String?
+  prospectPhone   String?
+  prospectTitle   String?
+
+  stage           AgentDealStage   @default(PROSPECT)
+  stageHistory    Json?
+
+  dealValue       Decimal?         @db.Decimal(14, 2)
+  dealCurrency    Currency         @default(NGN)
+  dealDescription String?          @db.Text
+
+  closedAt        DateTime?
+  closedValue     Decimal?         @db.Decimal(14, 2)
+  proofDocUrl     String?
+
+  verifiedById    String?
+  verifiedAt      DateTime?
+  verificationNotes String?        @db.Text
+
+  nextFollowUpAt  DateTime?
+  notes           String?          @db.Text
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  commissions     AgentCommission[]
+
+  @@index([agentId])
+  @@index([opportunityId])
+  @@index([stage])
+}
+
+model AgentCommission {
+  id              String           @id @default(cuid())
+  dealId          String
+  deal            AgentDeal        @relation(fields: [dealId], references: [id])
+  agentId         String
+  agent           SalesAgent       @relation(fields: [agentId], references: [id])
+
+  commissionType  CommissionType
+  baseValue       Decimal          @db.Decimal(14, 2)
+  rate            Decimal          @db.Decimal(10, 2)
+  amount          Decimal          @db.Decimal(14, 2)
+  currency        Currency         @default(NGN)
+
+  period          String?
+  periodNumber    Int?
+
+  status          CommissionStatus @default(PENDING)
+  verifiedAt      DateTime?
+  approvedAt      DateTime?
+  approvedById    String?
+  paidAt          DateTime?
+
+  payoutId        String?
+  payout          AgentPayout?     @relation(fields: [payoutId], references: [id])
+
+  disputeReason   String?          @db.Text
+  notes           String?          @db.Text
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([agentId])
+  @@index([dealId])
+  @@index([status])
+  @@index([payoutId])
+}
+
+model AgentPayout {
+  id              String           @id @default(cuid())
+  payoutCode      String           @unique
+  agentId         String
+  agent           SalesAgent       @relation(fields: [agentId], references: [id])
+
+  totalAmount     Decimal          @db.Decimal(14, 2)
+  currency        Currency         @default(NGN)
+  status          String           @default("PENDING")
+
+  paymentMethod   String?
+  paymentRef      String?
+  bankName        String?
+  accountNumber   String?
+  accountName     String?
+
+  processedById   String?
+  processedAt     DateTime?
+  confirmedAt     DateTime?
+  failureReason   String?
+
+  notes           String?          @db.Text
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  commissions     AgentCommission[]
+
+  @@index([agentId])
+  @@index([status])
 }

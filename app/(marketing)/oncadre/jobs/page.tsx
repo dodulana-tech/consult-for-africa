@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { getCadreLabel } from "@/lib/cadreHealth/cadres";
 import Link from "next/link";
 import type { Metadata } from "next";
+
+export const revalidate = 3600;
 import type { CadreMandateType, CadreProfessionalCadre } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 

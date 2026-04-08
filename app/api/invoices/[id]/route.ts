@@ -1,61 +1,11 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { serialise } from "@/lib/serialization";
+import { ELEVATED_ROLES, EM_AND_ABOVE } from "@/lib/constants";
 import { NextRequest } from "next/server";
 import type { InvoiceStatus, Prisma } from "@prisma/client";
 
 type Ctx = { params: Promise<{ id: string }> };
-
-/* ── Serialise helpers ─────────────────────────────────────────────────────── */
-
-function serialise(inv: Record<string, unknown>) {
-  const decimalFields = [
-    "subtotal", "tax", "whtAmount", "discountAmount",
-    "total", "paidAmount", "balanceDue",
-  ];
-  const dateFields = [
-    "issuedDate", "dueDate", "paidDate", "viewedAt", "approvedAt",
-    "billingPeriodStart", "billingPeriodEnd", "createdAt", "updatedAt",
-  ];
-  const out: Record<string, unknown> = { ...inv };
-  for (const f of decimalFields) {
-    if (out[f] != null) out[f] = Number(out[f]);
-  }
-  for (const f of dateFields) {
-    if (out[f] instanceof Date) out[f] = (out[f] as Date).toISOString();
-    else if (out[f] == null) out[f] = null;
-  }
-
-  if (Array.isArray(out.lineItemRecords)) {
-    out.lineItemRecords = (out.lineItemRecords as Record<string, unknown>[]).map((li) => ({
-      ...li,
-      quantity: li.quantity != null ? Number(li.quantity) : null,
-      unitPrice: li.unitPrice != null ? Number(li.unitPrice) : null,
-      amount: li.amount != null ? Number(li.amount) : null,
-      createdAt: li.createdAt instanceof Date ? (li.createdAt as Date).toISOString() : li.createdAt,
-    }));
-  }
-
-  if (Array.isArray(out.payments)) {
-    out.payments = (out.payments as Record<string, unknown>[]).map((p) => ({
-      ...p,
-      amount: p.amount != null ? Number(p.amount) : null,
-      paymentDate: p.paymentDate instanceof Date ? (p.paymentDate as Date).toISOString() : p.paymentDate,
-      confirmedAt: p.confirmedAt instanceof Date ? (p.confirmedAt as Date).toISOString() : p.confirmedAt,
-      createdAt: p.createdAt instanceof Date ? (p.createdAt as Date).toISOString() : p.createdAt,
-      updatedAt: p.updatedAt instanceof Date ? (p.updatedAt as Date).toISOString() : p.updatedAt,
-    }));
-  }
-
-  if (Array.isArray(out.reminders)) {
-    out.reminders = (out.reminders as Record<string, unknown>[]).map((r) => ({
-      ...r,
-      sentAt: r.sentAt instanceof Date ? (r.sentAt as Date).toISOString() : r.sentAt,
-      createdAt: r.createdAt instanceof Date ? (r.createdAt as Date).toISOString() : r.createdAt,
-    }));
-  }
-
-  return out;
-}
 
 /* ── Approval threshold ────────────────────────────────────────────────────── */
 
@@ -91,7 +41,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ELEVATED_ROLES.includes(session.user.role as typeof ELEVATED_ROLES[number]);
   const isEM = session.user.role === "ENGAGEMENT_MANAGER";
   if (!isElevated && !isEM) return new Response("Forbidden", { status: 403 });
 
@@ -125,7 +75,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
     }
   }
 
-  return Response.json(serialise(invoice as unknown as Record<string, unknown>));
+  return Response.json(serialise(invoice));
 }
 
 /* ── PATCH: status transitions + draft editing ─────────────────────────────── */
@@ -134,11 +84,11 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
-  const canUpdate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canUpdate = EM_AND_ABOVE.includes(session.user.role as typeof EM_AND_ABOVE[number]);
   if (!canUpdate) return new Response("Forbidden", { status: 403 });
 
   const { id } = await params;
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ELEVATED_ROLES.includes(session.user.role as typeof ELEVATED_ROLES[number]);
 
   // Fetch existing invoice
   const existing = await prisma.invoice.findUnique({
@@ -303,5 +253,5 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     },
   });
 
-  return Response.json(serialise(invoice as unknown as Record<string, unknown>));
+  return Response.json(serialise(invoice));
 }

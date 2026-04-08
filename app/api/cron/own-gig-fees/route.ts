@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { Decimal } from "@prisma/client/runtime/library";
 import { timingSafeEqual } from "crypto";
 import { NextRequest } from "next/server";
 
@@ -55,15 +56,19 @@ export async function POST(req: NextRequest) {
 
     if (existing) continue;
 
-    let feeAmount = 0;
+    let feeAmount: Decimal;
 
     if (gig.ownGigFeeModel === "PERCENTAGE" && gig.ownGigFeePct) {
-      feeAmount = Number(gig.budgetAmount) * Number(gig.ownGigFeePct) / 100;
+      feeAmount = new Decimal(gig.budgetAmount ?? 0)
+        .mul(new Decimal(gig.ownGigFeePct))
+        .div(100);
     } else if (gig.ownGigFeeModel === "FLAT_MONTHLY" && gig.ownGigFlatMonthlyFee) {
-      feeAmount = Number(gig.ownGigFlatMonthlyFee);
+      feeAmount = new Decimal(gig.ownGigFlatMonthlyFee);
+    } else {
+      feeAmount = new Decimal(0);
     }
 
-    if (feeAmount <= 0) continue;
+    if (feeAmount.lte(0)) continue;
 
     await prisma.ownGigPlatformFee.create({
       data: {

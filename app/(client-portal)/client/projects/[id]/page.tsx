@@ -131,6 +131,14 @@ export default async function ClientProjectPage({
           deliverables: { select: { id: true, status: true } },
         },
       },
+      updates: {
+        where: { clientVisible: true },
+        orderBy: { createdAt: "desc" },
+        take: 20,
+        include: {
+          createdBy: { select: { name: true } },
+        },
+      },
     },
   });
 
@@ -600,6 +608,71 @@ export default async function ClientProjectPage({
                         />
                       </div>
                     )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── 3c. Activity Feed ── */}
+        {project.updates.length > 0 && (
+          <div
+            className="bg-white rounded-2xl p-6"
+            style={{ border: "1px solid #e5eaf0" }}
+          >
+            <h2
+              className="text-sm font-semibold mb-5"
+              style={{ color: "#0F2744" }}
+            >
+              Project Updates
+            </h2>
+            <div className="space-y-0">
+              {project.updates.map((update, idx) => {
+                const isLast = idx === project.updates.length - 1;
+                const typeStyles: Record<string, { bg: string; color: string; label: string }> = {
+                  GENERAL:              { bg: "#EFF6FF", color: "#1D4ED8", label: "Update" },
+                  MILESTONE_COMPLETED:  { bg: "#D1FAE5", color: "#065F46", label: "Milestone" },
+                  ISSUE:                { bg: "#FEF3C7", color: "#92400E", label: "Attention" },
+                  CLIENT_FEEDBACK:      { bg: "#F3E8FF", color: "#7C3AED", label: "Feedback" },
+                  TEAM_CHANGE:          { bg: "#FFF7ED", color: "#C2410C", label: "Team" },
+                  WORK_STREAM_UPDATE:   { bg: "#FEF9E7", color: "#92400E", label: "Work Stream" },
+                };
+                const tStyle = typeStyles[update.type] ?? typeStyles.GENERAL;
+
+                return (
+                  <div key={update.id} className="flex gap-4">
+                    <div className="flex flex-col items-center">
+                      <div
+                        className="w-3 h-3 rounded-full mt-1.5 shrink-0"
+                        style={{ background: tStyle.color }}
+                      />
+                      {!isLast && (
+                        <div
+                          className="w-0.5 flex-1 my-1"
+                          style={{ background: "#e5eaf0", minHeight: "24px" }}
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 pb-5">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span
+                          className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+                          style={{ background: tStyle.bg, color: tStyle.color }}
+                        >
+                          {tStyle.label}
+                        </span>
+                        <span className="text-[11px] text-gray-400">
+                          {formatDateShort(new Date(update.createdAt))}
+                        </span>
+                        <span className="text-[11px] text-gray-400">
+                          by {update.createdBy.name}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                        {update.content}
+                      </p>
+                    </div>
                   </div>
                 );
               })}

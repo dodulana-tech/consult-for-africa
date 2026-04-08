@@ -1,6 +1,17 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
+import { z } from "zod";
+import { contactLimiter } from "@/lib/rate-limit-redis";
+
+const contactSchema = z.object({
+  organization: z.string().trim().min(1, "Organisation is required"),
+  country: z.string().trim().nullable().optional(),
+  role: z.string().trim().nullable().optional(),
+  email: z.string().trim().email("Valid email is required"),
+  projectType: z.string().trim().nullable().optional(),
+  message: z.string().min(1, "Message is required").max(2000, "Message too long"),
+});
 
 const resend = new Resend(process.env.RESEND_API_KEY ?? "noop");
 
@@ -14,20 +25,26 @@ function escHtml(s: unknown): string {
 }
 
 export async function POST(req: Request) {
-  const data = await req.json();
-  const { organization, country, role, email, projectType, message } = data;
-
-  if (!email || !organization || !message) {
-    return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });
+  // Rate limit by IP
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const { success } = await contactLimiter.limit(ip);
+  if (!success) {
+    return NextResponse.json(
+      { success: false, error: "Too many requests. Please try again later." },
+      { status: 429 }
+    );
   }
 
-  // Basic email format validation
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) {
-    return NextResponse.json({ success: false, error: "Invalid email address" }, { status: 400 });
+  const parsed = contactSchema.safeParse(await req.json());
+  if (!parsed.success) {
+    return NextResponse.json(
+      { success: false, error: "Validation failed", details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
   }
 
-  // Truncate message to prevent abuse
-  const safeMessage = String(message).substring(0, 2000);
+  const { organization, country, role, email, projectType, message } = parsed.data;
+  const safeMessage = message;
 
   // Save to Lead table
   try {

@@ -1,5 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { z } from "zod";
+
+const createMandateSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().nullable().optional(),
+  cadre: z.enum([
+    "MEDICINE", "DENTISTRY", "NURSING", "MIDWIFERY", "PHARMACY",
+    "MEDICAL_LABORATORY_SCIENCE", "RADIOGRAPHY_IMAGING", "REHABILITATION_THERAPY",
+    "OPTOMETRY", "COMMUNITY_HEALTH", "ENVIRONMENTAL_HEALTH", "NUTRITION_DIETETICS",
+    "PSYCHOLOGY_SOCIAL_WORK", "PUBLIC_HEALTH", "HEALTH_ADMINISTRATION", "BIOMEDICAL_ENGINEERING",
+  ]),
+  subSpecialty: z.string().nullable().optional(),
+  minYearsExperience: z.number().nullable().optional(),
+  requiredQualifications: z.array(z.string()).optional().default([]),
+  preferredQualifications: z.array(z.string()).optional().default([]),
+  valuesRequirements: z.string().nullable().optional(),
+  locationState: z.string().nullable().optional(),
+  locationCity: z.string().nullable().optional(),
+  isRemoteOk: z.boolean().optional().default(false),
+  isRelocationRequired: z.boolean().optional().default(false),
+  type: z.enum(["PERMANENT", "LOCUM", "CONTRACT", "CONSULTING", "INTERNATIONAL"]),
+  salaryRangeMin: z.number().nullable().optional(),
+  salaryRangeMax: z.number().nullable().optional(),
+  salaryCurrency: z.enum(["USD", "NGN"]).optional().default("NGN"),
+  urgency: z.string().nullable().optional(),
+  facilityId: z.string().nullable().optional(),
+  facilityName: z.string().nullable().optional(),
+  clientContact: z.string().nullable().optional(),
+});
 
 export async function GET(req: NextRequest) {
   try {
@@ -32,60 +61,44 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-
-    const {
-      title,
-      description,
-      cadre,
-      subSpecialty,
-      minYearsExperience,
-      requiredQualifications,
-      preferredQualifications,
-      valuesRequirements,
-      locationState,
-      locationCity,
-      isRemoteOk,
-      isRelocationRequired,
-      type,
-      salaryRangeMin,
-      salaryRangeMax,
-      salaryCurrency,
-      urgency,
-      facilityId,
-      facilityName,
-      clientContact,
-    } = body;
-
-    if (!title || !cadre || !type) {
+    const parsed = createMandateSchema.safeParse(await req.json());
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Title, cadre, and type are required" },
+        { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
         { status: 400 }
       );
     }
 
+    const {
+      title, description, cadre, subSpecialty, minYearsExperience,
+      requiredQualifications, preferredQualifications, valuesRequirements,
+      locationState, locationCity, isRemoteOk, isRelocationRequired,
+      type, salaryRangeMin, salaryRangeMax, salaryCurrency,
+      urgency, facilityId, facilityName, clientContact,
+    } = parsed.data;
+
     const mandate = await prisma.cadreMandate.create({
       data: {
         title,
-        description: description || null,
+        description: description ?? null,
         cadre,
-        subSpecialty: subSpecialty || null,
+        subSpecialty: subSpecialty ?? null,
         minYearsExperience: minYearsExperience ?? null,
-        requiredQualifications: requiredQualifications || [],
-        preferredQualifications: preferredQualifications || [],
-        valuesRequirements: valuesRequirements || null,
-        locationState: locationState || null,
-        locationCity: locationCity || null,
-        isRemoteOk: isRemoteOk ?? false,
-        isRelocationRequired: isRelocationRequired ?? false,
+        requiredQualifications,
+        preferredQualifications,
+        valuesRequirements: valuesRequirements ?? null,
+        locationState: locationState ?? null,
+        locationCity: locationCity ?? null,
+        isRemoteOk,
+        isRelocationRequired,
         type,
         salaryRangeMin: salaryRangeMin ?? null,
         salaryRangeMax: salaryRangeMax ?? null,
-        salaryCurrency: salaryCurrency || "NGN",
-        urgency: urgency || null,
-        facilityId: facilityId || null,
-        facilityName: facilityName || null,
-        clientContact: clientContact || null,
+        salaryCurrency,
+        urgency: urgency ?? null,
+        facilityId: facilityId ?? null,
+        facilityName: facilityName ?? null,
+        clientContact: clientContact ?? null,
         status: "OPEN",
       },
     });

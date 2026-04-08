@@ -1,7 +1,42 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { serialise } from "@/lib/serialization";
+import { ELEVATED_ROLES, EM_AND_ABOVE } from "@/lib/constants";
 import { NextRequest } from "next/server";
 import type { InvoiceType, Prisma } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/library";
+import { z } from "zod";
+
+const lineItemSchema = z.object({
+  description: z.string().min(1, "Description is required"),
+  quantity: z.number().positive("Quantity must be greater than zero"),
+  unitPrice: z.number().min(0, "Unit price cannot be negative"),
+  category: z.string().optional(),
+  paymentMilestoneId: z.string().optional(),
+  timeEntryIds: z.array(z.string()).optional(),
+});
+
+const createInvoiceSchema = z.object({
+  clientId: z.string().min(1, "Client ID is required"),
+  engagementId: z.string().optional(),
+  projectId: z.string().optional(),
+  invoiceType: z.enum([
+    "STANDARD", "PROFORMA", "CREDIT_NOTE", "DEBIT_NOTE",
+    "MOBILIZATION", "MILESTONE", "RETAINER", "FINAL_SETTLEMENT",
+  ]).optional().default("STANDARD"),
+  lineItems: z.array(lineItemSchema).min(1, "At least one line item is required"),
+  taxPercent: z.number().min(0).optional(),
+  whtRatePct: z.number().min(0).optional(),
+  discountAmount: z.number().min(0).optional(),
+  currency: z.enum(["USD", "NGN"]).optional().default("NGN"),
+  dueInDays: z.number().optional(),
+  notes: z.string().nullable().optional(),
+  clientNotes: z.string().nullable().optional(),
+  billingScheduleId: z.string().nullable().optional(),
+  billingPeriodStart: z.string().nullable().optional(),
+  billingPeriodEnd: z.string().nullable().optional(),
+  bankDetails: z.any().nullable().optional(),
+});
 
 /* ── Invoice number prefix map ─────────────────────────────────────────────── */
 
@@ -16,59 +51,13 @@ const PREFIX_MAP: Record<string, string> = {
   FINAL_SETTLEMENT: "C4A-FS",
 };
 
-/* ── Serialise Decimal fields for JSON responses ───────────────────────────── */
-
-function serialise(inv: Record<string, unknown>) {
-  const decimalFields = [
-    "subtotal", "tax", "whtAmount", "discountAmount",
-    "total", "paidAmount", "balanceDue",
-  ];
-  const dateFields = [
-    "issuedDate", "dueDate", "paidDate", "viewedAt", "approvedAt",
-    "billingPeriodStart", "billingPeriodEnd", "createdAt", "updatedAt",
-  ];
-  const out: Record<string, unknown> = { ...inv };
-  for (const f of decimalFields) {
-    if (out[f] != null) out[f] = Number(out[f]);
-  }
-  for (const f of dateFields) {
-    if (out[f] instanceof Date) out[f] = (out[f] as Date).toISOString();
-    else if (out[f] == null) out[f] = null;
-  }
-
-  // Serialise nested line item records
-  if (Array.isArray(out.lineItemRecords)) {
-    out.lineItemRecords = (out.lineItemRecords as Record<string, unknown>[]).map((li) => ({
-      ...li,
-      quantity: li.quantity != null ? Number(li.quantity) : null,
-      unitPrice: li.unitPrice != null ? Number(li.unitPrice) : null,
-      amount: li.amount != null ? Number(li.amount) : null,
-      createdAt: li.createdAt instanceof Date ? (li.createdAt as Date).toISOString() : li.createdAt,
-    }));
-  }
-
-  // Serialise nested payments
-  if (Array.isArray(out.payments)) {
-    out.payments = (out.payments as Record<string, unknown>[]).map((p) => ({
-      ...p,
-      amount: p.amount != null ? Number(p.amount) : null,
-      paymentDate: p.paymentDate instanceof Date ? (p.paymentDate as Date).toISOString() : p.paymentDate,
-      confirmedAt: p.confirmedAt instanceof Date ? (p.confirmedAt as Date).toISOString() : p.confirmedAt,
-      createdAt: p.createdAt instanceof Date ? (p.createdAt as Date).toISOString() : p.createdAt,
-      updatedAt: p.updatedAt instanceof Date ? (p.updatedAt as Date).toISOString() : p.updatedAt,
-    }));
-  }
-
-  return out;
-}
-
 /* ── GET: list invoices with filters + optional summary ────────────────────── */
 
 export async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ELEVATED_ROLES.includes(session.user.role as typeof ELEVATED_ROLES[number]);
   const isEM = session.user.role === "ENGAGEMENT_MANAGER";
 
   if (!isElevated && !isEM) return new Response("Forbidden", { status: 403 });
@@ -151,7 +140,7 @@ export async function GET(req: NextRequest) {
     take: 200,
   });
 
-  return Response.json(invoices.map((inv) => serialise(inv as unknown as Record<string, unknown>)));
+  return Response.json(invoices.map((inv) => serialise(inv)));
 }
 
 /* ── POST: create invoice with InvoiceLineItem records ─────────────────────── */
@@ -169,20 +158,27 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
-  const canCreate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canCreate = EM_AND_ABOVE.includes(session.user.role as typeof EM_AND_ABOVE[number]);
   if (!canCreate) return new Response("Forbidden", { status: 403 });
 
-  const body = await req.json();
+  const parsed = createInvoiceSchema.safeParse(await req.json());
+  if (!parsed.success) {
+    return Response.json(
+      { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
+  }
+
   const {
     clientId,
     engagementId,
-    projectId, // alias
-    invoiceType = "STANDARD",
+    projectId,
+    invoiceType,
     lineItems,
     taxPercent,
     whtRatePct,
     discountAmount: rawDiscount,
-    currency = "NGN",
+    currency,
     dueInDays,
     notes,
     clientNotes,
@@ -190,131 +186,154 @@ export async function POST(req: NextRequest) {
     billingPeriodStart,
     billingPeriodEnd,
     bankDetails,
-  } = body;
+  } = parsed.data;
 
   const engId = engagementId || projectId || null;
-
-  if (!clientId || !lineItems?.length) {
-    return new Response("clientId and lineItems required", { status: 400 });
-  }
-
-  // Validate line items
-  for (const item of lineItems as LineItemInput[]) {
-    if (!item.description || typeof item.quantity !== "number" || typeof item.unitPrice !== "number") {
-      return new Response("Each line item needs description, quantity, unitPrice", { status: 400 });
-    }
-    if (item.quantity <= 0) {
-      return new Response("Quantity must be greater than zero", { status: 400 });
-    }
-    if (item.unitPrice < 0) {
-      return new Response("Unit price cannot be negative", { status: 400 });
-    }
-  }
-
-  // Validate invoiceType
-  const validTypes: InvoiceType[] = [
-    "STANDARD", "PROFORMA", "CREDIT_NOTE", "DEBIT_NOTE",
-    "MOBILIZATION", "MILESTONE", "RETAINER", "FINAL_SETTLEMENT",
-  ];
-  if (!validTypes.includes(invoiceType)) {
-    return new Response("Invalid invoiceType", { status: 400 });
-  }
 
   const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } });
   if (!client) return new Response("Client not found", { status: 404 });
 
-  // Compute amounts
+  // Compute amounts using Decimal to avoid floating-point precision loss
   const subtotal = (lineItems as LineItemInput[]).reduce(
-    (sum, item) => sum + item.quantity * item.unitPrice,
-    0
+    (sum, item) => sum.add(new Decimal(item.quantity).mul(new Decimal(item.unitPrice))),
+    new Decimal(0)
   );
-  const taxRate = typeof taxPercent === "number" && taxPercent >= 0 ? taxPercent / 100 : 0;
-  const tax = Math.round(subtotal * taxRate * 100) / 100;
-  const whtRate = typeof whtRatePct === "number" && whtRatePct >= 0 ? whtRatePct / 100 : 0;
-  const whtAmount = Math.round(subtotal * whtRate * 100) / 100;
-  const discountAmount = typeof rawDiscount === "number" && rawDiscount >= 0 ? rawDiscount : 0;
-  const total = Math.round((subtotal + tax - whtAmount - discountAmount) * 100) / 100;
+  const taxRate = typeof taxPercent === "number" && taxPercent >= 0
+    ? new Decimal(taxPercent).div(100)
+    : new Decimal(0);
+  const tax = subtotal.mul(taxRate);
+  const whtRate = typeof whtRatePct === "number" && whtRatePct >= 0
+    ? new Decimal(whtRatePct).div(100)
+    : new Decimal(0);
+  const whtAmount = subtotal.mul(whtRate);
+  const discountAmount = typeof rawDiscount === "number" && rawDiscount >= 0
+    ? new Decimal(rawDiscount)
+    : new Decimal(0);
+  const total = subtotal.add(tax).sub(whtAmount).sub(discountAmount);
   const balanceDue = total;
 
-  // Generate invoice number with race-condition retry
+  // Generate invoice number + create invoice atomically to prevent race conditions
   const now = new Date();
   const year = now.getFullYear();
   const typePrefix = PREFIX_MAP[invoiceType] || "C4A-INV";
   const searchPrefix = `${typePrefix}-${year}`;
 
-  let invoiceNumber: string;
-  let attempts = 0;
-  while (true) {
-    const count = await prisma.invoice.count({
-      where: { invoiceNumber: { startsWith: searchPrefix } },
-    });
-    invoiceNumber = `${searchPrefix}-${String(count + 1).padStart(4, "0")}`;
-
-    const exists = await prisma.invoice.findFirst({
-      where: { invoiceNumber },
-      select: { id: true },
-    });
-    if (!exists) break;
-
-    attempts++;
-    if (attempts > 10) {
-      return new Response("Failed to generate unique invoice number. Try again.", { status: 500 });
-    }
-  }
-
   // Compute due date
   const dueDate = new Date();
   dueDate.setDate(dueDate.getDate() + (typeof dueInDays === "number" ? dueInDays : 30));
 
-  // Create invoice + line items in a transaction
-  const invoice = await prisma.invoice.create({
-    data: {
-      clientId,
-      engagementId: engId,
-      invoiceNumber,
-      invoiceType: invoiceType as InvoiceType,
-      subtotal,
-      tax,
-      whtAmount,
-      discountAmount,
-      total,
-      paidAmount: 0,
-      balanceDue,
-      currency,
-      status: "DRAFT",
-      dueDate,
-      notes: notes ?? null,
-      clientNotes: clientNotes ?? null,
-      billingScheduleId: billingScheduleId ?? null,
-      billingPeriodStart: billingPeriodStart ? new Date(billingPeriodStart) : null,
-      billingPeriodEnd: billingPeriodEnd ? new Date(billingPeriodEnd) : null,
-      bankDetails: bankDetails ?? null,
-      lineItems: (lineItems as LineItemInput[]).map((item, i) => ({
-        description: item.description,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        amount: item.quantity * item.unitPrice,
-        sortOrder: i,
-      })),
-      lineItemRecords: {
-        create: (lineItems as LineItemInput[]).map((item, i) => ({
-          description: item.description,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          amount: item.quantity * item.unitPrice,
-          sortOrder: i,
-          category: item.category ?? null,
-          paymentMilestoneId: item.paymentMilestoneId ?? null,
-          timeEntryIds: item.timeEntryIds ?? [],
-        })),
-      },
-    },
-    include: {
-      lineItemRecords: { orderBy: { sortOrder: "asc" } },
-      client: { select: { id: true, name: true } },
-      engagement: { select: { id: true, name: true } },
-    },
-  });
+  const lineItemData = (lineItems as LineItemInput[]).map((item, i) => ({
+    description: item.description,
+    quantity: item.quantity,
+    unitPrice: item.unitPrice,
+    amount: new Decimal(item.quantity).mul(new Decimal(item.unitPrice)),
+    sortOrder: i,
+    category: item.category ?? null,
+    paymentMilestoneId: item.paymentMilestoneId ?? null,
+    timeEntryIds: item.timeEntryIds ?? [],
+  }));
+
+  let invoice;
+  let attempts = 0;
+
+  while (attempts < 10) {
+    try {
+      invoice = await prisma.$transaction(async (tx) => {
+        // Count existing invoices for this prefix inside the transaction
+        const count = await tx.invoice.count({
+          where: { invoiceNumber: { startsWith: searchPrefix } },
+        });
+
+        let invoiceNumber = `${searchPrefix}-${String(count + 1).padStart(4, "0")}`;
+
+        // Double-check uniqueness (handles edge cases like deleted invoices)
+        const exists = await tx.invoice.findFirst({
+          where: { invoiceNumber },
+          select: { id: true },
+        });
+
+        if (exists) {
+          // Find actual max sequence to recover from gaps/collisions
+          const latest = await tx.invoice.findMany({
+            where: { invoiceNumber: { startsWith: searchPrefix } },
+            select: { invoiceNumber: true },
+            orderBy: { invoiceNumber: "desc" },
+            take: 1,
+          });
+
+          let nextSeq = count + 2;
+          if (latest.length > 0) {
+            const lastSeq = parseInt(latest[0].invoiceNumber.split("-").pop() ?? "0", 10);
+            nextSeq = lastSeq + 1;
+          }
+
+          invoiceNumber = `${searchPrefix}-${String(nextSeq).padStart(4, "0")}`;
+        }
+
+        return tx.invoice.create({
+          data: {
+            clientId,
+            engagementId: engId,
+            invoiceNumber,
+            invoiceType: invoiceType as InvoiceType,
+            subtotal,
+            tax,
+            whtAmount,
+            discountAmount,
+            total,
+            paidAmount: 0,
+            balanceDue,
+            currency,
+            status: "DRAFT",
+            dueDate,
+            notes: notes ?? null,
+            clientNotes: clientNotes ?? null,
+            billingScheduleId: billingScheduleId ?? null,
+            billingPeriodStart: billingPeriodStart ? new Date(billingPeriodStart) : null,
+            billingPeriodEnd: billingPeriodEnd ? new Date(billingPeriodEnd) : null,
+            bankDetails: bankDetails ?? null,
+            lineItems: lineItemData.map((li) => ({
+              description: li.description,
+              quantity: li.quantity,
+              unitPrice: li.unitPrice,
+              amount: li.amount.toNumber(),
+              sortOrder: li.sortOrder,
+            })),
+            lineItemRecords: {
+              create: lineItemData,
+            },
+          },
+          include: {
+            lineItemRecords: { orderBy: { sortOrder: "asc" } },
+            client: { select: { id: true, name: true } },
+            engagement: { select: { id: true, name: true } },
+          },
+        });
+      }, {
+        isolationLevel: "Serializable",
+      });
+
+      break; // success, exit retry loop
+    } catch (err: unknown) {
+      attempts++;
+      const message = err instanceof Error ? err.message : String(err);
+      const isRetryable =
+        message.includes("P2002") ||
+        message.includes("could not serialize") ||
+        message.includes("deadlock");
+
+      if (!isRetryable || attempts >= 10) {
+        console.error("[invoices] Failed to create invoice after retries:", err);
+        return new Response("Failed to generate unique invoice number. Try again.", { status: 500 });
+      }
+      // Brief exponential backoff before retry
+      await new Promise((r) => setTimeout(r, 50 * attempts));
+    }
+  }
+
+  if (!invoice) {
+    return new Response("Failed to generate unique invoice number. Try again.", { status: 500 });
+  }
 
   return Response.json(serialise(invoice as unknown as Record<string, unknown>), { status: 201 });
 }

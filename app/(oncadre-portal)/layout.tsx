@@ -16,7 +16,7 @@ const navItems = [
   { href: "/oncadre/referrals", label: "Referrals", icon: "referral" },
   { href: "/oncadre/career-report", label: "Assessment", icon: "assessment" },
   { href: "/oncadre/advisor", label: "Advisor", icon: "advisor" },
-  { href: "/oncadre/mentorship", label: "Mentorship", icon: "mentorship" },
+  { href: "/oncadre/mentorship/my", label: "Mentorship", icon: "mentorship" },
   { href: "/oncadre/my-applications", label: "Applications", icon: "applications" },
 ];
 

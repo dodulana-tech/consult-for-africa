@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+export const revalidate = 3600;
+
 import Hero from "@/components/cfa/Hero";
 import TrustStrip from "@/components/cfa/TrustStrip";
 import Impact from "@/components/cfa/Impact";

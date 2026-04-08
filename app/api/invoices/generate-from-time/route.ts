@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { Decimal } from "@prisma/client/runtime/library";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -89,8 +90,8 @@ export async function POST(req: NextRequest) {
   // Group by consultant + track
   const byConsultantTrack = new Map<string, {
     name: string;
-    hours: number;
-    rate: number;
+    hours: Decimal;
+    rate: Decimal;
     currency: string;
     entryIds: string[];
     trackName: string | null;
@@ -100,11 +101,11 @@ export async function POST(req: NextRequest) {
     const trackName = te.track?.name ?? null;
     const key = `${te.consultantId}::${trackName ?? "__none__"}`;
     const existing = byConsultantTrack.get(key);
-    const hours = Number(te.hours);
-    const rate = Number(te.assignment.rateAmount);
+    const hours = new Decimal(te.hours as unknown as Decimal);
+    const rate = new Decimal(te.assignment.rateAmount as unknown as Decimal);
 
     if (existing) {
-      existing.hours += hours;
+      existing.hours = existing.hours.add(hours);
       existing.entryIds.push(te.id);
     } else {
       byConsultantTrack.set(key, {
@@ -119,17 +120,20 @@ export async function POST(req: NextRequest) {
   }
 
   // Build line items
-  const lineItemsData = Array.from(byConsultantTrack.values()).map((c, i) => ({
-    description: `Consulting services - ${c.name}${c.trackName ? ` [${c.trackName}]` : ""} - ${c.hours.toFixed(1)}h @ ${c.currency === "USD" ? "$" : "\u20A6"}${c.rate.toLocaleString()}`,
-    quantity: c.hours,
-    unitPrice: c.rate,
-    amount: Math.round(c.hours * c.rate * 100) / 100,
-    sortOrder: i,
-    category: "consulting_fee",
-    timeEntryIds: c.entryIds,
-  }));
+  const lineItemsData = Array.from(byConsultantTrack.values()).map((c, i) => {
+    const amount = c.hours.mul(c.rate);
+    return {
+      description: `Consulting services - ${c.name}${c.trackName ? ` [${c.trackName}]` : ""} - ${c.hours.toFixed(1)}h @ ${c.currency === "USD" ? "$" : "\u20A6"}${c.rate.toNumber().toLocaleString()}`,
+      quantity: c.hours,
+      unitPrice: c.rate,
+      amount,
+      sortOrder: i,
+      category: "consulting_fee",
+      timeEntryIds: c.entryIds,
+    };
+  });
 
-  const subtotal = lineItemsData.reduce((sum, li) => sum + li.amount, 0);
+  const subtotal = lineItemsData.reduce((sum, li) => sum.add(li.amount), new Decimal(0));
   const currency = engagement.client.currency;
 
   // Check for billing schedule to get tax/WHT rates
@@ -138,11 +142,15 @@ export async function POST(req: NextRequest) {
     orderBy: { createdAt: "desc" },
   });
 
-  const taxRate = billingSchedule ? Number(billingSchedule.taxRatePct) / 100 : 0;
-  const whtRate = billingSchedule ? Number(billingSchedule.whtRatePct) / 100 : 0;
-  const tax = Math.round(subtotal * taxRate * 100) / 100;
-  const whtAmount = Math.round(subtotal * whtRate * 100) / 100;
-  const total = Math.round((subtotal + tax - whtAmount) * 100) / 100;
+  const taxRate = billingSchedule
+    ? new Decimal(billingSchedule.taxRatePct ?? 0).div(100)
+    : new Decimal(0);
+  const whtRate = billingSchedule
+    ? new Decimal(billingSchedule.whtRatePct ?? 0).div(100)
+    : new Decimal(0);
+  const tax = subtotal.mul(taxRate);
+  const whtAmount = subtotal.mul(whtRate);
+  const total = subtotal.add(tax).sub(whtAmount);
 
   // Generate invoice number
   const year = new Date().getFullYear();
@@ -192,9 +200,9 @@ export async function POST(req: NextRequest) {
       notes: `Auto-generated from time entries for period ${start.toISOString().slice(0, 10)} to ${end.toISOString().slice(0, 10)}`,
       lineItems: lineItemsData.map((li) => ({
         description: li.description,
-        quantity: li.quantity,
-        unitPrice: li.unitPrice,
-        amount: li.amount,
+        quantity: li.quantity.toNumber(),
+        unitPrice: li.unitPrice.toNumber(),
+        amount: li.amount.toNumber(),
         sortOrder: li.sortOrder,
       })),
       lineItemRecords: {

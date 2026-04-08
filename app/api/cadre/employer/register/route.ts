@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { signCadreEmployerJWT } from "@/lib/cadreEmployerAuth";
-import crypto from "crypto";
+import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 
-function hashPassword(password: string): string {
-  const salt = crypto.randomBytes(16).toString("hex");
-  const hash = crypto
-    .pbkdf2Sync(password, salt, 100000, 64, "sha512")
-    .toString("hex");
-  return `${salt}:${hash}`;
+async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 12);
 }
 
 export async function POST(req: NextRequest) {
@@ -58,7 +54,7 @@ export async function POST(req: NextRequest) {
         contactName: contactName.trim(),
         contactEmail: contactEmail.toLowerCase().trim(),
         contactPhone: contactPhone?.trim() || null,
-        passwordHash: hashPassword(password),
+        passwordHash: await hashPassword(password),
         facilityId: validFacilityId,
       },
     });

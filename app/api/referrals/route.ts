@@ -2,8 +2,19 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import type { ReferralType, ReferralStatus } from "@prisma/client";
+import { z } from "zod";
 
 const VALID_TYPES: ReferralType[] = ["CLIENT", "CONSULTANT", "STAFF"];
+
+const createReferralSchema = z.object({
+  type: z.enum(["CLIENT", "CONSULTANT", "STAFF"]),
+  name: z.string().trim().min(1, "Name is required"),
+  email: z.string().trim().email("Valid email is required"),
+  phone: z.string().trim().nullable().optional(),
+  organisation: z.string().trim().nullable().optional(),
+  suggestedRole: z.string().trim().nullable().optional(),
+  notes: z.string().trim().nullable().optional(),
+});
 
 export async function GET() {
   const session = await auth();
@@ -33,25 +44,26 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
-  const { type, name, email, phone, organisation, suggestedRole, notes } = await req.json();
+  const parsed = createReferralSchema.safeParse(await req.json());
+  if (!parsed.success) {
+    return Response.json(
+      { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
+  }
 
-  if (!type || !name?.trim() || !email?.trim()) {
-    return new Response("type, name, and email are required", { status: 400 });
-  }
-  if (!VALID_TYPES.includes(type)) {
-    return new Response("Invalid type", { status: 400 });
-  }
+  const { type, name, email, phone, organisation, suggestedRole, notes } = parsed.data;
 
   const referral = await prisma.referral.create({
     data: {
       referrerId: session.user.id,
       type,
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      phone: phone?.trim() || null,
-      organisation: organisation?.trim() || null,
-      suggestedRole: suggestedRole?.trim() || null,
-      notes: notes?.trim() || null,
+      name,
+      email: email.toLowerCase(),
+      phone: phone || null,
+      organisation: organisation || null,
+      suggestedRole: suggestedRole || null,
+      notes: notes || null,
     },
     include: {
       referrer: { select: { name: true } },

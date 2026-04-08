@@ -1,17 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { signCadreJWT } from "@/lib/cadreAuth";
+import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { cookies } from "next/headers";
 import { rateLimit, getClientIp } from "@/lib/cadreHealth/rateLimit";
 
-function verifyPassword(password: string, stored: string): boolean {
+function verifyPasswordPbkdf2(password: string, stored: string): boolean {
   const [salt, hash] = stored.split(":");
   if (!salt || !hash) return false;
   const computed = crypto
     .pbkdf2Sync(password, salt, 100000, 64, "sha512")
     .toString("hex");
   return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(computed));
+}
+
+async function verifyPassword(password: string, stored: string): Promise<boolean> {
+  // Bcrypt hashes start with $2a$ or $2b$
+  if (stored.startsWith("$2a$") || stored.startsWith("$2b$")) {
+    return bcrypt.compare(password, stored);
+  }
+  // Legacy PBKDF2 fallback
+  return verifyPasswordPbkdf2(password, stored);
 }
 
 export async function POST(req: NextRequest) {
@@ -38,7 +48,7 @@ export async function POST(req: NextRequest) {
       where: { email: email.toLowerCase().trim() },
     });
 
-    if (!professional || !verifyPassword(password, professional.passwordHash)) {
+    if (!professional || !(await verifyPassword(password, professional.passwordHash))) {
       return NextResponse.json(
         { error: "Invalid email or password" },
         { status: 401 }
@@ -65,7 +75,7 @@ export async function POST(req: NextRequest) {
     cookieStore.set("cadre_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "strict",
       path: "/",
       maxAge: 30 * 24 * 60 * 60,
     });

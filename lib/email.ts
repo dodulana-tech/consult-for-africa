@@ -22,6 +22,37 @@ const transporter = nodemailer.createTransport({
 
 const FROM = process.env.SMTP_FROM ?? "Consult For Africa <platform@consultforafrica.com>";
 
+// ─── Retry helper ─────────────────────────────────────────────────────────────
+
+function isTransientError(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const code = (err as Record<string, unknown>).responseCode;
+  // SMTP 4xx are transient; 5xx and auth errors are not
+  if (typeof code === "number" && code >= 400 && code < 500) return true;
+  const msg = String((err as Record<string, unknown>).code ?? "");
+  // Connection-level transient errors
+  if (["ECONNRESET", "ECONNREFUSED", "ETIMEDOUT", "ESOCKET"].includes(msg))
+    return true;
+  return false;
+}
+
+async function sendWithRetry(
+  fn: () => Promise<void>,
+  maxAttempts = 3
+): Promise<void> {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      await fn();
+      return;
+    } catch (err) {
+      if (attempt >= maxAttempts || !isTransientError(err)) throw err;
+      const delay = Math.pow(2, attempt - 1) * 1000; // 1s, 2s, 4s
+      console.warn(`[email] transient error, retrying in ${delay}ms (attempt ${attempt}/${maxAttempts})`);
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+}
+
 // ─── Send helper ──────────────────────────────────────────────────────────────
 
 async function send(to: string, subject: string, html: string) {
@@ -31,7 +62,7 @@ async function send(to: string, subject: string, html: string) {
   }
   try {
     console.log(`[email] sending to ${to}: ${subject}`);
-    await transporter.sendMail({ from: FROM, to, subject, html });
+    await sendWithRetry(() => transporter.sendMail({ from: FROM, to, subject, html }).then(() => {}));
     console.log(`[email] sent to ${to}`);
   } catch (err) {
     console.error(`[email] send error to ${to}:`, err);

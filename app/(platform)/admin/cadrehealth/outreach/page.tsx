@@ -1,8 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { OutreachBatchButton } from "./OutreachBatchButton";
-
-// ─── CadreHealth: Outreach Dashboard ───
+import {
+  Download,
+  Sparkles,
+  Send,
+  MessageCircle,
+  UserCheck,
+  XCircle,
+  ArrowLeft,
+} from "lucide-react";
 
 export default async function OutreachDashboard({
   searchParams,
@@ -15,13 +22,11 @@ export default async function OutreachDashboard({
   const currentPage = Math.max(1, parseInt(params.page ?? "1", 10));
   const pageSize = 25;
 
-  // Build filter
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: Record<string, any> = {};
   if (statusFilter) where.status = statusFilter;
   if (tierFilter) where.tier = tierFilter;
 
-  // Parallel data fetches
   const [
     totalImported,
     enriched,
@@ -90,17 +95,20 @@ export default async function OutreachDashboard({
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Outreach Pipeline</h1>
-          <p className="text-gray-500">
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: "#0F2744" }}>
+            Outreach Pipeline
+          </h1>
+          <p className="mt-0.5 text-sm text-gray-500">
             WhatsApp outreach to healthcare professionals
           </p>
         </div>
         <div className="flex gap-3">
           <Link
             href="/admin/cadrehealth"
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-gray-300 hover:bg-gray-50"
           >
-            Back to Dashboard
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Dashboard
           </Link>
           <OutreachBatchButton pendingCount={pendingReady} />
         </div>
@@ -108,17 +116,20 @@ export default async function OutreachDashboard({
 
       {/* Stats row */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        <StatCard label="Imported" value={totalImported} />
-        <StatCard label="Enriched" value={enriched} />
-        <StatCard label="WhatsApp Sent" value={whatsAppSent} />
-        <StatCard label="Replied" value={replied} accent="emerald" />
-        <StatCard label="Converted" value={converted} accent="blue" />
-        <StatCard label="Unreachable" value={unreachable} accent="red" />
+        <StatCard label="Imported" value={totalImported} icon={<Download className="h-5 w-5" />} iconBg="bg-gray-100" iconColor="text-gray-500" />
+        <StatCard label="Enriched" value={enriched} icon={<Sparkles className="h-5 w-5" />} iconBg="bg-[#0B3C5D]/8" iconColor="text-[#0B3C5D]" />
+        <StatCard label="WhatsApp Sent" value={whatsAppSent} icon={<Send className="h-5 w-5" />} iconBg="bg-blue-50" iconColor="text-blue-600" />
+        <StatCard label="Replied" value={replied} icon={<MessageCircle className="h-5 w-5" />} iconBg="bg-emerald-50" iconColor="text-emerald-600" />
+        <StatCard label="Converted" value={converted} icon={<UserCheck className="h-5 w-5" />} iconBg="bg-emerald-50" iconColor="text-emerald-700" />
+        <StatCard label="Unreachable" value={unreachable} icon={<XCircle className="h-5 w-5" />} iconBg="bg-red-50" iconColor="text-red-500" />
       </div>
 
       {/* Funnel visualization */}
-      <div className="rounded-xl border bg-white p-6">
-        <h2 className="mb-4 font-semibold text-gray-900">Conversion Funnel</h2>
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="mb-1 text-base font-bold tracking-tight" style={{ color: "#0F2744" }}>
+          Conversion Funnel
+        </h2>
+        <p className="mb-5 text-xs text-gray-400">End-to-end outreach performance</p>
         <div className="space-y-3">
           <FunnelBar label="Imported" count={totalImported} total={totalImported} color="bg-gray-400" />
           <FunnelBar label="Enriched" count={enriched} total={totalImported} color="bg-slate-500" />
@@ -126,90 +137,113 @@ export default async function OutreachDashboard({
           <FunnelBar label="Replied" count={replied} total={totalImported} color="bg-emerald-500" />
           <FunnelBar label="Converted" count={converted} total={totalImported} color="bg-[#0B3C5D]" />
         </div>
-        <div className="mt-4 flex gap-6 text-xs text-gray-500">
-          <span>Not interested: {notInterested}</span>
-          <span>Emigrated: {emigrated}</span>
-          <span>Retired: {retired}</span>
-          <span>Unreachable: {unreachable}</span>
+        <div className="mt-5 flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-400">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-red-300" />
+            Not interested: {notInterested}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-sky-300" />
+            Emigrated: {emigrated}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-amber-300" />
+            Retired: {retired}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-gray-300" />
+            Unreachable: {unreachable}
+          </span>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-2">
-        <FilterLink href="/admin/cadrehealth/outreach" label="All" active={!statusFilter && !tierFilter} />
-        {statusCounts.map((s) => (
-          <FilterLink
-            key={s.status}
-            href={`/admin/cadrehealth/outreach?status=${s.status}`}
-            label={`${formatStatus(s.status)} (${s._count})`}
-            active={statusFilter === s.status}
-          />
-        ))}
-      </div>
-
-      {/* Tier filter */}
-      <div className="flex gap-2">
-        <span className="text-sm text-gray-500 self-center">Tier:</span>
-        <FilterLink href="/admin/cadrehealth/outreach" label="All" active={!tierFilter} />
-        {["A", "B", "C"].map((t) => (
-          <FilterLink
-            key={t}
-            href={`/admin/cadrehealth/outreach?tier=${t}${statusFilter ? `&status=${statusFilter}` : ""}`}
-            label={`Tier ${t}`}
-            active={tierFilter === t}
-          />
-        ))}
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-2">
+          <FilterLink href="/admin/cadrehealth/outreach" label="All" active={!statusFilter && !tierFilter} />
+          {statusCounts.map((s) => (
+            <FilterLink
+              key={s.status}
+              href={`/admin/cadrehealth/outreach?status=${s.status}`}
+              label={`${formatStatus(s.status)} (${s._count})`}
+              active={statusFilter === s.status}
+            />
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">Tier:</span>
+          <div className="flex gap-2">
+            <FilterLink href="/admin/cadrehealth/outreach" label="All" active={!tierFilter} />
+            {["A", "B", "C"].map((t) => (
+              <FilterLink
+                key={t}
+                href={`/admin/cadrehealth/outreach?tier=${t}${statusFilter ? `&status=${statusFilter}` : ""}`}
+                label={`Tier ${t}`}
+                active={tierFilter === t}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Conversations table */}
-      <div className="rounded-xl border bg-white p-6">
-        <h2 className="mb-4 font-semibold text-gray-900">
-          Conversations ({totalConversations})
-        </h2>
+      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="border-b border-gray-100 px-6 py-5">
+          <h2 className="text-base font-bold tracking-tight" style={{ color: "#0F2744" }}>
+            Conversations ({totalConversations})
+          </h2>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b text-left text-gray-500">
-                <th className="pb-2 font-medium">Professional</th>
-                <th className="hidden pb-2 font-medium sm:table-cell">Cadre</th>
-                <th className="hidden pb-2 font-medium md:table-cell">State</th>
-                <th className="pb-2 font-medium">Status</th>
-                <th className="hidden pb-2 font-medium lg:table-cell">Tier</th>
-                <th className="pb-2 font-medium">Last Message</th>
-                <th className="hidden pb-2 font-medium sm:table-cell">Last Contact</th>
+              <tr className="border-b border-gray-100 text-left" style={{ background: "#F8F9FB" }}>
+                <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Professional</th>
+                <th className="hidden px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 sm:table-cell">Cadre</th>
+                <th className="hidden px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 md:table-cell">State</th>
+                <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Status</th>
+                <th className="hidden px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 lg:table-cell">Tier</th>
+                <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Last Message</th>
+                <th className="hidden px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 sm:table-cell">Last Contact</th>
               </tr>
             </thead>
             <tbody>
               {conversations.map((c) => {
                 const lastMsg = c.professional.whatsAppMessages[0];
                 return (
-                  <tr key={c.id} className="border-b last:border-0">
-                    <td className="py-3">
+                  <tr key={c.id} className="border-b border-gray-50 transition-colors last:border-0 hover:bg-gray-50/60">
+                    <td className="px-6 py-4">
                       <Link
                         href={`/admin/cadrehealth/${c.professional.id}`}
-                        className="font-medium text-[#0B3C5D] hover:underline"
+                        className="font-semibold hover:underline"
+                        style={{ color: "#0B3C5D" }}
                       >
                         {c.professional.firstName} {c.professional.lastName}
                       </Link>
-                      <div className="text-xs text-gray-400 sm:hidden">
+                      <div className="mt-0.5 text-xs text-gray-400 sm:hidden">
                         {c.professional.cadre.replace(/_/g, " ")}
                       </div>
                     </td>
-                    <td className="hidden py-3 text-gray-600 sm:table-cell">
+                    <td className="hidden px-6 py-4 text-gray-600 sm:table-cell">
                       {c.professional.cadre.replace(/_/g, " ")}
                     </td>
-                    <td className="hidden py-3 text-gray-600 md:table-cell">
+                    <td className="hidden px-6 py-4 text-gray-600 md:table-cell">
                       {c.professional.state || "N/A"}
                     </td>
-                    <td className="py-3">
+                    <td className="px-6 py-4">
                       <StatusBadge status={c.status} />
                     </td>
-                    <td className="hidden py-3 text-gray-600 lg:table-cell">
-                      {c.tier ? `Tier ${c.tier}` : "-"}
+                    <td className="hidden px-6 py-4 lg:table-cell">
+                      {c.tier ? (
+                        <span className="inline-flex rounded-lg bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-600">
+                          {c.tier}
+                        </span>
+                      ) : (
+                        <span className="text-gray-300">-</span>
+                      )}
                     </td>
-                    <td className="max-w-[200px] truncate py-3 text-gray-600">
+                    <td className="max-w-[200px] truncate px-6 py-4 text-gray-600">
                       {lastMsg ? (
-                        <span className={lastMsg.direction === "INBOUND" ? "font-medium" : "text-gray-400"}>
+                        <span className={lastMsg.direction === "INBOUND" ? "font-medium text-gray-900" : "text-gray-400"}>
                           {lastMsg.direction === "INBOUND" ? "" : "You: "}
                           {lastMsg.content.slice(0, 60)}
                           {lastMsg.content.length > 60 ? "..." : ""}
@@ -218,9 +252,12 @@ export default async function OutreachDashboard({
                         <span className="text-gray-300">No messages</span>
                       )}
                     </td>
-                    <td className="hidden py-3 text-gray-400 sm:table-cell">
+                    <td className="hidden px-6 py-4 text-gray-400 sm:table-cell">
                       {c.lastContactedAt
-                        ? c.lastContactedAt.toLocaleDateString()
+                        ? c.lastContactedAt.toLocaleDateString("en-NG", {
+                            day: "numeric",
+                            month: "short",
+                          })
                         : "Never"}
                     </td>
                   </tr>
@@ -228,7 +265,7 @@ export default async function OutreachDashboard({
               })}
               {conversations.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-gray-400">
+                  <td colSpan={7} className="px-6 py-12 text-center text-sm text-gray-400">
                     No outreach records found
                   </td>
                 </tr>
@@ -239,7 +276,7 @@ export default async function OutreachDashboard({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="mt-4 flex items-center justify-between">
+          <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4">
             <span className="text-sm text-gray-500">
               Page {currentPage} of {totalPages}
             </span>
@@ -247,7 +284,7 @@ export default async function OutreachDashboard({
               {currentPage > 1 && (
                 <Link
                   href={`/admin/cadrehealth/outreach?page=${currentPage - 1}${statusFilter ? `&status=${statusFilter}` : ""}${tierFilter ? `&tier=${tierFilter}` : ""}`}
-                  className="rounded-lg border px-3 py-1 text-sm hover:bg-gray-50"
+                  className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
                 >
                   Previous
                 </Link>
@@ -255,7 +292,7 @@ export default async function OutreachDashboard({
               {currentPage < totalPages && (
                 <Link
                   href={`/admin/cadrehealth/outreach?page=${currentPage + 1}${statusFilter ? `&status=${statusFilter}` : ""}${tierFilter ? `&tier=${tierFilter}` : ""}`}
-                  className="rounded-lg border px-3 py-1 text-sm hover:bg-gray-50"
+                  className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
                 >
                   Next
                 </Link>
@@ -268,30 +305,28 @@ export default async function OutreachDashboard({
   );
 }
 
-// ─── Sub-components ───
-
 function StatCard({
   label,
   value,
-  accent,
+  icon,
+  iconBg,
+  iconColor,
 }: {
   label: string;
   value: number;
-  accent?: "emerald" | "blue" | "red";
+  icon: React.ReactNode;
+  iconBg: string;
+  iconColor: string;
 }) {
-  const textColor =
-    accent === "emerald"
-      ? "text-emerald-700"
-      : accent === "blue"
-        ? "text-[#0B3C5D]"
-        : accent === "red"
-          ? "text-red-600"
-          : "text-gray-900";
-
   return (
-    <div className="rounded-xl border bg-white p-4">
-      <div className="text-sm text-gray-500">{label}</div>
-      <div className={`mt-1 text-2xl font-bold ${textColor}`}>{value}</div>
+    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</p>
+        <div className={`rounded-xl p-2.5 ${iconBg} ${iconColor}`}>{icon}</div>
+      </div>
+      <p className="mt-3 text-3xl font-bold tracking-tight" style={{ color: "#0F2744" }}>
+        {value}
+      </p>
     </div>
   );
 }
@@ -310,18 +345,18 @@ function FunnelBar({
   const pct = total > 0 ? (count / total) * 100 : 0;
   return (
     <div className="flex items-center gap-3">
-      <div className="w-28 shrink-0 text-sm text-gray-600">{label}</div>
+      <div className="w-28 shrink-0 text-sm font-medium text-gray-600">{label}</div>
       <div className="flex-1">
-        <div className="h-6 w-full rounded-full bg-gray-100">
+        <div className="h-7 w-full overflow-hidden rounded-xl bg-gray-100">
           <div
-            className={`h-6 rounded-full ${color} flex items-center px-2 text-xs font-medium text-white transition-all`}
+            className={`h-7 rounded-xl ${color} flex items-center px-3 text-xs font-bold text-white transition-all`}
             style={{ width: `${Math.max(pct, 2)}%` }}
           >
-            {count > 0 ? count : ""}
+            {count > 0 ? count.toLocaleString() : ""}
           </div>
         </div>
       </div>
-      <div className="w-12 text-right text-sm text-gray-500">
+      <div className="w-12 text-right text-sm font-medium text-gray-500">
         {pct.toFixed(0)}%
       </div>
     </div>
@@ -331,22 +366,22 @@ function FunnelBar({
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
     PENDING: "bg-gray-100 text-gray-600",
-    ENRICHING: "bg-yellow-100 text-yellow-700",
-    READY: "bg-blue-100 text-blue-700",
-    WHATSAPP_SENT: "bg-indigo-100 text-indigo-700",
-    WHATSAPP_REPLIED: "bg-emerald-100 text-emerald-700",
-    SMS_SENT: "bg-purple-100 text-purple-700",
-    EMAIL_SENT: "bg-orange-100 text-orange-700",
-    CONVERTED: "bg-green-100 text-green-800",
-    NOT_INTERESTED: "bg-red-100 text-red-600",
-    UNREACHABLE: "bg-gray-200 text-gray-500",
-    EMIGRATED: "bg-sky-100 text-sky-700",
-    RETIRED: "bg-amber-100 text-amber-700",
+    ENRICHING: "bg-amber-50 text-amber-700",
+    READY: "bg-blue-50 text-blue-700",
+    WHATSAPP_SENT: "bg-indigo-50 text-indigo-700",
+    WHATSAPP_REPLIED: "bg-emerald-50 text-emerald-700",
+    SMS_SENT: "bg-purple-50 text-purple-700",
+    EMAIL_SENT: "bg-orange-50 text-orange-700",
+    CONVERTED: "bg-emerald-50 text-emerald-800",
+    NOT_INTERESTED: "bg-red-50 text-red-600",
+    UNREACHABLE: "bg-gray-100 text-gray-500",
+    EMIGRATED: "bg-sky-50 text-sky-700",
+    RETIRED: "bg-amber-50 text-amber-700",
   };
 
   return (
     <span
-      className={`rounded-full px-2 py-0.5 text-xs font-medium ${styles[status] ?? "bg-gray-100 text-gray-600"}`}
+      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${styles[status] ?? "bg-gray-100 text-gray-600"}`}
     >
       {formatStatus(status)}
     </span>
@@ -365,10 +400,10 @@ function FilterLink({
   return (
     <Link
       href={href}
-      className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+      className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
         active
-          ? "bg-[#0B3C5D] text-white"
-          : "border border-gray-300 text-gray-600 hover:bg-gray-50"
+          ? "bg-[#0B3C5D] text-white shadow-sm"
+          : "border border-gray-200 text-gray-600 hover:bg-gray-50"
       }`}
     >
       {label}

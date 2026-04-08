@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "Maarova\u2122 | CFA Leadership Assessment Platform",
   description:

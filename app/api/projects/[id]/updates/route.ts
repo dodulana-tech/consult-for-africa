@@ -7,7 +7,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!session) return new Response("Unauthorized", { status: 401 });
 
   const { id } = await params;
-  const { content, type } = await req.json();
+  const { content, type, clientVisible } = await req.json();
   if (!content?.trim()) return new Response("Content required", { status: 400 });
 
   // Verify caller has access to this project
@@ -30,6 +30,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       engagementId: id,
       content: content.trim(),
       type: type ?? "GENERAL",
+      clientVisible: clientVisible === true,
       createdById: session.user.id,
     },
     include: { createdBy: { select: { name: true } } },

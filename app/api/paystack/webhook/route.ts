@@ -169,18 +169,6 @@ export async function POST(req: Request) {
   }
 
   try {
-    // Check for duplicate payment FIRST to avoid race conditions
-    const existingPayment = await prisma.payment.findFirst({
-      where: { paystackRef: data.reference },
-    });
-
-    if (existingPayment) {
-      console.warn(
-        `[paystack/webhook] Duplicate payment for ref ${data.reference}, skipping`
-      );
-      return new Response("OK", { status: 200 });
-    }
-
     const invoice = await prisma.invoice.findUnique({
       where: { id: invoiceId },
       include: {
@@ -196,8 +184,18 @@ export async function POST(req: Request) {
     // Amount comes from Paystack in kobo/cents
     const paymentAmount = new Decimal(data.amount).div(100);
 
-    // Create payment and update invoice in a transaction
-    await prisma.$transaction(async (tx) => {
+    // Idempotency check + payment creation in a single transaction
+    // so concurrent webhooks cannot both pass the duplicate check
+    const result = await prisma.$transaction(async (tx) => {
+      // Check for duplicate payment INSIDE the transaction
+      const existingPayment = await tx.payment.findFirst({
+        where: { paystackRef: data.reference },
+      });
+
+      if (existingPayment) {
+        return { skipped: true as const };
+      }
+
       // Create Payment record
       await tx.payment.create({
         data: {
@@ -235,7 +233,16 @@ export async function POST(req: Request) {
           paidDate: newStatus === "PAID" ? new Date() : undefined,
         },
       });
+
+      return { skipped: false as const };
     });
+
+    if (result.skipped) {
+      console.warn(
+        `[paystack/webhook] Duplicate payment for ref ${data.reference}, skipping`
+      );
+      return new Response("OK", { status: 200 });
+    }
 
     // Send receipt email (non-blocking, outside transaction)
     const newBalanceDue = new Decimal(invoice.total)

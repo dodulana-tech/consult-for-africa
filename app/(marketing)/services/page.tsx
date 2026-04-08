@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+
+export const revalidate = 3600;
+
 import AboutServices from "@/components/cfa/services/AboutServices";
 
 export const metadata: Metadata = {

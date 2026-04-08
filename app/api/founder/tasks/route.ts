@@ -1,8 +1,7 @@
-import { auth } from "@/auth";
+import { requireAuth } from "@/lib/apiAuth";
+import { ELEVATED_ROLES } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-
-const ALLOWED_ROLES = ["DIRECTOR", "PARTNER", "ADMIN"];
 
 const PRIORITY_ORDER: Record<string, number> = {
   critical: 0,
@@ -25,9 +24,8 @@ function sortByPriorityThenDate<T extends { priority: string; dueDate?: Date | n
 }
 
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
-  if (!ALLOWED_ROLES.includes(session.user.role)) return new Response("Forbidden", { status: 403 });
+  const { error, session } = await requireAuth(ELEVATED_ROLES);
+  if (error) return error;
 
   const profile = await prisma.founderProfile.findUnique({
     where: { email: session.user.email! },
@@ -51,9 +49,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
-  if (!ALLOWED_ROLES.includes(session.user.role)) return new Response("Forbidden", { status: 403 });
+  const { error, session } = await requireAuth(ELEVATED_ROLES);
+  if (error) return error;
 
   const profile = await prisma.founderProfile.findUnique({
     where: { email: session.user.email! },

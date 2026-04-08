@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+
+export const revalidate = 3600;
+
 import SolutionsHero from "@/components/cfa/solutions/SolutionsHero";
 import SolutionsList from "@/components/cfa/solutions/SolutionsList";
 import SolutionsComparison from "@/components/cfa/solutions/SolutionsComparison";

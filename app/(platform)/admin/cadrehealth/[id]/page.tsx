@@ -3,20 +3,21 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getCadreLabel, getRegulatoryBody } from "@/lib/cadreHealth/cadres";
 import { VerifyButton } from "@/components/cadrehealth/VerifyButton";
+import { ArrowLeft } from "lucide-react";
 
 const ACCOUNT_STATUS_COLORS: Record<string, string> = {
   UNVERIFIED: "bg-gray-100 text-gray-600",
-  PENDING_REVIEW: "bg-amber-100 text-amber-700",
-  VERIFIED: "bg-emerald-100 text-emerald-700",
-  SUSPENDED: "bg-red-100 text-red-600",
+  PENDING_REVIEW: "bg-amber-50 text-amber-700",
+  VERIFIED: "bg-emerald-50 text-emerald-700",
+  SUSPENDED: "bg-red-50 text-red-600",
 };
 
 const VERIFICATION_COLORS: Record<string, string> = {
   NOT_SUBMITTED: "bg-gray-100 text-gray-500",
-  PENDING: "bg-amber-100 text-amber-700",
-  VERIFIED: "bg-emerald-100 text-emerald-700",
-  FAILED: "bg-red-100 text-red-600",
-  EXPIRED: "bg-orange-100 text-orange-600",
+  PENDING: "bg-amber-50 text-amber-700",
+  VERIFIED: "bg-emerald-50 text-emerald-700",
+  FAILED: "bg-red-50 text-red-600",
+  EXPIRED: "bg-orange-50 text-orange-600",
 };
 
 export default async function ProfessionalDetailPage({
@@ -78,18 +79,19 @@ export default async function ProfessionalDetailPage({
         <div>
           <Link
             href="/admin/cadrehealth"
-            className="mb-2 inline-block text-sm text-gray-500 hover:text-gray-700"
+            className="mb-3 inline-flex items-center gap-1.5 text-sm text-gray-400 transition hover:text-gray-600"
           >
-            &larr; CadreHealth Dashboard
+            <ArrowLeft className="h-3.5 w-3.5" />
+            CadreHealth Dashboard
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: "#0F2744" }}>
             {professional.firstName} {professional.lastName}
           </h1>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-500">
             <span>{getCadreLabel(professional.cadre)}</span>
             {professional.subSpecialty && (
               <>
-                <span>&middot;</span>
+                <span className="text-gray-300">/</span>
                 <span>{professional.subSpecialty}</span>
               </>
             )}
@@ -97,7 +99,7 @@ export default async function ProfessionalDetailPage({
         </div>
         <div className="flex items-center gap-2">
           <span
-            className={`rounded-full px-3 py-1 text-sm font-medium ${
+            className={`rounded-full px-3.5 py-1.5 text-sm font-semibold ${
               ACCOUNT_STATUS_COLORS[professional.accountStatus] || "bg-gray-100 text-gray-600"
             }`}
           >
@@ -111,9 +113,8 @@ export default async function ProfessionalDetailPage({
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Personal Info */}
-        <div className="rounded-xl border bg-white p-5">
-          <h2 className="mb-3 font-semibold text-gray-900">Personal Information</h2>
-          <dl className="space-y-2 text-sm">
+        <Card title="Personal Information">
+          <dl className="space-y-2.5 text-sm">
             <Row label="Email" value={professional.email} />
             <Row label="Phone" value={professional.phone || "Not provided"} />
             <Row
@@ -154,76 +155,77 @@ export default async function ProfessionalDetailPage({
               <Row label="Referral Code" value={professional.referralCode} />
             )}
             <Row label="Profile Completeness" value={`${professional.profileCompleteness}%`} />
-            <Row label="Joined" value={professional.createdAt.toLocaleDateString()} />
+            <Row
+              label="Joined"
+              value={professional.createdAt.toLocaleDateString("en-NG", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })}
+            />
           </dl>
-        </div>
+        </Card>
 
         {/* Credentials */}
-        <div className="rounded-xl border bg-white p-5">
-          <h2 className="mb-3 font-semibold text-gray-900">
-            Credentials ({professional.credentials.length})
-          </h2>
+        <Card title={`Credentials (${professional.credentials.length})`}>
           {professional.credentials.length === 0 ? (
-            <p className="text-sm text-gray-400">No credentials submitted yet</p>
+            <EmptyState text="No credentials submitted yet" />
           ) : (
             <div className="space-y-3">
               {professional.credentials.map((c) => (
-                <div key={c.id} className="rounded-lg border p-3">
+                <div key={c.id} className="rounded-xl border border-gray-100 p-4 transition hover:bg-gray-50/50">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-semibold text-gray-900">
                         {c.type.replace(/_/g, " ")}
                       </p>
-                      <p className="text-xs text-gray-500">{c.regulatoryBody}</p>
+                      <p className="mt-0.5 text-xs text-gray-500">{c.regulatoryBody}</p>
                     </div>
                     <span
-                      className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+                      className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
                         VERIFICATION_COLORS[c.verificationStatus] || "bg-gray-100 text-gray-500"
                       }`}
                     >
                       {c.verificationStatus.replace(/_/g, " ")}
                     </span>
                   </div>
-                  <div className="mt-1 flex flex-wrap gap-x-4 text-xs text-gray-400">
+                  <div className="mt-2 flex flex-wrap gap-x-4 text-xs text-gray-400">
                     {c.licenseNumber && <span>License: {c.licenseNumber}</span>}
                     {c.expiryDate && (
-                      <span>Expires: {c.expiryDate.toLocaleDateString()}</span>
+                      <span>Expires: {c.expiryDate.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</span>
                     )}
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Qualifications */}
-        <div className="rounded-xl border bg-white p-5">
-          <h2 className="mb-3 font-semibold text-gray-900">
-            Qualifications ({professional.qualifications.length})
-          </h2>
+        <Card title={`Qualifications (${professional.qualifications.length})`}>
           {professional.qualifications.length === 0 ? (
-            <p className="text-sm text-gray-400">No qualifications added yet</p>
+            <EmptyState text="No qualifications added yet" />
           ) : (
             <div className="space-y-3">
               {professional.qualifications.map((q) => (
-                <div key={q.id} className="rounded-lg border p-3">
+                <div key={q.id} className="rounded-xl border border-gray-100 p-4 transition hover:bg-gray-50/50">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{q.name}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-sm font-semibold text-gray-900">{q.name}</p>
+                      <p className="mt-0.5 text-xs text-gray-500">
                         {q.type.replace(/_/g, " ")}
                         {q.institution && ` - ${q.institution}`}
                       </p>
                     </div>
                     <span
-                      className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+                      className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
                         VERIFICATION_COLORS[q.verificationStatus] || "bg-gray-100 text-gray-500"
                       }`}
                     >
                       {q.verificationStatus.replace(/_/g, " ")}
                     </span>
                   </div>
-                  <div className="mt-1 flex flex-wrap gap-x-4 text-xs text-gray-400">
+                  <div className="mt-2 flex flex-wrap gap-x-4 text-xs text-gray-400">
                     {q.yearObtained && <span>Year: {q.yearObtained}</span>}
                     {q.score && <span>Score: {q.score}</span>}
                   </div>
@@ -231,95 +233,87 @@ export default async function ProfessionalDetailPage({
               ))}
             </div>
           )}
-        </div>
+        </Card>
 
         {/* CPD */}
-        <div className="rounded-xl border bg-white p-5">
-          <h2 className="mb-3 font-semibold text-gray-900">
-            CPD Entries ({professional.cpdEntries.length})
-          </h2>
-          <p className="mb-3 text-sm text-gray-500">
-            Total points: <strong>{totalCPDPoints}</strong>
-          </p>
+        <Card title={`CPD Entries (${professional.cpdEntries.length})`}>
+          <div className="mb-4 inline-flex items-center gap-2 rounded-xl bg-[#0B3C5D]/8 px-3 py-1.5">
+            <span className="text-xs font-medium text-gray-500">Total Points</span>
+            <span className="text-sm font-bold" style={{ color: "#0B3C5D" }}>{totalCPDPoints}</span>
+          </div>
           {professional.cpdEntries.length === 0 ? (
-            <p className="text-sm text-gray-400">No CPD entries logged yet</p>
+            <EmptyState text="No CPD entries logged yet" />
           ) : (
             <div className="space-y-2">
               {professional.cpdEntries.map((e) => (
-                <div key={e.id} className="flex items-start justify-between rounded-lg border p-3">
+                <div key={e.id} className="flex items-start justify-between rounded-xl border border-gray-100 p-4 transition hover:bg-gray-50/50">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{e.activity}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-sm font-semibold text-gray-900">{e.activity}</p>
+                    <p className="mt-0.5 text-xs text-gray-500">
                       {e.category.replace(/_/g, " ")}
                       {e.provider && ` - ${e.provider}`}
                     </p>
-                    <p className="text-xs text-gray-400">
-                      {e.dateCompleted.toLocaleDateString()}
+                    <p className="mt-1 text-xs text-gray-400">
+                      {e.dateCompleted.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="inline-flex items-center rounded-lg bg-[#0B3C5D]/8 px-2 py-0.5 text-sm font-bold" style={{ color: "#0B3C5D" }}>
                       {Number(e.points)} pts
                     </span>
                     {e.verified && (
-                      <p className="text-xs text-emerald-600">Verified</p>
+                      <p className="mt-1 text-xs font-medium text-emerald-600">Verified</p>
                     )}
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Work History */}
-        <div className="rounded-xl border bg-white p-5">
-          <h2 className="mb-3 font-semibold text-gray-900">
-            Work History ({professional.workHistory.length})
-          </h2>
+        <Card title={`Work History (${professional.workHistory.length})`}>
           {professional.workHistory.length === 0 ? (
-            <p className="text-sm text-gray-400">No work history added yet</p>
+            <EmptyState text="No work history added yet" />
           ) : (
             <div className="space-y-3">
               {professional.workHistory.map((w) => (
-                <div key={w.id} className="rounded-lg border p-3">
-                  <p className="text-sm font-medium text-gray-900">{w.role}</p>
-                  <p className="text-xs text-gray-500">
+                <div key={w.id} className="rounded-xl border border-gray-100 p-4 transition hover:bg-gray-50/50">
+                  <p className="text-sm font-semibold text-gray-900">{w.role}</p>
+                  <p className="mt-0.5 text-xs text-gray-500">
                     {w.facilityName}
                     {w.department && ` - ${w.department}`}
                   </p>
-                  <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-gray-400">
+                  <div className="mt-2 flex flex-wrap gap-x-3 text-xs text-gray-400">
                     <span>
-                      {w.startDate.toLocaleDateString()} -{" "}
-                      {w.isCurrent ? "Present" : w.endDate?.toLocaleDateString() || "N/A"}
+                      {w.startDate.toLocaleDateString("en-NG", { month: "short", year: "numeric" })} -{" "}
+                      {w.isCurrent ? "Present" : w.endDate?.toLocaleDateString("en-NG", { month: "short", year: "numeric" }) || "N/A"}
                     </span>
                     {w.confirmedByFacility && (
-                      <span className="text-emerald-600">Confirmed by facility</span>
+                      <span className="font-medium text-emerald-600">Confirmed by facility</span>
                     )}
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </div>
+        </Card>
 
-        {/* Salary Reports (admin view) */}
-        <div className="rounded-xl border bg-white p-5">
-          <h2 className="mb-3 font-semibold text-gray-900">
-            Salary Reports ({professional.salaryReports.length})
-          </h2>
+        {/* Salary Reports */}
+        <Card title={`Salary Reports (${professional.salaryReports.length})`}>
           {professional.salaryReports.length === 0 ? (
-            <p className="text-sm text-gray-400">No salary reports submitted</p>
+            <EmptyState text="No salary reports submitted" />
           ) : (
             <div className="space-y-2">
               {professional.salaryReports.map((s) => (
-                <div key={s.id} className="rounded-lg border p-3">
+                <div key={s.id} className="rounded-xl border border-gray-100 p-4 transition hover:bg-gray-50/50">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{s.role}</p>
-                      <p className="text-xs text-gray-500">{s.state}</p>
+                      <p className="text-sm font-semibold text-gray-900">{s.role}</p>
+                      <p className="mt-0.5 text-xs text-gray-500">{s.state}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p className="text-sm font-bold" style={{ color: "#0B3C5D" }}>
                         {new Intl.NumberFormat("en-NG", {
                           style: "currency",
                           currency: s.currency,
@@ -327,7 +321,7 @@ export default async function ProfessionalDetailPage({
                         }).format(Number(s.baseSalary))}
                       </p>
                       {s.totalMonthlyTakeHome && (
-                        <p className="text-xs text-gray-400">
+                        <p className="mt-0.5 text-xs text-gray-400">
                           Take-home:{" "}
                           {new Intl.NumberFormat("en-NG", {
                             style: "currency",
@@ -338,73 +332,71 @@ export default async function ProfessionalDetailPage({
                       )}
                     </div>
                   </div>
-                  <p className="mt-1 text-xs text-gray-400">
-                    Reported: {s.reportedAt.toLocaleDateString()}
+                  <p className="mt-2 text-xs text-gray-400">
+                    Reported: {s.reportedAt.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
                   </p>
                 </div>
               ))}
             </div>
           )}
-        </div>
+        </Card>
 
-        {/* Facility Reviews (admin can see which facility, content stays anonymous externally) */}
-        <div className="rounded-xl border bg-white p-5">
-          <h2 className="mb-3 font-semibold text-gray-900">
-            Facility Reviews ({professional.facilityReviews.length})
-          </h2>
+        {/* Facility Reviews */}
+        <Card title={`Facility Reviews (${professional.facilityReviews.length})`}>
           {professional.facilityReviews.length === 0 ? (
-            <p className="text-sm text-gray-400">No reviews submitted</p>
+            <EmptyState text="No reviews submitted" />
           ) : (
             <div className="space-y-2">
               {professional.facilityReviews.map((r) => (
-                <div key={r.id} className="rounded-lg border p-3">
+                <div key={r.id} className="rounded-xl border border-gray-100 p-4 transition hover:bg-gray-50/50">
                   <div className="flex items-start justify-between">
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-semibold text-gray-900">
                       {r.facility.name}
                     </p>
-                    <span className="shrink-0 rounded-full bg-[#0B3C5D]/10 px-2 py-0.5 text-xs font-bold text-[#0B3C5D]">
+                    <span className="shrink-0 rounded-full px-2.5 py-1 text-xs font-bold" style={{ background: "#0B3C5D12", color: "#0B3C5D" }}>
                       {r.overallRating}/5
                     </span>
                   </div>
-                  <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-gray-400">
+                  <div className="mt-2 flex flex-wrap gap-x-3 text-xs text-gray-400">
                     {r.roleAtFacility && <span>{r.roleAtFacility}</span>}
                     {r.employmentType && <span>{r.employmentType.replace(/_/g, " ")}</span>}
-                    <span>{r.createdAt.toLocaleDateString()}</span>
+                    <span>{r.createdAt.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</span>
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Mandate Matches */}
         {professional.mandateMatches.length > 0 && (
-          <div className="rounded-xl border bg-white p-5 lg:col-span-2">
-            <h2 className="mb-3 font-semibold text-gray-900">
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm lg:col-span-2">
+            <h2 className="mb-4 text-base font-bold tracking-tight" style={{ color: "#0F2744" }}>
               Mandate Matches ({professional.mandateMatches.length})
             </h2>
             <div className="space-y-2">
               {professional.mandateMatches.map((m) => (
-                <div key={m.id} className="flex items-center justify-between rounded-lg border p-3">
+                <div key={m.id} className="flex items-center justify-between rounded-xl border border-gray-100 p-4 transition hover:bg-gray-50/50">
                   <div>
                     <Link
                       href={`/admin/cadrehealth/mandates/${m.mandate.id}`}
-                      className="text-sm font-medium text-[#0B3C5D] hover:underline"
+                      className="text-sm font-semibold hover:underline"
+                      style={{ color: "#0B3C5D" }}
                     >
                       {m.mandate.title}
                     </Link>
-                    <p className="text-xs text-gray-400">
+                    <p className="mt-0.5 text-xs text-gray-400">
                       Status: {m.status} | Mandate: {m.mandate.status.replace(/_/g, " ")}
                     </p>
                   </div>
                   {m.matchScore != null && (
                     <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                      className={`rounded-full px-2.5 py-1 text-xs font-bold ${
                         m.matchScore >= 80
-                          ? "bg-green-100 text-green-700"
+                          ? "bg-emerald-50 text-emerald-700"
                           : m.matchScore >= 60
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-red-100 text-red-600"
+                          ? "bg-amber-50 text-amber-700"
+                          : "bg-red-50 text-red-600"
                       }`}
                     >
                       {m.matchScore}%
@@ -420,8 +412,7 @@ export default async function ProfessionalDetailPage({
         {(professional.readinessScoreDomestic != null ||
           professional.readinessScoreUK != null ||
           professional.readinessScoreUS != null) && (
-          <div className="rounded-xl border bg-white p-5">
-            <h2 className="mb-3 font-semibold text-gray-900">Career Readiness Scores</h2>
+          <Card title="Career Readiness Scores">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {professional.readinessScoreDomestic != null && (
                 <ScoreCard label="Nigeria" score={professional.readinessScoreDomestic} />
@@ -440,13 +431,24 @@ export default async function ProfessionalDetailPage({
               )}
             </div>
             {professional.readinessComputedAt && (
-              <p className="mt-2 text-xs text-gray-400">
-                Computed: {professional.readinessComputedAt.toLocaleDateString()}
+              <p className="mt-3 text-xs text-gray-400">
+                Computed: {professional.readinessComputedAt.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
               </p>
             )}
-          </div>
+          </Card>
         )}
       </div>
+    </div>
+  );
+}
+
+function Card({ title, children }: { title: string; children?: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <h2 className="mb-4 text-base font-bold tracking-tight" style={{ color: "#0F2744" }}>
+        {title}
+      </h2>
+      {children}
     </div>
   );
 }
@@ -454,18 +456,26 @@ export default async function ProfessionalDetailPage({
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
-      <dt className="w-40 shrink-0 font-medium text-gray-500">{label}</dt>
-      <dd className="text-gray-900">{value}</dd>
+      <dt className="w-40 shrink-0 text-sm font-medium text-gray-400">{label}</dt>
+      <dd className="text-sm text-gray-900">{value}</dd>
+    </div>
+  );
+}
+
+function EmptyState({ text }: { text: string }) {
+  return (
+    <div className="rounded-xl bg-gray-50 py-6 text-center">
+      <p className="text-sm text-gray-400">{text}</p>
     </div>
   );
 }
 
 function ScoreCard({ label, score }: { label: string; score: number }) {
   return (
-    <div className="rounded-lg border p-3 text-center">
-      <p className="text-xs text-gray-500">{label}</p>
+    <div className="rounded-xl border border-gray-100 p-4 text-center transition hover:shadow-sm">
+      <p className="text-xs font-medium uppercase tracking-wide text-gray-400">{label}</p>
       <p
-        className={`mt-1 text-xl font-bold ${
+        className={`mt-1.5 text-2xl font-bold ${
           score >= 70
             ? "text-emerald-600"
             : score >= 40

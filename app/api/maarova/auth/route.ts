@@ -3,14 +3,26 @@ import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { signMaarovaJWT } from "@/lib/maarovaAuth";
 import { NextRequest } from "next/server";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string().trim().email("Valid email is required"),
+  password: z.string().min(1, "Password is required"),
+});
 
 export async function POST(req: NextRequest) {
-  const { email, password } = await req.json();
-  if (!email || !password)
-    return new Response("Email and password required", { status: 400 });
+  const parsed = loginSchema.safeParse(await req.json());
+  if (!parsed.success) {
+    return Response.json(
+      { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
+  }
+
+  const { email, password } = parsed.data;
 
   const user = await prisma.maarovaUser.findUnique({
-    where: { email: (email as string).toLowerCase() },
+    where: { email: email.toLowerCase() },
     select: {
       id: true,
       organisationId: true,
@@ -28,7 +40,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const valid = await bcrypt.compare(password as string, user.passwordHash);
+  const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) return new Response("Invalid credentials", { status: 401 });
 
   const token = signMaarovaJWT({

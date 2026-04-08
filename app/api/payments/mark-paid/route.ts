@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { emailPaymentProcessed } from "@/lib/email";
+import { Decimal } from "@prisma/client/runtime/library";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -44,10 +45,13 @@ export async function POST(req: NextRequest) {
   });
 
   if (sample) {
+    const totalDecimal = total._sum.billableAmount
+      ? new Decimal(total._sum.billableAmount as unknown as Decimal)
+      : new Decimal(0);
     await emailPaymentProcessed({
       consultantEmail: sample.consultant.email,
       consultantName: sample.consultant.name,
-      totalAmount: Number(total._sum.billableAmount ?? 0),
+      totalAmount: totalDecimal.toNumber(),
       currency: sample.currency,
       paymentMethod: paymentMethod ?? "Bank Transfer",
       paymentReference: paymentReference ?? "N/A",
@@ -60,12 +64,15 @@ export async function POST(req: NextRequest) {
       where: { id: { in: entryIds }, billableAmount: { not: null } },
       select: { billableAmount: true, assignment: { select: { engagementId: true } } },
     });
-    // Group by project
-    const projectSpend = new Map<string, number>();
+    // Group by project using Decimal for precision
+    const projectSpend = new Map<string, Decimal>();
     for (const entry of entries) {
       const pid = entry.assignment.engagementId;
-      const amount = Number(entry.billableAmount ?? 0);
-      projectSpend.set(pid, (projectSpend.get(pid) ?? 0) + amount);
+      const amount = entry.billableAmount
+        ? new Decimal(entry.billableAmount as unknown as Decimal)
+        : new Decimal(0);
+      const prev = projectSpend.get(pid) ?? new Decimal(0);
+      projectSpend.set(pid, prev.add(amount));
     }
     // Increment actualSpent per project
     for (const [projectId, amount] of projectSpend) {

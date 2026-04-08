@@ -1,18 +1,16 @@
-import { auth } from "@/auth";
+import { requireAuth } from "@/lib/apiAuth";
+import { ELEVATED_ROLES } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const ALLOWED_ROLES = ["DIRECTOR", "PARTNER", "ADMIN"];
-
 const SYSTEM_PROMPT = `You are an AI strategic coach for Debo Odulana, founder of Consult For Africa (CFA), a premium healthcare consulting platform in Nigeria. You have deep knowledge of: the CFA roadmap ($0 to $50M journey), Nigerian healthcare sector, management consulting operations, startup growth strategy, and the platform's technical build. Debo is in Phase 1 (MVP Build, Week 5 of 8). Launch is April 13, 2026. The platform connects diaspora and Nigeria-based healthcare consultants with Nigerian hospitals and health organizations. Be strategic, specific, actionable. Cite relevant phases/documents when helpful. Maximum 300 words per response.`;
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
-  if (!ALLOWED_ROLES.includes(session.user.role)) return new Response("Forbidden", { status: 403 });
+  const { error, session } = await requireAuth(ELEVATED_ROLES);
+  if (error) return error;
 
   const { question } = await req.json();
   if (!question?.trim()) return new Response("question required", { status: 400 });
@@ -87,9 +85,8 @@ ${recentConversations
 }
 
 export async function GET() {
-  const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
-  if (!ALLOWED_ROLES.includes(session.user.role)) return new Response("Forbidden", { status: 403 });
+  const { error, session } = await requireAuth(ELEVATED_ROLES);
+  if (error) return error;
 
   const profile = await prisma.founderProfile.findUnique({
     where: { email: session.user.email! },

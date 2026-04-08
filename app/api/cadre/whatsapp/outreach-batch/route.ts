@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
 import { sendOutreachBatch } from "@/lib/cadreHealth/outreachSender";
+import { auth } from "@/auth";
 
 // ─── CadreHealth: Outreach Batch Sender API ───
 
 export async function POST() {
-  // TODO: Add admin auth check here
+  const session = await auth();
+  if (
+    !session?.user?.role ||
+    !["PARTNER", "ADMIN"].includes(session.user.role)
+  ) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const result = await sendOutreachBatch(50);
     return NextResponse.json(result);
