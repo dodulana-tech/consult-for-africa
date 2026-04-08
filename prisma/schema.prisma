@@ -3559,6 +3559,7 @@ enum CadreAccountStatus {
   PENDING_REVIEW   // license submitted, awaiting verification
   VERIFIED         // license verified against regulatory body
   SUSPENDED        // account suspended (integrity issue)
+  IMPORTED         // imported from external database, not yet claimed
 }
 
 enum CadreAvailability {
