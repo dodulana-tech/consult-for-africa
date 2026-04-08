@@ -1,6 +1,45 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
+// Tier A: High-value specialists, scarce surgical/procedural cadres
+const TIER_A_SPECIALTIES = [
+  "Orthopaedic Surgery", "Neurosurgery", "Cardiology", "Cardiothoracic Surgery",
+  "Paediatric Surgery", "Plastic Surgery", "Urology", "Nephrology",
+  "Neurology", "Endocrinology", "Gastroenterology", "Haematology",
+  "Infectious Disease", "Neonatology", "Oncology", "Rheumatology",
+  "Oral & Maxillofacial Surgery", "Interventional Radiology",
+];
+
+// Tier B: Core clinical specialties, high volume
+const TIER_B_SPECIALTIES = [
+  "Internal Medicine", "General Surgery", "Obstetrics & Gynaecology",
+  "Paediatrics", "Anaesthesia", "Ophthalmology", "Radiology",
+  "Psychiatry", "Pathology", "Dermatology",
+];
+
+// Tier A cadres (non-Medicine): scarce healthcare professionals
+const TIER_A_CADRES = ["DENTISTRY", "OPTOMETRY"];
+
+function assignTier(cadre: string, subSpecialty: string | null, hasPhone: boolean): string {
+  // No phone = lower priority regardless
+  if (!hasPhone) return "C";
+
+  // Check sub-specialty first (most granular)
+  if (subSpecialty) {
+    if (TIER_A_SPECIALTIES.some((s) => subSpecialty.includes(s))) return "A";
+    if (TIER_B_SPECIALTIES.some((s) => subSpecialty.includes(s))) return "B";
+  }
+
+  // Check cadre
+  if (TIER_A_CADRES.includes(cadre)) return "A";
+
+  // General Practice and Public Health = Tier C (high volume, less surgical demand)
+  if (subSpecialty === "General Practice / Family Medicine" || subSpecialty === "Public Health Medicine") return "C";
+
+  // Default
+  return "B";
+}
+
 export async function POST(req: Request) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
@@ -10,49 +49,63 @@ export async function POST(req: Request) {
 
   const { professionalIds, filter } = await req.json();
 
-  let ids: string[] = [];
+  let professionals: Array<{ id: string; cadre: string; subSpecialty: string | null; phone: string | null }> = [];
 
   if (Array.isArray(professionalIds) && professionalIds.length > 0) {
-    ids = professionalIds;
+    professionals = await prisma.cadreProfessional.findMany({
+      where: { id: { in: professionalIds } },
+      select: { id: true, cadre: true, subSpecialty: true, phone: true },
+    });
   } else if (filter === "all_without_outreach") {
-    // Find all professionals who don't have an outreach record yet
-    const professionals = await prisma.cadreProfessional.findMany({
+    professionals = await prisma.cadreProfessional.findMany({
       where: {
         outreachRecord: null,
         email: { not: { contains: "@cadrehealth.system" } },
       },
-      select: { id: true },
+      select: { id: true, cadre: true, subSpecialty: true, phone: true },
     });
-    ids = professionals.map((p) => p.id);
   } else {
     return Response.json({ error: "Provide professionalIds or filter." }, { status: 400 });
   }
 
-  if (ids.length === 0) {
-    return Response.json({ ok: true, created: 0, message: "No eligible professionals found." });
+  if (professionals.length === 0) {
+    return Response.json({ ok: true, created: 0, tierBreakdown: {}, message: "No eligible professionals found." });
   }
 
   // Check which already have outreach records
+  const ids = professionals.map((p) => p.id);
   const existing = await prisma.cadreOutreachRecord.findMany({
     where: { professionalId: { in: ids } },
     select: { professionalId: true },
   });
   const existingSet = new Set(existing.map((e) => e.professionalId));
-  const newIds = ids.filter((id) => !existingSet.has(id));
+  const newProfessionals = professionals.filter((p) => !existingSet.has(p.id));
 
-  if (newIds.length === 0) {
-    return Response.json({ ok: true, created: 0, message: "All professionals already have outreach records." });
+  if (newProfessionals.length === 0) {
+    return Response.json({ ok: true, created: 0, tierBreakdown: {}, message: "All professionals already have outreach records." });
   }
 
-  // Batch create outreach records
+  // Assign tiers and create records
+  const tierCounts = { A: 0, B: 0, C: 0 };
+  const data = newProfessionals.map((p) => {
+    const tier = assignTier(p.cadre, p.subSpecialty, !!p.phone);
+    tierCounts[tier as keyof typeof tierCounts]++;
+    return {
+      professionalId: p.id,
+      status: "READY" as const,
+      tier,
+    };
+  });
+
   const result = await prisma.cadreOutreachRecord.createMany({
-    data: newIds.map((professionalId) => ({
-      professionalId,
-      status: "READY",
-      tier: "B", // Default tier, can be adjusted later
-    })),
+    data,
     skipDuplicates: true,
   });
 
-  return Response.json({ ok: true, created: result.count, total: ids.length });
+  return Response.json({
+    ok: true,
+    created: result.count,
+    total: professionals.length,
+    tierBreakdown: tierCounts,
+  });
 }
