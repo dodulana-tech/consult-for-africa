@@ -32,14 +32,13 @@ export default function DistributionPage() {
           <p className="mb-6 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "#D4AF37" }}>C4A Engagement Model</p>
           <h1 className="font-bold leading-[1.08] tracking-tight text-white max-w-3xl" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>You Built the Product.<br /><span style={{ color: "#D4AF37" }}>We Build the Sales Channel.</span></h1>
           <div className="mt-6 w-16 h-[3px] rounded-full" style={{ background: "linear-gradient(90deg, #D4AF37, transparent)" }} />
-          <p className="mt-8 max-w-2xl leading-relaxed text-lg" style={{ color: "rgba(255,255,255,0.6)" }}>
-            You do not need more sales reps on payroll. You need a commission-based agent network that only gets paid when they close deals. We recruit the agents, train them on your product, give them tracking links, and manage their performance. You just watch the revenue come in.
+          <p className="mt-8 max-w-xl leading-relaxed" style={{ fontSize: "clamp(0.92rem, 1.3vw, 1.05rem)", color: "rgba(255,255,255,0.55)" }}>
+            Commission-based agents who sell your healthcare product. We recruit them, train them, track every deal, and manage performance. You pay when they close.
           </p>
           <div className="mt-8 flex flex-wrap gap-6">
             {[
               { value: "4 weeks", label: "to first agent selling" },
-              { value: "0", label: "upfront headcount cost" },
-              { value: "100%", label: "performance-based" },
+              { value: "100%", label: "performance-based pay" },
             ].map((p) => (
               <div key={p.label}>
                 <p className="text-2xl font-bold" style={{ color: "#D4AF37" }}>{p.value}</p>
@@ -48,18 +47,6 @@ export default function DistributionPage() {
             ))}
           </div>
           <div className="mt-10 flex flex-wrap gap-4"><Link href="/solutions/distribution/request" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-sm transition hover:scale-[1.02]" style={{ background: "linear-gradient(135deg, #D4AF37, #b8962e)", color: "#06090f", boxShadow: "0 4px 20px rgba(212,175,55,0.3)" }}>List Your Product <ArrowRight size={15} /></Link><Link href="/agent" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-sm" style={{ border: "1px solid rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.8)" }}>I Want to Be an Agent</Link></div>
-        </div>
-      </section>
-
-      {/* The Problem */}
-      <section className="py-20 px-6" style={{ background: "linear-gradient(180deg, #0d2440 0%, #0a1e32 100%)" }}>
-        <div className="max-w-3xl mx-auto text-center">
-          <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.5)", fontSize: "1.1rem", lineHeight: "1.8" }}>
-            Every healthcare founder hits the same wall. The product works. Customers love it. But getting it in front of the next 1,000 customers means hiring sales people, paying base salaries, managing targets, dealing with underperformance, and hoping the unit economics still work after all that overhead.
-          </p>
-          <p className="mt-6 text-lg font-semibold text-white">
-            What if you only paid when someone actually sold something?
-          </p>
         </div>
       </section>
 
