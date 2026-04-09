@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getConsultantCapacity } from "@/lib/capacity";
 import { redirect } from "next/navigation";
-import { Briefcase, FileCheck, AlertTriangle, Clock, TrendingUp, XCircle, Gauge, Inbox, Sparkles, Shield } from "lucide-react";
+import { Briefcase, FileCheck, AlertTriangle, Clock, TrendingUp, XCircle, Gauge, Inbox, Sparkles, Shield, DollarSign } from "lucide-react";
 import Link from "next/link";
 import TopBar from "@/components/platform/TopBar";
 import StatCard from "@/components/platform/StatCard";
@@ -91,6 +91,23 @@ export default async function DashboardPage() {
 
   const capacity = isConsultant ? await getConsultantCapacity(userId) : null;
   const tierScore = isConsultant ? await calculateTierScore(userId) : null;
+
+  // ─── Agent opportunities for consultants ─────────────────────────────────
+  const agentOpportunities = isConsultant
+    ? await prisma.agentOpportunity.findMany({
+        where: { status: "OPEN" },
+        select: {
+          id: true,
+          title: true,
+          clientName: true,
+          commissionType: true,
+          commissionValue: true,
+          commissionCurrency: true,
+        },
+        orderBy: { createdAt: "desc" },
+        take: 3,
+      })
+    : [];
 
   // ─── Recent updates ───────────────────────────────────────────────────────
   const recentUpdates = await prisma.engagementUpdate.findMany({
@@ -462,6 +479,53 @@ export default async function DashboardPage() {
             </div>
           );
         })()}
+
+        {/* Agent Opportunities */}
+        {isConsultant && agentOpportunities.length > 0 && (
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <DollarSign size={16} style={{ color: "#B8860B" }} />
+                <h2 className="text-sm font-semibold text-[#0F2744]">Earn extra income</h2>
+              </div>
+              <Link href="/opportunities/agent" className="text-xs font-semibold" style={{ color: "#B8860B" }}>
+                View All &rarr;
+              </Link>
+            </div>
+            <p className="text-xs text-slate-500">Refer clients and earn commissions on closed deals.</p>
+            <div className="space-y-2">
+              {agentOpportunities.map((opp) => {
+                const commLabel =
+                  opp.commissionType === "PERCENTAGE"
+                    ? `${Number(opp.commissionValue)}% commission`
+                    : opp.commissionType === "RECURRING"
+                    ? `${opp.commissionCurrency === "NGN" ? "\u20A6" : "$"}${Number(opp.commissionValue).toLocaleString()}/mo`
+                    : `${opp.commissionCurrency === "NGN" ? "\u20A6" : "$"}${Number(opp.commissionValue).toLocaleString()} per deal`;
+                return (
+                  <Link
+                    key={opp.id}
+                    href={`/opportunities/agent?apply=${opp.id}`}
+                    className="flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-slate-50"
+                    style={{ border: "1px solid #F1F5F9" }}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-slate-900 truncate">{opp.title}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{opp.clientName}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <span
+                        className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                        style={{ background: "#FEF9E7", color: "#B8860B" }}
+                      >
+                        {commLabel}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

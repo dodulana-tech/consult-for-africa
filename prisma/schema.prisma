@@ -314,6 +314,7 @@ model User {
   ownGigReviews          Engagement[]       @relation("OwnGigReviewer")
   ownGigFees             OwnGigPlatformFee[] @relation("OwnGigFeeConsultant")
   trackPurchases         TrackPurchase[]
+  salesAgentProfile      SalesAgent?
   sourceApplicationId    String?            // TalentApplication ID that created this ACADEMY_LEARNER account
 }
 
@@ -4500,6 +4501,9 @@ model SalesAgent {
   salesExperience   Int?
   referralSource    String?
   linkedinUrl       String?
+
+  userId            String?      @unique
+  user              User?        @relation(fields: [userId], references: [id])
 
   status            AgentStatus  @default(APPLIED)
   vettedById        String?
