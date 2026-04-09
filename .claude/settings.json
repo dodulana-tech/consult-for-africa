@@ -199,7 +199,10 @@
       "Bash(ls /Users/debo/consult-for-africa/app/api/admin/agent-payouts/[id]/)",
       "Bash(grep -n \"_sum.total\" app/api/founder/*/route.ts app/api/founder/*/*/route.ts)",
       "Bash(grep -c \"export const metadata\\\\|export const generateMetadata\" /Users/debo/consult-for-africa/app/\\\\\\(marketing\\\\\\)/*/page.tsx)",
-      "Bash(grep -r \"jsonLd\\\\|JSON-LD\\\\|structured\" /Users/debo/consult-for-africa/app/\\\\\\(marketing\\\\\\)/*.tsx)"
+      "Bash(grep -r \"jsonLd\\\\|JSON-LD\\\\|structured\" /Users/debo/consult-for-africa/app/\\\\\\(marketing\\\\\\)/*.tsx)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(grep -r \"vercel.*analytics\\\\|analytics.*provider\\\\|GA_\\\\|NEXT_PUBLIC\" /Users/debo/consult-for-africa/app/layout.tsx /Users/debo/consult-for-africa/.env*)",
+      "Bash(ls /Users/debo/consult-for-africa/.env*)"
     ],
     "additionalDirectories": [
       "/Users/debo/consult-for-africa/app/(client-portal)/client/projects/[id]/report",

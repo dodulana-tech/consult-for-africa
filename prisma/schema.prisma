@@ -4812,3 +4812,102 @@ model FounderDocument {
   @@index([category])
   @@index([isPinned])
 }
+
+// ─── CAMPAIGN MANAGEMENT ─────────────────────────────────────────────────────
+
+enum CampaignBrand {
+  C4A
+  CADREHEALTH
+  MAAROVA
+}
+
+enum CampaignPostStatus {
+  IDEA
+  DRAFTING
+  READY_FOR_REVIEW
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+  REJECTED
+}
+
+enum SocialPlatform {
+  LINKEDIN
+  TWITTER
+  INSTAGRAM
+  TIKTOK
+  FACEBOOK
+  WHATSAPP
+  EMAIL
+}
+
+model Campaign {
+  id          String        @id @default(cuid())
+  name        String
+  description String?       @db.Text
+  brand       CampaignBrand
+  objective   String?       // AWARENESS, ENGAGEMENT, LEADS, CONVERSIONS, RECRUITMENT
+  startDate   DateTime?
+  endDate     DateTime?
+  status      String        @default("PLANNING") // PLANNING, ACTIVE, PAUSED, COMPLETED
+  tags        String[]
+
+  createdById String?
+  notes       String?       @db.Text
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  posts       CampaignPost[]
+
+  @@index([brand])
+  @@index([status])
+}
+
+model CampaignPost {
+  id           String             @id @default(cuid())
+  campaignId   String?
+  campaign     Campaign?          @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+
+  brand        CampaignBrand
+  platforms    SocialPlatform[]
+  contentPillar String?           // THOUGHT_LEADERSHIP, CASE_STUDY, SALARY_DATA, CAREER_GUIDANCE, PRODUCT, TEAM_CULTURE, NEWS
+
+  title        String             // internal reference title
+  body         String             @db.Text // post copy
+  hashtags     String[]
+  mediaUrls    String[]           // uploaded images/videos
+  mediaType    String?            // IMAGE, VIDEO, CAROUSEL, REEL, STORY
+
+  scheduledAt  DateTime?
+  publishedAt  DateTime?
+  status       CampaignPostStatus @default(IDEA)
+
+  // Approval
+  createdById  String?
+  reviewedById String?
+  reviewNote   String?            @db.Text
+  approvedAt   DateTime?
+
+  // Performance (manually entered or API-fed)
+  impressions  Int?
+  reach        Int?
+  engagements  Int?
+  clicks       Int?
+  shares       Int?
+  comments     Int?
+  saves        Int?
+
+  // Nuru
+  nuruSuggestion String?          @db.Text // AI-generated improvement suggestions
+
+  externalUrl  String?            // link to published post
+
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([brand])
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([campaignId])
+}

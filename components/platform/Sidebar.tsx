@@ -6,6 +6,7 @@ import Image from "next/image";
 import {
   LayoutDashboard,
   Briefcase,
+  Megaphone,
   Building2,
   Clock,
   Settings,
@@ -108,6 +109,13 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Tools",          href: "/tools",          icon: Wrench },
     ],
     roles: STAFF_ROLES,
+  },
+  {
+    title: "Marketing",
+    items: [
+      { label: "Campaigns",      href: "/campaigns",      icon: Megaphone },
+    ],
+    roles: ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"],
   },
   {
     title: "Learning",
