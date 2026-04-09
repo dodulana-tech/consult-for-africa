@@ -34,7 +34,7 @@ export default function DistributionPage() {
           <p className="mt-5 text-lg font-medium" style={{ color: "#D4AF37" }}>Your next sales team is already in the field.</p>
           <div className="mt-5 w-12 h-[2px]" style={{ background: "#D4AF37" }} />
           <p className="mt-5 max-w-lg leading-relaxed" style={{ fontSize: "clamp(0.92rem, 1.3vw, 1.05rem)", color: "rgba(255,255,255,0.55)" }}>
-            Commission-only agents for healthcare. Managed by C4A. Live in 4 weeks.
+            Commission-only agents for healthcare. Recruited, trained, and managed by C4A.
           </p>
           <div className="mt-8 flex flex-wrap gap-6">
             {[
