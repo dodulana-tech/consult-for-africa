@@ -82,15 +82,20 @@ export async function PUT(
     return new Response("No fields to update", { status: 400 });
   }
 
-  const updated = await prisma.maarovaOrganisation.update({
-    where: { id },
-    data,
-  });
+  try {
+    const updated = await prisma.maarovaOrganisation.update({
+      where: { id },
+      data,
+    });
 
-  return Response.json({
-    id: updated.id,
-    name: updated.name,
-    isActive: updated.isActive,
-    updatedAt: updated.updatedAt.toISOString(),
-  });
+    return Response.json({
+      id: updated.id,
+      name: updated.name,
+      isActive: updated.isActive,
+      updatedAt: updated.updatedAt.toISOString(),
+    });
+  } catch (err) {
+    console.error("[maarova-org-update] Error:", err);
+    return Response.json({ error: String(err) }, { status: 500 });
+  }
 }
