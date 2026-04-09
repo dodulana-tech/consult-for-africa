@@ -6,12 +6,14 @@ import { Sparkles, Send, User, Bot, Loader2 } from "lucide-react";
 type Message = { role: "user" | "assistant"; content: string; createdAt?: string };
 
 const SUGGESTED_QUESTIONS = [
-  "What should I focus on this week?",
-  "Am I on track for launch?",
-  "How do I close my first client?",
-  "When should I hire my second EM?",
-  "What's my biggest risk right now?",
-  "How do I build the consultant network faster?",
+  "What should I prioritise this week?",
+  "How do I get CadreHealth outreach converting?",
+  "What's the fastest path to first N10M in revenue?",
+  "Should I focus on consulting delivery or product growth?",
+  "How do I structure the Dr. Kumar engagement for maximum LTV?",
+  "What's my biggest blindspot right now?",
+  "How should I price the agent commission model?",
+  "How do I get partner firms sending us staffing requests?",
 ];
 
 export default function AICoachPage() {
@@ -94,7 +96,7 @@ export default function AICoachPage() {
           <div>
             <p className="text-sm font-semibold text-gray-900">Nuru</p>
             <p className="text-[11px] text-gray-400">
-              Context-aware: knows your C4A roadmap, current phase, and progress.
+              Strategic co-pilot with live business context
             </p>
           </div>
         </div>
@@ -113,7 +115,7 @@ export default function AICoachPage() {
               </div>
               <p className="text-sm font-semibold text-gray-800 mb-1">Nuru</p>
               <p className="text-xs text-gray-400 max-w-sm mx-auto">
-                Ask anything about your journey, strategy, or this week&apos;s priorities.
+                Your strategic co-pilot. Knows your live business metrics, challenges your thinking, and helps you make better decisions.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-2 max-w-xl mx-auto">
