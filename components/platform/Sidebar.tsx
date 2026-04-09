@@ -248,7 +248,7 @@ export default function Sidebar() {
       >
         {email === "debo.odulana@consultforafrica.com" && (
           <Link
-            href="/founder"
+            href="/founder/dashboard"
             onClick={() => closeMobile()}
             className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all"
             style={{
