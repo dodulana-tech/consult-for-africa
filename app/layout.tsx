@@ -33,12 +33,14 @@ export const metadata: Metadata = {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Consult For Africa",
+        alt: "Consult For Africa - Healthcare Transformation Across Africa",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
+    site: "@consultforafrica",
+    creator: "@consultforafrica",
     title: "Consult For Africa",
     description:
       "Healthcare performance transformation across Africa.",
@@ -60,6 +62,13 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
   other: {
     "mobile-web-app-capable": "yes",

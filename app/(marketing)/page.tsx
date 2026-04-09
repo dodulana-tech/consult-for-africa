@@ -18,20 +18,104 @@ import Insights from "@/components/cfa/Insights";
 import PartnerCTA from "@/components/cfa/PartnerCTA";
 
 export const metadata: Metadata = {
-  title: "Consult For Africa",
+  title: "Consult For Africa | Healthcare Transformation Across Africa",
   description:
-    "Hospital management, turnaround, and healthcare systems transformation across Africa.",
+    "Africa's leading healthcare management consulting firm. Hospital turnaround, clinical governance, fractional leadership, and health systems strengthening. Operations in Nigeria, Ghana, Kenya, and across the continent.",
+  keywords: [
+    "healthcare consulting Africa",
+    "hospital turnaround Nigeria",
+    "clinical governance consulting",
+    "healthcare management consulting",
+    "hospital management Africa",
+    "health systems strengthening",
+    "fractional hospital leadership",
+    "healthcare transformation",
+    "hospital operations consulting",
+    "African healthcare consulting firm",
+  ],
+  alternates: {
+    canonical: "https://consultforafrica.com",
+  },
   openGraph: {
-    title: "Consult For Africa",
-    description: "Transforming hospital performance across Africa.",
+    title: "Consult For Africa | Healthcare Transformation Across Africa",
+    description: "Africa's leading healthcare management consulting firm. Hospital turnaround, clinical governance, and health systems strengthening.",
     type: "website",
     images: ["/og-image.jpg"],
+  },
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Consult For Africa",
+  url: "https://consultforafrica.com",
+  logo: "https://consultforafrica.com/logo-cfa.png",
+  description:
+    "Africa's leading healthcare management consulting firm. Hospital turnaround, clinical governance, fractional leadership, and health systems strengthening.",
+  foundingDate: "2024",
+  founder: {
+    "@type": "Person",
+    name: "Dr. Debo Odulana",
+    jobTitle: "Founding Partner",
+  },
+  address: [
+    {
+      "@type": "PostalAddress",
+      addressLocality: "Lagos",
+      addressCountry: "NG",
+    },
+    {
+      "@type": "PostalAddress",
+      addressLocality: "Abuja",
+      addressCountry: "NG",
+    },
+  ],
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "+234-913-813-8553",
+    contactType: "sales",
+    email: "hello@consultforafrica.com",
+    availableLanguage: "English",
+  },
+  sameAs: [],
+  areaServed: {
+    "@type": "GeoCircle",
+    geoMidpoint: { "@type": "GeoCoordinates", latitude: 6.5244, longitude: 3.3792 },
+    description: "Africa",
+  },
+  knowsAbout: [
+    "Hospital Turnaround",
+    "Clinical Governance",
+    "Healthcare Operations",
+    "Health Systems Strengthening",
+    "Fractional Leadership",
+    "Digital Health",
+  ],
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Consult For Africa",
+  url: "https://consultforafrica.com",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://consultforafrica.com/oncadre/hospitals?q={search_term_string}",
+    "query-input": "required name=search_term_string",
   },
 };
 
 export default function Page() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
       <main>
         <Hero />
         <TrustStrip />

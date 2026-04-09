@@ -7,6 +7,18 @@ export const metadata: Metadata = {
   title: "Hospital Turnaround & Recovery | Consult For Africa",
   description:
     "Consult For Africa stabilises hospital operations, improves efficiency, strengthens governance, and restores financial performance for healthcare institutions across Africa.",
+  keywords: [
+    "hospital turnaround",
+    "hospital recovery consulting",
+    "hospital financial performance",
+    "hospital operations improvement",
+    "healthcare governance Nigeria",
+    "struggling hospital help",
+    "hospital restructuring Africa",
+  ],
+  alternates: {
+    canonical: "https://consultforafrica.com/turnaround",
+  },
   openGraph: {
     title: "Hospital Turnaround & Recovery | Consult For Africa",
     description: "We stabilise hospital operations, improve efficiency, and restore financial performance across Africa.",

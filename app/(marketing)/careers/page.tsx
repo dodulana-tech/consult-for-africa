@@ -8,6 +8,17 @@ import { ArrowRight, CheckCircle, Globe, Users, Briefcase } from "lucide-react";
 export const metadata: Metadata = {
   title: "Careers | Consult For Africa",
   description: "Join Africa's premier healthcare management consulting network. Apply to work with leading hospitals, health systems, and governments across the continent.",
+  keywords: [
+    "healthcare consulting careers Africa",
+    "hospital management jobs Nigeria",
+    "healthcare consultant jobs",
+    "clinical governance careers",
+    "health systems jobs Africa",
+    "medical consulting careers",
+  ],
+  alternates: {
+    canonical: "https://consultforafrica.com/careers",
+  },
   openGraph: {
     title: "Careers | Consult For Africa",
     description: "Join Africa's premier healthcare management consulting network.",

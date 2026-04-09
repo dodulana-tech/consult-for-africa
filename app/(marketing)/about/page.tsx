@@ -9,7 +9,17 @@ import PartnerCTA from "@/components/cfa/PartnerCTA";
 export const metadata: Metadata = {
   title: "About | Consult For Africa",
   description:
-    "Consult For Africa is an Africa-focused healthcare management and transformation firm. Built by operators, for operators.",
+    "Consult For Africa is an Africa-focused healthcare management and transformation firm. Built by operators, for operators. Founded by Dr. Debo Odulana.",
+  keywords: [
+    "about Consult For Africa",
+    "healthcare consulting firm Africa",
+    "Debo Odulana",
+    "African healthcare consultants",
+    "hospital management consultants Nigeria",
+  ],
+  alternates: {
+    canonical: "https://consultforafrica.com/about",
+  },
   openGraph: {
     title: "About | Consult For Africa",
     description: "Africa-focused healthcare management and transformation firm. Built by operators, for operators.",
@@ -66,9 +76,44 @@ const values = [
 
 /* ─── Page ────────────────────────────────────────────────────────── */
 
+const aboutJsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Consult For Africa",
+    url: "https://consultforafrica.com",
+    logo: "https://consultforafrica.com/logo-cfa.png",
+    description: "Africa-focused healthcare management and transformation firm.",
+    founder: {
+      "@type": "Person",
+      name: "Dr. Debo Odulana",
+      jobTitle: "Founding Partner",
+      image: "https://consultforafrica.com/debo-odulana.jpg",
+      url: "https://www.linkedin.com/in/deboodulana/",
+      alumniOf: { "@type": "CollegeOrUniversity", name: "Imperial College London" },
+      knowsAbout: ["Hospital Turnaround", "Healthcare Management", "Clinical Governance"],
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://consultforafrica.com" },
+      { "@type": "ListItem", position: 2, name: "About", item: "https://consultforafrica.com/about" },
+    ],
+  },
+];
+
 export default function AboutPage() {
   return (
     <main>
+      {aboutJsonLd.map((schema, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
 
       {/* ══ HERO ════════════════════════════════════════════════════ */}
       <section

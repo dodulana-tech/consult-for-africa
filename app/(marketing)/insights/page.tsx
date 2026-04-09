@@ -9,6 +9,16 @@ export const metadata: Metadata = {
   title: "Insights | Consult For Africa",
   description:
     "Perspectives on hospital performance, governance, capital projects, and health system strengthening across Africa.",
+  keywords: [
+    "healthcare insights Africa",
+    "hospital management articles",
+    "clinical governance insights",
+    "African healthcare research",
+    "hospital performance reports",
+  ],
+  alternates: {
+    canonical: "https://consultforafrica.com/insights",
+  },
   openGraph: {
     title: "Insights | Consult For Africa",
     description: "Perspectives on hospital performance, governance, and health system strengthening across Africa.",
