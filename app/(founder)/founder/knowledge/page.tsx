@@ -1,5 +1,5 @@
-import KnowledgeClient from "./KnowledgeClient";
+import KnowledgeHub from "./KnowledgeHub";
 
 export default function KnowledgePage() {
-  return <KnowledgeClient />;
+  return <KnowledgeHub />;
 }

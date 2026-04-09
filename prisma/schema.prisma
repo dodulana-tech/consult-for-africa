@@ -890,6 +890,7 @@ model FounderProfile {
   metrics          FounderMetric[]
   ideas            FounderIdea[]
   dailyPulses      FounderDailyPulse[]
+  documents        FounderDocument[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -4772,4 +4773,38 @@ model FounderDailyPulse {
 
   @@unique([founderId, date])
   @@index([founderId])
+}
+
+model FounderDocument {
+  id          String   @id @default(cuid())
+  founderId   String
+  founder     FounderProfile @relation(fields: [founderId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?  @db.Text
+  content     String?  @db.Text  // for text/paste content
+  fileUrl     String?             // for uploaded files (R2)
+  fileType    String?             // PDF, DOCX, XLSX, PPTX, etc.
+  fileSize    Int?                // bytes
+
+  category    String   // STRATEGY, FINANCE, LEGAL, CLIENT, OPERATIONS, MARKET_INTEL, PARTNERSHIP, PERSONAL
+  tags        String[]
+  isPinned    Boolean  @default(false)
+  isPrivate   Boolean  @default(true) // founder-eyes-only by default
+
+  reviewDate  DateTime? // reminder to review
+  reviewNote  String?
+
+  nuruSummary String?  @db.Text  // AI-generated summary
+  nuruNotes   String?  @db.Text  // AI analysis
+
+  viewCount   Int      @default(0)
+  lastViewedAt DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([founderId])
+  @@index([category])
+  @@index([isPinned])
 }
