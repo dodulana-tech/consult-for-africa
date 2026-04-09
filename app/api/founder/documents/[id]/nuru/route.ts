@@ -15,7 +15,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const docContent = doc.content || doc.description || doc.title;
 
   const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-opus-4-20250514",
     max_tokens: 800,
     messages: [{
       role: "user",
@@ -43,7 +43,7 @@ Be specific to C4A. Never use em dashes. Be concise.`,
 
   // Also generate a short summary
   const summaryMsg = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-opus-4-20250514",
     max_tokens: 100,
     messages: [{
       role: "user",

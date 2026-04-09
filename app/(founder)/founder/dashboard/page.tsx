@@ -1,6 +1,9 @@
+export const dynamic = "force-dynamic";
+
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import Link from "next/link";
 import DailyPulse from "@/components/founder/DailyPulse";
 import NuruPrompt from "@/components/founder/NuruPrompt";
@@ -176,10 +179,14 @@ export default async function FounderDashboardPage() {
       </div>
 
       {/* ── Nuru check-in ── */}
-      <NuruPrompt />
+      <Suspense fallback={<div className="h-20 animate-pulse rounded-2xl bg-gray-100" />}>
+        <NuruPrompt />
+      </Suspense>
 
       {/* ── 0. DAILY PULSE (Nuru AI) ── */}
-      <DailyPulse />
+      <Suspense fallback={<div className="h-40 animate-pulse rounded-2xl bg-gray-100" />}>
+        <DailyPulse />
+      </Suspense>
 
       {/* ── 1. BUSINESS PULSE ── */}
       <Section title="Business Pulse" icon={<DollarSign className="h-4 w-4" />}>

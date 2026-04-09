@@ -104,9 +104,9 @@ export async function POST() {
     newsContext = "\n\n(Industry news unavailable today)";
   }
 
-  // Generate pulse with Claude
+  // Generate pulse with Claude (Opus for quality briefing)
   const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-opus-4-20250514",
     max_tokens: 1024,
     messages: [{
       role: "user",

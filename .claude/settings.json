@@ -208,7 +208,8 @@
       "/Users/debo/consult-for-africa/app/(marketing)/oncadre/explore",
       "/Users/debo/consult-for-africa/app/api/admin/agents/[id]",
       "/Users/debo/consult-for-africa/app/api/admin/agent-opportunities/[id]/assignments",
-      "/Users/debo/consult-for-africa/app/api/admin/agent-payouts"
+      "/Users/debo/consult-for-africa/app/api/admin/agent-payouts",
+      "/Users/debo/consult-for-africa/app/api/agent-portal/platform-apply"
     ]
   }
 }
