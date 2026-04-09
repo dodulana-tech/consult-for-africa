@@ -15,6 +15,12 @@ function escHtml(s: unknown): string {
 
 export async function POST(req: Request) {
   const data = await req.json();
+
+  // Honeypot
+  if (data.website || data._honey) {
+    return NextResponse.json({ success: true });
+  }
+
   const {
     name,
     email,
@@ -25,6 +31,14 @@ export async function POST(req: Request) {
     timeline,
     message,
   } = data;
+
+  // Basic spam check
+  const allText = `${name} ${email} ${organisation} ${role ?? ""} ${message ?? ""}`;
+  const consonantRatio = (allText.replace(/[^bcdfghjklmnpqrstvwxyz]/gi, "").length) / Math.max(allText.length, 1);
+  if (consonantRatio > 0.7 && allText.length > 30) {
+    console.log(`[maarova/demo] SPAM blocked: ${email}`);
+    return NextResponse.json({ success: true });
+  }
 
   if (!name || !email || !organisation) {
     return NextResponse.json(

@@ -39,6 +39,7 @@ export default function WhitepaperGate({ fileUrl }: { fileUrl: string }) {
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
           _subject: "Whitepaper Download Request",
+          _honey: "",
           email,
           source: "whitepaper_gate",
           downloadedFile: fileUrl,

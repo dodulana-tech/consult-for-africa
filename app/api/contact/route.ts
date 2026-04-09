@@ -35,7 +35,15 @@ export async function POST(req: Request) {
     );
   }
 
-  const parsed = contactSchema.safeParse(await req.json());
+  const body = await req.json();
+
+  // Honeypot: if the hidden "website" field is filled, it's a bot
+  if (body.website) {
+    // Silently accept to not alert the bot, but do nothing
+    return NextResponse.json({ success: true });
+  }
+
+  const parsed = contactSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       { success: false, error: "Validation failed", details: parsed.error.flatten().fieldErrors },
@@ -44,6 +52,39 @@ export async function POST(req: Request) {
   }
 
   const { organization, country, role, email, projectType, message } = parsed.data;
+
+  // Spam heuristics
+  const spamSignals: string[] = [];
+  const allText = `${organization} ${role ?? ""} ${message} ${email}`.toLowerCase();
+
+  // Gibberish detection: high consonant ratio in message (random keyboard mashing)
+  const consonantRatio = (message.replace(/[^bcdfghjklmnpqrstvwxyz]/gi, "").length) / Math.max(message.length, 1);
+  if (consonantRatio > 0.7 && message.length > 20) spamSignals.push("gibberish");
+
+  // Known spam patterns
+  if (/\b(casino|viagra|crypto|forex|seo service|web traffic|backlink|cbd|thc)\b/i.test(allText)) spamSignals.push("spam_keywords");
+
+  // Email in role field (like the screenshot)
+  if (role && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(role.trim())) spamSignals.push("email_in_role");
+
+  // Disposable/suspicious email domains
+  const emailDomain = email.split("@")[1]?.toLowerCase() ?? "";
+  const suspiciousDomains = ["gmx.com", "mail.ru", "yandex.ru", "tempmail.com", "guerrillamail.com", "throwaway.email"];
+  if (suspiciousDomains.includes(emailDomain)) spamSignals.push("suspicious_domain");
+
+  // Message contains the site URL (SEO spam pattern)
+  if (/consultforafrica\.com/i.test(message)) spamSignals.push("self_referencing");
+
+  // Too many URLs in message
+  const urlCount = (message.match(/https?:\/\//g) ?? []).length;
+  if (urlCount > 2) spamSignals.push("too_many_urls");
+
+  if (spamSignals.length >= 2) {
+    // Silently accept to not alert the bot
+    console.log(`[contact] SPAM blocked: ${email} signals=[${spamSignals.join(",")}]`);
+    return NextResponse.json({ success: true });
+  }
+
   const safeMessage = message;
 
   // Save to Lead table

@@ -82,6 +82,8 @@ export default function PartnerCTA() {
           <input type="hidden" name="_subject" value="New CFA Executive Brief Submission" />
           <input type="hidden" name="_template" value="table" />
           <input type="hidden" name="_captcha" value="false" />
+          {/* Honeypot - hidden from humans, bots fill it and get silently rejected */}
+          <input type="text" name="_honey" style={{ display: "none" }} tabIndex={-1} autoComplete="off" />
 
           <p className="text-sm font-semibold text-white">Executive Brief Submission</p>
 
