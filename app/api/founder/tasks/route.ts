@@ -63,19 +63,16 @@ export async function POST(req: NextRequest) {
     body;
 
   if (!title?.trim()) return new Response("title required", { status: 400 });
-  if (!phase) return new Response("phase required", { status: 400 });
-  if (!priority) return new Response("priority required", { status: 400 });
-  if (!category) return new Response("category required", { status: 400 });
 
   const task = await prisma.founderTask.create({
     data: {
       founderId: profile.id,
       title: title.trim(),
       description: description?.trim() ?? null,
-      phase,
+      phase: phase ?? "current",
       week: week ?? null,
-      priority,
-      category,
+      priority: priority ?? "medium",
+      category: category ?? "general",
       dueDate: dueDate ? new Date(dueDate) : null,
       estimatedMinutes: estimatedMinutes ?? null,
       impact: impact?.trim() ?? null,
