@@ -16,6 +16,7 @@ interface Opportunity {
   targetIndustries: string[];
   productType: string;
   agentCount: number;
+  maxAgents: number | null;
   startDate: string;
   endDate: string | null;
   hasApplied: boolean;
@@ -35,6 +36,26 @@ export default function AgentOpportunityList({
     new Set(opportunities.filter((o) => o.hasApplied).map((o) => o.id))
   );
   const [error, setError] = useState<string | null>(null);
+  const [dashboardLoading, setDashboardLoading] = useState(false);
+
+  const goToAgentDashboard = async () => {
+    setDashboardLoading(true);
+    try {
+      const res = await fetch("/api/agent-portal/platform-session", {
+        method: "POST",
+      });
+      if (!res.ok) {
+        setError("Failed to create agent session. Please try again.");
+        return;
+      }
+      const data = await res.json();
+      window.location.href = data.redirect;
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setDashboardLoading(false);
+    }
+  };
 
   const handleApply = async (opportunityId: string) => {
     setApplying(opportunityId);
@@ -89,13 +110,26 @@ export default function AgentOpportunityList({
 
   return (
     <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4">
-      <Link
-        href="/opportunities"
-        className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 mb-2"
-      >
-        <ArrowLeft size={12} />
-        Back to staffing opportunities
-      </Link>
+      <div className="flex items-center justify-between mb-2">
+        <Link
+          href="/opportunities"
+          className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700"
+        >
+          <ArrowLeft size={12} />
+          Back to staffing opportunities
+        </Link>
+
+        {hasAgentProfile && agentStatus === "APPROVED" && (
+          <button
+            onClick={goToAgentDashboard}
+            disabled={dashboardLoading}
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition disabled:opacity-50"
+            style={{ background: "#0F2744" }}
+          >
+            {dashboardLoading ? "Loading..." : "Go to Agent Dashboard"}
+          </button>
+        )}
+      </div>
 
       {error && (
         <div
@@ -154,6 +188,9 @@ export default function AgentOpportunityList({
                   )}
                   <div className="text-xs text-slate-400">
                     {opp.productType.replace(/_/g, " ")}
+                  </div>
+                  <div className="text-xs text-slate-400">
+                    {opp.agentCount}{opp.maxAgents ? ` / ${opp.maxAgents}` : ""} agent{opp.agentCount !== 1 ? "s" : ""}
                   </div>
                 </div>
 

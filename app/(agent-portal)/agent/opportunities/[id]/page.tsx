@@ -3,6 +3,7 @@ import { redirect, notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import ApplyButton from "./ApplyButton";
+import WithdrawButton from "./WithdrawButton";
 
 export default async function AgentOpportunityDetailPage({
   params,
@@ -181,6 +182,7 @@ export default async function AgentOpportunityDetailPage({
                     View My Deals
                   </Link>
                 )}
+                <WithdrawButton opportunityId={opportunity.id} />
               </div>
             )}
             {opportunity.status !== "OPEN" && !myAssignment && (

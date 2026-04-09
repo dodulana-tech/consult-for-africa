@@ -74,7 +74,7 @@ export default async function AgentOpportunitiesPage() {
                       ? `${new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(Number(opp.commissionValue))} per deal`
                       : opp.commissionType.replace(/_/g, " ").toLowerCase()}
                   </span>
-                  <span>{opp._count.assignments} agent{opp._count.assignments !== 1 ? "s" : ""}</span>
+                  <span>{opp._count.assignments}{opp.maxAgents ? ` / ${opp.maxAgents}` : ""} agent{opp._count.assignments !== 1 ? "s" : ""}</span>
                 </div>
 
                 <div className="mt-4">

@@ -22,7 +22,6 @@ export default async function AdminAgentDetailPage({
       deals: {
         orderBy: { updatedAt: "desc" },
         take: 10,
-        include: { opportunity: { select: { title: true } } },
         select: {
           id: true,
           dealCode: true,
@@ -141,22 +140,35 @@ export default async function AdminAgentDetailPage({
             </h2>
             <div className="space-y-2">
               {agent.deals.map((deal) => (
-                <div key={deal.id} className="flex items-center justify-between rounded-xl border border-gray-100 p-4">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">{deal.prospectName}</p>
-                    <p className="mt-0.5 text-xs text-gray-500">
-                      {deal.opportunity.title} {deal.prospectOrg ? `/ ${deal.prospectOrg}` : ""}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {deal.dealValue && (
-                      <span className="text-sm font-semibold" style={{ color: "#0F2744" }}>
-                        {formatNGN(Number(deal.dealValue))}
+                <div key={deal.id} className="rounded-xl border border-gray-100 p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {deal.dealCode ? `${deal.dealCode} - ` : ""}{deal.prospectName}
+                      </p>
+                      <p className="mt-0.5 text-xs text-gray-500">
+                        {deal.opportunity.title} {deal.prospectOrg ? `/ ${deal.prospectOrg}` : ""}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {deal.dealValue && (
+                        <span className="text-sm font-semibold" style={{ color: "#0F2744" }}>
+                          {formatNGN(Number(deal.dealValue))}
+                        </span>
+                      )}
+                      <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600">
+                        {deal.stage.replace(/_/g, " ")}
                       </span>
-                    )}
-                    <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600">
-                      {deal.stage.replace(/_/g, " ")}
-                    </span>
+                      {deal.stage === "CLOSED_WON" && (
+                        deal.verifiedAt ? (
+                          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                            Verified
+                          </span>
+                        ) : (
+                          <DealVerifyButton dealId={deal.id} />
+                        )
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
