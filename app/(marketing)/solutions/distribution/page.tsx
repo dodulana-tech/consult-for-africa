@@ -30,10 +30,11 @@ export default function DistributionPage() {
       <section className="relative overflow-hidden text-white" style={{ paddingTop: "5rem", minHeight: "65svh" }}><div className="absolute inset-0" style={{ background: "linear-gradient(155deg, #06090f 0%, #0a1a2e 40%, #0d2440 100%)" }} /><div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 80% at 80% 40%, rgba(212,175,55,0.08) 0%, transparent 60%)" }} /><div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 50% 60% at 20% 80%, rgba(20,130,200,0.1) 0%, transparent 50%)" }} /><div className="absolute inset-0 pointer-events-none opacity-[0.036]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: "180px" }} />
         <div className="relative max-w-7xl mx-auto px-6 py-24 md:py-32">
           <p className="mb-6 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "#D4AF37" }}>C4A Engagement Model</p>
-          <h1 className="font-bold leading-[1.08] tracking-tight text-white max-w-3xl" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>You Built the Product.<br /><span style={{ color: "#D4AF37" }}>We Build the Sales Channel.</span></h1>
-          <div className="mt-6 w-16 h-[3px] rounded-full" style={{ background: "linear-gradient(90deg, #D4AF37, transparent)" }} />
-          <p className="mt-8 max-w-xl leading-relaxed" style={{ fontSize: "clamp(0.92rem, 1.3vw, 1.05rem)", color: "rgba(255,255,255,0.55)" }}>
-            Commission-based agents who sell your healthcare product. We recruit them, train them, track every deal, and manage performance. You pay when they close.
+          <h1 className="font-bold leading-[1.08] tracking-tight text-white max-w-3xl" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>Stop Paying People<br />Who Don't Sell.</h1>
+          <p className="mt-5 text-lg font-medium" style={{ color: "#D4AF37" }}>Your next sales team is already in the field.</p>
+          <div className="mt-5 w-12 h-[2px]" style={{ background: "#D4AF37" }} />
+          <p className="mt-5 max-w-lg leading-relaxed" style={{ fontSize: "clamp(0.92rem, 1.3vw, 1.05rem)", color: "rgba(255,255,255,0.55)" }}>
+            Commission-only agents for healthcare. Managed by C4A. Live in 4 weeks.
           </p>
           <div className="mt-8 flex flex-wrap gap-6">
             {[
