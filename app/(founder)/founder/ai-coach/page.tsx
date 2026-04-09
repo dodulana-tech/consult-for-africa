@@ -7,13 +7,13 @@ type Message = { role: "user" | "assistant"; content: string; createdAt?: string
 
 const SUGGESTED_QUESTIONS = [
   "What should I prioritise this week?",
-  "How do I get CadreHealth outreach converting?",
+  "I'm feeling overwhelmed. Help me think clearly.",
   "What's the fastest path to first N10M in revenue?",
-  "Should I focus on consulting delivery or product growth?",
-  "How do I structure the Dr. Kumar engagement for maximum LTV?",
+  "Should I focus on delivery or product growth right now?",
+  "I haven't exercised in weeks. Help me fix that.",
   "What's my biggest blindspot right now?",
-  "How should I price the agent commission model?",
-  "How do I get partner firms sending us staffing requests?",
+  "I need a 60-second reset. Ground me.",
+  "Am I building the right things or just staying busy?",
 ];
 
 export default function AICoachPage() {

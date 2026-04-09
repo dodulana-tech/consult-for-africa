@@ -6,15 +6,17 @@ import { Sparkles, Loader2, ArrowRight, MessageCircle } from "lucide-react";
 
 interface PromptData {
   message: string;
-  type: "accountability" | "strategic" | "celebration" | "challenge";
+  type: string;
   context: string;
 }
 
-const TYPE_STYLES: Record<string, { border: string; bg: string; icon: string }> = {
-  accountability: { border: "#D4AF37", bg: "rgba(212,175,55,0.04)", icon: "rgba(212,175,55,1)" },
-  strategic: { border: "#0B3C5D", bg: "rgba(11,60,93,0.03)", icon: "#0B3C5D" },
-  celebration: { border: "#059669", bg: "rgba(5,150,105,0.03)", icon: "#059669" },
-  challenge: { border: "#DC2626", bg: "rgba(220,38,38,0.03)", icon: "#DC2626" },
+const TYPE_STYLES: Record<string, { border: string; bg: string; icon: string; label: string }> = {
+  accountability: { border: "#D4AF37", bg: "rgba(212,175,55,0.04)", icon: "#D4AF37", label: "Accountability" },
+  strategic: { border: "#0B3C5D", bg: "rgba(11,60,93,0.03)", icon: "#0B3C5D", label: "Strategic" },
+  celebration: { border: "#059669", bg: "rgba(5,150,105,0.03)", icon: "#059669", label: "Win" },
+  challenge: { border: "#DC2626", bg: "rgba(220,38,38,0.03)", icon: "#DC2626", label: "Challenge" },
+  wellbeing: { border: "#8B5CF6", bg: "rgba(139,92,246,0.03)", icon: "#8B5CF6", label: "Check-in" },
+  energy: { border: "#06B6D4", bg: "rgba(6,182,212,0.03)", icon: "#06B6D4", label: "Energy" },
 };
 
 export default function NuruPrompt() {
@@ -76,7 +78,7 @@ export default function NuruPrompt() {
                 Nuru
               </p>
               <span className="text-[9px] text-gray-400">
-                {prompt!.type === "accountability" ? "Accountability check" : prompt!.type === "challenge" ? "Challenge" : prompt!.type === "celebration" ? "Win" : "Strategic prompt"}
+                {(TYPE_STYLES[prompt!.type] ?? TYPE_STYLES.strategic).label}
               </span>
             </div>
             <p className="text-sm font-medium text-gray-800 leading-relaxed">
