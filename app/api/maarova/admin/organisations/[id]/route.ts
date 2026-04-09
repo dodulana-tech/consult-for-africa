@@ -2,7 +2,6 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
-const VALID_TYPES = ["private_hospital", "hospital_group", "government", "ngo"];
 const VALID_STREAMS = ["RECRUITMENT", "DEVELOPMENT", "INTELLIGENCE"];
 
 export async function GET(
@@ -59,12 +58,6 @@ export async function PUT(
     notes,
   } = body;
 
-  if (type !== undefined && !VALID_TYPES.includes(type)) {
-    return new Response(
-      `Invalid type. Must be one of: ${VALID_TYPES.join(", ")}`,
-      { status: 400 },
-    );
-  }
   if (stream !== undefined && !VALID_STREAMS.includes(stream)) {
     return new Response(
       `Invalid stream. Must be one of: ${VALID_STREAMS.join(", ")}`,
