@@ -71,5 +71,5 @@ export async function GET() {
     total: buckets.reduce((s, b) => s + b.total, 0),
   };
 
-  return Response.json({ buckets, summary });
+  return Response.json(buckets);
 }

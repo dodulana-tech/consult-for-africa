@@ -72,5 +72,16 @@ export async function GET(req: NextRequest) {
 
   history.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  return Response.json(history);
+  // Calculate stats
+  const totalInvoiced = invoices.reduce((s, i) => s + Number(i.total), 0);
+  const totalPaid = payments.filter(p => p.status === "CONFIRMED").reduce((s, p) => s + Number(p.amount), 0);
+
+  return Response.json({
+    entries: history,
+    stats: {
+      lifetimeValue: totalInvoiced,
+      totalPaid,
+      avgDaysToPay: 0, // Would need paid dates to calculate properly
+    },
+  });
 }
