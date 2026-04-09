@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import DailyPulse from "@/components/founder/DailyPulse";
+import NuruPrompt from "@/components/founder/NuruPrompt";
 import {
   TrendingUp, Users, Briefcase, DollarSign, Target,
   AlertTriangle, Clock, ArrowRight, Building2,
@@ -173,6 +174,9 @@ export default async function FounderDashboardPage() {
           )}
         </div>
       </div>
+
+      {/* ── Nuru check-in ── */}
+      <NuruPrompt />
 
       {/* ── 0. DAILY PULSE (Nuru AI) ── */}
       <DailyPulse />
