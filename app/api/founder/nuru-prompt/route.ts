@@ -41,12 +41,12 @@ export async function POST() {
     prisma.cadreOutreachRecord.count(),
     prisma.cadreOutreachRecord.count({ where: { status: "CONVERTED" } }),
     prisma.engagement.count({ where: { status: "ACTIVE" } }),
-    prisma.invoice.aggregate({ where: { status: "PAID" }, _sum: { total: true } }),
+    prisma.payment.aggregate({ where: { status: "CONFIRMED" }, _sum: { amount: true } }),
     prisma.founderIdea.findMany({ where: { founderId: profile.id, status: { in: ["CAPTURED", "EXPLORING"] } }, orderBy: { createdAt: "desc" }, take: 3, select: { title: true, status: true } }),
     prisma.deliverable.count({ where: { status: { in: ["SUBMITTED", "IN_REVIEW"] } } }),
   ]);
 
-  const revenue = Number(paidRevenue._sum.total ?? 0);
+  const revenue = Number(paidRevenue._sum.amount ?? 0);
   const firstName = profile.name.split(" ")[0];
   const now = new Date();
   const hour = now.getHours();

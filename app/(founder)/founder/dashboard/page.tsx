@@ -71,10 +71,10 @@ export default async function FounderDashboardPage() {
     pendingTimesheets,
     recentUpdates,
   ] = await Promise.all([
-    // Revenue
-    prisma.invoice.aggregate({ where: { status: "PAID" }, _sum: { total: true } }),
-    prisma.invoice.aggregate({ where: { status: { in: ["SENT", "VIEWED", "PARTIALLY_PAID"] } }, _sum: { balanceDue: true } }),
-    prisma.invoice.count({ where: { status: "OVERDUE" } }),
+    // Revenue - use confirmed payments for accuracy (not just PAID invoices)
+    prisma.payment.aggregate({ where: { status: "CONFIRMED" }, _sum: { amount: true } }),
+    prisma.invoice.aggregate({ where: { status: { in: ["SENT", "VIEWED", "PARTIALLY_PAID", "OVERDUE"] } }, _sum: { balanceDue: true } }),
+    prisma.invoice.count({ where: { OR: [{ status: "OVERDUE" }, { status: "PARTIALLY_PAID", dueDate: { lt: new Date() } }] } }),
     prisma.payment.aggregate({ where: { status: "CONFIRMED", paymentDate: { gte: thirtyDaysAgo } }, _sum: { amount: true } }),
     // Clients
     prisma.client.groupBy({ by: ["status"], _count: true }),
@@ -120,7 +120,7 @@ export default async function FounderDashboardPage() {
   ]);
 
   // ─── Derived metrics ───────────────────────────────────────────────────────
-  const totalRevenue = Number(paidInvoices._sum.total ?? 0);
+  const totalRevenue = Number(paidInvoices._sum.amount ?? 0);
   const outstanding = Number(outstandingInvoices._sum.balanceDue ?? 0);
   const last30Revenue = Number(recentPayments._sum.amount ?? 0);
 

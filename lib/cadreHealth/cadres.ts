@@ -14,7 +14,7 @@ export interface CadreDefinition {
 export const CADRE_DEFINITIONS: CadreDefinition[] = [
   {
     value: "MEDICINE",
-    label: "Medicine",
+    label: "Medicine & Surgery",
     shortLabel: "Doctor",
     regulatoryBody: "Medical and Dental Council of Nigeria",
     regulatoryAbbrev: "MDCN",

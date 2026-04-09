@@ -93,7 +93,7 @@ export default async function ProgressPage() {
     totalReviews, totalSalaryReports, activeMentorships, completedAssessments,
     dealsWon,
   ] = await Promise.all([
-    prisma.invoice.aggregate({ where: { status: "PAID" }, _sum: { total: true } }),
+    prisma.payment.aggregate({ where: { status: "CONFIRMED" }, _sum: { amount: true } }),
     prisma.client.count({ where: { status: "ACTIVE" } }),
     prisma.engagement.groupBy({ by: ["status"], _count: true }),
     prisma.consultantProfile.count(),
@@ -111,7 +111,7 @@ export default async function ProgressPage() {
     prisma.agentDeal.count({ where: { stage: "CLOSED_WON" } }),
   ]);
 
-  const totalRevenue = Number(revenue._sum.total ?? 0);
+  const totalRevenue = Number(revenue._sum.amount ?? 0);
   const activeEngagements = engagementsByStatus.find(e => e.status === "ACTIVE")?._count ?? 0;
   const completedEngagements = engagementsByStatus.find(e => e.status === "COMPLETED")?._count ?? 0;
 

@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
     }),
     prisma.engagement.count({ where: { status: "ACTIVE" } }),
     prisma.engagement.count({ where: { status: "AT_RISK" } }),
-    prisma.invoice.aggregate({ where: { status: "PAID" }, _sum: { total: true } }),
+    prisma.payment.aggregate({ where: { status: "CONFIRMED" }, _sum: { amount: true } }),
     prisma.consultantProfile.count(),
     prisma.consultantProfile.count({ where: { availabilityStatus: "AVAILABLE" } }),
     prisma.lead.count(),
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
 
   const context = `LIVE BUSINESS SNAPSHOT (${now.toLocaleDateString("en-NG", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}):
 - Day ${daysInBusiness} since founding
-- Revenue: N${Number(paidRevenue._sum.total ?? 0).toLocaleString()} total collected
+- Revenue: N${Number(paidRevenue._sum.amount ?? 0).toLocaleString()} total collected
 - Active engagements: ${activeEngagements}, At-risk: ${atRiskEngagements}
 - Consultants: ${totalConsultants} total, ${availableConsultants} available
 - Pipeline: ${totalLeads} leads, ${proposalsSent} proposals pending

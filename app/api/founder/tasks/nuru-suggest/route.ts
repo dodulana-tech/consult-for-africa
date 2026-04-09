@@ -21,7 +21,7 @@ export async function POST() {
     overdueInvoices, pendingDeliverables,
   ] = await Promise.all([
     prisma.founderTask.findMany({ where: { founderId: profile.id, status: "pending" }, select: { title: true } }),
-    prisma.invoice.aggregate({ where: { status: "PAID" }, _sum: { total: true } }),
+    prisma.payment.aggregate({ where: { status: "CONFIRMED" }, _sum: { amount: true } }),
     prisma.engagement.count({ where: { status: "ACTIVE" } }),
     prisma.engagement.count({ where: { status: "AT_RISK" } }),
     prisma.cadreOutreachRecord.count(),
@@ -43,7 +43,7 @@ export async function POST() {
 Based on the current business state, suggest 3-5 tasks for this week. These should be specific, actionable, and prioritised.
 
 BUSINESS STATE:
-- Revenue: N${Number(revenue._sum.total ?? 0).toLocaleString()}
+- Revenue: N${Number(revenue._sum.amount ?? 0).toLocaleString()}
 - Active engagements: ${activeEngagements}, At-risk: ${atRisk}
 - CadreHealth outreach: ${outreachConverted}/${outreachTotal} converted
 - Pending agent applications: ${pendingAgents}

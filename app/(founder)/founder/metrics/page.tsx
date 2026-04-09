@@ -38,7 +38,7 @@ export default async function MetricsPage() {
     assessmentsByStatus, coachingByStatus,
   ] = await Promise.all([
     // Revenue
-    prisma.invoice.aggregate({ where: { status: "PAID" }, _sum: { total: true } }),
+    prisma.payment.aggregate({ where: { status: "CONFIRMED" }, _sum: { amount: true } }),
     prisma.payment.aggregate({ where: { status: "CONFIRMED", paymentDate: { gte: thirtyDaysAgo } }, _sum: { amount: true } }),
     prisma.payment.aggregate({ where: { status: "CONFIRMED", paymentDate: { gte: ninetyDaysAgo } }, _sum: { amount: true } }),
     prisma.invoice.count({ where: { status: "OVERDUE" } }),
@@ -83,7 +83,7 @@ export default async function MetricsPage() {
     prisma.maarovaCoachingMatch.groupBy({ by: ["status"], _count: true }),
   ]);
 
-  const rev = Number(totalRevenue._sum.total ?? 0);
+  const rev = Number(totalRevenue._sum.amount ?? 0);
   const rev30 = Number(last30Revenue._sum.amount ?? 0);
   const rev90 = Number(last90Revenue._sum.amount ?? 0);
   const outstanding = Number(outstandingAmount._sum.balanceDue ?? 0);

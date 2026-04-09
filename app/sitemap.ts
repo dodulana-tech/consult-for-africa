@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { CADRE_DEFINITIONS, NIGERIAN_STATES } from "@/lib/cadreHealth/cadres";
 import { EXAM_GUIDES } from "@/lib/cadreHealth/examData";
 import { MIGRATION_COUNTRY_SLUGS } from "@/lib/cadreHealth/migrationData";
+import { getAllBlogPosts } from "@/sanity/lib/getBlogPosts";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = "https://consultforafrica.com";
@@ -18,6 +19,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: "/contact", priority: 0.7, changeFrequency: "monthly" as const },
     { url: "/turnaround", priority: 0.8, changeFrequency: "monthly" as const },
     { url: "/insights", priority: 0.7, changeFrequency: "weekly" as const },
+    { url: "/agent", priority: 0.6, changeFrequency: "monthly" as const },
+    // Service pages
+    { url: "/services/clinical-governance", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/services/strategy-growth", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/services/fractional-leadership", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/services/digital-health", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/services/health-systems", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/services/diaspora-expertise", priority: 0.8, changeFrequency: "monthly" as const },
+    // Solution pages
+    { url: "/solutions/advisory", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/solutions/retainer", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/solutions/secondment", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/solutions/fractional", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/solutions/transformation", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/solutions/transaction", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/solutions/distribution", priority: 0.8, changeFrequency: "monthly" as const },
     // Maarova
     { url: "/maarova", priority: 0.9, changeFrequency: "monthly" as const },
     { url: "/maarova/assessment", priority: 0.8, changeFrequency: "monthly" as const },
@@ -109,6 +126,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // Blog / Insights posts (Sanity CMS)
+  let blogRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const posts = await getAllBlogPosts();
+    blogRoutes = (posts ?? [])
+      .filter((p: { slug?: { current?: string } }) => p.slug?.current)
+      .map((p: { slug: { current: string }; _updatedAt?: string }) => ({
+        url: `${base}/insights/${p.slug.current}`,
+        lastModified: p._updatedAt ? new Date(p._updatedAt) : new Date(),
+        changeFrequency: "monthly" as const,
+        priority: 0.6,
+      }));
+  } catch {
+    // Sanity unavailable during build - skip blog routes
+  }
+
   return [
     ...staticRoutes.map(({ url, priority, changeFrequency }) => ({
       url: `${base}${url}`,
@@ -122,5 +155,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...migrationRoutes,
     ...stateRoutes,
     ...stateBestRoutes,
+    ...blogRoutes,
   ];
 }

@@ -35,7 +35,7 @@ export async function POST() {
     approvedAgents, activeDeals, dealsWon,
     pendingDeliverables, delayedMilestones, pendingTimesheets,
   ] = await Promise.all([
-    prisma.invoice.aggregate({ where: { status: "PAID" }, _sum: { total: true } }),
+    prisma.payment.aggregate({ where: { status: "CONFIRMED" }, _sum: { amount: true } }),
     prisma.payment.aggregate({ where: { status: "CONFIRMED", paymentDate: { gte: thirtyDaysAgo } }, _sum: { amount: true } }),
     prisma.invoice.count({ where: { status: "OVERDUE" } }),
     prisma.engagement.count({ where: { status: "ACTIVE" } }),
@@ -59,7 +59,7 @@ export async function POST() {
   ]);
 
   const metricsSnapshot = {
-    totalRevenue: Number(totalRevenue._sum.total ?? 0),
+    totalRevenue: Number(totalRevenue._sum.amount ?? 0),
     last30Revenue: Number(last30Revenue._sum.amount ?? 0),
     overdueInvoices,
     activeEngagements,

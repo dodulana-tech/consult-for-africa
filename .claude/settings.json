@@ -196,7 +196,10 @@
       "Bash(find /Users/debo/consult-for-africa/app/api/cadre -name \"*.ts\" -type f -exec grep -l \"cadreOutreachRecord.*create\\\\|POST\\\\|PUT\\\\|PATCH\" {} \\\\;)",
       "Bash(curl -s \"https://partnerstack.com/pricing\")",
       "Bash(curl -s \"https://www.channeltivity.com/pricing/\")",
-      "Bash(ls /Users/debo/consult-for-africa/app/api/admin/agent-payouts/[id]/)"
+      "Bash(ls /Users/debo/consult-for-africa/app/api/admin/agent-payouts/[id]/)",
+      "Bash(grep -n \"_sum.total\" app/api/founder/*/route.ts app/api/founder/*/*/route.ts)",
+      "Bash(grep -c \"export const metadata\\\\|export const generateMetadata\" /Users/debo/consult-for-africa/app/\\\\\\(marketing\\\\\\)/*/page.tsx)",
+      "Bash(grep -r \"jsonLd\\\\|JSON-LD\\\\|structured\" /Users/debo/consult-for-africa/app/\\\\\\(marketing\\\\\\)/*.tsx)"
     ],
     "additionalDirectories": [
       "/Users/debo/consult-for-africa/app/(client-portal)/client/projects/[id]/report",
