@@ -2,10 +2,40 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import PayoutActions from "./PayoutActions";
+import CommissionReviewActions from "./CommissionReviewActions";
 
 export default async function AdminAgentPayoutsPage() {
-  // Fetch pending/approved commissions grouped by agent (available for payout)
-  const pendingCommissions = await prisma.agentCommission.findMany({
+  // Fetch commissions pending review (PENDING / VERIFIED but not yet APPROVED)
+  const commissionsNeedingReview = await prisma.agentCommission.findMany({
+    where: {
+      status: { in: ["PENDING", "VERIFIED"] },
+    },
+    include: {
+      agent: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+        },
+      },
+      deal: {
+        select: {
+          dealCode: true,
+          prospectName: true,
+          prospectOrg: true,
+          stage: true,
+          closedValue: true,
+          verifiedAt: true,
+          verifiedById: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  // Fetch approved commissions ready for payout
+  const approvedCommissions = await prisma.agentCommission.findMany({
     where: {
       status: "APPROVED",
       payoutId: null,
@@ -33,17 +63,17 @@ export default async function AdminAgentPayoutsPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  // Group commissions by agent
+  // Group approved commissions by agent
   const byAgent = new Map<
     string,
     {
-      agent: (typeof pendingCommissions)[0]["agent"];
-      commissions: typeof pendingCommissions;
+      agent: (typeof approvedCommissions)[0]["agent"];
+      commissions: typeof approvedCommissions;
       total: number;
     }
   >();
 
-  for (const c of pendingCommissions) {
+  for (const c of approvedCommissions) {
     const existing = byAgent.get(c.agentId);
     if (existing) {
       existing.commissions.push(c);
@@ -96,15 +126,90 @@ export default async function AdminAgentPayoutsPage() {
           Agent Payouts
         </h1>
         <p className="mt-1 text-sm text-gray-500">
-          Process commission payouts to sales agents.
+          Review commissions, approve them, then process payouts.
         </p>
       </div>
 
-      {/* Pending Commissions by Agent */}
+      {/* Commissions Needing Review */}
       <div className="rounded-2xl bg-white shadow-sm" style={{ border: "1px solid #E8EBF0" }}>
         <div className="border-b px-6 py-5" style={{ borderColor: "#E8EBF0" }}>
           <h2 className="text-base font-bold" style={{ color: "#0F2744" }}>
-            Approved Commissions Ready for Payout ({pendingCommissions.length})
+            Commissions Pending Review ({commissionsNeedingReview.length})
+          </h2>
+          <p className="mt-0.5 text-xs text-gray-400">
+            Verify the deal, then approve the commission before it can be paid out.
+          </p>
+        </div>
+
+        {commissionsNeedingReview.length === 0 ? (
+          <div className="px-6 py-10 text-center text-sm text-gray-400">
+            No commissions pending review.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100 text-left" style={{ background: "#F8F9FB" }}>
+                  <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Deal</th>
+                  <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Agent</th>
+                  <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Amount</th>
+                  <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Deal Verified</th>
+                  <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Status</th>
+                  <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {commissionsNeedingReview.map((c) => (
+                  <tr key={c.id} className="border-b border-gray-50 last:border-0">
+                    <td className="px-6 py-4">
+                      <p className="font-semibold text-gray-900">{c.deal.dealCode}</p>
+                      <p className="mt-0.5 text-xs text-gray-500">
+                        {c.deal.prospectName}
+                        {c.deal.prospectOrg ? ` - ${c.deal.prospectOrg}` : ""}
+                      </p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-gray-900">{c.agent.firstName} {c.agent.lastName}</p>
+                      <p className="text-xs text-gray-400">{c.agent.email}</p>
+                    </td>
+                    <td className="px-6 py-4 font-semibold" style={{ color: "#0F2744" }}>
+                      {formatNGN(Number(c.amount))}
+                    </td>
+                    <td className="px-6 py-4">
+                      {c.deal.verifiedAt ? (
+                        <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                          Verified
+                        </span>
+                      ) : (
+                        <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
+                          Not verified
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <CommissionStatusBadge status={c.status} />
+                    </td>
+                    <td className="px-6 py-4">
+                      <CommissionReviewActions
+                        commissionId={c.id}
+                        dealId={c.deal.dealCode}
+                        currentStatus={c.status}
+                        dealVerified={!!c.deal.verifiedAt}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Approved Commissions Ready for Payout */}
+      <div className="rounded-2xl bg-white shadow-sm" style={{ border: "1px solid #E8EBF0" }}>
+        <div className="border-b px-6 py-5" style={{ borderColor: "#E8EBF0" }}>
+          <h2 className="text-base font-bold" style={{ color: "#0F2744" }}>
+            Approved Commissions Ready for Payout ({approvedCommissions.length})
           </h2>
         </div>
 
@@ -238,6 +343,26 @@ export default async function AdminAgentPayoutsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+function CommissionStatusBadge({ status }: { status: string }) {
+  const styles: Record<string, { bg: string; color: string }> = {
+    PENDING: { bg: "bg-amber-50", color: "text-amber-700" },
+    VERIFIED: { bg: "bg-blue-50", color: "text-blue-700" },
+    APPROVED: { bg: "bg-emerald-50", color: "text-emerald-700" },
+    PROCESSING: { bg: "bg-indigo-50", color: "text-indigo-700" },
+    PAID: { bg: "bg-green-50", color: "text-green-700" },
+    DISPUTED: { bg: "bg-red-50", color: "text-red-600" },
+    CANCELLED: { bg: "bg-gray-100", color: "text-gray-500" },
+  };
+
+  const s = styles[status] ?? styles.PENDING;
+
+  return (
+    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${s.bg} ${s.color}`}>
+      {status}
+    </span>
   );
 }
 

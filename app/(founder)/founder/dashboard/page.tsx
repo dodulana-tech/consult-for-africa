@@ -190,13 +190,13 @@ export default async function FounderDashboardPage() {
 
       {/* ── 1. BUSINESS PULSE ── */}
       <Section title="Business Pulse" icon={<DollarSign className="h-4 w-4" />}>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <Metric label="Total Revenue" value={fmtNGN(totalRevenue)} accent="#059669" />
           <Metric label="Last 30 Days" value={fmtNGN(last30Revenue)} accent="#0F2744" />
           <Metric label="Outstanding" value={fmtNGN(outstanding)} accent="#D4AF37" sub={overdueInvoices > 0 ? `${overdueInvoices} overdue` : undefined} />
           <Metric label="Active Budget" value={fmtNGN(totalActiveBudget)} accent="#0F2744" />
         </div>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 mt-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 mt-4">
           <Metric label="Active Clients" value={activeClients} accent="#0F2744" />
           <Metric label="Active Engagements" value={activeEngagements} accent="#059669" />
           <Metric label="At Risk" value={atRiskEngagements.length} accent={atRiskEngagements.length > 0 ? "#DC2626" : "#9CA3AF"} />
@@ -206,7 +206,7 @@ export default async function FounderDashboardPage() {
 
       {/* ── 2. PIPELINE & GROWTH ── */}
       <Section title="Pipeline & Growth" icon={<Target className="h-4 w-4" />}>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-5">
           <Metric label="New Leads" value={newLeads} accent="#1D4ED8" />
           <Metric label="Total Leads" value={totalLeads} accent="#0F2744" sub={totalLeads > 0 ? `${Math.round((convertedLeads / totalLeads) * 100)}% converted` : undefined} />
           <Metric label="Proposals Sent" value={proposalsSent} accent="#D4AF37" />
@@ -217,12 +217,12 @@ export default async function FounderDashboardPage() {
 
       {/* ── 3. WORKFORCE ── */}
       <Section title="Workforce" icon={<Users className="h-4 w-4" />}>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <Metric label="Consultants" value={totalConsultants} accent="#0F2744" />
           <Metric label="Available" value={availableConsultants} accent="#059669" />
           <Metric label="Active Assignments" value={activeAssignments} accent="#D4AF37" />
-          <div className="rounded-2xl bg-white p-5 shadow-sm" style={{ border: "1px solid #E8EBF0" }}>
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">By Tier</p>
+          <div className="rounded-2xl bg-white p-3.5 sm:p-5 shadow-sm col-span-2 sm:col-span-1" style={{ border: "1px solid #E8EBF0" }}>
+            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">By Tier</p>
             <div className="space-y-1.5">
               {consultantsByTier.sort((a, b) => {
                 const order = ["ELITE", "EXPERIENCED", "STANDARD", "EMERGING", "INTERN"];
@@ -240,7 +240,7 @@ export default async function FounderDashboardPage() {
 
       {/* ── 4. CADREHEALTH ── */}
       <Section title="CadreHealth" icon={<Stethoscope className="h-4 w-4" />} href="/admin/cadrehealth">
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-5">
           <Metric label="Professionals" value={totalProfessionals.toLocaleString()} accent="#0F2744" sub={`${verifiedProfessionals} verified`} />
           <Metric label="Outreach Pipeline" value={outreachTotal} accent="#1D4ED8" sub={outreachTotal > 0 ? `${outreachConverted} converted` : "not started"} />
           <Metric label="Open Mandates" value={openMandates} accent="#D4AF37" sub={`${placedMandates} placed`} />
@@ -248,16 +248,16 @@ export default async function FounderDashboardPage() {
           <Metric label="Mentorships" value={activeMentorships} accent="#7C3AED" />
         </div>
         {outreachTotal > 0 && (
-          <div className="mt-4 rounded-xl bg-gray-50 p-4">
+          <div className="mt-4 rounded-xl bg-gray-50 p-3 sm:p-4">
             <p className="text-xs font-semibold text-gray-500 mb-2">Outreach Funnel</p>
-            <div className="flex gap-1">
+            <div className="flex gap-1 overflow-x-auto pb-1 -mx-1 px-1">
               {outreachByStatus.sort((a, b) => {
                 const order = ["READY", "WHATSAPP_SENT", "WHATSAPP_REPLIED", "SMS_SENT", "EMAIL_SENT", "CONVERTED", "NOT_INTERESTED", "UNREACHABLE", "EMIGRATED", "RETIRED"];
                 return order.indexOf(a.status) - order.indexOf(b.status);
               }).map(o => (
-                <div key={o.status} className="flex-1 text-center">
-                  <p className="text-sm font-bold" style={{ color: "#0F2744" }}>{o._count}</p>
-                  <p className="text-[9px] text-gray-400 leading-tight">{o.status.replace(/_/g, " ")}</p>
+                <div key={o.status} className="min-w-[56px] flex-1 text-center shrink-0">
+                  <p className="text-xs sm:text-sm font-bold" style={{ color: "#0F2744" }}>{o._count}</p>
+                  <p className="text-[8px] sm:text-[9px] text-gray-400 leading-tight">{o.status.replace(/_/g, " ")}</p>
                 </div>
               ))}
             </div>
@@ -267,7 +267,7 @@ export default async function FounderDashboardPage() {
 
       {/* ── 5. AGENT CHANNEL ── */}
       <Section title="Agent Channel" icon={<Send className="h-4 w-4" />} href="/admin/agents">
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-5">
           <Metric label="Approved Agents" value={approvedAgents} accent="#059669" sub={pendingAgents > 0 ? `${pendingAgents} pending` : undefined} />
           <Metric label="Open Opportunities" value={openOpportunities} accent="#D4AF37" />
           <Metric label="Active Deals" value={dealsActive} accent="#1D4ED8" />
@@ -278,7 +278,7 @@ export default async function FounderDashboardPage() {
 
       {/* ── 6. MAAROVA & ACADEMY ── */}
       <Section title="Maarova & Academy" icon={<Sparkles className="h-4 w-4" />}>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <Metric label="Assessments Completed" value={completedAssessments} accent="#7C3AED" />
           <Metric label="Active Coaching" value={activeCoaching} accent="#D4AF37" />
           <Metric label="Partner Deployments" value={partnerDeployments} accent="#0F2744" />
@@ -333,7 +333,7 @@ export default async function FounderDashboardPage() {
       )}
 
       {/* ── Quick nav ── */}
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
         <QuickLink href="/founder/ai-coach" label="Nuru" sub="AI strategy partner" icon={<Sparkles className="h-5 w-5" />} />
         <QuickLink href="/founder/ideation" label="Ideation Pad" sub="Capture and develop ideas" icon={<Target className="h-5 w-5" />} />
         <QuickLink href="/dashboard" label="Platform" sub="Switch to operator view" icon={<Briefcase className="h-5 w-5" />} />
@@ -365,10 +365,10 @@ function Section({ title, icon, children, href }: { title: string; icon: React.R
 
 function Metric({ label, value, accent, sub }: { label: string; value: string | number; accent: string; sub?: string }) {
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm" style={{ border: "1px solid #E8EBF0" }}>
-      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</p>
-      <p className="mt-2 text-2xl font-bold tracking-tight" style={{ color: accent }}>{value}</p>
-      {sub && <p className="mt-0.5 text-[10px] text-gray-400">{sub}</p>}
+    <div className="rounded-2xl bg-white p-3.5 sm:p-5 shadow-sm" style={{ border: "1px solid #E8EBF0" }}>
+      <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</p>
+      <p className="mt-1 sm:mt-2 text-lg sm:text-2xl font-bold tracking-tight" style={{ color: accent }}>{value}</p>
+      {sub && <p className="mt-0.5 text-[9px] sm:text-[10px] text-gray-400">{sub}</p>}
     </div>
   );
 }

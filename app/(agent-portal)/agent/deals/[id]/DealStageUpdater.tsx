@@ -14,6 +14,32 @@ const STAGE_OPTIONS = [
   { value: "DISQUALIFIED", label: "Disqualified" },
 ];
 
+/** Returns the set of stages this deal can transition to from the current stage */
+function getNextStages(current: string): string[] {
+  const pipeline = ["PROSPECT", "CONTACTED", "PITCHED", "NEGOTIATING", "VERBAL_COMMIT"];
+  const idx = pipeline.indexOf(current);
+
+  // Terminal stages have no further transitions
+  if (["CLOSED_WON", "CLOSED_LOST", "DISQUALIFIED"].includes(current)) return [];
+
+  const next: string[] = [];
+
+  // Next sequential stage
+  if (idx >= 0 && idx < pipeline.length - 1) {
+    next.push(pipeline[idx + 1]);
+  }
+
+  // From VERBAL_COMMIT, can close won or lost
+  if (current === "VERBAL_COMMIT") {
+    next.push("CLOSED_WON", "CLOSED_LOST");
+  }
+
+  // Any active stage can be disqualified
+  next.push("DISQUALIFIED");
+
+  return next;
+}
+
 export default function DealStageUpdater({
   dealId,
   currentStage,
@@ -22,6 +48,7 @@ export default function DealStageUpdater({
   currentStage: string;
 }) {
   const router = useRouter();
+  const allowedNext = getNextStages(currentStage);
   const [stage, setStage] = useState(currentStage);
   const [closedValue, setClosedValue] = useState("");
   const [notes, setNotes] = useState("");
@@ -29,6 +56,7 @@ export default function DealStageUpdater({
   const [error, setError] = useState("");
 
   const showClosedValue = stage === "CLOSED_WON";
+  const isTerminal = ["CLOSED_WON", "CLOSED_LOST", "DISQUALIFIED"].includes(currentStage);
 
   async function handleUpdate() {
     setLoading(true);
@@ -46,7 +74,8 @@ export default function DealStageUpdater({
       });
 
       if (!res.ok) {
-        setError("Failed to update deal");
+        const data = await res.json().catch(() => null);
+        setError(data?.error ?? "Failed to update deal");
         return;
       }
 
@@ -58,18 +87,34 @@ export default function DealStageUpdater({
     }
   }
 
+  if (isTerminal) {
+    return (
+      <div className="rounded-xl bg-gray-50 px-4 py-3 text-center text-sm text-gray-500">
+        This deal is <span className="font-semibold">{currentStage.replace(/_/g, " ")}</span> and cannot be updated.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       <div>
-        <label className="mb-1.5 block text-xs font-semibold text-gray-600">Stage</label>
+        <label className="mb-1.5 block text-xs font-semibold text-gray-600">Next Stage</label>
         <select
           value={stage}
           onChange={(e) => setStage(e.target.value)}
           className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#0F2744] focus:outline-none focus:ring-2 focus:ring-[#0F2744]/20"
         >
-          {STAGE_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
+          <option value={currentStage}>
+            {STAGE_OPTIONS.find((o) => o.value === currentStage)?.label ?? currentStage} (current)
+          </option>
+          {allowedNext.map((val) => {
+            const opt = STAGE_OPTIONS.find((o) => o.value === val);
+            return (
+              <option key={val} value={val}>
+                {opt?.label ?? val}
+              </option>
+            );
+          })}
         </select>
       </div>
 

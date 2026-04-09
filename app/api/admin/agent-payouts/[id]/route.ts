@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { emailAgentPayoutProcessed } from "@/lib/email";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -80,6 +81,15 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       },
     },
   });
+
+  if (status === "PAID") {
+    emailAgentPayoutProcessed({
+      email: updated.agent.email,
+      name: `${updated.agent.firstName} ${updated.agent.lastName}`,
+      amount: Number(updated.totalAmount).toLocaleString(),
+      payoutRef: updated.payoutCode ?? updated.paymentRef ?? id,
+    }).catch((err) => console.error("[email] payout processed notification failed:", err));
+  }
 
   return Response.json(updated);
 }

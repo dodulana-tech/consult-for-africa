@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import AgentStatusActions from "./AgentStatusActions";
+import DealVerifyButton from "./DealVerifyButton";
 
 export default async function AdminAgentDetailPage({
   params,
@@ -22,6 +23,18 @@ export default async function AdminAgentDetailPage({
         orderBy: { updatedAt: "desc" },
         take: 10,
         include: { opportunity: { select: { title: true } } },
+        select: {
+          id: true,
+          dealCode: true,
+          prospectName: true,
+          prospectOrg: true,
+          dealValue: true,
+          stage: true,
+          verifiedAt: true,
+          verifiedById: true,
+          closedValue: true,
+          opportunity: { select: { title: true } },
+        },
       },
       commissions: {
         orderBy: { createdAt: "desc" },

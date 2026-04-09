@@ -1644,6 +1644,104 @@ export async function emailAgentPasswordReset({
   );
 }
 
+export async function emailAgentApproved({
+  email,
+  name,
+}: {
+  email: string;
+  name: string;
+}) {
+  const firstName = esc(name.split(" ")[0]);
+
+  await send(
+    email,
+    "Your Agent Account Has Been Approved",
+    layout(`
+      ${h1("Agent Account Approved")}
+      ${p(`Hi ${firstName}, your agent account has been approved. You can now browse opportunities and start referring clients.`)}
+      ${btn("Go to Agent Dashboard", `${BASE_URL}/agent/dashboard`, "#0F2744")}
+    `)
+  );
+}
+
+export async function emailAgentDealClosed({
+  email,
+  name,
+  dealTitle,
+  commissionAmount,
+}: {
+  email: string;
+  name: string;
+  dealTitle: string;
+  commissionAmount: string;
+}) {
+  const firstName = esc(name.split(" ")[0]);
+
+  await send(
+    email,
+    `Deal Closed: ${dealTitle}`,
+    layout(`
+      ${h1("Deal Closed")}
+      ${p(`Hi ${firstName}, your deal has been marked as closed. A commission has been recorded for this deal.`)}
+      ${infoTable([
+        ["Deal", dealTitle],
+        ["Commission", `NGN ${commissionAmount}`],
+      ])}
+      ${btn("View My Deals", `${BASE_URL}/agent/deals`, "#0F2744")}
+    `)
+  );
+}
+
+export async function emailAgentCommissionApproved({
+  email,
+  name,
+  amount,
+}: {
+  email: string;
+  name: string;
+  amount: string;
+}) {
+  const firstName = esc(name.split(" ")[0]);
+
+  await send(
+    email,
+    "Your Commission Has Been Approved",
+    layout(`
+      ${h1("Commission Approved")}
+      ${p(`Hi ${firstName}, your commission of NGN ${esc(amount)} has been approved for payout.`)}
+      ${btn("View Earnings", `${BASE_URL}/agent/earnings`, "#0F2744")}
+    `)
+  );
+}
+
+export async function emailAgentPayoutProcessed({
+  email,
+  name,
+  amount,
+  payoutRef,
+}: {
+  email: string;
+  name: string;
+  amount: string;
+  payoutRef: string;
+}) {
+  const firstName = esc(name.split(" ")[0]);
+
+  await send(
+    email,
+    "Your Payout Has Been Processed",
+    layout(`
+      ${h1("Payout Processed")}
+      ${p(`Hi ${firstName}, your payout of NGN ${esc(amount)} has been processed.`)}
+      ${infoTable([
+        ["Amount", `NGN ${amount}`],
+        ["Reference", payoutRef],
+      ])}
+      ${btn("View Earnings", `${BASE_URL}/agent/earnings`, "#0F2744")}
+    `)
+  );
+}
+
 export async function emailAgentVerification({
   email,
   name,

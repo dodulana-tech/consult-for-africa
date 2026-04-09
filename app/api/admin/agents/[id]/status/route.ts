@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { emailAgentApproved } from "@/lib/email";
 import { NextRequest } from "next/server";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -17,7 +18,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return new Response("Invalid status", { status: 400 });
   }
 
-  await prisma.salesAgent.update({
+  const agent = await prisma.salesAgent.update({
     where: { id },
     data: {
       status,
@@ -28,7 +29,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       } : {}),
       ...(notes ? { vetNotes: notes } : {}),
     },
+    select: { email: true, firstName: true, lastName: true },
   });
+
+  if (status === "APPROVED") {
+    emailAgentApproved({
+      email: agent.email,
+      name: `${agent.firstName} ${agent.lastName}`,
+    }).catch((err) => console.error("[email] agent approved notification failed:", err));
+  }
 
   return Response.json({ ok: true });
 }

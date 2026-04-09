@@ -195,7 +195,8 @@
       "Bash(wc -l /Users/debo/consult-for-africa/app/\\\\\\(platform\\\\\\)/admin/cadrehealth/*/page.tsx)",
       "Bash(find /Users/debo/consult-for-africa/app/api/cadre -name \"*.ts\" -type f -exec grep -l \"cadreOutreachRecord.*create\\\\|POST\\\\|PUT\\\\|PATCH\" {} \\\\;)",
       "Bash(curl -s \"https://partnerstack.com/pricing\")",
-      "Bash(curl -s \"https://www.channeltivity.com/pricing/\")"
+      "Bash(curl -s \"https://www.channeltivity.com/pricing/\")",
+      "Bash(ls /Users/debo/consult-for-africa/app/api/admin/agent-payouts/[id]/)"
     ],
     "additionalDirectories": [
       "/Users/debo/consult-for-africa/app/(client-portal)/client/projects/[id]/report",
@@ -209,7 +210,10 @@
       "/Users/debo/consult-for-africa/app/api/admin/agents/[id]",
       "/Users/debo/consult-for-africa/app/api/admin/agent-opportunities/[id]/assignments",
       "/Users/debo/consult-for-africa/app/api/admin/agent-payouts",
-      "/Users/debo/consult-for-africa/app/api/agent-portal/platform-apply"
+      "/Users/debo/consult-for-africa/app/api/agent-portal/platform-apply",
+      "/Users/debo/consult-for-africa/app/api/admin/agent-commissions",
+      "/Users/debo/consult-for-africa/app/api/agent-portal/opportunities/[id]",
+      "/Users/debo/consult-for-africa/app/api/admin/agent-deals/[id]"
     ]
   }
 }

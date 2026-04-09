@@ -13,6 +13,23 @@ export async function POST(req: Request) {
     return Response.json({ error: "Opportunity and prospect name are required." }, { status: 400 });
   }
 
+  // Verify the opportunity is still open
+  const opportunity = await prisma.agentOpportunity.findUnique({
+    where: { id: opportunityId },
+    select: { status: true },
+  });
+
+  if (!opportunity) {
+    return Response.json({ error: "Opportunity not found." }, { status: 404 });
+  }
+
+  if (opportunity.status !== "OPEN" && opportunity.status !== "ASSIGNED") {
+    return Response.json(
+      { error: `This opportunity is ${opportunity.status.toLowerCase()} and no longer accepting new deals.` },
+      { status: 400 }
+    );
+  }
+
   // Verify agent is assigned to this opportunity
   const assignment = await prisma.agentOpportunityAssignment.findUnique({
     where: { opportunityId_agentId: { opportunityId, agentId: session.sub } },

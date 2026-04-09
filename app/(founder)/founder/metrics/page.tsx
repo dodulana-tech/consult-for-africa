@@ -100,13 +100,13 @@ export default async function MetricsPage() {
 
       {/* ── REVENUE ── */}
       <MetricSection title="Revenue & Financial" icon={<DollarSign className="h-4 w-4" />}>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <Card label="Total Revenue" value={fmtN(rev)} accent="#059669" />
           <Card label="Last 30 Days" value={fmtN(rev30)} accent="#0F2744" />
           <Card label="Last 90 Days" value={fmtN(rev90)} accent="#0F2744" />
           <Card label="Outstanding" value={fmtN(outstanding)} accent="#D4AF37" sub={`${overdueInvoices} overdue`} />
         </div>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 mt-4">
           <Card label="Active Budget" value={fmtN(budget)} accent="#0F2744" />
           <Card label="Spent" value={fmtN(spent)} accent="#DC2626" sub={`${budgetUtil}% utilisation`} />
           <Breakdown title="Invoices by Status" data={invoicesByStatus.map(i => ({ label: i.status, count: i._count }))} />
@@ -129,7 +129,7 @@ export default async function MetricsPage() {
 
       {/* ── CLIENTS & ENGAGEMENTS ── */}
       <MetricSection title="Clients & Engagements" icon={<Building2 className="h-4 w-4" />}>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <Breakdown title="Clients by Status" data={clientsByStatus.map(c => ({ label: c.status, count: c._count }))} />
           <Breakdown title="Clients by Type" data={clientsByType.map(c => ({ label: c.type, count: c._count }))} />
           <Breakdown title="Engagements by Status" data={engagementsByStatus.map(e => ({ label: e.status, count: e._count }))} />
@@ -139,7 +139,7 @@ export default async function MetricsPage() {
 
       {/* ── WORKFORCE ── */}
       <MetricSection title="Workforce" icon={<Users className="h-4 w-4" />}>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <Breakdown title="By Tier" data={consultantsByTier.map(t => ({ label: t.tier, count: t._count }))} />
           <Breakdown title="By Availability" data={consultantsByAvailability.map(a => ({ label: a.availabilityStatus, count: a._count }))} />
           <Card label="Total Assignments" value={totalAssignments} accent="#0F2744" sub={`${activeAssignments} active`} />
@@ -148,7 +148,7 @@ export default async function MetricsPage() {
 
       {/* ── PIPELINE ── */}
       <MetricSection title="Pipeline & Sales" icon={<Target className="h-4 w-4" />}>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <Breakdown title="Leads by Status" data={leadsByStatus.map(l => ({ label: l.status, count: l._count }))} />
           <Breakdown title="Leads by Source" data={leadsBySource.map(l => ({ label: l.source, count: l._count }))} />
           <Breakdown title="Proposals" data={proposalsByStatus.map(p => ({ label: p.status, count: p._count }))} />
@@ -158,12 +158,12 @@ export default async function MetricsPage() {
 
       {/* ── CADREHEALTH ── */}
       <MetricSection title="CadreHealth" icon={<Stethoscope className="h-4 w-4" />}>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
           <Breakdown title="Professionals by Cadre" data={professionalsByCadre.map(p => ({ label: p.cadre.replace(/_/g, " "), count: p._count }))} />
           <Breakdown title="Outreach by Status" data={outreachByStatus.map(o => ({ label: o.status.replace(/_/g, " "), count: o._count }))} />
           <Breakdown title="Outreach by Tier" data={outreachByTier.map(t => ({ label: `Tier ${t.tier}`, count: t._count }))} />
         </div>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 mt-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 mt-4">
           <Breakdown title="Mandates" data={mandatesByStatus.map(m => ({ label: m.status.replace(/_/g, " "), count: m._count }))} />
           <Card label="Hospital Reviews" value={totalReviews} accent="#059669" />
           <Card label="Salary Reports" value={totalSalaryReports} accent="#D4AF37" />
@@ -173,7 +173,7 @@ export default async function MetricsPage() {
 
       {/* ── AGENT CHANNEL ── */}
       <MetricSection title="Agent Channel" icon={<Send className="h-4 w-4" />}>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
           <Breakdown title="Agents by Status" data={agentsByStatus.map(a => ({ label: a.status, count: a._count }))} />
           <Breakdown title="Deals by Stage" data={dealsByStage.map(d => ({ label: d.stage.replace(/_/g, " "), count: d._count }))} />
           <Breakdown title="Commissions" data={commissionsByStatus.map(c => ({ label: c.status, count: c._count }))} />
@@ -182,7 +182,7 @@ export default async function MetricsPage() {
 
       {/* ── PARTNERS ── */}
       <MetricSection title="Partners" icon={<Building2 className="h-4 w-4" />}>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
           <Breakdown title="Firms by Status" data={partnersByStatus.map(p => ({ label: p.status, count: p._count }))} />
           <Breakdown title="Staffing Requests" data={partnerRequestsByStatus.map(r => ({ label: r.status, count: r._count }))} />
         </div>
@@ -190,7 +190,7 @@ export default async function MetricsPage() {
 
       {/* ── MAAROVA ── */}
       <MetricSection title="Maarova & Learning" icon={<BarChart3 className="h-4 w-4" />}>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
           <Breakdown title="Assessments" data={assessmentsByStatus.map(a => ({ label: a.status.replace(/_/g, " "), count: a._count }))} />
           <Breakdown title="Coaching Matches" data={coachingByStatus.map(c => ({ label: c.status.replace(/_/g, " "), count: c._count }))} />
         </div>
@@ -215,10 +215,10 @@ function MetricSection({ title, icon, children }: { title: string; icon: React.R
 
 function Card({ label, value, accent, sub }: { label: string; value: string | number; accent: string; sub?: string }) {
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm" style={{ border: "1px solid #E8EBF0" }}>
-      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</p>
-      <p className="mt-2 text-2xl font-bold tracking-tight" style={{ color: accent }}>{value}</p>
-      {sub && <p className="mt-0.5 text-[10px] text-gray-400">{sub}</p>}
+    <div className="rounded-2xl bg-white p-3.5 sm:p-5 shadow-sm" style={{ border: "1px solid #E8EBF0" }}>
+      <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</p>
+      <p className="mt-1 sm:mt-2 text-lg sm:text-2xl font-bold tracking-tight" style={{ color: accent }}>{value}</p>
+      {sub && <p className="mt-0.5 text-[9px] sm:text-[10px] text-gray-400">{sub}</p>}
     </div>
   );
 }
@@ -227,16 +227,16 @@ function Breakdown({ title, data }: { title: string; data: Array<{ label: string
   const total = data.reduce((s, d) => s + d.count, 0);
   if (data.length === 0) {
     return (
-      <div className="rounded-2xl bg-white p-5 shadow-sm" style={{ border: "1px solid #E8EBF0" }}>
-        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">{title}</p>
+      <div className="rounded-2xl bg-white p-3.5 sm:p-5 shadow-sm" style={{ border: "1px solid #E8EBF0" }}>
+        <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">{title}</p>
         <p className="text-sm text-gray-300">No data</p>
       </div>
     );
   }
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm" style={{ border: "1px solid #E8EBF0" }}>
+    <div className="rounded-2xl bg-white p-3.5 sm:p-5 shadow-sm" style={{ border: "1px solid #E8EBF0" }}>
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{title}</p>
+        <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-gray-400">{title}</p>
         <span className="text-xs font-bold" style={{ color: "#0F2744" }}>{total}</span>
       </div>
       <div className="space-y-1.5">

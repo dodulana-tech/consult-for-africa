@@ -177,7 +177,7 @@ export default async function ProgressPage() {
           <div className="flex items-end justify-between mb-3">
             <div>
               <p className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.45)" }}>Overall Progress</p>
-              <p className="text-4xl font-bold text-white mt-1">{overallPct}%</p>
+              <p className="text-3xl sm:text-4xl font-bold text-white mt-1">{overallPct}%</p>
             </div>
             <p className="text-sm font-semibold" style={{ color: "#D4AF37" }}>
               {achievedMilestones}/{totalMilestones}
@@ -200,17 +200,17 @@ export default async function ProgressPage() {
           <div className="h-4 rounded-full transition-all" style={{ width: `${Math.max(revenuePct, 1)}%`, background: "#D4AF37" }} />
         </div>
 
-        <div className="flex justify-between mt-3">
+        <div className="flex justify-between mt-3 overflow-x-auto">
           {REVENUE_GATES.map((g, i) => (
-            <div key={g.label} className="text-center" style={{ width: `${100 / REVENUE_GATES.length}%` }}>
+            <div key={g.label} className="text-center min-w-[48px] shrink-0" style={{ width: `${100 / REVENUE_GATES.length}%` }}>
               <div
-                className="w-2.5 h-2.5 rounded-full mx-auto mb-1"
+                className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full mx-auto mb-1"
                 style={{ background: totalRevenue >= g.amount ? "#D4AF37" : "#E5E7EB" }}
               />
-              <p className="text-[10px] font-semibold" style={{ color: totalRevenue >= g.amount ? "#0F2744" : "#9CA3AF" }}>
+              <p className="text-[9px] sm:text-[10px] font-semibold" style={{ color: totalRevenue >= g.amount ? "#0F2744" : "#9CA3AF" }}>
                 {g.label}
               </p>
-              <p className="text-[8px] text-gray-400">{g.sublabel}</p>
+              <p className="text-[7px] sm:text-[8px] text-gray-400 hidden sm:block">{g.sublabel}</p>
             </div>
           ))}
         </div>
