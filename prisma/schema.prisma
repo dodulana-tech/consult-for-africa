@@ -888,6 +888,8 @@ model FounderProfile {
   documentViews    FounderDocumentView[]
   aiConversations  FounderAIConversation[]
   metrics          FounderMetric[]
+  ideas            FounderIdea[]
+  dailyPulses      FounderDailyPulse[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -4731,4 +4733,43 @@ model AgentPayout {
 
   @@index([agentId])
   @@index([status])
+}
+
+// ─── FOUNDER IDEATION ────────────────────────────────────────────────────────
+
+model FounderIdea {
+  id          String   @id @default(cuid())
+  founderId   String
+  founder     FounderProfile @relation(fields: [founderId], references: [id], onDelete: Cascade)
+
+  title       String
+  content     String   @db.Text
+  category    String?  // PRODUCT, REVENUE, PARTNERSHIP, GROWTH, OPERATIONS, OTHER
+  priority    String   @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  status      String   @default("CAPTURED") // CAPTURED, EXPLORING, IN_PROGRESS, PARKED, DONE
+
+  nuruNotes   String?  @db.Text // AI analysis/suggestions
+  tags        String[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([founderId])
+  @@index([status])
+}
+
+model FounderDailyPulse {
+  id          String   @id @default(cuid())
+  founderId   String
+  founder     FounderProfile @relation(fields: [founderId], references: [id], onDelete: Cascade)
+
+  date        DateTime @db.Date
+  summary     String   @db.Text // AI-generated daily briefing
+  insights    Json?    // structured insights [{type, title, detail, priority}]
+  metrics     Json?    // snapshot of key metrics at time of generation
+
+  createdAt   DateTime @default(now())
+
+  @@unique([founderId, date])
+  @@index([founderId])
 }

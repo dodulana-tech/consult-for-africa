@@ -1,400 +1,406 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { Target, Clock, CheckSquare, TrendingUp, Users, Briefcase, Rocket } from "lucide-react";
-import TaskCheckbox from "@/components/founder/TaskCheckbox";
-
-// ─── Date helpers ─────────────────────────────────────────────────────────────
-
-const START_DATE = new Date("2026-01-20T00:00:00.000Z");
-const LAUNCH_DATE = new Date("2026-04-13T00:00:00.000Z");
-
-function daysBetween(a: Date, b: Date): number {
-  return Math.floor((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
-}
-
-function formatShortDate(d: Date): string {
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-}
-
-// ─── Priority colors ──────────────────────────────────────────────────────────
-
-function priorityColor(priority: string): { bg: string; color: string } {
-  switch (priority.toLowerCase()) {
-    case "critical": return { bg: "#FEF2F2", color: "#B91C1C" };
-    case "high":     return { bg: "#FFF7ED", color: "#C2410C" };
-    case "medium":   return { bg: "#FFFBEB", color: "#B45309" };
-    default:         return { bg: "#F0FDF4", color: "#15803D" };
-  }
-}
-
-// ─── Phase data ───────────────────────────────────────────────────────────────
-
-const PHASES = [
-  { name: "Phase 0", label: "Foundation",        pct: 100, status: "done",   icon: "✅" },
-  { name: "Phase 1", label: "MVP Build",          pct: 63,  status: "active", icon: "⏳" },
-  { name: "Phase 2", label: "Launch & Validate",  pct: 0,   status: "locked", icon: "🔒" },
-  { name: "Phase 3", label: "Optimization",       pct: 0,   status: "locked", icon: "🔒" },
-  { name: "Phase 4", label: "AI Integration",     pct: 0,   status: "locked", icon: "🔒" },
-  { name: "Phase 5", label: "Scale to $50M",      pct: 0,   status: "locked", icon: "🔒" },
-];
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
+import Link from "next/link";
+import DailyPulse from "@/components/founder/DailyPulse";
+import {
+  TrendingUp, Users, Briefcase, DollarSign, Target,
+  AlertTriangle, Clock, ArrowRight, Building2,
+  Stethoscope, UserCheck, Send, Sparkles,
+} from "lucide-react";
 
 export default async function FounderDashboardPage() {
   const session = await auth();
   if (!session) redirect("/login");
+  if (!["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) redirect("/dashboard");
 
-  const role = session.user.role;
-  if (!["DIRECTOR", "PARTNER", "ADMIN"].includes(role)) redirect("/dashboard");
-
-  const email = session.user.email!;
   const now = new Date();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const firstName = session.user.name?.split(" ")[0] ?? "Founder";
 
-  // Upsert FounderProfile
-  const profile = await prisma.founderProfile.upsert({
-    where: { email },
-    update: {},
-    create: {
-      email,
-      name: session.user.name ?? "Debo",
-      startDate: START_DATE,
-      currentPhase: "Phase1_MVP",
-    },
-  });
-
-  const founderId = profile.id;
-
-  // Parallel fetches
-  const [thisWeekTasks, upcomingMilestones, achievedMilestones] = await Promise.all([
-    prisma.founderTask.findMany({
-      where: { founderId, week: 5, status: { not: "completed" } },
-      orderBy: { createdAt: "asc" },
-    }),
-    prisma.founderMilestone.findMany({
-      where: { founderId, status: "pending", targetDate: { gte: now } },
-      orderBy: { targetDate: "asc" },
-      take: 4,
-    }),
-    prisma.founderMilestone.findMany({
-      where: { founderId, status: "achieved" },
-      orderBy: { achievedAt: "desc" },
-      take: 5,
-    }),
+  // ─── Parallel data fetches ─────────────────────────────────────────────────
+  const [
+    // Revenue
+    paidInvoices,
+    outstandingInvoices,
+    overdueInvoices,
+    recentPayments,
+    // Clients & Engagements
+    clientsByStatus,
+    engagementsByStatus,
+    totalBudget,
+    atRiskEngagements,
+    // Workforce
+    consultantsByTier,
+    consultantsByAvailability,
+    activeAssignments,
+    // Pipeline
+    leadsByStatus,
+    proposalsByStatus,
+    openStaffingRequests,
+    expansionRequests,
+    referralsByStatus,
+    // CadreHealth
+    totalProfessionals,
+    verifiedProfessionals,
+    outreachByStatus,
+    openMandates,
+    placedMandates,
+    totalReviews,
+    totalSalaryReports,
+    activeMentorships,
+    // Agent Channel
+    approvedAgents,
+    pendingAgents,
+    openOpportunities,
+    dealsByStage,
+    pendingCommissions,
+    // Partners
+    activePartners,
+    partnerDeployments,
+    // Maarova
+    completedAssessments,
+    activeCoaching,
+    // Action items
+    pendingDeliverables,
+    overdueMS,
+    pendingTimesheets,
+    recentUpdates,
+  ] = await Promise.all([
+    // Revenue
+    prisma.invoice.aggregate({ where: { status: "PAID" }, _sum: { total: true } }),
+    prisma.invoice.aggregate({ where: { status: { in: ["SENT", "VIEWED", "PARTIALLY_PAID"] } }, _sum: { balanceDue: true } }),
+    prisma.invoice.count({ where: { status: "OVERDUE" } }),
+    prisma.payment.aggregate({ where: { status: "CONFIRMED", paymentDate: { gte: thirtyDaysAgo } }, _sum: { amount: true } }),
+    // Clients
+    prisma.client.groupBy({ by: ["status"], _count: true }),
+    prisma.engagement.groupBy({ by: ["status"], _count: true }),
+    prisma.engagement.aggregate({ where: { status: { in: ["ACTIVE", "PLANNING"] } }, _sum: { budgetAmount: true } }),
+    prisma.engagement.findMany({ where: { status: "AT_RISK" }, select: { id: true, name: true, client: { select: { name: true } }, healthScore: true } }),
+    // Workforce
+    prisma.consultantProfile.groupBy({ by: ["tier"], _count: true }),
+    prisma.consultantProfile.groupBy({ by: ["availabilityStatus"], _count: true }),
+    prisma.assignment.count({ where: { status: "ACTIVE" } }),
+    // Pipeline
+    prisma.lead.groupBy({ by: ["status"], _count: true }),
+    prisma.proposal.groupBy({ by: ["status"], _count: true }),
+    prisma.staffingRequest.count({ where: { status: "OPEN" } }),
+    prisma.clientExpansionRequest.count({ where: { status: { in: ["NEW", "IN_PROGRESS"] } } }),
+    prisma.referral.groupBy({ by: ["status"], _count: true }),
+    // CadreHealth
+    prisma.cadreProfessional.count(),
+    prisma.cadreProfessional.count({ where: { accountStatus: "VERIFIED" } }),
+    prisma.cadreOutreachRecord.groupBy({ by: ["status"], _count: true }),
+    prisma.cadreMandate.count({ where: { status: { in: ["OPEN", "SOURCING", "SHORTLISTED", "INTERVIEWING"] } } }),
+    prisma.cadreMandate.count({ where: { status: "PLACED" } }),
+    prisma.cadreFacilityReview.count(),
+    prisma.cadreSalaryReport.count(),
+    prisma.cadreMentorship.count({ where: { status: "ACTIVE" } }),
+    // Agent Channel
+    prisma.salesAgent.count({ where: { status: "APPROVED" } }),
+    prisma.salesAgent.count({ where: { status: "APPLIED" } }),
+    prisma.agentOpportunity.count({ where: { status: { in: ["OPEN", "ASSIGNED"] } } }),
+    prisma.agentDeal.groupBy({ by: ["stage"], _count: true }),
+    prisma.agentCommission.aggregate({ where: { status: { in: ["PENDING", "VERIFIED", "APPROVED"] } }, _sum: { amount: true } }),
+    // Partners
+    prisma.partnerFirm.count({ where: { status: "ACTIVE" } }),
+    prisma.partnerDeployment.count({ where: { status: "ACTIVE" } }),
+    // Maarova
+    prisma.maarovaAssessmentSession.count({ where: { status: "COMPLETED" } }),
+    prisma.maarovaCoachingMatch.count({ where: { status: "ACTIVE" } }),
+    // Action items
+    prisma.deliverable.count({ where: { status: { in: ["SUBMITTED", "IN_REVIEW"] } } }),
+    prisma.milestone.count({ where: { status: "DELAYED" } }),
+    prisma.timeEntry.count({ where: { status: "PENDING" } }),
+    prisma.engagementUpdate.findMany({ orderBy: { createdAt: "desc" }, take: 5, include: { createdBy: { select: { name: true } }, engagement: { select: { name: true } } } }),
   ]);
 
-  const daysInBusiness = daysBetween(START_DATE, now);
-  const daysToLaunch   = daysBetween(now, LAUNCH_DATE);
-  const phasePercent   = 63;
+  // ─── Derived metrics ───────────────────────────────────────────────────────
+  const totalRevenue = Number(paidInvoices._sum.total ?? 0);
+  const outstanding = Number(outstandingInvoices._sum.balanceDue ?? 0);
+  const last30Revenue = Number(recentPayments._sum.amount ?? 0);
 
-  const firstName = profile.name.split(" ")[0];
+  const activeClients = clientsByStatus.find(c => c.status === "ACTIVE")?._count ?? 0;
+  const activeEngagements = engagementsByStatus.find(e => e.status === "ACTIVE")?._count ?? 0;
+  const totalActiveBudget = Number(totalBudget._sum.budgetAmount ?? 0);
 
-  // Top priority task (critical or high)
-  const priorityTask =
-    thisWeekTasks.find((t) => t.priority === "critical") ??
-    thisWeekTasks.find((t) => t.priority === "high") ??
-    thisWeekTasks[0] ??
-    null;
+  const totalConsultants = consultantsByTier.reduce((s, t) => s + t._count, 0);
+  const availableConsultants = consultantsByAvailability.find(a => a.availabilityStatus === "AVAILABLE")?._count ?? 0;
+
+  const newLeads = leadsByStatus.find(l => l.status === "NEW")?._count ?? 0;
+  const proposalsSent = proposalsByStatus.find(p => p.status === "SENT")?._count ?? 0;
+  const convertedLeads = leadsByStatus.find(l => l.status === "CONVERTED")?._count ?? 0;
+  const totalLeads = leadsByStatus.reduce((s, l) => s + l._count, 0);
+  const pendingReferrals = referralsByStatus.find(r => r.status === "PENDING")?._count ?? 0;
+
+  const outreachConverted = outreachByStatus.find(o => o.status === "CONVERTED")?._count ?? 0;
+  const outreachTotal = outreachByStatus.reduce((s, o) => s + o._count, 0);
+
+  const dealsWon = dealsByStage.find(d => d.stage === "CLOSED_WON")?._count ?? 0;
+  const dealsActive = dealsByStage.filter(d => !["CLOSED_WON", "CLOSED_LOST", "DISQUALIFIED"].includes(d.stage)).reduce((s, d) => s + d._count, 0);
+  const commissionLiability = Number(pendingCommissions._sum.amount ?? 0);
+
+  const actionCount = pendingDeliverables + overdueMS + pendingTimesheets + overdueInvoices + atRiskEngagements.length + pendingAgents;
+
+  const greeting = now.getHours() < 12 ? "Good morning" : now.getHours() < 17 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="p-6 space-y-6 max-w-6xl">
+    <div className="p-4 sm:p-6 space-y-6 max-w-7xl">
 
-      {/* Top header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-lg font-bold text-gray-900">Mission Control</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Day {daysInBusiness} of building Consult For Africa
-          </p>
-        </div>
-        <div
-          className="text-xs px-3 py-1.5 rounded-full font-medium"
-          style={{ background: "rgba(15,39,68,0.07)", color: "#0F2744" }}
-        >
-          Phase 1: MVP Build
-        </div>
-      </div>
-
-      {/* Hero card */}
+      {/* ── Hero ── */}
       <div
-        className="rounded-xl p-6 text-white"
-        style={{ background: "#0F2744" }}
+        className="relative overflow-hidden rounded-2xl p-6 sm:p-8"
+        style={{ background: "linear-gradient(135deg, #0F2744 0%, #0B3C5D 60%, #1a5a8a 100%)" }}
       >
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <p className="text-xs font-medium mb-1" style={{ color: "rgba(255,255,255,0.5)" }}>
-              Welcome back
-            </p>
-            <h2 className="text-xl font-bold">{firstName}</h2>
-          </div>
-          <span
-            className="text-xs px-2.5 py-1 rounded-full font-semibold"
-            style={{ background: "rgba(212,175,55,0.2)", color: "#D4AF37" }}
-          >
-            Phase 1 Active
-          </span>
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <p className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
-              Phase progress
-            </p>
-            <span className="text-xs font-semibold" style={{ color: "#D4AF37" }}>
-              {phasePercent}%
-            </span>
-          </div>
-          <div className="h-2 rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>
-            <div
-              className="h-2 rounded-full transition-all"
-              style={{ width: `${phasePercent}%`, background: "#D4AF37" }}
-            />
-          </div>
-          <div className="flex items-center gap-1.5 pt-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
-              On track, {daysToLaunch} days to launch
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Today's priority */}
-      {priorityTask && (
-        <div
-          className="rounded-xl p-5 bg-white"
-          style={{
-            border: "1px solid #e5eaf0",
-            borderLeft: "4px solid #D4AF37",
-          }}
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <Target size={13} style={{ color: "#D4AF37" }} />
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              Today's Priority
-            </p>
-          </div>
-          <h3 className="text-sm font-semibold text-gray-900 mb-1">{priorityTask.title}</h3>
-          {priorityTask.description && (
-            <p className="text-xs text-gray-500 mb-3 leading-relaxed">{priorityTask.description}</p>
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(circle at 80% 20%, rgba(212,175,55,0.08) 0%, transparent 50%)" }} />
+        <div className="relative">
+          <p className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.45)" }}>
+            {greeting}
+          </p>
+          <h1 className="text-2xl font-bold tracking-tight text-white mt-1">
+            {firstName}&apos;s Command Center
+          </h1>
+          <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+            Real-time view of Consult For Africa
+          </p>
+          {actionCount > 0 && (
+            <div className="mt-4 inline-flex items-center gap-2 rounded-xl px-4 py-2" style={{ background: "rgba(212,175,55,0.15)" }}>
+              <AlertTriangle className="h-4 w-4" style={{ color: "#D4AF37" }} />
+              <span className="text-sm font-medium" style={{ color: "#D4AF37" }}>
+                {actionCount} item{actionCount !== 1 ? "s" : ""} need{actionCount === 1 ? "s" : ""} your attention
+              </span>
+            </div>
           )}
-          <div className="flex items-center gap-4 text-xs text-gray-400">
-            {priorityTask.estimatedMinutes && (
-              <span className="flex items-center gap-1">
-                <Clock size={11} /> {priorityTask.estimatedMinutes} min
-              </span>
-            )}
-            {priorityTask.impact && (
-              <span className="flex items-center gap-1">
-                <TrendingUp size={11} /> {priorityTask.impact}
-              </span>
-            )}
-          </div>
-          <div className="mt-3">
-            <TaskCheckbox
-              taskId={priorityTask.id}
-              initialStatus={priorityTask.status}
-              title="Mark complete"
-            />
+        </div>
+      </div>
+
+      {/* ── 0. DAILY PULSE (Nuru AI) ── */}
+      <DailyPulse />
+
+      {/* ── 1. BUSINESS PULSE ── */}
+      <Section title="Business Pulse" icon={<DollarSign className="h-4 w-4" />}>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <Metric label="Total Revenue" value={fmtNGN(totalRevenue)} accent="#059669" />
+          <Metric label="Last 30 Days" value={fmtNGN(last30Revenue)} accent="#0F2744" />
+          <Metric label="Outstanding" value={fmtNGN(outstanding)} accent="#D4AF37" sub={overdueInvoices > 0 ? `${overdueInvoices} overdue` : undefined} />
+          <Metric label="Active Budget" value={fmtNGN(totalActiveBudget)} accent="#0F2744" />
+        </div>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 mt-4">
+          <Metric label="Active Clients" value={activeClients} accent="#0F2744" />
+          <Metric label="Active Engagements" value={activeEngagements} accent="#059669" />
+          <Metric label="At Risk" value={atRiskEngagements.length} accent={atRiskEngagements.length > 0 ? "#DC2626" : "#9CA3AF"} />
+          <Metric label="Partner Firms" value={activePartners} accent="#7C3AED" sub={`${partnerDeployments} deployments`} />
+        </div>
+      </Section>
+
+      {/* ── 2. PIPELINE & GROWTH ── */}
+      <Section title="Pipeline & Growth" icon={<Target className="h-4 w-4" />}>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+          <Metric label="New Leads" value={newLeads} accent="#1D4ED8" />
+          <Metric label="Total Leads" value={totalLeads} accent="#0F2744" sub={totalLeads > 0 ? `${Math.round((convertedLeads / totalLeads) * 100)}% converted` : undefined} />
+          <Metric label="Proposals Sent" value={proposalsSent} accent="#D4AF37" />
+          <Metric label="Open Staffing" value={openStaffingRequests} accent="#7C3AED" />
+          <Metric label="Expansion Requests" value={expansionRequests} accent="#059669" sub={`${pendingReferrals} pending referrals`} />
+        </div>
+      </Section>
+
+      {/* ── 3. WORKFORCE ── */}
+      <Section title="Workforce" icon={<Users className="h-4 w-4" />}>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <Metric label="Consultants" value={totalConsultants} accent="#0F2744" />
+          <Metric label="Available" value={availableConsultants} accent="#059669" />
+          <Metric label="Active Assignments" value={activeAssignments} accent="#D4AF37" />
+          <div className="rounded-2xl bg-white p-5 shadow-sm" style={{ border: "1px solid #E8EBF0" }}>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">By Tier</p>
+            <div className="space-y-1.5">
+              {consultantsByTier.sort((a, b) => {
+                const order = ["ELITE", "EXPERIENCED", "STANDARD", "EMERGING", "INTERN"];
+                return order.indexOf(a.tier) - order.indexOf(b.tier);
+              }).map(t => (
+                <div key={t.tier} className="flex items-center justify-between text-xs">
+                  <span className="text-gray-600">{t.tier}</span>
+                  <span className="font-bold" style={{ color: "#0F2744" }}>{t._count}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+      </Section>
+
+      {/* ── 4. CADREHEALTH ── */}
+      <Section title="CadreHealth" icon={<Stethoscope className="h-4 w-4" />} href="/admin/cadrehealth">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+          <Metric label="Professionals" value={totalProfessionals.toLocaleString()} accent="#0F2744" sub={`${verifiedProfessionals} verified`} />
+          <Metric label="Outreach Pipeline" value={outreachTotal} accent="#1D4ED8" sub={outreachTotal > 0 ? `${outreachConverted} converted` : "not started"} />
+          <Metric label="Open Mandates" value={openMandates} accent="#D4AF37" sub={`${placedMandates} placed`} />
+          <Metric label="Reviews / Salary" value={`${totalReviews} / ${totalSalaryReports}`} accent="#059669" />
+          <Metric label="Mentorships" value={activeMentorships} accent="#7C3AED" />
+        </div>
+        {outreachTotal > 0 && (
+          <div className="mt-4 rounded-xl bg-gray-50 p-4">
+            <p className="text-xs font-semibold text-gray-500 mb-2">Outreach Funnel</p>
+            <div className="flex gap-1">
+              {outreachByStatus.sort((a, b) => {
+                const order = ["READY", "WHATSAPP_SENT", "WHATSAPP_REPLIED", "SMS_SENT", "EMAIL_SENT", "CONVERTED", "NOT_INTERESTED", "UNREACHABLE", "EMIGRATED", "RETIRED"];
+                return order.indexOf(a.status) - order.indexOf(b.status);
+              }).map(o => (
+                <div key={o.status} className="flex-1 text-center">
+                  <p className="text-sm font-bold" style={{ color: "#0F2744" }}>{o._count}</p>
+                  <p className="text-[9px] text-gray-400 leading-tight">{o.status.replace(/_/g, " ")}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </Section>
+
+      {/* ── 5. AGENT CHANNEL ── */}
+      <Section title="Agent Channel" icon={<Send className="h-4 w-4" />} href="/admin/agents">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+          <Metric label="Approved Agents" value={approvedAgents} accent="#059669" sub={pendingAgents > 0 ? `${pendingAgents} pending` : undefined} />
+          <Metric label="Open Opportunities" value={openOpportunities} accent="#D4AF37" />
+          <Metric label="Active Deals" value={dealsActive} accent="#1D4ED8" />
+          <Metric label="Deals Won" value={dealsWon} accent="#059669" />
+          <Metric label="Commission Liability" value={fmtNGN(commissionLiability)} accent="#DC2626" />
+        </div>
+      </Section>
+
+      {/* ── 6. MAAROVA & ACADEMY ── */}
+      <Section title="Maarova & Academy" icon={<Sparkles className="h-4 w-4" />}>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <Metric label="Assessments Completed" value={completedAssessments} accent="#7C3AED" />
+          <Metric label="Active Coaching" value={activeCoaching} accent="#D4AF37" />
+          <Metric label="Partner Deployments" value={partnerDeployments} accent="#0F2744" />
+          <Metric label="Active Partners" value={activePartners} accent="#059669" />
+        </div>
+      </Section>
+
+      {/* ── 7. ACTION ITEMS ── */}
+      {actionCount > 0 && (
+        <Section title="Needs Attention" icon={<AlertTriangle className="h-4 w-4" />}>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {pendingDeliverables > 0 && (
+              <ActionCard label="Deliverables to Review" count={pendingDeliverables} href="/projects" color="#1D4ED8" />
+            )}
+            {overdueMS > 0 && (
+              <ActionCard label="Delayed Milestones" count={overdueMS} href="/projects" color="#DC2626" />
+            )}
+            {pendingTimesheets > 0 && (
+              <ActionCard label="Pending Timesheets" count={pendingTimesheets} href="/timesheets" color="#D4AF37" />
+            )}
+            {overdueInvoices > 0 && (
+              <ActionCard label="Overdue Invoices" count={overdueInvoices} href="/finance/invoices" color="#DC2626" />
+            )}
+            {atRiskEngagements.length > 0 && atRiskEngagements.map(e => (
+              <ActionCard key={e.id} label={`At Risk: ${e.name}`} count={e.healthScore ?? 0} href={`/projects/${e.id}`} color="#DC2626" sub={e.client.name} />
+            ))}
+            {pendingAgents > 0 && (
+              <ActionCard label="Agent Applications" count={pendingAgents} href="/admin/agents" color="#7C3AED" />
+            )}
+          </div>
+        </Section>
       )}
 
-      {/* Quick stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {
-            label: "Revenue",
-            value: "₦0",
-            sub: "Target: ₦135M",
-            icon: TrendingUp,
-            accent: "#D4AF37",
-          },
-          {
-            label: "Active Projects",
-            value: "0",
-            sub: "Target: 3",
-            icon: Briefcase,
-            accent: "#0F2744",
-          },
-          {
-            label: "Consultants",
-            value: "12",
-            sub: "Launch target: 15",
-            icon: Users,
-            accent: "#059669",
-          },
-          {
-            label: "Days to Launch",
-            value: Math.max(0, daysToLaunch).toString(),
-            sub: "April 13, 2026",
-            icon: Rocket,
-            accent: "#7C3AED",
-          },
-        ].map(({ label, value, sub, icon: Icon, accent }) => (
-          <div
-            key={label}
-            className="bg-white rounded-xl p-4"
-            style={{ border: "1px solid #e5eaf0" }}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-gray-500">{label}</p>
-              <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center"
-                style={{ background: `${accent}15` }}
-              >
-                <Icon size={13} style={{ color: accent }} />
-              </div>
-            </div>
-            <p className="text-xl font-bold text-gray-900">{value}</p>
-            <p className="text-xs text-gray-400 mt-0.5">{sub}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Phase journey */}
-      <div className="bg-white rounded-xl p-5" style={{ border: "1px solid #e5eaf0" }}>
-        <h3 className="text-sm font-semibold text-gray-900 mb-4">Phase Journey: $0 to $50M</h3>
-        <div className="space-y-3">
-          {PHASES.map((phase) => (
-            <div key={phase.name} className="flex items-center gap-3">
-              <span className="text-base w-5 shrink-0">{phase.icon}</span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-medium text-gray-700">{phase.name}</span>
-                    <span className="text-xs text-gray-400">{phase.label}</span>
-                  </div>
-                  <span
-                    className="text-xs font-semibold"
-                    style={{ color: phase.status === "active" ? "#D4AF37" : phase.status === "done" ? "#059669" : "#9CA3AF" }}
-                  >
-                    {phase.pct}%
-                  </span>
-                </div>
-                <div className="h-1.5 rounded-full bg-gray-100">
-                  <div
-                    className="h-1.5 rounded-full transition-all"
-                    style={{
-                      width: `${phase.pct}%`,
-                      background:
-                        phase.status === "done"
-                          ? "#059669"
-                          : phase.status === "active"
-                          ? "#D4AF37"
-                          : "#E5E7EB",
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* This week's tasks */}
-      <div className="bg-white rounded-xl p-5" style={{ border: "1px solid #e5eaf0" }}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-900">
-            This Week&apos;s Tasks
-            <span className="ml-2 text-xs font-normal text-gray-400">Week 5</span>
-          </h3>
-          <span className="text-xs text-gray-400">{thisWeekTasks.length} remaining</span>
-        </div>
-
-        {thisWeekTasks.length === 0 ? (
-          <div className="text-center py-8">
-            <CheckSquare size={28} className="text-gray-200 mx-auto mb-2" />
-            <p className="text-sm text-gray-400">All caught up on Week 5 tasks.</p>
-          </div>
-        ) : (
+      {/* ── 8. RECENT ACTIVITY ── */}
+      {recentUpdates.length > 0 && (
+        <div className="rounded-2xl bg-white p-6 shadow-sm" style={{ border: "1px solid #E8EBF0" }}>
+          <h3 className="text-sm font-bold mb-4" style={{ color: "#0F2744" }}>Recent Activity</h3>
           <div className="space-y-3">
-            {thisWeekTasks.map((task) => {
-              const pc = priorityColor(task.priority);
-              return (
-                <div
-                  key={task.id}
-                  className="flex items-start gap-3 p-3 rounded-lg"
-                  style={{ background: "#F9FAFB", border: "1px solid #F3F4F6" }}
-                >
-                  <TaskCheckbox
-                    taskId={task.id}
-                    initialStatus={task.status}
-                    title={task.title}
-                  />
-                  <div className="flex items-center gap-2 ml-auto shrink-0">
-                    <span
-                      className="text-[10px] px-2 py-0.5 rounded-full font-medium capitalize"
-                      style={{ background: pc.bg, color: pc.color }}
-                    >
-                      {task.priority}
-                    </span>
-                    {task.estimatedMinutes && (
-                      <span className="text-[10px] text-gray-400 flex items-center gap-0.5">
-                        <Clock size={9} />
-                        {task.estimatedMinutes}m
-                      </span>
-                    )}
-                  </div>
+            {recentUpdates.map(u => (
+              <div key={u.id} className="flex items-start gap-3">
+                <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full" style={{ background: "#D4AF37" }} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm text-gray-700">{u.content.slice(0, 120)}{u.content.length > 120 ? "..." : ""}</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">
+                    {u.createdBy?.name ?? "C4A"} on {u.engagement?.name ?? "General"} · {timeAgo(u.createdAt)}
+                  </p>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Upcoming milestones */}
-      <div className="bg-white rounded-xl p-5" style={{ border: "1px solid #e5eaf0" }}>
-        <h3 className="text-sm font-semibold text-gray-900 mb-4">Upcoming Milestones</h3>
-        {upcomingMilestones.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-6">No upcoming milestones scheduled.</p>
-        ) : (
-          <div className="grid sm:grid-cols-2 gap-3">
-            {upcomingMilestones.map((m) => (
-              <div
-                key={m.id}
-                className="p-3.5 rounded-xl"
-                style={{ border: "1px solid #e5eaf0" }}
-              >
-                <div className="flex items-center gap-2 mb-1.5">
-                  {m.badge && <span className="text-base">{m.badge}</span>}
-                  <p className="text-xs font-semibold text-gray-800 leading-snug">{m.name}</p>
-                </div>
-                <p className="text-[10px] text-gray-400">{formatShortDate(m.targetDate)}</p>
-                <span
-                  className="inline-block mt-2 text-[10px] px-2 py-0.5 rounded-full font-medium"
-                  style={{ background: "#FFF7ED", color: "#C2410C" }}
-                >
-                  {daysBetween(now, m.targetDate)} days away
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Achievements */}
-      {achievedMilestones.length > 0 && (
-        <div className="bg-white rounded-xl p-5" style={{ border: "1px solid #e5eaf0" }}>
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Achievements</h3>
-          <div className="flex flex-wrap gap-2">
-            {achievedMilestones.map((m) => (
-              <div
-                key={m.id}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs"
-                style={{ background: "#F0FDF4", border: "1px solid #BBF7D0" }}
-              >
-                {m.badge && <span>{m.badge}</span>}
-                <span className="font-medium text-green-800">{m.name}</span>
-                {m.achievedAt && (
-                  <span className="text-green-600">{formatShortDate(m.achievedAt)}</span>
-                )}
               </div>
             ))}
           </div>
         </div>
       )}
 
+      {/* ── Quick nav ── */}
+      <div className="grid gap-3 sm:grid-cols-3">
+        <QuickLink href="/founder/ai-coach" label="Nuru" sub="AI strategy partner" icon={<Sparkles className="h-5 w-5" />} />
+        <QuickLink href="/founder/ideation" label="Ideation Pad" sub="Capture and develop ideas" icon={<Target className="h-5 w-5" />} />
+        <QuickLink href="/dashboard" label="Platform" sub="Switch to operator view" icon={<Briefcase className="h-5 w-5" />} />
+      </div>
     </div>
   );
+}
+
+// ─── Components ──────────────────────────────────────────────────────────────
+
+function Section({ title, icon, children, href }: { title: string; icon: React.ReactNode; children: React.ReactNode; href?: string }) {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <div className="text-gray-400">{icon}</div>
+          <h2 className="text-sm font-bold tracking-tight" style={{ color: "#0F2744" }}>{title}</h2>
+        </div>
+        {href && (
+          <Link href={href} className="flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-600 transition">
+            View <ArrowRight className="h-3 w-3" />
+          </Link>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Metric({ label, value, accent, sub }: { label: string; value: string | number; accent: string; sub?: string }) {
+  return (
+    <div className="rounded-2xl bg-white p-5 shadow-sm" style={{ border: "1px solid #E8EBF0" }}>
+      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</p>
+      <p className="mt-2 text-2xl font-bold tracking-tight" style={{ color: accent }}>{value}</p>
+      {sub && <p className="mt-0.5 text-[10px] text-gray-400">{sub}</p>}
+    </div>
+  );
+}
+
+function ActionCard({ label, count, href, color, sub }: { label: string; count: number; href: string; color: string; sub?: string }) {
+  return (
+    <Link href={href} className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md" style={{ border: "1px solid #E8EBF0" }}>
+      <div>
+        <p className="text-sm font-semibold text-gray-900">{label}</p>
+        {sub && <p className="text-[10px] text-gray-400">{sub}</p>}
+      </div>
+      <span className="shrink-0 rounded-full px-3 py-1 text-sm font-bold text-white" style={{ background: color }}>
+        {count}
+      </span>
+    </Link>
+  );
+}
+
+function QuickLink({ href, label, sub, icon }: { href: string; label: string; sub: string; icon: React.ReactNode }) {
+  return (
+    <Link href={href} className="group flex items-center gap-4 rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md" style={{ border: "1px solid #E8EBF0" }}>
+      <div className="rounded-xl p-3" style={{ background: "#0F274408" }}>
+        <div style={{ color: "#0F2744" }}>{icon}</div>
+      </div>
+      <div>
+        <p className="text-sm font-bold" style={{ color: "#0F2744" }}>{label}</p>
+        <p className="text-xs text-gray-400">{sub}</p>
+      </div>
+    </Link>
+  );
+}
+
+function fmtNGN(amount: number): string {
+  if (amount === 0) return "N0";
+  if (amount >= 1_000_000) return `N${(amount / 1_000_000).toFixed(1)}M`;
+  if (amount >= 1_000) return `N${(amount / 1_000).toFixed(0)}K`;
+  return new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(amount);
+}
+
+function timeAgo(date: Date): string {
+  const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  return `${Math.floor(seconds / 86400)}d ago`;
 }
