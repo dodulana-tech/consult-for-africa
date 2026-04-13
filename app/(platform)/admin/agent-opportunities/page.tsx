@@ -85,11 +85,13 @@ export default async function AdminAgentOpportunitiesPage() {
                     </td>
                     <td className="hidden px-6 py-4 sm:table-cell">
                       <span className="text-sm font-semibold" style={{ color: "#0F2744" }}>
-                        {opp.commissionType === "PERCENTAGE"
-                          ? `${Number(opp.commissionValue)}%`
+                        {opp.commissionType === "PERCENTAGE" || opp.commissionType === "TIERED"
+                          ? `Up to ${Number(opp.commissionValue)}%`
+                          : opp.commissionType === "RECURRING"
+                          ? `${Number(opp.commissionValue)}% recurring`
                           : opp.commissionType === "FIXED_PER_DEAL"
                           ? new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(Number(opp.commissionValue))
-                          : opp.commissionType.replace(/_/g, " ")}
+                          : `${Number(opp.commissionValue)}%`}
                       </span>
                       <div className="text-[10px] text-gray-400">{opp.commissionType.replace(/_/g, " ").toLowerCase()}</div>
                     </td>

@@ -94,7 +94,15 @@ export default async function AdminOpportunityDetailPage({
         <div className="rounded-2xl bg-white p-6 shadow-sm" style={{ border: "1px solid #E8EBF0" }}>
           <h2 className="mb-4 text-base font-bold" style={{ color: "#0F2744" }}>Details</h2>
           <dl className="space-y-2.5 text-sm">
-            <Row label="Commission" value={opp.commissionType === "PERCENTAGE" ? `${Number(opp.commissionValue)}%` : formatNGN(Number(opp.commissionValue))} />
+            <Row label="Commission" value={
+              opp.commissionType === "PERCENTAGE" || opp.commissionType === "TIERED"
+                ? `Up to ${Number(opp.commissionValue)}%`
+                : opp.commissionType === "RECURRING"
+                ? `${Number(opp.commissionValue)}% recurring`
+                : opp.commissionType === "FIXED_PER_DEAL"
+                ? formatNGN(Number(opp.commissionValue)) + " per deal"
+                : `${Number(opp.commissionValue)}%`
+            } />
             <Row label="Type" value={opp.commissionType.replace(/_/g, " ")} />
             <Row label="Territories" value={opp.territories.join(", ") || "Any"} />
             <Row label="Industries" value={opp.targetIndustries.join(", ") || "Any"} />

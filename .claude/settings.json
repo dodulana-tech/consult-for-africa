@@ -219,7 +219,8 @@
       "/Users/debo/consult-for-africa/app/api/agent-portal/platform-apply",
       "/Users/debo/consult-for-africa/app/api/admin/agent-commissions",
       "/Users/debo/consult-for-africa/app/api/agent-portal/opportunities/[id]",
-      "/Users/debo/consult-for-africa/app/api/admin/agent-deals/[id]"
+      "/Users/debo/consult-for-africa/app/api/admin/agent-deals/[id]",
+      "/Users/debo/consult-for-africa/app/(marketing)/agent/opportunity"
     ]
   }
 }

@@ -199,11 +199,11 @@ export default async function AgentPage() {
                       )}
                     </div>
                     <Link
-                      href="/agent/register"
+                      href={`/agent/opportunity/${opp.id}`}
                       className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition hover:opacity-90"
                       style={{ background: "#0B3C5D" }}
                     >
-                      Apply <ArrowRight size={14} />
+                      View Details <ArrowRight size={14} />
                     </Link>
                   </div>
                 </div>

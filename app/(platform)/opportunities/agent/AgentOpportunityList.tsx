@@ -98,13 +98,15 @@ export default function AgentOpportunityList({
     const sym = o.commissionCurrency === "NGN" ? "\u20A6" : "$";
     switch (o.commissionType) {
       case "PERCENTAGE":
-        return `${o.commissionValue}% per deal`;
-      case "RECURRING":
-        return `${sym}${o.commissionValue.toLocaleString()}/month recurring`;
+        return `Up to ${o.commissionValue}%`;
       case "TIERED":
-        return "Tiered commission";
-      default:
+        return `Up to ${o.commissionValue}%`;
+      case "RECURRING":
+        return `${o.commissionValue}% recurring`;
+      case "FIXED_PER_DEAL":
         return `${sym}${o.commissionValue.toLocaleString()} per deal`;
+      default:
+        return `${o.commissionValue}%`;
     }
   };
 

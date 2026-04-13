@@ -497,10 +497,14 @@ export default async function DashboardPage() {
               {agentOpportunities.map((opp) => {
                 const commLabel =
                   opp.commissionType === "PERCENTAGE"
-                    ? `${Number(opp.commissionValue)}% commission`
+                    ? `Up to ${Number(opp.commissionValue)}%`
+                    : opp.commissionType === "TIERED"
+                    ? `Up to ${Number(opp.commissionValue)}%`
                     : opp.commissionType === "RECURRING"
-                    ? `${opp.commissionCurrency === "NGN" ? "\u20A6" : "$"}${Number(opp.commissionValue).toLocaleString()}/mo`
-                    : `${opp.commissionCurrency === "NGN" ? "\u20A6" : "$"}${Number(opp.commissionValue).toLocaleString()} per deal`;
+                    ? `${Number(opp.commissionValue)}% recurring`
+                    : opp.commissionType === "FIXED_PER_DEAL"
+                    ? `${opp.commissionCurrency === "NGN" ? "\u20A6" : "$"}${Number(opp.commissionValue).toLocaleString()} per deal`
+                    : `${Number(opp.commissionValue)}%`;
                 return (
                   <Link
                     key={opp.id}

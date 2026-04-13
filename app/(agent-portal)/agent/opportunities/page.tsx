@@ -68,11 +68,13 @@ export default async function AgentOpportunitiesPage() {
                     <span>{opp.territories.join(", ")}</span>
                   )}
                   <span className="font-semibold" style={{ color: "#D4AF37" }}>
-                    {opp.commissionType === "PERCENTAGE"
-                      ? `${Number(opp.commissionValue)}% commission`
+                    {opp.commissionType === "PERCENTAGE" || opp.commissionType === "TIERED"
+                      ? `Up to ${Number(opp.commissionValue)}%`
+                      : opp.commissionType === "RECURRING"
+                      ? `${Number(opp.commissionValue)}% recurring`
                       : opp.commissionType === "FIXED_PER_DEAL"
                       ? `${new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(Number(opp.commissionValue))} per deal`
-                      : opp.commissionType.replace(/_/g, " ").toLowerCase()}
+                      : `${Number(opp.commissionValue)}%`}
                   </span>
                   <span>{opp._count.assignments}{opp.maxAgents ? ` / ${opp.maxAgents}` : ""} agent{opp._count.assignments !== 1 ? "s" : ""}</span>
                 </div>
