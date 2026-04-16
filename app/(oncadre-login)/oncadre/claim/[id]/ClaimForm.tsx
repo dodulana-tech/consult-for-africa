@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import PasswordInput from "@/components/cadrehealth/PasswordInput";
 
 interface Props {
   professionalId: string;
@@ -58,14 +59,13 @@ export default function ClaimForm({ professionalId }: Props) {
         <label className="mb-1.5 block text-sm font-medium text-gray-700">
           Create a password
         </label>
-        <input
-          type="password"
+        <PasswordInput
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="At least 8 characters"
           required
-          minLength={8}
-          className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-[#0B3C5D] focus:outline-none focus:ring-1 focus:ring-[#0B3C5D]"
+          className="w-full rounded-lg border border-gray-300 px-4 py-3 pr-11 text-gray-900 placeholder:text-gray-400 focus:border-[#0B3C5D] focus:outline-none focus:ring-1 focus:ring-[#0B3C5D]"
+          style={{}}
         />
         {password.length > 0 && !passwordValid && (
           <p className="mt-1 text-xs text-red-500">
@@ -78,14 +78,13 @@ export default function ClaimForm({ professionalId }: Props) {
         <label className="mb-1.5 block text-sm font-medium text-gray-700">
           Confirm password
         </label>
-        <input
-          type="password"
+        <PasswordInput
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           placeholder="Re-enter your password"
           required
-          minLength={8}
-          className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-[#0B3C5D] focus:outline-none focus:ring-1 focus:ring-[#0B3C5D]"
+          className="w-full rounded-lg border border-gray-300 px-4 py-3 pr-11 text-gray-900 placeholder:text-gray-400 focus:border-[#0B3C5D] focus:outline-none focus:ring-1 focus:ring-[#0B3C5D]"
+          style={{}}
         />
         {confirmPassword.length > 0 && !passwordsMatch && (
           <p className="mt-1 text-xs text-red-500">Passwords do not match</p>

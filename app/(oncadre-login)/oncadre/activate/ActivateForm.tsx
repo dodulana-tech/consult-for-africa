@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import PasswordInput from "@/components/cadrehealth/PasswordInput";
 
 export default function ActivateForm({ email }: { email: string }) {
   const router = useRouter();
@@ -44,26 +45,23 @@ export default function ActivateForm({ email }: { email: string }) {
     <form onSubmit={handleSubmit} className="mt-5 space-y-4">
       <div>
         <label className="block text-xs font-medium text-gray-600 mb-1.5">Password</label>
-        <input
-          type="password"
-          required
-          minLength={8}
+        <PasswordInput
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="At least 8 characters"
-          className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B3C5D]/20"
+          required
+          className="w-full rounded-lg px-3 py-2.5 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B3C5D]/20"
           style={{ border: "1px solid #E8EBF0", background: "#F8F9FB" }}
         />
       </div>
       <div>
         <label className="block text-xs font-medium text-gray-600 mb-1.5">Confirm Password</label>
-        <input
-          type="password"
-          required
+        <PasswordInput
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           placeholder="Confirm your password"
-          className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B3C5D]/20"
+          required
+          className="w-full rounded-lg px-3 py-2.5 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B3C5D]/20"
           style={{ border: "1px solid #E8EBF0", background: "#F8F9FB" }}
         />
       </div>

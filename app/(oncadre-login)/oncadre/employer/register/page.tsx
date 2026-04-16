@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import PasswordInput from "@/components/cadrehealth/PasswordInput";
 
 export default function EmployerRegisterPage() {
   const router = useRouter();
@@ -216,15 +217,11 @@ export default function EmployerRegisterPage() {
               <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 Password
               </label>
-              <input
-                type="password"
+              <PasswordInput
                 value={form.password}
                 onChange={(e) => update("password", e.target.value)}
                 placeholder="At least 8 characters"
                 required
-                minLength={8}
-                className="w-full rounded-xl bg-white px-4 py-3 text-gray-900 placeholder:text-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#0B3C5D]/20"
-                style={{ border: "1px solid #E8EBF0", boxShadow: "0 1px 2px rgba(0,0,0,0.04)", minHeight: "44px" }}
               />
             </div>
 
