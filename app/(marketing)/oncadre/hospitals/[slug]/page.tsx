@@ -315,8 +315,8 @@ export default async function HospitalDetailPage({ params }: Props) {
                 <ShareButton
                   title={`${facility.name} - Staff Reviews | CadreHealth`}
                   text={overallRating
-                    ? `${facility.name} rated ${overallRating.toFixed(1)}/5 by ${facility.totalReviews} healthcare workers on CadreHealth. See honest reviews on pay, equipment, and management.`
-                    : `Check out ${facility.name} on CadreHealth. Be the first to review this hospital and help your colleagues.`
+                    ? `Before you accept that job at ${facility.name}, read what ${facility.totalReviews} verified healthcare workers said. Rated ${overallRating.toFixed(1)}/5 on pay, equipment, management, and more. Anonymous and real.`
+                    : `Worked at ${facility.name}? Be the first to anonymously review it on CadreHealth. Your experience could save a colleague from a bad move.`
                   }
                   url={`/oncadre/hospitals/${slug}`}
                   variant="button"
@@ -548,8 +548,8 @@ export default async function HospitalDetailPage({ params }: Props) {
           <ShareButton
             title={`${facility.name} - Staff Reviews | CadreHealth`}
             text={overallRating
-              ? `${facility.name} rated ${overallRating.toFixed(1)}/5 by ${facility.totalReviews} healthcare workers. See honest reviews on CadreHealth.`
-              : `Working at ${facility.name}? Share your experience on CadreHealth and help colleagues make better career decisions.`
+              ? `Thinking of working at ${facility.name}? ${facility.totalReviews} verified staff already shared their honest experience. Pay, equipment, management, safety. All anonymous. Check it before you sign.`
+              : `Know someone who works at ${facility.name}? They can anonymously review it on CadreHealth. Help healthcare workers know the truth before they accept.`
             }
             url={`/oncadre/hospitals/${slug}`}
             variant="card"

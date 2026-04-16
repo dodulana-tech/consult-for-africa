@@ -36,21 +36,14 @@ export const metadata: Metadata = {
     url: "https://consultforafrica.com/oncadre",
     siteName: "CadreHealth by Consult For Africa",
     locale: "en_NG",
-    images: [
-      {
-        url: "/og-cadrehealth.png",
-        width: 1200,
-        height: 630,
-        alt: "CadreHealth - The Career Platform for Nigerian Healthcare Professionals",
-      },
-    ],
+    // OG image is generated programmatically by opengraph-image.tsx
   },
   twitter: {
     card: "summary_large_image",
     title: "CadreHealth | Know Your Worth.",
     description:
       "Real salary data. Hospital reviews. Career readiness scores. For every Nigerian healthcare professional.",
-    images: ["/og-cadrehealth.png"],
+    // Twitter image is generated programmatically by twitter-image.tsx
   },
   alternates: {
     canonical: "https://consultforafrica.com/oncadre",

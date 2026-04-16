@@ -519,7 +519,10 @@ export default async function HospitalDirectoryPage({ searchParams }: PageProps)
                       </div>
                       <ShareButton
                         title={`${facility.name} - Staff Reviews`}
-                        text={`Check out staff reviews for ${facility.name} on CadreHealth. Real ratings on pay, equipment, and management from verified healthcare workers.`}
+                        text={hasReviews
+                          ? `Before you accept that job at ${facility.name}, read what ${facility.totalReviews} verified staff said about pay, equipment, and management. Anonymous reviews on CadreHealth.`
+                          : `Working at ${facility.name}? Be the first to anonymously review it on CadreHealth. Help your colleagues know the truth before they accept.`
+                        }
                         url={`/oncadre/hospitals/${facility.slug}`}
                         variant="icon"
                         stopPropagation
