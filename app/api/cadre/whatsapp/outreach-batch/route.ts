@@ -1,10 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { sendOutreachBatch } from "@/lib/cadreHealth/outreachSender";
 import { auth } from "@/auth";
 
-// ─── CadreHealth: Outreach Batch Sender API ───
-
-export async function POST() {
+export async function POST(req: NextRequest) {
   const session = await auth();
   if (
     !session?.user?.role ||
@@ -14,7 +12,13 @@ export async function POST() {
   }
 
   try {
-    const result = await sendOutreachBatch(50);
+    const body = await req.json().catch(() => ({}));
+    const batchSize = Math.min(
+      Math.max(parseInt(body.batchSize ?? "25", 10) || 25, 1),
+      200
+    );
+
+    const result = await sendOutreachBatch(batchSize);
     return NextResponse.json(result);
   } catch (err) {
     console.error("Outreach batch error:", err);

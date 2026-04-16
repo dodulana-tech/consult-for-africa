@@ -85,14 +85,14 @@ export async function POST(req: Request) {
     return Response.json({ ok: true, created: 0, tierBreakdown: {}, message: "All professionals already have outreach records." });
   }
 
-  // Assign tiers and create records
+  // Assign tiers and create records in PENDING status (requires enrichment before outreach)
   const tierCounts = { A: 0, B: 0, C: 0 };
   const data = newProfessionals.map((p) => {
     const tier = assignTier(p.cadre, p.subSpecialty, !!p.phone);
     tierCounts[tier as keyof typeof tierCounts]++;
     return {
       professionalId: p.id,
-      status: "READY" as const,
+      status: "PENDING" as const,
       tier,
     };
   });
