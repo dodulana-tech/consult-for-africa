@@ -7,9 +7,10 @@ interface ShareButtonProps {
   text: string;
   url: string;
   variant?: "icon" | "button" | "card";
+  stopPropagation?: boolean;
 }
 
-export default function ShareButton({ title, text, url, variant = "icon" }: ShareButtonProps) {
+export default function ShareButton({ title, text, url, variant = "icon", stopPropagation }: ShareButtonProps) {
   const [copied, setCopied] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
@@ -83,7 +84,7 @@ export default function ShareButton({ title, text, url, variant = "icon" }: Shar
 
   if (variant === "icon") {
     return (
-      <div className="relative">
+      <div className="relative" onClick={stopPropagation ? (e) => e.preventDefault() : undefined}>
         <button
           onClick={handleShare}
           className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200/80 bg-white/80 text-gray-500 shadow-sm transition hover:bg-white hover:text-[#0B3C5D] hover:shadow-md"

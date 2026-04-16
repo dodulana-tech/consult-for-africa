@@ -513,14 +513,13 @@ export default async function HospitalDirectoryPage({ searchParams }: PageProps)
                           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
                       </div>
-                      <div onClick={(e) => e.preventDefault()}>
-                        <ShareButton
-                          title={`${facility.name} - Staff Reviews`}
-                          text={`Check out staff reviews for ${facility.name} on CadreHealth. Real ratings on pay, equipment, and management from verified healthcare workers.`}
-                          url={`/oncadre/hospitals/${facility.slug}`}
-                          variant="icon"
-                        />
-                      </div>
+                      <ShareButton
+                        title={`${facility.name} - Staff Reviews`}
+                        text={`Check out staff reviews for ${facility.name} on CadreHealth. Real ratings on pay, equipment, and management from verified healthcare workers.`}
+                        url={`/oncadre/hospitals/${facility.slug}`}
+                        variant="icon"
+                        stopPropagation
+                      />
                     </div>
                   </div>
                 </Link>
