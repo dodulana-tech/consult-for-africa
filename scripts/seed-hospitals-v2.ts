@@ -234,13 +234,12 @@ const STATE_HOSPITALS: FacilitySeed[] = [
 const PRIVATE_HOSPITALS: FacilitySeed[] = [
   // Lagos - Major
   { name: "Reddington Hospital", type: "PRIVATE_TERTIARY", state: "Lagos", city: "Lagos" },
-  { name: "Lagoon Hospital (Hygeia)", type: "PRIVATE_TERTIARY", state: "Lagos", city: "Lagos" },
+  { name: "Iwosan Lagoon Hospitals (formerly Lagoon Hospital)", type: "PRIVATE_TERTIARY", state: "Lagos", city: "Lagos" },
   { name: "EKO Hospital", type: "PRIVATE_TERTIARY", state: "Lagos", city: "Lagos" },
   { name: "St. Nicholas Hospital", type: "PRIVATE_TERTIARY", state: "Lagos", city: "Lagos" },
   { name: "First Consultants Medical Centre", type: "PRIVATE_TERTIARY", state: "Lagos", city: "Lagos" },
   { name: "Duchess International Hospital", type: "PRIVATE_TERTIARY", state: "Lagos", city: "Lagos" },
   { name: "Evercare Hospital Lagos", type: "PRIVATE_TERTIARY", state: "Lagos", city: "Lagos" },
-  { name: "Iwosan Lagoon Hospitals Lekki", type: "PRIVATE_TERTIARY", state: "Lagos", city: "Lagos" },
   { name: "Iwosan Lagoon Hospitals Ikoyi", type: "PRIVATE_TERTIARY", state: "Lagos", city: "Lagos" },
   { name: "Iwosan Lagoon Hospitals Ikeja", type: "PRIVATE_TERTIARY", state: "Lagos", city: "Lagos" },
   { name: "Iwosan Lagoon Hospitals Victoria Island", type: "PRIVATE_TERTIARY", state: "Lagos", city: "Lagos" },
@@ -253,7 +252,7 @@ const PRIVATE_HOSPITALS: FacilitySeed[] = [
   { name: "Trucare Specialist Hospital", type: "PRIVATE_SECONDARY", state: "Lagos", city: "Lagos" },
   { name: "Havana Specialist Hospital", type: "PRIVATE_SECONDARY", state: "Lagos", city: "Lagos" },
   { name: "Rainbow Specialist Medical Centre", type: "PRIVATE_SECONDARY", state: "Lagos", city: "Lagos" },
-  { name: "Gold Cross Hospital Bourdillon Lagos", type: "PRIVATE_SECONDARY", state: "Lagos", city: "Lagos" },
+  { name: "Iwosan Lagoon Hospital Bourdillon Ikoyi Lagos", type: "PRIVATE_TERTIARY", state: "Lagos", city: "Lagos" },
   { name: "Optimal Cancer Care Foundation Lagos", type: "PRIVATE_SECONDARY", state: "Lagos", city: "Lagos" },
   { name: "Lagos Executive Cardiovascular Centre", type: "PRIVATE_TERTIARY", state: "Lagos", city: "Lagos" },
   { name: "Marcelle Ruth Cancer Centre Lagos", type: "PRIVATE_SECONDARY", state: "Lagos", city: "Lagos" },
@@ -279,7 +278,7 @@ const PRIVATE_HOSPITALS: FacilitySeed[] = [
   { name: "Isolo Specialist Hospital", type: "PRIVATE_SECONDARY", state: "Lagos", city: "Lagos" },
   { name: "City Hospital Lagos", type: "PRIVATE_SECONDARY", state: "Lagos", city: "Lagos" },
   { name: "Eti-Osa Maternal and Child Centre Ajah", type: "PRIVATE_CLINIC", state: "Lagos", city: "Lagos" },
-  { name: "Lagoon Hospital Apapa", type: "PRIVATE_SECONDARY", state: "Lagos", city: "Lagos" },
+  { name: "Iwosan Lagoon Hospitals Apapa", type: "PRIVATE_TERTIARY", state: "Lagos", city: "Lagos" },
   // FCT Abuja
   { name: "Cedarcrest Hospitals Abuja", type: "PRIVATE_TERTIARY", state: "FCT Abuja", city: "Abuja" },
   { name: "Nizamiye Hospital Abuja", type: "PRIVATE_TERTIARY", state: "FCT Abuja", city: "Abuja" },

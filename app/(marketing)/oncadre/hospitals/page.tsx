@@ -110,11 +110,16 @@ interface PageProps {
 export default async function HospitalDirectoryPage({ searchParams }: PageProps) {
   const filters = await searchParams;
 
-  const where: Record<string, unknown> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const where: any = {};
   if (filters.state) where.state = filters.state;
   if (filters.type) where.type = filters.type;
   if (filters.q) {
-    where.name = { contains: filters.q, mode: "insensitive" };
+    where.OR = [
+      { name: { contains: filters.q, mode: "insensitive" } },
+      { city: { contains: filters.q, mode: "insensitive" } },
+      { state: { contains: filters.q, mode: "insensitive" } },
+    ];
   }
 
   const facilities = await prisma.cadreFacility.findMany({
