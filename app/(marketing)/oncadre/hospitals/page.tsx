@@ -135,7 +135,6 @@ export default async function HospitalDirectoryPage({ searchParams }: PageProps)
   // Aggregate stats for social proof
   const totalReviewsAcross = facilities.reduce((sum, f) => sum + f.totalReviews, 0);
   const reviewedFacilities = facilities.filter((f) => f.totalReviews > 0).length;
-  const statesRepresented = new Set(facilities.map((f) => f.state)).size;
 
   // JSON-LD: ItemList
   const jsonLd = {
@@ -309,7 +308,7 @@ export default async function HospitalDirectoryPage({ searchParams }: PageProps)
               }}
             >
               <p className="text-2xl font-bold text-white sm:text-3xl">
-                {statesRepresented}
+                36 + FCT
               </p>
               <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-white/40">
                 States covered
