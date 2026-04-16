@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
       salesExperience: salesExperience ? parseInt(salesExperience) : null,
       referralSource: referralSource?.trim() || null,
       status: "APPLIED",
-      isPortalEnabled: true,
+      isPortalEnabled: false,
       emailVerifyToken: verificationToken,
     },
     select: { id: true, firstName: true, email: true },

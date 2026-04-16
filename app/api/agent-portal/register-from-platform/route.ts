@@ -60,9 +60,9 @@ export async function POST() {
       firstName,
       lastName,
       location: user.consultantProfile?.location ?? null,
-      status: "APPROVED",
+      status: "APPLIED",
       emailVerified: true,
-      isPortalEnabled: true,
+      isPortalEnabled: false,
     },
   });
 
