@@ -104,7 +104,7 @@ function renderStars(rating: number) {
 /* ─── Page ─────────────────────────────────────────────────────────────────── */
 
 interface PageProps {
-  searchParams: Promise<{ state?: string; type?: string }>;
+  searchParams: Promise<{ state?: string; type?: string; q?: string }>;
 }
 
 export default async function HospitalDirectoryPage({ searchParams }: PageProps) {
@@ -113,6 +113,9 @@ export default async function HospitalDirectoryPage({ searchParams }: PageProps)
   const where: Record<string, unknown> = {};
   if (filters.state) where.state = filters.state;
   if (filters.type) where.type = filters.type;
+  if (filters.q) {
+    where.name = { contains: filters.q, mode: "insensitive" };
+  }
 
   const facilities = await prisma.cadreFacility.findMany({
     where,
@@ -369,15 +372,17 @@ export default async function HospitalDirectoryPage({ searchParams }: PageProps)
           facilityTypes={FACILITY_TYPE_OPTIONS}
           currentState={filters.state}
           currentType={filters.type}
+          currentQuery={filters.q}
         />
 
         {/* Results count */}
         <p className="mb-5 text-sm text-gray-500">
           {facilities.length} {facilities.length === 1 ? "facility" : "facilities"} found
-          {(filters.state || filters.type) && (
+          {(filters.state || filters.type || filters.q) && (
             <span className="text-gray-400">
-              {" "}{filters.state ? `in ${filters.state}` : ""}
-              {filters.state && filters.type ? ", " : ""}
+              {filters.q ? ` matching "${filters.q}"` : ""}
+              {filters.state ? ` in ${filters.state}` : ""}
+              {(filters.state || filters.q) && filters.type ? ", " : ""}
               {filters.type ? FACILITY_TYPE_LABELS[filters.type] || filters.type : ""}
             </span>
           )}
