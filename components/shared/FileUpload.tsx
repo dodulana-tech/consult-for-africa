@@ -86,9 +86,11 @@ export default function FileUpload({
           throw new Error(data?.error ?? `Upload failed (${res.status})`);
         }
 
-        const { uploadUrl, key, publicUrl } = await res.json();
+        const { uploadUrl, key, publicUrl, contentType: resolvedContentType } = await res.json();
 
         // Step 2: Upload directly to R2 via presigned URL with progress tracking
+        // Use the server-resolved content type so the PUT matches the presigned URL
+        const uploadContentType = resolvedContentType || file.type || "application/octet-stream";
         await new Promise<void>((resolve, reject) => {
           const xhr = new XMLHttpRequest();
 
@@ -111,7 +113,7 @@ export default function FileUpload({
           xhr.addEventListener("abort", () => reject(new Error("Upload cancelled")));
 
           xhr.open("PUT", uploadUrl);
-          xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
+          xhr.setRequestHeader("Content-Type", uploadContentType);
           xhr.send(file);
         });
 
@@ -121,7 +123,8 @@ export default function FileUpload({
         onUpload({ key, url: publicUrl, filename: file.name });
       } catch (err) {
         console.error("File upload failed:", err);
-        setError("Upload failed. Please check your connection and try again.");
+        const message = err instanceof Error ? err.message : "Upload failed";
+        setError(message || "Upload failed. Please check your connection and try again.");
         setState("error");
       }
     },

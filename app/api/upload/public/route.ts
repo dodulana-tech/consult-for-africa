@@ -4,8 +4,17 @@ import { generateUploadUrl, buildKey, getPublicUrl } from "@/lib/r2";
 const ALLOWED_CONTENT_TYPES: Record<string, string> = {
   "application/pdf": "pdf",
   "application/msword": "doc",
+  "application/x-msword": "doc",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
   "text/plain": "txt",
+};
+
+/** Map file extensions to canonical MIME types for reliable detection */
+const EXT_TO_MIME: Record<string, string> = {
+  ".pdf": "application/pdf",
+  ".doc": "application/msword",
+  ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ".txt": "text/plain",
 };
 
 const PUBLIC_FOLDERS = ["cvs", "documents"] as const;
@@ -95,23 +104,32 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Resolve content type: trust allowlist first, fall back to extension-based detection
+  let resolvedContentType = contentType;
   if (!ALLOWED_CONTENT_TYPES[contentType]) {
-    return Response.json(
-      { error: "File type not allowed. Accepted: PDF, DOC, DOCX, TXT" },
-      { status: 415 }
-    );
+    const ext = `.${filename.split(".").pop()?.toLowerCase()}`;
+    const extMime = EXT_TO_MIME[ext];
+    if (extMime) {
+      resolvedContentType = extMime;
+    } else {
+      return Response.json(
+        { error: "File type not allowed. Accepted: PDF, DOC, DOCX, TXT" },
+        { status: 415 }
+      );
+    }
   }
 
   const key = buildKey(folder, filename);
 
   try {
-    const uploadUrl = await generateUploadUrl(key, contentType, 600, typeof fileSize === "number" ? fileSize : undefined);
+    const uploadUrl = await generateUploadUrl(key, resolvedContentType, 600, typeof fileSize === "number" ? fileSize : undefined);
     const publicUrl = await getPublicUrl(key);
 
     return Response.json({
       uploadUrl,
       key,
       publicUrl,
+      contentType: resolvedContentType,
       maxSizeMB: MAX_FILE_SIZE_MB,
     });
   } catch (err) {

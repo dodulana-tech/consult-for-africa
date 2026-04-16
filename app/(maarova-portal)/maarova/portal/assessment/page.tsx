@@ -1,7 +1,75 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import Link from "next/link";
+
+async function beginAssessmentAction() {
+  "use server";
+  const auth = await getMaarovaSession();
+  if (!auth) redirect("/maarova/portal/login");
+
+  const user = await prisma.maarovaUser.findUnique({
+    where: { id: auth.sub },
+    include: { organisation: true },
+  });
+  if (!user || !user.organisation) {
+    redirect("/maarova/portal/assessment?error=no-org");
+  }
+
+  const org = user.organisation;
+  if (org.usedAssessments >= org.maxAssessments) {
+    redirect("/maarova/portal/assessment?error=no-slots");
+  }
+
+  const existing = await prisma.maarovaAssessmentSession.findFirst({
+    where: {
+      userId: user.id,
+      status: { in: ["NOT_STARTED", "IN_PROGRESS"] },
+      expiresAt: { gt: new Date() },
+    },
+  });
+  if (existing) {
+    revalidatePath("/maarova/portal/assessment");
+    redirect("/maarova/portal/assessment");
+  }
+
+  const modules = await prisma.maarovaModule.findMany({
+    where: { isActive: true },
+    orderBy: { order: "asc" },
+  });
+  if (modules.length === 0) {
+    redirect("/maarova/portal/assessment?error=no-modules");
+  }
+
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 7);
+
+  await prisma.$transaction([
+    prisma.maarovaAssessmentSession.create({
+      data: {
+        userId: user.id,
+        status: "NOT_STARTED",
+        sessionType: "full",
+        stream: org.stream,
+        expiresAt,
+        moduleResponses: {
+          create: modules.map((mod) => ({
+            moduleId: mod.id,
+            status: "NOT_STARTED",
+          })),
+        },
+      },
+    }),
+    prisma.maarovaOrganisation.update({
+      where: { id: org.id },
+      data: { usedAssessments: { increment: 1 } },
+    }),
+  ]);
+
+  revalidatePath("/maarova/portal/assessment");
+  redirect("/maarova/portal/assessment");
+}
 
 const statusConfig: Record<
   string,
@@ -155,7 +223,7 @@ export default async function AssessmentLauncherPage() {
             minutes to complete. You have 7 days from when you start, and you
             can save your progress at any time.
           </p>
-          <form action="/api/maarova/sessions" method="POST">
+          <form action={beginAssessmentAction}>
             <BeginAssessmentButton />
           </form>
         </div>
