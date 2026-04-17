@@ -61,7 +61,26 @@ export default function RegisterForm() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Registration failed");
+      if (!res.ok) {
+        // Auto-retry once on server errors
+        if (res.status >= 500 && !retried) {
+          retried = true;
+          await new Promise((r) => setTimeout(r, 1500));
+          const retry = await fetch("/api/cadre/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...form,
+              yearsOfExperience: parseInt(form.yearsOfExperience) || 0,
+            }),
+          });
+          const retryData = await retry.json();
+          if (!retry.ok) throw new Error(retryData.error || "Registration failed");
+          router.push("/oncadre/dashboard");
+          return;
+        }
+        throw new Error(data.error || "Registration failed");
+      }
       router.push("/oncadre/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");

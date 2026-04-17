@@ -170,9 +170,19 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error("CadreHealth registration error:", error);
+    const isDbError = error instanceof Error && (
+      error.message.includes("Can't reach database") ||
+      error.message.includes("Connection") ||
+      error.message.includes("ECONNREFUSED") ||
+      error.message.includes("timeout")
+    );
     return NextResponse.json(
-      { error: "Registration failed. Please try again." },
-      { status: 500 }
+      {
+        error: isDbError
+          ? "Our servers are experiencing high traffic. Please try again in a minute."
+          : "Registration failed. Please try again.",
+      },
+      { status: isDbError ? 503 : 500 }
     );
   }
 }
