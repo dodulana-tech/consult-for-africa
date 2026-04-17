@@ -21,7 +21,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://cdn.sanity.io https://images.unsplash.com",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.sanity.io https://*.api.sanity.io https://*.r2.cloudflarestorage.com",
+      "connect-src 'self' https://*.sanity.io https://*.api.sanity.io https://*.r2.cloudflarestorage.com https://cfa-uploads.*.r2.cloudflarestorage.com",
       "media-src 'self' blob:",
       "frame-ancestors 'none'",
       "base-uri 'self'",
