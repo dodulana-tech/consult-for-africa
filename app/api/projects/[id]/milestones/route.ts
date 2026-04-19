@@ -34,5 +34,14 @@ export async function POST(
     },
   });
 
+  await prisma.engagementUpdate.create({
+    data: {
+      engagementId: id,
+      content: `Milestone created: ${name.trim()}`,
+      type: "GENERAL",
+      createdById: session.user.id,
+    },
+  });
+
   return Response.json({ milestone: JSON.parse(JSON.stringify(milestone)) }, { status: 201 });
 }

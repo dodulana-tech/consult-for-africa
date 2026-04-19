@@ -34,7 +34,17 @@ export async function POST(
   const updated = await prisma.deliverable.update({
     where: { id },
     data: { status: "DELIVERED_TO_CLIENT" },
-    select: { id: true, name: true, status: true },
+    select: { id: true, name: true, status: true, engagementId: true },
+  });
+
+  await prisma.engagementUpdate.create({
+    data: {
+      engagementId: updated.engagementId,
+      content: `Deliverable delivered to client: ${updated.name}`,
+      type: "GENERAL",
+      clientVisible: true,
+      createdById: session.user.id,
+    },
   });
 
   return Response.json({ ok: true, deliverable: updated });

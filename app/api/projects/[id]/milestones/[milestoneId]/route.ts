@@ -34,6 +34,19 @@ export async function PATCH(
     data: updateData,
   });
 
+  if (body.status) {
+    await prisma.engagementUpdate.create({
+      data: {
+        engagementId: id,
+        content: body.status === "COMPLETED"
+          ? `Milestone completed: ${updated.name}`
+          : `Milestone "${updated.name}" moved to ${body.status.replace(/_/g, " ")}`,
+        type: body.status === "COMPLETED" ? "MILESTONE_COMPLETED" : "GENERAL",
+        createdById: session.user.id,
+      },
+    });
+  }
+
   return Response.json({ milestone: JSON.parse(JSON.stringify(updated)) });
 }
 

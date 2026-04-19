@@ -50,5 +50,21 @@ export async function PATCH(
     select: { id: true, status: true, riskLevel: true, healthScore: true },
   });
 
+  // Log activity
+  const parts: string[] = [];
+  if (status) parts.push(`Status changed to ${status.replace(/_/g, " ")}`);
+  if (riskLevel) parts.push(`Risk level set to ${riskLevel}`);
+  if (healthScore !== undefined) parts.push(`Health score updated to ${healthScore}/10`);
+  if (parts.length > 0) {
+    await prisma.engagementUpdate.create({
+      data: {
+        engagementId: id,
+        content: parts.join(". "),
+        type: status === "AT_RISK" ? "ISSUE" : "GENERAL",
+        createdById: session.user.id,
+      },
+    });
+  }
+
   return Response.json({ ok: true, project: updated });
 }

@@ -64,6 +64,19 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     details: status ? { before: oldStatus, after: status } : undefined,
   });
 
+  if (status) {
+    await prisma.engagementUpdate.create({
+      data: {
+        engagementId: projectId,
+        content: status === "COMPLETED"
+          ? `Phase completed: ${phase.name}`
+          : `Phase "${phase.name}" moved to ${status.replace(/_/g, " ")}`,
+        type: status === "COMPLETED" ? "MILESTONE_COMPLETED" : "GENERAL",
+        createdById: session.user.id,
+      },
+    });
+  }
+
   return Response.json({
     ok: true,
     phase: {

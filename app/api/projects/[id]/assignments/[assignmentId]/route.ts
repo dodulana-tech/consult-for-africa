@@ -62,8 +62,19 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   const updated = await prisma.assignment.update({
     where: { id: assignmentId },
     data: updates,
-    select: { id: true, status: true, role: true, rateAmount: true, rateType: true, rateCurrency: true },
+    select: { id: true, status: true, role: true, rateAmount: true, rateType: true, rateCurrency: true, consultant: { select: { name: true } } },
   });
+
+  if (status) {
+    await prisma.engagementUpdate.create({
+      data: {
+        engagementId: id,
+        content: `${updated.consultant?.name ?? "Consultant"} assignment ${status === "COMPLETED" ? "completed" : `moved to ${status.replace(/_/g, " ")}`}`,
+        type: "TEAM_CHANGE",
+        createdById: session.user.id,
+      },
+    });
+  }
 
   return Response.json({
     ok: true,

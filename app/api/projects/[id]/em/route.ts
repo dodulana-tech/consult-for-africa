@@ -44,5 +44,14 @@ export async function PATCH(
     },
   });
 
+  await prisma.engagementUpdate.create({
+    data: {
+      engagementId: projectId,
+      content: `Engagement Manager reassigned to ${newEM.name}`,
+      type: "TEAM_CHANGE",
+      createdById: session.user.id,
+    },
+  });
+
   return Response.json({ ok: true, project });
 }
