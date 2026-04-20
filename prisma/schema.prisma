@@ -3691,7 +3691,7 @@ model CadreProfessional {
   summary                String?                 @db.Text // AI-generated or manual professional summary
 
   // Recruitment pipeline
-  recruitmentStage       String?                 // SCREENING, INTERVIEW_SCHEDULED, INTERVIEW_DONE, OFFER, PLACED, REJECTED
+  recruitmentStage       String?                 // SCREENING, SHORTLISTED, INTERVIEW_SCHEDULED, INTERVIEW_DONE, OFFER, PLACED, REJECTED
   recruitmentNotes       String?                 @db.Text
   interviewDate          DateTime?
 
