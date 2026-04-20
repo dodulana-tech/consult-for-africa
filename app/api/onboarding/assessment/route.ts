@@ -56,16 +56,22 @@ export async function POST(req: NextRequest) {
     return new Response("At least one valid skill score is required", { status: 400 });
   }
 
-  // Store assessment data in user notification preferences (or a dedicated field)
-  // For now, store in the consultant profile's interests as JSON metadata
-  // Better approach: store as JSON in the onboarding record via a raw query
-  // We will use the User's notificationPreferences to store this temporarily
+  // Store assessment scores merged into existing notificationPreferences
+  // so we don't overwrite any notification settings the user already has
+  const currentUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { notificationPreferences: true },
+  });
+
+  const existingPrefs =
+    typeof currentUser?.notificationPreferences === "object" && currentUser.notificationPreferences !== null
+      ? currentUser.notificationPreferences
+      : {};
+
   await prisma.user.update({
     where: { id: userId },
     data: {
-      notificationPreferences: {
-        selfAssessment: validatedScores,
-      },
+      notificationPreferences: { ...existingPrefs, selfAssessment: validatedScores },
     },
   });
 

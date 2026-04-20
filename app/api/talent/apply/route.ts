@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Duplicate check - return generic success to prevent email enumeration
-  const existing = await prisma.talentApplication.findUnique({ where: { email } });
+  const existing = await prisma.talentApplication.findUnique({ where: { email: email.trim().toLowerCase() } });
   if (existing) {
     return Response.json({
       status: "SUBMITTED",
@@ -187,38 +187,47 @@ Return ONLY valid JSON matching this exact structure:
     // Continue without AI screening - do not block submission
   }
 
-  const application = await prisma.talentApplication.create({
-    data: {
-      firstName,
-      lastName,
-      email,
-      phone: phone ?? null,
-      linkedinUrl: linkedinUrl ?? null,
-      location,
-      specialty,
-      track: applicantTrack,
-      yearsExperience: Number(yearsExperience) || 0,
-      currentRole: currentRole ?? null,
-      currentOrg: currentOrg ?? null,
-      workAuthorization: workAuthorization ?? "nigerian_citizen",
-      cvText: cvText ?? null,
-      cvFileUrl: cvFileUrl ?? null,
-      coverLetter: coverLetter ?? null,
-      availableFrom: availableFrom ? new Date(availableFrom) : null,
-      engagementTypes: engagementTypes ?? [],
-      university: university ?? null,
-      programme: programme ?? null,
-      yearOfStudy: yearOfStudy ?? null,
-      siwesEligible: !!siwesEligible,
-      aiScore,
-      aiScoreBreakdown: aiScoreBreakdown ?? undefined,
-      aiSummary,
-      aiStrengths,
-      aiConcerns,
-      aiRecommendation,
-      status: aiScore !== null ? "AI_SCREENED" : "SUBMITTED",
-    },
-  });
+  let application;
+  try {
+    application = await prisma.talentApplication.create({
+      data: {
+        firstName,
+        lastName,
+        email: email.trim().toLowerCase(),
+        phone: phone ?? null,
+        linkedinUrl: linkedinUrl ?? null,
+        location,
+        specialty,
+        track: applicantTrack,
+        yearsExperience: Number(yearsExperience) || 0,
+        currentRole: currentRole ?? null,
+        currentOrg: currentOrg ?? null,
+        workAuthorization: workAuthorization ?? "nigerian_citizen",
+        cvText: cvText ?? null,
+        cvFileUrl: cvFileUrl ?? null,
+        coverLetter: coverLetter ?? null,
+        availableFrom: availableFrom ? new Date(availableFrom) : null,
+        engagementTypes: engagementTypes ?? [],
+        university: university ?? null,
+        programme: programme ?? null,
+        yearOfStudy: yearOfStudy ?? null,
+        siwesEligible: !!siwesEligible,
+        aiScore,
+        aiScoreBreakdown: aiScoreBreakdown ?? undefined,
+        aiSummary,
+        aiStrengths,
+        aiConcerns,
+        aiRecommendation,
+        status: aiScore !== null ? "AI_SCREENED" : "SUBMITTED",
+      },
+    });
+  } catch (err) {
+    console.error("[talent/apply] Failed to save application:", err);
+    return Response.json(
+      { error: "Something went wrong saving your application. Please try again." },
+      { status: 500 }
+    );
+  }
 
   return Response.json({
     id: application.id,

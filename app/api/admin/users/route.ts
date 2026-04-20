@@ -47,15 +47,17 @@ export async function POST(req: NextRequest) {
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
   if (!isAdmin) return new Response("Forbidden", { status: 403 });
 
-  const { name, email, role, sendWelcomeEmail, assessmentLevel } = await req.json();
+  const { name, email: rawEmail, role, sendWelcomeEmail, assessmentLevel } = await req.json();
 
-  if (!name?.trim() || !email?.trim() || !role) {
+  if (!name?.trim() || !rawEmail?.trim() || !role) {
     return new Response("name, email, and role are required", { status: 400 });
   }
 
   if (!VALID_ROLES.includes(role)) {
     return new Response("Invalid role", { status: 400 });
   }
+
+  const email = rawEmail.trim().toLowerCase();
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return new Response("Email already registered", { status: 409 });
@@ -65,7 +67,7 @@ export async function POST(req: NextRequest) {
   const passwordHash = await bcrypt.hash(tempPassword, 12);
 
   const user = await prisma.user.create({
-    data: { name, email, role, passwordHash },
+    data: { name: name.trim(), email, role, passwordHash },
     select: { id: true, name: true, email: true, role: true, createdAt: true },
   });
 
@@ -90,11 +92,13 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  let emailFailed = false;
   if (sendWelcomeEmail !== false) {
     try {
-      await sendInvite(email, name, role, tempPassword);
+      await sendInvite(email, name.trim(), role, tempPassword);
     } catch (err) {
       console.error("Failed to send invite email:", err);
+      emailFailed = true;
     }
   }
 
@@ -108,7 +112,11 @@ export async function POST(req: NextRequest) {
   });
 
   // Never return the temp password in the response body
-  return Response.json({ ok: true, user: { ...user, createdAt: user.createdAt.toISOString() } }, { status: 201 });
+  return Response.json({
+    ok: true,
+    user: { ...user, createdAt: user.createdAt.toISOString() },
+    ...(emailFailed && { warning: "User created but invite email failed to send. Use 'Resend Invite' to retry." }),
+  }, { status: 201 });
 }
 
 export async function PATCH(req: NextRequest) {
@@ -166,9 +174,10 @@ export async function PATCH(req: NextRequest) {
     const updateData: Record<string, string> = {};
     if (name?.trim()) updateData.name = name.trim();
     if (email?.trim()) {
-      const existing = await prisma.user.findFirst({ where: { email: email.trim(), NOT: { id: userId } } });
+      const normalizedEmail = email.trim().toLowerCase();
+      const existing = await prisma.user.findFirst({ where: { email: normalizedEmail, NOT: { id: userId } } });
       if (existing) return new Response("Email already in use by another user", { status: 409 });
-      updateData.email = email.trim();
+      updateData.email = normalizedEmail;
     }
 
     if (Object.keys(updateData).length === 0) return new Response("No fields to update", { status: 400 });

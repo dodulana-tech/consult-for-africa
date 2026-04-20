@@ -39,7 +39,7 @@ const inputStyle = { borderColor: "#e5eaf0" };
 export default function AdminUsersManager({ users: initialUsers, currentUserId }: { users: UserRow[]; currentUserId: string }) {
   const [users, setUsers] = useState(initialUsers);
   const [showInvite, setShowInvite] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", role: "CONSULTANT" });
+  const [form, setForm] = useState({ name: "", email: "", role: "CONSULTANT", assessmentLevel: "STANDARD" });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
@@ -77,8 +77,9 @@ export default function AdminUsersManager({ users: initialUsers, currentUserId }
       }
       const data = await res.json();
       setUsers((prev) => [data.user, ...prev]);
-      setSuccess(`${form.name} invited successfully. Login credentials have been sent to ${form.email}.`);
-      setForm({ name: "", email: "", role: "CONSULTANT" });
+      const warningNote = data.warning ? ` Note: ${data.warning}` : "";
+      setSuccess(`${form.name} invited successfully. Login credentials have been sent to ${form.email}.${warningNote}`);
+      setForm({ name: "", email: "", role: "CONSULTANT", assessmentLevel: "STANDARD" });
       setShowInvite(false);
     } catch {
       setError("Network error. Please try again.");
@@ -279,6 +280,18 @@ export default function AdminUsersManager({ users: initialUsers, currentUserId }
                   {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
                 </select>
               </div>
+              {form.role === "CONSULTANT" && (
+                <div>
+                  <label className="text-xs font-medium text-gray-500 block mb-1">Assessment Level</label>
+                  <select value={form.assessmentLevel} onChange={(e) => setField("assessmentLevel", e.target.value)}
+                    className={inputClass} style={inputStyle}>
+                    <option value="LIGHT">Light (profile only)</option>
+                    <option value="STANDARD">Standard (profile + assessment)</option>
+                    <option value="MAAROVA">Maarova assessment only</option>
+                    <option value="FULL">Full (profile + assessment + Maarova)</option>
+                  </select>
+                </div>
+              )}
             </div>
             <p className="text-xs text-gray-400">
               A welcome email with a temporary password will be sent automatically.

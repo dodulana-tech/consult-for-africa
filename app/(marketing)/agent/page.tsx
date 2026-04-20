@@ -3,9 +3,12 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Become a Sales Agent | C4A Agent Channel",
   description: "Sell healthcare products to people you already know. Commission-based. No startup cost. No cap on earnings.",
+  keywords: ["healthcare sales agent Nigeria", "commission-based sales healthcare", "become a sales agent", "healthcare product sales", "agent channel Nigeria", "earn commission healthcare"],
   openGraph: {
     title: "Become a Sales Agent | C4A Agent Channel",
     description: "Sell healthcare products to people you already know. Get paid for every deal.",
@@ -23,11 +26,16 @@ function formatCommission(type: string, value: number): string {
 }
 
 export default async function AgentPage() {
-  const opportunities = await prisma.agentOpportunity.findMany({
-    where: { status: "OPEN" },
-    orderBy: { createdAt: "desc" },
-    take: 10,
-  });
+  let opportunities: Awaited<ReturnType<typeof prisma.agentOpportunity.findMany>> = [];
+  try {
+    opportunities = await prisma.agentOpportunity.findMany({
+      where: { status: "OPEN" },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+    });
+  } catch (err) {
+    console.error("[agent] Failed to fetch opportunities:", err);
+  }
 
   return (
     <main>

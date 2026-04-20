@@ -3,7 +3,7 @@ import { getCadreLabel } from "@/lib/cadreHealth/cadres";
 import Link from "next/link";
 import type { Metadata } from "next";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 import type { CadreMandateType, CadreProfessionalCadre } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
@@ -11,10 +11,27 @@ export const metadata: Metadata = {
   title: "Healthcare Jobs in Nigeria | CadreHealth",
   description:
     "Browse open healthcare positions across Nigeria. Permanent, locum, and contract roles for doctors, nurses, pharmacists, and all cadres.",
+  keywords: [
+    "healthcare jobs Nigeria",
+    "doctor jobs Nigeria",
+    "nurse jobs Nigeria",
+    "pharmacist jobs Nigeria",
+    "locum jobs Nigeria",
+    "hospital jobs Lagos",
+    "medical officer vacancy Nigeria",
+    "healthcare careers Nigeria",
+    "allied health jobs Nigeria",
+    "CadreHealth jobs",
+  ],
+  alternates: {
+    canonical: "https://consultforafrica.com/oncadre/jobs",
+  },
   openGraph: {
     title: "Healthcare Jobs in Nigeria | CadreHealth",
     description:
       "Browse open healthcare positions across Nigeria. Find your next role on CadreHealth.",
+    type: "website",
+    images: ["/og-image.jpg"],
   },
 };
 

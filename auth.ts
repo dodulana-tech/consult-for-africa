@@ -31,6 +31,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const user = await prisma.user.findUnique({
           where: { email },
+          include: { onboarding: { select: { status: true } } },
         });
 
         if (!user?.passwordHash) return null;
@@ -48,6 +49,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name: user.name,
           role: user.role,
           avatarUrl: user.avatarUrl,
+          onboardingStatus: user.onboarding?.status ?? null,
         };
       },
     }),
@@ -58,6 +60,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id;
         token.role = (user as { role: string }).role;
         token.avatarUrl = (user as { avatarUrl?: string }).avatarUrl;
+        token.onboardingStatus = (user as { onboardingStatus?: string | null }).onboardingStatus ?? null;
       }
       return token;
     },
@@ -65,6 +68,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user.id = token.id as string;
       session.user.role = token.role as string;
       session.user.avatarUrl = token.avatarUrl as string | undefined;
+      session.user.onboardingStatus = token.onboardingStatus as string | null;
       return session;
     },
   },

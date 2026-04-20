@@ -4,6 +4,8 @@ import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 import { getCadreLabel } from "@/lib/cadreHealth/cadres";
 
+export const dynamic = "force-dynamic";
+
 const STATUS_STYLES: Record<
   string,
   { bg: string; color: string; label: string }

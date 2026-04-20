@@ -27,8 +27,8 @@ export async function PATCH(req: NextRequest) {
   }
 
   if (action === "approve") {
-    if (onboarding.status !== "REVIEW") {
-      return new Response("Can only approve consultants in REVIEW status", { status: 400 });
+    if (!["REVIEW", "ASSESSMENT_COMPLETE", "PROFILE_SETUP"].includes(onboarding.status)) {
+      return new Response("Cannot approve consultant in current status", { status: 400 });
     }
 
     await prisma.consultantOnboarding.update({
@@ -53,7 +53,7 @@ export async function PATCH(req: NextRequest) {
   }
 
   if (action === "reject") {
-    if (!["REVIEW", "ASSESSMENT_COMPLETE", "PROFILE_SETUP"].includes(onboarding.status)) {
+    if (!["REVIEW", "ASSESSMENT_COMPLETE", "PROFILE_SETUP", "ASSESSMENT_PENDING", "INVITED"].includes(onboarding.status)) {
       return new Response("Cannot reject consultant in current status", { status: 400 });
     }
 
@@ -78,5 +78,32 @@ export async function PATCH(req: NextRequest) {
     return Response.json({ ok: true });
   }
 
-  return new Response("Invalid action. Use 'approve' or 'reject'", { status: 400 });
+  if (action === "change-level") {
+    const { assessmentLevel } = body;
+    if (!["LIGHT", "STANDARD", "MAAROVA", "FULL"].includes(assessmentLevel)) {
+      return new Response("assessmentLevel must be LIGHT, STANDARD, MAAROVA, or FULL", { status: 400 });
+    }
+
+    if (["ACTIVE", "REJECTED"].includes(onboarding.status)) {
+      return new Response("Cannot change assessment level after onboarding is finalized", { status: 400 });
+    }
+
+    await prisma.consultantOnboarding.update({
+      where: { id },
+      data: { assessmentLevel },
+    });
+
+    await logAudit({
+      userId: session.user.id,
+      action: "UPDATE",
+      entityType: "ConsultantOnboarding",
+      entityId: id,
+      entityName: onboarding.user.name,
+      details: { assessmentLevel, previous: onboarding.assessmentLevel },
+    });
+
+    return Response.json({ ok: true });
+  }
+
+  return new Response("Invalid action. Use 'approve', 'reject', or 'change-level'", { status: 400 });
 }

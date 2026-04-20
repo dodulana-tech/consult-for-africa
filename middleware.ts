@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 
 const PLATFORM_ROUTES = ["/dashboard", "/projects", "/deliverables", "/consultants", "/clients", "/timesheets", "/settings", "/proposals", "/ai", "/admin", "/founder", "/talent", "/meetings"];
 const AUTH_ROUTES = ["/login"];
+const ONBOARDING_ROUTE = "/onboarding";
+const ONBOARDING_COMPLETE_STATUSES = ["ACTIVE", "ASSESSMENT_COMPLETE", "REVIEW"];
 
 export default auth((req) => {
   const { nextUrl, auth: session } = req;
@@ -19,6 +21,14 @@ export default auth((req) => {
     const role = session?.user?.role;
     const dest = role === "ACADEMY_LEARNER" ? "/academy" : "/dashboard";
     return NextResponse.redirect(new URL(dest, nextUrl));
+  }
+
+  // Redirect consultants with incomplete onboarding to /onboarding
+  if (isPlatformRoute && isLoggedIn && session?.user?.role === "CONSULTANT") {
+    const status = session?.user?.onboardingStatus;
+    if (status && !ONBOARDING_COMPLETE_STATUSES.includes(status)) {
+      return NextResponse.redirect(new URL(ONBOARDING_ROUTE, nextUrl));
+    }
   }
 
   return NextResponse.next();

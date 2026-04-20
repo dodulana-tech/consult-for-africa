@@ -3,6 +3,8 @@ import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 import MentorshipChat from "./MentorshipChat";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }

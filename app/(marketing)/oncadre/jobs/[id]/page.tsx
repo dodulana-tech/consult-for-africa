@@ -11,6 +11,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { Decimal } from "@prisma/client/runtime/library";
 
+export const dynamic = "force-dynamic";
+
 function formatSalary(min?: Decimal | null, max?: Decimal | null, currency?: string | null): string | null {
   if (!min && !max) return null;
   const cur = currency || "NGN";

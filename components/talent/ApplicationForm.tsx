@@ -129,8 +129,14 @@ export default function ApplicationForm() {
         }),
       });
       if (!res.ok) {
-        const msg = await res.text();
-        setError(msg || "Failed to submit application. Please try again.");
+        let msg = "Failed to submit application. Please try again.";
+        try {
+          const data = await res.json();
+          if (data?.error) msg = data.error;
+        } catch {
+          // Response wasn't JSON (e.g. raw HTML error page) -- use default message
+        }
+        setError(msg);
         return;
       }
       const data = await res.json();

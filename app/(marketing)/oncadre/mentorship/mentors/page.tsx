@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { getCadreLabel, CADRE_OPTIONS } from "@/lib/cadreHealth/cadres";
 import MentorFilters from "./MentorFilters";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Browse Mentors | CadreHealth Mentorship",
   description:

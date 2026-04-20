@@ -33,7 +33,7 @@ export default async function DashboardPage() {
       where: { userId },
       select: { status: true },
     });
-    if (onboarding && !["ACTIVE", "ASSESSMENT_COMPLETE"].includes(onboarding.status)) {
+    if (onboarding && !["ACTIVE", "ASSESSMENT_COMPLETE", "REVIEW"].includes(onboarding.status)) {
       redirect("/onboarding");
     }
   }
@@ -328,7 +328,7 @@ export default async function DashboardPage() {
               </>
             )}
             <div className="flex-1" />
-            <p className="text-xs text-white/40">Your CFA Impact</p>
+            <p className="text-xs text-white/40">Your C4A Impact</p>
           </div>
         )}
 

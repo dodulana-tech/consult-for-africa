@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const alt = "Job on CadreHealth";
 export const size = { width: 1200, height: 630 };

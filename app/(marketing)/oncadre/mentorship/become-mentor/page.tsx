@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { CADRE_OPTIONS } from "@/lib/cadreHealth/cadres";
 import BecomeMentorForm from "./BecomeMentorForm";
 
+export const dynamic = "force-dynamic";
+
 export default async function BecomeMentorPage() {
   const session = await getCadreSession();
   if (!session) redirect("/oncadre/login");

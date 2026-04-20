@@ -3,8 +3,38 @@
 import { useState } from "react";
 import {
   CheckCircle, XCircle, Loader2, ChevronRight, ArrowLeft,
-  Mail, Shield, User, Clock, AlertCircle,
+  Mail, User, Clock, AlertCircle, MapPin, Briefcase, CreditCard,
+  FileText, Star, ChevronDown, ExternalLink,
 } from "lucide-react";
+
+interface ProfileData {
+  title: string;
+  location: string;
+  specialties: string[];
+  primarySpecialty: string | null;
+  yearsExperience: number;
+  isDiaspora: boolean;
+  hoursPerWeek: number | null;
+  bio: string;
+  bankName: string | null;
+  accountName: string | null;
+  currency: string | null;
+  hasBanking: boolean;
+}
+
+interface ApplicationData {
+  specialty: string;
+  currentRole: string | null;
+  currentOrg: string | null;
+  cvFileUrl: string | null;
+  coverLetter: string | null;
+  aiScore: number | null;
+  aiSummary: string | null;
+  aiRecommendation: string | null;
+  aiStrengths: string[];
+  aiConcerns: string[];
+  track: string;
+}
 
 interface OnboardingRecord {
   id: string;
@@ -18,6 +48,8 @@ interface OnboardingRecord {
   applicationId: string | null;
   createdAt: string;
   approvedAt: string | null;
+  profile: ProfileData | null;
+  application: ApplicationData | null;
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
@@ -30,7 +62,19 @@ const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }>
   REJECTED: { bg: "#FEE2E2", text: "#991B1B", label: "Rejected" },
 };
 
-const STATUS_ORDER = ["INVITED", "PROFILE_SETUP", "ASSESSMENT_PENDING", "ASSESSMENT_COMPLETE", "REVIEW", "ACTIVE", "REJECTED"];
+const LEVEL_LABELS: Record<string, string> = {
+  LIGHT: "Light (profile only)",
+  STANDARD: "Standard (profile + assessment)",
+  MAAROVA: "Maarova assessment only",
+  FULL: "Full (profile + assessment + Maarova)",
+};
+
+const AI_RECOMMENDATION_STYLES: Record<string, { background: string; color: string }> = {
+  STRONG_YES: { background: "#DCFCE7", color: "#166534" },
+  YES: { background: "#D1FAE5", color: "#065F46" },
+  MAYBE: { background: "#FEF3C7", color: "#92400E" },
+  NO: { background: "#FEE2E2", color: "#991B1B" },
+};
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -45,6 +89,7 @@ export default function OnboardingTable({ records }: { records: OnboardingRecord
   const [filter, setFilter] = useState("all");
   const [error, setError] = useState("");
   const [resendSuccess, setResendSuccess] = useState<string | null>(null);
+  const [changingLevel, setChangingLevel] = useState(false);
 
   const filtered = filter === "all" ? items : items.filter((r) => r.status === filter);
   const selected = selectedId ? items.find((r) => r.id === selectedId) : null;
@@ -75,11 +120,34 @@ export default function OnboardingTable({ records }: { records: OnboardingRecord
         setRejectReason("");
         if (selectedId === id) setSelectedId(null);
       } else {
-        const text = await res.text();
-        setError(text || "Action failed. Try again.");
+        let msg = "Action failed. Try again.";
+        try { const d = await res.json(); if (d?.error) msg = d.error; } catch { msg = await res.text().catch(() => msg); }
+        setError(msg);
       }
     } finally {
       setActionLoading(null);
+    }
+  }
+
+  async function handleChangeLevel(id: string, level: string) {
+    setChangingLevel(true);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/onboarding", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action: "change-level", assessmentLevel: level }),
+      });
+      if (res.ok) {
+        setItems((prev) => prev.map((r) => (r.id === id ? { ...r, assessmentLevel: level } : r)));
+      } else {
+        const msg = await res.text().catch(() => "Failed to change level.");
+        setError(msg);
+      }
+    } catch {
+      setError("Network error.");
+    } finally {
+      setChangingLevel(false);
     }
   }
 
@@ -110,15 +178,20 @@ export default function OnboardingTable({ records }: { records: OnboardingRecord
     return !["ACTIVE", "REJECTED"].includes(status);
   }
 
-  // Detail view
+  function canChangeLevel(status: string) {
+    return !["ACTIVE", "REJECTED"].includes(status);
+  }
+
+  // ─── Detail View ───────────────────────────────────────────────────────────
   if (selected) {
     const style = STATUS_STYLES[selected.status] ?? STATUS_STYLES.INVITED;
-    const stepIndex = STATUS_ORDER.indexOf(selected.status);
+    const p = selected.profile;
+    const app = selected.application;
 
     return (
-      <div className="max-w-2xl">
+      <div className="max-w-3xl">
         <button
-          onClick={() => setSelectedId(null)}
+          onClick={() => { setSelectedId(null); setError(""); }}
           className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-4"
         >
           <ArrowLeft size={14} /> Back to list
@@ -130,52 +203,146 @@ export default function OnboardingTable({ records }: { records: OnboardingRecord
           </div>
         )}
 
-        {/* Header */}
+        {/* Header Card */}
         <div className="rounded-xl bg-white p-5 mb-4" style={{ border: "1px solid #e5eaf0" }}>
           <div className="flex items-start justify-between mb-4">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">{selected.userName}</h2>
               <p className="text-sm text-gray-500">{selected.userEmail}</p>
+              {p?.title && p.title !== "Consultant" && (
+                <p className="text-xs text-gray-400 mt-0.5">{p.title}</p>
+              )}
             </div>
             <span className="px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: style.bg, color: style.text }}>
               {style.label}
             </span>
           </div>
 
+          {/* Key Info Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-4">
             <div>
-              <span className="text-gray-400 block">Assessment Level</span>
-              <span className="text-gray-700 font-medium">{selected.assessmentLevel}</span>
+              <span className="text-gray-400 block mb-0.5">Assessment Level</span>
+              {canChangeLevel(selected.status) ? (
+                <select
+                  value={selected.assessmentLevel}
+                  onChange={(e) => handleChangeLevel(selected.id, e.target.value)}
+                  disabled={changingLevel}
+                  className="text-xs font-medium text-gray-700 border rounded-md px-1.5 py-0.5 bg-white disabled:opacity-50"
+                  style={{ borderColor: "#e5eaf0" }}
+                >
+                  <option value="LIGHT">Light</option>
+                  <option value="STANDARD">Standard</option>
+                  <option value="MAAROVA">Maarova</option>
+                  <option value="FULL">Full</option>
+                </select>
+              ) : (
+                <span className="text-gray-700 font-medium">{selected.assessmentLevel}</span>
+              )}
             </div>
             <div>
-              <span className="text-gray-400 block">Invited</span>
+              <span className="text-gray-400 block mb-0.5">Invited</span>
               <span className="text-gray-700 font-medium">{formatDate(selected.createdAt)}</span>
             </div>
+            {p?.yearsExperience != null && p.yearsExperience > 0 && (
+              <div>
+                <span className="text-gray-400 block mb-0.5">Experience</span>
+                <span className="text-gray-700 font-medium">{p.yearsExperience} years</span>
+              </div>
+            )}
+            {p?.location && p.location !== "Nigeria" && (
+              <div>
+                <span className="text-gray-400 block mb-0.5">Location</span>
+                <span className="text-gray-700 font-medium flex items-center gap-1">
+                  <MapPin size={10} /> {p.location}
+                </span>
+              </div>
+            )}
             {selected.approvedAt && (
               <div>
-                <span className="text-gray-400 block">Approved</span>
+                <span className="text-gray-400 block mb-0.5">Approved</span>
                 <span className="text-gray-700 font-medium">{formatDate(selected.approvedAt)}</span>
               </div>
             )}
             {selected.applicationId && (
               <div>
-                <span className="text-gray-400 block">Source</span>
-                <span className="text-gray-700 font-medium">Careers Application</span>
+                <span className="text-gray-400 block mb-0.5">Source</span>
+                <span className="text-gray-700 font-medium">
+                  {app?.track === "INTERN" ? "Intern Application" :
+                   app?.track === "SIWES" ? "SIWES Application" :
+                   app?.track === "FELLOWSHIP" ? "Fellowship Application" :
+                   "Careers Application"}
+                </span>
+              </div>
+            )}
+            {p?.isDiaspora && (
+              <div>
+                <span className="text-gray-400 block mb-0.5">Diaspora</span>
+                <span className="text-blue-600 font-medium">Yes</span>
+              </div>
+            )}
+            {p?.hoursPerWeek != null && (
+              <div>
+                <span className="text-gray-400 block mb-0.5">Availability</span>
+                <span className="text-gray-700 font-medium">{p.hoursPerWeek}h/week</span>
               </div>
             )}
           </div>
 
-          {/* Progress */}
-          <div className="space-y-2 mb-4">
+          {/* Specialties */}
+          {p?.specialties && p.specialties.length > 0 && (
+            <div className="mb-4">
+              <span className="text-[10px] text-gray-400 uppercase tracking-wider font-medium block mb-1.5">Specialties</span>
+              <div className="flex flex-wrap gap-1.5">
+                {p.specialties.map((s) => (
+                  <span
+                    key={s}
+                    className="text-[11px] px-2 py-0.5 rounded-full font-medium"
+                    style={{
+                      background: s === p.primarySpecialty ? "#EFF6FF" : "#F3F4F6",
+                      color: s === p.primarySpecialty ? "#1E40AF" : "#6B7280",
+                      border: s === p.primarySpecialty ? "1px solid #BFDBFE" : "1px solid #E5E7EB",
+                    }}
+                  >
+                    {s === p.primarySpecialty && <Star size={8} className="inline mr-0.5 -mt-0.5" />}
+                    {s}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Bio */}
+          {p?.bio && p.bio.trim().length > 0 && (
+            <div className="mb-4">
+              <span className="text-[10px] text-gray-400 uppercase tracking-wider font-medium block mb-1">Bio</span>
+              <p className="text-xs text-gray-600 leading-relaxed">{p.bio}</p>
+            </div>
+          )}
+
+          {/* Progress Checklist */}
+          <div className="space-y-2 mb-4 pt-3" style={{ borderTop: "1px solid #F3F4F6" }}>
+            <span className="text-[10px] text-gray-400 uppercase tracking-wider font-medium block mb-2">Onboarding Progress</span>
+
             <div className="flex items-center gap-3">
               {selected.profileCompleted ? <CheckCircle size={16} className="text-green-500" /> : <XCircle size={16} className="text-gray-300" />}
-              <span className="text-sm text-gray-700">Profile completed</span>
+              <span className={`text-sm ${selected.profileCompleted ? "text-gray-700" : "text-gray-400"}`}>Profile completed</span>
             </div>
+
+            <div className="flex items-center gap-3">
+              {p?.hasBanking ? <CheckCircle size={16} className="text-green-500" /> : <XCircle size={16} className="text-gray-300" />}
+              <span className={`text-sm ${p?.hasBanking ? "text-gray-700" : "text-gray-400"}`}>
+                Banking details
+                {p?.hasBanking && p.bankName && (
+                  <span className="text-xs text-gray-400 ml-2">({p.bankName} - {p.currency ?? "NGN"})</span>
+                )}
+              </span>
+            </div>
+
             <div className="flex items-center gap-3">
               {selected.assessmentLevel === "LIGHT" ? (
                 <>
-                  <span className="text-xs text-gray-400 ml-5">N/A</span>
-                  <span className="text-sm text-gray-400">Assessment (not required for LIGHT)</span>
+                  <span className="w-4 h-4 flex items-center justify-center text-[10px] text-gray-300">--</span>
+                  <span className="text-sm text-gray-400">Assessment (not required for Light)</span>
                 </>
               ) : selected.assessmentCompleted ? (
                 <>
@@ -185,7 +352,7 @@ export default function OnboardingTable({ records }: { records: OnboardingRecord
               ) : (
                 <>
                   <XCircle size={16} className="text-gray-300" />
-                  <span className="text-sm text-gray-700">Assessment pending</span>
+                  <span className="text-sm text-gray-400">Assessment pending</span>
                 </>
               )}
             </div>
@@ -225,11 +392,107 @@ export default function OnboardingTable({ records }: { records: OnboardingRecord
             )}
           </div>
         </div>
+
+        {/* Application Data (from talent pipeline) */}
+        {app && (
+          <div className="rounded-xl bg-white p-5 mb-4" style={{ border: "1px solid #e5eaf0" }}>
+            <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <FileText size={14} /> Application Details
+            </h3>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs mb-4">
+              {app.currentRole && (
+                <div>
+                  <span className="text-gray-400 block mb-0.5">Current Role</span>
+                  <span className="text-gray-700 font-medium">{app.currentRole}</span>
+                </div>
+              )}
+              {app.currentOrg && (
+                <div>
+                  <span className="text-gray-400 block mb-0.5">Organisation</span>
+                  <span className="text-gray-700 font-medium">{app.currentOrg}</span>
+                </div>
+              )}
+              <div>
+                <span className="text-gray-400 block mb-0.5">Specialty</span>
+                <span className="text-gray-700 font-medium">{app.specialty}</span>
+              </div>
+            </div>
+
+            {/* AI Screening */}
+            {app.aiScore !== null && (
+              <div className="rounded-lg p-4 mb-3" style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Screening Score</span>
+                  {app.aiRecommendation && (
+                    <span
+                      className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                      style={AI_RECOMMENDATION_STYLES[app.aiRecommendation] ?? { background: "#F3F4F6", color: "#6B7280" }}
+                    >
+                      {app.aiRecommendation.replace("_", " ")}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-end gap-1 mb-2">
+                  <span className="text-2xl font-bold" style={{ color: "#0F2744" }}>{app.aiScore}</span>
+                  <span className="text-sm text-gray-400 mb-0.5">/100</span>
+                </div>
+                {app.aiSummary && (
+                  <p className="text-xs text-gray-500 leading-relaxed mb-3">{app.aiSummary}</p>
+                )}
+                <div className="grid grid-cols-2 gap-3">
+                  {app.aiStrengths.length > 0 && (
+                    <div>
+                      <span className="text-[10px] text-green-600 font-medium uppercase tracking-wider block mb-1">Strengths</span>
+                      <ul className="space-y-0.5">
+                        {app.aiStrengths.map((s, i) => (
+                          <li key={i} className="text-[11px] text-gray-600 flex items-start gap-1">
+                            <span className="text-green-500 mt-0.5 shrink-0">+</span> {s}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {app.aiConcerns.length > 0 && (
+                    <div>
+                      <span className="text-[10px] text-amber-600 font-medium uppercase tracking-wider block mb-1">Concerns</span>
+                      <ul className="space-y-0.5">
+                        {app.aiConcerns.map((c, i) => (
+                          <li key={i} className="text-[11px] text-gray-600 flex items-start gap-1">
+                            <span className="text-amber-500 mt-0.5 shrink-0">-</span> {c}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* CV + Cover Letter */}
+            <div className="flex items-center gap-3 flex-wrap">
+              {app.cvFileUrl && (
+                <a
+                  href={app.cvFileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors hover:bg-blue-50"
+                  style={{ color: "#1E40AF", border: "1px solid #BFDBFE" }}
+                >
+                  <ExternalLink size={11} /> View CV
+                </a>
+              )}
+              {app.coverLetter && (
+                <span className="text-[11px] text-gray-400">Cover letter submitted ({app.coverLetter.length} chars)</span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
-  // List view
+  // ─── List View ─────────────────────────────────────────────────────────────
   return (
     <div>
       {/* Reject modal */}
@@ -290,7 +553,7 @@ export default function OnboardingTable({ records }: { records: OnboardingRecord
         ))}
       </div>
 
-      {/* Handle "pending" filter specially */}
+      {/* List */}
       {(() => {
         const display = filter === "pending"
           ? items.filter((r) => !["ACTIVE", "REJECTED"].includes(r.status))
@@ -308,7 +571,8 @@ export default function OnboardingTable({ records }: { records: OnboardingRecord
         return (
           <div className="space-y-2">
             {display.map((r) => {
-              const style = STATUS_STYLES[r.status] ?? STATUS_STYLES.INVITED;
+              const st = STATUS_STYLES[r.status] ?? STATUS_STYLES.INVITED;
+              const hasAiScore = r.application?.aiScore != null;
               return (
                 <button
                   key={r.id}
@@ -320,19 +584,31 @@ export default function OnboardingTable({ records }: { records: OnboardingRecord
                     {r.userName.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
+                    <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                       <p className="text-sm font-semibold text-gray-900 truncate">{r.userName}</p>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ background: style.bg, color: style.text }}>
-                        {style.label}
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ background: st.bg, color: st.text }}>
+                        {st.label}
                       </span>
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{r.assessmentLevel}</span>
+                      {hasAiScore && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ background: "#EFF6FF", color: "#1E40AF" }}>
+                          Score: {r.application!.aiScore}
+                        </span>
+                      )}
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-gray-400">
+                    <div className="flex items-center gap-3 text-xs text-gray-400 flex-wrap">
                       <span>{r.userEmail}</span>
                       <span>{formatDate(r.createdAt)}</span>
+                      {r.profile?.location && r.profile.location !== "Nigeria" && (
+                        <span className="flex items-center gap-0.5"><MapPin size={9} /> {r.profile.location}</span>
+                      )}
                       <span className="flex items-center gap-1">
                         {r.profileCompleted ? <CheckCircle size={10} className="text-green-500" /> : <Clock size={10} />}
                         Profile
+                      </span>
+                      <span className="flex items-center gap-1">
+                        {r.profile?.hasBanking ? <CheckCircle size={10} className="text-green-500" /> : <Clock size={10} />}
+                        Banking
                       </span>
                       {r.assessmentLevel !== "LIGHT" && (
                         <span className="flex items-center gap-1">

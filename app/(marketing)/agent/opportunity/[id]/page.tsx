@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, MapPin, DollarSign, Users, Clock, Briefcase, ArrowRight } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 function formatCommission(type: string, value: number): string {
   if (type === "PERCENTAGE") return `Up to ${value}% commission`;
   if (type === "FIXED_PER_DEAL") {
