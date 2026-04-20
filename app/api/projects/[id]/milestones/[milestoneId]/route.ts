@@ -13,7 +13,7 @@ export async function PATCH(
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { milestoneId } = await params;
+  const { id: projectId, milestoneId } = await params;
   const body = await req.json();
   const updateData: Record<string, unknown> = {};
 
@@ -37,7 +37,7 @@ export async function PATCH(
   if (body.status) {
     await prisma.engagementUpdate.create({
       data: {
-        engagementId: id,
+        engagementId: projectId,
         content: body.status === "COMPLETED"
           ? `Milestone completed: ${updated.name}`
           : `Milestone "${updated.name}" moved to ${body.status.replace(/_/g, " ")}`,

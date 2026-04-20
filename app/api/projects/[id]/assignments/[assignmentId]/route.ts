@@ -68,7 +68,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   if (status) {
     await prisma.engagementUpdate.create({
       data: {
-        engagementId: id,
+        engagementId: projectId,
         content: `${updated.consultant?.name ?? "Consultant"} assignment ${status === "COMPLETED" ? "completed" : `moved to ${status.replace(/_/g, " ")}`}`,
         type: "TEAM_CHANGE",
         createdById: session.user.id,

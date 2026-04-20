@@ -51,6 +51,7 @@ export default function RegisterForm() {
   const handleSubmit = async () => {
     setLoading(true);
     setError("");
+    let retried = false;
     try {
       const res = await fetch("/api/cadre/register", {
         method: "POST",
