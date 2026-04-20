@@ -4,7 +4,8 @@ import Link from "next/link";
 import { getCadreLabel, getRegulatoryBody } from "@/lib/cadreHealth/cadres";
 import { VerifyButton } from "@/components/cadrehealth/VerifyButton";
 import { InviteProfessionalButton, InviteMentorButton, PushSingleToOutreachButton } from "@/components/cadrehealth/AdminActions";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileText, Download, Calendar } from "lucide-react";
+import { RecruitmentActions } from "@/components/cadrehealth/RecruitmentActions";
 
 const ACCOUNT_STATUS_COLORS: Record<string, string> = {
   UNVERIFIED: "bg-gray-100 text-gray-600",
@@ -118,6 +119,42 @@ export default async function ProfessionalDetailPage({
         <InviteMentorButton professionalId={professional.id} />
         <PushSingleToOutreachButton professionalId={professional.id} />
       </div>
+
+      {/* Summary & CV */}
+      {(professional.summary || professional.cvFileUrl) && (
+        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              {professional.summary && (
+                <div>
+                  <h2 className="mb-2 text-base font-bold tracking-tight" style={{ color: "#0F2744" }}>Summary</h2>
+                  <p className="text-sm leading-relaxed text-gray-600">{professional.summary}</p>
+                </div>
+              )}
+            </div>
+            {professional.cvFileUrl && (
+              <a
+                href={professional.cvFileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition hover:bg-gray-50"
+                style={{ borderColor: "#E8EBF0", color: "#0B3C5D" }}
+              >
+                <Download className="h-4 w-4" />
+                Download CV
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Recruitment Pipeline */}
+      <RecruitmentActions
+        professionalId={professional.id}
+        currentStage={professional.recruitmentStage}
+        interviewDate={professional.interviewDate?.toISOString() ?? null}
+        notes={professional.recruitmentNotes}
+      />
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Personal Info */}

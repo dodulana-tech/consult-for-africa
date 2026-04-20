@@ -3686,6 +3686,15 @@ model CadreProfessional {
   readinessScoreGulf     Int?
   readinessComputedAt    DateTime?
 
+  // CV & Summary
+  cvFileUrl              String?
+  summary                String?                 @db.Text // AI-generated or manual professional summary
+
+  // Recruitment pipeline
+  recruitmentStage       String?                 // SCREENING, INTERVIEW_SCHEDULED, INTERVIEW_DONE, OFFER, PLACED, REJECTED
+  recruitmentNotes       String?                 @db.Text
+  interviewDate          DateTime?
+
   // Profile completeness
   profileCompleteness    Int                     @default(0) // 0-100
 

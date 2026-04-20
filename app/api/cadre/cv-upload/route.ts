@@ -3,6 +3,7 @@ import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
 import { PDFParse } from "pdf-parse";
+import { generateUploadUrl, buildKey, getPublicUrl } from "@/lib/r2";
 
 const anthropic = new Anthropic();
 
@@ -167,6 +168,39 @@ export async function POST(req: NextRequest) {
         { error: "Failed to parse extracted data. Please try again." },
         { status: 500 }
       );
+    }
+
+    // Upload the original file to R2 for admin access
+    let cvFileUrl: string | null = null;
+    try {
+      const key = buildKey("cvs", file.name);
+      const contentType = file.type || "application/pdf";
+      const uploadUrl = await generateUploadUrl(key, contentType, 600, buffer.length);
+      const putRes = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": contentType },
+        body: buffer,
+      });
+      if (putRes.ok) {
+        cvFileUrl = await getPublicUrl(key);
+      }
+    } catch (e) {
+      console.error("[cv-upload] R2 upload failed, continuing without file storage:", e);
+    }
+
+    // Save cvFileUrl and AI summary to the professional record
+    try {
+      const updateData: Record<string, unknown> = {};
+      if (cvFileUrl) updateData.cvFileUrl = cvFileUrl;
+      if (parsed.summary) updateData.summary = parsed.summary;
+      if (Object.keys(updateData).length > 0) {
+        await prisma.cadreProfessional.update({
+          where: { id: session.sub },
+          data: updateData,
+        });
+      }
+    } catch (e) {
+      console.error("[cv-upload] Failed to save cvFileUrl/summary:", e);
     }
 
     // Recalculate profile completeness after CV extraction
