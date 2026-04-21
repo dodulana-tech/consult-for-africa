@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
+import { emailDeliverableReassigned } from "@/lib/email";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
 
@@ -87,6 +88,55 @@ export const POST = handler(async function POST(req: NextRequest, { params }: { 
     entityName: `${deliverable.name} (reassigned)`,
     engagementId: deliverable.engagementId,
   });
+
+  // Notify both old and new consultants
+  try {
+    const projectName = deliverable.engagement.name;
+
+    // Notify new consultant (incoming)
+    if (newAssignment.consultant) {
+      const newUser = await prisma.user.findUnique({
+        where: { id: newAssignment.consultant.id },
+        select: { email: true, name: true },
+      });
+      if (newUser?.email) {
+        await emailDeliverableReassigned({
+          consultantEmail: newUser.email,
+          consultantName: newUser.name ?? "Consultant",
+          deliverableName: deliverable.name,
+          projectName,
+          direction: "incoming",
+        });
+      }
+    }
+
+    // Notify old consultant (outgoing)
+    if (deliverable.assignment?.consultant) {
+      const oldConsultantId = deliverable.assignmentId
+        ? (await prisma.assignment.findUnique({
+            where: { id: deliverable.assignmentId },
+            select: { consultantId: true },
+          }))?.consultantId
+        : null;
+      if (oldConsultantId) {
+        const oldUser = await prisma.user.findUnique({
+          where: { id: oldConsultantId },
+          select: { email: true, name: true },
+        });
+        if (oldUser?.email) {
+          await emailDeliverableReassigned({
+            consultantEmail: oldUser.email,
+            consultantName: oldUser.name ?? "Consultant",
+            deliverableName: deliverable.name,
+            projectName,
+            direction: "outgoing",
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.error("[reassign] Failed to send reassignment emails:", err);
+  }
 
   return Response.json({
     deliverable: {

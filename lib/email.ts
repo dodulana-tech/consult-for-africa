@@ -1766,3 +1766,43 @@ export async function emailAgentVerification({
     `)
   );
 }
+
+// ─── Deliverable & Assignment Notifications ──────────────────────────────────
+
+export async function emailDeliverableAssigned({
+  consultantEmail, consultantName, deliverableName, projectName, dueDate, trackName,
+}: {
+  consultantEmail: string; consultantName: string; deliverableName: string; projectName: string; dueDate?: string | null; trackName?: string | null;
+}) {
+  await send(consultantEmail, `New deliverable assigned: ${deliverableName}`,
+    layout(`${h1("Deliverable Assigned to You")}${p(`Hi ${consultantName}, a deliverable has been assigned to you.`)}${infoTable([["Project", projectName], ...(trackName ? [["Track", trackName] as [string, string]] : []), ["Deliverable", deliverableName], ...(dueDate ? [["Due Date", new Date(dueDate).toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric" })] as [string, string]] : [])])}${p("Please review the deliverable requirements and begin work.")}${btn("View Deliverables", `${BASE_URL}/opportunities`)}`)
+  );
+}
+
+export async function emailDeliverableReassigned({
+  consultantEmail, consultantName, deliverableName, projectName, direction,
+}: {
+  consultantEmail: string; consultantName: string; deliverableName: string; projectName: string; direction: "incoming" | "outgoing";
+}) {
+  const subject = direction === "incoming"
+    ? `Deliverable assigned to you: ${deliverableName}`
+    : `Deliverable reassigned: ${deliverableName}`;
+  const heading = direction === "incoming" ? "Deliverable Assigned to You" : "Deliverable Reassigned";
+  const body = direction === "incoming"
+    ? `Hi ${consultantName}, the deliverable "${deliverableName}" on ${projectName} has been assigned to you. Please review the requirements and begin work.`
+    : `Hi ${consultantName}, the deliverable "${deliverableName}" on ${projectName} has been reassigned to another consultant. No further action is required from you on this deliverable.`;
+
+  await send(consultantEmail, subject,
+    layout(`${h1(heading)}${p(body)}${infoTable([["Project", projectName], ["Deliverable", deliverableName]])}${direction === "incoming" ? btn("View Deliverables", `${BASE_URL}/opportunities`) : ""}`)
+  );
+}
+
+export async function emailAssignmentTerminated({
+  consultantEmail, consultantName, projectName, role,
+}: {
+  consultantEmail: string; consultantName: string; projectName: string; role: string;
+}) {
+  await send(consultantEmail, `Assignment ended: ${role} on ${projectName}`,
+    layout(`${h1("Assignment Ended")}${p(`Hi ${consultantName}, your assignment on ${projectName} has been concluded.`)}${infoTable([["Project", projectName], ["Role", role]])}${p("Thank you for your contribution to this engagement. If you have any questions, please reach out to your engagement manager.")}${btn("View Opportunities", `${BASE_URL}/opportunities`)}`)
+  );
+}

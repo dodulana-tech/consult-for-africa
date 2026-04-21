@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
+import { emailDeliverableAssigned } from "@/lib/email";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
 
@@ -60,7 +61,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: { 
     },
     include: {
       assignment: {
-        include: { consultant: { select: { name: true } } },
+        select: { id: true, consultantId: true, consultant: { select: { name: true } } },
       },
     },
   });
@@ -73,6 +74,36 @@ export const POST = handler(async function POST(req: NextRequest, { params }: { 
     entityName: deliverable.name,
     engagementId: projectId,
   });
+
+  // Notify assigned consultant
+  if (deliverable.assignment?.consultantId) {
+    try {
+      const consultant = await prisma.user.findUnique({
+        where: { id: deliverable.assignment.consultantId },
+        select: { email: true, name: true },
+      });
+      const project = await prisma.engagement.findUnique({
+        where: { id: projectId },
+        select: { name: true },
+      });
+      const track = body.trackId
+        ? await prisma.engagementTrack.findUnique({ where: { id: body.trackId }, select: { name: true } })
+        : null;
+
+      if (consultant?.email) {
+        await emailDeliverableAssigned({
+          consultantEmail: consultant.email,
+          consultantName: consultant.name ?? "Consultant",
+          deliverableName: deliverable.name,
+          projectName: project?.name ?? "Project",
+          dueDate: body.dueDate,
+          trackName: track?.name,
+        });
+      }
+    } catch (err) {
+      console.error("[deliverables] Failed to send assignment email:", err);
+    }
+  }
 
   return Response.json({
     deliverable: {

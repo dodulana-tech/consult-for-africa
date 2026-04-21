@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { emailAssignmentTerminated } from "@/lib/email";
 import { NextRequest } from "next/server";
 import type { AssignmentStatus } from "@prisma/client";
 import { handler } from "@/lib/api-handler";
@@ -109,10 +110,29 @@ export const DELETE = handler(async function DELETE(_req: NextRequest, { params 
   }
 
   // Soft-delete: mark as TERMINATED rather than hard delete
-  await prisma.assignment.update({
+  const terminated = await prisma.assignment.update({
     where: { id: assignmentId },
     data: { status: "TERMINATED" },
+    select: { role: true, consultantId: true, engagement: { select: { name: true } } },
   });
+
+  // Notify the consultant
+  try {
+    const consultant = await prisma.user.findUnique({
+      where: { id: terminated.consultantId },
+      select: { email: true, name: true },
+    });
+    if (consultant?.email) {
+      await emailAssignmentTerminated({
+        consultantEmail: consultant.email,
+        consultantName: consultant.name ?? "Consultant",
+        projectName: terminated.engagement.name,
+        role: terminated.role,
+      });
+    }
+  } catch (err) {
+    console.error("[assignments] Failed to send termination email:", err);
+  }
 
   return Response.json({ ok: true });
 });
