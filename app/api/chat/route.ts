@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { auth } from "@/auth";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -55,7 +56,7 @@ Rules:
 - Always end with a helpful next step or question
 - Never make up facts about C4A. If unsure, suggest they contact hello@consultforafrica.com`;
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -135,4 +136,4 @@ export async function POST(req: NextRequest) {
       "Cache-Control": "no-cache",
     },
   });
-}
+});

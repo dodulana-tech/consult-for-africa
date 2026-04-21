@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -9,7 +10,7 @@ type Ctx = { params: Promise<{ id: string }> };
  * PUT /api/admin/consultants/[id]/own-gig-override
  * Grant or update own gig override for a consultant.
  */
-export async function PUT(req: NextRequest, { params }: Ctx) {
+export const PUT = handler(async function PUT(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -61,13 +62,13 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   });
 
   return Response.json({ override });
-}
+});
 
 /**
  * DELETE /api/admin/consultants/[id]/own-gig-override
  * Revoke own gig override.
  */
-export async function DELETE(_req: NextRequest, { params }: Ctx) {
+export const DELETE = handler(async function DELETE(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -82,4 +83,4 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
   });
 
   return Response.json({ ok: true });
-}
+});

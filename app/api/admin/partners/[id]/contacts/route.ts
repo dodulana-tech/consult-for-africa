@@ -2,10 +2,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR"];
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -75,9 +76,9 @@ export async function POST(
       resetTokenExpiry: undefined,
     },
   }, { status: 201 });
-}
+});
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -146,9 +147,9 @@ export async function PATCH(
       resetTokenExpiry: undefined,
     },
   });
-}
+});
 
-export async function DELETE(
+export const DELETE = handler(async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -182,4 +183,4 @@ export async function DELETE(
   });
 
   return Response.json({ ok: true });
-}
+});

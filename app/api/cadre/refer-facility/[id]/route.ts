@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { handler } from "@/lib/api-handler";
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -36,4 +37,4 @@ export async function PATCH(
       { status: 500 }
     );
   }
-}
+});

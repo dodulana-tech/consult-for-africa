@@ -3,10 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { sanitizeForPrompt } from "@/lib/sanitize";
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -183,13 +184,13 @@ USER CONTEXT:
   }
 
   const systemPrompt = isConsultant
-    ? `You are Nuru, the AI assistant for Consult For Africa (CFA), an operations management consulting firm in Nigeria. You are helping a consultant on the platform. You can see their assignments, deliverables, timesheets, and profile data.
+    ? `You are Nuru, the AI assistant for Consult For Africa (C4A), an operations management consulting firm in Nigeria. You are helping a consultant on the platform. You can see their assignments, deliverables, timesheets, and profile data.
 
 Help them with: understanding their deliverable feedback, improving their work, tracking deadlines, understanding project context, and general consulting methodology questions.
 
 Be concise, direct, and specific. No em dashes. Do not reveal data about other consultants or projects they are not assigned to.
 If asked something outside their scope, explain that you can only help with their own assignments and work.`
-    : `You are Nuru, the AI assistant for Consult For Africa (CFA), an operations management consulting firm in Nigeria. You have access to the platform's real-time data and can answer questions about projects, consultants, clients, deliverables, and performance metrics.
+    : `You are Nuru, the AI assistant for Consult For Africa (C4A), an operations management consulting firm in Nigeria. You have access to the platform's real-time data and can answer questions about projects, consultants, clients, deliverables, and performance metrics.
 
 Be concise, direct, and specific. Use Nigerian Naira (NGN) and USD as appropriate. No em dashes.
 When asked for recommendations, be actionable and specific.
@@ -216,4 +217,4 @@ If asked something outside the data provided, say so honestly rather than guessi
   }
 
   return Response.json({ answer, question });
-}
+});

@@ -1,12 +1,13 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/maarova/org/users
  * List all users in the org with assessment, coaching, and goal summaries.
  * Auth: HR_ADMIN only.
  */
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await getMaarovaSession();
   if (!session || session.role !== "HR_ADMIN") {
     return Response.json({ error: "Unauthorized" }, { status: 403 });
@@ -67,4 +68,4 @@ export async function GET() {
   }));
 
   return Response.json({ users: formatted });
-}
+});

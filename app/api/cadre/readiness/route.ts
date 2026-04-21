@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCadreSession } from "@/lib/cadreAuth";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const session = await getCadreSession();
@@ -61,4 +62,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

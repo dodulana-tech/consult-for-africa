@@ -5,6 +5,7 @@ import { sanitizeForPrompt } from "@/lib/sanitize";
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import * as XLSX from "xlsx";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -38,7 +39,7 @@ interface AnalysisResult {
   };
 }
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -157,4 +158,4 @@ Provide a comprehensive analysis as JSON with this exact structure:
     analysisType,
     analyzedAt: new Date().toISOString(),
   });
-}
+});

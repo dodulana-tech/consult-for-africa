@@ -2,8 +2,9 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { getQuestionBank } from "@/lib/consultantAssessment/questions";
+import { handler } from "@/lib/api-handler";
 
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -66,4 +67,4 @@ export async function GET(
     responses: assessment.responses,
     videoUrl: assessment.videoUrl,
   });
-}
+});

@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getMaarovaSession } from "@/lib/maarovaAuth";
+import { handler } from "@/lib/api-handler";
 
 /**
  * POST /api/maarova/sessions
  * Create a new assessment session for the authenticated Maarova user.
  */
-export async function POST() {
+export const POST = handler(async function POST() {
   const auth = await getMaarovaSession();
   if (!auth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -103,4 +104,4 @@ export async function POST() {
   ]);
 
   return NextResponse.json({ session });
-}
+});

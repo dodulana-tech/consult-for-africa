@@ -2,8 +2,9 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
-export async function PATCH(req: NextRequest) {
+export const PATCH = handler(async function PATCH(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -106,4 +107,4 @@ export async function PATCH(req: NextRequest) {
   }
 
   return new Response("Invalid action. Use 'approve', 'reject', or 'change-level'", { status: 400 });
-}
+});

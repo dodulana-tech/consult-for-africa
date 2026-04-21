@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
 import { Currency, InvoiceType } from "@prisma/client";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * POST /api/cron/retainer-invoice
@@ -24,7 +25,7 @@ const INVOICE_TYPES: Record<string, string> = {
   TIME_AND_MATERIALS: "STANDARD",
 };
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
@@ -395,7 +396,7 @@ export async function POST(req: NextRequest) {
     total: retainers.length + secondments.length + fractionals.length + tmSchedules.length,
     errors,
   });
-}
+});
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

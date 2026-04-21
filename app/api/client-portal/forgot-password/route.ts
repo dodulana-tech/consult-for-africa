@@ -3,8 +3,9 @@ import { emailClientPortalPasswordReset } from "@/lib/email";
 import { isRateLimited } from "@/lib/rate-limit";
 import crypto from "crypto";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   if (isRateLimited(ip, "client-forgot-password", { windowMs: 3_600_000, max: 5 })) {
     return Response.json({ ok: true });
@@ -51,4 +52,4 @@ export async function POST(req: NextRequest) {
   }).catch((err) => console.error("Failed to send password reset email:", err));
 
   return okResponse;
-}
+});

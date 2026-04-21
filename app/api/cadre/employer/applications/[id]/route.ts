@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCadreEmployerSession } from "@/lib/cadreEmployerAuth";
+import { handler } from "@/lib/api-handler";
 
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -70,9 +71,9 @@ export async function GET(
       { status: 500 }
     );
   }
-}
+});
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -148,4 +149,4 @@ export async function PATCH(
       { status: 500 }
     );
   }
-}
+});

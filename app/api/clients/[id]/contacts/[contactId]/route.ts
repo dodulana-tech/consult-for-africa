@@ -1,8 +1,9 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
-export async function DELETE(
+export const DELETE = handler(async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string; contactId: string }> },
 ) {
@@ -23,4 +24,4 @@ export async function DELETE(
   await prisma.clientContact.delete({ where: { id: contactId } });
 
   return Response.json({ ok: true });
-}
+});

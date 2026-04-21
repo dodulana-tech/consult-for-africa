@@ -2,12 +2,13 @@ import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { email360RaterInvite } from "@/lib/email";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * POST /api/maarova/three-sixty/resend
  * Resend a 360 feedback invite email to a rater.
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await getMaarovaSession();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -57,4 +58,4 @@ export async function POST(req: NextRequest) {
   }
 
   return Response.json({ ok: true, message: `Invite resent to ${invite.raterEmail}` });
-}
+});

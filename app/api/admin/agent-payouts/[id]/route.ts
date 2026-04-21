@@ -1,8 +1,9 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { emailAgentPayoutProcessed } from "@/lib/email";
+import { handler } from "@/lib/api-handler";
 
-export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export const PATCH = handler(async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -92,4 +93,4 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   }
 
   return Response.json(updated);
-}
+});

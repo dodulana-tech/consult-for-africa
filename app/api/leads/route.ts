@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ELEVATED = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
 
@@ -8,7 +9,7 @@ const ELEVATED = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
  * GET /api/leads
  * List leads. Elevated roles see all, others see assigned.
  */
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -35,13 +36,13 @@ export async function GET() {
       discoveryCallCount: l._count.discoveryCalls,
     })),
   });
-}
+});
 
 /**
  * POST /api/leads
  * Create a new lead manually (cold outreach, event, etc.).
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -83,4 +84,4 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json({ lead }, { status: 201 });
-}
+});

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getQuestionBank } from "@/lib/consultantAssessment/questions";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
@@ -44,7 +45,7 @@ async function scoreWithAI(
   const experienceResponses = responses.filter((r) => r.part === "experience");
   const quickfireResponses = responses.filter((r) => r.part === "quickfire");
 
-  const prompt = `You are an expert assessor for Consult for Africa (CFA), an African healthcare consulting firm. You are evaluating a consultant applicant for the ${specialty} specialty.
+  const prompt = `You are an expert assessor for Consult for Africa (C4A), an African healthcare consulting firm. You are evaluating a consultant applicant for the ${specialty} specialty.
 
 Evaluate the following assessment responses and provide scoring. Be rigorous but fair. This is a vetting assessment, not a training exercise.
 
@@ -158,7 +159,7 @@ Return ONLY the JSON object, no additional text.`;
   return result;
 }
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -268,4 +269,4 @@ export async function POST(
       aiBreakdown: updated.aiBreakdown,
     },
   });
-}
+});

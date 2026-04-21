@@ -1,12 +1,13 @@
 import { getMaarovaCoachSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/maarova/coach/clients/[matchId]
  * Client detail: assessment summary (limited), goals, sessions.
  */
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ matchId: string }> },
 ) {
@@ -91,4 +92,4 @@ export async function GET(
     } : null,
     goals: goals.map((g) => JSON.parse(JSON.stringify(g))),
   });
-}
+});

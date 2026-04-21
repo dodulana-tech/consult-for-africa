@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { emailInvoiceReminder } from "@/lib/email";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * POST /api/cron/invoice-dunning
@@ -18,7 +19,7 @@ const DUNNING_SCHEDULE: {
   { daysOverdue: 30, reminderType: "ESCALATION" },
 ];
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
@@ -141,4 +142,4 @@ export async function POST(req: NextRequest) {
     remindersSent,
     errors,
   });
-}
+});

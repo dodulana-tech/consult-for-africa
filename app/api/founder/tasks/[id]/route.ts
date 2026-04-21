@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ALLOWED_ROLES = ["DIRECTOR", "PARTNER", "ADMIN"];
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -48,9 +49,9 @@ export async function PATCH(
   });
 
   return Response.json(updated);
-}
+});
 
-export async function DELETE(
+export const DELETE = handler(async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -73,4 +74,4 @@ export async function DELETE(
   await prisma.founderTask.delete({ where: { id } });
 
   return new Response(null, { status: 204 });
-}
+});

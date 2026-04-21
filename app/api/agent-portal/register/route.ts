@@ -3,8 +3,9 @@ import { emailAgentVerification } from "@/lib/email";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const body = await req.json();
   const { firstName, lastName, email, phone, password, company, title, state, industries, salesExperience, referralSource } = body;
 
@@ -61,4 +62,4 @@ export async function POST(req: NextRequest) {
   }).catch((err) => console.error("Failed to send agent verification email:", err));
 
   return Response.json({ ok: true, agentId: agent.id, firstName: agent.firstName });
-}
+});

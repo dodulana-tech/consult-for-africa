@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { signCadreJWT } from "@/lib/cadreAuth";
 import crypto from "crypto";
 import { cookies } from "next/headers";
+import { handler } from "@/lib/api-handler";
 
 function hashPassword(password: string): string {
   const salt = crypto.randomBytes(32).toString("hex");
@@ -12,7 +13,7 @@ function hashPassword(password: string): string {
   return `${salt}:${hash}`;
 }
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const { professionalId, password } = await req.json();
 
@@ -103,4 +104,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

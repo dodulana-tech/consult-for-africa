@@ -1,12 +1,13 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/projects/[id]/interactions
  * List all client interactions for a project.
  */
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -33,13 +34,13 @@ export async function GET(
   });
 
   return Response.json({ interactions: interactions.map((i) => JSON.parse(JSON.stringify(i))) });
-}
+});
 
 /**
  * POST /api/projects/[id]/interactions
  * Record a new client interaction (call, meeting, email, etc.).
  */
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -81,4 +82,4 @@ export async function POST(
   });
 
   return Response.json({ interaction: JSON.parse(JSON.stringify(interaction)) }, { status: 201 });
-}
+});

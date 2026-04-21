@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
 // Tier A: High-value specialists, scarce surgical/procedural cadres
 const TIER_A_SPECIALTIES = [
@@ -40,7 +41,7 @@ function assignTier(cadre: string, subSpecialty: string | null, hasPhone: boolea
   return "B";
 }
 
-export async function POST(req: Request) {
+export const POST = handler(async function POST(req: Request) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
   if (!["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) {
@@ -108,4 +109,4 @@ export async function POST(req: Request) {
     total: professionals.length,
     tierBreakdown: tierCounts,
   });
-}
+});

@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET   /api/credit-notes/[id] - Full credit note detail
@@ -9,7 +10,7 @@ import { Decimal } from "@prisma/client/runtime/library";
 
 const DIRECTOR_PLUS = ["DIRECTOR", "PARTNER", "ADMIN"];
 
-export async function GET(
+export const GET = handler(async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -52,9 +53,9 @@ export async function GET(
   }
 
   return Response.json({ creditNote });
-}
+});
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -189,4 +190,4 @@ export async function PATCH(
     { error: "Invalid action. Use 'issue' or 'apply'." },
     { status: 400 }
   );
-}
+});

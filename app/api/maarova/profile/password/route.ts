@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import bcrypt from "bcryptjs";
+import { handler } from "@/lib/api-handler";
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{10,}$/;
 
-export async function PUT(req: Request) {
+export const PUT = handler(async function PUT(req: Request) {
   const auth = await getMaarovaSession();
   if (!auth) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -50,4 +51,4 @@ export async function PUT(req: Request) {
   });
 
   return Response.json({ ok: true });
-}
+});

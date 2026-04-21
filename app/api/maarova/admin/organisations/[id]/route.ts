@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const VALID_STREAMS = ["RECRUITMENT", "DEVELOPMENT", "INTELLIGENCE"];
 
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -27,9 +28,9 @@ export async function GET(
     createdAt: org.createdAt.toISOString(),
     updatedAt: org.updatedAt.toISOString(),
   });
-}
+});
 
-export async function PUT(
+export const PUT = handler(async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -98,4 +99,4 @@ export async function PUT(
     console.error("[maarova-org-update] Error:", err);
     return Response.json({ error: String(err) }, { status: 500 });
   }
-}
+});

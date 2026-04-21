@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
 const resend = new Resend(process.env.RESEND_API_KEY ?? "noop");
 
@@ -13,7 +14,7 @@ function escHtml(s: unknown): string {
     .replace(/'/g, "&#x27;");
 }
 
-export async function POST(req: Request) {
+export const POST = handler(async function POST(req: Request) {
   const data = await req.json();
 
   // Honeypot
@@ -119,4 +120,4 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ success: true });
-}
+});

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { z } from "zod";
+import { handler } from "@/lib/api-handler";
 
 const schema = z.object({
   name: z.string().min(2).max(100),
@@ -9,7 +10,7 @@ const schema = z.object({
   cadre: z.string().min(1),
 });
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -91,4 +92,4 @@ export async function POST(
     professionalId: professional.id,
     isNew: !professional.passwordHash,
   });
-}
+});

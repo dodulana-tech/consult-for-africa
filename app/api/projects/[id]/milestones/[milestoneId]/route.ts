@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ELEVATED = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; milestoneId: string }> },
 ) {
@@ -48,9 +49,9 @@ export async function PATCH(
   }
 
   return Response.json({ milestone: JSON.parse(JSON.stringify(updated)) });
-}
+});
 
-export async function DELETE(
+export const DELETE = handler(async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string; milestoneId: string }> },
 ) {
@@ -62,4 +63,4 @@ export async function DELETE(
   const { milestoneId } = await params;
   await prisma.milestone.delete({ where: { id: milestoneId } });
   return Response.json({ ok: true });
-}
+});

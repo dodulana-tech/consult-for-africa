@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -24,7 +25,7 @@ function fmtDate(d: Date | null | undefined): string {
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 }
 
-export async function GET(req: NextRequest, { params }: Ctx) {
+export const GET = handler(async function GET(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -351,4 +352,4 @@ export async function GET(req: NextRequest, { params }: Ctx) {
       "Content-Disposition": `inline; filename="${safeName}.pdf"`,
     },
   });
-}
+});

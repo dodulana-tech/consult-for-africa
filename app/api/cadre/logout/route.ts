@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { handler } from "@/lib/api-handler";
 
-export async function POST() {
+export const POST = handler(async function POST() {
   const cookieStore = await cookies();
   cookieStore.set("cadre_token", "", {
     httpOnly: true,
@@ -12,4 +13,4 @@ export async function POST() {
   });
 
   return NextResponse.json({ ok: true });
-}
+});

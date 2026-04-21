@@ -1,10 +1,11 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-export async function POST() {
+export const POST = handler(async function POST() {
   const session = await getMaarovaSession();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -86,4 +87,4 @@ ${existingGoals.map((g) => `- ${g.title} (${g.dimension})`).join("\n") || "None"
       { status: 500 },
     );
   }
-}
+});

@@ -6,6 +6,8 @@ import {
   CheckCircle2, Circle, Target, DollarSign,
 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 // Revenue milestones in NGN
 const REVENUE_GATES = [
   { label: "N0", amount: 0, sublabel: "Starting point" },

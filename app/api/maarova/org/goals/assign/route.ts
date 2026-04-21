@@ -1,12 +1,13 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * POST /api/maarova/org/goals/assign
  * Assign a development goal to a user. Auth: HR_ADMIN only.
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await getMaarovaSession();
   if (!session || session.role !== "HR_ADMIN") {
     return Response.json({ error: "Unauthorized" }, { status: 403 });
@@ -42,4 +43,4 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json(goal, { status: 201 });
-}
+});

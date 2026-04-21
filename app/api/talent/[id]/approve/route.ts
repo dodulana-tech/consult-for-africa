@@ -5,8 +5,9 @@ import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { sendInvite, emailMaarovaInvite } from "@/lib/email";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -182,4 +183,4 @@ export async function POST(
       role: result.role,
     },
   }, { status: 201 });
-}
+});

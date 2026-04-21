@@ -5,6 +5,7 @@ import { emailEMChanged } from "@/lib/email";
 import { generateEngagementCode } from "@/lib/engagementCode";
 import { NextRequest } from "next/server";
 import { Decimal } from "@prisma/client/runtime/library";
+import { handler } from "@/lib/api-handler";
 
 const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
 
@@ -12,7 +13,7 @@ const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
  * PATCH /api/projects/[id]
  * Update project fields including EM reassignment.
  */
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -238,4 +239,4 @@ export async function PATCH(
     project: updated,
     ...(successFeeInvoice ? { successFeeInvoice } : {}),
   });
-}
+});

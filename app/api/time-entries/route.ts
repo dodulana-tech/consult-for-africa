@@ -2,8 +2,9 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import type { TimeEntryStatus } from "@prisma/client";
+import { handler } from "@/lib/api-handler";
 
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -47,9 +48,9 @@ export async function GET(req: NextRequest) {
       updatedAt: e.updatedAt.toISOString(),
     }))
   );
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -190,4 +191,4 @@ export async function POST(req: NextRequest) {
     updatedAt: entry.updatedAt.toISOString(),
     ...(overageWarning ? { overageWarning: true } : {}),
   });
-}
+});

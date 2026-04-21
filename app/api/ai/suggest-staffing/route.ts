@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getNuruContext } from "@/lib/nuruContext";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
@@ -10,7 +11,7 @@ const anthropic = new Anthropic();
  * POST /api/ai/suggest-staffing
  * Nuru suggests staffing needs based on project context.
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -43,7 +44,7 @@ The suggested role should serve this track specifically.\n`;
     }
   }
 
-  const prompt = `You are Nuru, CFA's internal intelligence system. An Engagement Manager needs help staffing a project.
+  const prompt = `You are Nuru, C4A's internal intelligence system. An Engagement Manager needs help staffing a project.
 
 PROJECT: ${projectName || "Unnamed"}
 SERVICE LINE: ${serviceType || "Not specified"}
@@ -52,7 +53,7 @@ ${Array.isArray(existingTeam) && existingTeam.length > 0 ? `EXISTING TEAM:\n${ex
 ${trackSection}
 Based on this project context, suggest the next consultant role needed. Consider what skills are missing from the existing team.
 
-CFA SKILL TAXONOMY: Hospital Operations, Revenue Cycle, Clinical Governance, Patient Safety, Quality Improvement, Financial Management, Health Insurance (NHIS/HMO), Supply Chain, Pharmacy Management, Digital Health, EMR/HIS, Data Analytics, Change Management, HR Management, Strategy & Planning, Business Development, Process Engineering, Facilities Management, Nursing Leadership, Medical Director, Health Policy, M&E, Epidemiology, Marketing, Legal & Compliance, Risk Management, Internal Audit, Training & Development
+C4A SKILL TAXONOMY: Hospital Operations, Revenue Cycle, Clinical Governance, Patient Safety, Quality Improvement, Financial Management, Health Insurance (NHIS/HMO), Supply Chain, Pharmacy Management, Digital Health, EMR/HIS, Data Analytics, Change Management, HR Management, Strategy & Planning, Business Development, Process Engineering, Facilities Management, Nursing Leadership, Medical Director, Health Policy, M&E, Epidemiology, Marketing, Legal & Compliance, Risk Management, Internal Audit, Training & Development
 
 ${await getNuruContext()}
 
@@ -87,4 +88,4 @@ Return ONLY valid JSON:
     console.error("[ai/suggest-staffing] failed", err);
     return Response.json({ error: "Suggestion failed" }, { status: 500 });
   }
-}
+});

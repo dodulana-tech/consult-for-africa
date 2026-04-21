@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -111,7 +112,7 @@ function kpiTable(
 
 /* ── GET: generate board pack HTML ────────────────────────────────────────────── */
 
-export async function GET(req: NextRequest, { params }: Ctx) {
+export const GET = handler(async function GET(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session)
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -652,7 +653,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
         </tr>` : ""}
         ${exitDossier.totalCfaReturn != null ? `
         <tr>
-          <td style="padding:4px 0;color:#6B7280;">Total CFA Return</td>
+          <td style="padding:4px 0;color:#6B7280;">Total C4A Return</td>
           <td style="padding:4px 0;font-weight:500;">${fmtMoney(exitDossier.totalCfaReturn)}</td>
         </tr>` : ""}
       </table>` : ""}
@@ -701,7 +702,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
       "Content-Disposition": `inline; filename="board-pack-${safeName}-${new Date().toISOString().slice(0, 10)}.pdf"`,
     },
   });
-}
+});
 
 /* ── HTML escape ──────────────────────────────────────────────────────────────── */
 

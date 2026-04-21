@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getNuruContext } from "@/lib/nuruContext";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 export const maxDuration = 30;
 
@@ -12,7 +13,7 @@ const anthropic = new Anthropic();
  * POST /api/ai/suggest-tracks
  * Nuru suggests MECE workstream tracks for an engagement based on its type, scope, and context.
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
 
   const nuruContext = await getNuruContext();
 
-  const prompt = `You are Nuru, CFA's internal strategy advisor. Suggest MECE workstream tracks for this engagement.
+  const prompt = `You are Nuru, C4A's internal strategy advisor. Suggest MECE workstream tracks for this engagement.
 
 ENGAGEMENT:
 - Name: ${engagement.name}
@@ -112,4 +113,4 @@ Return ONLY valid JSON:
     console.error("[ai/suggest-tracks] failed", msg, err);
     return Response.json({ error: "Failed to generate track suggestions", detail: msg }, { status: 500 });
   }
-}
+});

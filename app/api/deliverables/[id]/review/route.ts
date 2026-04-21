@@ -3,8 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
 import { emailDeliverableApproved, emailRevisionRequested } from "@/lib/email";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export const POST = handler(async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -131,4 +132,4 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   });
 
   return Response.json({ ok: true, status: newStatus, deliverableId: deliverable.id });
-}
+});

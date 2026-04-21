@@ -2,13 +2,14 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { sendNdaSigningInvite } from "@/lib/email";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * POST /api/ndas/send-invite
  * Send (or resend) the NDA signing invitation email.
  * Body: { ndaId: string }
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -55,4 +56,4 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json({ success: true });
-}
+});

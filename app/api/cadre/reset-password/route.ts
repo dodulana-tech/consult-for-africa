@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
+import { handler } from "@/lib/api-handler";
 
 function hashPassword(password: string): string {
   const salt = crypto.randomBytes(16).toString("hex");
@@ -10,7 +11,7 @@ function hashPassword(password: string): string {
   return `${salt}:${hash}`;
 }
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const { token, password } = await req.json();
 
@@ -59,4 +60,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

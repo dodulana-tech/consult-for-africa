@@ -1,8 +1,9 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -24,9 +25,9 @@ export async function GET(
   if (!application) return new Response("Not found", { status: 404 });
 
   return Response.json(application);
-}
+});
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -59,4 +60,4 @@ export async function PATCH(
   });
 
   return Response.json({ id: application.id, status: application.status });
-}
+});

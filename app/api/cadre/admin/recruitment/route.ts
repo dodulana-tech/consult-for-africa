@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { handleRecruitmentStageChange } from "@/lib/cadreHealth/recruitmentPipeline";
+import { handler } from "@/lib/api-handler";
 
 const ALLOWED_ROLES = ["DIRECTOR", "PARTNER", "ADMIN"];
 
-export async function PATCH(req: NextRequest) {
+export const PATCH = handler(async function PATCH(req: NextRequest) {
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -68,4 +69,4 @@ export async function PATCH(req: NextRequest) {
   });
 
   return NextResponse.json({ success: true, data: updated, automation });
-}
+});

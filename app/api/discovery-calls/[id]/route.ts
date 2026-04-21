@@ -1,13 +1,14 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
 
 /**
  * GET /api/discovery-calls/[id]
  */
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -33,13 +34,13 @@ export async function GET(
   }
 
   return Response.json({ call });
-}
+});
 
 /**
  * PATCH /api/discovery-calls/[id]
  * Update notes, status, structured fields.
  */
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -102,4 +103,4 @@ export async function PATCH(
   });
 
   return Response.json({ call: updated });
-}
+});

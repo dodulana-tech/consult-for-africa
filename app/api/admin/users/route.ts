@@ -6,10 +6,11 @@ import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { sendInvite } from "@/lib/email";
 import type { UserRole } from "@prisma/client";
+import { handler } from "@/lib/api-handler";
 
 const VALID_ROLES: UserRole[] = ["CONSULTANT", "ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
 
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -38,9 +39,9 @@ export async function GET() {
         : null,
     })),
   });
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -117,9 +118,9 @@ export async function POST(req: NextRequest) {
     user: { ...user, createdAt: user.createdAt.toISOString() },
     ...(emailFailed && { warning: "User created but invite email failed to send. Use 'Resend Invite' to retry." }),
   }, { status: 201 });
-}
+});
 
-export async function PATCH(req: NextRequest) {
+export const PATCH = handler(async function PATCH(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -214,9 +215,9 @@ export async function PATCH(req: NextRequest) {
   });
 
   return Response.json({ ok: true, user: updated });
-}
+});
 
-export async function DELETE(req: NextRequest) {
+export const DELETE = handler(async function DELETE(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -267,4 +268,4 @@ export async function DELETE(req: NextRequest) {
   });
 
   return Response.json({ ok: true });
-}
+});

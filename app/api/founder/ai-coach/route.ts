@@ -3,6 +3,7 @@ import { ELEVATED_ROLES } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -68,7 +69,7 @@ STYLE:
 - Maximum 400 words unless the conversation demands more
 - Use Debo's name sometimes. It matters.`;
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const { error, session } = await requireAuth(ELEVATED_ROLES);
   if (error) return error;
 
@@ -160,9 +161,9 @@ ${recentConversations
   });
 
   return Response.json({ answer, conversationId: conversation.id });
-}
+});
 
-export async function GET() {
+export const GET = handler(async function GET() {
   const { error, session } = await requireAuth(ELEVATED_ROLES);
   if (error) return error;
 
@@ -179,4 +180,4 @@ export async function GET() {
   });
 
   return Response.json(conversations);
-}
+});

@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCadreEmployerSession } from "@/lib/cadreEmployerAuth";
 import type { CadreProfessionalCadre } from "@prisma/client";
+import { handler } from "@/lib/api-handler";
 
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   try {
     const session = await getCadreEmployerSession();
     if (!session) {
@@ -65,4 +66,4 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

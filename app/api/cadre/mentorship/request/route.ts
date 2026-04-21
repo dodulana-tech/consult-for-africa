@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 import { notifyMentorshipRequest } from "@/lib/cadreHealth/notifications";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const session = await getCadreSession();
     if (!session) {
@@ -89,4 +90,4 @@ export async function POST(req: NextRequest) {
     console.error("Request mentorship error:", error);
     return NextResponse.json({ error: "Failed to request mentorship" }, { status: 500 });
   }
-}
+});

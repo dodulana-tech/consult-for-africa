@@ -3,11 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { sendSMS } from "@/lib/cadreHealth/sms";
 import { sendReactivationEmail } from "@/lib/cadreHealth/outreachEmail";
 import { getCadreLabel } from "@/lib/cadreHealth/cadres";
+import { handler } from "@/lib/api-handler";
 
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
 const FOUR_DAYS_MS = 4 * 24 * 60 * 60 * 1000;
 
-export async function POST() {
+export const POST = handler(async function POST() {
   try {
     const now = new Date();
     const summary = {
@@ -165,4 +166,4 @@ export async function POST() {
       { status: 500 }
     );
   }
-}
+});

@@ -1,11 +1,12 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/consultants
  * List consultants for dropdowns (NDA Manager, etc.)
  */
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -16,4 +17,4 @@ export async function GET() {
   });
 
   return Response.json({ consultants });
-}
+});

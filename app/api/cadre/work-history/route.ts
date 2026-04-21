@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
-export async function GET() {
+export const GET = handler(async function GET() {
   try {
     const session = await getCadreSession();
     if (!session) {
@@ -22,9 +23,9 @@ export async function GET() {
       { status: 500 }
     );
   }
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const session = await getCadreSession();
     if (!session) {
@@ -77,7 +78,7 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 async function recomputeCompleteness(professionalId: string) {
   const prof = await prisma.cadreProfessional.findUnique({

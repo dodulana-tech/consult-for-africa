@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -9,7 +10,7 @@ type Ctx = { params: Promise<{ id: string }> };
  * GET /api/projects/[id]/tracks
  * List all tracks for an engagement, with assignment/deliverable counts.
  */
-export async function GET(_req: NextRequest, { params }: Ctx) {
+export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -82,13 +83,13 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
       })),
     })),
   });
-}
+});
 
 /**
  * POST /api/projects/[id]/tracks
  * Create a new track for an engagement.
  */
-export async function POST(req: NextRequest, { params }: Ctx) {
+export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -142,13 +143,13 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   }
 
   return Response.json({ tracks: created }, { status: 201 });
-}
+});
 
 /**
  * PATCH /api/projects/[id]/tracks
  * Update a track (status, name, description, order, dates, budget).
  */
-export async function PATCH(req: NextRequest, { params }: Ctx) {
+export const PATCH = handler(async function PATCH(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -183,13 +184,13 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   });
 
   return Response.json({ track: updated });
-}
+});
 
 /**
  * DELETE /api/projects/[id]/tracks
  * Delete a track (only if no active assignments or deliverables).
  */
-export async function DELETE(req: NextRequest, { params }: Ctx) {
+export const DELETE = handler(async function DELETE(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -237,4 +238,4 @@ export async function DELETE(req: NextRequest, { params }: Ctx) {
   });
 
   return Response.json({ ok: true });
-}
+});

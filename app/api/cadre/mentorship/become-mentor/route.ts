@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
 const VALID_AREAS = [
   "UK Migration",
@@ -28,7 +29,7 @@ const VALID_AVAILABILITY = ["ASYNC", "SCHEDULED", "BOTH"];
 
 const VALID_PARTNER_ORGS = ["MANSAG", "ANPA", "DFC", "NDF_SA", "OTHER", "NONE"];
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const session = await getCadreSession();
     if (!session) {
@@ -104,4 +105,4 @@ export async function POST(req: NextRequest) {
     console.error("Become mentor error:", error);
     return NextResponse.json({ error: "Failed to create mentor profile" }, { status: 500 });
   }
-}
+});

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ token: string }> };
 
@@ -8,7 +9,7 @@ type Ctx = { params: Promise<{ token: string }> };
  * Get NDA details by signing token (for external parties).
  * No auth required - token is the auth.
  */
-export async function GET(_req: NextRequest, ctx: Ctx) {
+export const GET = handler(async function GET(_req: NextRequest, ctx: Ctx) {
   const { token } = await ctx.params;
 
   const nda = await prisma.nda.findUnique({
@@ -45,14 +46,14 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
   }
 
   return Response.json({ nda });
-}
+});
 
 /**
  * POST /api/ndas/sign/:token
  * Sign NDA using token (external party, no auth needed).
  * Body: { signature: "base64 image data" }
  */
-export async function POST(req: NextRequest, ctx: Ctx) {
+export const POST = handler(async function POST(req: NextRequest, ctx: Ctx) {
   const { token } = await ctx.params;
   const body = await req.json();
   const { signature } = body;
@@ -93,4 +94,4 @@ export async function POST(req: NextRequest, ctx: Ctx) {
   });
 
   return Response.json({ success: true, message: "NDA signed. Awaiting C4A countersignature." });
-}
+});

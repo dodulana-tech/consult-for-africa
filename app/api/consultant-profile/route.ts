@@ -2,8 +2,9 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import type { AvailabilityStatus } from "@prisma/client";
+import { handler } from "@/lib/api-handler";
 
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -24,9 +25,9 @@ export async function GET() {
     accountNumber: profile.accountNumber ? `****${profile.accountNumber.slice(-4)}` : null,
     swiftCode: undefined,
   });
-}
+});
 
-export async function PATCH(req: NextRequest) {
+export const PATCH = handler(async function PATCH(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -91,4 +92,4 @@ export async function PATCH(req: NextRequest) {
       accountNumberMasked: updated.accountNumber ? `****${updated.accountNumber.slice(-4)}` : null,
     },
   });
-}
+});

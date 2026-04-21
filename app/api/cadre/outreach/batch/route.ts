@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendReactivationEmail } from "@/lib/cadreHealth/outreachEmail";
+import { handler } from "@/lib/api-handler";
 
 // Assume this exists and will be implemented with WhatsApp Business API
 // import { sendInitialWhatsApp } from "@/lib/cadreHealth/outreachSender";
 
 const DEFAULT_BATCH_SIZE = 50;
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
     const batchSize = Math.min(body.batchSize ?? DEFAULT_BATCH_SIZE, 200);
@@ -121,4 +122,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

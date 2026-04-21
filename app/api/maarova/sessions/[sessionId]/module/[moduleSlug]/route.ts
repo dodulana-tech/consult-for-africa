@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getMaarovaSession } from "@/lib/maarovaAuth";
+import { handler } from "@/lib/api-handler";
 
 interface RouteParams {
   params: Promise<{ sessionId: string; moduleSlug: string }>;
@@ -10,7 +11,7 @@ interface RouteParams {
  * GET /api/maarova/sessions/[sessionId]/module/[moduleSlug]
  * Return questions for this module, grouped by question group.
  */
-export async function GET(_req: NextRequest, { params }: RouteParams) {
+export const GET = handler(async function GET(_req: NextRequest, { params }: RouteParams) {
   const auth = await getMaarovaSession();
   if (!auth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -102,13 +103,13 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
     ),
     answeredCount: moduleResponse.itemResponses.length,
   });
-}
+});
 
 /**
  * POST /api/maarova/sessions/[sessionId]/module/[moduleSlug]
  * Save/auto-save item responses. Can be called multiple times.
  */
-export async function POST(req: NextRequest, { params }: RouteParams) {
+export const POST = handler(async function POST(req: NextRequest, { params }: RouteParams) {
   const auth = await getMaarovaSession();
   if (!auth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -224,4 +225,4 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     saved: responses.length,
     totalSaved: savedCount,
   });
-}
+});

@@ -1,12 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { getClientPortalSession } from "@/lib/clientPortalAuth";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/client-portal/invoices
  * List invoices for the authenticated client contact's organization.
  * Optional query params: ?status=SENT,OVERDUE
  */
-export async function GET(req: Request) {
+export const GET = handler(async function GET(req: Request) {
   const session = await getClientPortalSession();
   if (!session) {
     return new Response("Unauthorized", { status: 401 });
@@ -110,4 +111,4 @@ export async function GET(req: Request) {
       nextDueInvoiceNumber: nextDueInvoice?.invoiceNumber ?? null,
     },
   });
-}
+});

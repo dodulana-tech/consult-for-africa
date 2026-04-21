@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getPartnerPortalSession } from "@/lib/partnerPortalAuth";
+import { handler } from "@/lib/api-handler";
 
-export async function GET(
+export const GET = handler(async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -70,4 +71,4 @@ export async function GET(
     ...request,
     deployments,
   });
-}
+});

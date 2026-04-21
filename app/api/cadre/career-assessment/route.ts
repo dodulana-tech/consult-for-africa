@@ -3,10 +3,11 @@ import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
 import { getCadreLabel, getCadreShortLabel } from "@/lib/cadreHealth/cadres";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
-export async function POST() {
+export const POST = handler(async function POST() {
   try {
     const session = await getCadreSession();
     if (!session) {
@@ -279,4 +280,4 @@ Rules:
       { status: 500 }
     );
   }
-}
+});

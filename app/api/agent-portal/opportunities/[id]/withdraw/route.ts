@@ -1,7 +1,8 @@
 import { getAgentSession } from "@/lib/agentPortalAuth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(
+export const POST = handler(async function POST(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -34,4 +35,4 @@ export async function POST(
   });
 
   return Response.json({ ok: true });
-}
+});

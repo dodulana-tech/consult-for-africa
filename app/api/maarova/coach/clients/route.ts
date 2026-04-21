@@ -1,11 +1,12 @@
 import { getMaarovaCoachSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/maarova/coach/clients
  * List active coaching matches for the authenticated coach.
  */
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await getMaarovaCoachSession();
   if (!session) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -63,4 +64,4 @@ export async function GET() {
   }));
 
   return Response.json({ clients });
-}
+});

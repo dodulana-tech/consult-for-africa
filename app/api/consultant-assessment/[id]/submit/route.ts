@@ -4,6 +4,7 @@ import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getQuestionBank } from "@/lib/consultantAssessment/questions";
 import { emailAssessmentComplete } from "@/lib/email";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
@@ -54,7 +55,7 @@ async function scoreWithAI(
       ? `\nCALIBRATION: Experienced candidate (${candidateYears} years). Expect deep domain knowledge, strategic thinking, and specific examples with measurable outcomes.`
       : "";
 
-  const prompt = `You are an expert assessor for Consult for Africa (CFA), an African healthcare consulting firm. You are evaluating a ${candidateTrack} applicant for the ${specialty} specialty.
+  const prompt = `You are an expert assessor for Consult for Africa (C4A), an African healthcare consulting firm. You are evaluating a ${candidateTrack} applicant for the ${specialty} specialty.
 ${trackCalibration}
 Evaluate the following assessment responses and provide scoring. Be rigorous but fair. This is a vetting assessment, not a training exercise.
 
@@ -172,7 +173,7 @@ Return ONLY the JSON object, no additional text.`;
   return result;
 }
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -324,4 +325,4 @@ export async function POST(
       aiBreakdown: updated.aiBreakdown,
     },
   });
-}
+});

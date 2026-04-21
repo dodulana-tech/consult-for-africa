@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
-export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export const POST = handler(async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -58,4 +59,4 @@ Be specific to C4A. Never use em dashes. Be concise.`,
   });
 
   return Response.json({ nuruNotes, nuruSummary });
-}
+});

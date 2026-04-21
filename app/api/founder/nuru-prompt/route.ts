@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
-export async function POST() {
+export const POST = handler(async function POST() {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -120,4 +121,4 @@ Generate as JSON:
       context: "Generated prompt",
     });
   }
-}
+});

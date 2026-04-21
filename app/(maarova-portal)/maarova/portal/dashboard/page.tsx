@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function MaarovaDashboardPage() {
   const session = await getMaarovaSession();
   if (!session) redirect("/maarova/portal/login");

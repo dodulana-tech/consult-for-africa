@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCadreEmployerSession } from "@/lib/cadreEmployerAuth";
+import { handler } from "@/lib/api-handler";
 
-export async function GET() {
+export const GET = handler(async function GET() {
   try {
     const session = await getCadreEmployerSession();
     if (!session) {
@@ -41,4 +42,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-}
+});

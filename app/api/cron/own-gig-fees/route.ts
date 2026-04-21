@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
 import { timingSafeEqual } from "crypto";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 function safeCompare(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
@@ -13,7 +14,7 @@ function safeCompare(a: string, b: string): boolean {
  * Monthly cron to generate platform fee records for active own gig engagements.
  * Protected by CRON_SECRET.
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const secret = req.headers.get("x-cron-secret") ?? req.headers.get("authorization")?.replace("Bearer ", "");
   const expected = process.env.CRON_SECRET;
   if (!secret || !expected || !safeCompare(secret, expected)) {
@@ -88,4 +89,4 @@ export async function POST(req: NextRequest) {
   }
 
   return Response.json({ message: `Generated ${created} fee records`, created });
-}
+});

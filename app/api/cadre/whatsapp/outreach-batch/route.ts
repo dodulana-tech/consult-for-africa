@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendOutreachBatch } from "@/lib/cadreHealth/outreachSender";
 import { auth } from "@/auth";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (
     !session?.user?.role ||
@@ -27,4 +28,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

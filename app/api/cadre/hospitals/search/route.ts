@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
 // GET: Search facilities by name (for autocomplete)
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
     const q = url.searchParams.get("q")?.trim();
@@ -32,4 +33,4 @@ export async function GET(req: NextRequest) {
     console.error("Facility search error:", error);
     return NextResponse.json({ error: "Failed to search facilities" }, { status: 500 });
   }
-}
+});

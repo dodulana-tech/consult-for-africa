@@ -1,6 +1,7 @@
 import { getMaarovaCoachSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * PATCH /api/maarova/coach/sessions/[sessionId]
@@ -11,7 +12,7 @@ import { NextRequest } from "next/server";
  *  - Updates match.lastSessionAt
  *  - If all sessions completed, marks match COMPLETED and updates coach stats
  */
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> },
 ) {
@@ -153,13 +154,13 @@ export async function PATCH(
   });
 
   return Response.json({ session: JSON.parse(JSON.stringify(updated)) });
-}
+});
 
 /**
  * DELETE /api/maarova/coach/sessions/[sessionId]
  * Cancel/delete a scheduled session.
  */
-export async function DELETE(
+export const DELETE = handler(async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> },
 ) {
@@ -188,4 +189,4 @@ export async function DELETE(
   await prisma.maarovaCoachingSession.delete({ where: { id: sessionId } });
 
   return Response.json({ success: true });
-}
+});

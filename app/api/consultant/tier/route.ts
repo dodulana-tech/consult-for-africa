@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { calculateTierScore } from "@/lib/consultantTier";
+import { handler } from "@/lib/api-handler";
 
 const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
 
@@ -7,7 +8,7 @@ const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
  * GET /api/consultant/tier — returns the calling consultant's tier score,
  * or an admin can pass ?userId=xxx to look up another consultant.
  */
-export async function GET(req: Request) {
+export const GET = handler(async function GET(req: Request) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -29,4 +30,4 @@ export async function GET(req: Request) {
   } catch {
     return Response.json({ error: "Consultant not found" }, { status: 404 });
   }
-}
+});

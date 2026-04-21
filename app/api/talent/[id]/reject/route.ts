@@ -10,13 +10,14 @@ import {
   getSegmentInfo,
   type RejectionSegment,
 } from "@/lib/rejectionSegments";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/talent/[id]/reject
  * Preview the rejection segment classification for an application.
  * Returns segment info so the admin can review before confirming.
  */
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -60,7 +61,7 @@ export async function GET(
     currentStatus: application.status,
     ...info,
   });
-}
+});
 
 /**
  * POST /api/talent/[id]/reject
@@ -70,7 +71,7 @@ export async function GET(
  * Body: { segment?: RejectionSegment, reviewNotes?: string }
  * segment is optional -- if omitted, auto-classified from AI scores.
  */
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -230,4 +231,4 @@ export async function POST(
     academyAccountCreated: !!userId,
     email: application.email,
   });
-}
+});

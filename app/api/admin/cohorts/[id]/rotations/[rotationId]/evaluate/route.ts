@@ -1,8 +1,9 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; rotationId: string }> },
 ) {
@@ -42,4 +43,4 @@ export async function POST(
   });
 
   return Response.json({ evaluation: JSON.parse(JSON.stringify(evaluation)) }, { status: 201 });
-}
+});

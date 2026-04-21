@@ -4,10 +4,11 @@ import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
 import { getCadreLabel } from "@/lib/cadreHealth/cadres";
 import { rateLimit } from "@/lib/cadreHealth/rateLimit";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
-export async function GET() {
+export const GET = handler(async function GET() {
   try {
     const session = await getCadreSession();
     if (!session) {
@@ -28,9 +29,9 @@ export async function GET() {
       { status: 500 }
     );
   }
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const session = await getCadreSession();
     if (!session) {
@@ -184,4 +185,4 @@ Your role:
       { status: 500 }
     );
   }
-}
+});

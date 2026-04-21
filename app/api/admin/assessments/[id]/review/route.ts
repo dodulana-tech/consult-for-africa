@@ -2,12 +2,13 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 interface Props {
   params: Promise<{ id: string }>;
 }
 
-export async function POST(req: NextRequest, { params }: Props) {
+export const POST = handler(async function POST(req: NextRequest, { params }: Props) {
   const { id } = await params;
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
@@ -92,4 +93,4 @@ export async function POST(req: NextRequest, { params }: Props) {
   });
 
   return Response.json({ ok: true, action, adminTier });
-}
+});

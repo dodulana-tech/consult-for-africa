@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -47,4 +48,4 @@ export async function GET() {
   }).filter(m => m.revenue > 0 || m.cost > 0).sort((a, b) => b.revenue - a.revenue);
 
   return Response.json(margins);
-}
+});

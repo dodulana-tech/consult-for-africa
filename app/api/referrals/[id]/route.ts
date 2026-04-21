@@ -5,11 +5,12 @@ import type { ReferralStatus, ReferralType } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { sendInvite, emailMaarovaInvite } from "@/lib/email";
+import { handler } from "@/lib/api-handler";
 
 const VALID_STATUSES: ReferralStatus[] = ["PENDING", "CONTACTED", "CONVERTED", "REJECTED"];
 const VALID_TYPES: ReferralType[] = ["CLIENT", "CONSULTANT", "STAFF"];
 
-export async function DELETE(
+export const DELETE = handler(async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -29,9 +30,9 @@ export async function DELETE(
 
   await prisma.referral.delete({ where: { id } });
   return Response.json({ ok: true });
-}
+});
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -216,4 +217,4 @@ export async function PATCH(
   });
 
   return Response.json({ ok: true, referral: { ...updated, createdAt: updated.createdAt.toISOString(), updatedAt: updated.updatedAt.toISOString() } });
-}
+});

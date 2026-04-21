@@ -1,9 +1,10 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 // GET: Fetch all active assignments for the deliverable's project (for reassignment dropdown)
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export const GET = handler(async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
 
@@ -49,4 +50,4 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   });
 
   return Response.json({ assignments, currentAssignmentId: deliverable.assignmentId });
-}
+});

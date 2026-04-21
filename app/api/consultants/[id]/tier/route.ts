@@ -2,13 +2,14 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * PATCH /api/consultants/[id]/tier
  * Change a consultant's tier. Director+ only.
  * [id] is the ConsultantProfile ID.
  */
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -52,4 +53,4 @@ export async function PATCH(
   });
 
   return Response.json({ ok: true, oldTier, newTier: tier });
-}
+});

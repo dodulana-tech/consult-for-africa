@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCadreSession } from "@/lib/cadreAuth";
+import { handler } from "@/lib/api-handler";
 
 // GET: Facility detail with reviews (give-to-get)
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
@@ -81,4 +82,4 @@ export async function GET(
     console.error("Facility detail error:", error);
     return NextResponse.json({ error: "Failed to load facility" }, { status: 500 });
   }
-}
+});

@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET  /api/credit-notes - List credit notes with optional filters
@@ -9,7 +10,7 @@ import { Decimal } from "@prisma/client/runtime/library";
 
 const DIRECTOR_PLUS = ["DIRECTOR", "PARTNER", "ADMIN"];
 
-export async function GET(req: Request) {
+export const GET = handler(async function GET(req: Request) {
   const session = await auth();
   if (!session) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -36,9 +37,9 @@ export async function GET(req: Request) {
   });
 
   return Response.json({ creditNotes });
-}
+});
 
-export async function POST(req: Request) {
+export const POST = handler(async function POST(req: Request) {
   const session = await auth();
   if (!session) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -135,4 +136,4 @@ export async function POST(req: Request) {
   });
 
   return Response.json({ creditNote }, { status: 201 });
-}
+});

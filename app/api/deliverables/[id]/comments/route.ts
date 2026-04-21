@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-export async function GET(_req: NextRequest, { params }: Ctx) {
+export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -48,9 +49,9 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
       })),
     }))
   );
-}
+});
 
-export async function POST(req: NextRequest, { params }: Ctx) {
+export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -89,4 +90,4 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     },
     { status: 201 }
   );
-}
+});

@@ -2,12 +2,13 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 export const maxDuration = 30;
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export const POST = handler(async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -84,4 +85,4 @@ No markdown, no explanation, just the JSON array. No em dashes.`;
     console.error("Risk suggestion error:", msg, err);
     return Response.json({ error: "AI suggestions unavailable", detail: msg }, { status: 500 });
   }
-}
+});

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
 // Compute a basic match score (0-100) based on multiple factors
 function computeMatchScore(
@@ -138,7 +139,7 @@ function computeMatchScore(
   };
 }
 
-export async function POST(
+export const POST = handler(async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -213,4 +214,4 @@ export async function POST(
     console.error("Error matching mandate:", error);
     return NextResponse.json({ error: "Failed to find matches" }, { status: 500 });
   }
-}
+});

@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ALLOWED_ROLES = ["DIRECTOR", "PARTNER", "ADMIN"];
 
@@ -17,7 +18,7 @@ function sortByPriority<T extends { priority: string }>(items: T[]): T[] {
   );
 }
 
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role)) return new Response("Forbidden", { status: 403 });
@@ -46,9 +47,9 @@ export async function GET() {
     milestoneCount: profile._count.milestones,
     achievedMilestones: achievedCount,
   });
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role)) return new Response("Forbidden", { status: 403 });
@@ -157,7 +158,7 @@ export async function POST(req: NextRequest) {
         week: 5,
       },
       {
-        title: "LinkedIn post - CFA mission",
+        title: "LinkedIn post - C4A mission",
         priority: "low",
         category: "marketing",
         estimatedMinutes: 15,
@@ -294,7 +295,7 @@ export async function POST(req: NextRequest) {
   }
 
   return Response.json({ profile, isNew });
-}
+});
 
 function getThisMonday(): Date {
   const now = new Date();

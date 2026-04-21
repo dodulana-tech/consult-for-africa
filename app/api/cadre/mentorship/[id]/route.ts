@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 import { notifyMentorshipAccepted } from "@/lib/cadreHealth/notifications";
+import { handler } from "@/lib/api-handler";
 
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -64,9 +65,9 @@ export async function GET(
     console.error("Get mentorship error:", error);
     return NextResponse.json({ error: "Failed to load mentorship" }, { status: 500 });
   }
-}
+});
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -203,4 +204,4 @@ export async function PATCH(
     console.error("Update mentorship error:", error);
     return NextResponse.json({ error: "Failed to update mentorship" }, { status: 500 });
   }
-}
+});

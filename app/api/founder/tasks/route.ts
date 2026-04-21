@@ -2,6 +2,7 @@ import { requireAuth } from "@/lib/apiAuth";
 import { ELEVATED_ROLES } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const PRIORITY_ORDER: Record<string, number> = {
   critical: 0,
@@ -23,7 +24,7 @@ function sortByPriorityThenDate<T extends { priority: string; dueDate?: Date | n
   });
 }
 
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   const { error, session } = await requireAuth(ELEVATED_ROLES);
   if (error) return error;
 
@@ -46,9 +47,9 @@ export async function GET(req: NextRequest) {
   });
 
   return Response.json(sortByPriorityThenDate(tasks));
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const { error, session } = await requireAuth(ELEVATED_ROLES);
   if (error) return error;
 
@@ -81,4 +82,4 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json(task, { status: 201 });
-}
+});

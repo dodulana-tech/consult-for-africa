@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getNuruContext } from "@/lib/nuruContext";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
@@ -10,7 +11,7 @@ const anthropic = new Anthropic();
  * POST /api/ai/suggest-track-deliverables
  * Nuru suggests deliverables for a specific track within an engagement.
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
 
   const nuruContext = await getNuruContext();
 
-  const prompt = `You are Nuru, CFA's internal strategy advisor. Suggest deliverables for this specific workstream track.
+  const prompt = `You are Nuru, C4A's internal strategy advisor. Suggest deliverables for this specific workstream track.
 
 ENGAGEMENT: ${track.engagement.name}
 CLIENT: ${track.engagement.client.name} (${track.engagement.client.type})
@@ -98,4 +99,4 @@ Return ONLY valid JSON:
     console.error("[ai/suggest-track-deliverables] failed", err);
     return Response.json({ error: "Failed to generate deliverable suggestions" }, { status: 500 });
   }
-}
+});

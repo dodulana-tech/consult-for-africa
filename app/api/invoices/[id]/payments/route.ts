@@ -2,12 +2,13 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { emailPaymentReceived } from "@/lib/email";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 /* ── GET: list payments for an invoice ─────────────────────────────────────── */
 
-export async function GET(req: NextRequest, { params }: Ctx) {
+export const GET = handler(async function GET(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -51,11 +52,11 @@ export async function GET(req: NextRequest, { params }: Ctx) {
       updatedAt: p.updatedAt.toISOString(),
     }))
   );
-}
+});
 
 /* ── POST: record a payment ────────────────────────────────────────────────── */
 
-export async function POST(req: NextRequest, { params }: Ctx) {
+export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -182,4 +183,4 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     },
     { status: 201 }
   );
-}
+});

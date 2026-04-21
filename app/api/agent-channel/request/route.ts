@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { handler } from "@/lib/api-handler";
 
 const schema = z.object({
   companyName: z.string().trim().min(1, "Company name is required"),
@@ -28,7 +29,7 @@ function esc(s: unknown): string {
     .replace(/'/g, "&#x27;");
 }
 
-export async function POST(req: Request) {
+export const POST = handler(async function POST(req: Request) {
   const parsed = schema.safeParse(await req.json());
   if (!parsed.success) {
     return NextResponse.json(
@@ -110,4 +111,4 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ success: true });
-}
+});

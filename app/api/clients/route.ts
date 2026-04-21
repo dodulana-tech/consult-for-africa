@@ -5,6 +5,7 @@ import { randomBytes } from "crypto";
 import bcrypt from "bcryptjs";
 import { emailClientPortalInvite } from "@/lib/email";
 import { z } from "zod";
+import { handler } from "@/lib/api-handler";
 
 const createClientSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
@@ -42,7 +43,7 @@ function generatePassword(): string {
   return chars.join("");
 }
 
-export async function GET(_req: NextRequest) {
+export const GET = handler(async function GET(_req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -70,9 +71,9 @@ export async function GET(_req: NextRequest) {
   });
 
   return Response.json({ clients });
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -144,4 +145,4 @@ export async function POST(req: NextRequest) {
     { ok: true, client: { ...client, createdAt: client.createdAt.toISOString() } },
     { status: 201 }
   );
-}
+});

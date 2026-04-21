@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { contactLimiter } from "@/lib/rate-limit-redis";
+import { handler } from "@/lib/api-handler";
 
 const contactSchema = z.object({
   organization: z.string().trim().min(1, "Organisation is required"),
@@ -24,7 +25,7 @@ function escHtml(s: unknown): string {
     .replace(/'/g, "&#x27;");
 }
 
-export async function POST(req: Request) {
+export const POST = handler(async function POST(req: Request) {
   // Rate limit by IP
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const { success } = await contactLimiter.limit(ip);
@@ -142,4 +143,4 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ success: true });
-}
+});

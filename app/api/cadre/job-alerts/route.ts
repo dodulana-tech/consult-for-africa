@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { z } from "zod";
+import { handler } from "@/lib/api-handler";
 
 const schema = z.object({
   email: z.string().email(),
@@ -8,7 +9,7 @@ const schema = z.object({
   state: z.string().optional(),
 });
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) return Response.json({ error: "Invalid email" }, { status: 400 });
@@ -30,4 +31,4 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json({ ok: true });
-}
+});

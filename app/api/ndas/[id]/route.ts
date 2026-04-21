@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -8,7 +9,7 @@ type Ctx = { params: Promise<{ id: string }> };
  * GET /api/ndas/:id
  * Get NDA details.
  */
-export async function GET(_req: NextRequest, ctx: Ctx) {
+export const GET = handler(async function GET(_req: NextRequest, ctx: Ctx) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -32,13 +33,13 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
   }
 
   return Response.json({ nda });
-}
+});
 
 /**
  * DELETE /api/ndas/:id
  * Cancel/terminate an NDA. Only DRAFT or PENDING can be deleted.
  */
-export async function DELETE(_req: NextRequest, ctx: Ctx) {
+export const DELETE = handler(async function DELETE(_req: NextRequest, ctx: Ctx) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -63,4 +64,4 @@ export async function DELETE(_req: NextRequest, ctx: Ctx) {
   // Delete draft/pending NDAs
   await prisma.nda.delete({ where: { id } });
   return Response.json({ success: true });
-}
+});

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { handler } from "@/lib/api-handler";
 
 const createMandateSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -30,7 +31,7 @@ const createMandateSchema = z.object({
   clientContact: z.string().nullable().optional(),
 });
 
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
     const status = url.searchParams.get("status");
@@ -57,9 +58,9 @@ export async function GET(req: NextRequest) {
     console.error("Error fetching mandates:", error);
     return NextResponse.json({ error: "Failed to fetch mandates" }, { status: 500 });
   }
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const parsed = createMandateSchema.safeParse(await req.json());
     if (!parsed.success) {
@@ -108,9 +109,9 @@ export async function POST(req: NextRequest) {
     console.error("Error creating mandate:", error);
     return NextResponse.json({ error: "Failed to create mandate" }, { status: 500 });
   }
-}
+});
 
-export async function PATCH(req: NextRequest) {
+export const PATCH = handler(async function PATCH(req: NextRequest) {
   try {
     const url = new URL(req.url);
     const id = url.searchParams.get("id");
@@ -168,9 +169,9 @@ export async function PATCH(req: NextRequest) {
     console.error("Error updating mandate:", error);
     return NextResponse.json({ error: "Failed to update mandate" }, { status: 500 });
   }
-}
+});
 
-export async function DELETE(req: NextRequest) {
+export const DELETE = handler(async function DELETE(req: NextRequest) {
   try {
     const url = new URL(req.url);
     const id = url.searchParams.get("id");
@@ -184,4 +185,4 @@ export async function DELETE(req: NextRequest) {
     console.error("Error deleting mandate:", error);
     return NextResponse.json({ error: "Failed to delete mandate" }, { status: 500 });
   }
-}
+});

@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ADMIN = ["PARTNER", "ADMIN"];
 
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session || !ADMIN.includes(session.user.role)) return Response.json({ error: "Forbidden" }, { status: 403 });
 
@@ -24,9 +25,9 @@ export async function GET() {
       updatedAt: c.updatedAt.toISOString(),
     })),
   });
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session || !ADMIN.includes(session.user.role)) return Response.json({ error: "Forbidden" }, { status: 403 });
 
@@ -46,4 +47,4 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json({ campaign }, { status: 201 });
-}
+});

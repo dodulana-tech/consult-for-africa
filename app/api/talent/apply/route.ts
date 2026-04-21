@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
 import { PDFParse } from "pdf-parse";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
@@ -12,7 +13,7 @@ const ALLOWED_CV_HOSTS = new Set([
 
 const MAX_CV_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const body = await req.json();
 
   const {
@@ -235,4 +236,4 @@ Return ONLY valid JSON matching this exact structure:
     aiScore: application.aiScore,
     message: "Application received. We will be in touch within 5 business days.",
   });
-}
+});

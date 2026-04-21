@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR"];
 
@@ -13,7 +14,7 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
   ACTIVE: ["COMPLETED", "CANCELLED"],
 };
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -134,4 +135,4 @@ export async function POST(
       matchedAt: updated.matchedAt?.toISOString() ?? null,
     },
   });
-}
+});

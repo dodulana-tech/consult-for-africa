@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import type { ReferralType, ReferralStatus } from "@prisma/client";
 import { z } from "zod";
+import { handler } from "@/lib/api-handler";
 
 const VALID_TYPES: ReferralType[] = ["CLIENT", "CONSULTANT", "STAFF"];
 
@@ -16,7 +17,7 @@ const createReferralSchema = z.object({
   notes: z.string().trim().nullable().optional(),
 });
 
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -38,9 +39,9 @@ export async function GET() {
       updatedAt: r.updatedAt.toISOString(),
     })),
   });
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -78,4 +79,4 @@ export async function POST(req: NextRequest) {
       updatedAt: referral.updatedAt.toISOString(),
     },
   }, { status: 201 });
-}
+});

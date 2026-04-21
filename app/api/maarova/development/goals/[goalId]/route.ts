@@ -1,8 +1,9 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ goalId: string }> }
 ) {
@@ -67,4 +68,4 @@ export async function PATCH(
   });
 
   return Response.json(updated);
-}
+});

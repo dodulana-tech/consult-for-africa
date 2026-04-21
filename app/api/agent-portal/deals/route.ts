@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { getAgentSession } from "@/lib/agentPortalAuth";
 import { generateDealCode } from "@/lib/agentCodes";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(req: Request) {
+export const POST = handler(async function POST(req: Request) {
   const session = await getAgentSession();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -59,4 +60,4 @@ export async function POST(req: Request) {
   });
 
   return Response.json(deal);
-}
+});

@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ELEVATED_ROLES = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
 
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -34,9 +35,9 @@ export async function GET() {
   });
 
   return NextResponse.json(proposals);
-}
+});
 
-export async function POST(req: Request) {
+export const POST = handler(async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -114,4 +115,4 @@ export async function POST(req: Request) {
   });
 
   return NextResponse.json(proposal, { status: 201 });
-}
+});

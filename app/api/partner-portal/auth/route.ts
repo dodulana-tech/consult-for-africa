@@ -3,8 +3,9 @@ import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { signPartnerPortalJWT } from "@/lib/partnerPortalAuth";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const { email, password } = await req.json();
   if (!email || !password)
     return new Response("Email and password required", { status: 400 });
@@ -52,10 +53,10 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json({ ok: true, name: contact.name, partnerId: contact.partnerId });
-}
+});
 
-export async function DELETE() {
+export const DELETE = handler(async function DELETE() {
   const cookieStore = await cookies();
   cookieStore.delete("partner_portal_token");
   return Response.json({ ok: true });
-}
+});

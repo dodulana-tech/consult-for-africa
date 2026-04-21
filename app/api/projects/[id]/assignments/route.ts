@@ -5,11 +5,12 @@ import { checkCapacityForAssignment } from "@/lib/capacity";
 import { emailAssignmentCreated } from "@/lib/email";
 import { NextRequest } from "next/server";
 import type { RateType, Currency } from "@prisma/client";
+import { handler } from "@/lib/api-handler";
 
 const VALID_RATE_TYPES: RateType[] = ["HOURLY", "DAILY", "MONTHLY", "FIXED_PROJECT", "FIXED_DELIVERABLE"];
 const VALID_CURRENCIES: Currency[] = ["NGN", "USD"];
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -191,4 +192,4 @@ export async function POST(
     capacityWarning: capacityCheck.warning,
     message: `Assignment request sent to ${consultant.name}. They will need to accept before the assignment becomes active.`,
   }, { status: 201 });
-}
+});

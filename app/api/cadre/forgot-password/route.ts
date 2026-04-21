@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
 import { sendCadreEmail } from "@/lib/cadreEmail";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
 
@@ -59,4 +60,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

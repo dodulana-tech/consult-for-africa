@@ -2,10 +2,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -185,9 +186,9 @@ Return ONLY the JSON object, no other text.`;
       generatedAt: new Date().toISOString(),
     },
   });
-}
+});
 
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -206,4 +207,4 @@ export async function GET(req: NextRequest) {
   return Response.json({ proposals: proposals.map((p) => ({
     ...p, createdAt: p.createdAt.toISOString(),
   })) });
-}
+});

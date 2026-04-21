@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getPartnerPortalSession } from "@/lib/partnerPortalAuth";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -104,4 +105,4 @@ export async function POST(
   }
 
   return NextResponse.json({ success: true });
-}
+});

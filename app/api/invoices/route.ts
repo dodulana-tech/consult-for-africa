@@ -6,6 +6,7 @@ import { NextRequest } from "next/server";
 import type { InvoiceType, Prisma } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { z } from "zod";
+import { handler } from "@/lib/api-handler";
 
 const lineItemSchema = z.object({
   description: z.string().min(1, "Description is required"),
@@ -53,7 +54,7 @@ const PREFIX_MAP: Record<string, string> = {
 
 /* ── GET: list invoices with filters + optional summary ────────────────────── */
 
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -141,7 +142,7 @@ export async function GET(req: NextRequest) {
   });
 
   return Response.json(invoices.map((inv) => serialise(inv)));
-}
+});
 
 /* ── POST: create invoice with InvoiceLineItem records ─────────────────────── */
 
@@ -154,7 +155,7 @@ interface LineItemInput {
   timeEntryIds?: string[];
 }
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -336,4 +337,4 @@ export async function POST(req: NextRequest) {
   }
 
   return Response.json(serialise(invoice as unknown as Record<string, unknown>), { status: 201 });
-}
+});

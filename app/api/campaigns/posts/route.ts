@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
-export async function GET(req: Request) {
+export const GET = handler(async function GET(req: Request) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -23,9 +24,9 @@ export async function GET(req: Request) {
   });
 
   return Response.json(posts);
-}
+});
 
-export async function POST(req: Request) {
+export const POST = handler(async function POST(req: Request) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -57,4 +58,4 @@ export async function POST(req: Request) {
   });
 
   return Response.json(post);
-}
+});

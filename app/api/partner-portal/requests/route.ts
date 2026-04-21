@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getPartnerPortalSession } from "@/lib/partnerPortalAuth";
+import { handler } from "@/lib/api-handler";
 
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await getPartnerPortalSession();
   if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
@@ -25,9 +26,9 @@ export async function GET() {
   });
 
   return NextResponse.json(requests);
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await getPartnerPortalSession();
   if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
@@ -168,4 +169,4 @@ export async function POST(req: NextRequest) {
     { ...request, matchabilityScore, matchabilityLabel },
     { status: 201 }
   );
-}
+});

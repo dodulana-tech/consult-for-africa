@@ -6,6 +6,7 @@ import { NdaTemplateData } from "@/lib/nda/templates";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { NextRequest } from "next/server";
 import React from "react";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -36,7 +37,7 @@ const BUCKET = process.env.AWS_S3_BUCKET ?? "cfa-platform";
  * Sign an NDA (Party A or Party B).
  * Body: { party: "A" | "B", signature: "base64 image data" }
  */
-export async function POST(req: NextRequest, ctx: Ctx) {
+export const POST = handler(async function POST(req: NextRequest, ctx: Ctx) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -155,4 +156,4 @@ export async function POST(req: NextRequest, ctx: Ctx) {
   }
 
   return Response.json({ error: "Invalid party. Use 'A' or 'B'" }, { status: 400 });
-}
+});

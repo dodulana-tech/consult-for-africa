@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { cookies } from "next/headers";
 import { rateLimit, getClientIp } from "@/lib/cadreHealth/rateLimit";
+import { handler } from "@/lib/api-handler";
 
 function verifyPasswordPbkdf2(password: string, stored: string): boolean {
   const [salt, hash] = stored.split(":");
@@ -24,7 +25,7 @@ async function verifyPassword(password: string, stored: string): Promise<boolean
   return verifyPasswordPbkdf2(password, stored);
 }
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   // Rate limit: 10 login attempts per hour per IP
   const ip = getClientIp(req.headers);
   if (!rateLimit(`login:${ip}`, 10, 60 * 60 * 1000)) {
@@ -93,4 +94,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

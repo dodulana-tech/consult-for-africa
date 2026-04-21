@@ -2,12 +2,13 @@ import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * PATCH /api/maarova/coaching/sessions/[sessionId]/feedback
  * User-facing endpoint: rate and leave feedback on a completed coaching session.
  */
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> },
 ) {
@@ -89,4 +90,4 @@ export async function PATCH(
       coacheeFeedback: updated.coacheeFeedback,
     },
   });
-}
+});

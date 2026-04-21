@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
 
@@ -8,7 +9,7 @@ const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
  * GET /api/discovery-calls
  * List discovery calls. DIRECTOR+ sees all, EM sees own.
  */
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -25,13 +26,13 @@ export async function GET() {
   });
 
   return Response.json({ calls });
-}
+});
 
 /**
  * POST /api/discovery-calls
  * Create a new discovery call.
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -60,4 +61,4 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json({ call }, { status: 201 });
-}
+});

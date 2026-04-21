@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ELEVATED_ROLES = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
 
-export async function GET(
+export const GET = handler(async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -33,9 +34,9 @@ export async function GET(
   }
 
   return NextResponse.json(proposal);
-}
+});
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -127,9 +128,9 @@ export async function PATCH(
   });
 
   return NextResponse.json(updated);
-}
+});
 
-export async function DELETE(
+export const DELETE = handler(async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -159,4 +160,4 @@ export async function DELETE(
   await prisma.proposal.delete({ where: { id } });
 
   return NextResponse.json({ success: true });
-}
+});

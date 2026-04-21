@@ -2,10 +2,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const MANAGEMENT = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -61,4 +62,4 @@ export async function PATCH(
   });
 
   return Response.json({ client: updated });
-}
+});

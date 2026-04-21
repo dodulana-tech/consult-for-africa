@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { createGoogleMeetMeeting } from "@/lib/google";
 import { sendMeetingInvite } from "@/lib/email";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
 
@@ -10,7 +11,7 @@ const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
  * GET /api/meetings
  * List meetings. DIRECTOR+ sees all, others see meetings they organize or participate in.
  */
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -55,13 +56,13 @@ export async function GET(req: NextRequest) {
   });
 
   return Response.json({ meetings });
-}
+});
 
 /**
  * POST /api/meetings
  * Create a new meeting with auto-generated Google Meet link.
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -176,4 +177,4 @@ export async function POST(req: NextRequest) {
   }
 
   return Response.json({ meeting }, { status: 201 });
-}
+});

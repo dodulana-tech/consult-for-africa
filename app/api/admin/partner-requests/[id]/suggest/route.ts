@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR"];
 
@@ -13,7 +14,7 @@ const TIER_RANK: Record<string, number> = {
   ELITE: 4,
 };
 
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -157,7 +158,7 @@ export async function GET(
   const top10 = scored.slice(0, 10);
 
   return Response.json({ ok: true, matches: top10 });
-}
+});
 
 interface ScoredConsultant {
   consultantId: string;

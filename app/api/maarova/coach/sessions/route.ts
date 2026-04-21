@@ -2,6 +2,7 @@ import { getMaarovaCoachSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { emailCoachingSessionScheduled } from "@/lib/email";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * Determine the session template based on session number and total sessions.
@@ -22,7 +23,7 @@ function getSessionTemplate(sessionNumber: number, total: number): string {
  * Schedule a new coaching session. Coach provides matchId, date/time, focus areas, and meeting link.
  * Auto-assigns session number and template. Transitions MATCHED to ACTIVE on first session.
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await getMaarovaCoachSession();
   if (!session) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -118,4 +119,4 @@ export async function POST(req: NextRequest) {
   }
 
   return Response.json({ session: JSON.parse(JSON.stringify(coachingSession)) }, { status: 201 });
-}
+});

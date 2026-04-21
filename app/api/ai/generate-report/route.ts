@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { sanitizeForPrompt } from "@/lib/sanitize";
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -23,7 +24,7 @@ const HOSPITAL_TYPE_LABELS: Record<string, string> = {
   ngo_donor: "NGO / Donor-Funded Facility",
 };
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -155,4 +156,4 @@ Return ONLY the JSON object, no other text.`;
       generatedAt: new Date().toISOString(),
     },
   });
-}
+});

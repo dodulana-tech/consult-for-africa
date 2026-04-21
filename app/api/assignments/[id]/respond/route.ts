@@ -3,13 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { emailAssignmentResponse } from "@/lib/email";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * POST /api/assignments/[id]/respond
  * Consultant accepts or declines an assignment request.
  * Body: { action: "accept" | "decline", reason?: string }
  */
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export const POST = handler(async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
 
@@ -123,4 +124,4 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   return Response.json({ ok: true, status: "DECLINED" });
-}
+});

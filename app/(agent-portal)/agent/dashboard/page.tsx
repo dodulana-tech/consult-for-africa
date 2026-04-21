@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function AgentDashboardPage() {
   const session = await getAgentSession();
   if (!session) redirect("/agent/login");

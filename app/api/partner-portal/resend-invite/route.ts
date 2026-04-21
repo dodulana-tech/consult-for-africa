@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 import { NextRequest } from "next/server";
 import { emailPartnerPortalInvite } from "@/lib/email";
+import { handler } from "@/lib/api-handler";
 
 const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR"];
 
@@ -29,7 +30,7 @@ function generatePassword(): string {
   return chars.join("");
 }
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role)) {
@@ -65,4 +66,4 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json({ ok: true });
-}
+});

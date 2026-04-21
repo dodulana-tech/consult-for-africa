@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const DEFAULT_PREFERENCES = {
   email_deliverable: true,
@@ -10,7 +11,7 @@ const DEFAULT_PREFERENCES = {
   push_enabled: false,
 };
 
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -33,9 +34,9 @@ export async function GET() {
   };
 
   return NextResponse.json(prefs);
-}
+});
 
-export async function PATCH(req: Request) {
+export const PATCH = handler(async function PATCH(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -89,4 +90,4 @@ export async function PATCH(req: Request) {
   });
 
   return NextResponse.json(merged);
-}
+});

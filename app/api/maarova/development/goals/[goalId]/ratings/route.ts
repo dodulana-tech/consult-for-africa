@@ -2,6 +2,7 @@ import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { getMaarovaCoachSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/maarova/development/goals/[goalId]/ratings
@@ -10,7 +11,7 @@ import { NextRequest } from "next/server";
  * POST /api/maarova/development/goals/[goalId]/ratings
  * Add a rating. Determines raterType from the session type.
  */
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ goalId: string }> },
 ) {
@@ -30,9 +31,9 @@ export async function GET(
   });
 
   return Response.json({ ratings });
-}
+});
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ goalId: string }> },
 ) {
@@ -105,4 +106,4 @@ export async function POST(
   });
 
   return Response.json(rating, { status: 201 });
-}
+});

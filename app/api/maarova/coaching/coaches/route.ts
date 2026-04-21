@@ -1,6 +1,7 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { rankCoaches, type CoachCandidate, type UserMatchContext } from "@/lib/coachMatching";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/maarova/coaching/coaches
@@ -8,7 +9,7 @@ import { rankCoaches, type CoachCandidate, type UserMatchContext } from "@/lib/c
  * Uses assessment results (development areas, coaching priorities) plus
  * organisation context (country, type) to score and rank coaches.
  */
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await getMaarovaSession();
   if (!session) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -84,7 +85,7 @@ export async function GET() {
   const { recommended, others } = rankCoaches(available, ctx);
 
   return Response.json({ recommended, others });
-}
+});
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 

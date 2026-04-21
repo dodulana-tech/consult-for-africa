@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/ai/pricing-intelligence
@@ -9,7 +10,7 @@ import { prisma } from "@/lib/prisma";
  * POST /api/ai/pricing-intelligence
  * Recomputes pricing stats from all deliverables and time entries.
  */
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -22,9 +23,9 @@ export async function GET() {
   }
 
   return Response.json({ stats: latest.stats, computedAt: latest.computedAt, dataPoints: latest.dataPoints });
-}
+});
 
-export async function POST() {
+export const POST = handler(async function POST() {
   const session = await auth();
   if (!session || !["PARTNER", "ADMIN"].includes(session.user.role)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
@@ -154,4 +155,4 @@ export async function POST() {
   });
 
   return Response.json({ stats, computedAt: record.computedAt, dataPoints: record.dataPoints });
-}
+});

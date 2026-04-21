@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getClientPortalSession } from "@/lib/clientPortalAuth";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const VALID_SERVICE_TYPES = [
   "HOSPITAL_OPERATIONS",
@@ -15,7 +16,7 @@ const VALID_SERVICE_TYPES = [
 
 const VALID_URGENCY = ["normal", "urgent"] as const;
 
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await getClientPortalSession();
   if (!session) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -37,9 +38,9 @@ export async function GET() {
       createdAt: r.createdAt.toISOString(),
     })),
   });
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await getClientPortalSession();
   if (!session) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -100,4 +101,4 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json({ id: request.id }, { status: 201 });
-}
+});

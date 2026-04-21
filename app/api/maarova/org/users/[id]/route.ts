@@ -1,12 +1,13 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * PATCH /api/maarova/org/users/[id]
  * Update user role or manager assignment. Auth: HR_ADMIN only.
  */
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -65,4 +66,4 @@ export async function PATCH(
   });
 
   return Response.json({ user: updated });
-}
+});

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { scoreModule } from "@/lib/maarova/scoring";
+import { handler } from "@/lib/api-handler";
 
 interface RouteParams {
   params: Promise<{ sessionId: string; moduleSlug: string }>;
@@ -11,7 +12,7 @@ interface RouteParams {
  * POST /api/maarova/sessions/[sessionId]/module/[moduleSlug]/complete
  * Mark a module as complete, run scoring, and check if all modules are done.
  */
-export async function POST(_req: NextRequest, { params }: RouteParams) {
+export const POST = handler(async function POST(_req: NextRequest, { params }: RouteParams) {
   const auth = await getMaarovaSession();
   if (!auth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -179,4 +180,4 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
     allModulesComplete: allCompleted,
     moduleType: module.type,
   });
-}
+});

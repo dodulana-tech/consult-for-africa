@@ -1,11 +1,12 @@
 import { auth } from "@/auth";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/paystack/resolve?account_number=XXX&bank_code=XXX
  * Resolve account number to account name via Paystack.
  */
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -38,4 +39,4 @@ export async function GET(req: NextRequest) {
     console.error("[paystack/resolve] failed", err);
     return Response.json({ error: "Failed to resolve account" }, { status: 500 });
   }
-}
+});

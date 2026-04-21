@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import { sendCadreEmail } from "@/lib/cadreEmail";
 import { rateLimit, getClientIp } from "@/lib/cadreHealth/rateLimit";
 import { z } from "zod";
+import { handler } from "@/lib/api-handler";
 
 const registerSchema = z.object({
   firstName: z.string().trim().min(1, "First name is required"),
@@ -40,7 +41,7 @@ function generateReferralCode(): string {
   return "CH" + crypto.randomBytes(4).toString("hex").toUpperCase();
 }
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   // Rate limit: 5 registrations per hour per IP
   const ip = getClientIp(req.headers);
   if (!rateLimit(`register:${ip}`, 5, 60 * 60 * 1000)) {
@@ -185,4 +186,4 @@ export async function POST(req: NextRequest) {
       { status: isDbError ? 503 : 500 }
     );
   }
-}
+});

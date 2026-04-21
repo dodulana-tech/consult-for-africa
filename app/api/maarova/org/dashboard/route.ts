@@ -1,11 +1,12 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/maarova/org/dashboard
  * Org-level stats for HR admin: user counts, assessment funnel, coaching status, goal progress.
  */
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await getMaarovaSession();
   if (!session || session.role !== "HR_ADMIN") {
     return Response.json({ error: "Unauthorized" }, { status: 403 });
@@ -59,4 +60,4 @@ export async function GET() {
     coaching: { active: coachingActive, matched: coachingMatched, completed: coachingCompleted },
     goals: { total: totalGoals, completed: goalsCompleted, avgProgress },
   });
-}
+});

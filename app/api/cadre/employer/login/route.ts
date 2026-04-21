@@ -4,6 +4,7 @@ import { signCadreEmployerJWT } from "@/lib/cadreEmployerAuth";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { cookies } from "next/headers";
+import { handler } from "@/lib/api-handler";
 
 function verifyPasswordPbkdf2(password: string, stored: string): boolean {
   const [salt, hash] = stored.split(":");
@@ -21,7 +22,7 @@ async function verifyPassword(password: string, stored: string): Promise<boolean
   return verifyPasswordPbkdf2(password, stored);
 }
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
 
@@ -72,4 +73,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

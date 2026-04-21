@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const cadre = searchParams.get("cadre");
@@ -65,4 +66,4 @@ export async function GET(req: NextRequest) {
     console.error("List mentors error:", error);
     return NextResponse.json({ error: "Failed to list mentors" }, { status: 500 });
   }
-}
+});

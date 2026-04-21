@@ -1,6 +1,7 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/maarova/manager/reports/[userId]/goals
@@ -9,7 +10,7 @@ import { NextRequest } from "next/server";
  * POST /api/maarova/manager/reports/[userId]/goals
  * Assign a goal to a direct report.
  */
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ userId: string }> },
 ) {
@@ -42,9 +43,9 @@ export async function GET(
   });
 
   return Response.json({ user, goals: goals.map((g) => JSON.parse(JSON.stringify(g))) });
-}
+});
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ userId: string }> },
 ) {
@@ -85,4 +86,4 @@ export async function POST(
   });
 
   return Response.json(goal, { status: 201 });
-}
+});

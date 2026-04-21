@@ -1,12 +1,13 @@
 import { getMaarovaCoachSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * PATCH /api/maarova/coach/goals/[goalId]
  * Update coach notes on a goal. Auth: coach, must be coaching the goal's user.
  */
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ goalId: string }> },
 ) {
@@ -51,4 +52,4 @@ export async function PATCH(
   });
 
   return Response.json(updated);
-}
+});

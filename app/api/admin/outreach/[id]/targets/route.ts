@@ -3,8 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { emailOutreachInvite } from "@/lib/email";
 import { randomBytes } from "crypto";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -42,9 +43,9 @@ export async function POST(
   await prisma.outreachCampaign.update({ where: { id }, data: { targetCount: count } });
 
   return Response.json({ targets: created, count }, { status: 201 });
-}
+});
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -116,7 +117,7 @@ export async function PATCH(
   recomputeCampaignCounts(id).catch(() => {});
 
   return Response.json({ target: JSON.parse(JSON.stringify(updated)) });
-}
+});
 
 async function recomputeCampaignCounts(campaignId: string) {
   const counts = await prisma.outreachTarget.groupBy({

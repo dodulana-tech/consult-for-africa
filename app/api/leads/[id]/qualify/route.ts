@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getNuruContext } from "@/lib/nuruContext";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
@@ -10,7 +11,7 @@ const anthropic = new Anthropic();
  * POST /api/leads/[id]/qualify
  * Nuru qualifies a lead based on available data.
  */
-export async function POST(
+export const POST = handler(async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -107,4 +108,4 @@ Return ONLY valid JSON:
     console.error("[leads/qualify] Nuru qualification failed", err);
     return Response.json({ error: "Qualification failed" }, { status: 500 });
   }
-}
+});

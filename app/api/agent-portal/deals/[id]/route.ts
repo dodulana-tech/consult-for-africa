@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getAgentSession } from "@/lib/agentPortalAuth";
 import { createCommissionForDeal } from "@/lib/agentCommission";
 import { emailAgentDealClosed } from "@/lib/email";
+import { handler } from "@/lib/api-handler";
 
 /** Ordered pipeline stages for validation */
 const STAGE_ORDER = [
@@ -34,7 +35,7 @@ function isValidTransition(from: string, to: string): boolean {
   return toIdx === fromIdx + 1;
 }
 
-export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export const PATCH = handler(async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAgentSession();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -138,4 +139,4 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   }
 
   return Response.json(updated);
-}
+});

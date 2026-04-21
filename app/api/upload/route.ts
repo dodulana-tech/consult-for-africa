@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { NextRequest } from "next/server";
 import { generateUploadUrl, generateDownloadUrl, buildKey, getPublicUrl } from "@/lib/r2";
+import { handler } from "@/lib/api-handler";
 
 const ALLOWED_CONTENT_TYPES: Record<string, string> = {
   "application/pdf": "pdf",
@@ -33,7 +34,7 @@ const MAX_FILE_SIZE_MB = 50;
 /**
  * POST: Generate a presigned upload URL for authenticated users.
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user) {
     return new Response("Unauthorized", { status: 401 });
@@ -95,12 +96,12 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 /**
  * GET: Generate a presigned download URL for authenticated users.
  */
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (!session?.user) {
     return new Response("Unauthorized", { status: 401 });
@@ -127,4 +128,4 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

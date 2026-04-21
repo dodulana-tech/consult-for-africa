@@ -1,12 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { getClientPortalSession } from "@/lib/clientPortalAuth";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/client-portal/invoices/[id]
  * Single invoice detail, verified against client's organization.
  */
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -88,13 +89,13 @@ export async function GET(
     client: invoice.client,
     createdAt: invoice.createdAt,
   });
-}
+});
 
 /**
  * PATCH /api/client-portal/invoices/[id]
  * Mark invoice as VIEWED (sets viewedAt if first view).
  */
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -137,4 +138,4 @@ export async function PATCH(
   }
 
   return Response.json({ ok: true });
-}
+});

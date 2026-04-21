@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import type { InvoiceType, Prisma } from "@prisma/client";
+import { handler } from "@/lib/api-handler";
 
 const PREFIX_MAP: Record<string, string> = {
   STANDARD: "C4A-INV",
@@ -45,7 +46,7 @@ function serialise(inv: Record<string, unknown>) {
 
 /* ── GET: paginated invoice list for finance tab ─────────────────────────────── */
 
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -114,7 +115,7 @@ export async function GET(req: NextRequest) {
       draftsPending: draftCount,
     },
   });
-}
+});
 
 /* ── POST: create invoice ───────────────────────────────────────────────────── */
 
@@ -126,7 +127,7 @@ interface LineItemInput {
   category?: string;
 }
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -252,4 +253,4 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json(serialise(invoice as unknown as Record<string, unknown>), { status: 201 });
-}
+});

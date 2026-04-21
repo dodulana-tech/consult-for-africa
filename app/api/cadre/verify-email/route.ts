@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   try {
     const token = req.nextUrl.searchParams.get("token");
 
@@ -38,4 +39,4 @@ export async function GET(req: NextRequest) {
       new URL("/oncadre/login?error=verification-failed", req.url)
     );
   }
-}
+});

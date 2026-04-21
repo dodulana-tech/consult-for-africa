@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCadreEmployerSession } from "@/lib/cadreEmployerAuth";
+import { handler } from "@/lib/api-handler";
 
 function generateSlug(title: string, facility: string | null, state: string | null): string {
   const parts = [title, facility, state].filter(Boolean).join(" ");
@@ -12,7 +13,7 @@ function generateSlug(title: string, facility: string | null, state: string | nu
     .slice(0, 80);
 }
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const session = await getCadreEmployerSession();
     if (!session) {
@@ -85,4 +86,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

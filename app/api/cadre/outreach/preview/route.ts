@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { handler } from "@/lib/api-handler";
 
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (
     !session?.user?.role ||
@@ -49,4 +50,4 @@ export async function GET(req: NextRequest) {
   }));
 
   return NextResponse.json({ professionals, total: professionals.length });
-}
+});

@@ -1,6 +1,7 @@
 import { getAgentSession } from "@/lib/agentPortalAuth";
 import { generateUploadUrl, buildKey, getPublicUrl } from "@/lib/r2";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ALLOWED_CONTENT_TYPES: Record<string, string> = {
   "application/pdf": "pdf",
@@ -13,7 +14,7 @@ const ALLOWED_CONTENT_TYPES: Record<string, string> = {
 
 const MAX_FILE_SIZE_MB = 20;
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await getAgentSession();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -72,4 +73,4 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     );
   }
-}
+});

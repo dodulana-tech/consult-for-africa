@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { handler } from "@/lib/api-handler";
 
 const resend = new Resend(process.env.RESEND_API_KEY ?? "noop");
 
@@ -12,7 +13,7 @@ function escHtml(s: unknown): string {
     .replace(/'/g, "&#x27;");
 }
 
-export async function POST(req: Request) {
+export const POST = handler(async function POST(req: Request) {
   const body = await req.json();
   const { organization, country, role, email, partnerType, message } = body;
 
@@ -63,4 +64,4 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ success: true });
-}
+});

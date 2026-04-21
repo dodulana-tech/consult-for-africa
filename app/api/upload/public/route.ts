@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { generateUploadUrl, buildKey, getPublicUrl } from "@/lib/r2";
+import { handler } from "@/lib/api-handler";
 
 const ALLOWED_CONTENT_TYPES: Record<string, string> = {
   "application/pdf": "pdf",
@@ -53,7 +54,7 @@ function isRateLimited(ip: string): boolean {
  * POST: Generate a presigned upload URL for public users (no auth).
  * Restricted to CVs and documents, max 10MB, rate-limited.
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     req.headers.get("x-real-ip") ??
@@ -139,4 +140,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

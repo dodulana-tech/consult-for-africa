@@ -1,13 +1,14 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/talent/reapply
  * Check reapplication eligibility for ACADEMY_LEARNER users.
  * Requires: at least 1 Foundation track CERTIFIED + 1 Specialist track CERTIFIED.
  */
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
 
@@ -71,14 +72,14 @@ export async function GET() {
       certifiedAt: e.certifiedAt,
     })),
   });
-}
+});
 
 /**
  * POST /api/talent/reapply
  * Submit a reapplication. Only allowed if eligibility requirements are met.
  * Body: { coverLetter?, cvText? }
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
 
@@ -191,4 +192,4 @@ export async function POST(req: NextRequest) {
     },
     { status: 201 }
   );
-}
+});

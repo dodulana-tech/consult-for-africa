@@ -1,11 +1,12 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const VALID_TYPES = ["private_hospital", "hospital_group", "government", "ngo"];
 const VALID_STREAMS = ["RECRUITMENT", "DEVELOPMENT", "INTELLIGENCE"];
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -60,4 +61,4 @@ export async function POST(req: NextRequest) {
     name: org.name,
     createdAt: org.createdAt.toISOString(),
   });
-}
+});

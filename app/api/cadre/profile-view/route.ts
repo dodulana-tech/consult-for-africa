@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCadreEmployerSession } from "@/lib/cadreEmployerAuth";
 import { notifyProfileView } from "@/lib/cadreHealth/notifications";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const session = await getCadreEmployerSession();
     if (!session) {
@@ -45,4 +46,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

@@ -6,10 +6,11 @@ import {
   emailOwnGigRejected,
   emailOwnGigChangesRequested,
 } from "@/lib/email";
+import { handler } from "@/lib/api-handler";
 
 const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -150,4 +151,4 @@ export async function POST(
   }
 
   return Response.json({ status: "needs_changes" });
-}
+});

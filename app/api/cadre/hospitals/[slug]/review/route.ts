@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { notifyNewReview } from "@/lib/cadreHealth/notifications";
+import { handler } from "@/lib/api-handler";
 
 // POST: Submit a facility review
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
@@ -212,4 +213,4 @@ export async function POST(
     console.error("Review submission error:", error);
     return NextResponse.json({ error: "Failed to submit review" }, { status: 500 });
   }
-}
+});

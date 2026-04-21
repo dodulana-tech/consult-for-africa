@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
-export async function POST() {
+export const POST = handler(async function POST() {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -76,4 +77,4 @@ Focus on what moves the needle THIS WEEK. Be specific to C4A. Never use em dashe
   } catch {
     return Response.json([]);
   }
-}
+});

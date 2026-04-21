@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { canAccessProject } from "@/lib/projectAccess";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -46,7 +47,7 @@ function countRags(data: Record<string, unknown>): { redCount: number; amberCoun
 
 /* ── GET: list snapshots ────────────────────────────────────────────────────── */
 
-export async function GET(_req: NextRequest, { params }: Ctx) {
+export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -62,11 +63,11 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
   });
 
   return Response.json(snapshots);
-}
+});
 
 /* ── POST: create snapshot ──────────────────────────────────────────────────── */
 
-export async function POST(req: NextRequest, { params }: Ctx) {
+export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -130,4 +131,4 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   });
 
   return Response.json({ ok: true, snapshot }, { status: 201 });
-}
+});

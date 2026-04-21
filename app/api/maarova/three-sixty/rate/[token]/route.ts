@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { isRateLimited } from "@/lib/rate-limit";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 // NO AUTH REQUIRED - token-based access for external raters
 
-export async function GET(
+export const GET = handler(async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
@@ -94,9 +95,9 @@ export async function GET(
         }
       : null,
   });
-}
+});
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
@@ -174,4 +175,4 @@ export async function POST(
     ok: true,
     message: "Thank you for your feedback.",
   });
-}
+});

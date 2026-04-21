@@ -1,7 +1,8 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
-export async function POST() {
+export const POST = handler(async function POST() {
   const session = await getMaarovaSession();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -31,4 +32,4 @@ export async function POST() {
   });
 
   return Response.json(request, { status: 201 });
-}
+});

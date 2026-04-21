@@ -1,8 +1,9 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -108,9 +109,9 @@ export async function GET(
     })),
     goalsCount,
   });
-}
+});
 
-export async function PUT(
+export const PUT = handler(async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -187,9 +188,9 @@ export async function PUT(
     email: updated.email,
     updatedAt: updated.updatedAt.toISOString(),
   });
-}
+});
 
-export async function DELETE(
+export const DELETE = handler(async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -226,4 +227,4 @@ export async function DELETE(
   });
 
   return Response.json({ message: "Coach deactivated successfully" });
-}
+});

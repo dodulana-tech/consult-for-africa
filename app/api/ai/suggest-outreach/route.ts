@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { getNuruContext } from "@/lib/nuruContext";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
@@ -9,7 +10,7 @@ const anthropic = new Anthropic();
  * POST /api/ai/suggest-outreach
  * Nuru suggests outreach targets for a Maarova assessment campaign.
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session || !["PARTNER", "ADMIN"].includes(session.user.role)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
 
   const nuruContext = await getNuruContext();
 
-  const prompt = `You are Nuru, CFA's internal strategy advisor. Help plan outreach sourcing for a Maarova leadership assessment campaign.
+  const prompt = `You are Nuru, C4A's internal strategy advisor. Help plan outreach sourcing for a Maarova leadership assessment campaign.
 
 CAMPAIGN: ${campaignName || "Monthly outreach"}
 ${targetCity ? `TARGET CITY: ${targetCity}` : ""}
@@ -29,7 +30,7 @@ ${industry ? `INDUSTRY FOCUS: ${industry}` : "Healthcare: private hospitals, hos
 ${Array.isArray(existingTargets) && existingTargets.length > 0 ? `ALREADY IN CAMPAIGN (avoid duplicates):\n${existingTargets.join("\n")}` : ""}
 ${nuruContext}
 
-CONTEXT: CFA is building a network of assessed healthcare leaders in Nigeria and across Africa. The goal is to invite senior healthcare professionals to take a free Maarova leadership assessment, building our leadership database.
+CONTEXT: C4A is building a network of assessed healthcare leaders in Nigeria and across Africa. The goal is to invite senior healthcare professionals to take a free Maarova leadership assessment, building our leadership database.
 
 IMPORTANT: Do NOT invent fictional people. Instead, suggest REAL, VERIFIABLE organisations and roles where we should look for targets. Every organisation you name must be a real institution that exists in Nigeria or Africa. If you are not confident an organisation is real, do not include it.
 
@@ -78,4 +79,4 @@ Return ONLY valid JSON:
     console.error("[ai/suggest-outreach] failed", err);
     return Response.json({ error: "Suggestion failed" }, { status: 500 });
   }
-}
+});

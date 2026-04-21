@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCadreSession } from "@/lib/cadreAuth";
+import { handler } from "@/lib/api-handler";
 
 // POST: Submit salary report (give)
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const session = await getCadreSession();
     if (!session) {
@@ -47,10 +48,10 @@ export async function POST(req: NextRequest) {
     console.error("Salary report error:", error);
     return NextResponse.json({ error: "Failed to save salary report" }, { status: 500 });
   }
-}
+});
 
 // GET: Fetch aggregated salary data (get) - only if user has contributed
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   try {
     const session = await getCadreSession();
     if (!session) {
@@ -139,4 +140,4 @@ export async function GET(req: NextRequest) {
     console.error("Salary map error:", error);
     return NextResponse.json({ error: "Failed to load salary data" }, { status: 500 });
   }
-}
+});

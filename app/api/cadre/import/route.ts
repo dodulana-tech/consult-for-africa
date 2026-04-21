@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
+import { handler } from "@/lib/api-handler";
 
 function generateReferralCode(): string {
   return "CH" + crypto.randomBytes(4).toString("hex").toUpperCase();
@@ -34,7 +35,7 @@ const VALID_CADRES = [
   "BIOMEDICAL_ENGINEERING",
 ];
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const { records } = await req.json();
 
@@ -123,4 +124,4 @@ export async function POST(req: NextRequest) {
     console.error("Import error:", error);
     return NextResponse.json({ error: "Import failed" }, { status: 500 });
   }
-}
+});

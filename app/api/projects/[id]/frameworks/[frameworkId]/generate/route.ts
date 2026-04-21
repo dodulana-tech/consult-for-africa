@@ -3,10 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-export async function POST(
+export const POST = handler(async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string; frameworkId: string }> }
 ) {
@@ -111,4 +112,4 @@ Be specific to this project. Use Nigerian healthcare context. No em dashes. No g
     console.error("Framework generation error:", err);
     return new Response("AI analysis unavailable", { status: 500 });
   }
-}
+});

@@ -1,11 +1,12 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/maarova/org/goals
  * Aggregate org goals by dimension. Auth: HR_ADMIN only.
  */
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await getMaarovaSession();
   if (!session || session.role !== "HR_ADMIN") {
     return Response.json({ error: "Unauthorized" }, { status: 403 });
@@ -45,4 +46,4 @@ export async function GET() {
   }));
 
   return Response.json({ goals, dimensions });
-}
+});

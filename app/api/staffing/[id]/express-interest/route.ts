@@ -3,9 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { emailStaffingInterest } from "@/lib/email";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 // POST: Consultant expresses interest in a staffing request
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export const POST = handler(async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
 
@@ -72,4 +73,4 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   return Response.json({ ok: true, expression }, { status: 201 });
-}
+});

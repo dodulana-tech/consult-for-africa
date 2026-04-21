@@ -4,13 +4,14 @@ import { cookies } from "next/headers";
 import { signMaarovaJWT } from "@/lib/maarovaAuth";
 import { NextRequest } from "next/server";
 import { z } from "zod";
+import { handler } from "@/lib/api-handler";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Valid email is required"),
   password: z.string().min(1, "Password is required"),
 });
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const parsed = loginSchema.safeParse(await req.json());
   if (!parsed.success) {
     return Response.json(
@@ -66,10 +67,10 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json({ ok: true, user: { name: user.name, email: user.email } });
-}
+});
 
-export async function DELETE() {
+export const DELETE = handler(async function DELETE() {
   const cookieStore = await cookies();
   cookieStore.delete("maarova_portal_token");
   return Response.json({ ok: true });
-}
+});

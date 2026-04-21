@@ -1,6 +1,7 @@
 import { getMaarovaCoachSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * POST /api/maarova/coach/clients/[matchId]/chemistry-call
@@ -9,7 +10,7 @@ import { NextRequest } from "next/server";
  * Schedule: { action: "schedule", scheduledAt: ISO string, link: string }
  * Complete: { action: "complete", notes?: string, rating?: number (1-5), proceed: boolean }
  */
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ matchId: string }> },
 ) {
@@ -134,4 +135,4 @@ export async function POST(
   }
 
   return Response.json({ error: "Invalid action" }, { status: 400 });
-}
+});

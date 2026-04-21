@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import crypto from "crypto";
+import { handler } from "@/lib/api-handler";
 
 const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
 
@@ -9,7 +10,7 @@ const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
  * GET /api/ndas
  * List NDAs. Filtered by role.
  */
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -51,13 +52,13 @@ export async function GET(req: NextRequest) {
   });
 
   return Response.json({ ndas });
-}
+});
 
 /**
  * POST /api/ndas
  * Create a new NDA and generate signing token.
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -117,4 +118,4 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json({ nda, signingToken }, { status: 201 });
-}
+});

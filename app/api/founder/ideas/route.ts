@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -17,9 +18,9 @@ export async function GET() {
   });
 
   return Response.json(ideas);
-}
+});
 
-export async function POST(req: Request) {
+export const POST = handler(async function POST(req: Request) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -47,9 +48,9 @@ export async function POST(req: Request) {
   });
 
   return Response.json(idea);
-}
+});
 
-export async function PATCH(req: Request) {
+export const PATCH = handler(async function PATCH(req: Request) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -70,9 +71,9 @@ export async function PATCH(req: Request) {
   });
 
   return Response.json(idea);
-}
+});
 
-export async function DELETE(req: Request) {
+export const DELETE = handler(async function DELETE(req: Request) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -81,4 +82,4 @@ export async function DELETE(req: Request) {
 
   await prisma.founderIdea.delete({ where: { id } });
   return Response.json({ ok: true });
-}
+});

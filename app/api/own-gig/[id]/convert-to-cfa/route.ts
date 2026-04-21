@@ -1,16 +1,17 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
 
 /**
  * POST /api/own-gig/[id]/convert-to-cfa
- * Convert an own gig to a full CFA engagement.
+ * Convert an own gig to a full C4A engagement.
  * Only elevated roles can do this.
  * Creates a referral credit for the original consultant owner.
  */
-export async function POST(
+export const POST = handler(async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -75,4 +76,4 @@ export async function POST(
   });
 
   return Response.json({ message: "Gig converted to full C4A engagement. Referral credit created." });
-}
+});

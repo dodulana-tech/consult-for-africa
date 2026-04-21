@@ -2,10 +2,11 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{10,}$/;
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const { token, password } = await req.json();
 
   if (!token || !password) {
@@ -42,4 +43,4 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json({ ok: true });
-}
+});

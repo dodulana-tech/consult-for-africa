@@ -6,6 +6,7 @@ import {
   sendWhatsAppText,
 } from "@/lib/cadreHealth/whatsapp";
 import { handleConversation } from "@/lib/cadreHealth/cadreWhatsAppAgent";
+import { handler } from "@/lib/api-handler";
 
 // ─── CadreHealth: WhatsApp Webhook ───
 
@@ -13,7 +14,7 @@ import { handleConversation } from "@/lib/cadreHealth/cadreWhatsAppAgent";
  * GET: Meta webhook verification.
  * Meta sends hub.mode, hub.verify_token, hub.challenge as query params.
  */
-export async function GET(request: NextRequest) {
+export const GET = handler(async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const mode = searchParams.get("hub.mode");
   const token = searchParams.get("hub.verify_token");
@@ -28,13 +29,13 @@ export async function GET(request: NextRequest) {
   }
 
   return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-}
+});
 
 /**
  * POST: Incoming WhatsApp messages and status updates.
  * Must return 200 quickly. Heavy processing runs non-blocking.
  */
-export async function POST(request: NextRequest) {
+export const POST = handler(async function POST(request: NextRequest) {
   const rawBody = await request.text();
 
   // Verify webhook signature
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
   );
 
   return NextResponse.json({ status: "ok" }, { status: 200 });
-}
+});
 
 // ─── Types for Meta webhook payload ───
 

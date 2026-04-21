@@ -3,6 +3,7 @@ import { emailPaymentReceipt, emailTrackPurchaseConfirmation } from "@/lib/email
 import { createHmac } from "crypto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { InvoiceStatus } from "@prisma/client";
+import { handler } from "@/lib/api-handler";
 
 /**
  * POST /api/paystack/webhook
@@ -10,7 +11,7 @@ import { InvoiceStatus } from "@prisma/client";
  * No session auth required (public endpoint).
  */
 
-export async function POST(req: Request) {
+export const POST = handler(async function POST(req: Request) {
   const secretKey = process.env.PAYSTACK_SECRET_KEY;
   if (!secretKey) {
     return new Response("Webhook not configured", { status: 500 });
@@ -270,4 +271,4 @@ export async function POST(req: Request) {
   }
 
   return new Response("OK", { status: 200 });
-}
+});

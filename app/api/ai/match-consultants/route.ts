@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -110,7 +111,7 @@ function scoreCost(
 
 // ─── Main route ───────────────────────────────────────────────────────────────
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -365,4 +366,4 @@ Return a JSON array of ${top5.length} strings, one explanation per consultant in
   );
 
   return Response.json({ matches, totalCandidates: consultants.length });
-}
+});

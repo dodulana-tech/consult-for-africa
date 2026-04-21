@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const { token } = await req.json();
 
   if (!token?.trim()) {
@@ -27,4 +28,4 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json({ ok: true });
-}
+});

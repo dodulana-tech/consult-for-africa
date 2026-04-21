@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string; assignmentId: string }> }
 ) {
@@ -23,4 +24,4 @@ export async function PATCH(
   });
 
   return Response.json(updated);
-}
+});

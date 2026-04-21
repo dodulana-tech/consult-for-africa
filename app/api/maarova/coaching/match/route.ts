@@ -1,12 +1,13 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/maarova/coaching/match
  * Returns current active coaching match for the user.
  */
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await getMaarovaSession();
   if (!session) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -40,13 +41,13 @@ export async function GET() {
   });
 
   return Response.json({ match });
-}
+});
 
 /**
  * POST /api/maarova/coaching/match
  * Select a coach and create a coaching match.
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await getMaarovaSession();
   if (!session) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -159,4 +160,4 @@ export async function POST(req: NextRequest) {
     }
     throw err;
   }
-}
+});

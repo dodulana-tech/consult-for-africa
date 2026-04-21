@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/paystack/callback
@@ -6,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
  * user to the appropriate invoice page.
  */
 
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   const reference = req.nextUrl.searchParams.get("reference");
   const trxref = req.nextUrl.searchParams.get("trxref");
   const ref = reference ?? trxref;
@@ -56,4 +57,4 @@ export async function GET(req: NextRequest) {
       `${baseUrl}/billing?error=verification_failed&reference=${encodeURIComponent(ref)}`
     );
   }
-}
+});

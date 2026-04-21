@@ -2,11 +2,12 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import type { EngagementStatus, RiskLevel } from "@prisma/client";
+import { handler } from "@/lib/api-handler";
 
 const VALID_STATUSES: EngagementStatus[] = ["PLANNING", "ACTIVE", "ON_HOLD", "AT_RISK", "COMPLETED", "CANCELLED"];
 const VALID_RISK_LEVELS: RiskLevel[] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -67,4 +68,4 @@ export async function PATCH(
   }
 
   return Response.json({ ok: true, project: updated });
-}
+});

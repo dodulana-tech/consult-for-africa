@@ -1,12 +1,13 @@
 import { getMaarovaCoachSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * POST /api/maarova/coach/clients/[matchId]/goals
  * Assign a goal to a coaching client. Source: "coach".
  */
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ matchId: string }> },
 ) {
@@ -46,4 +47,4 @@ export async function POST(
   });
 
   return Response.json(goal, { status: 201 });
-}
+});

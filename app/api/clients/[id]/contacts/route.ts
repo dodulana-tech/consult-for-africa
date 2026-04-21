@@ -2,10 +2,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { emailContactAdded } from "@/lib/email";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-export async function POST(req: NextRequest, { params }: Ctx) {
+export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -82,9 +83,9 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     { ok: true, contact: { ...contact, lastLoginAt: contact.lastLoginAt?.toISOString() ?? null, createdAt: contact.createdAt.toISOString() } },
     { status: 201 }
   );
-}
+});
 
-export async function PATCH(req: NextRequest, { params }: Ctx) {
+export const PATCH = handler(async function PATCH(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -160,4 +161,4 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     ok: true,
     contact: { ...contact, lastLoginAt: contact.lastLoginAt?.toISOString() ?? null, createdAt: contact.createdAt.toISOString() },
   });
-}
+});

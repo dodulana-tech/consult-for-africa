@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ELEVATED = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
 
@@ -8,7 +9,7 @@ const ELEVATED = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
  * GET /api/staffing/[id]/expressions
  * List all expressions of interest for a staffing request.
  */
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -83,13 +84,13 @@ export async function GET(
       },
     })),
   });
-}
+});
 
 /**
  * PATCH /api/staffing/[id]/expressions
  * Update expression status (shortlist, select, pass) and optionally create assignment.
  */
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -154,4 +155,4 @@ export async function PATCH(
   }
 
   return Response.json({ ok: true, action });
-}
+});

@@ -2,13 +2,14 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { randomUUID } from "crypto";
 import { Decimal } from "@prisma/client/runtime/library";
+import { handler } from "@/lib/api-handler";
 
 /**
  * POST /api/training/purchase
  * Initialize a Paystack payment for a paid training track.
  * On successful payment (via webhook), enrollment is auto-created.
  */
-export async function POST(req: Request) {
+export const POST = handler(async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -132,4 +133,4 @@ export async function POST(req: Request) {
     console.error("[training/purchase] Error:", err);
     return Response.json({ error: "Failed to initialize payment" }, { status: 500 });
   }
-}
+});

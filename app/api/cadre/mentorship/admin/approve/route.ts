@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const session = await auth();
     if (
@@ -50,4 +51,4 @@ export async function POST(req: NextRequest) {
     console.error("Admin approve mentor error:", error);
     return NextResponse.json({ error: "Failed to process approval" }, { status: 500 });
   }
-}
+});

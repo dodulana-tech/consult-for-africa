@@ -1,12 +1,13 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * PATCH /api/maarova/coaching/match/[id]
  * Update a coaching match (status changes, including cancellation for coach switch).
  */
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -59,4 +60,4 @@ export async function PATCH(
   }
 
   return Response.json({ error: "Invalid status update" }, { status: 400 });
-}
+});

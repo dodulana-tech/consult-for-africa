@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -66,4 +67,4 @@ export async function POST(
     console.error("Send message error:", error);
     return NextResponse.json({ error: "Failed to send message" }, { status: 500 });
   }
-}
+});

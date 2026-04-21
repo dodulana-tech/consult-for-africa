@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /* ── GET: financial reports ─────────────────────────────────────────────────── */
 
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest) {
     default:
       return new Response("type parameter required: ar-aging, revenue, margins, client-history, track-profitability", { status: 400 });
   }
-}
+});
 
 /* ── AR Aging: buckets grouped by client ───────────────────────────────────── */
 

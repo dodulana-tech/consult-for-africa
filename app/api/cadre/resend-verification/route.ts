@@ -3,8 +3,9 @@ import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
 import { sendCadreEmail } from "@/lib/cadreEmail";
+import { handler } from "@/lib/api-handler";
 
-export async function POST() {
+export const POST = handler(async function POST() {
   try {
     const session = await getCadreSession();
     if (!session) {
@@ -51,4 +52,4 @@ export async function POST() {
       { status: 500 }
     );
   }
-}
+});

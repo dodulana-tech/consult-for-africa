@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { emailSecondmentRecall } from "@/lib/email";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const DIRECTOR_PLUS = ["DIRECTOR", "PARTNER", "ADMIN"];
 
@@ -10,7 +11,7 @@ const DIRECTOR_PLUS = ["DIRECTOR", "PARTNER", "ADMIN"];
  * Initiate recall for a SECONDMENT engagement.
  * Director+ only.
  */
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -158,4 +159,4 @@ export async function POST(
       initiatedBy: session.user.id,
     },
   });
-}
+});

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const { email, source } = await req.json();
 
@@ -32,4 +33,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

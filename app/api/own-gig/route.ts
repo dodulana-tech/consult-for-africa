@@ -4,6 +4,7 @@ import { NextRequest } from "next/server";
 import { emailOwnGigPendingReview } from "@/lib/email";
 import { getOwnGigEligibility, checkOwnGigLimits, checkBudgetWithinTierLimits } from "@/lib/consultantTier";
 import { z } from "zod";
+import { handler } from "@/lib/api-handler";
 
 const createOwnGigSchema = z.object({
   clientName: z.string().min(1, "Client name is required"),
@@ -58,7 +59,7 @@ async function generateOwnGigCode(): Promise<string> {
 /**
  * POST /api/own-gig — create an own gig engagement (pending approval)
  */
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -230,12 +231,12 @@ export async function POST(req: NextRequest) {
   }
 
   return Response.json(result, { status: 201 });
-}
+});
 
 /**
  * GET /api/own-gig — list own gigs
  */
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -276,4 +277,4 @@ export async function GET() {
   });
 
   return Response.json(gigs);
-}
+});

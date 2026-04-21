@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ELEVATED = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; phaseId: string }> },
 ) {
@@ -31,4 +32,4 @@ export async function POST(
   });
 
   return Response.json({ gate: JSON.parse(JSON.stringify(gate)) }, { status: 201 });
-}
+});

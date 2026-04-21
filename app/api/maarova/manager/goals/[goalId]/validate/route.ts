@@ -1,12 +1,13 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * PATCH /api/maarova/manager/goals/[goalId]/validate
  * Sign off on a direct report's goal completion. Auth: MANAGER or HR_ADMIN.
  */
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   _req: NextRequest,
   { params }: { params: Promise<{ goalId: string }> },
 ) {
@@ -46,4 +47,4 @@ export async function PATCH(
   });
 
   return Response.json(updated);
-}
+});

@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { updateGoogleMeetMeeting, cancelGoogleMeetMeeting } from "@/lib/google";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -9,7 +10,7 @@ type Ctx = { params: Promise<{ id: string }> };
  * GET /api/meetings/:id
  * Get a single meeting with full details.
  */
-export async function GET(_req: NextRequest, ctx: Ctx) {
+export const GET = handler(async function GET(_req: NextRequest, ctx: Ctx) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -34,13 +35,13 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
   }
 
   return Response.json({ meeting });
-}
+});
 
 /**
  * PATCH /api/meetings/:id
  * Update meeting details. Syncs changes back to Google Calendar.
  */
-export async function PATCH(req: NextRequest, ctx: Ctx) {
+export const PATCH = handler(async function PATCH(req: NextRequest, ctx: Ctx) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -107,13 +108,13 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   }
 
   return Response.json({ meeting });
-}
+});
 
 /**
  * DELETE /api/meetings/:id
  * Cancel a meeting. Removes from Google Calendar.
  */
-export async function DELETE(_req: NextRequest, ctx: Ctx) {
+export const DELETE = handler(async function DELETE(_req: NextRequest, ctx: Ctx) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -141,4 +142,4 @@ export async function DELETE(_req: NextRequest, ctx: Ctx) {
   });
 
   return Response.json({ success: true });
-}
+});

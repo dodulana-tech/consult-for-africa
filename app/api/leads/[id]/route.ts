@@ -1,13 +1,14 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/leads/[id]
  */
 const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"];
 
-export async function GET(
+export const GET = handler(async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -39,13 +40,13 @@ export async function GET(
   }
 
   return Response.json({ lead: JSON.parse(JSON.stringify(lead)) });
-}
+});
 
 /**
  * PATCH /api/leads/[id]
  * Update lead fields: status, research, outreach, qualification, etc.
  */
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -110,4 +111,4 @@ export async function PATCH(
   });
 
   return Response.json({ lead: JSON.parse(JSON.stringify(updated)) });
-}
+});

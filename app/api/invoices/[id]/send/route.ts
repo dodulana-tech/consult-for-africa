@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { emailInvoiceSent } from "@/lib/email";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -10,7 +11,7 @@ const APPROVAL_THRESHOLD: Record<string, number> = {
   USD: 5_000,
 };
 
-export async function POST(req: NextRequest, { params }: Ctx) {
+export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -110,4 +111,4 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     issuedDate: updated.issuedDate?.toISOString() ?? null,
     message: "Invoice sent successfully",
   });
-}
+});

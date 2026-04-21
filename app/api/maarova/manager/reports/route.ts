@@ -1,11 +1,12 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/maarova/manager/reports
  * List direct reports with goal summary. Auth: MANAGER or HR_ADMIN.
  */
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await getMaarovaSession();
   if (!session || !["MANAGER", "HR_ADMIN"].includes(session.role)) {
     return Response.json({ error: "Unauthorized" }, { status: 403 });
@@ -54,4 +55,4 @@ export async function GET() {
   }));
 
   return Response.json({ reports: formatted });
-}
+});

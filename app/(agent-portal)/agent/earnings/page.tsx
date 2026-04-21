@@ -2,6 +2,8 @@ import { getAgentSession } from "@/lib/agentPortalAuth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 const STATUS_STYLES: Record<string, { bg: string; color: string; label: string }> = {
   PENDING: { bg: "bg-gray-100", color: "text-gray-600", label: "Pending" },
   VERIFIED: { bg: "bg-blue-50", color: "text-blue-700", label: "Verified" },

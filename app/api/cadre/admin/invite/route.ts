@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { sendCadreEmail } from "@/lib/cadreEmail";
+import { handler } from "@/lib/api-handler";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://www.consultforafrica.com";
 
-export async function POST(req: Request) {
+export const POST = handler(async function POST(req: Request) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
   if (!["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) {
@@ -49,4 +50,4 @@ export async function POST(req: Request) {
   }
 
   return Response.json({ ok: true, sent, skipped, total: professionals.length });
-}
+});

@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { randomUUID } from "crypto";
+import { handler } from "@/lib/api-handler";
 
 /**
  * POST /api/paystack/initialize
@@ -11,7 +12,7 @@ import { randomUUID } from "crypto";
 const ALLOWED_STATUSES = ["SENT", "VIEWED", "PARTIALLY_PAID", "OVERDUE"];
 const ELEVATED_ROLES = ["DIRECTOR", "PARTNER", "ADMIN"];
 
-export async function POST(req: Request) {
+export const POST = handler(async function POST(req: Request) {
   const session = await auth();
   if (!session) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -118,4 +119,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});

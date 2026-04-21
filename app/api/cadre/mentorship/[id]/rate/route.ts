@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -77,4 +78,4 @@ export async function POST(
     console.error("Rate mentorship error:", error);
     return NextResponse.json({ error: "Failed to rate mentorship" }, { status: 500 });
   }
-}
+});

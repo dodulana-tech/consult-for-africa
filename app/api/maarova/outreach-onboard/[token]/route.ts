@@ -4,13 +4,14 @@ import { isRateLimited } from "@/lib/rate-limit";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 // NO AUTH REQUIRED - token-based access for outreach targets
 
 /**
  * GET - Validate token and return pre-filled data
  */
-export async function GET(
+export const GET = handler(async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
@@ -60,12 +61,12 @@ export async function GET(
     city: target.city ?? "",
     campaignName: target.campaign.name,
   });
-}
+});
 
 /**
  * POST - Create account, log in, redirect to assessment
  */
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
@@ -193,4 +194,4 @@ export async function POST(
     redirect: "/maarova/portal/dashboard",
     user: { name: result.user.name, email: result.user.email },
   });
-}
+});

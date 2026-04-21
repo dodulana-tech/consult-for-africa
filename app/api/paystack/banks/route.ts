@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { handler } from "@/lib/api-handler";
 
 /**
  * GET /api/paystack/banks
@@ -9,7 +10,7 @@ import { auth } from "@/auth";
 let cachedBanks: { name: string; code: string }[] | null = null;
 let cacheExpiry = 0;
 
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -72,4 +73,4 @@ export async function GET() {
     console.error("[paystack/banks] fetch failed", err);
     return Response.json({ error: "Failed to fetch banks" }, { status: 500 });
   }
-}
+});

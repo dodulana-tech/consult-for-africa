@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { emailAgentCommissionApproved } from "@/lib/email";
+import { handler } from "@/lib/api-handler";
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
   PENDING: ["VERIFIED", "APPROVED", "CANCELLED"],
@@ -9,7 +10,7 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
   DISPUTED: ["PENDING", "CANCELLED"],
 };
 
-export async function PATCH(
+export const PATCH = handler(async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -102,4 +103,4 @@ export async function PATCH(
   }
 
   return Response.json(updated);
-}
+});

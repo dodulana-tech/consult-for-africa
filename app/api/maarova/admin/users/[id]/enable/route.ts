@@ -3,8 +3,9 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { emailMaarovaInvite } from "@/lib/email";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(
+export const POST = handler(async function POST(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -49,4 +50,4 @@ export async function POST(
   }).catch((err) => console.error("[maarova] enable portal email error:", err));
 
   return Response.json({ success: true });
-}
+});

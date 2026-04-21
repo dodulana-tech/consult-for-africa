@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
 
@@ -8,7 +9,7 @@ const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
  * POST /api/discovery-calls/[id]/convert
  * Convert a discovery call into a Client + Project.
  */
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -139,4 +140,4 @@ export async function POST(
     client: { id: client.id, name: client.name },
     project: project ? { id: project.id, name: project.name } : null,
   }, { status: 201 });
-}
+});

@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import type { FeeStructure, BillingCycle } from "@prisma/client";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -24,7 +25,7 @@ function serialise(bs: Record<string, unknown>) {
 
 /* ── GET: billing schedule for engagement ──────────────────────────────────── */
 
-export async function GET(req: NextRequest, { params }: Ctx) {
+export const GET = handler(async function GET(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -75,11 +76,11 @@ export async function GET(req: NextRequest, { params }: Ctx) {
       return out;
     })
   );
-}
+});
 
 /* ── POST: create billing schedule (Director+ only) ────────────────────────── */
 
-export async function POST(req: NextRequest, { params }: Ctx) {
+export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -152,11 +153,11 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   });
 
   return Response.json(serialise(schedule as unknown as Record<string, unknown>), { status: 201 });
-}
+});
 
 /* ── PATCH: update billing schedule ────────────────────────────────────────── */
 
-export async function PATCH(req: NextRequest, { params }: Ctx) {
+export const PATCH = handler(async function PATCH(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -198,4 +199,4 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   });
 
   return Response.json(serialise(updated as unknown as Record<string, unknown>));
-}
+});

@@ -4,6 +4,7 @@ import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -20,7 +21,7 @@ const MODULE_LABELS: Record<string, string> = {
   CULTURE_TEAM: "Culture and Team Dynamics",
 };
 
-export async function POST(
+export const POST = handler(async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> }
 ) {
@@ -338,7 +339,7 @@ RULES: topThree = 3 highest-scoring values with ranks 1,2,3. Return ONLY raw JSO
   });
 
   return NextResponse.json({ report: updatedReport });
-}
+});
 
 /* ─── PHASE 2: Background enhancement with module deep dives ─── */
 // This runs after the user already has their report. It adds detailed

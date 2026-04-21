@@ -3,12 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { signCadreEmployerJWT } from "@/lib/cadreEmployerAuth";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
+import { handler } from "@/lib/api-handler";
 
 async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
 }
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { companyName, contactName, contactEmail, contactPhone, password, facilityId } = body;
@@ -85,4 +86,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

@@ -6,6 +6,8 @@ import {
   TrendingUp, Building2, Send, BarChart3,
 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function MetricsPage() {
   const session = await auth();
   if (!session) redirect("/login");

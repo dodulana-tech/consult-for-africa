@@ -1,12 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { getClientPortalSession } from "@/lib/clientPortalAuth";
+import { handler } from "@/lib/api-handler";
 
 /**
  * POST /api/client-portal/invoices/pay
  * Initialize Paystack payment for a client invoice.
  * Body: { invoiceId: string }
  */
-export async function POST(req: Request) {
+export const POST = handler(async function POST(req: Request) {
   const session = await getClientPortalSession();
   if (!session) {
     return new Response("Unauthorized", { status: 401 });
@@ -104,4 +105,4 @@ export async function POST(req: Request) {
     console.error("[client-portal/invoices/pay] fetch failed:", err);
     return new Response("Payment initialization failed", { status: 500 });
   }
-}
+});

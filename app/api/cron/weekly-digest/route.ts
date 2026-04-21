@@ -1,8 +1,9 @@
 import { NextRequest } from "next/server";
 import { getDigestRecipients, getDigestForUser } from "@/lib/weeklyDigest";
 import { emailWeeklyDigest } from "@/lib/email";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   // Verify cron secret to prevent unauthorized triggering
   const authHeader = req.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
@@ -64,4 +65,4 @@ export async function POST(req: NextRequest) {
     total: recipients.length,
     results,
   });
-}
+});

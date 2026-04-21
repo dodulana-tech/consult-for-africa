@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getNuruContext } from "@/lib/nuruContext";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
@@ -10,7 +11,7 @@ const anthropic = new Anthropic();
  * POST /api/discovery-calls/[id]/analyze
  * Nuru analyzes the discovery call notes and generates structured insights.
  */
-export async function POST(
+export const POST = handler(async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -26,9 +27,9 @@ export async function POST(
     return Response.json({ error: "No notes to analyze. Add notes or problems/goals first." }, { status: 400 });
   }
 
-  const prompt = `You are Nuru, the internal intelligence system for Consult For Africa (CFA), a premium healthcare management consulting firm that embeds execution teams inside hospitals and health systems across Africa.
+  const prompt = `You are Nuru, the internal intelligence system for Consult For Africa (C4A), a premium healthcare management consulting firm that embeds execution teams inside hospitals and health systems across Africa.
 
-Analyze the following discovery call notes and produce structured insights to help CFA determine the right engagement approach.
+Analyze the following discovery call notes and produce structured insights to help C4A determine the right engagement approach.
 
 DISCOVERY CALL DATA:
 - Organization: ${call.organizationName}
@@ -46,7 +47,7 @@ ${call.goalsStated.length > 0 ? `GOALS STATED:\n${call.goalsStated.map((g, i) =>
 
 ${call.stakeholders.length > 0 ? `STAKEHOLDERS MENTIONED:\n${call.stakeholders.join(", ")}` : ""}
 
-CFA SERVICE LINES (match problems to these):
+C4A SERVICE LINES (match problems to these):
 1. Hospital Turnaround & Financial Recovery: Revenue capture, cost discipline, theatre/clinic productivity, cashflow stabilization
 2. Strategy, Growth & Commercial Performance: Service-line alignment, referral networks, commercial strategy, revenue diversification
 3. Clinical Governance & Accreditation: JCI/COHSASA/SafeCare readiness, patient safety systems, clinical audit frameworks
@@ -115,4 +116,4 @@ Return ONLY valid JSON:
     console.error("[discovery-calls/analyze] Nuru analysis failed", err);
     return Response.json({ error: "Analysis failed. Please try again." }, { status: 500 });
   }
-}
+});

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { handler } from "@/lib/api-handler";
 
 // GET: List/search facilities
-export async function GET(req: NextRequest) {
+export const GET = handler(async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
     const search = url.searchParams.get("search");
@@ -49,4 +50,4 @@ export async function GET(req: NextRequest) {
     console.error("Facilities list error:", error);
     return NextResponse.json({ error: "Failed to load facilities" }, { status: 500 });
   }
-}
+});

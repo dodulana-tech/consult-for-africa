@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { getAgentSession } from "@/lib/agentPortalAuth";
+import { handler } from "@/lib/api-handler";
 
-export async function PATCH(req: Request) {
+export const PATCH = handler(async function PATCH(req: Request) {
   const session = await getAgentSession();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -29,4 +30,4 @@ export async function PATCH(req: Request) {
   });
 
   return Response.json(updated);
-}
+});

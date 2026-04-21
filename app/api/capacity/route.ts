@@ -1,8 +1,9 @@
 import { auth } from "@/auth";
 import { getConsultantCapacity } from "@/lib/capacity";
+import { handler } from "@/lib/api-handler";
 
 // GET: Get current user's capacity (or specify consultantId for EM/elevated)
-export async function GET(req: Request) {
+export const GET = handler(async function GET(req: Request) {
   const session = await auth();
   if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
 
@@ -25,4 +26,4 @@ export async function GET(req: Request) {
   }
 
   return Response.json(capacity);
-}
+});

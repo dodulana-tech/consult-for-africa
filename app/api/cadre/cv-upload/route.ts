@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
 import { PDFParse } from "pdf-parse";
 import { generateUploadUrl, buildKey, getPublicUrl } from "@/lib/r2";
+import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
@@ -84,7 +85,7 @@ Rules:
 - Return null for fields you cannot determine
 - Do not fabricate information not present in the CV`;
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   try {
     const session = await getCadreSession();
     if (!session) {
@@ -258,4 +259,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

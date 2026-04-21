@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const VALID_TRANSITIONS: Record<string, { from: string[]; to: string }> = {
   review: { from: ["APPLIED"], to: "UNDER_REVIEW" },
@@ -9,7 +10,7 @@ const VALID_TRANSITIONS: Record<string, { from: string[]; to: string }> = {
   reject: { from: ["APPLIED", "UNDER_REVIEW", "INTERVIEW_SCHEDULED", "APPROVED"], to: "REJECTED" },
 };
 
-export async function POST(
+export const POST = handler(async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -97,4 +98,4 @@ export async function POST(
     },
     message: `Coach ${updated.name} status updated to ${updated.vettingStatus}`,
   });
-}
+});

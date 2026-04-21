@@ -2,10 +2,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string; phaseId: string }> };
 
-export async function PATCH(req: NextRequest, { params }: Ctx) {
+export const PATCH = handler(async function PATCH(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -88,9 +89,9 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
       gates: phase.gates.map((g) => ({ ...g, passedAt: g.passedAt?.toISOString() ?? null })),
     },
   });
-}
+});
 
-export async function DELETE(_req: NextRequest, { params }: Ctx) {
+export const DELETE = handler(async function DELETE(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -111,4 +112,4 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
   });
 
   return Response.json({ ok: true });
-}
+});

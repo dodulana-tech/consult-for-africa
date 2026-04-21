@@ -3,8 +3,9 @@ import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { signMaarovaCoachJWT } from "@/lib/maarovaAuth";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const { email, password } = await req.json();
   if (!email || !password)
     return Response.json({ error: "Email and password required" }, { status: 400 });
@@ -48,10 +49,10 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json({ ok: true, coach: { name: coach.name, email: coach.email } });
-}
+});
 
-export async function DELETE() {
+export const DELETE = handler(async function DELETE() {
   const cookieStore = await cookies();
   cookieStore.delete("maarova_coach_token");
   return Response.json({ ok: true });
-}
+});

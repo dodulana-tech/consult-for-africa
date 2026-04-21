@@ -1,8 +1,9 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await getMaarovaSession();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -12,9 +13,9 @@ export async function GET() {
   });
 
   return Response.json(goals);
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await getMaarovaSession();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -45,4 +46,4 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json(goal, { status: 201 });
-}
+});

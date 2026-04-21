@@ -2,10 +2,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR"];
 
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role))
@@ -59,9 +60,9 @@ export async function GET() {
   });
 
   return Response.json({ partners: result });
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role))
@@ -135,4 +136,4 @@ export async function POST(req: NextRequest) {
     },
     { status: 201 }
   );
-}
+});

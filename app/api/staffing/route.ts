@@ -2,11 +2,12 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 // GET: List staffing requests (open opportunities)
 // Consultants see OPEN requests matching their skills
 // EMs see requests they created
-export async function GET() {
+export const GET = handler(async function GET() {
   const session = await auth();
   if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
 
@@ -59,10 +60,10 @@ export async function GET() {
       createdAt: r.createdAt.toISOString(),
     }))
   );
-}
+});
 
 // POST: Create a staffing request (EM/elevated only)
-export async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
 
@@ -112,4 +113,4 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json({ ok: true, request }, { status: 201 });
-}
+});

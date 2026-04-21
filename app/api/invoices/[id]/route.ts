@@ -4,6 +4,7 @@ import { serialise } from "@/lib/serialization";
 import { ELEVATED_ROLES, EM_AND_ABOVE } from "@/lib/constants";
 import { NextRequest } from "next/server";
 import type { InvoiceStatus, Prisma } from "@prisma/client";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -37,7 +38,7 @@ const STATUS_TRANSITIONS: Record<string, TransitionCheck> = {
 
 /* ── GET: full invoice detail ──────────────────────────────────────────────── */
 
-export async function GET(req: NextRequest, { params }: Ctx) {
+export const GET = handler(async function GET(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -76,11 +77,11 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   }
 
   return Response.json(serialise(invoice));
-}
+});
 
 /* ── PATCH: status transitions + draft editing ─────────────────────────────── */
 
-export async function PATCH(req: NextRequest, { params }: Ctx) {
+export const PATCH = handler(async function PATCH(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -254,4 +255,4 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   });
 
   return Response.json(serialise(invoice));
-}
+});

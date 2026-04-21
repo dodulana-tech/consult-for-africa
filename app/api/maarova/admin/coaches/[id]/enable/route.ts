@@ -4,12 +4,13 @@ import { emailMaarovaCoachCredentials } from "@/lib/email";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { NextRequest } from "next/server";
+import { handler } from "@/lib/api-handler";
 
 /**
  * POST /api/maarova/admin/coaches/[id]/enable
  * Enable coach portal access. Generates a temp password and marks coach as portal enabled.
  */
-export async function POST(
+export const POST = handler(async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -63,4 +64,4 @@ export async function POST(
     coach: { id: coach.id, name: coach.name, email: coach.email },
     message: `Portal enabled for ${coach.name}. Credentials sent to ${coach.email}.`,
   });
-}
+});

@@ -2,12 +2,13 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import type { AssignmentStatus } from "@prisma/client";
+import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string; assignmentId: string }> };
 
 // PATCH — update assignment (status, rate, role)
 // EM can change status on their projects; Partner/Admin can change rate
-export async function PATCH(req: NextRequest, { params }: Ctx) {
+export const PATCH = handler(async function PATCH(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -80,10 +81,10 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     ok: true,
     assignment: { ...updated, rateAmount: Number(updated.rateAmount) },
   });
-}
+});
 
 // DELETE — remove consultant from project (set status TERMINATED)
-export async function DELETE(_req: NextRequest, { params }: Ctx) {
+export const DELETE = handler(async function DELETE(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session) return new Response("Unauthorized", { status: 401 });
 
@@ -114,4 +115,4 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
   });
 
   return Response.json({ ok: true });
-}
+});
