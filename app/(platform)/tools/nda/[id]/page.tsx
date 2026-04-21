@@ -40,7 +40,7 @@ const TYPE_LABELS: Record<string, string> = {
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
   DRAFT: { label: "Draft", bg: "#F3F4F6", text: "#6B7280" },
   PENDING_PARTY_A: { label: "Awaiting External Signature", bg: "#FEF3C7", text: "#92400E" },
-  PENDING_PARTY_B: { label: "Awaiting CFA Countersignature", bg: "#EFF6FF", text: "#1D4ED8" },
+  PENDING_PARTY_B: { label: "Awaiting C4A Countersignature", bg: "#EFF6FF", text: "#1D4ED8" },
   ACTIVE: { label: "Fully Executed", bg: "#ECFDF5", text: "#065F46" },
   EXPIRED: { label: "Expired", bg: "#FEF2F2", text: "#991B1B" },
   TERMINATED: { label: "Terminated", bg: "#FEF2F2", text: "#991B1B" },

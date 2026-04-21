@@ -4,9 +4,29 @@ import Link from "next/link";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Maarova\u2122 | CFA Leadership Assessment Platform",
+  title: "Maarova\u2122 | C4A Leadership Assessment Platform",
   description:
     "Africa\u2019s first psychometric assessment platform built for healthcare leaders. Proprietary technology by Consult For Africa.",
+  keywords: [
+    "healthcare leadership assessment Africa",
+    "psychometric assessment healthcare",
+    "hospital leadership development Nigeria",
+    "executive coaching healthcare Africa",
+    "clinical leadership transition",
+    "360 degree feedback healthcare",
+    "emotional intelligence healthcare leaders",
+    "Maarova assessment",
+  ],
+  alternates: {
+    canonical: "https://consultforafrica.com/maarova",
+  },
+  openGraph: {
+    title: "Maarova\u2122 | C4A Leadership Assessment Platform",
+    description:
+      "Africa\u2019s first psychometric assessment platform built for healthcare leaders. Proprietary technology by Consult For Africa.",
+    type: "website",
+    images: ["/og-image.jpg"],
+  },
 };
 
 /* ─── data ────────────────────────────────────────────────────────────────── */
@@ -112,7 +132,7 @@ export default function MaarovaPage() {
               <div className="flex items-center gap-3 mb-6">
                 <span className="px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-[0.2em]"
                   style={{ background: "rgba(212,165,116,0.15)", color: "#D4A574", border: "1px solid rgba(212,165,116,0.2)" }}>
-                  CFA Proprietary
+                  C4A Proprietary
                 </span>
                 <span className="text-xs tracking-wide" style={{ color: "rgba(255,255,255,0.35)" }}>
                   Maarova{"\u2122"} Platform
@@ -133,7 +153,7 @@ export default function MaarovaPage() {
               >
                 Psychometric science meets African healthcare.
                 <br />
-                Built by CFA. Nothing else like it.
+                Built by C4A. Nothing else like it.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-4">
@@ -556,7 +576,7 @@ export default function MaarovaPage() {
               },
               {
                 title: "Consulting + Technology",
-                desc: "Maarova is not a standalone SaaS tool. It is integrated with CFA consulting expertise. You get data AND the people who know how to act on it. No other firm offers both.",
+                desc: "Maarova is not a standalone SaaS tool. It is integrated with C4A consulting expertise. You get data AND the people who know how to act on it. No other firm offers both.",
                 highlight: true,
               },
             ].map((d) => (
@@ -609,7 +629,7 @@ export default function MaarovaPage() {
             <span className="text-gray-400">to guesswork and neglect.</span>
           </h2>
           <p className="mb-10 leading-relaxed max-w-lg mx-auto text-gray-500">
-            See how CFA + Maarova can change the way you hire,
+            See how C4A + Maarova can change the way you hire,
             develop, and retain healthcare leaders.
           </p>
 

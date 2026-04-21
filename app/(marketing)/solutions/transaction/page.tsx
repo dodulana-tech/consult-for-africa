@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import PartnerCTA from "@/components/cfa/PartnerCTA";
 
-export const metadata: Metadata = { title: "Healthcare Transaction Advisory | Consult For Africa", description: "M&A, capital raising, and deal execution for healthcare assets across Africa. Sector depth that generalist advisors cannot match.", openGraph: { title: "Healthcare Transaction Advisory | Consult For Africa", description: "M&A and capital raising for healthcare assets across Africa.", type: "website", images: ["/og-image.jpg"] } };
+export const metadata: Metadata = { title: "Healthcare Transaction Advisory | Consult For Africa", description: "M&A, capital raising, and deal execution for healthcare assets across Africa. Sector depth that generalist advisors cannot match.", keywords: ["healthcare M&A Africa", "hospital acquisition Nigeria", "healthcare capital raising", "healthcare transaction advisory", "hospital deal execution Africa"], openGraph: { title: "Healthcare Transaction Advisory | Consult For Africa", description: "M&A and capital raising for healthcare assets across Africa.", type: "website", images: ["/og-image.jpg"] } };
 
 const features = ["Healthcare-specific deal expertise", "Buyer and investor pipeline", "Full data room and due diligence", "End-to-end deal execution"];
 const phases = [
@@ -19,7 +19,7 @@ export default function TransactionPage() {
     <main>
       <section className="relative overflow-hidden text-white" style={{ paddingTop: "5rem", minHeight: "60svh" }}><div className="absolute inset-0" style={{ background: "#06090f" }} /><div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 80% at 80% 40%, rgba(20,130,200,0.15) 0%, rgba(12,70,130,0.06) 55%, transparent 70%)" }} /><div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 40% 50% at 20% 10%, rgba(201,168,76,0.1) 0%, transparent 60%)" }} /><div className="absolute inset-0 pointer-events-none opacity-[0.036]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: "180px" }} />
         <div className="relative max-w-7xl mx-auto px-6 py-24 md:py-32">
-          <p className="mb-6 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "#D4AF37" }}>CFA Engagement Model</p>
+          <p className="mb-6 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "#D4AF37" }}>C4A Engagement Model</p>
           <h1 className="font-semibold leading-[1.1] tracking-tight text-white max-w-3xl" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>Healthcare<br /><span style={{ color: "rgba(255,255,255,0.65)" }}>Transaction Advisory</span></h1>
           <div className="mt-6 w-12 h-[2px]" style={{ background: "#D4AF37" }} />
           <p className="mt-6 max-w-2xl leading-relaxed" style={{ fontSize: "clamp(1rem,1.5vw,1.1rem)", color: "rgba(255,255,255,0.65)" }}>M&A, capital raising, and deal execution for healthcare assets across Africa. From mandate to completion, we bring sector depth that generalist advisors cannot.</p>

@@ -30,7 +30,7 @@ const SEGMENT_INFO: Record<RejectionSegment, Omit<RejectionSegmentInfo, "segment
   WRONG_FIT: {
     label: "Specialty gap",
     description:
-      "Experienced professional but lacking alignment with CFA service lines or healthcare consulting specifically.",
+      "Experienced professional but lacking alignment with C4A service lines or healthcare consulting specifically.",
     academyOffer: "Free Foundation tracks + paid Specialist tracks to bridge the gap",
     reapplyEligible: true,
   },

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import PartnerCTA from "@/components/cfa/PartnerCTA";
 
-export const metadata: Metadata = { title: "Hospital Transformation Partnerships | Consult For Africa", description: "Equity-backed operational turnarounds for underperforming healthcare facilities. Consult For Africa takes operational control and shares in the upside.", openGraph: { title: "Hospital Transformation Partnerships | Consult For Africa", description: "Equity-backed operational turnarounds for underperforming healthcare facilities.", type: "website", images: ["/og-image.jpg"] } };
+export const metadata: Metadata = { title: "Hospital Transformation Partnerships | Consult For Africa", description: "Equity-backed operational turnarounds for underperforming healthcare facilities. Consult For Africa takes operational control and shares in the upside.", keywords: ["hospital turnaround Africa", "healthcare transformation Nigeria", "equity-backed hospital management", "underperforming hospital recovery", "operational turnaround healthcare"], openGraph: { title: "Hospital Transformation Partnerships | Consult For Africa", description: "Equity-backed operational turnarounds for underperforming healthcare facilities.", type: "website", images: ["/og-image.jpg"] } };
 
 const features = ["Equity-aligned incentives", "Full operational control", "KPI-driven performance", "Structured exit with defined returns"];
 const phases = [

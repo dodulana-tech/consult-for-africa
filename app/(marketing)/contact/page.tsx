@@ -49,7 +49,7 @@ export default function ContactPage() {
           <div className="mt-5 w-12 h-[2px]" style={{ background: "#D4AF37" }} />
           <p className="mt-5 max-w-xl leading-relaxed" style={{ color: "rgba(255,255,255,0.6)", fontSize: "1rem" }}>
             Most of our engagements begin with a single, candid conversation between a hospital
-            leader and a CFA partner. No pitch decks. No procurement cycles. Just a clear-eyed
+            leader and a C4A partner. No pitch decks. No procurement cycles. Just a clear-eyed
             look at where you are and where you need to be.
           </p>
         </div>

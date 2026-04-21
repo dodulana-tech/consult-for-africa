@@ -110,7 +110,7 @@ export default function TurnaroundPage() {
             className="mb-6 text-xs font-medium uppercase tracking-[0.22em]"
             style={{ color: "#D4AF37" }}
           >
-            C4AService
+            C4A Service
           </p>
           <h1
             className="font-semibold leading-[1.1] tracking-tight text-white max-w-3xl"

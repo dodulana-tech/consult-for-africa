@@ -1,10 +1,30 @@
+import type { Metadata } from "next";
 import ApplicationForm from "@/components/talent/ApplicationForm";
 import Link from "next/link";
 import { ArrowLeft, Shield, Clock, Star } from "lucide-react";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Join the Network | Consult For Africa",
-  description: "Apply to join Africa's premier healthcare management consulting network.",
+  description:
+    "Apply to join Africa's premier healthcare management consulting network. Work with leading hospitals, health systems, and governments across the continent.",
+  keywords: [
+    "healthcare consultant application",
+    "join consulting network Africa",
+    "hospital management consultant",
+    "healthcare careers Nigeria",
+    "clinical governance consultant",
+    "health systems consultant Africa",
+  ],
+  alternates: {
+    canonical: "https://consultforafrica.com/careers/apply",
+  },
+  openGraph: {
+    title: "Join the Network | Consult For Africa",
+    description:
+      "Apply to join Africa's premier healthcare management consulting network.",
+    type: "website",
+    images: ["/og-image.jpg"],
+  },
 };
 
 export default function ApplyPage() {
@@ -18,13 +38,13 @@ export default function ApplyPage() {
 
         <div className="mb-8">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-2" style={{ color: "#D4AF37" }}>
-            Join CFA
+            Join C4A
           </p>
           <h1 className="text-3xl font-bold mb-3" style={{ color: "#0F2744" }}>
             Consultant Application
           </h1>
           <p className="text-gray-500 text-sm leading-relaxed">
-            Complete the form below to apply to CFA's exclusive consultant network.
+            Complete the form below to apply to C4A's exclusive consultant network.
             Applications are reviewed by our team within 5 business days.
           </p>
         </div>

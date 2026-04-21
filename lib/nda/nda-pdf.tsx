@@ -182,7 +182,7 @@ export function NdaPdf({ data }: { data: NdaTemplateData }) {
 
   const preambleText = isMutual
     ? `This ${ndaTitle} ("Agreement") is entered into between the parties identified above ("Party A" and "Party B"), collectively referred to as "the Parties." The Parties wish to explore, establish, or continue a consulting engagement and, in doing so, may share confidential and proprietary information with each other. This Agreement governs the terms under which such information is disclosed and protected.\n\nEach Party may act as both a disclosing party ("Disclosing Party") and a receiving party ("Receiving Party") under this Agreement.`
-    : `This Consultant Confidentiality Agreement ("Agreement") is entered into between the Consultant identified above and Consult For Africa. The Consultant may receive access to confidential information belonging to CFA and its clients in the course of performing consulting services. This Agreement governs the terms under which such information is protected.`;
+    : `This Consultant Confidentiality Agreement ("Agreement") is entered into between the Consultant identified above and Consult For Africa. The Consultant may receive access to confidential information belonging to C4A and its clients in the course of performing consulting services. This Agreement governs the terms under which such information is protected.`;
 
   return (
     <Document>

@@ -1,5 +1,5 @@
 // Consultant Assessment Question Banks
-// Specialty-specific vetting for CFA consultant onboarding
+// Specialty-specific vetting for C4A consultant onboarding
 
 export interface AssessmentQuestion {
   id: string;

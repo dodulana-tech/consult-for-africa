@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function CadreHealthCTA() {
   return (
     <section className="relative py-24 overflow-hidden">
-      {/* Dark background matching CFA visual language */}
+      {/* Dark background matching C4A visual language */}
       <div
         className="absolute inset-0"
         style={{ background: "linear-gradient(145deg, #061424 0%, #0B3C5D 55%, #0E4D6E 100%)" }}

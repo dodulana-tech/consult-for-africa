@@ -97,53 +97,73 @@ export const POST = handler(async function POST(req: NextRequest) {
       if (referrer) referredById = referrer.id;
     }
 
-    // Compute initial profile completeness
+    // Compute initial profile completeness (must match recomputeCompleteness in profile/route.ts)
     let completeness = 20; // base for registering
     if (phone) completeness += 5;
-    if (cadre) completeness += 10;
-    if (yearsOfExperience) completeness += 5;
-    if (state) completeness += 5;
-    if (openTo?.length > 0) completeness += 5;
+    if (cadre) completeness += 5;
+    if (yearsOfExperience != null && yearsOfExperience >= 0) completeness += 5;
+    if (state || isDiaspora) completeness += 5;
+    if (openTo && openTo.length > 0) completeness += 5;
 
-    // Generate email verification token
+    // Generate email verification token with 24-hour expiry
     const emailVerifyToken = crypto.randomBytes(32).toString("hex");
+    const emailVerifyTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    // Create professional
-    const professional = await prisma.cadreProfessional.create({
-      data: {
-        firstName,
-        lastName,
-        email: email.toLowerCase(),
-        phone: phone || null,
-        passwordHash: await hashPassword(password),
-        cadre,
-        subSpecialty: subSpecialty || null,
-        yearsOfExperience: yearsOfExperience || null,
-        state: isDiaspora ? null : state || null,
-        city: isDiaspora ? null : city || null,
-        isDiaspora,
-        diasporaCountry: isDiaspora ? diasporaCountry || null : null,
-        country: isDiaspora && diasporaCountry ? diasporaCountry : "Nigeria",
-        openTo,
-        referralCode: generateReferralCode(),
-        referredById: referredById || null,
-        profileCompleteness: completeness,
-        emailVerifyToken,
-      },
-    });
+    // Create professional -- handle race condition on duplicate email
+    let professional;
+    try {
+      professional = await prisma.cadreProfessional.create({
+        data: {
+          firstName,
+          lastName,
+          email: email.toLowerCase(),
+          phone: phone || null,
+          passwordHash: await hashPassword(password),
+          cadre,
+          subSpecialty: subSpecialty || null,
+          yearsOfExperience: yearsOfExperience ?? null,
+          state: isDiaspora ? null : state || null,
+          city: isDiaspora ? null : city || null,
+          isDiaspora,
+          diasporaCountry: isDiaspora ? diasporaCountry || null : null,
+          country: isDiaspora && diasporaCountry ? diasporaCountry : "Nigeria",
+          openTo,
+          referralCode: generateReferralCode(),
+          referredById: referredById || null,
+          profileCompleteness: completeness,
+          emailVerifyToken,
+          emailVerifyTokenExpiry,
+        },
+      });
+    } catch (err: unknown) {
+      // P2002 = unique constraint violation (email race condition)
+      if (err && typeof err === "object" && "code" in err && (err as { code: string }).code === "P2002") {
+        return NextResponse.json(
+          { error: "An account with this email already exists" },
+          { status: 409 }
+        );
+      }
+      throw err;
+    }
 
-    // Send verification email (non-blocking)
+    // Send verification email -- report failure to user
     const baseUrl = process.env.NEXTAUTH_URL ?? "https://consultforafrica.com";
     const verifyLink = `${baseUrl}/api/cadre/verify-email?token=${emailVerifyToken}`;
-    sendCadreEmail({
-      to: professional.email,
-      subject: "Verify your CadreHealth email",
-      heading: "Welcome to CadreHealth",
-      body: `Hi ${professional.firstName}, welcome to CadreHealth. Please verify your email address to unlock all features.`,
-      ctaText: "Verify Email",
-      ctaHref: verifyLink,
-      footer: "If you did not create a CadreHealth account, you can ignore this email.",
-    }).catch((err) => console.error("Verification email error:", err));
+    let emailWarning: string | undefined;
+    try {
+      await sendCadreEmail({
+        to: professional.email,
+        subject: "Verify your CadreHealth email",
+        heading: "Welcome to CadreHealth",
+        body: `Hi ${professional.firstName}, welcome to CadreHealth. Please verify your email address to unlock all features.`,
+        ctaText: "Verify Email",
+        ctaHref: verifyLink,
+        footer: "If you did not create a CadreHealth account, you can ignore this email.",
+      });
+    } catch (err) {
+      console.error("Verification email error:", err);
+      emailWarning = "Account created but verification email failed to send. You can resend it from your dashboard.";
+    }
 
     // Sign JWT
     const token = signCadreJWT({
@@ -168,6 +188,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     return NextResponse.json({
       id: professional.id,
       referralCode: professional.referralCode,
+      ...(emailWarning && { warning: emailWarning }),
     });
   } catch (error) {
     console.error("CadreHealth registration error:", error);

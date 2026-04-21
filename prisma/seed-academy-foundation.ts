@@ -1,5 +1,5 @@
 /**
- * CFA TRAINING ACADEMY - FOUNDATION LEVEL SEED (Tracks 1-2)
+ * C4A TRAINING ACADEMY - FOUNDATION LEVEL SEED (Tracks 1-2)
  * Seeds Foundation-level training tracks, modules, and assessment questions
  *
  * 2 Tracks:
@@ -16,7 +16,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('Seeding CFA Training Academy - Foundation Level Tracks (1-2)...\n')
+  console.log('Seeding C4A Training Academy - Foundation Level Tracks (1-2)...\n')
 
   // ════════════════════════════════════════════════════════════════════════════
   // DELETE ALL EXISTING TRAINING DATA (order matters for FK constraints)
@@ -39,7 +39,7 @@ async function main() {
     data: {
       name: 'Core Consulting Skills',
       slug: 'core-consulting-skills',
-      description: `Build the foundational toolkit every CFA consultant needs before stepping into a client engagement. This track covers structured problem-solving using MECE and issue trees, client communication grounded in the Pyramid Principle, and data analysis techniques for turning messy hospital data into actionable insights. These are non-negotiable skills that separate professional consultants from well-meaning advisors.`,
+      description: `Build the foundational toolkit every C4A consultant needs before stepping into a client engagement. This track covers structured problem-solving using MECE and issue trees, client communication grounded in the Pyramid Principle, and data analysis techniques for turning messy hospital data into actionable insights. These are non-negotiable skills that separate professional consultants from well-meaning advisors.`,
       level: 'FOUNDATION',
       category: 'methodology',
       iconName: 'brain',
@@ -81,7 +81,7 @@ async function main() {
             type: 'text',
             body: `Healthcare problems come in recognizable patterns. Revenue problems decompose into volume (patient numbers, case mix) and yield (reimbursement rates, collections efficiency). Operational problems decompose into capacity, throughput, and quality. Staffing problems decompose into recruitment, retention, productivity, and skill mix. Knowing these standard structures lets you build an issue tree in minutes rather than hours.
 
-              Practice building issue trees for common CFA engagement types: hospital turnaround, department optimization, new service line feasibility, and claims leakage reduction. For each, start with the governing question, build two levels of branches, and identify the data you would need to test each leaf hypothesis. Speed and precision in structuring will define your effectiveness in the first week of any engagement.`
+              Practice building issue trees for common C4A engagement types: hospital turnaround, department optimization, new service line feasibility, and claims leakage reduction. For each, start with the governing question, build two levels of branches, and identify the data you would need to test each leaf hypothesis. Speed and precision in structuring will define your effectiveness in the first week of any engagement.`
           }
         ],
         exercises: [
@@ -229,7 +229,7 @@ async function main() {
       resources: {
         links: [
           { title: 'The Pyramid Principle Summary', url: 'internal://knowledge/pyramid-principle' },
-          { title: 'CFA Slide Design Standards', url: 'internal://knowledge/slide-design-guide' },
+          { title: 'C4A Slide Design Standards', url: 'internal://knowledge/slide-design-guide' },
         ],
         tools: ['Action Title Checker', 'SCR Template', 'Executive Summary Builder']
       },
@@ -456,7 +456,7 @@ async function main() {
     data: {
       name: 'Healthcare Fundamentals',
       slug: 'healthcare-fundamentals',
-      description: `Understand how healthcare systems work in Africa before you try to fix them. This track covers the WHO health system building blocks, hospital operations from admission to discharge, and healthcare financing models including capitation, fee-for-service, DRGs, and national health insurance schemes. Every CFA consultant must speak the language of healthcare, whether they come from a clinical, business, or public health background.`,
+      description: `Understand how healthcare systems work in Africa before you try to fix them. This track covers the WHO health system building blocks, hospital operations from admission to discharge, and healthcare financing models including capitation, fee-for-service, DRGs, and national health insurance schemes. Every C4A consultant must speak the language of healthcare, whether they come from a clinical, business, or public health background.`,
       level: 'FOUNDATION',
       category: 'health_economics',
       iconName: 'heart-pulse',
@@ -484,7 +484,7 @@ async function main() {
             type: 'text',
             body: `The World Health Organization defines six building blocks that constitute a health system: service delivery, health workforce, health information systems, access to essential medicines, financing, and leadership/governance. These building blocks provide a universal framework for understanding why health systems perform the way they do. When a hospital fails, it is rarely one building block in isolation. It is usually a cascade: weak governance leads to poor financing decisions, which leads to workforce attrition, which leads to service delivery collapse.
 
-              For CFA consultants, the building blocks are a diagnostic checklist. When you walk into any engagement, map the client's challenges to building blocks. A hospital struggling with quality? Check service delivery protocols, workforce capacity, and information systems. A government agency with poor maternal mortality outcomes? Check financing adequacy, medicine supply chains, and governance accountability structures. The framework prevents you from treating symptoms while missing systemic causes.`
+              For C4A consultants, the building blocks are a diagnostic checklist. When you walk into any engagement, map the client's challenges to building blocks. A hospital struggling with quality? Check service delivery protocols, workforce capacity, and information systems. A government agency with poor maternal mortality outcomes? Check financing adequacy, medicine supply chains, and governance accountability structures. The framework prevents you from treating symptoms while missing systemic causes.`
           },
           {
             title: 'African Health System Archetypes',

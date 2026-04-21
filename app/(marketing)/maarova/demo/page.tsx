@@ -221,7 +221,7 @@ export default function MaarovaDemoPage() {
                   className="mb-8 leading-relaxed"
                   style={{ color: "rgba(255,255,255,0.45)", fontSize: 14 }}
                 >
-                  Thank you for your interest in Maarova. A member of the CFA
+                  Thank you for your interest in Maarova. A member of the C4A
                   team will be in touch within 24 hours to schedule your
                   personalised demo.
                 </p>

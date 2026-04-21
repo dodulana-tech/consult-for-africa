@@ -299,10 +299,10 @@ export default function NdaToolPage() {
                 </div>
               )}
 
-              {/* CFA signer */}
+              {/* C4A signer */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">CFA Signer Name</label>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">C4A Signer Name</label>
                   <input
                     value={form.partyBName}
                     onChange={(e) => setForm((f) => ({ ...f, partyBName: e.target.value }))}
@@ -312,7 +312,7 @@ export default function NdaToolPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">CFA Signer Title</label>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">C4A Signer Title</label>
                   <input
                     value={form.partyBTitle}
                     onChange={(e) => setForm((f) => ({ ...f, partyBTitle: e.target.value }))}

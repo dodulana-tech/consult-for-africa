@@ -168,7 +168,7 @@ export default async function ClientInvoiceDetailPage({
             style={{ borderBottom: "1px solid #e5eaf0" }}
           >
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-              {/* CFA Branding */}
+              {/* C4A Branding */}
               <div>
                 <div className="flex items-center gap-3 mb-4">
                   {/* eslint-disable-next-line @next/next/no-img-element */}

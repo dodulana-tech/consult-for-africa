@@ -1,13 +1,13 @@
 // Consultant Specialty Taxonomy
 // MECE: 10 categories, ~30 specialties
 // Categories are mutually exclusive functional disciplines
-// Specialties within each category are collectively exhaustive for CFA's consultant base
+// Specialties within each category are collectively exhaustive for C4A's consultant base
 
 export interface SpecialtyCategory {
   key: string;
   label: string;
   specialties: { key: string; label: string }[];
-  /** Which CFA ServiceTypes this category typically maps to */
+  /** Which C4A ServiceTypes this category typically maps to */
   serviceTypes: string[];
 }
 

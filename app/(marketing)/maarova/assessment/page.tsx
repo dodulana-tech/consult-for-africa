@@ -67,7 +67,7 @@ const modules = [
     icon: "\u2191",
     name: "Clinical Leadership Transition Index (CILTI)",
     tagline: "Are they ready?",
-    basis: "CFA's proprietary measure. No other tool does this.",
+    basis: "C4A's proprietary measure. No other tool does this.",
     measures: [
       "Clinical identity vs. leadership identity",
       "Readiness for leadership transition",

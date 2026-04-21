@@ -21,7 +21,7 @@ export default async function ReferPage() {
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
-      <TopBar title="Refer & Invite" subtitle="Grow the CFA network" />
+      <TopBar title="Refer & Invite" subtitle="Grow the C4A network" />
       <ReferralForm myReferrals={serialized} />
     </div>
   );

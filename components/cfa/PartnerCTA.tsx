@@ -79,7 +79,7 @@ export default function PartnerCTA() {
           method="POST"
           className="glass-surface rounded-2xl p-10 grid gap-5"
         >
-          <input type="hidden" name="_subject" value="New CFA Executive Brief Submission" />
+          <input type="hidden" name="_subject" value="New C4A Executive Brief Submission" />
           <input type="hidden" name="_template" value="table" />
           <input type="hidden" name="_captcha" value="false" />
           {/* Honeypot - hidden from humans, bots fill it and get silently rejected */}

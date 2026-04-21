@@ -11,7 +11,7 @@ const SEED_CLIENT_NAMES = [
 ]
 
 async function main() {
-  console.log('Seeding CFA Client Projects...\n')
+  console.log('Seeding C4A Client Projects...\n')
 
   // Find engagement manager user
   const em = await prisma.user.findFirst({

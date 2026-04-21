@@ -1,5 +1,5 @@
 /**
- * CFA TRAINING ACADEMY - SPECIALIST LEVEL SEED C (Tracks 11-12)
+ * C4A TRAINING ACADEMY - SPECIALIST LEVEL SEED C (Tracks 11-12)
  * Seeds Specialist-level training tracks, modules, and assessment questions
  *
  * 2 Tracks:
@@ -16,7 +16,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('Seeding CFA Training Academy - Specialist Level Tracks (11-12)...\n')
+  console.log('Seeding C4A Training Academy - Specialist Level Tracks (11-12)...\n')
 
   // ════════════════════════════════════════════════════════════════════════════
   // TRACK 11: SPECIALIST - Healthcare HR & Leadership

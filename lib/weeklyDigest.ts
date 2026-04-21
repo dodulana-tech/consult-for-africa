@@ -319,7 +319,7 @@ async function generateNuruInsight(data: {
       messages: [
         {
           role: "user",
-          content: `You are Nuru, CFA's AI assistant. Write a single motivational/strategic sentence for ${data.name} (${data.role}) based on this week's data. Be specific to the numbers. No generic quotes. Keep it warm but professional. One sentence only, no quotation marks.
+          content: `You are Nuru, C4A's AI assistant. Write a single motivational/strategic sentence for ${data.name} (${data.role}) based on this week's data. Be specific to the numbers. No generic quotes. Keep it warm but professional. One sentence only, no quotation marks.
 
 Data: ${data.activeProjects} active projects, ${data.atRiskProjects} at risk, ${data.completedThisWeek} completed this week, ${data.overdueDeliverables} overdue deliverables, ${data.pendingTimesheets} pending timesheets, ${data.hoursSubmittedThisWeek}h logged, ${data.deliverablesSubmitted} deliverables submitted, ${data.deliverablesApproved} approved, ${data.totalConsultants} consultants at ${data.avgUtilization}% utilization, ${data.newReferrals} new referrals, ${data.proposalsSent} proposals sent, ${data.newApplications} new talent applications, ${data.consultantsOnboarded} onboarded this week.`,
         },

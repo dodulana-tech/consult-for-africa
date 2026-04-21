@@ -108,9 +108,9 @@ export default async function ToolsPage() {
               <Wrench size={18} className="text-white" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-white">CFA Consulting Toolkit</h2>
+              <h2 className="text-base font-semibold text-white">C4A Consulting Toolkit</h2>
               <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.6)" }}>
-                Interactive tools, templates, and frameworks used across CFA engagements.
+                Interactive tools, templates, and frameworks used across C4A engagements.
                 {toolCount > 0 && ` ${toolCount} resources available in the Knowledge Base.`}
               </p>
             </div>

@@ -1,11 +1,11 @@
 /**
- * CFA TRAINING ACADEMY - MASTER LEVEL SEED (Tracks 13-15)
+ * C4A TRAINING ACADEMY - MASTER LEVEL SEED (Tracks 13-15)
  * Seeds Master-level training tracks, modules, and assessment questions
  *
  * 3 Tracks:
  *   Track 13: Strategic Advisory & Growth
  *   Track 14: Public Sector & Health Systems
- *   Track 15: CFA Master Consultant
+ *   Track 15: C4A Master Consultant
  *
  * This file only CREATES new data. It does NOT delete existing records.
  *
@@ -17,7 +17,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('Seeding CFA Training Academy - Master Level Tracks (13-15)...\n')
+  console.log('Seeding C4A Training Academy - Master Level Tracks (13-15)...\n')
 
   // ════════════════════════════════════════════════════════════════════════════
   // TRACK 13: MASTER - Strategic Advisory & Growth
@@ -221,7 +221,7 @@ async function main() {
 
               This creates four quadrants. Stars (high strategic value, strong financial performance) should receive aggressive investment. Cash cows (moderate strategy value, strong margins) fund growth elsewhere. Question marks (high strategic value, weak finances) need turnaround plans or partnership models. Dogs (low strategy value, poor finances) should be rationalized or closed.
 
-              A CFA engagement in Kampala mapped 12 service lines for a 250-bed hospital. Oncology was a question mark with high demand but poor economics. The recommendation was a PPP model with a regional cancer centre rather than building a standalone unit. Orthopaedics was a star with strong margins and growing demand from the emerging middle class. The result was a focused investment plan rather than spreading capital thinly across all departments.`
+              A C4A engagement in Kampala mapped 12 service lines for a 250-bed hospital. Oncology was a question mark with high demand but poor economics. The recommendation was a PPP model with a regional cancer centre rather than building a standalone unit. Orthopaedics was a star with strong margins and growing demand from the emerging middle class. The result was a focused investment plan rather than spreading capital thinly across all departments.`
           }
         ],
         exercises: [
@@ -508,14 +508,14 @@ async function main() {
             type: 'text',
             body: `The World Health Organization defines six building blocks of a health system: service delivery, health workforce, health information systems, access to essential medicines, health financing, and leadership/governance. Understanding these building blocks in depth is essential for any consultant advising governments or development partners.
 
-              In most African countries, these building blocks are at varying levels of maturity. Nigeria might have a relatively developed pharmaceutical supply chain but weak health information systems. Rwanda excels in governance and community health worker deployment but faces health workforce shortages at specialist level. A CFA consultant must diagnose which building blocks are weakest, how they interact (a strong financing system cannot function without reliable health information), and where targeted investment will have the greatest systemic impact.`
+              In most African countries, these building blocks are at varying levels of maturity. Nigeria might have a relatively developed pharmaceutical supply chain but weak health information systems. Rwanda excels in governance and community health worker deployment but faces health workforce shortages at specialist level. A C4A consultant must diagnose which building blocks are weakest, how they interact (a strong financing system cannot function without reliable health information), and where targeted investment will have the greatest systemic impact.`
           },
           {
             title: 'Governance and Stewardship',
             type: 'text',
             body: `Governance is the most critical and most neglected building block. It encompasses policy formulation, regulation, accountability, and system oversight. In decentralized health systems (common across Africa since the 1990s reforms), governance challenges multiply as responsibilities split between national ministries, regional health authorities, and district health management teams.
 
-              Key governance issues in African health systems include: regulatory gaps that allow unregistered facilities to operate, weak accountability mechanisms that cannot track how funds are spent, fragmented authority where multiple agencies regulate different aspects of healthcare with poor coordination, and political interference in technical appointments. A CFA engagement with the Ministry of Health in a West African country found that 23% of registered health facilities had never been inspected, and facility licensing had not been updated in 14 years. The governance reform program included a new regulatory framework, digital facility registry, risk-based inspection protocol, and performance-based accountability contracts for district health managers.`
+              Key governance issues in African health systems include: regulatory gaps that allow unregistered facilities to operate, weak accountability mechanisms that cannot track how funds are spent, fragmented authority where multiple agencies regulate different aspects of healthcare with poor coordination, and political interference in technical appointments. A C4A engagement with the Ministry of Health in a West African country found that 23% of registered health facilities had never been inspected, and facility licensing had not been updated in 14 years. The governance reform program included a new regulatory framework, digital facility registry, risk-based inspection protocol, and performance-based accountability contracts for district health managers.`
           },
           {
             title: 'Health Financing Architecture',
@@ -524,7 +524,7 @@ async function main() {
 
               African countries use different financing architectures. Tax-funded systems (e.g., Tanzania, South Africa public sector) collect revenue through general taxation and allocate budgets to public facilities. Social health insurance models (e.g., Ghana NHIS, Kenya NHIF) collect earmarked contributions from formal-sector workers and sometimes informal-sector voluntary members. Community-based health insurance (common in francophone West Africa) pools risk at the local level. Out-of-pocket payment remains dominant in many countries, accounting for over 40% of total health expenditure in 27 African nations.
 
-              The trend across Africa is toward Universal Health Coverage (UHC), which requires expanding risk pooling, reducing out-of-pocket spending, and improving purchasing efficiency. CFA consultants advising on UHC transitions must understand the political economy, the fiscal space, and the institutional capacity required to move from fragmented financing to universal coverage.`
+              The trend across Africa is toward Universal Health Coverage (UHC), which requires expanding risk pooling, reducing out-of-pocket spending, and improving purchasing efficiency. C4A consultants advising on UHC transitions must understand the political economy, the fiscal space, and the institutional capacity required to move from fragmented financing to universal coverage.`
           }
         ],
         exercises: [
@@ -653,9 +653,9 @@ async function main() {
           {
             title: 'Policy-to-Implementation Translation',
             type: 'text',
-            body: `African health ministries often produce excellent policies that never get implemented. The gap between policy and implementation is where CFA consultants add the most value. Translation requires four capabilities: operational planning (turning policy goals into costed, sequenced activities), institutional design (creating or strengthening the bodies responsible for execution), change management (building buy-in across political, bureaucratic, and clinical stakeholders), and monitoring frameworks (tracking implementation fidelity, not just outcomes).
+            body: `African health ministries often produce excellent policies that never get implemented. The gap between policy and implementation is where C4A consultants add the most value. Translation requires four capabilities: operational planning (turning policy goals into costed, sequenced activities), institutional design (creating or strengthening the bodies responsible for execution), change management (building buy-in across political, bureaucratic, and clinical stakeholders), and monitoring frameworks (tracking implementation fidelity, not just outcomes).
 
-              A common pattern: a government adopts a new primary healthcare policy with ambitious targets. The policy document is 80 pages long and technically sound. But there is no implementation plan, no budget line, no designated implementation unit, and no accountability mechanism. CFA's role is to bridge this gap. We translate the 80-page policy into a 24-month implementation plan with quarterly milestones, assigned responsibilities, budget requirements, and a monitoring dashboard that the Minister can review monthly. This is unglamorous work, but it is where impact happens.`
+              A common pattern: a government adopts a new primary healthcare policy with ambitious targets. The policy document is 80 pages long and technically sound. But there is no implementation plan, no budget line, no designated implementation unit, and no accountability mechanism. C4A's role is to bridge this gap. We translate the 80-page policy into a 24-month implementation plan with quarterly milestones, assigned responsibilities, budget requirements, and a monitoring dashboard that the Minister can review monthly. This is unglamorous work, but it is where impact happens.`
           },
           {
             title: 'Stakeholder Management in Government Engagements',
@@ -664,7 +664,7 @@ async function main() {
 
               High-influence, high-interest stakeholders (Ministers, Permanent Secretaries, key development partners) require regular engagement, co-creation of solutions, and careful management of expectations. High-influence, low-interest stakeholders (Treasury, other ministries) need targeted communication that frames health investments in their terms (economic productivity, fiscal sustainability). Low-influence, high-interest stakeholders (health workers, patient advocacy groups) need channels for input and visible evidence that their concerns are heard.
 
-              Critical rules for government advisory: never surprise a Minister publicly, always provide multiple options rather than single recommendations, document everything in writing, build relationships with permanent technical staff (politicians rotate but technocrats remain), and respect the pace of government decision-making while maintaining pressure on timelines. A CFA consultant who pushes too hard will be sidelined. One who is too passive will accomplish nothing. The skill is calibrated persistence.`
+              Critical rules for government advisory: never surprise a Minister publicly, always provide multiple options rather than single recommendations, document everything in writing, build relationships with permanent technical staff (politicians rotate but technocrats remain), and respect the pace of government decision-making while maintaining pressure on timelines. A C4A consultant who pushes too hard will be sidelined. One who is too passive will accomplish nothing. The skill is calibrated persistence.`
           }
         ],
         exercises: [
@@ -715,7 +715,7 @@ async function main() {
           { id: 'c', text: 'Opposition from healthcare workers', isCorrect: false },
           { id: 'd', text: 'Insufficient international donor funding', isCorrect: false },
         ]),
-        explanation: 'Many African health policies are technically excellent but lack the operational infrastructure for execution: no implementation plan, no budget allocation, no designated unit to drive execution, and no accountability mechanism. CFA bridges this policy-to-implementation gap.',
+        explanation: 'Many African health policies are technically excellent but lack the operational infrastructure for execution: no implementation plan, no budget allocation, no designated unit to drive execution, and no accountability mechanism. C4A bridges this policy-to-implementation gap.',
         points: 1,
         order: 2,
       },
@@ -789,7 +789,7 @@ async function main() {
             type: 'text',
             body: `The 1978 Alma-Ata Declaration established primary healthcare as the foundation of health systems, and the 2018 Astana Declaration renewed this commitment. In Africa, where the disease burden is shifting from communicable to non-communicable diseases while infectious diseases persist, strong PHC is more critical than ever. PHC should be the first point of contact, providing promotive, preventive, curative, rehabilitative, and palliative care close to where people live.
 
-              Yet PHC remains chronically underfunded across Africa. In most countries, over 60% of health budgets flow to tertiary hospitals that serve a fraction of the population. Strengthening PHC requires rebalancing this allocation, building the workforce (community health workers, nurses, clinical officers), ensuring essential medicine supply, and creating functional referral pathways to higher levels of care. Rwanda's community health worker program and Ethiopia's Health Extension Program demonstrate that well-designed PHC models can dramatically improve health outcomes even in low-resource settings. CFA's PHC strengthening engagements focus on system design, not just facility upgrades.`
+              Yet PHC remains chronically underfunded across Africa. In most countries, over 60% of health budgets flow to tertiary hospitals that serve a fraction of the population. Strengthening PHC requires rebalancing this allocation, building the workforce (community health workers, nurses, clinical officers), ensuring essential medicine supply, and creating functional referral pathways to higher levels of care. Rwanda's community health worker program and Ethiopia's Health Extension Program demonstrate that well-designed PHC models can dramatically improve health outcomes even in low-resource settings. C4A's PHC strengthening engagements focus on system design, not just facility upgrades.`
           },
           {
             title: 'Capitation and DRG-Based Payment',
@@ -798,7 +798,7 @@ async function main() {
 
               In African health systems, capitation is increasingly used for primary healthcare. Ghana's NHIS uses capitation for PHC in some regions, paying facilities a fixed amount per enrollee. Kenya's NHIF has piloted capitation for outpatient services. The challenge is setting the capitation rate correctly: too low and facilities cannot cover costs, too high and the insurance fund is unsustainable. DRGs are more complex and require robust clinical coding systems, which most African hospitals lack. South Africa has developed an African DRG classification system, and several countries are piloting simplified DRG models for common conditions.
 
-              CFA consultants advising on provider payment reform must understand the technical mechanics, the behavioral incentives, and the institutional prerequisites. Moving from FFS to capitation requires provider education, information systems for enrollment tracking, risk adjustment for different population profiles, and quality monitoring to prevent under-provision.`
+              C4A consultants advising on provider payment reform must understand the technical mechanics, the behavioral incentives, and the institutional prerequisites. Moving from FFS to capitation requires provider education, information systems for enrollment tracking, risk adjustment for different population profiles, and quality monitoring to prevent under-provision.`
           },
           {
             title: 'Pay-for-Performance (P4P) Mechanisms',
@@ -917,17 +917,17 @@ async function main() {
   console.log('  Track 14: Public Sector & Health Systems - 3 modules, 15 questions')
 
   // ════════════════════════════════════════════════════════════════════════════
-  // TRACK 15: MASTER - CFA Master Consultant
+  // TRACK 15: MASTER - C4A Master Consultant
   // ════════════════════════════════════════════════════════════════════════════
 
   const masterConsultant = await prisma.trainingTrack.create({
     data: {
-      name: 'CFA Master Consultant',
+      name: 'C4A Master Consultant',
       slug: 'cfa-master-consultant',
-      description: `The capstone track for CFA's most experienced consultants. Master the art of leading complex,
-        multi-workstream engagements, delivering CFA's proprietary transformation programmes, and
+      description: `The capstone track for C4A's most experienced consultants. Master the art of leading complex,
+        multi-workstream engagements, delivering C4A's proprietary transformation programmes, and
         building the firm through business development and thought leadership. Completion of this track,
-        combined with demonstrated engagement performance, qualifies for the CFA Master Consultant
+        combined with demonstrated engagement performance, qualifies for the C4A Master Consultant
         certification, the firm's highest professional credential.`,
       level: 'MASTER',
       category: 'methodology',
@@ -954,7 +954,7 @@ async function main() {
           {
             title: 'Multi-Workstream Engagement Architecture',
             type: 'text',
-            body: `CFA's largest engagements involve 3-6 simultaneous workstreams, each led by a specialist consultant, with a Master Consultant overseeing the integrated programme. A typical hospital transformation might include workstreams for clinical operations, financial restructuring, workforce development, governance reform, and digital systems. Each workstream has its own deliverables, timelines, and stakeholders, but they are deeply interdependent.
+            body: `C4A's largest engagements involve 3-6 simultaneous workstreams, each led by a specialist consultant, with a Master Consultant overseeing the integrated programme. A typical hospital transformation might include workstreams for clinical operations, financial restructuring, workforce development, governance reform, and digital systems. Each workstream has its own deliverables, timelines, and stakeholders, but they are deeply interdependent.
 
               The Master Consultant's role is architectural. You design the engagement structure, define workstream scopes and interfaces, establish integration points (weekly synthesis meetings, shared data rooms, cross-workstream dependencies), and ensure that individual workstream recommendations form a coherent whole. A clinical governance workstream might recommend new mortality review processes, while the workforce workstream is proposing a restructured nursing hierarchy. These must align. The Master Consultant spots conflicts, resolves them, and presents unified recommendations to the client steering committee.`
           },
@@ -972,7 +972,7 @@ async function main() {
 
               The framework for difficult conversations is: prepare, frame, listen, propose. Prepare by gathering irrefutable data and testing your message with a trusted advisor. Frame the conversation around shared objectives and facts, not blame. Listen actively to understand the other party's constraints and concerns. Propose a path forward that addresses both the technical requirement and the political reality.
 
-              Escalation management follows a tiered approach. Level 1: resolve within the workstream through data-driven discussion. Level 2: escalate to the engagement steering committee with a clear problem statement and proposed options. Level 3: engage CFA senior leadership for firm-to-firm conversations. The key principle: never escalate a problem without a proposed solution. Clients and senior leaders want options, not just issues. Document all escalations in writing, including the agreed resolution and next steps.`
+              Escalation management follows a tiered approach. Level 1: resolve within the workstream through data-driven discussion. Level 2: escalate to the engagement steering committee with a clear problem statement and proposed options. Level 3: engage C4A senior leadership for firm-to-firm conversations. The key principle: never escalate a problem without a proposed solution. Clients and senior leaders want options, not just issues. Document all escalations in writing, including the agreed resolution and next steps.`
           }
         ],
         exercises: [
@@ -988,7 +988,7 @@ async function main() {
       },
       resources: {
         links: [
-          { title: 'CFA Engagement Management Framework', url: 'internal://knowledge/engagement-management' },
+          { title: 'C4A Engagement Management Framework', url: 'internal://knowledge/engagement-management' },
           { title: 'Difficult Conversations in Consulting', url: 'internal://knowledge/difficult-conversations' },
         ],
         tools: ['Engagement Architecture Template', 'RACI Matrix Builder', 'Escalation Log Template']
@@ -1018,7 +1018,7 @@ async function main() {
         type: 'MULTIPLE_CHOICE',
         question: 'According to the escalation framework, what is the key principle when escalating issues?',
         options: JSON.stringify([
-          { id: 'a', text: 'Escalate immediately to CFA senior leadership for fastest resolution', isCorrect: false },
+          { id: 'a', text: 'Escalate immediately to C4A senior leadership for fastest resolution', isCorrect: false },
           { id: 'b', text: 'Never escalate a problem without a proposed solution', isCorrect: true },
           { id: 'c', text: 'Let the client resolve their own issues internally', isCorrect: false },
           { id: 'd', text: 'Avoid escalation at all costs to maintain client relationships', isCorrect: false },
@@ -1070,43 +1070,43 @@ async function main() {
             upcomingMilestone: 'Integrated recommendation presentation to Board in 6 weeks',
           },
         }),
-        explanation: 'A strong answer addresses all three issues: (1) Recommendation conflict: convene a joint working session between clinical and financial workstream leads. The answer is likely nuanced, perhaps restructure the pharmacy operating model rather than outsource entirely. Present the Board with an integrated recommendation that optimizes both clinical flow and financial performance. (2) Team wellbeing: immediately restructure workloads, enforce a mandatory day off, and consider requesting a temporary additional resource from CFA. Losing a team member at Month 3 would be worse than a slight schedule slip. (3) CEO concern: restructure the weekly rhythm so consultants spend mornings on wards/departments and afternoons on analysis and meetings. Create a visible "office hours" presence where hospital staff can engage directly. Communicate this change to the CEO with a revised weekly schedule. The meta-lesson: at the Master Consultant level, managing the engagement itself is as important as the content of the recommendations.',
+        explanation: 'A strong answer addresses all three issues: (1) Recommendation conflict: convene a joint working session between clinical and financial workstream leads. The answer is likely nuanced, perhaps restructure the pharmacy operating model rather than outsource entirely. Present the Board with an integrated recommendation that optimizes both clinical flow and financial performance. (2) Team wellbeing: immediately restructure workloads, enforce a mandatory day off, and consider requesting a temporary additional resource from C4A. Losing a team member at Month 3 would be worse than a slight schedule slip. (3) CEO concern: restructure the weekly rhythm so consultants spend mornings on wards/departments and afternoons on analysis and meetings. Create a visible "office hours" presence where hospital staff can engage directly. Communicate this change to the CEO with a revised weekly schedule. The meta-lesson: at the Master Consultant level, managing the engagement itself is as important as the content of the recommendations.',
         points: 5,
         order: 5,
       },
     ],
   })
 
-  // Module 15.2: CFA Proprietary Programmes
+  // Module 15.2: C4A Proprietary Programmes
   const m15_2 = await prisma.trainingModule.create({
     data: {
       trackId: masterConsultant.id,
-      name: 'CFA Proprietary Programmes',
+      name: 'C4A Proprietary Programmes',
       slug: 'cfa-proprietary-programmes',
-      description: 'Master the delivery of CFA\'s six proprietary transformation programmes: Hospital Excellence, Turnaround, Clinical Governance Transformation, Digital Health Transformation, Health Systems Advisory, and Embedded Medical Director.',
+      description: 'Master the delivery of C4A\'s six proprietary transformation programmes: Hospital Excellence, Turnaround, Clinical Governance Transformation, Digital Health Transformation, Health Systems Advisory, and Embedded Medical Director.',
       order: 2,
       estimatedMinutes: 150,
       passingScore: 80,
       content: {
         sections: [
           {
-            title: 'The CFA Programme Portfolio',
+            title: 'The C4A Programme Portfolio',
             type: 'text',
-            body: `CFA has developed six proprietary programmes, each representing a codified approach to a specific healthcare transformation challenge. These programmes are the firm's intellectual property and competitive advantage. They combine structured methodologies, proven tools, and accumulated experience from dozens of African healthcare engagements into repeatable, scalable delivery models.
+            body: `C4A has developed six proprietary programmes, each representing a codified approach to a specific healthcare transformation challenge. These programmes are the firm's intellectual property and competitive advantage. They combine structured methodologies, proven tools, and accumulated experience from dozens of African healthcare engagements into repeatable, scalable delivery models.
 
-              The six programmes are: (1) Hospital Excellence Programme: a comprehensive operational improvement programme covering clinical quality, financial performance, patient experience, and workforce development. Typically 12-18 months. (2) Turnaround Programme: an intensive intervention for financially distressed or operationally failing hospitals, with a 90-day diagnostic-to-action cycle. (3) Clinical Governance Transformation: embedding clinical governance structures, mortality and morbidity reviews, clinical audit, and quality improvement culture. (4) Digital Health Transformation: EMR implementation, health information system design, telemedicine deployment, and digital maturity assessment. (5) Health Systems Advisory: supporting governments and development partners on health system strengthening, UHC design, and policy implementation. (6) Embedded Medical Director: placing a CFA clinician-consultant as interim Medical Director to drive clinical leadership transformation.`
+              The six programmes are: (1) Hospital Excellence Programme: a comprehensive operational improvement programme covering clinical quality, financial performance, patient experience, and workforce development. Typically 12-18 months. (2) Turnaround Programme: an intensive intervention for financially distressed or operationally failing hospitals, with a 90-day diagnostic-to-action cycle. (3) Clinical Governance Transformation: embedding clinical governance structures, mortality and morbidity reviews, clinical audit, and quality improvement culture. (4) Digital Health Transformation: EMR implementation, health information system design, telemedicine deployment, and digital maturity assessment. (5) Health Systems Advisory: supporting governments and development partners on health system strengthening, UHC design, and policy implementation. (6) Embedded Medical Director: placing a C4A clinician-consultant as interim Medical Director to drive clinical leadership transformation.`
           },
           {
             title: 'Programme Delivery Architecture',
             type: 'text',
-            body: `Each CFA programme follows a consistent delivery architecture with four phases: Diagnose, Design, Deliver, and Sustain. The Diagnose phase (typically 4-6 weeks) uses structured assessment tools specific to each programme to establish a baseline, identify root causes, and quantify the opportunity. The Design phase (4-8 weeks) translates diagnostic findings into a detailed transformation plan with prioritized initiatives, resource requirements, and a benefits realization timeline.
+            body: `Each C4A programme follows a consistent delivery architecture with four phases: Diagnose, Design, Deliver, and Sustain. The Diagnose phase (typically 4-6 weeks) uses structured assessment tools specific to each programme to establish a baseline, identify root causes, and quantify the opportunity. The Design phase (4-8 weeks) translates diagnostic findings into a detailed transformation plan with prioritized initiatives, resource requirements, and a benefits realization timeline.
 
-              The Deliver phase (3-12 months depending on the programme) is where change happens. CFA consultants work alongside client teams to implement initiatives, build capability, and track progress against agreed milestones. The Sustain phase (3-6 months of decreasing intensity) ensures that changes stick after CFA departs. This includes embedding monitoring systems, training internal champions, and conducting periodic check-ins. The Sustain phase is what differentiates CFA from consultancies that deliver reports and leave. A hospital in Mombasa that went through the Hospital Excellence Programme maintained its quality improvements for 3 years after CFA's departure because the Sustain phase had embedded the right structures and habits.`
+              The Deliver phase (3-12 months depending on the programme) is where change happens. C4A consultants work alongside client teams to implement initiatives, build capability, and track progress against agreed milestones. The Sustain phase (3-6 months of decreasing intensity) ensures that changes stick after C4A departs. This includes embedding monitoring systems, training internal champions, and conducting periodic check-ins. The Sustain phase is what differentiates C4A from consultancies that deliver reports and leave. A hospital in Mombasa that went through the Hospital Excellence Programme maintained its quality improvements for 3 years after C4A's departure because the Sustain phase had embedded the right structures and habits.`
           },
           {
             title: 'Tailoring Programmes to Context',
             type: 'text',
-            body: `No two hospitals are the same, and no CFA programme should be delivered identically twice. The Master Consultant's skill is knowing which programme elements to emphasize, which to skip, and how to adapt the methodology to the client's context. A Hospital Excellence engagement at a 500-bed teaching hospital in Lagos requires a fundamentally different approach than at a 60-bed district hospital in rural Zambia.
+            body: `No two hospitals are the same, and no C4A programme should be delivered identically twice. The Master Consultant's skill is knowing which programme elements to emphasize, which to skip, and how to adapt the methodology to the client's context. A Hospital Excellence engagement at a 500-bed teaching hospital in Lagos requires a fundamentally different approach than at a 60-bed district hospital in rural Zambia.
 
               Contextual factors that drive tailoring include: facility size and complexity, ownership structure (public, private, faith-based, PPP), existing management capacity, data availability, financial constraints, regulatory environment, and cultural dynamics. For example, the Turnaround Programme's financial restructuring module assumes access to detailed financial data. In a public hospital where financial records are incomplete, the first step is reconstructing the financial picture from bank statements, procurement records, and payroll data before any analysis can begin.
 
@@ -1116,7 +1116,7 @@ async function main() {
         exercises: [
           {
             title: 'Practice: Programme Selection',
-            instruction: 'A faith-based hospital group operating 4 hospitals across East Africa approaches CFA. They report declining clinical quality, financial losses at 2 of 4 facilities, poor staff morale, and outdated paper-based systems. Which CFA programme(s) would you recommend and why? How would you sequence and integrate them?',
+            instruction: 'A faith-based hospital group operating 4 hospitals across East Africa approaches C4A. They report declining clinical quality, financial losses at 2 of 4 facilities, poor staff morale, and outdated paper-based systems. Which C4A programme(s) would you recommend and why? How would you sequence and integrate them?',
           },
           {
             title: 'Practice: Programme Tailoring',
@@ -1126,7 +1126,7 @@ async function main() {
       },
       resources: {
         links: [
-          { title: 'CFA Programme Portfolio Overview', url: 'internal://knowledge/programme-portfolio' },
+          { title: 'C4A Programme Portfolio Overview', url: 'internal://knowledge/programme-portfolio' },
           { title: 'Programme Tailoring Guidelines', url: 'internal://knowledge/programme-tailoring' },
         ],
         tools: ['Programme Selection Matrix', 'Diagnostic Assessment Templates (all 6 programmes)', 'Benefits Realization Tracker']
@@ -1140,28 +1140,28 @@ async function main() {
       {
         moduleId: m15_2.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'What are the four phases of CFA\'s programme delivery architecture?',
+        question: 'What are the four phases of C4A\'s programme delivery architecture?',
         options: JSON.stringify([
           { id: 'a', text: 'Plan, Execute, Monitor, Close', isCorrect: false },
           { id: 'b', text: 'Diagnose, Design, Deliver, Sustain', isCorrect: true },
           { id: 'c', text: 'Assess, Recommend, Implement, Review', isCorrect: false },
           { id: 'd', text: 'Discover, Define, Develop, Deploy', isCorrect: false },
         ]),
-        explanation: 'CFA\'s four-phase model is Diagnose (baseline and root cause), Design (transformation plan), Deliver (implementation alongside client teams), and Sustain (embedding changes for long-term impact). The Sustain phase is CFA\'s differentiator.',
+        explanation: 'C4A\'s four-phase model is Diagnose (baseline and root cause), Design (transformation plan), Deliver (implementation alongside client teams), and Sustain (embedding changes for long-term impact). The Sustain phase is C4A\'s differentiator.',
         points: 1,
         order: 1,
       },
       {
         moduleId: m15_2.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'Which CFA programme involves placing a CFA clinician-consultant as interim clinical leader to drive transformation?',
+        question: 'Which C4A programme involves placing a C4A clinician-consultant as interim clinical leader to drive transformation?',
         options: JSON.stringify([
           { id: 'a', text: 'Hospital Excellence Programme', isCorrect: false },
           { id: 'b', text: 'Clinical Governance Transformation', isCorrect: false },
           { id: 'c', text: 'Embedded Medical Director', isCorrect: true },
           { id: 'd', text: 'Turnaround Programme', isCorrect: false },
         ]),
-        explanation: 'The Embedded Medical Director programme places a CFA clinician-consultant as interim Medical Director within the client hospital, providing hands-on clinical leadership while building internal capacity for the permanent role.',
+        explanation: 'The Embedded Medical Director programme places a C4A clinician-consultant as interim Medical Director within the client hospital, providing hands-on clinical leadership while building internal capacity for the permanent role.',
         points: 1,
         order: 2,
       },
@@ -1173,9 +1173,9 @@ async function main() {
           { id: 'a', text: 'It involves delivering a final report and invoice', isCorrect: false },
           { id: 'b', text: 'It embeds monitoring systems, trains internal champions, and conducts periodic check-ins to ensure changes stick', isCorrect: true },
           { id: 'c', text: 'It focuses exclusively on financial metrics', isCorrect: false },
-          { id: 'd', text: 'It transfers all CFA intellectual property to the client', isCorrect: false },
+          { id: 'd', text: 'It transfers all C4A intellectual property to the client', isCorrect: false },
         ]),
-        explanation: 'The Sustain phase (3-6 months of decreasing intensity) goes beyond delivering reports. It embeds monitoring systems, builds internal capability through trained champions, and includes periodic check-ins. This ensures transformation outlasts CFA\'s presence.',
+        explanation: 'The Sustain phase (3-6 months of decreasing intensity) goes beyond delivering reports. It embeds monitoring systems, builds internal capability through trained champions, and includes periodic check-ins. This ensures transformation outlasts C4A\'s presence.',
         points: 1,
         order: 3,
       },
@@ -1186,7 +1186,7 @@ async function main() {
         options: JSON.stringify([
           { id: 'a', text: 'Facility size and complexity', isCorrect: true },
           { id: 'b', text: 'Ownership structure (public, private, faith-based)', isCorrect: true },
-          { id: 'c', text: 'The personal preferences of the CFA team members', isCorrect: false },
+          { id: 'c', text: 'The personal preferences of the C4A team members', isCorrect: false },
           { id: 'd', text: 'Data availability and management capacity', isCorrect: true },
           { id: 'e', text: 'Cultural dynamics and regulatory environment', isCorrect: true },
         ]),
@@ -1197,10 +1197,10 @@ async function main() {
       {
         moduleId: m15_2.id,
         type: 'CASE_STUDY',
-        question: 'A state government has engaged CFA to transform a 350-bed teaching hospital that serves as the main referral centre for a population of 5 million. The hospital faces every challenge: clinical quality concerns (recent maternal death cluster), financial distress (6 months of unpaid supplier invoices), governance dysfunction (CEO and Medical Director in open conflict), workforce crisis (35% vacancy rate), and no digital systems. Design a CFA engagement that draws from the appropriate proprietary programmes.',
+        question: 'A state government has engaged C4A to transform a 350-bed teaching hospital that serves as the main referral centre for a population of 5 million. The hospital faces every challenge: clinical quality concerns (recent maternal death cluster), financial distress (6 months of unpaid supplier invoices), governance dysfunction (CEO and Medical Director in open conflict), workforce crisis (35% vacancy rate), and no digital systems. Design a C4A engagement that draws from the appropriate proprietary programmes.',
         options: undefined,
         caseStudy: JSON.stringify({
-          scenario: 'State Teaching Hospital, 350 beds, main referral centre for 5M population. All six CFA programme areas are relevant. State government is the client and funder, with the federal Teaching Hospital Board providing oversight. Budget for CFA engagement: $800K over 18 months.',
+          scenario: 'State Teaching Hospital, 350 beds, main referral centre for 5M population. All six C4A programme areas are relevant. State government is the client and funder, with the federal Teaching Hospital Board providing oversight. Budget for C4A engagement: $800K over 18 months.',
           data: {
             clinicalIssues: 'Maternal mortality cluster (5 deaths in 2 months), no M&M review process, expired drugs found in pharmacy',
             financialDistress: '6 months unpaid suppliers, N450M in outstanding liabilities, revenue only covers 65% of operating costs',
@@ -1222,7 +1222,7 @@ async function main() {
       trackId: masterConsultant.id,
       name: 'Business Development & Thought Leadership',
       slug: 'business-development-thought-leadership',
-      description: 'Build CFA\'s practice through proposal writing, pipeline management, industry publications, conference speaking, and relationship-based business development.',
+      description: 'Build C4A\'s practice through proposal writing, pipeline management, industry publications, conference speaking, and relationship-based business development.',
       order: 3,
       estimatedMinutes: 120,
       passingScore: 80,
@@ -1231,25 +1231,25 @@ async function main() {
           {
             title: 'Proposal Writing and Win Strategy',
             type: 'text',
-            body: `At the Master Consultant level, you are expected to lead proposal development and win competitive bids. CFA proposals follow a structured approach: understand the client's real need (which may differ from the RFP), design a solution that addresses root causes rather than symptoms, price to value rather than cost, and present with clarity using the Pyramid Principle.
+            body: `At the Master Consultant level, you are expected to lead proposal development and win competitive bids. C4A proposals follow a structured approach: understand the client's real need (which may differ from the RFP), design a solution that addresses root causes rather than symptoms, price to value rather than cost, and present with clarity using the Pyramid Principle.
 
-              Every proposal needs a win strategy. Before writing a single word, answer: Why should this client choose CFA? What is our unique advantage? Who is the competition and what will they propose? What are the decision-maker's personal priorities (career risk, political pressure, genuine desire for improvement)? A proposal for a government hospital turnaround should emphasize CFA's track record of implementation (not just strategy), our African healthcare specialization, and our Sustain methodology that delivers lasting results. Reference similar engagements with specific, quantified outcomes. Clients in African healthcare are tired of consultants who deliver reports. They want partners who deliver results.`
+              Every proposal needs a win strategy. Before writing a single word, answer: Why should this client choose C4A? What is our unique advantage? Who is the competition and what will they propose? What are the decision-maker's personal priorities (career risk, political pressure, genuine desire for improvement)? A proposal for a government hospital turnaround should emphasize C4A's track record of implementation (not just strategy), our African healthcare specialization, and our Sustain methodology that delivers lasting results. Reference similar engagements with specific, quantified outcomes. Clients in African healthcare are tired of consultants who deliver reports. They want partners who deliver results.`
           },
           {
             title: 'Pipeline Management and Relationship Development',
             type: 'text',
-            body: `Sustainable firm growth requires a disciplined pipeline. CFA uses a five-stage pipeline: Identified (potential opportunity spotted), Qualified (confirmed budget, timeline, and CFA fit), Developing (active relationship building and proposal preparation), Submitted (proposal delivered, awaiting decision), and Won/Lost (outcome captured with lessons learned).
+            body: `Sustainable firm growth requires a disciplined pipeline. C4A uses a five-stage pipeline: Identified (potential opportunity spotted), Qualified (confirmed budget, timeline, and C4A fit), Developing (active relationship building and proposal preparation), Submitted (proposal delivered, awaiting decision), and Won/Lost (outcome captured with lessons learned).
 
               At any time, the Master Consultant should have visibility into 10-15 opportunities across these stages. The pipeline should represent 3-4x the revenue target to account for win rates (typical: 25-35% for competitive bids, 50-70% for sole-source relationships). Track pipeline value, stage conversion rates, average time in each stage, and win/loss patterns by client type, service line, and competitor.
 
-              Relationship development is the primary driver of CFA's pipeline. In African healthcare consulting, trust is built over years, not months. Attend industry conferences, join professional associations, serve on advisory boards, and maintain regular contact with former clients. A 15-minute check-in call with a past client every quarter costs nothing but keeps CFA top of mind. The majority of CFA's engagements come from repeat clients or referrals, not competitive tenders. Invest accordingly.`
+              Relationship development is the primary driver of C4A's pipeline. In African healthcare consulting, trust is built over years, not months. Attend industry conferences, join professional associations, serve on advisory boards, and maintain regular contact with former clients. A 15-minute check-in call with a past client every quarter costs nothing but keeps C4A top of mind. The majority of C4A's engagements come from repeat clients or referrals, not competitive tenders. Invest accordingly.`
           },
           {
             title: 'Publications and Speaking',
             type: 'text',
-            body: `Thought leadership positions CFA as the authoritative voice in African healthcare consulting. It serves three purposes: attracting inbound client inquiries, supporting proposal credibility, and building the personal brand of CFA consultants (which in turn attracts talent).
+            body: `Thought leadership positions C4A as the authoritative voice in African healthcare consulting. It serves three purposes: attracting inbound client inquiries, supporting proposal credibility, and building the personal brand of C4A consultants (which in turn attracts talent).
 
-              Publications should demonstrate insight, not just knowledge. An article titled "Hospital Financial Performance in Nigeria" is generic. An article titled "Why Nigerian Hospitals Lose 30% of Earned Revenue and Three Strategies to Recover It" demonstrates specific expertise with actionable value. Target a mix of academic journals (for credibility), industry publications (for reach), and CFA's own channels (for full creative control). Each Master Consultant should aim for 2-4 publications per year and 3-5 speaking engagements at conferences, roundtables, or webinars.
+              Publications should demonstrate insight, not just knowledge. An article titled "Hospital Financial Performance in Nigeria" is generic. An article titled "Why Nigerian Hospitals Lose 30% of Earned Revenue and Three Strategies to Recover It" demonstrates specific expertise with actionable value. Target a mix of academic journals (for credibility), industry publications (for reach), and C4A's own channels (for full creative control). Each Master Consultant should aim for 2-4 publications per year and 3-5 speaking engagements at conferences, roundtables, or webinars.
 
               Speaking engagements require preparation and polish. Know your audience (hospital CEOs need different content than health ministry officials), lead with a provocative insight (not a company overview), use real case studies (anonymized), and always close with a clear takeaway. The best speaking engagements generate follow-up conversations that become pipeline opportunities. After every conference, follow up with every meaningful contact within 48 hours. The value of thought leadership is not the presentation itself but the relationships it creates.`
           }
@@ -1257,17 +1257,17 @@ async function main() {
         exercises: [
           {
             title: 'Practice: Proposal Executive Summary',
-            instruction: 'Write a 1-page executive summary for a CFA proposal to conduct a Hospital Excellence Programme at a 300-bed private hospital group in East Africa. The group has 3 hospitals, is planning expansion to 5, and wants to standardize clinical quality and operational efficiency across all facilities. Include CFA\'s unique value proposition, proposed approach, expected outcomes, and investment range.',
+            instruction: 'Write a 1-page executive summary for a C4A proposal to conduct a Hospital Excellence Programme at a 300-bed private hospital group in East Africa. The group has 3 hospitals, is planning expansion to 5, and wants to standardize clinical quality and operational efficiency across all facilities. Include C4A\'s unique value proposition, proposed approach, expected outcomes, and investment range.',
           },
           {
             title: 'Practice: Thought Leadership Plan',
-            instruction: 'Develop a 12-month thought leadership plan for yourself as a CFA Master Consultant specializing in hospital turnaround. Include 3 publication topics with target outlets, 4 speaking engagement targets, and a quarterly relationship-building cadence with key industry contacts.',
+            instruction: 'Develop a 12-month thought leadership plan for yourself as a C4A Master Consultant specializing in hospital turnaround. Include 3 publication topics with target outlets, 4 speaking engagement targets, and a quarterly relationship-building cadence with key industry contacts.',
           }
         ]
       },
       resources: {
         links: [
-          { title: 'CFA Proposal Writing Guide', url: 'internal://knowledge/proposal-guide' },
+          { title: 'C4A Proposal Writing Guide', url: 'internal://knowledge/proposal-guide' },
           { title: 'Pipeline Management Best Practices', url: 'internal://knowledge/pipeline-management' },
         ],
         tools: ['Proposal Template', 'Pipeline Tracker (CRM)', 'Speaking Engagement Planner', 'Publication Calendar']
@@ -1281,14 +1281,14 @@ async function main() {
       {
         moduleId: m15_3.id,
         type: 'MULTIPLE_CHOICE',
-        question: 'Before writing a CFA proposal, the first step in win strategy development is:',
+        question: 'Before writing a C4A proposal, the first step in win strategy development is:',
         options: JSON.stringify([
           { id: 'a', text: 'Designing the project methodology', isCorrect: false },
-          { id: 'b', text: 'Understanding why the client should choose CFA over competitors', isCorrect: true },
+          { id: 'b', text: 'Understanding why the client should choose C4A over competitors', isCorrect: true },
           { id: 'c', text: 'Calculating the fee estimate', isCorrect: false },
           { id: 'd', text: 'Assembling the project team', isCorrect: false },
         ]),
-        explanation: 'Win strategy starts with understanding CFA\'s unique advantage for this specific opportunity. Before methodology or pricing, you must articulate why CFA is the best choice, what competitors will offer, and what the decision-maker truly cares about.',
+        explanation: 'Win strategy starts with understanding C4A\'s unique advantage for this specific opportunity. Before methodology or pricing, you must articulate why C4A is the best choice, what competitors will offer, and what the decision-maker truly cares about.',
         points: 1,
         order: 1,
       },
@@ -1314,16 +1314,16 @@ async function main() {
           { id: 'a', text: 'Hospital Financial Performance in Nigeria', isCorrect: false },
           { id: 'b', text: 'An Overview of Healthcare Consulting Services', isCorrect: false },
           { id: 'c', text: 'Why Nigerian Hospitals Lose 30% of Earned Revenue and Three Strategies to Recover It', isCorrect: true },
-          { id: 'd', text: 'CFA Company Profile and Service Offerings', isCorrect: false },
+          { id: 'd', text: 'C4A Company Profile and Service Offerings', isCorrect: false },
         ]),
-        explanation: 'Effective thought leadership demonstrates specific insight with actionable value. The title "Why Nigerian Hospitals Lose 30% of Earned Revenue and Three Strategies to Recover It" signals deep expertise, specific data, and practical solutions, making readers want to engage with CFA.',
+        explanation: 'Effective thought leadership demonstrates specific insight with actionable value. The title "Why Nigerian Hospitals Lose 30% of Earned Revenue and Three Strategies to Recover It" signals deep expertise, specific data, and practical solutions, making readers want to engage with C4A.',
         points: 1,
         order: 3,
       },
       {
         moduleId: m15_3.id,
         type: 'MULTI_SELECT',
-        question: 'Which of the following are elements of CFA\'s five-stage pipeline model? (Select all that apply)',
+        question: 'Which of the following are elements of C4A\'s five-stage pipeline model? (Select all that apply)',
         options: JSON.stringify([
           { id: 'a', text: 'Identified', isCorrect: true },
           { id: 'b', text: 'Qualified', isCorrect: true },
@@ -1332,34 +1332,34 @@ async function main() {
           { id: 'e', text: 'Submitted', isCorrect: true },
           { id: 'f', text: 'Won/Lost', isCorrect: true },
         ]),
-        explanation: 'CFA\'s five pipeline stages are: Identified, Qualified, Developing, Submitted, and Won/Lost. "Negotiating" is not a separate stage; negotiation happens within the Submitted stage as part of the decision process.',
+        explanation: 'C4A\'s five pipeline stages are: Identified, Qualified, Developing, Submitted, and Won/Lost. "Negotiating" is not a separate stage; negotiation happens within the Submitted stage as part of the decision process.',
         points: 3,
         order: 4,
       },
       {
         moduleId: m15_3.id,
         type: 'CASE_STUDY',
-        question: 'CFA has been invited to submit a proposal for a large health system strengthening programme funded by a multilateral development partner. The engagement is worth $2M over 3 years and involves supporting a national Ministry of Health to redesign primary healthcare delivery. Two international consulting firms (McKinsey and Deloitte) are also bidding. How do you develop the win strategy and what is CFA\'s competitive positioning?',
+        question: 'C4A has been invited to submit a proposal for a large health system strengthening programme funded by a multilateral development partner. The engagement is worth $2M over 3 years and involves supporting a national Ministry of Health to redesign primary healthcare delivery. Two international consulting firms (McKinsey and Deloitte) are also bidding. How do you develop the win strategy and what is C4A\'s competitive positioning?',
         options: undefined,
         caseStudy: JSON.stringify({
-          scenario: 'World Bank-funded, $2M, 3-year engagement. Support Ministry of Health in redesigning PHC delivery model for a country of 40M people. Competitive bid against McKinsey and Deloitte. CFA has done 3 previous engagements in this country (2 hospital turnarounds and 1 clinical governance project). The CFA team has strong relationships with the Director of Primary Healthcare and several development partner representatives.',
+          scenario: 'World Bank-funded, $2M, 3-year engagement. Support Ministry of Health in redesigning PHC delivery model for a country of 40M people. Competitive bid against McKinsey and Deloitte. C4A has done 3 previous engagements in this country (2 hospital turnarounds and 1 clinical governance project). The C4A team has strong relationships with the Director of Primary Healthcare and several development partner representatives.',
           data: {
             competitorStrengths: 'McKinsey: global brand, large team capacity, government advisory track record. Deloitte: implementation capability, technology integration, local office presence.',
-            cfaStrengths: 'Deep African healthcare specialization, 3 prior in-country engagements, personal relationships with key stakeholders, CFA proprietary PHC methodology, lower cost structure',
+            cfaStrengths: 'Deep African healthcare specialization, 3 prior in-country engagements, personal relationships with key stakeholders, C4A proprietary PHC methodology, lower cost structure',
             clientPriorities: 'Practical implementation support (not just reports), health worker capacity building, community engagement, sustainable system change',
             evaluationCriteria: 'Technical approach (40%), team experience (30%), value for money (20%), local content (10%)',
           },
         }),
-        explanation: 'CFA\'s win strategy should lean into its differentiators: (1) African healthcare specialization vs generalist competitors; (2) Implementation DNA (Diagnose-Design-Deliver-Sustain) vs report-and-leave consulting; (3) Existing in-country relationships and context knowledge from 3 prior engagements; (4) Lower cost structure delivering better value for money; (5) Proprietary PHC methodology built specifically for African health systems. The proposal should lead with CFA\'s track record of sustained results (not just recommendations), reference the 3 prior engagements with quantified outcomes, propose a team with a mix of CFA senior consultants and local experts (addressing the 10% local content criteria), and price competitively knowing that McKinsey and Deloitte will be 30-50% more expensive. Pre-submission, activate relationships with the Director of Primary Healthcare and development partner contacts to understand unstated preferences and refine positioning.',
+        explanation: 'C4A\'s win strategy should lean into its differentiators: (1) African healthcare specialization vs generalist competitors; (2) Implementation DNA (Diagnose-Design-Deliver-Sustain) vs report-and-leave consulting; (3) Existing in-country relationships and context knowledge from 3 prior engagements; (4) Lower cost structure delivering better value for money; (5) Proprietary PHC methodology built specifically for African health systems. The proposal should lead with C4A\'s track record of sustained results (not just recommendations), reference the 3 prior engagements with quantified outcomes, propose a team with a mix of C4A senior consultants and local experts (addressing the 10% local content criteria), and price competitively knowing that McKinsey and Deloitte will be 30-50% more expensive. Pre-submission, activate relationships with the Director of Primary Healthcare and development partner contacts to understand unstated preferences and refine positioning.',
         points: 5,
         order: 5,
       },
     ],
   })
 
-  console.log('  Track 15: CFA Master Consultant - 3 modules, 15 questions')
+  console.log('  Track 15: C4A Master Consultant - 3 modules, 15 questions')
 
-  console.log('\nCFA Training Academy Master Level seeding complete!')
+  console.log('\nC4A Training Academy Master Level seeding complete!')
   console.log('  Total: 3 tracks, 9 modules, 45 questions')
 }
 

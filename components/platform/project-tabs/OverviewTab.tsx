@@ -538,7 +538,7 @@ export default function OverviewTab({
             style={{ background: "#14B8A618", color: "#0F766E" }}
           >
             <AlertTriangle size={13} />
-            Secondment recall can be initiated by CFA partner.
+            Secondment recall can be initiated by C4A partner.
           </div>
         </div>
       )}
@@ -579,7 +579,7 @@ export default function OverviewTab({
             style={{ background: "#F9731618", color: "#C2410C" }}
           >
             <AlertCircle size={13} className="shrink-0 mt-0.5" />
-            Placed individual is not a CFA employee. Arrangement is broker-only.
+            Placed individual is not a C4A employee. Arrangement is broker-only.
           </div>
         </div>
       )}

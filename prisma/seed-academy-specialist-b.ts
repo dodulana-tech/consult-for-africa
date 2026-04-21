@@ -1,5 +1,5 @@
 /**
- * CFA TRAINING ACADEMY - SPECIALIST LEVEL SEED B (Tracks 9-10)
+ * C4A TRAINING ACADEMY - SPECIALIST LEVEL SEED B (Tracks 9-10)
  * Seeds Specialist-level training tracks, modules, and assessment questions
  *
  * 2 Tracks:
@@ -16,7 +16,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('Seeding CFA Training Academy - Specialist Level Tracks (9-10)...\n')
+  console.log('Seeding C4A Training Academy - Specialist Level Tracks (9-10)...\n')
 
   // ════════════════════════════════════════════════════════════════════════════
   // TRACK 9: SPECIALIST - Health Economics & M&E
@@ -204,7 +204,7 @@ Apply the SMART test rigorously: Specific (leaves no room for interpretation), M
           { title: 'USAID Logframe Guidance', url: 'internal://knowledge/usaid-logframe' },
           { title: 'Global Fund M&E Standards', url: 'internal://knowledge/gf-mne-standards' },
         ],
-        tools: ['Logframe Template (CFA)', 'Theory of Change Builder', 'SMART Indicator Checklist']
+        tools: ['Logframe Template (C4A)', 'Theory of Change Builder', 'SMART Indicator Checklist']
       },
     },
   })

@@ -216,7 +216,7 @@ export default function TalentPage() {
             Looking for Clinical or Hospital Roles?
           </h2>
           <p className="text-sm text-gray-500 max-w-xl mx-auto leading-relaxed mb-6">
-            CadreHealth is CFA's healthcare workforce platform for doctors, nurses, pharmacists, and allied health professionals.
+            CadreHealth is C4A's healthcare workforce platform for doctors, nurses, pharmacists, and allied health professionals.
             Get career readiness scores, salary intelligence, hospital reviews, and access to permanent and locum opportunities across Nigeria.
           </p>
           <Link

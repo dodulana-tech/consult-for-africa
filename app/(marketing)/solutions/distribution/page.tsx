@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import PartnerCTA from "@/components/cfa/PartnerCTA";
 
-export const metadata: Metadata = { title: "Commercial Distribution | Consult For Africa", description: "You built the product. We build the sales channel. Commission-based agent networks for healthcare companies that want distribution without headcount.", openGraph: { title: "Commercial Distribution | Consult For Africa", description: "Commission-based agent networks for healthcare products and services across Nigeria.", type: "website", images: ["/og-image.jpg"] } };
+export const metadata: Metadata = { title: "Commercial Distribution | Consult For Africa", description: "You built the product. We build the sales channel. Commission-based agent networks for healthcare companies that want distribution without headcount.", keywords: ["healthcare distribution Nigeria", "sales agent network healthcare", "commission-based sales healthcare", "healthcare product distribution Africa", "agent channel healthcare"], openGraph: { title: "Commercial Distribution | Consult For Africa", description: "Commission-based agent networks for healthcare products and services across Nigeria.", type: "website", images: ["/og-image.jpg"] } };
 
 const features = ["You pay for results, not salaries", "Agents are live within 4 weeks", "Every deal is tracked and attributed", "We manage the agents so you do not have to"];
 const phases = [
