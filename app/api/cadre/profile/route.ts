@@ -55,10 +55,10 @@ export const PATCH = handler(async function PATCH(req: NextRequest) {
     if (cadre !== undefined) updateData.cadre = cadre;
     if (subSpecialty !== undefined)
       updateData.subSpecialty = subSpecialty?.trim() || null;
-    if (yearsOfExperience !== undefined)
-      updateData.yearsOfExperience = yearsOfExperience != null
-        ? parseInt(yearsOfExperience)
-        : null;
+    if (yearsOfExperience !== undefined) {
+      const parsed = yearsOfExperience != null && yearsOfExperience !== "" ? parseInt(yearsOfExperience) : NaN;
+      updateData.yearsOfExperience = Number.isFinite(parsed) ? parsed : null;
+    }
     if (state !== undefined) updateData.state = state || null;
     if (city !== undefined) updateData.city = city?.trim() || null;
     if (isDiaspora !== undefined) updateData.isDiaspora = !!isDiaspora;
