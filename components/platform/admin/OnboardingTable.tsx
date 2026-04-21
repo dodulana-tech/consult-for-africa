@@ -171,7 +171,7 @@ export default function OnboardingTable({ records }: { records: OnboardingRecord
   }
 
   function canApprove(status: string) {
-    return ["REVIEW", "ASSESSMENT_COMPLETE", "PROFILE_SETUP"].includes(status);
+    return ["REVIEW", "ASSESSMENT_COMPLETE"].includes(status);
   }
 
   function canReject(status: string) {

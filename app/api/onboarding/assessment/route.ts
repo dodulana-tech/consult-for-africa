@@ -65,7 +65,9 @@ export const POST = handler(async function POST(req: NextRequest) {
   });
 
   const existingPrefs =
-    typeof currentUser?.notificationPreferences === "object" && currentUser.notificationPreferences !== null
+    typeof currentUser?.notificationPreferences === "object" &&
+    currentUser.notificationPreferences !== null &&
+    !Array.isArray(currentUser.notificationPreferences)
       ? currentUser.notificationPreferences
       : {};
 

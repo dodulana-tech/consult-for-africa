@@ -39,8 +39,8 @@ export const POST = handler(async function POST(req: NextRequest) {
     },
   });
 
-  // Move onboarding to ASSESSMENT_PENDING if not already past that stage
-  if (["INVITED", "PROFILE_SETUP"].includes(onboarding.status)) {
+  // Move onboarding to ASSESSMENT_PENDING after profile is done
+  if (onboarding.status === "PROFILE_SETUP") {
     await prisma.consultantOnboarding.update({
       where: { userId },
       data: { status: "ASSESSMENT_PENDING" },

@@ -28,7 +28,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest) {
   }
 
   if (action === "approve") {
-    if (!["REVIEW", "ASSESSMENT_COMPLETE", "PROFILE_SETUP"].includes(onboarding.status)) {
+    if (!["REVIEW", "ASSESSMENT_COMPLETE"].includes(onboarding.status)) {
       return new Response("Cannot approve consultant in current status", { status: 400 });
     }
 
