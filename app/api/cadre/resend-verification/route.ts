@@ -28,7 +28,10 @@ export const POST = handler(async function POST() {
 
     await prisma.cadreProfessional.update({
       where: { id: professional.id },
-      data: { emailVerifyToken: token },
+      data: {
+        emailVerifyToken: token,
+        emailVerifyTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      },
     });
 
     const baseUrl = process.env.NEXTAUTH_URL ?? "https://consultforafrica.com";

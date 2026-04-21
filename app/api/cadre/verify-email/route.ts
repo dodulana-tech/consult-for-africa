@@ -22,11 +22,19 @@ export const GET = handler(async function GET(req: NextRequest) {
       );
     }
 
+    // Check token expiry (if set)
+    if (professional.emailVerifyTokenExpiry && professional.emailVerifyTokenExpiry < new Date()) {
+      return NextResponse.redirect(
+        new URL("/oncadre/login?error=token-expired", req.url)
+      );
+    }
+
     await prisma.cadreProfessional.update({
       where: { id: professional.id },
       data: {
         emailVerified: true,
         emailVerifyToken: null,
+        emailVerifyTokenExpiry: null,
       },
     });
 

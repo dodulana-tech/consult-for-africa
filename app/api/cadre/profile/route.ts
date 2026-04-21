@@ -56,7 +56,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest) {
     if (subSpecialty !== undefined)
       updateData.subSpecialty = subSpecialty?.trim() || null;
     if (yearsOfExperience !== undefined)
-      updateData.yearsOfExperience = yearsOfExperience
+      updateData.yearsOfExperience = yearsOfExperience != null
         ? parseInt(yearsOfExperience)
         : null;
     if (state !== undefined) updateData.state = state || null;
@@ -90,11 +90,19 @@ export const PATCH = handler(async function PATCH(req: NextRequest) {
 async function recomputeCompleteness(professionalId: string) {
   const prof = await prisma.cadreProfessional.findUnique({
     where: { id: professionalId },
-    include: {
-      credentials: true,
-      qualifications: true,
-      cpdEntries: true,
-      workHistory: true,
+    select: {
+      phone: true,
+      cadre: true,
+      subSpecialty: true,
+      yearsOfExperience: true,
+      state: true,
+      isDiaspora: true,
+      openTo: true,
+      salaryReportedAt: true,
+      credentials: { select: { id: true } },
+      qualifications: { select: { id: true } },
+      cpdEntries: { select: { id: true } },
+      workHistory: { select: { id: true } },
     },
   });
   if (!prof) return;
@@ -103,10 +111,11 @@ async function recomputeCompleteness(professionalId: string) {
   if (prof.phone) completeness += 5;
   if (prof.cadre) completeness += 5;
   if (prof.subSpecialty) completeness += 5;
-  if (prof.yearsOfExperience) completeness += 5;
+  if (prof.yearsOfExperience != null && prof.yearsOfExperience >= 0) completeness += 5;
   if (prof.state || prof.isDiaspora) completeness += 5;
+  if (prof.openTo && prof.openTo.length > 0) completeness += 5;
   if (prof.credentials.length > 0) completeness += 15;
-  if (prof.qualifications.length > 0) completeness += 15;
+  if (prof.qualifications.length > 0) completeness += 10;
   if (prof.cpdEntries.length > 0) completeness += 10;
   if (prof.workHistory.length > 0) completeness += 10;
   if (prof.salaryReportedAt) completeness += 5;
