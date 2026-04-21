@@ -65,6 +65,11 @@ export const PATCH = handler(async function PATCH(req: NextRequest) {
     if (diasporaCountry !== undefined)
       updateData.diasporaCountry = diasporaCountry?.trim() || null;
 
+    // Document fields
+    if (body.cvFileUrl !== undefined) updateData.cvFileUrl = body.cvFileUrl || null;
+    if (body.governmentIdUrl !== undefined) updateData.governmentIdUrl = body.governmentIdUrl || null;
+    if (body.passportPhotoUrl !== undefined) updateData.passportPhotoUrl = body.passportPhotoUrl || null;
+
     const professional = await prisma.cadreProfessional.update({
       where: { id: session.sub },
       data: updateData,

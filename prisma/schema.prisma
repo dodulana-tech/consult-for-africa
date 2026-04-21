@@ -3691,6 +3691,11 @@ model CadreProfessional {
   cvFileUrl              String?
   summary                String?                 @db.Text // AI-generated or manual professional summary
 
+  // Document submission
+  governmentIdUrl        String?
+  passportPhotoUrl       String?
+  documentsSubmittedAt   DateTime?               // Set when all required docs uploaded; idempotency flag
+
   // Recruitment pipeline
   recruitmentStage       String?                 // SCREENING, SHORTLISTED, INTERVIEW_SCHEDULED, INTERVIEW_DONE, OFFER, PLACED, REJECTED
   recruitmentNotes       String?                 @db.Text
@@ -3716,6 +3721,8 @@ model CadreProfessional {
   mentorProfile         CadreMentorProfile?
   menteeMentorships     CadreMentorship[]       @relation("MenteeMentorships")
   notifications         CadreNotification[]
+  subscription          CadreSubscription?
+  coachingSessions      CadreCoachingSession[]
 
   // Profile analytics
   profileViews          Int                     @default(0)
@@ -4376,6 +4383,7 @@ model CadreMentorProfile {
   totalRatings          Int                     @default(0)
 
   mentorships           CadreMentorship[]       @relation("MentorMentorships")
+  coachingSessions      CadreCoachingSession[]
 
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
@@ -4442,6 +4450,91 @@ model CadreNotification {
   createdAt             DateTime                @default(now())
 
   @@index([professionalId, isRead, createdAt])
+}
+
+// ─── CadreHealth: Subscriptions & Coaching ───────────────────────────────────
+
+enum CadreSubscriptionPlan {
+  FREE
+  PRO
+}
+
+enum CadreSubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+  EXPIRED
+}
+
+model CadreSubscription {
+  id                    String                      @id @default(cuid())
+  professionalId        String                      @unique
+  professional          CadreProfessional           @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  plan                  CadreSubscriptionPlan       @default(FREE)
+  status                CadreSubscriptionStatus     @default(ACTIVE)
+
+  // Paystack subscription
+  paystackCustomerCode  String?
+  paystackSubCode       String?                     // subscription code from Paystack
+  paystackEmailToken    String?                     // email token for managing sub
+  paystackPlanCode      String?                     // plan code on Paystack
+
+  // Billing
+  amountNGN             Int                         @default(0)    // price in Naira
+  currentPeriodStart    DateTime?
+  currentPeriodEnd      DateTime?
+  cancelledAt           DateTime?
+
+  // Usage tracking (for free tier gating)
+  aiMessagesThisMonth   Int                         @default(0)
+  aiMessagesResetAt     DateTime                    @default(now())
+
+  createdAt             DateTime                    @default(now())
+  updatedAt             DateTime                    @updatedAt
+
+  @@index([status])
+}
+
+enum CadreCoachingSessionStatus {
+  PENDING_PAYMENT
+  PAID
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+model CadreCoachingSession {
+  id                    String                          @id @default(cuid())
+  menteeId              String
+  mentee                CadreProfessional               @relation(fields: [menteeId], references: [id], onDelete: Cascade)
+
+  mentorProfileId       String
+  mentorProfile         CadreMentorProfile              @relation(fields: [mentorProfileId], references: [id])
+
+  // Session details
+  topic                 String
+  status                CadreCoachingSessionStatus      @default(PENDING_PAYMENT)
+  scheduledAt           DateTime?
+  completedAt           DateTime?
+  durationMinutes       Int                             @default(45)
+  notes                 String?                         @db.Text
+
+  // Payment
+  amountNGN             Int                             @default(5000)
+  paystackRef           String?                         @unique
+  paidAt                DateTime?
+
+  // Rating (after completion)
+  rating                Int?                            // 1-5
+  feedback              String?
+
+  createdAt             DateTime                        @default(now())
+  updatedAt             DateTime                        @updatedAt
+
+  @@index([menteeId, status])
+  @@index([mentorProfileId, status])
 }
 
 // ─── AGENT PLATFORM ──────────────────────────────────────────────────────────

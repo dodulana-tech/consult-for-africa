@@ -32,7 +32,7 @@ export default async function OncadrePortalLayout({
   // Check profile completeness -- redirect to profile page if too low
   const professional = await prisma.cadreProfessional.findUnique({
     where: { id: session.sub },
-    select: { profileCompleteness: true, emailVerified: true, cadre: true, state: true, isDiaspora: true },
+    select: { profileCompleteness: true, emailVerified: true, cadre: true, state: true, isDiaspora: true, recruitmentStage: true },
   });
 
   // Core fields missing: redirect to profile to complete
@@ -40,6 +40,13 @@ export default async function OncadrePortalLayout({
     !professional.cadre ||
     (!professional.state && !professional.isDiaspora)
   );
+
+  // Show Documents nav only for shortlisted+ professionals
+  const DOCS_STAGES = ["SHORTLISTED", "INTERVIEW_SCHEDULED", "INTERVIEW_DONE", "OFFER", "PLACED"];
+  const showDocuments = professional?.recruitmentStage && DOCS_STAGES.includes(professional.recruitmentStage);
+  const activeNavItems = showDocuments
+    ? [...navItems, { href: "/oncadre/documents", label: "Documents", icon: "documents" }]
+    : navItems;
 
   return (
     <div className="min-h-screen" style={{ background: "#F8F9FB" }}>
@@ -60,7 +67,7 @@ export default async function OncadrePortalLayout({
           </Link>
 
           <div className="hidden sm:flex sm:items-center sm:gap-0.5">
-            {navItems.map((item) => (
+            {activeNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -110,7 +117,7 @@ export default async function OncadrePortalLayout({
         }}
       >
         <div className="flex" style={{ minHeight: "56px" }}>
-          {navItems.map((item) => (
+          {activeNavItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -235,6 +242,12 @@ function NavIcon({ icon }: { icon: string }) {
       return (
         <svg className={cls} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      );
+    case "documents":
+      return (
+        <svg className={cls} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
       );
     default:

@@ -48,13 +48,13 @@ const STAGE_AUTOMATIONS: Record<string, (ctx: StageContext) => AutomationConfig>
       heading: `Congratulations, ${firstName}! You have been shortlisted`,
       body: "The CadreHealth recruitment team has reviewed your profile and shortlisted you for further consideration. To move forward, please ensure your CV and professional credentials are uploaded to your CadreHealth profile. This includes your practicing license, registration certificate, and any specialist qualifications. Complete submissions are prioritised.",
       ctaText: "Upload Your Documents",
-      ctaHref: `${BASE_URL}/oncadre/profile#credentials`,
+      ctaHref: `${BASE_URL}/oncadre/documents`,
       footer: "If you have already uploaded your documents, no action is needed. We will be in touch with next steps shortly.",
     },
     notification: {
       title: "You have been shortlisted",
       message: "You have been shortlisted by the CadreHealth recruitment team. Please upload your CV and credentials to proceed.",
-      link: "/oncadre/profile#credentials",
+      link: "/oncadre/documents",
     },
   }),
 

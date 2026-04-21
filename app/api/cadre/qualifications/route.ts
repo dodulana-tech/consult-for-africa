@@ -85,6 +85,30 @@ export const POST = handler(async function POST(req: NextRequest) {
   }
 });
 
+export const PATCH = handler(async function PATCH(req: NextRequest) {
+  const session = await getCadreSession();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id, documentUrl } = await req.json();
+  if (!id) {
+    return NextResponse.json({ error: "Qualification ID is required" }, { status: 400 });
+  }
+
+  const existing = await prisma.cadreQualification.findUnique({ where: { id } });
+  if (!existing || existing.professionalId !== session.sub) {
+    return NextResponse.json({ error: "Qualification not found" }, { status: 404 });
+  }
+
+  const updated = await prisma.cadreQualification.update({
+    where: { id },
+    data: { documentUrl: documentUrl || null },
+  });
+
+  return NextResponse.json(updated);
+});
+
 async function recomputeCompleteness(professionalId: string) {
   const prof = await prisma.cadreProfessional.findUnique({
     where: { id: professionalId },
