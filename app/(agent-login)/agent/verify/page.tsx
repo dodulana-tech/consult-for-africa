@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 function VerifyContent() {
   const searchParams = useSearchParams();
@@ -26,7 +27,7 @@ function VerifyContent() {
     })
       .then(async (res) => {
         if (!res.ok) {
-          const text = await res.text();
+          const text = await parseApiError(res);
           setStatus("error");
           setErrorMsg(text || "Verification failed.");
           return;

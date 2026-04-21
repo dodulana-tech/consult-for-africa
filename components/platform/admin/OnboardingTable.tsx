@@ -6,6 +6,7 @@ import {
   Mail, User, Clock, AlertCircle, MapPin, Briefcase, CreditCard,
   FileText, Star, ChevronDown, ExternalLink,
 } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 interface ProfileData {
   title: string;
@@ -141,7 +142,7 @@ export default function OnboardingTable({ records }: { records: OnboardingRecord
       if (res.ok) {
         setItems((prev) => prev.map((r) => (r.id === id ? { ...r, assessmentLevel: level } : r)));
       } else {
-        const msg = await res.text().catch(() => "Failed to change level.");
+        const msg = await parseApiError(res, "Failed to change level.");
         setError(msg);
       }
     } catch {

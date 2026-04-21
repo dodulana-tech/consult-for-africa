@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, FormEvent } from "react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 interface Message {
   role: "user" | "assistant";
@@ -59,7 +60,7 @@ export default function NuruChat() {
         });
 
         if (!res.ok) {
-          const errText = await res.text();
+          const errText = await parseApiError(res);
           setMessages((prev) => {
             const copy = [...prev];
             copy[assistantIdx] = {

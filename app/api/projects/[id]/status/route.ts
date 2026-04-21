@@ -12,32 +12,32 @@ export const PATCH = handler(async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canUpdate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canUpdate) return new Response("Forbidden", { status: 403 });
+  if (!canUpdate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
   const { status, riskLevel, healthScore } = await req.json();
 
   if (status && !VALID_STATUSES.includes(status)) {
-    return new Response("Invalid status", { status: 400 });
+    return Response.json({ error: "Invalid status" }, { status: 400 });
   }
   if (riskLevel && !VALID_RISK_LEVELS.includes(riskLevel)) {
-    return new Response("Invalid riskLevel", { status: 400 });
+    return Response.json({ error: "Invalid riskLevel" }, { status: 400 });
   }
   if (healthScore !== undefined && (healthScore < 1 || healthScore > 10)) {
-    return new Response("healthScore must be 1-10", { status: 400 });
+    return Response.json({ error: "healthScore must be 1-10" }, { status: 400 });
   }
 
   const project = await prisma.engagement.findUnique({
     where: { id },
     select: { id: true, engagementManagerId: true },
   });
-  if (!project) return new Response("Not found", { status: 404 });
+  if (!project) return Response.json({ error: "Not found" }, { status: 404 });
 
   if (session.user.role === "ENGAGEMENT_MANAGER" && project.engagementManagerId !== session.user.id) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const data: Record<string, unknown> = {};

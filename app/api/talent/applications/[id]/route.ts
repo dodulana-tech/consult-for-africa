@@ -8,10 +8,10 @@ export const GET = handler(async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const allowed = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"];
-  if (!allowed.includes(session.user.role)) return new Response("Forbidden", { status: 403 });
+  if (!allowed.includes(session.user.role)) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
 
@@ -22,7 +22,7 @@ export const GET = handler(async function GET(
     },
   });
 
-  if (!application) return new Response("Not found", { status: 404 });
+  if (!application) return Response.json({ error: "Not found" }, { status: 404 });
 
   return Response.json(application);
 });
@@ -32,10 +32,10 @@ export const PATCH = handler(async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const allowed = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"];
-  if (!allowed.includes(session.user.role)) return new Response("Forbidden", { status: 403 });
+  if (!allowed.includes(session.user.role)) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
   const { status, reviewNotes } = await req.json();
@@ -46,7 +46,7 @@ export const PATCH = handler(async function PATCH(
   ];
 
   if (status && !validStatuses.includes(status)) {
-    return new Response("Invalid status", { status: 400 });
+    return Response.json({ error: "Invalid status" }, { status: 400 });
   }
 
   const application = await prisma.talentApplication.update({

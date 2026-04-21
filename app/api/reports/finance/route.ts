@@ -7,10 +7,10 @@ import { handler } from "@/lib/api-handler";
 
 export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isElevated) return new Response("Forbidden", { status: 403 });
+  if (!isElevated) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
   const type = searchParams.get("type");
@@ -27,7 +27,7 @@ export const GET = handler(async function GET(req: NextRequest) {
     case "track-profitability":
       return trackProfitability(searchParams);
     default:
-      return new Response("type parameter required: ar-aging, revenue, margins, client-history, track-profitability", { status: 400 });
+      return Response.json({ error: "type parameter required: ar-aging, revenue, margins, client-history, track-profitability" }, { status: 400 });
   }
 });
 
@@ -197,7 +197,7 @@ async function revenue(searchParams: URLSearchParams) {
     return Response.json({ year, groupBy: "serviceType", data, total: data.reduce((a, b) => a + b.amount, 0) });
   }
 
-  return new Response("groupBy must be month, client, or serviceType", { status: 400 });
+  return Response.json({ error: "groupBy must be month, client, or serviceType" }, { status: 400 });
 }
 
 /* ── Per-engagement margins ────────────────────────────────────────────────── */
@@ -275,13 +275,13 @@ async function margins() {
 
 async function clientHistory(searchParams: URLSearchParams) {
   const clientId = searchParams.get("clientId");
-  if (!clientId) return new Response("clientId parameter required", { status: 400 });
+  if (!clientId) return Response.json({ error: "clientId parameter required" }, { status: 400 });
 
   const client = await prisma.client.findUnique({
     where: { id: clientId },
     select: { id: true, name: true, type: true, status: true },
   });
-  if (!client) return new Response("Client not found", { status: 404 });
+  if (!client) return Response.json({ error: "Client not found" }, { status: 404 });
 
   // All invoices for this client
   const invoices = await prisma.invoice.findMany({
@@ -346,13 +346,13 @@ async function clientHistory(searchParams: URLSearchParams) {
 
 async function trackProfitability(searchParams: URLSearchParams) {
   const engagementId = searchParams.get("engagementId");
-  if (!engagementId) return new Response("engagementId parameter required", { status: 400 });
+  if (!engagementId) return Response.json({ error: "engagementId parameter required" }, { status: 400 });
 
   const engagement = await prisma.engagement.findUnique({
     where: { id: engagementId },
     select: { id: true, name: true, budgetCurrency: true },
   });
-  if (!engagement) return new Response("Engagement not found", { status: 404 });
+  if (!engagement) return Response.json({ error: "Engagement not found" }, { status: 404 });
 
   const dateFrom = searchParams.get("dateFrom");
   const dateTo = searchParams.get("dateTo");

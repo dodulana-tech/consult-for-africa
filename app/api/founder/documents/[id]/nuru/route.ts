@@ -7,11 +7,11 @@ const anthropic = new Anthropic();
 
 export const POST = handler(async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
   const doc = await prisma.founderDocument.findUnique({ where: { id } });
-  if (!doc) return new Response("Not found", { status: 404 });
+  if (!doc) return Response.json({ error: "Not found" }, { status: 404 });
 
   const docContent = doc.content || doc.description || doc.title;
 

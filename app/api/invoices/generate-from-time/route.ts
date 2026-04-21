@@ -6,24 +6,24 @@ import { handler } from "@/lib/api-handler";
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canCreate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canCreate) return new Response("Forbidden", { status: 403 });
+  if (!canCreate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { engagementId, periodStart, periodEnd, trackId } = await req.json();
 
   if (!engagementId || !periodStart || !periodEnd) {
-    return new Response("engagementId, periodStart, and periodEnd are required", { status: 400 });
+    return Response.json({ error: "engagementId, periodStart, and periodEnd are required" }, { status: 400 });
   }
 
   const start = new Date(periodStart);
   const end = new Date(periodEnd);
   if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-    return new Response("Invalid date format", { status: 400 });
+    return Response.json({ error: "Invalid date format" }, { status: 400 });
   }
   if (start >= end) {
-    return new Response("periodStart must be before periodEnd", { status: 400 });
+    return Response.json({ error: "periodStart must be before periodEnd" }, { status: 400 });
   }
 
   // Fetch engagement + client
@@ -33,12 +33,12 @@ export const POST = handler(async function POST(req: NextRequest) {
       client: { select: { id: true, name: true, paymentTerms: true, currency: true } },
     },
   });
-  if (!engagement) return new Response("Engagement not found", { status: 404 });
+  if (!engagement) return Response.json({ error: "Engagement not found" }, { status: 404 });
 
   // IDOR check for EMs
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isElevated && engagement.engagementManagerId !== session.user.id) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   // Validate trackId belongs to this engagement if provided
@@ -47,7 +47,7 @@ export const POST = handler(async function POST(req: NextRequest) {
       where: { id: trackId, engagementId },
     });
     if (!track) {
-      return new Response("Track not found or does not belong to this engagement", { status: 400 });
+      return Response.json({ error: "Track not found or does not belong to this engagement" }, { status: 400 });
     }
   }
 
@@ -69,7 +69,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   });
 
   if (timeEntries.length === 0) {
-    return new Response("No approved billable time entries found for this period", { status: 400 });
+    return Response.json({ error: "No approved billable time entries found for this period" }, { status: 400 });
   }
 
   // Check which time entries are already invoiced
@@ -85,7 +85,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   const uninvoiced = timeEntries.filter((te) => !invoicedIds.has(te.id));
 
   if (uninvoiced.length === 0) {
-    return new Response("All time entries in this period have already been invoiced", { status: 400 });
+    return Response.json({ error: "All time entries in this period have already been invoiced" }, { status: 400 });
   }
 
   // Group by consultant + track
@@ -171,7 +171,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     if (!exists) break;
     attempts++;
     if (attempts > 10) {
-      return new Response("Failed to generate unique invoice number. Try again.", { status: 500 });
+      return Response.json({ error: "Failed to generate unique invoice number. Try again." }, { status: 500 });
     }
   }
 

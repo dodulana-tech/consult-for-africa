@@ -4,7 +4,7 @@ import { handler } from "@/lib/api-handler";
 
 export const GET = handler(async function GET() {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const onboarding = await prisma.consultantOnboarding.findUnique({
     where: { userId: session.user.id },
@@ -24,7 +24,7 @@ export const GET = handler(async function GET() {
   });
 
   if (!onboarding) {
-    return new Response("No onboarding record", { status: 404 });
+    return Response.json({ error: "No onboarding record" }, { status: 404 });
   }
 
   return Response.json({

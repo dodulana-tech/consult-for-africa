@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { parseApiError } from "@/lib/parse-api-error";
 
 /* ─── Types ──────────────────────────────────────────────────────────────────── */
 
@@ -115,7 +116,7 @@ export default function DeliverableDetailPage({
         return;
       }
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         throw new Error(text || "Failed to load deliverable");
       }
       const data: DeliverableData = await res.json();
@@ -154,7 +155,7 @@ export default function DeliverableDetailPage({
         return;
       }
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         throw new Error(text || "Failed to post comment");
       }
       setCommentText("");

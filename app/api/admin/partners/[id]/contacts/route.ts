@@ -11,16 +11,16 @@ export const POST = handler(async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role))
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: partnerId } = await params;
   const body = await req.json();
   const { name, email, title, phone, isPrimary } = body;
 
   if (!name?.trim() || !email?.trim()) {
-    return new Response("name and email are required", { status: 400 });
+    return Response.json({ error: "name and email are required" }, { status: 400 });
   }
 
   // Check partner exists
@@ -28,13 +28,13 @@ export const POST = handler(async function POST(
     where: { id: partnerId },
     select: { id: true, name: true },
   });
-  if (!partner) return new Response("Partner not found", { status: 404 });
+  if (!partner) return Response.json({ error: "Partner not found" }, { status: 404 });
 
   // Check email uniqueness
   const existing = await prisma.partnerContact.findUnique({
     where: { email: email.trim() },
   });
-  if (existing) return new Response("Email already in use", { status: 409 });
+  if (existing) return Response.json({ error: "Email already in use" }, { status: 409 });
 
   // If marking as primary, unmark others
   if (isPrimary) {
@@ -83,27 +83,27 @@ export const PATCH = handler(async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role))
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: partnerId } = await params;
   const body = await req.json();
   const { contactId, name, email, title, phone, isPrimary } = body;
 
-  if (!contactId) return new Response("contactId required", { status: 400 });
+  if (!contactId) return Response.json({ error: "contactId required" }, { status: 400 });
 
   const existing = await prisma.partnerContact.findFirst({
     where: { id: contactId, partnerId },
   });
-  if (!existing) return new Response("Contact not found", { status: 404 });
+  if (!existing) return Response.json({ error: "Contact not found" }, { status: 404 });
 
   // If email changed, check uniqueness
   if (email?.trim() && email.trim() !== existing.email) {
     const dup = await prisma.partnerContact.findUnique({
       where: { email: email.trim() },
     });
-    if (dup) return new Response("Email already in use", { status: 409 });
+    if (dup) return Response.json({ error: "Email already in use" }, { status: 409 });
   }
 
   // If marking as primary, unmark others
@@ -154,20 +154,20 @@ export const DELETE = handler(async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role))
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: partnerId } = await params;
   const body = await req.json();
   const { contactId } = body;
 
-  if (!contactId) return new Response("contactId required", { status: 400 });
+  if (!contactId) return Response.json({ error: "contactId required" }, { status: 400 });
 
   const existing = await prisma.partnerContact.findFirst({
     where: { id: contactId, partnerId },
   });
-  if (!existing) return new Response("Contact not found", { status: 404 });
+  if (!existing) return Response.json({ error: "Contact not found" }, { status: 404 });
 
   await prisma.partnerContact.delete({
     where: { id: contactId },

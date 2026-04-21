@@ -26,11 +26,11 @@ const HOSPITAL_TYPE_LABELS: Record<string, string> = {
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const allowedRoles = ["CONSULTANT", "ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
   if (!allowedRoles.includes(session.user.role)) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const body: {
@@ -47,7 +47,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   const { projectId, reportType, clientName, hospitalType, keyFindings, recommendations, timeline, budget } = body;
 
   if (!reportType || !clientName || !hospitalType || !keyFindings || !recommendations) {
-    return new Response("reportType, clientName, hospitalType, keyFindings, and recommendations are required", { status: 400 });
+    return Response.json({ error: "reportType, clientName, hospitalType, keyFindings, and recommendations are required" }, { status: 400 });
   }
 
   // If projectId provided, fetch project context
@@ -142,7 +142,7 @@ Return ONLY the JSON object, no other text.`;
     report = JSON.parse(jsonMatch[0]);
   } catch (err) {
     console.error("Claude report generation error:", err);
-    return new Response("Failed to generate report. Please try again.", { status: 500 });
+    return Response.json({ error: "Failed to generate report. Please try again." }, { status: 500 });
   }
 
   return Response.json({

@@ -45,7 +45,7 @@ function generatePassword(): string {
 
 export const GET = handler(async function GET(_req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const role = session.user.role;
 
@@ -75,10 +75,10 @@ export const GET = handler(async function GET(_req: NextRequest) {
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canCreate = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canCreate) return new Response("Forbidden", { status: 403 });
+  if (!canCreate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const parsed = createClientSchema.safeParse(await req.json());
   if (!parsed.success) {

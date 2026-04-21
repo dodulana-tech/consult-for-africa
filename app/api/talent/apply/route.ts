@@ -28,7 +28,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   const isInternTrack = ["INTERN", "SIWES", "FELLOWSHIP"].includes(applicantTrack);
 
   if (!firstName || !lastName || !email || !location || !specialty || (!isInternTrack && !yearsExperience)) {
-    return new Response("firstName, lastName, email, location, specialty, yearsExperience are required", { status: 400 });
+    return Response.json({ error: "firstName, lastName, email, location, specialty, yearsExperience are required" }, { status: 400 });
   }
 
   // Duplicate check - return generic success to prevent email enumeration

@@ -8,10 +8,10 @@ export const POST = handler(async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canDeliver = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canDeliver) return new Response("Forbidden", { status: 403 });
+  if (!canDeliver) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
 
@@ -20,15 +20,15 @@ export const POST = handler(async function POST(
     select: { id: true, status: true, engagement: { select: { engagementManagerId: true } } },
   });
 
-  if (!deliverable) return new Response("Not found", { status: 404 });
+  if (!deliverable) return Response.json({ error: "Not found" }, { status: 404 });
   if (deliverable.status !== "APPROVED") {
-    return new Response("Only approved deliverables can be delivered to client", { status: 400 });
+    return Response.json({ error: "Only approved deliverables can be delivered to client" }, { status: 400 });
   }
 
   // EMs can only deliver on their own projects
   if (session.user.role === "ENGAGEMENT_MANAGER") {
     if (deliverable.engagement.engagementManagerId !== session.user.id) {
-      return new Response("Forbidden", { status: 403 });
+      return Response.json({ error: "Forbidden" }, { status: 403 });
     }
   }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 interface Props {
   requestId: string;
@@ -43,7 +44,7 @@ export default function RequestStatusActions({ requestId, status, allDeployments
         body: JSON.stringify({ status: targetStatus }),
       });
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setError(text || "Failed to update status.");
         return;
       }

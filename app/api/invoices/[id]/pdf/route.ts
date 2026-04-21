@@ -27,10 +27,10 @@ function fmtDate(d: Date | null | undefined): string {
 
 export const GET = handler(async function GET(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canView = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canView) return new Response("Forbidden", { status: 403 });
+  if (!canView) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
 
@@ -44,7 +44,7 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
     },
   });
 
-  if (!invoice) return new Response("Not found", { status: 404 });
+  if (!invoice) return Response.json({ error: "Not found" }, { status: 404 });
 
   // IDOR check for EMs
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
@@ -54,7 +54,7 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
       select: { engagement: { select: { engagementManagerId: true } } },
     });
     if (!withEM?.engagement || withEM.engagement.engagementManagerId !== session.user.id) {
-      return new Response("Forbidden", { status: 403 });
+      return Response.json({ error: "Forbidden" }, { status: 403 });
     }
   }
 

@@ -7,13 +7,13 @@ const anthropic = new Anthropic();
 
 export const POST = handler(async function POST() {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const profile = await prisma.founderProfile.findUnique({
     where: { email: session.user.email! },
     select: { id: true, name: true },
   });
-  if (!profile) return new Response("No profile", { status: 404 });
+  if (!profile) return Response.json({ error: "No profile" }, { status: 404 });
 
   // Gather context
   const [

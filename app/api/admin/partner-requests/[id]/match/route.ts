@@ -12,16 +12,16 @@ export const POST = handler(async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role))
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: requestId } = await params;
   const body = await req.json();
   const { consultantIds, billingRatePerDay } = body;
 
   if (!Array.isArray(consultantIds) || consultantIds.length === 0) {
-    return new Response("consultantIds array is required", { status: 400 });
+    return Response.json({ error: "consultantIds array is required" }, { status: 400 });
   }
 
   // Load the staffing request and its partner
@@ -31,7 +31,7 @@ export const POST = handler(async function POST(
       partner: { select: { id: true, name: true, defaultMarkupPct: true } },
     },
   });
-  if (!request) return new Response("Staffing request not found", { status: 404 });
+  if (!request) return Response.json({ error: "Staffing request not found" }, { status: 404 });
 
   const markupPct = request.partner.defaultMarkupPct
     ? Number(request.partner.defaultMarkupPct)
@@ -47,10 +47,7 @@ export const POST = handler(async function POST(
     });
 
     if (!profile) {
-      return new Response(
-        `Consultant profile not found for user ${consultantId}`,
-        { status: 404 }
-      );
+      return Response.json({ error: `Consultant profile not found for user ${consultantId}` }, { status: 404 });
     }
 
     // Calculate rate: use hourlyRateUSD * 8 as daily rate, or monthlyRateNGN / 22

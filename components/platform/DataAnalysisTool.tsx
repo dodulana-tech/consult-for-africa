@@ -12,6 +12,7 @@ import {
   AlertCircle,
   Info,
 } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 interface KeyMetric {
   name: string;
@@ -156,7 +157,7 @@ export default function DataAnalysisTool({ projectId }: { projectId?: string }) 
         body: fd,
       });
       if (!res.ok) {
-        const msg = await res.text();
+        const msg = await parseApiError(res);
         setError(msg || "Analysis failed. Please try again.");
         return;
       }

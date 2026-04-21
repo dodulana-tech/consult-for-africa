@@ -7,7 +7,7 @@ type Ctx = { params: Promise<{ id: string }> };
 
 export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id: projectId } = await params;
 
@@ -19,11 +19,11 @@ export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx
       where: { id: projectId },
       select: { engagementManagerId: true, isOwnGig: true, ownGigOwnerId: true, assignments: { select: { consultantId: true } } },
     });
-    if (!project) return new Response("Not found", { status: 404 });
+    if (!project) return Response.json({ error: "Not found" }, { status: 404 });
     const isProjectEM = isEM && project.engagementManagerId === session.user.id;
     const isAssigned = project.assignments.some((a) => a.consultantId === session.user.id);
     const isOwnGigOwner = project.isOwnGig && project.ownGigOwnerId === session.user.id;
-    if (!isProjectEM && !isAssigned && !isOwnGigOwner) return new Response("Forbidden", { status: 403 });
+    if (!isProjectEM && !isAssigned && !isOwnGigOwner) return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const milestones = await prisma.paymentMilestone.findMany({
@@ -57,16 +57,16 @@ export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx
 
 export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["PARTNER", "ADMIN", "DIRECTOR"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: projectId } = await params;
   const { name, amount, currency, dueDate } = await req.json();
 
   if (!name?.trim() || !amount || !dueDate) {
-    return new Response("name, amount, dueDate are required", { status: 400 });
+    return Response.json({ error: "name, amount, dueDate are required" }, { status: 400 });
   }
 
   const milestone = await prisma.paymentMilestone.create({

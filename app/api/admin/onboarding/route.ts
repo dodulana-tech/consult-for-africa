@@ -6,16 +6,16 @@ import { handler } from "@/lib/api-handler";
 
 export const PATCH = handler(async function PATCH(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+  if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
   const { id, action, reason } = body;
 
   if (!id || !action) {
-    return new Response("id and action are required", { status: 400 });
+    return Response.json({ error: "id and action are required" }, { status: 400 });
   }
 
   const onboarding = await prisma.consultantOnboarding.findUnique({
@@ -24,12 +24,12 @@ export const PATCH = handler(async function PATCH(req: NextRequest) {
   });
 
   if (!onboarding) {
-    return new Response("Onboarding record not found", { status: 404 });
+    return Response.json({ error: "Onboarding record not found" }, { status: 404 });
   }
 
   if (action === "approve") {
     if (!["REVIEW", "ASSESSMENT_COMPLETE"].includes(onboarding.status)) {
-      return new Response("Cannot approve consultant in current status", { status: 400 });
+      return Response.json({ error: "Cannot approve consultant in current status" }, { status: 400 });
     }
 
     await prisma.consultantOnboarding.update({
@@ -55,7 +55,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest) {
 
   if (action === "reject") {
     if (!["REVIEW", "ASSESSMENT_COMPLETE", "PROFILE_SETUP", "ASSESSMENT_PENDING", "INVITED"].includes(onboarding.status)) {
-      return new Response("Cannot reject consultant in current status", { status: 400 });
+      return Response.json({ error: "Cannot reject consultant in current status" }, { status: 400 });
     }
 
     await prisma.consultantOnboarding.update({
@@ -82,11 +82,11 @@ export const PATCH = handler(async function PATCH(req: NextRequest) {
   if (action === "change-level") {
     const { assessmentLevel } = body;
     if (!["LIGHT", "STANDARD", "MAAROVA", "FULL"].includes(assessmentLevel)) {
-      return new Response("assessmentLevel must be LIGHT, STANDARD, MAAROVA, or FULL", { status: 400 });
+      return Response.json({ error: "assessmentLevel must be LIGHT, STANDARD, MAAROVA, or FULL" }, { status: 400 });
     }
 
     if (["ACTIVE", "REJECTED"].includes(onboarding.status)) {
-      return new Response("Cannot change assessment level after onboarding is finalized", { status: 400 });
+      return Response.json({ error: "Cannot change assessment level after onboarding is finalized" }, { status: 400 });
     }
 
     await prisma.consultantOnboarding.update({
@@ -106,5 +106,5 @@ export const PATCH = handler(async function PATCH(req: NextRequest) {
     return Response.json({ ok: true });
   }
 
-  return new Response("Invalid action. Use 'approve', 'reject', or 'change-level'", { status: 400 });
+  return Response.json({ error: "Invalid action. Use 'approve', 'reject', or 'change-level'" }, { status: 400 });
 });

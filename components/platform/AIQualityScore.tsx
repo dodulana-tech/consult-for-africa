@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Sparkles, AlertTriangle, CheckCircle2, RotateCcw, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 type CriterionScore = { score: number; feedback: string };
 
@@ -83,7 +84,7 @@ export default function AIQualityScore({ deliverableId, onScoresLoaded }: {
         body: JSON.stringify({ deliverableId }),
       });
       if (!res.ok) {
-        setError(await res.text().catch(() => "Scoring failed."));
+        setError(await parseApiError(res, "Scoring failed."));
         return;
       }
       const data = await res.json();

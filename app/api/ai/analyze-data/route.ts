@@ -41,13 +41,13 @@ interface AnalysisResult {
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   let formData: FormData;
   try {
     formData = await req.formData();
   } catch {
-    return new Response("Invalid form data", { status: 400 });
+    return Response.json({ error: "Invalid form data" }, { status: 400 });
   }
 
   const file = formData.get("file") as File | null;
@@ -55,12 +55,12 @@ export const POST = handler(async function POST(req: NextRequest) {
   const instructions = (formData.get("instructions") as string) || "";
 
   if (!file) {
-    return new Response("No file provided", { status: 400 });
+    return Response.json({ error: "No file provided" }, { status: 400 });
   }
 
   // Check file size
   if (file.size > MAX_FILE_SIZE) {
-    return new Response("File exceeds 5MB limit", { status: 400 });
+    return Response.json({ error: "File exceeds 5MB limit" }, { status: 400 });
   }
 
   // Check file type
@@ -68,7 +68,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   const isXlsx = fileName.endsWith(".xlsx") || fileName.endsWith(".xls");
   const isCsv = fileName.endsWith(".csv");
   if (!isXlsx && !isCsv) {
-    return new Response("Only .xlsx, .xls, and .csv files are supported", { status: 400 });
+    return Response.json({ error: "Only .xlsx, .xls, and .csv files are supported" }, { status: 400 });
   }
 
   // Parse file
@@ -78,7 +78,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   try {
     workbook = XLSX.read(buffer, { type: "array" });
   } catch {
-    return new Response("Could not parse file. Ensure it is a valid Excel or CSV file.", { status: 400 });
+    return Response.json({ error: "Could not parse file. Ensure it is a valid Excel or CSV file." }, { status: 400 });
   }
 
   const sheets: Record<string, SheetData> = {};
@@ -148,7 +148,7 @@ Provide a comprehensive analysis as JSON with this exact structure:
     analysis = JSON.parse(jsonStr) as AnalysisResult;
   } catch (err) {
     console.error("Claude data analysis error:", err);
-    return new Response("Analysis failed. Please try again.", { status: 500 });
+    return Response.json({ error: "Analysis failed. Please try again." }, { status: 500 });
   }
 
   return Response.json({

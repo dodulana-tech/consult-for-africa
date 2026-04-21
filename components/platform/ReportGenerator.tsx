@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   Info,
 } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 // ---- Types ----------------------------------------------------------------
 
@@ -547,7 +548,7 @@ export default function ReportGenerator() {
       });
 
       if (!res.ok) {
-        const msg = await res.text().catch(() => "Failed to generate report.");
+        const msg = await parseApiError(res, "Failed to generate report.");
         setError(msg);
         return;
       }

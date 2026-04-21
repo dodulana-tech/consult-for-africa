@@ -20,8 +20,8 @@ function sortByPriority<T extends { priority: string }>(items: T[]): T[] {
 
 export const GET = handler(async function GET() {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
-  if (!ALLOWED_ROLES.includes(session.user.role)) return new Response("Forbidden", { status: 403 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (!ALLOWED_ROLES.includes(session.user.role)) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const profile = await prisma.founderProfile.findUnique({
     where: { email: session.user.email! },
@@ -51,8 +51,8 @@ export const GET = handler(async function GET() {
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
-  if (!ALLOWED_ROLES.includes(session.user.role)) return new Response("Forbidden", { status: 403 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (!ALLOWED_ROLES.includes(session.user.role)) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json().catch(() => ({}));
   const { currentPhase } = body;

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -39,7 +40,7 @@ function ResetPasswordForm() {
       });
 
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setError(text || "Failed to reset password.");
         return;
       }

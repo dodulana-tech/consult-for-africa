@@ -7,7 +7,7 @@ type Ctx = { params: Promise<{ id: string }> };
 
 export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id: deliverableId } = await params;
 
@@ -53,11 +53,11 @@ export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx
 
 export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id: deliverableId } = await params;
   const { content, parentId } = await req.json();
-  if (!content?.trim()) return new Response("content is required", { status: 400 });
+  if (!content?.trim()) return Response.json({ error: "content is required" }, { status: 400 });
 
   const comment = await prisma.deliverableComment.create({
     data: {

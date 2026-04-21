@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { formatEnumLabel } from "@/lib/utils";
+import { parseApiError } from "@/lib/parse-api-error";
 
 interface ScoreBreakdown {
   expertiseMatch: number;
@@ -63,7 +64,7 @@ export default function MatchInsightsWidget({ requestId, requestStatus }: Props)
     try {
       const res = await fetch(`/api/admin/partner-requests/${requestId}/suggest`);
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setError(text || "Failed to load suggestions");
         return;
       }
@@ -97,7 +98,7 @@ export default function MatchInsightsWidget({ requestId, requestStatus }: Props)
         body: JSON.stringify({ consultantIds: Array.from(selected) }),
       });
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setError(text || "Failed to send shortlist");
         return;
       }

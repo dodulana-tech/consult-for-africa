@@ -7,7 +7,7 @@ type Ctx = { params: Promise<{ id: string }> };
 
 export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id: deliverableId } = await params;
 
@@ -40,25 +40,25 @@ export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx
 
 export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id: deliverableId } = await params;
   const { fileUrl, fileName, changes } = await req.json();
 
-  if (!fileUrl?.trim()) return new Response("fileUrl is required", { status: 400 });
+  if (!fileUrl?.trim()) return Response.json({ error: "fileUrl is required" }, { status: 400 });
 
   const deliverable = await prisma.deliverable.findUnique({
     where: { id: deliverableId },
     include: { assignment: { select: { consultantId: true } } },
   });
 
-  if (!deliverable) return new Response("Not found", { status: 404 });
+  if (!deliverable) return Response.json({ error: "Not found" }, { status: 404 });
 
   const role = (session.user as { role: string }).role;
   const isEM = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(role);
   const isOwner = deliverable.assignment?.consultantId === session.user.id;
 
-  if (!isEM && !isOwner) return new Response("Forbidden", { status: 403 });
+  if (!isEM && !isOwner) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const newVersion = deliverable.version + 1;
   const resolvedFileName =

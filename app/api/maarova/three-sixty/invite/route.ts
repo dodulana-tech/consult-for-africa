@@ -7,13 +7,13 @@ import { handler } from "@/lib/api-handler";
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await getMaarovaSession();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
   const { requestId, raters } = body;
 
   if (!requestId || !Array.isArray(raters) || raters.length === 0) {
-    return new Response("requestId and raters array required", { status: 400 });
+    return Response.json({ error: "requestId and raters array required" }, { status: 400 });
   }
 
   // Verify the request belongs to this user
@@ -22,13 +22,11 @@ export const POST = handler(async function POST(req: NextRequest) {
   });
 
   if (!request) {
-    return new Response("Request not found", { status: 404 });
+    return Response.json({ error: "Request not found" }, { status: 404 });
   }
 
   if (request.status !== "COLLECTING") {
-    return new Response("Request is no longer accepting new raters", {
-      status: 400,
-    });
+    return Response.json({ error: "Request is no longer accepting new raters" }, { status: 400 });
   }
 
   const validRoles = ["SUPERVISOR", "PEER", "DIRECT_REPORT", "SELF"];

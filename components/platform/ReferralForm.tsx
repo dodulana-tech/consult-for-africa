@@ -6,6 +6,7 @@ import {
   Clock, AlertCircle, ChevronRight,
 } from "lucide-react";
 import { timeAgo } from "@/lib/utils";
+import { parseApiError } from "@/lib/parse-api-error";
 
 type ReferralType = "CLIENT" | "CONSULTANT" | "STAFF";
 
@@ -99,7 +100,7 @@ export default function ReferralForm({ myReferrals }: { myReferrals: MyReferral[
         }),
       });
       if (!res.ok) {
-        const text = await res.text().catch(() => "");
+        const text = await parseApiError(res, "");
         setError(text || "Something went wrong.");
         return;
       }

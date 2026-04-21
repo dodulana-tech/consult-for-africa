@@ -16,13 +16,13 @@ const MAX_FILE_SIZE_MB = 20;
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await getAgentSession();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   let body: { filename?: string; contentType?: string; folder?: string; fileSize?: number };
   try {
     body = await req.json();
   } catch {
-    return new Response("Invalid JSON body", { status: 400 });
+    return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
   const { filename, contentType, folder, fileSize } = body;

@@ -10,12 +10,12 @@ import { handler } from "@/lib/api-handler";
 export const POST = handler(async function POST(req: Request) {
   const session = await getClientPortalSession();
   if (!session) {
-    return new Response("Unauthorized", { status: 401 });
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { invoiceId } = await req.json();
   if (!invoiceId) {
-    return new Response("invoiceId is required", { status: 400 });
+    return Response.json({ error: "invoiceId is required" }, { status: 400 });
   }
 
   const invoice = await prisma.invoice.findUnique({
@@ -31,27 +31,27 @@ export const POST = handler(async function POST(req: Request) {
   });
 
   if (!invoice) {
-    return new Response("Invoice not found", { status: 404 });
+    return Response.json({ error: "Invoice not found" }, { status: 404 });
   }
 
   if (invoice.clientId !== session.clientId) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   // Only allow payment for payable statuses
   const payableStatuses = ["SENT", "VIEWED", "PARTIALLY_PAID", "OVERDUE"];
   if (!payableStatuses.includes(invoice.status)) {
-    return new Response("This invoice is not available for payment", { status: 400 });
+    return Response.json({ error: "This invoice is not available for payment" }, { status: 400 });
   }
 
   const balanceDue = Number(invoice.balanceDue);
   if (balanceDue <= 0) {
-    return new Response("No balance due on this invoice", { status: 400 });
+    return Response.json({ error: "No balance due on this invoice" }, { status: 400 });
   }
 
   const secretKey = process.env.PAYSTACK_SECRET_KEY;
   if (!secretKey) {
-    return new Response("Payment gateway not configured", { status: 503 });
+    return Response.json({ error: "Payment gateway not configured" }, { status: 503 });
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://consultforafrica.com";
@@ -100,9 +100,9 @@ export const POST = handler(async function POST(req: Request) {
     }
 
     console.error("[client-portal/invoices/pay] Paystack error:", data);
-    return new Response("Failed to initialize payment", { status: 500 });
+    return Response.json({ error: "Failed to initialize payment" }, { status: 500 });
   } catch (err) {
     console.error("[client-portal/invoices/pay] fetch failed:", err);
-    return new Response("Payment initialization failed", { status: 500 });
+    return Response.json({ error: "Payment initialization failed" }, { status: 500 });
   }
 });

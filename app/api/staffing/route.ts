@@ -9,7 +9,7 @@ import { handler } from "@/lib/api-handler";
 // EMs see requests they created
 export const GET = handler(async function GET() {
   const session = await auth();
-  if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
+  if (!session?.user?.id) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isConsultant = session.user.role === "CONSULTANT";
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
@@ -65,10 +65,10 @@ export const GET = handler(async function GET() {
 // POST: Create a staffing request (EM/elevated only)
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
+  if (!session?.user?.id) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canCreate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canCreate) return new Response("Forbidden", { status: 403 });
+  if (!canCreate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { projectId, role, description, skillsRequired, hoursPerWeek, duration, rateType, rateBudget, rateCurrency, urgency, trackId } = await req.json();
 

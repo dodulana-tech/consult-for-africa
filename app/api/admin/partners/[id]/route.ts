@@ -11,9 +11,9 @@ export const GET = handler(async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role))
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
 
@@ -40,7 +40,7 @@ export const GET = handler(async function GET(
     },
   });
 
-  if (!partner) return new Response("Not found", { status: 404 });
+  if (!partner) return Response.json({ error: "Not found" }, { status: 404 });
 
   return Response.json({
     partner: {
@@ -103,9 +103,9 @@ export const PATCH = handler(async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role))
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
   const body = await req.json();
@@ -125,7 +125,7 @@ export const PATCH = handler(async function PATCH(
   if (body.status?.trim()) updateData.status = body.status.trim();
 
   if (Object.keys(updateData).length === 0) {
-    return new Response("No fields to update", { status: 400 });
+    return Response.json({ error: "No fields to update" }, { status: 400 });
   }
 
   const partner = await prisma.partnerFirm.update({

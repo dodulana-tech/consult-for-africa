@@ -17,6 +17,7 @@ import {
   FileSpreadsheet,
   Trash2,
 } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 /* ── Types ────────────────────────────────────────────────────────────────────── */
 
@@ -200,7 +201,7 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
       });
 
       if (!res.ok) {
-        const msg = await res.text();
+        const msg = await parseApiError(res);
         throw new Error(msg || "Failed to update organisation");
       }
 
@@ -227,7 +228,7 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
       });
 
       if (!res.ok) {
-        const msg = await res.text();
+        const msg = await parseApiError(res);
         throw new Error(msg || "Failed to update status");
       }
 
@@ -266,7 +267,7 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
       });
 
       if (!res.ok) {
-        const msg = await res.text();
+        const msg = await parseApiError(res);
         throw new Error(msg || "Failed to create user");
       }
 
@@ -316,7 +317,7 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
       });
 
       if (!res.ok) {
-        const msg = await res.text();
+        const msg = await parseApiError(res);
         throw new Error(msg || "Failed to update user");
       }
 

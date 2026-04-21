@@ -10,10 +10,10 @@ type Ctx = { params: Promise<{ id: string }> };
 
 export const GET = handler(async function GET(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canView = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canView) return new Response("Forbidden", { status: 403 });
+  if (!canView) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
 
@@ -25,12 +25,12 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
       engagement: { select: { engagementManagerId: true } },
     },
   });
-  if (!invoice) return new Response("Not found", { status: 404 });
+  if (!invoice) return Response.json({ error: "Not found" }, { status: 404 });
 
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isElevated) {
     if (!invoice.engagement || invoice.engagement.engagementManagerId !== session.user.id) {
-      return new Response("Forbidden", { status: 403 });
+      return Response.json({ error: "Forbidden" }, { status: 403 });
     }
   }
 
@@ -58,11 +58,11 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
 
 export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   // Require EM+ role
   const canRecord = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canRecord) return new Response("Forbidden", { status: 403 });
+  if (!canRecord) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
 
@@ -73,38 +73,35 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
       engagement: { select: { engagementManagerId: true } },
     },
   });
-  if (!invoice) return new Response("Not found", { status: 404 });
+  if (!invoice) return Response.json({ error: "Not found" }, { status: 404 });
 
   // IDOR check
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isElevated) {
     if (!invoice.engagement || invoice.engagement.engagementManagerId !== session.user.id) {
-      return new Response("Forbidden", { status: 403 });
+      return Response.json({ error: "Forbidden" }, { status: 403 });
     }
   }
 
   // Must be in a payable status
   const payableStatuses = ["SENT", "VIEWED", "PARTIALLY_PAID", "OVERDUE"];
   if (!payableStatuses.includes(invoice.status)) {
-    return new Response(`Cannot record payment for invoice with status ${invoice.status}`, { status: 400 });
+    return Response.json({ error: `Cannot record payment for invoice with status ${invoice.status}` }, { status: 400 });
   }
 
   const body = await req.json();
   const { amount, currency, paymentDate, paymentMethod, reference, bankName, notes } = body;
 
   if (!amount || typeof amount !== "number" || amount <= 0) {
-    return new Response("Valid positive amount is required", { status: 400 });
+    return Response.json({ error: "Valid positive amount is required" }, { status: 400 });
   }
   if (!paymentMethod) {
-    return new Response("paymentMethod is required", { status: 400 });
+    return Response.json({ error: "paymentMethod is required" }, { status: 400 });
   }
 
   const currentBalance = Number(invoice.balanceDue);
   if (amount > currentBalance + 0.01) {
-    return new Response(
-      `Payment amount (${amount}) exceeds balance due (${currentBalance})`,
-      { status: 400 }
-    );
+    return Response.json({ error: `Payment amount (${amount}) exceeds balance due (${currentBalance})` }, { status: 400 });
   }
 
   // Create payment and update invoice in transaction

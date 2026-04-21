@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CheckCircle2, AlertCircle, Plus, X } from "lucide-react";
 import { formatEnumLabel } from "@/lib/utils";
+import { parseApiError } from "@/lib/parse-api-error";
 
 type Profile = {
   title: string;
@@ -66,7 +67,7 @@ export default function EditConsultantProfile({ initialProfile }: { initialProfi
         body: JSON.stringify(form),
       });
       if (!res.ok) {
-        const text = await res.text().catch(() => "");
+        const text = await parseApiError(res, "");
         setError(text || "Failed to save. Please try again.");
         return;
       }

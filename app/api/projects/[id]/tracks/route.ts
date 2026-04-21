@@ -12,7 +12,7 @@ type Ctx = { params: Promise<{ id: string }> };
  */
 export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
 
@@ -91,16 +91,16 @@ export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx
  */
 export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
 
   // Verify engagement exists
   const engagement = await prisma.engagement.findUnique({ where: { id }, select: { id: true } });
-  if (!engagement) return new Response("Engagement not found", { status: 404 });
+  if (!engagement) return Response.json({ error: "Engagement not found" }, { status: 404 });
 
   const body = await req.json();
 
@@ -151,22 +151,22 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
  */
 export const PATCH = handler(async function PATCH(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
   const body = await req.json();
   const { trackId, name, description, status, order, startDate, endDate, budgetAmount, budgetCurrency } = body;
 
-  if (!trackId) return new Response("trackId required", { status: 400 });
+  if (!trackId) return Response.json({ error: "trackId required" }, { status: 400 });
 
   // Verify track belongs to this engagement
   const track = await prisma.engagementTrack.findFirst({
     where: { id: trackId, engagementId: id },
   });
-  if (!track) return new Response("Track not found", { status: 404 });
+  if (!track) return Response.json({ error: "Track not found" }, { status: 404 });
 
   const data: Record<string, unknown> = {};
   if (name !== undefined) data.name = name.trim();
@@ -192,15 +192,15 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
  */
 export const DELETE = handler(async function DELETE(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
   const { trackId } = await req.json();
 
-  if (!trackId) return new Response("trackId required", { status: 400 });
+  if (!trackId) return Response.json({ error: "trackId required" }, { status: 400 });
 
   const track = await prisma.engagementTrack.findFirst({
     where: { id: trackId, engagementId: id },
@@ -210,14 +210,14 @@ export const DELETE = handler(async function DELETE(req: NextRequest, { params }
     },
   });
 
-  if (!track) return new Response("Track not found", { status: 404 });
+  if (!track) return Response.json({ error: "Track not found" }, { status: 404 });
 
   if (track.assignments.length > 0) {
-    return new Response("Cannot delete track with active assignments. Remove or complete them first.", { status: 400 });
+    return Response.json({ error: "Cannot delete track with active assignments. Remove or complete them first." }, { status: 400 });
   }
 
   if (track.deliverables.length > 0) {
-    return new Response("Cannot delete track with non-draft deliverables. Move or complete them first.", { status: 400 });
+    return Response.json({ error: "Cannot delete track with non-draft deliverables. Move or complete them first." }, { status: 400 });
   }
 
   // Unlink any draft deliverables from this track

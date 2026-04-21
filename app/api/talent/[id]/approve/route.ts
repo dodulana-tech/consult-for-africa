@@ -12,17 +12,17 @@ export const POST = handler(async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAuthorized = ["PARTNER", "ADMIN", "DIRECTOR"].includes(session.user.role);
-  if (!isAuthorized) return new Response("Forbidden", { status: 403 });
+  if (!isAuthorized) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
   const body = await req.json();
   const assessmentLevel = body.assessmentLevel ?? "STANDARD";
 
   if (!["LIGHT", "STANDARD", "MAAROVA", "FULL"].includes(assessmentLevel)) {
-    return new Response("assessmentLevel must be LIGHT, STANDARD, MAAROVA, or FULL", { status: 400 });
+    return Response.json({ error: "assessmentLevel must be LIGHT, STANDARD, MAAROVA, or FULL" }, { status: 400 });
   }
 
   // Fetch the application
@@ -31,11 +31,11 @@ export const POST = handler(async function POST(
   });
 
   if (!application) {
-    return new Response("Application not found", { status: 404 });
+    return Response.json({ error: "Application not found" }, { status: 404 });
   }
 
   if (application.convertedToUserId) {
-    return new Response("Application already converted to a user", { status: 409 });
+    return Response.json({ error: "Application already converted to a user" }, { status: 409 });
   }
 
   // Check if a user with this email already exists
@@ -43,7 +43,7 @@ export const POST = handler(async function POST(
     where: { email: application.email },
   });
   if (existingUser) {
-    return new Response("A user with this email already exists", { status: 409 });
+    return Response.json({ error: "A user with this email already exists" }, { status: 409 });
   }
 
   // Generate temp password

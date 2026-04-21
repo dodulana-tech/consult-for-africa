@@ -36,13 +36,11 @@ export const POST = handler(async function POST(req: NextRequest) {
   });
 
   if (!user || !user.isPortalEnabled || !user.passwordHash) {
-    return new Response("Invalid credentials or portal not enabled", {
-      status: 401,
-    });
+    return Response.json({ error: "Invalid credentials or portal not enabled" }, { status: 401 });
   }
 
   const valid = await bcrypt.compare(password, user.passwordHash);
-  if (!valid) return new Response("Invalid credentials", { status: 401 });
+  if (!valid) return Response.json({ error: "Invalid credentials" }, { status: 401 });
 
   const token = signMaarovaJWT({
     sub: user.id,

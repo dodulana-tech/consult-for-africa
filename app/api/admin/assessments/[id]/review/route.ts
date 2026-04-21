@@ -11,27 +11,25 @@ interface Props {
 export const POST = handler(async function POST(req: NextRequest, { params }: Props) {
   const { id } = await params;
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const allowed = ["PARTNER", "ADMIN", "DIRECTOR"].includes(session.user.role);
-  if (!allowed) return new Response("Forbidden", { status: 403 });
+  if (!allowed) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
   const { adminScore, adminTier, adminNotes, action } = body;
 
   if (!action || !["approve", "reject"].includes(action)) {
-    return new Response("action must be 'approve' or 'reject'", { status: 400 });
+    return Response.json({ error: "action must be 'approve' or 'reject'" }, { status: 400 });
   }
 
   if (typeof adminScore !== "number" || adminScore < 1 || adminScore > 10) {
-    return new Response("adminScore must be 1-10", { status: 400 });
+    return Response.json({ error: "adminScore must be 1-10" }, { status: 400 });
   }
 
   const validTiers = ["INTERN", "EMERGING", "STANDARD", "EXPERIENCED", "ELITE", "REJECT"];
   if (!validTiers.includes(adminTier)) {
-    return new Response("adminTier must be INTERN, EMERGING, STANDARD, EXPERIENCED, ELITE, or REJECT", {
-      status: 400,
-    });
+    return Response.json({ error: "adminTier must be INTERN, EMERGING, STANDARD, EXPERIENCED, ELITE, or REJECT" }, { status: 400 });
   }
 
   // Verify assessment exists
@@ -40,7 +38,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Pr
     select: { id: true, userId: true, user: { select: { name: true } } },
   });
 
-  if (!assessment) return new Response("Assessment not found", { status: 404 });
+  if (!assessment) return Response.json({ error: "Assessment not found" }, { status: 404 });
 
   // Update assessment with admin review
   await prisma.consultantAssessment.update({

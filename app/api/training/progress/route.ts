@@ -6,7 +6,7 @@ import { handler } from "@/lib/api-handler";
 // GET: Fetch module content + progress for a specific module
 export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
-  if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
+  if (!session?.user?.id) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const moduleSlug = searchParams.get("module");
@@ -35,7 +35,7 @@ export const GET = handler(async function GET(req: NextRequest) {
 // POST: Submit quiz answers and update progress
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
+  if (!session?.user?.id) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { moduleId, answers, timeSpentMinutes } = await req.json();
   if (!moduleId || !answers) {

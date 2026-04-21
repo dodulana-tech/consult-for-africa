@@ -9,12 +9,12 @@ type Ctx = { params: Promise<{ id: string }> };
 
 export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id: projectId } = await params;
 
   if (!(await canAccessProject(session.user.id, session.user.role, projectId))) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const metrics = await prisma.engagementImpactMetric.findMany({
@@ -34,15 +34,15 @@ export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx
 
 export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canCreate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canCreate) return new Response("Forbidden", { status: 403 });
+  if (!canCreate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: projectId } = await params;
   const { metricName, baselineValue, currentValue, unit, quantifiedValue, currency, clientQuote } = await req.json();
 
-  if (!metricName?.trim()) return new Response("metricName is required", { status: 400 });
+  if (!metricName?.trim()) return Response.json({ error: "metricName is required" }, { status: 400 });
 
   const metric = await prisma.engagementImpactMetric.create({
     data: {

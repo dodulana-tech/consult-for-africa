@@ -9,12 +9,12 @@ type Ctx = { params: Promise<{ id: string }> };
 
 export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id: projectId } = await params;
 
   if (!(await canAccessProject(session.user.id, session.user.role, projectId))) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const risks = await prisma.riskItem.findMany({
@@ -41,15 +41,15 @@ export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx
 
 export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: projectId } = await params;
   const { title, description, category, severity, likelihood, impact, mitigation } = await req.json();
 
-  if (!title?.trim()) return new Response("title is required", { status: 400 });
+  if (!title?.trim()) return Response.json({ error: "title is required" }, { status: 400 });
 
   const like = Math.min(5, Math.max(1, Number(likelihood) || 3));
   const imp = Math.min(5, Math.max(1, Number(impact) || 3));

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, Trash2, FileText, AlertCircle, CheckCircle2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { parseApiError } from "@/lib/parse-api-error";
 
 type LineItem = { description: string; quantity: number; unitPrice: number };
 type Project = { id: string; name: string };
@@ -70,7 +71,7 @@ export default function CreateInvoiceForm({
         }),
       });
       if (!res.ok) {
-        const text = await res.text().catch(() => "");
+        const text = await parseApiError(res, "");
         setError(text || "Failed to create invoice.");
         return;
       }

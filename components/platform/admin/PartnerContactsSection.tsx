@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Users, Shield, CheckCircle, Mail, Phone, Plus, X, Pencil, Send } from "lucide-react";
 import EnablePartnerPortalModal from "./EnablePartnerPortalModal";
+import { parseApiError } from "@/lib/parse-api-error";
 
 interface Contact {
   id: string;
@@ -67,7 +68,7 @@ export default function PartnerContactsSection({ partnerId, contacts: initialCon
         body: JSON.stringify({ contactId: editingId, ...form }),
       });
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setFormError(text || "Failed to update contact.");
         return;
       }
@@ -96,7 +97,7 @@ export default function PartnerContactsSection({ partnerId, contacts: initialCon
         body: JSON.stringify(form),
       });
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setFormError(text || "Failed to add contact.");
         return;
       }

@@ -12,12 +12,12 @@ type Ctx = { params: Promise<{ id: string }> };
 
 export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id: projectId } = await params;
 
   if (!(await canAccessProject(session.user.id, session.user.role, projectId))) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const frameworks = await prisma.engagementFramework.findMany({
@@ -35,27 +35,27 @@ export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx
 
 export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: projectId } = await params;
   const { frameworkId, generateWithAI, content } = await req.json();
 
-  if (!frameworkId) return new Response("frameworkId required", { status: 400 });
+  if (!frameworkId) return Response.json({ error: "frameworkId required" }, { status: 400 });
 
   // Check if already exists
   const existing = await prisma.engagementFramework.findUnique({
     where: { engagementId_frameworkId: { engagementId: projectId, frameworkId } },
   });
-  if (existing) return new Response("Framework already added to this project", { status: 409 });
+  if (existing) return Response.json({ error: "Framework already added to this project" }, { status: 409 });
 
   const framework = await prisma.frameworkTemplate.findUnique({
     where: { id: frameworkId },
     select: { name: true, description: true, dimensions: true, guideText: true },
   });
-  if (!framework) return new Response("Framework not found", { status: 404 });
+  if (!framework) return Response.json({ error: "Framework not found" }, { status: 404 });
 
   let finalContent: Record<string, string> = {};
   let aiGenerated = false;
@@ -71,7 +71,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
         client: { select: { name: true, type: true } },
       },
     });
-    if (!project) return new Response("Project not found", { status: 404 });
+    if (!project) return Response.json({ error: "Project not found" }, { status: 404 });
 
     const prompt = `You are a senior management consultant at Consult For Africa, specializing in Nigerian and African healthcare systems.
 

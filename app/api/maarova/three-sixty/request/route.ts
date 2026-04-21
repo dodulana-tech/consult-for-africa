@@ -4,7 +4,7 @@ import { handler } from "@/lib/api-handler";
 
 export const POST = handler(async function POST() {
   const session = await getMaarovaSession();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   // Check for existing active request
   const existing = await prisma.maarova360Request.findFirst({

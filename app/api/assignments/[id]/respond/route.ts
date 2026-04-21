@@ -12,7 +12,7 @@ import { handler } from "@/lib/api-handler";
  */
 export const POST = handler(async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
+  if (!session?.user?.id) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
   const { action, reason } = await req.json();
@@ -35,7 +35,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: { 
 
   // Only the assigned consultant can respond
   if (assignment.consultantId !== session.user.id) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   if (assignment.status !== "PENDING_ACCEPTANCE") {

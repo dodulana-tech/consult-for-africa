@@ -5,7 +5,7 @@ import { handler } from "@/lib/api-handler";
 
 export const POST = handler(async function POST(req: Request) {
   const session = await getAgentSession();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
   const { opportunityId, prospectName, prospectOrg, prospectEmail, prospectPhone, prospectTitle, dealValue, dealDescription } = body;

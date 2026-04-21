@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { CheckCircle2, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 type Entry = {
   id: string;
@@ -121,7 +122,7 @@ export default function PaymentQueue({ entries }: { entries: Entry[] }) {
         setShowConfirm(null);
         setPayRef("");
       } else {
-        const text = await res.text().catch(() => "");
+        const text = await parseApiError(res, "");
         setPayError(text || "Payment failed. Please try again.");
       }
     } catch {

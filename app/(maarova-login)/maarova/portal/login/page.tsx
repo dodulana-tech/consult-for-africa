@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { parseApiError } from "@/lib/parse-api-error";
 
 export default function MaarovaLoginPage() {
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function MaarovaLoginPage() {
       });
 
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setError(text || "Login failed. Please check your credentials.");
         return;
       }

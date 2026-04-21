@@ -10,7 +10,7 @@ import { handler } from "@/lib/api-handler";
 export const GET = handler(async function GET(req: Request) {
   const session = await getClientPortalSession();
   if (!session) {
-    return new Response("Unauthorized", { status: 401 });
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const url = new URL(req.url);

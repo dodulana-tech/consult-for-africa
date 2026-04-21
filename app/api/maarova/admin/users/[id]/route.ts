@@ -9,10 +9,10 @@ export const GET = handler(async function GET(
 ) {
   const { id } = await params;
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+  if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const user = await prisma.maarovaUser.findUnique({
     where: { id },
@@ -31,7 +31,7 @@ export const GET = handler(async function GET(
     },
   });
 
-  if (!user) return new Response("User not found", { status: 404 });
+  if (!user) return Response.json({ error: "User not found" }, { status: 404 });
 
   return Response.json({
     id: user.id,
@@ -61,13 +61,13 @@ export const PUT = handler(async function PUT(
 ) {
   const { id } = await params;
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+  if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const existing = await prisma.maarovaUser.findUnique({ where: { id } });
-  if (!existing) return new Response("User not found", { status: 404 });
+  if (!existing) return Response.json({ error: "User not found" }, { status: 404 });
 
   const body = await req.json();
   const { name, email, title, department, clinicalBackground, yearsInHealthcare, role, managerId } = body;
@@ -78,7 +78,7 @@ export const PUT = handler(async function PUT(
     const normalised = email.trim().toLowerCase();
     if (normalised !== existing.email) {
       const dup = await prisma.maarovaUser.findUnique({ where: { email: normalised } });
-      if (dup) return new Response("A user with this email already exists", { status: 409 });
+      if (dup) return Response.json({ error: "A user with this email already exists" }, { status: 409 });
       data.email = normalised;
     }
   }
@@ -97,13 +97,13 @@ export const PUT = handler(async function PUT(
         where: { id: managerId, organisationId: existing.organisationId },
         select: { id: true },
       });
-      if (!manager) return new Response("Manager not found in this organisation", { status: 400 });
+      if (!manager) return Response.json({ error: "Manager not found in this organisation" }, { status: 400 });
     }
     data.managerId = managerId || null;
   }
 
   if (Object.keys(data).length === 0) {
-    return new Response("No fields to update", { status: 400 });
+    return Response.json({ error: "No fields to update" }, { status: 400 });
   }
 
   const updated = await prisma.maarovaUser.update({

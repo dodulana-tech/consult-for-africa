@@ -8,10 +8,10 @@ import { handler } from "@/lib/api-handler";
 // POST: Consultant expresses interest in a staffing request
 export const POST = handler(async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
+  if (!session?.user?.id) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   if (session.user.role !== "CONSULTANT") {
-    return new Response("Only consultants can express interest", { status: 403 });
+    return Response.json({ error: "Only consultants can express interest" }, { status: 403 });
   }
 
   const { id: staffingRequestId } = await params;

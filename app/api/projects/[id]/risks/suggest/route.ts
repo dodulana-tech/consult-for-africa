@@ -10,10 +10,10 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export const POST = handler(async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: projectId } = await params;
 
@@ -40,7 +40,7 @@ export const POST = handler(async function POST(_req: NextRequest, { params }: {
     },
   });
 
-  if (!project) return new Response("Not found", { status: 404 });
+  if (!project) return Response.json({ error: "Not found" }, { status: 404 });
 
   const now = new Date();
   const daysLeft = project.endDate ? Math.round((project.endDate.getTime() - now.getTime()) / 86400000) : 365;

@@ -8,10 +8,10 @@ type Ctx = { params: Promise<{ id: string; phaseId: string }> };
 
 export const PATCH = handler(async function PATCH(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: projectId, phaseId } = await params;
   const { name, description, status, percentComplete, startDate, endDate } = await req.json();
@@ -23,7 +23,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
   let oldStatus: string | undefined;
   if (status) {
     const VALID = ["PENDING", "ACTIVE", "COMPLETED", "SKIPPED"];
-    if (!VALID.includes(status)) return new Response("Invalid status", { status: 400 });
+    if (!VALID.includes(status)) return Response.json({ error: "Invalid status" }, { status: 400 });
     const existing = await prisma.engagementPhase.findUnique({ where: { id: phaseId }, select: { status: true } });
     oldStatus = existing?.status;
     updates.status = status;
@@ -35,7 +35,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
   if (startDate !== undefined) updates.startDate = startDate ? new Date(startDate) : null;
   if (endDate !== undefined) updates.endDate = endDate ? new Date(endDate) : null;
 
-  if (Object.keys(updates).length === 0) return new Response("No valid fields", { status: 400 });
+  if (Object.keys(updates).length === 0) return Response.json({ error: "No valid fields" }, { status: 400 });
 
   const phase = await prisma.engagementPhase.update({
     where: { id: phaseId },
@@ -93,10 +93,10 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
 
 export const DELETE = handler(async function DELETE(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: projectId, phaseId } = await params;
   const phase = await prisma.engagementPhase.findUnique({ where: { id: phaseId }, select: { name: true } });

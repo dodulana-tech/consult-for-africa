@@ -4,7 +4,7 @@ import { handler } from "@/lib/api-handler";
 
 export const PATCH = handler(async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
   const body = await req.json();
@@ -50,7 +50,7 @@ export const PATCH = handler(async function PATCH(req: Request, { params }: { pa
 
 export const DELETE = handler(async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
   await prisma.campaignPost.delete({ where: { id } });

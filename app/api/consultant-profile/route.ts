@@ -6,13 +6,13 @@ import { handler } from "@/lib/api-handler";
 
 export const GET = handler(async function GET() {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const profile = await prisma.consultantProfile.findUnique({
     where: { userId: session.user.id },
   });
 
-  if (!profile) return new Response("Profile not found", { status: 404 });
+  if (!profile) return Response.json({ error: "Profile not found" }, { status: 404 });
 
   return Response.json({
     ...profile,
@@ -29,10 +29,10 @@ export const GET = handler(async function GET() {
 
 export const PATCH = handler(async function PATCH(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   if (session.user.role !== "CONSULTANT") {
-    return new Response("Only consultants can update their own profile", { status: 403 });
+    return Response.json({ error: "Only consultants can update their own profile" }, { status: 403 });
   }
 
   const {
@@ -45,14 +45,14 @@ export const PATCH = handler(async function PATCH(req: NextRequest) {
 
   const validStatuses: AvailabilityStatus[] = ["AVAILABLE", "PARTIALLY_AVAILABLE", "UNAVAILABLE", "ON_LEAVE"];
   if (availabilityStatus && !validStatuses.includes(availabilityStatus)) {
-    return new Response("Invalid availability status", { status: 400 });
+    return Response.json({ error: "Invalid availability status" }, { status: 400 });
   }
 
   const profile = await prisma.consultantProfile.findUnique({
     where: { userId: session.user.id },
     select: { id: true },
   });
-  if (!profile) return new Response("Profile not found", { status: 404 });
+  if (!profile) return Response.json({ error: "Profile not found" }, { status: 404 });
 
   const data: Record<string, unknown> = {};
   if (title !== undefined) data.title = title;

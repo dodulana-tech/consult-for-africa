@@ -19,9 +19,9 @@ export const GET = handler(async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role))
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: requestId } = await params;
 
@@ -30,7 +30,7 @@ export const GET = handler(async function GET(
     where: { id: requestId },
   });
   if (!request)
-    return new Response("Staffing request not found", { status: 404 });
+    return Response.json({ error: "Staffing request not found" }, { status: 404 });
 
   const requestedSkills = [
     ...request.skillsRequired,

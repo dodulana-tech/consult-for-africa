@@ -5,11 +5,11 @@ import { handler } from "@/lib/api-handler";
 
 export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const clientId = req.nextUrl.searchParams.get("clientId");
   if (!clientId) {
-    return new Response("clientId is required", { status: 400 });
+    return Response.json({ error: "clientId is required" }, { status: 400 });
   }
 
   const engagements = await prisma.engagement.findMany({

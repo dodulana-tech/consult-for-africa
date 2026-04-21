@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import { formatCompactCurrency, formatDate } from "@/lib/utils";
+import { parseApiError } from "@/lib/parse-api-error";
 
 interface TimeEntry {
   id: string;
@@ -233,7 +234,7 @@ export default function TimesheetManager({
         body: JSON.stringify(body),
       });
       if (!res.ok) {
-        const text = await res.text().catch(() => "");
+        const text = await parseApiError(res, "");
         setLogError(text || "Failed to submit. Please try again.");
         return;
       }

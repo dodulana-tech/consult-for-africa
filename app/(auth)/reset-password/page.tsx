@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, CheckCircle, AlertCircle, Lock, Loader2 } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -31,7 +32,7 @@ function ResetPasswordForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, password }),
       });
-      if (!res.ok) { setError(await res.text()); return; }
+      if (!res.ok) { setError(await parseApiError(res)); return; }
       setSuccess(true);
     } catch {
       setError("Network error. Please try again.");

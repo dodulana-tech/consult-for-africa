@@ -40,11 +40,11 @@ const STATUS_TRANSITIONS: Record<string, TransitionCheck> = {
 
 export const GET = handler(async function GET(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isElevated = ELEVATED_ROLES.includes(session.user.role as typeof ELEVATED_ROLES[number]);
   const isEM = session.user.role === "ENGAGEMENT_MANAGER";
-  if (!isElevated && !isEM) return new Response("Forbidden", { status: 403 });
+  if (!isElevated && !isEM) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
 
@@ -62,7 +62,7 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
     },
   });
 
-  if (!invoice) return new Response("Not found", { status: 404 });
+  if (!invoice) return Response.json({ error: "Not found" }, { status: 404 });
 
   // IDOR check for EMs
   if (isEM && invoice.engagement?.engagementManagerId !== session.user.id) {
@@ -72,7 +72,7 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
       select: { engagement: { select: { engagementManagerId: true } } },
     });
     if (!withEM?.engagement || withEM.engagement.engagementManagerId !== session.user.id) {
-      return new Response("Forbidden", { status: 403 });
+      return Response.json({ error: "Forbidden" }, { status: 403 });
     }
   }
 
@@ -83,10 +83,10 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
 
 export const PATCH = handler(async function PATCH(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canUpdate = EM_AND_ABOVE.includes(session.user.role as typeof EM_AND_ABOVE[number]);
-  if (!canUpdate) return new Response("Forbidden", { status: 403 });
+  if (!canUpdate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
   const isElevated = ELEVATED_ROLES.includes(session.user.role as typeof ELEVATED_ROLES[number]);
@@ -99,12 +99,12 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
       lineItemRecords: true,
     },
   });
-  if (!existing) return new Response("Not found", { status: 404 });
+  if (!existing) return Response.json({ error: "Not found" }, { status: 404 });
 
   // IDOR: verify ownership for non-elevated roles
   if (!isElevated) {
     if (!existing.engagement || existing.engagement.engagementManagerId !== session.user.id) {
-      return new Response("Forbidden", { status: 403 });
+      return Response.json({ error: "Forbidden" }, { status: 403 });
     }
   }
 
@@ -117,32 +117,23 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
   if (status && status !== existing.status) {
     const transition = STATUS_TRANSITIONS[status as string];
     if (!transition) {
-      return new Response(`Invalid target status: ${status}`, { status: 400 });
+      return Response.json({ error: `Invalid target status: ${status}` }, { status: 400 });
     }
 
     if (!transition.from.includes(existing.status)) {
-      return new Response(
-        `Cannot transition from ${existing.status} to ${status}`,
-        { status: 400 }
-      );
+      return Response.json({ error: `Cannot transition from ${existing.status} to ${status}` }, { status: 400 });
     }
 
     // Role checks for specific transitions
     if (transition.requireRole && !transition.requireRole.includes(session.user.role)) {
-      return new Response(
-        `Only ${transition.requireRole.join("/")} can set status to ${status}`,
-        { status: 403 }
-      );
+      return Response.json({ error: `Only ${transition.requireRole.join("/")} can set status to ${status}` }, { status: 403 });
     }
 
     // PENDING_APPROVAL: only if above threshold
     if (status === "PENDING_APPROVAL") {
       const threshold = APPROVAL_THRESHOLD[existing.currency] ?? APPROVAL_THRESHOLD.NGN;
       if (Number(existing.total) <= threshold) {
-        return new Response(
-          `Invoice total is below the approval threshold (${existing.currency} ${threshold.toLocaleString()}). Send directly instead.`,
-          { status: 400 }
-        );
+        return Response.json({ error: `Invoice total is below the approval threshold (${existing.currency} ${threshold.toLocaleString()}). Send directly instead.` }, { status: 400 });
       }
     }
 
@@ -151,16 +142,13 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
       if (existing.status === "DRAFT") {
         const threshold = APPROVAL_THRESHOLD[existing.currency] ?? APPROVAL_THRESHOLD.NGN;
         if (Number(existing.total) > threshold && !existing.approvedById) {
-          return new Response(
-            `Invoice total exceeds ${existing.currency} ${threshold.toLocaleString()}. Requires approval before sending.`,
-            { status: 400 }
-          );
+          return Response.json({ error: `Invoice total exceeds ${existing.currency} ${threshold.toLocaleString()}. Requires approval before sending.` }, { status: 400 });
         }
       }
       if (existing.status === "PENDING_APPROVAL") {
         // Must be Director+ to approve and send
         if (!isElevated) {
-          return new Response("Director or above required to approve invoices", { status: 403 });
+          return Response.json({ error: "Director or above required to approve invoices" }, { status: 403 });
         }
         data.approvedBy = { connect: { id: session.user.id } };
         data.approvedAt = new Date();
@@ -192,10 +180,10 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
       // Validate
       for (const item of lineItems) {
         if (!item.description || typeof item.quantity !== "number" || typeof item.unitPrice !== "number") {
-          return new Response("Each line item needs description, quantity, unitPrice", { status: 400 });
+          return Response.json({ error: "Each line item needs description, quantity, unitPrice" }, { status: 400 });
         }
-        if (item.quantity <= 0) return new Response("Quantity must be greater than zero", { status: 400 });
-        if (item.unitPrice < 0) return new Response("Unit price cannot be negative", { status: 400 });
+        if (item.quantity <= 0) return Response.json({ error: "Quantity must be greater than zero" }, { status: 400 });
+        if (item.unitPrice < 0) return Response.json({ error: "Unit price cannot be negative" }, { status: 400 });
       }
 
       // Recalculate amounts - use explicit rates if provided, else derive from existing
@@ -240,7 +228,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
       };
     }
   } else if (lineItems) {
-    return new Response("Line items can only be edited on DRAFT invoices", { status: 400 });
+    return Response.json({ error: "Line items can only be edited on DRAFT invoices" }, { status: 400 });
   }
 
   const invoice = await prisma.invoice.update({

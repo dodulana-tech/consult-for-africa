@@ -7,7 +7,7 @@ export const POST = handler(async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getAgentSession();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
 

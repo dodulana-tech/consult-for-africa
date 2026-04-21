@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 export default function PasswordChangeForm() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -35,7 +36,7 @@ export default function PasswordChangeForm() {
       });
 
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setStatus("error");
         setMessage(text || "Failed to change password.");
         return;

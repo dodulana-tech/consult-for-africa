@@ -8,9 +8,9 @@ const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR"];
 
 export const GET = handler(async function GET() {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role))
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const partners = await prisma.partnerFirm.findMany({
     include: {
@@ -64,9 +64,9 @@ export const GET = handler(async function GET() {
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role))
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
   const {
@@ -84,7 +84,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   } = body;
 
   if (!name?.trim() || !type?.trim()) {
-    return new Response("name and type are required", { status: 400 });
+    return Response.json({ error: "name and type are required" }, { status: 400 });
   }
 
   const partner = await prisma.partnerFirm.create({

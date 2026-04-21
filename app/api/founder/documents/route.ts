@@ -4,7 +4,7 @@ import { handler } from "@/lib/api-handler";
 
 export const GET = handler(async function GET() {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const profile = await prisma.founderProfile.findUnique({
     where: { email: session.user.email! },
@@ -22,13 +22,13 @@ export const GET = handler(async function GET() {
 
 export const POST = handler(async function POST(req: Request) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const profile = await prisma.founderProfile.findUnique({
     where: { email: session.user.email! },
     select: { id: true },
   });
-  if (!profile) return new Response("No founder profile", { status: 404 });
+  if (!profile) return Response.json({ error: "No founder profile" }, { status: 404 });
 
   const { title, description, content, fileUrl, fileType, fileSize, category, tags, isPinned, reviewDate, reviewNote } = await req.json();
 

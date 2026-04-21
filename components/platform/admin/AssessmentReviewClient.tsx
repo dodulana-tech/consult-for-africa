@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { IntegrityReport } from "@/lib/consultantAssessment/integrity";
+import { parseApiError } from "@/lib/parse-api-error";
 
 interface ResponseData {
   id: string;
@@ -135,7 +136,7 @@ export default function AssessmentReviewClient({
       });
 
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         throw new Error(text || "Failed to save review");
       }
 

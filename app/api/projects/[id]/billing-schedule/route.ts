@@ -27,10 +27,10 @@ function serialise(bs: Record<string, unknown>) {
 
 export const GET = handler(async function GET(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canView = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canView) return new Response("Forbidden", { status: 403 });
+  if (!canView) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: engagementId } = await params;
 
@@ -42,7 +42,7 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
       select: { engagementManagerId: true },
     });
     if (!eng || eng.engagementManagerId !== session.user.id) {
-      return new Response("Forbidden", { status: 403 });
+      return Response.json({ error: "Forbidden" }, { status: 403 });
     }
   }
 
@@ -82,10 +82,10 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
 
 export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isElevated) return new Response("Only Directors and above can create billing schedules", { status: 403 });
+  if (!isElevated) return Response.json({ error: "Only Directors and above can create billing schedules" }, { status: 403 });
 
   const { id: engagementId } = await params;
 
@@ -93,7 +93,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
     where: { id: engagementId },
     select: { id: true },
   });
-  if (!engagement) return new Response("Engagement not found", { status: 404 });
+  if (!engagement) return Response.json({ error: "Engagement not found" }, { status: 404 });
 
   const body = await req.json();
   const {
@@ -114,16 +114,16 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
   } = body;
 
   if (!feeStructure || !billingCycle || !totalContractValue) {
-    return new Response("feeStructure, billingCycle, and totalContractValue are required", { status: 400 });
+    return Response.json({ error: "feeStructure, billingCycle, and totalContractValue are required" }, { status: 400 });
   }
 
   const validFee: FeeStructure[] = ["FIXED_FEE", "TIME_AND_MATERIALS", "RETAINER", "SUCCESS_FEE", "MILESTONE_BASED", "HYBRID"];
   const validCycle: BillingCycle[] = ["ONE_TIME", "MONTHLY", "QUARTERLY", "ON_MILESTONE", "ON_COMPLETION"];
-  if (!validFee.includes(feeStructure)) return new Response("Invalid feeStructure", { status: 400 });
-  if (!validCycle.includes(billingCycle)) return new Response("Invalid billingCycle", { status: 400 });
+  if (!validFee.includes(feeStructure)) return Response.json({ error: "Invalid feeStructure" }, { status: 400 });
+  if (!validCycle.includes(billingCycle)) return Response.json({ error: "Invalid billingCycle" }, { status: 400 });
 
   if (typeof totalContractValue !== "number" || totalContractValue <= 0) {
-    return new Response("totalContractValue must be a positive number", { status: 400 });
+    return Response.json({ error: "totalContractValue must be a positive number" }, { status: 400 });
   }
 
   const schedule = await prisma.billingSchedule.create({
@@ -159,10 +159,10 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
 
 export const PATCH = handler(async function PATCH(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isElevated) return new Response("Only Directors and above can update billing schedules", { status: 403 });
+  if (!isElevated) return Response.json({ error: "Only Directors and above can update billing schedules" }, { status: 403 });
 
   const { id: engagementId } = await params;
 
@@ -170,14 +170,14 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
   const { scheduleId, ...updates } = body;
 
   if (!scheduleId) {
-    return new Response("scheduleId is required", { status: 400 });
+    return Response.json({ error: "scheduleId is required" }, { status: 400 });
   }
 
   // Verify schedule belongs to this engagement
   const schedule = await prisma.billingSchedule.findFirst({
     where: { id: scheduleId, engagementId },
   });
-  if (!schedule) return new Response("Billing schedule not found for this engagement", { status: 404 });
+  if (!schedule) return Response.json({ error: "Billing schedule not found for this engagement" }, { status: 404 });
 
   const allowedFields = [
     "feeStructure", "billingCycle", "totalContractValue", "currency",

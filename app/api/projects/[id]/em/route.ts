@@ -10,16 +10,16 @@ export const PATCH = handler(async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canChange = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canChange) return new Response("Forbidden", { status: 403 });
+  if (!canChange) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: projectId } = await params;
   const { engagementManagerId } = await req.json();
 
   if (!engagementManagerId) {
-    return new Response("engagementManagerId is required", { status: 400 });
+    return Response.json({ error: "engagementManagerId is required" }, { status: 400 });
   }
 
   // Verify the target user is eligible to be an EM
@@ -28,11 +28,11 @@ export const PATCH = handler(async function PATCH(
     select: { id: true, name: true, role: true },
   });
 
-  if (!newEM) return new Response("User not found", { status: 404 });
+  if (!newEM) return Response.json({ error: "User not found" }, { status: 404 });
 
   const eligibleRoles = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
   if (!eligibleRoles.includes(newEM.role)) {
-    return new Response("User is not eligible to be an Engagement Manager", { status: 400 });
+    return Response.json({ error: "User is not eligible to be an Engagement Manager" }, { status: 400 });
   }
 
   const project = await prisma.engagement.update({

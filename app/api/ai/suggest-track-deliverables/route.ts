@@ -13,13 +13,13 @@ const anthropic = new Anthropic();
  */
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canUse = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canUse) return new Response("Forbidden", { status: 403 });
+  if (!canUse) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { projectId, trackId } = await req.json();
-  if (!projectId || !trackId) return new Response("projectId and trackId required", { status: 400 });
+  if (!projectId || !trackId) return Response.json({ error: "projectId and trackId required" }, { status: 400 });
 
   const track = await prisma.engagementTrack.findFirst({
     where: { id: trackId, engagementId: projectId },
@@ -37,7 +37,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     },
   });
 
-  if (!track) return new Response("Track not found", { status: 404 });
+  if (!track) return Response.json({ error: "Track not found" }, { status: 404 });
 
   const nuruContext = await getNuruContext();
 

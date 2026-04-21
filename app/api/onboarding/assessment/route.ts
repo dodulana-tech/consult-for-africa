@@ -16,7 +16,7 @@ const VALID_SERVICE_TYPES = [
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const userId = session.user.id;
 
@@ -25,22 +25,22 @@ export const POST = handler(async function POST(req: NextRequest) {
   });
 
   if (!onboarding) {
-    return new Response("No onboarding record found", { status: 404 });
+    return Response.json({ error: "No onboarding record found" }, { status: 404 });
   }
 
   if (onboarding.status === "ACTIVE" || onboarding.status === "REJECTED") {
-    return new Response("Onboarding already completed", { status: 400 });
+    return Response.json({ error: "Onboarding already completed" }, { status: 400 });
   }
 
   if (onboarding.assessmentLevel === "LIGHT" || onboarding.assessmentLevel === "MAAROVA") {
-    return new Response("No self-assessment required for this level", { status: 400 });
+    return Response.json({ error: "No self-assessment required for this level" }, { status: 400 });
   }
 
   const body = await req.json();
   const { scores } = body;
 
   if (!scores || typeof scores !== "object") {
-    return new Response("scores object is required", { status: 400 });
+    return Response.json({ error: "scores object is required" }, { status: 400 });
   }
 
   // Validate scores: each key must be a valid ServiceType and value 1-5
@@ -54,7 +54,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   }
 
   if (Object.keys(validatedScores).length === 0) {
-    return new Response("At least one valid skill score is required", { status: 400 });
+    return Response.json({ error: "At least one valid skill score is required" }, { status: 400 });
   }
 
   // Store assessment scores merged into existing notificationPreferences

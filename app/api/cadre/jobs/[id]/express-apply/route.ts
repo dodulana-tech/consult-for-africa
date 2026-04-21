@@ -30,7 +30,7 @@ export const POST = handler(async function POST(
   const job = await prisma.cadreMandate.findFirst({
     where: { id, isPublished: true, status: "OPEN" },
   });
-  if (!job) return new Response("Job not found", { status: 404 });
+  if (!job) return Response.json({ error: "Job not found" }, { status: 404 });
 
   // Find or create a minimal professional record
   let professional = await prisma.cadreProfessional.findUnique({

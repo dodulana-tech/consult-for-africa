@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CreditCard, Loader2 } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 export default function InvoicePayButton({
   invoiceId,
@@ -28,7 +29,7 @@ export default function InvoicePayButton({
       });
 
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         alert(text || "Failed to initialize payment. Please try again.");
         return;
       }

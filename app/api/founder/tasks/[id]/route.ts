@@ -10,8 +10,8 @@ export const PATCH = handler(async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
-  if (!ALLOWED_ROLES.includes(session.user.role)) return new Response("Forbidden", { status: 403 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (!ALLOWED_ROLES.includes(session.user.role)) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
 
@@ -19,11 +19,11 @@ export const PATCH = handler(async function PATCH(
     where: { email: session.user.email! },
     select: { id: true },
   });
-  if (!profile) return new Response("Profile not found", { status: 404 });
+  if (!profile) return Response.json({ error: "Profile not found" }, { status: 404 });
 
   const task = await prisma.founderTask.findUnique({ where: { id } });
-  if (!task) return new Response("Not found", { status: 404 });
-  if (task.founderId !== profile.id) return new Response("Forbidden", { status: 403 });
+  if (!task) return Response.json({ error: "Not found" }, { status: 404 });
+  if (task.founderId !== profile.id) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
   const { status, completedAt, title, description, priority } = body;
@@ -56,8 +56,8 @@ export const DELETE = handler(async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
-  if (!ALLOWED_ROLES.includes(session.user.role)) return new Response("Forbidden", { status: 403 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (!ALLOWED_ROLES.includes(session.user.role)) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
 
@@ -65,11 +65,11 @@ export const DELETE = handler(async function DELETE(
     where: { email: session.user.email! },
     select: { id: true },
   });
-  if (!profile) return new Response("Profile not found", { status: 404 });
+  if (!profile) return Response.json({ error: "Profile not found" }, { status: 404 });
 
   const task = await prisma.founderTask.findUnique({ where: { id } });
-  if (!task) return new Response("Not found", { status: 404 });
-  if (task.founderId !== profile.id) return new Response("Forbidden", { status: 403 });
+  if (!task) return Response.json({ error: "Not found" }, { status: 404 });
+  if (task.founderId !== profile.id) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   await prisma.founderTask.delete({ where: { id } });
 

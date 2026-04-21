@@ -4,7 +4,7 @@ import { handler } from "@/lib/api-handler";
 
 export const PATCH = handler(async function PATCH(req: Request) {
   const session = await getAgentSession();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
   const { firstName, lastName, phone, company, title, state, bio, linkedinUrl, industries, salesExperience, bankName, accountNumber, accountName } = body;

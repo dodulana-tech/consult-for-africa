@@ -8,10 +8,10 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canGenerate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canGenerate) return new Response("Forbidden", { status: 403 });
+  if (!canGenerate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const {
     clientName,
@@ -36,7 +36,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   } = await req.json();
 
   if (!clientName || !problems?.length || !goals?.length) {
-    return new Response("clientName, problems, and goals are required", { status: 400 });
+    return Response.json({ error: "clientName, problems, and goals are required" }, { status: 400 });
   }
 
   const systemPrompt = `You are a senior management consultant at Consult For Africa, specializing in healthcare operations, hospital management, and health systems strengthening across Nigeria and Africa.
@@ -190,10 +190,10 @@ Return ONLY the JSON object, no other text.`;
 
 export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canView = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canView) return new Response("Forbidden", { status: 403 });
+  if (!canView) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const proposals = await prisma.generatedProposal.findMany({
     where: { createdById: session.user.id },

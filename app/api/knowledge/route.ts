@@ -5,7 +5,7 @@ import { handler } from "@/lib/api-handler";
 
 export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const projectId = searchParams.get("projectId");
@@ -47,13 +47,13 @@ export const GET = handler(async function GET(req: NextRequest) {
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { title, content, assetType, tags, isReusable, fileUrl, projectId } = await req.json();
 
-  if (!title?.trim()) return new Response("title is required", { status: 400 });
-  if (!content?.trim()) return new Response("content is required", { status: 400 });
-  if (!assetType) return new Response("assetType is required", { status: 400 });
+  if (!title?.trim()) return Response.json({ error: "title is required" }, { status: 400 });
+  if (!content?.trim()) return Response.json({ error: "content is required" }, { status: 400 });
+  if (!assetType) return Response.json({ error: "assetType is required" }, { status: 400 });
 
   const asset = await prisma.knowledgeAsset.create({
     data: {

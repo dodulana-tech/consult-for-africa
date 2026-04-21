@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, AlertCircle, CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 const ORG_TYPES = [
   { value: "private_hospital", label: "Private Hospital" },
@@ -61,7 +62,7 @@ export default function MaarovaOrgCreateForm() {
       });
 
       if (!res.ok) {
-        const msg = await res.text();
+        const msg = await parseApiError(res);
         throw new Error(msg || "Failed to create organisation");
       }
 

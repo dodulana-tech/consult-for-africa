@@ -4,7 +4,7 @@ import { handler } from "@/lib/api-handler";
 
 export const GET = handler(async function GET(req: Request) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const url = new URL(req.url);
   const brand = url.searchParams.get("brand");
@@ -28,7 +28,7 @@ export const GET = handler(async function GET(req: Request) {
 
 export const POST = handler(async function POST(req: Request) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
   const {

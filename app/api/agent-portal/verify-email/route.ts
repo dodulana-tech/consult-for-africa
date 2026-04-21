@@ -6,7 +6,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   const { token } = await req.json();
 
   if (!token?.trim()) {
-    return new Response("Verification token is required", { status: 400 });
+    return Response.json({ error: "Verification token is required" }, { status: 400 });
   }
 
   const agent = await prisma.salesAgent.findFirst({
@@ -15,7 +15,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   });
 
   if (!agent) {
-    return new Response("Invalid verification link.", { status: 400 });
+    return Response.json({ error: "Invalid verification link." }, { status: 400 });
   }
 
   if (agent.emailVerified) {

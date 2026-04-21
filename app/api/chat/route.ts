@@ -58,7 +58,7 @@ Rules:
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
@@ -66,21 +66,19 @@ export const POST = handler(async function POST(req: NextRequest) {
     "unknown";
 
   if (isRateLimited(ip)) {
-    return new Response("Too many requests. Please wait a moment and try again.", {
-      status: 429,
-    });
+    return Response.json({ error: "Too many requests. Please wait a moment and try again." }, { status: 429 });
   }
 
   let body: { messages?: Array<{ role: "user" | "assistant"; content: string }> };
   try {
     body = await req.json();
   } catch {
-    return new Response("Invalid JSON", { status: 400 });
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   const { messages } = body;
   if (!Array.isArray(messages) || messages.length === 0) {
-    return new Response("messages array required", { status: 400 });
+    return Response.json({ error: "messages array required" }, { status: 400 });
   }
 
   // Validate and sanitise messages
@@ -89,7 +87,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     .map((m) => ({ role: m.role, content: String(m.content).slice(0, 2000) }));
 
   if (sanitised.length === 0 || sanitised[sanitised.length - 1].role !== "user") {
-    return new Response("Last message must be from user", { status: 400 });
+    return Response.json({ error: "Last message must be from user" }, { status: 400 });
   }
 
   // Cap conversation length to prevent abuse

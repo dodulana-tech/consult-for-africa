@@ -10,11 +10,11 @@ export const POST = handler(async function POST(req: NextRequest) {
   const { token, password } = await req.json();
 
   if (!token || !password) {
-    return new Response("Token and password are required", { status: 400 });
+    return Response.json({ error: "Token and password are required" }, { status: 400 });
   }
 
   if (!PASSWORD_REGEX.test(password)) {
-    return new Response("Password must be at least 10 characters with uppercase, lowercase, number, and special character", { status: 400 });
+    return Response.json({ error: "Password must be at least 10 characters with uppercase, lowercase, number, and special character" }, { status: 400 });
   }
 
   const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
@@ -28,7 +28,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   });
 
   if (!contact) {
-    return new Response("Invalid or expired reset link. Please request a new one.", { status: 400 });
+    return Response.json({ error: "Invalid or expired reset link. Please request a new one." }, { status: 400 });
   }
 
   const passwordHash = await bcrypt.hash(password, 12);

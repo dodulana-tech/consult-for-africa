@@ -8,10 +8,10 @@ type Ctx = { params: Promise<{ id: string; riskId: string }> };
 
 export const PATCH = handler(async function PATCH(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: projectId, riskId } = await params;
   const { title, description, category, severity, likelihood, impact, mitigation, status } = await req.json();
@@ -40,14 +40,14 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
   let oldStatus: string | undefined;
   if (status) {
     const VALID = ["OPEN", "MITIGATING", "RESOLVED", "ACCEPTED"];
-    if (!VALID.includes(status)) return new Response("Invalid status", { status: 400 });
+    if (!VALID.includes(status)) return Response.json({ error: "Invalid status" }, { status: 400 });
     const existing = await prisma.riskItem.findUnique({ where: { id: riskId }, select: { status: true } });
     oldStatus = existing?.status;
     updates.status = status;
     if (status === "RESOLVED") updates.resolvedAt = new Date();
   }
 
-  if (Object.keys(updates).length === 0) return new Response("No valid fields", { status: 400 });
+  if (Object.keys(updates).length === 0) return Response.json({ error: "No valid fields" }, { status: 400 });
 
   const risk = await prisma.riskItem.update({
     where: { id: riskId },
@@ -83,10 +83,10 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
 
 export const DELETE = handler(async function DELETE(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: projectId, riskId } = await params;
   const risk = await prisma.riskItem.findUnique({ where: { id: riskId }, select: { title: true } });

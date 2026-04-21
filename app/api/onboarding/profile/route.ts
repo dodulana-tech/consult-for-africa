@@ -5,7 +5,7 @@ import { handler } from "@/lib/api-handler";
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const userId = session.user.id;
 
@@ -14,11 +14,11 @@ export const POST = handler(async function POST(req: NextRequest) {
   });
 
   if (!onboarding) {
-    return new Response("No onboarding record found", { status: 404 });
+    return Response.json({ error: "No onboarding record found" }, { status: 404 });
   }
 
   if (onboarding.status === "ACTIVE" || onboarding.status === "REJECTED") {
-    return new Response("Onboarding already completed", { status: 400 });
+    return Response.json({ error: "Onboarding already completed" }, { status: 400 });
   }
 
   const body = await req.json();
@@ -28,7 +28,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   } = body;
 
   if (!title?.trim() || !location?.trim() || !yearsExperience) {
-    return new Response("title, location, and yearsExperience are required", { status: 400 });
+    return Response.json({ error: "title, location, and yearsExperience are required" }, { status: 400 });
   }
 
   // Derive specialty category from primary specialty

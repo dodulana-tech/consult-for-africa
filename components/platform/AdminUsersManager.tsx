@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, X, CheckCircle2, AlertCircle, ChevronDown, User, Star, Shield, Trash2, RotateCw, Pencil, Check, Loader2 } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 type UserRow = {
   id: string;
@@ -72,7 +73,7 @@ export default function AdminUsersManager({ users: initialUsers, currentUserId }
         body: JSON.stringify(form),
       });
       if (!res.ok) {
-        setError(await res.text().catch(() => "Failed to invite user."));
+        setError(await parseApiError(res, "Failed to invite user."));
         return;
       }
       const data = await res.json();
@@ -115,7 +116,7 @@ export default function AdminUsersManager({ users: initialUsers, currentUserId }
         body: JSON.stringify({ action: "resend-invite", userId }),
       });
       if (!res.ok) {
-        setError(await res.text().catch(() => "Failed to resend invite."));
+        setError(await parseApiError(res, "Failed to resend invite."));
         return;
       }
       const user = users.find((u) => u.id === userId);
@@ -137,7 +138,7 @@ export default function AdminUsersManager({ users: initialUsers, currentUserId }
         body: JSON.stringify({ userId }),
       });
       if (!res.ok) {
-        setError(await res.text().catch(() => "Failed to delete user."));
+        setError(await parseApiError(res, "Failed to delete user."));
         return;
       }
       const user = users.find((u) => u.id === userId);
@@ -166,7 +167,7 @@ export default function AdminUsersManager({ users: initialUsers, currentUserId }
         body: JSON.stringify({ action: "update-info", userId, name: editForm.name, email: editForm.email }),
       });
       if (!res.ok) {
-        setError(await res.text().catch(() => "Failed to update user."));
+        setError(await parseApiError(res, "Failed to update user."));
         return;
       }
       const { user: updated } = await res.json();

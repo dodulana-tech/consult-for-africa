@@ -14,7 +14,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   const { email } = await req.json();
 
   if (!email?.trim()) {
-    return new Response("Email is required", { status: 400 });
+    return Response.json({ error: "Email is required" }, { status: 400 });
   }
 
   const okResponse = Response.json({ ok: true });

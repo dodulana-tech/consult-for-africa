@@ -7,13 +7,13 @@ import { handler } from "@/lib/api-handler";
 
 export const POST = handler(async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
   const { action, scores, notes, microFeedback } = await req.json();
 
   const canReview = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canReview) return new Response("Forbidden", { status: 403 });
+  if (!canReview) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   // Verify EM owns this project (Directors/Partners/Admins can review any)
   if (session.user.role === "ENGAGEMENT_MANAGER") {
@@ -21,9 +21,9 @@ export const POST = handler(async function POST(req: NextRequest, { params }: { 
       where: { id },
       select: { engagement: { select: { engagementManagerId: true } } },
     });
-    if (!deliverableCheck) return new Response("Not found", { status: 404 });
+    if (!deliverableCheck) return Response.json({ error: "Not found" }, { status: 404 });
     if (deliverableCheck.engagement.engagementManagerId !== session.user.id) {
-      return new Response("Forbidden", { status: 403 });
+      return Response.json({ error: "Forbidden" }, { status: 403 });
     }
   }
 

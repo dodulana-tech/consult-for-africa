@@ -15,10 +15,10 @@ export const POST = handler(async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isEM = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isEM) return new Response("Forbidden", { status: 403 });
+  if (!isEM) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: projectId } = await params;
 
@@ -27,11 +27,11 @@ export const POST = handler(async function POST(
     select: { id: true, name: true, startDate: true, endDate: true, engagementManagerId: true },
   });
 
-  if (!project) return new Response("Project not found", { status: 404 });
+  if (!project) return Response.json({ error: "Project not found" }, { status: 404 });
 
   // EMs can only create assignments on projects they manage
   if (session.user.role === "ENGAGEMENT_MANAGER" && project.engagementManagerId !== session.user.id) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const {
@@ -55,14 +55,14 @@ export const POST = handler(async function POST(
   } = await req.json();
 
   if (!consultantId || !role?.trim() || !rateAmount || !rateCurrency || !rateType) {
-    return new Response("consultantId, role, rateAmount, rateCurrency, and rateType are required", { status: 400 });
+    return Response.json({ error: "consultantId, role, rateAmount, rateCurrency, and rateType are required" }, { status: 400 });
   }
 
   if (!VALID_RATE_TYPES.includes(rateType)) {
-    return new Response("Invalid rateType", { status: 400 });
+    return Response.json({ error: "Invalid rateType" }, { status: 400 });
   }
   if (!VALID_CURRENCIES.includes(rateCurrency)) {
-    return new Response("Invalid rateCurrency", { status: 400 });
+    return Response.json({ error: "Invalid rateCurrency" }, { status: 400 });
   }
 
   // Check the consultant isn't already on this project
@@ -70,7 +70,7 @@ export const POST = handler(async function POST(
     where: { engagementId: projectId, consultantId, status: { in: ["ACTIVE", "PENDING", "PENDING_ACCEPTANCE"] } },
   });
   if (existing) {
-    return new Response("Consultant is already assigned to this project", { status: 409 });
+    return Response.json({ error: "Consultant is already assigned to this project" }, { status: 409 });
   }
 
   // Verify the consultantId belongs to a CONSULTANT user
@@ -79,7 +79,7 @@ export const POST = handler(async function POST(
     select: { id: true, name: true, email: true, role: true },
   });
   if (!consultant || consultant.role !== "CONSULTANT") {
-    return new Response("Invalid consultant", { status: 400 });
+    return Response.json({ error: "Invalid consultant" }, { status: 400 });
   }
 
   // Validate trackId belongs to this engagement if provided
@@ -90,7 +90,7 @@ export const POST = handler(async function POST(
       select: { id: true, name: true },
     });
     if (!trackRecord) {
-      return new Response("Track not found or does not belong to this engagement", { status: 400 });
+      return Response.json({ error: "Track not found or does not belong to this engagement" }, { status: 400 });
     }
   }
 

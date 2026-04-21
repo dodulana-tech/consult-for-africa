@@ -29,6 +29,7 @@ import {
   Ban,
   Loader2,
 } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 /* ── Types ────────────────────────────────────────────────────────────── */
 
@@ -441,7 +442,7 @@ export default function MaarovaCoachDetail({ coach, matches, invoices }: Props) 
       });
 
       if (!res.ok) {
-        const msg = await res.text();
+        const msg = await parseApiError(res);
         throw new Error(msg || "Failed to update coach");
       }
 
@@ -466,7 +467,7 @@ export default function MaarovaCoachDetail({ coach, matches, invoices }: Props) 
       const res = await fetch(`/api/maarova/admin/coaches/${coach.id}/enable`, {
         method: "POST",
       });
-      if (!res.ok) throw new Error((await res.text()) || "Failed to enable portal");
+      if (!res.ok) throw new Error((await parseApiError(res)) || "Failed to enable portal");
 
       setSuccess("Portal enabled and credentials sent.");
       router.refresh();
@@ -554,7 +555,7 @@ export default function MaarovaCoachDetail({ coach, matches, invoices }: Props) 
       });
 
       if (!res.ok) {
-        const msg = await res.text();
+        const msg = await parseApiError(res);
         throw new Error(msg || "Failed to create invoice");
       }
 
@@ -585,7 +586,7 @@ export default function MaarovaCoachDetail({ coach, matches, invoices }: Props) 
       });
 
       if (!res.ok) {
-        const msg = await res.text();
+        const msg = await parseApiError(res);
         throw new Error(msg || "Failed to update invoice");
       }
 

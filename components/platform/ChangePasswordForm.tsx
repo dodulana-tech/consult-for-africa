@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CheckCircle2, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 export default function ChangePasswordForm() {
   const [current, setCurrent] = useState("");
@@ -30,7 +31,7 @@ export default function ChangePasswordForm() {
         body: JSON.stringify({ currentPassword: current, newPassword: next }),
       });
       if (!res.ok) {
-        setError(await res.text().catch(() => "Failed to change password."));
+        setError(await parseApiError(res, "Failed to change password."));
         return;
       }
       setSuccess(true);

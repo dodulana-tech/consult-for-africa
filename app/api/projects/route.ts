@@ -11,7 +11,7 @@ import { handler } from "@/lib/api-handler";
  */
 export const GET = handler(async function GET() {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const role = session.user.role;
 
@@ -81,10 +81,10 @@ async function generateEngagementCode(): Promise<string> {
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canCreate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canCreate) return new Response("Forbidden", { status: 403 });
+  if (!canCreate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
 
@@ -104,22 +104,22 @@ export const POST = handler(async function POST(req: NextRequest) {
 
   // Validate required fields
   if (!clientId || !name || !serviceType) {
-    return new Response("clientId, name, and serviceType are required", { status: 400 });
+    return Response.json({ error: "clientId, name, and serviceType are required" }, { status: 400 });
   }
 
   if (!VALID_SERVICE_TYPES.includes(serviceType)) {
-    return new Response("Invalid serviceType", { status: 400 });
+    return Response.json({ error: "Invalid serviceType" }, { status: 400 });
   }
 
   const engagementType: EngagementType = rawEngagementType ?? "PROJECT";
   if (!VALID_ENGAGEMENT_TYPES.includes(engagementType)) {
-    return new Response("Invalid engagementType. Must be one of: PROJECT, RETAINER, SECONDMENT, FRACTIONAL, TRANSFORMATION, TRANSACTION", { status: 400 });
+    return Response.json({ error: "Invalid engagementType. Must be one of: PROJECT, RETAINER, SECONDMENT, FRACTIONAL, TRANSFORMATION, TRANSACTION" }, { status: 400 });
   }
 
   // For RETAINER, startDate is required but endDate is optional
   // For PROJECT, keep existing validation
   if (engagementType === "RETAINER" && !startDate) {
-    return new Response("startDate is required for RETAINER engagements", { status: 400 });
+    return Response.json({ error: "startDate is required for RETAINER engagements" }, { status: 400 });
   }
 
   // If EM creating, default to themselves
@@ -127,7 +127,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     (session.user.role === "ENGAGEMENT_MANAGER" ? session.user.id : session.user.id);
 
   if (!emId) {
-    return new Response("engagementManagerId is required", { status: 400 });
+    return Response.json({ error: "engagementManagerId is required" }, { status: 400 });
   }
 
   // Generate engagement code

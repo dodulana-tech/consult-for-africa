@@ -144,7 +144,7 @@ export const POST = handler(async function POST(
   const { responses } = body;
 
   if (!responses || typeof responses !== "object") {
-    return new Response("responses object required", { status: 400 });
+    return Response.json({ error: "responses object required" }, { status: 400 });
   }
 
   // Save responses and mark complete

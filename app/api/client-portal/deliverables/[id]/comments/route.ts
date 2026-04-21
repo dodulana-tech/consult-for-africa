@@ -9,7 +9,7 @@ export const GET = handler(async function GET(
 ) {
   const session = await getClientPortalSession();
   if (!session) {
-    return new Response("Unauthorized", { status: 401 });
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -21,11 +21,11 @@ export const GET = handler(async function GET(
   });
 
   if (!deliverable) {
-    return new Response("Not found", { status: 404 });
+    return Response.json({ error: "Not found" }, { status: 404 });
   }
 
   if (deliverable.engagement.clientId !== session.clientId) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const comments = await prisma.deliverableComment.findMany({
@@ -52,7 +52,7 @@ export const POST = handler(async function POST(
 ) {
   const session = await getClientPortalSession();
   if (!session) {
-    return new Response("Unauthorized", { status: 401 });
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -64,11 +64,11 @@ export const POST = handler(async function POST(
   });
 
   if (!deliverable) {
-    return new Response("Not found", { status: 404 });
+    return Response.json({ error: "Not found" }, { status: 404 });
   }
 
   if (deliverable.engagement.clientId !== session.clientId) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const body = await req.json();
@@ -76,11 +76,11 @@ export const POST = handler(async function POST(
   const parentId = body.parentId ?? null;
 
   if (!content) {
-    return new Response("Comment content is required", { status: 400 });
+    return Response.json({ error: "Comment content is required" }, { status: 400 });
   }
 
   if (content.length > 5000) {
-    return new Response("Comment must be under 5000 characters", { status: 400 });
+    return Response.json({ error: "Comment must be under 5000 characters" }, { status: 400 });
   }
 
   // If replying, verify parent comment exists on same deliverable
@@ -90,7 +90,7 @@ export const POST = handler(async function POST(
       select: { deliverableId: true },
     });
     if (!parent || parent.deliverableId !== id) {
-      return new Response("Parent comment not found", { status: 400 });
+      return Response.json({ error: "Parent comment not found" }, { status: 400 });
     }
   }
 

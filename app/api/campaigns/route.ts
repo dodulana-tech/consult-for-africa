@@ -4,7 +4,7 @@ import { handler } from "@/lib/api-handler";
 
 export const GET = handler(async function GET() {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const campaigns = await prisma.campaign.findMany({
     orderBy: { updatedAt: "desc" },
@@ -21,7 +21,7 @@ export const GET = handler(async function GET() {
 
 export const POST = handler(async function POST(req: Request) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { name, description, brand, objective, startDate, endDate, tags } = await req.json();
 

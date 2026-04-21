@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, CheckCircle } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 interface ExpansionRequest {
   id: string;
@@ -56,7 +57,7 @@ export default function ExpansionRequestsClient({
       });
 
       if (!res.ok) {
-        const msg = await res.text();
+        const msg = await parseApiError(res);
         throw new Error(msg || "Failed to update status");
       }
 

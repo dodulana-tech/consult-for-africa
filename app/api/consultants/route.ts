@@ -8,7 +8,7 @@ import { handler } from "@/lib/api-handler";
  */
 export const GET = handler(async function GET() {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const consultants = await prisma.user.findMany({
     where: { role: "CONSULTANT" },

@@ -7,7 +7,7 @@ type Ctx = { params: Promise<{ id: string }> };
 
 export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
   const methodology = await prisma.methodologyTemplate.findUnique({
@@ -21,6 +21,6 @@ export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx
     },
   });
 
-  if (!methodology) return new Response("Not found", { status: 404 });
+  if (!methodology) return Response.json({ error: "Not found" }, { status: 404 });
   return Response.json({ methodology });
 });

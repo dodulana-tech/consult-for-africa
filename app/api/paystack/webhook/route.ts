@@ -14,7 +14,7 @@ import { handler } from "@/lib/api-handler";
 export const POST = handler(async function POST(req: Request) {
   const secretKey = process.env.PAYSTACK_SECRET_KEY;
   if (!secretKey) {
-    return new Response("Webhook not configured", { status: 500 });
+    return Response.json({ error: "Webhook not configured" }, { status: 500 });
   }
 
   // Read raw body for HMAC verification
@@ -22,7 +22,7 @@ export const POST = handler(async function POST(req: Request) {
   const signature = req.headers.get("x-paystack-signature");
 
   if (!signature) {
-    return new Response("Missing signature", { status: 400 });
+    return Response.json({ error: "Missing signature" }, { status: 400 });
   }
 
   // Verify HMAC-SHA512 signature
@@ -32,7 +32,7 @@ export const POST = handler(async function POST(req: Request) {
 
   if (signature !== expectedSignature) {
     console.error("[paystack/webhook] Invalid signature");
-    return new Response("Invalid signature", { status: 401 });
+    return Response.json({ error: "Invalid signature" }, { status: 401 });
   }
 
   // Parse the event
@@ -58,7 +58,7 @@ export const POST = handler(async function POST(req: Request) {
   try {
     event = JSON.parse(rawBody);
   } catch {
-    return new Response("Invalid JSON", { status: 400 });
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   // Return 200 immediately for non-relevant events

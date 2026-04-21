@@ -8,13 +8,13 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canScore = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canScore) return new Response("Forbidden", { status: 403 });
+  if (!canScore) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { deliverableId } = await req.json();
-  if (!deliverableId) return new Response("deliverableId required", { status: 400 });
+  if (!deliverableId) return Response.json({ error: "deliverableId required" }, { status: 400 });
 
   const deliverable = await prisma.deliverable.findUnique({
     where: { id: deliverableId },
@@ -41,7 +41,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     },
   });
 
-  if (!deliverable) return new Response("Deliverable not found", { status: 404 });
+  if (!deliverable) return Response.json({ error: "Deliverable not found" }, { status: 404 });
 
   const consultant = deliverable.assignment?.consultant;
   const profile = consultant?.consultantProfile;
@@ -114,7 +114,7 @@ NEEDS_WORK = Below 3 or critical red flags`;
     aiScore = JSON.parse(jsonMatch[0]);
   } catch (err) {
     console.error("AI scoring error:", err);
-    return new Response("Failed to score deliverable. Please try again.", { status: 500 });
+    return Response.json({ error: "Failed to score deliverable. Please try again." }, { status: 500 });
   }
 
   return Response.json({ score: aiScore, deliverableId });

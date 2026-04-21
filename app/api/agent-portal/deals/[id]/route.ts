@@ -37,7 +37,7 @@ function isValidTransition(from: string, to: string): boolean {
 
 export const PATCH = handler(async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAgentSession();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
   const body = await req.json();
@@ -48,7 +48,7 @@ export const PATCH = handler(async function PATCH(req: Request, { params }: { pa
   });
 
   if (!deal || deal.agentId !== session.sub) {
-    return new Response("Not found", { status: 404 });
+    return Response.json({ error: "Not found" }, { status: 404 });
   }
 
   const { stage, dealValue, closedValue, proofDocUrl, notes, prospectName, prospectOrg, prospectEmail, prospectPhone } = body;

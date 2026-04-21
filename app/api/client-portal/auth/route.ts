@@ -8,7 +8,7 @@ import { handler } from "@/lib/api-handler";
 export const POST = handler(async function POST(req: NextRequest) {
   const { email, password } = await req.json();
   if (!email || !password)
-    return new Response("Email and password required", { status: 400 });
+    return Response.json({ error: "Email and password required" }, { status: 400 });
 
   const contact = await prisma.clientContact.findUnique({
     where: { email: (email as string).toLowerCase() },
@@ -23,13 +23,11 @@ export const POST = handler(async function POST(req: NextRequest) {
   });
 
   if (!contact || !contact.isPortalEnabled || !contact.passwordHash) {
-    return new Response("Invalid credentials or portal not enabled", {
-      status: 401,
-    });
+    return Response.json({ error: "Invalid credentials or portal not enabled" }, { status: 401 });
   }
 
   const valid = await bcrypt.compare(password as string, contact.passwordHash);
-  if (!valid) return new Response("Invalid credentials", { status: 401 });
+  if (!valid) return Response.json({ error: "Invalid credentials" }, { status: 401 });
 
   const token = signClientPortalJWT({
     sub: contact.id,

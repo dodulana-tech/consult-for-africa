@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { X } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 interface Props {
   contactId: string;
@@ -44,7 +45,7 @@ export default function EnablePartnerPortalModal({
       });
 
       if (!res.ok) {
-        const msg = await res.text();
+        const msg = await parseApiError(res);
         setError(msg || "Failed to set password.");
         return;
       }

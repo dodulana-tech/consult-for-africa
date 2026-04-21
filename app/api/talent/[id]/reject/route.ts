@@ -22,12 +22,12 @@ export const GET = handler(async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAuthorized = ["PARTNER", "ADMIN", "DIRECTOR", "ENGAGEMENT_MANAGER"].includes(
     session.user.role
   );
-  if (!isAuthorized) return new Response("Forbidden", { status: 403 });
+  if (!isAuthorized) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
 
@@ -45,7 +45,7 @@ export const GET = handler(async function GET(
     },
   });
 
-  if (!application) return new Response("Not found", { status: 404 });
+  if (!application) return Response.json({ error: "Not found" }, { status: 404 });
 
   const segment = classifyRejection({
     yearsExperience: application.yearsExperience,
@@ -76,12 +76,12 @@ export const POST = handler(async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAuthorized = ["PARTNER", "ADMIN", "DIRECTOR", "ENGAGEMENT_MANAGER"].includes(
     session.user.role
   );
-  if (!isAuthorized) return new Response("Forbidden", { status: 403 });
+  if (!isAuthorized) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
   const body = await req.json();
@@ -92,14 +92,14 @@ export const POST = handler(async function POST(
     where: { id },
   });
 
-  if (!application) return new Response("Not found", { status: 404 });
+  if (!application) return Response.json({ error: "Not found" }, { status: 404 });
 
   if (application.status === "REJECTED") {
-    return new Response("Application already rejected", { status: 409 });
+    return Response.json({ error: "Application already rejected" }, { status: 409 });
   }
 
   if (application.convertedToUserId) {
-    return new Response("Application already converted to a user", { status: 409 });
+    return Response.json({ error: "Application already converted to a user" }, { status: 409 });
   }
 
   // Determine segment

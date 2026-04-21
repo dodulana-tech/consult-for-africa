@@ -56,12 +56,12 @@ const PREFIX_MAP: Record<string, string> = {
 
 export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isElevated = ELEVATED_ROLES.includes(session.user.role as typeof ELEVATED_ROLES[number]);
   const isEM = session.user.role === "ENGAGEMENT_MANAGER";
 
-  if (!isElevated && !isEM) return new Response("Forbidden", { status: 403 });
+  if (!isElevated && !isEM) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
   const clientId = searchParams.get("clientId");
@@ -157,10 +157,10 @@ interface LineItemInput {
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canCreate = EM_AND_ABOVE.includes(session.user.role as typeof EM_AND_ABOVE[number]);
-  if (!canCreate) return new Response("Forbidden", { status: 403 });
+  if (!canCreate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const parsed = createInvoiceSchema.safeParse(await req.json());
   if (!parsed.success) {
@@ -192,7 +192,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   const engId = engagementId || projectId || null;
 
   const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } });
-  if (!client) return new Response("Client not found", { status: 404 });
+  if (!client) return Response.json({ error: "Client not found" }, { status: 404 });
 
   // Compute amounts using Decimal to avoid floating-point precision loss
   const subtotal = (lineItems as LineItemInput[]).reduce(
@@ -325,7 +325,7 @@ export const POST = handler(async function POST(req: NextRequest) {
 
       if (!isRetryable || attempts >= 10) {
         console.error("[invoices] Failed to create invoice after retries:", err);
-        return new Response("Failed to generate unique invoice number. Try again.", { status: 500 });
+        return Response.json({ error: "Failed to generate unique invoice number. Try again." }, { status: 500 });
       }
       // Brief exponential backoff before retry
       await new Promise((r) => setTimeout(r, 50 * attempts));
@@ -333,7 +333,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   }
 
   if (!invoice) {
-    return new Response("Failed to generate unique invoice number. Try again.", { status: 500 });
+    return Response.json({ error: "Failed to generate unique invoice number. Try again." }, { status: 500 });
   }
 
   return Response.json(serialise(invoice as unknown as Record<string, unknown>), { status: 201 });

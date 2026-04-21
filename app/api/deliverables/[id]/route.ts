@@ -6,10 +6,10 @@ import { handler } from "@/lib/api-handler";
 
 export const PATCH = handler(async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
   const body = await req.json();
@@ -19,11 +19,11 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
     where: { id },
     select: { engagementId: true, engagement: { select: { engagementManagerId: true } } },
   });
-  if (!existing) return new Response("Deliverable not found", { status: 404 });
+  if (!existing) return Response.json({ error: "Deliverable not found" }, { status: 404 });
 
   // EMs can only edit deliverables on their projects
   if (session.user.role === "ENGAGEMENT_MANAGER" && existing.engagement.engagementManagerId !== session.user.id) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const data: Record<string, unknown> = {};
@@ -68,10 +68,10 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
 
 export const DELETE = handler(async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canDelete = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canDelete) return new Response("Forbidden", { status: 403 });
+  if (!canDelete) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
 
@@ -79,7 +79,7 @@ export const DELETE = handler(async function DELETE(_req: NextRequest, { params 
     where: { id },
     select: { name: true, engagementId: true },
   });
-  if (!deliverable) return new Response("Deliverable not found", { status: 404 });
+  if (!deliverable) return Response.json({ error: "Deliverable not found" }, { status: 404 });
 
   await prisma.deliverable.delete({ where: { id } });
 

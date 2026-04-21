@@ -8,11 +8,11 @@ export const POST = handler(async function POST(req: NextRequest) {
   const { token, password } = await req.json();
 
   if (!token || !password) {
-    return new Response("Token and password are required", { status: 400 });
+    return Response.json({ error: "Token and password are required" }, { status: 400 });
   }
 
   if (password.length < 8) {
-    return new Response("Password must be at least 8 characters", { status: 400 });
+    return Response.json({ error: "Password must be at least 8 characters" }, { status: 400 });
   }
 
   const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
@@ -26,7 +26,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   });
 
   if (!agent) {
-    return new Response("Invalid or expired reset link. Please request a new one.", { status: 400 });
+    return Response.json({ error: "Invalid or expired reset link. Please request a new one." }, { status: 400 });
   }
 
   const passwordHash = await bcrypt.hash(password, 12);

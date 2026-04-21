@@ -19,7 +19,7 @@ const createReferralSchema = z.object({
 
 export const GET = handler(async function GET() {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
 
@@ -43,7 +43,7 @@ export const GET = handler(async function GET() {
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const parsed = createReferralSchema.safeParse(await req.json());
   if (!parsed.success) {

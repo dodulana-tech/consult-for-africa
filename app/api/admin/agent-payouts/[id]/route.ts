@@ -5,10 +5,10 @@ import { handler } from "@/lib/api-handler";
 
 export const PATCH = handler(async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+  if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
   const body = await req.json();

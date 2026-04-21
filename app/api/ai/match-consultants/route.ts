@@ -113,10 +113,10 @@ function scoreCost(
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canMatch = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canMatch) return new Response("Forbidden", { status: 403 });
+  if (!canMatch) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const {
     projectId,
@@ -126,7 +126,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     durationWeeks = 12,
   } = await req.json();
 
-  if (!projectId) return new Response("projectId required", { status: 400 });
+  if (!projectId) return Response.json({ error: "projectId required" }, { status: 400 });
 
   // Optionally fetch track context to enrich matching
   let trackContext = "";
@@ -157,7 +157,7 @@ export const POST = handler(async function POST(req: NextRequest) {
       client: { select: { name: true, type: true } },
     },
   });
-  if (!project) return new Response("Project not found", { status: 404 });
+  if (!project) return Response.json({ error: "Project not found" }, { status: 404 });
 
   // Fetch available consultants not already assigned
   const alreadyAssigned = await prisma.assignment.findMany({

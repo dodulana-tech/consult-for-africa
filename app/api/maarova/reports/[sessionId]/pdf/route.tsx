@@ -903,7 +903,7 @@ export async function GET(
 ) {
   const auth = await getMaarovaSession();
   if (!auth) {
-    return new Response("Unauthorized", { status: 401 });
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { sessionId } = await params;
@@ -921,12 +921,12 @@ export async function GET(
   });
 
   if (!session || session.userId !== auth.sub) {
-    return new Response("Not found", { status: 404 });
+    return Response.json({ error: "Not found" }, { status: 404 });
   }
 
   const report = session.report;
   if (!report || report.status !== "READY") {
-    return new Response("Report not ready", { status: 400 });
+    return Response.json({ error: "Report not ready" }, { status: 400 });
   }
 
   // Load logo

@@ -7,14 +7,14 @@ import { handler } from "@/lib/api-handler";
 
 export const PATCH = handler(async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
   const { action, reason } = await req.json();
   // action: "approve" | "reject"
 
   const canApprove = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canApprove) return new Response("Forbidden", { status: 403 });
+  if (!canApprove) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   // EMs can only approve entries in their projects
   if (session.user.role === "ENGAGEMENT_MANAGER") {
@@ -22,9 +22,9 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
       where: { id },
       select: { assignment: { select: { engagement: { select: { engagementManagerId: true } } } } },
     });
-    if (!entryCheck) return new Response("Not found", { status: 404 });
+    if (!entryCheck) return Response.json({ error: "Not found" }, { status: 404 });
     if (entryCheck.assignment.engagement.engagementManagerId !== session.user.id) {
-      return new Response("Forbidden", { status: 403 });
+      return Response.json({ error: "Forbidden" }, { status: 403 });
     }
   }
 

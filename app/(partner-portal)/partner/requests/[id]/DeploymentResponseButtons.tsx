@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { parseApiError } from "@/lib/parse-api-error";
 
 export default function DeploymentResponseButtons({
   requestId,
@@ -32,7 +33,7 @@ export default function DeploymentResponseButtons({
       });
 
       if (!res.ok) {
-        const msg = await res.text();
+        const msg = await parseApiError(res);
         setError(msg || "Failed to submit response.");
         return;
       }

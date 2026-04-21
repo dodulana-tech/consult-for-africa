@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { parseApiError } from "@/lib/parse-api-error";
 
 export default function AgentLoginPage() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function AgentLoginPage() {
       });
 
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setError(text || "Invalid credentials");
         return;
       }

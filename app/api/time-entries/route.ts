@@ -6,7 +6,7 @@ import { handler } from "@/lib/api-handler";
 
 export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
@@ -52,15 +52,15 @@ export const GET = handler(async function GET(req: NextRequest) {
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canLog = ["CONSULTANT", "ENGAGEMENT_MANAGER"].includes(session.user.role);
-  if (!canLog) return new Response("Forbidden", { status: 403 });
+  if (!canLog) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { assignmentId, date, description, hours: inputHours, periodMonth, periodYear, trackId: inputTrackId } = await req.json();
 
   if (!assignmentId || !date) {
-    return new Response("Invalid input", { status: 400 });
+    return Response.json({ error: "Invalid input" }, { status: 400 });
   }
 
   const assignment = await prisma.assignment.findUnique({
@@ -83,7 +83,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     },
   });
 
-  if (!assignment) return new Response("Assignment not found", { status: 404 });
+  if (!assignment) return Response.json({ error: "Assignment not found" }, { status: 404 });
 
   // Resolve trackId: use explicit input, fall back to assignment's trackId
   const resolvedTrackId = inputTrackId ?? assignment.trackId ?? null;
@@ -96,7 +96,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     case "HOURLY": {
       const h = Number(inputHours);
       if (!h || h < 0.25 || h > 24) {
-        return new Response("Hours must be between 0.25 and 24", { status: 400 });
+        return Response.json({ error: "Hours must be between 0.25 and 24" }, { status: 400 });
       }
       hoursWorked = h;
       hours = h;
@@ -110,7 +110,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     }
     case "MONTHLY": {
       if (!periodMonth || !periodYear) {
-        return new Response("periodMonth and periodYear required for monthly rate", { status: 400 });
+        return Response.json({ error: "periodMonth and periodYear required for monthly rate" }, { status: 400 });
       }
       hours = 0;
       billableAmount = Number(assignment.rateAmount);

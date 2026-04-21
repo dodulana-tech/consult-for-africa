@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, Loader2, Star, AlertTriangle, CheckCircle } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 const STATUS_OPTIONS = [
   "SUBMITTED", "AI_SCREENED", "UNDER_REVIEW", "SHORTLISTED",
@@ -114,7 +115,7 @@ export default function TalentApplicationDetail({ application: app }: Props) {
         body: JSON.stringify({ assessmentLevel }),
       });
       if (!res.ok) {
-        const msg = await res.text().catch(() => "Failed to approve");
+        const msg = await parseApiError(res, "Failed to approve");
         setApproveError(msg);
         return;
       }
@@ -134,7 +135,7 @@ export default function TalentApplicationDetail({ application: app }: Props) {
     try {
       const res = await fetch(`/api/talent/${app.id}/reject`);
       if (!res.ok) {
-        setRejectError(await res.text());
+        setRejectError(await parseApiError(res));
         return;
       }
       const data = await res.json();
@@ -160,7 +161,7 @@ export default function TalentApplicationDetail({ application: app }: Props) {
         }),
       });
       if (!res.ok) {
-        setRejectError(await res.text());
+        setRejectError(await parseApiError(res));
         return;
       }
       setRejectSuccess(true);

@@ -12,10 +12,10 @@ const VALID_ROLES: UserRole[] = ["CONSULTANT", "ENGAGEMENT_MANAGER", "DIRECTOR",
 
 export const GET = handler(async function GET() {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+  if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const users = await prisma.user.findMany({
     select: {
@@ -43,25 +43,25 @@ export const GET = handler(async function GET() {
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+  if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { name, email: rawEmail, role, sendWelcomeEmail, assessmentLevel } = await req.json();
 
   if (!name?.trim() || !rawEmail?.trim() || !role) {
-    return new Response("name, email, and role are required", { status: 400 });
+    return Response.json({ error: "name, email, and role are required" }, { status: 400 });
   }
 
   if (!VALID_ROLES.includes(role)) {
-    return new Response("Invalid role", { status: 400 });
+    return Response.json({ error: "Invalid role" }, { status: 400 });
   }
 
   const email = rawEmail.trim().toLowerCase();
 
   const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) return new Response("Email already registered", { status: 409 });
+  if (existing) return Response.json({ error: "Email already registered" }, { status: 409 });
 
   // Cryptographically secure temporary password
   const tempPassword = randomBytes(12).toString("base64url") + "!1A";
@@ -122,23 +122,23 @@ export const POST = handler(async function POST(req: NextRequest) {
 
 export const PATCH = handler(async function PATCH(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+  if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
 
   // Resend invite flow
   if (body.action === "resend-invite") {
     const { userId } = body;
-    if (!userId) return new Response("userId required", { status: 400 });
+    if (!userId) return Response.json({ error: "userId required" }, { status: 400 });
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, name: true, email: true, role: true },
     });
-    if (!user) return new Response("User not found", { status: 404 });
+    if (!user) return Response.json({ error: "User not found" }, { status: 404 });
 
     const tempPassword = randomBytes(12).toString("base64url") + "!1A";
     const passwordHash = await bcrypt.hash(tempPassword, 12);
@@ -152,7 +152,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest) {
       await sendInvite(user.email, user.name, user.role, tempPassword);
     } catch (err) {
       console.error("Failed to resend invite email:", err);
-      return new Response("Failed to send email", { status: 500 });
+      return Response.json({ error: "Failed to send email" }, { status: 500 });
     }
 
     await logAudit({
@@ -170,18 +170,18 @@ export const PATCH = handler(async function PATCH(req: NextRequest) {
   // Update user info flow
   if (body.action === "update-info") {
     const { userId, name, email } = body;
-    if (!userId) return new Response("userId required", { status: 400 });
+    if (!userId) return Response.json({ error: "userId required" }, { status: 400 });
 
     const updateData: Record<string, string> = {};
     if (name?.trim()) updateData.name = name.trim();
     if (email?.trim()) {
       const normalizedEmail = email.trim().toLowerCase();
       const existing = await prisma.user.findFirst({ where: { email: normalizedEmail, NOT: { id: userId } } });
-      if (existing) return new Response("Email already in use by another user", { status: 409 });
+      if (existing) return Response.json({ error: "Email already in use by another user" }, { status: 409 });
       updateData.email = normalizedEmail;
     }
 
-    if (Object.keys(updateData).length === 0) return new Response("No fields to update", { status: 400 });
+    if (Object.keys(updateData).length === 0) return Response.json({ error: "No fields to update" }, { status: 400 });
 
     const updated = await prisma.user.update({
       where: { id: userId },
@@ -203,10 +203,10 @@ export const PATCH = handler(async function PATCH(req: NextRequest) {
 
   // Role change flow
   const { userId, role } = body;
-  if (!userId || !role) return new Response("userId and role required", { status: 400 });
-  if (!VALID_ROLES.includes(role)) return new Response("Invalid role", { status: 400 });
+  if (!userId || !role) return Response.json({ error: "userId and role required" }, { status: 400 });
+  if (!VALID_ROLES.includes(role)) return Response.json({ error: "Invalid role" }, { status: 400 });
 
-  if (userId === session.user.id) return new Response("Cannot change your own role", { status: 400 });
+  if (userId === session.user.id) return Response.json({ error: "Cannot change your own role" }, { status: 400 });
 
   const updated = await prisma.user.update({
     where: { id: userId },
@@ -219,25 +219,25 @@ export const PATCH = handler(async function PATCH(req: NextRequest) {
 
 export const DELETE = handler(async function DELETE(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+  if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { userId } = await req.json();
-  if (!userId) return new Response("userId required", { status: 400 });
+  if (!userId) return Response.json({ error: "userId required" }, { status: 400 });
 
-  if (userId === session.user.id) return new Response("Cannot delete yourself", { status: 400 });
+  if (userId === session.user.id) return Response.json({ error: "Cannot delete yourself" }, { status: 400 });
 
   const target = await prisma.user.findUnique({
     where: { id: userId },
     select: { id: true, name: true, email: true, role: true },
   });
-  if (!target) return new Response("User not found", { status: 404 });
+  if (!target) return Response.json({ error: "User not found" }, { status: 404 });
 
   // Prevent deleting other partners/admins unless you are ADMIN
   if (["PARTNER", "ADMIN"].includes(target.role) && session.user.role !== "ADMIN") {
-    return new Response("Only admins can remove partners or admins", { status: 403 });
+    return Response.json({ error: "Only admins can remove partners or admins" }, { status: 403 });
   }
 
   // Delete related records that aren't cascade-deleted

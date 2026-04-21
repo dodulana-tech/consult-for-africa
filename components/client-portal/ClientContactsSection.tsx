@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Users, Shield, CheckCircle, Mail, Phone, Plus, X, Pencil, Send } from "lucide-react";
 import EnablePortalModal from "./EnablePortalModal";
+import { parseApiError } from "@/lib/parse-api-error";
 
 interface Contact {
   id: string;
@@ -74,7 +75,7 @@ export default function ClientContactsSection({
         }),
       });
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setFormError(text || "Failed to create contact.");
         setProvisioning(false);
         return;
@@ -126,7 +127,7 @@ export default function ClientContactsSection({
         body: JSON.stringify({ contactId: editingId, ...form }),
       });
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setFormError(text || "Failed to update contact.");
         return;
       }
@@ -155,7 +156,7 @@ export default function ClientContactsSection({
         body: JSON.stringify(form),
       });
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setFormError(text || "Failed to add contact.");
         return;
       }

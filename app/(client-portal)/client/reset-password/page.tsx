@@ -4,6 +4,7 @@ import { Suspense, useState, FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle, AlertCircle, Lock, Loader2 } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -38,7 +39,7 @@ function ResetPasswordForm() {
         body: JSON.stringify({ token, password }),
       });
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setError(text || "Failed to reset password.");
         return;
       }

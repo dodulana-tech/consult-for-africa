@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, Star, Clock, DollarSign, Zap, User, MapPin, ChevronDown, ChevronUp, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 type ScoreBreakdown = {
   expertise: number;
@@ -130,7 +131,7 @@ export default function ConsultantMatchingWidget({ projectId, projectServiceType
         body: JSON.stringify({ projectId, serviceType: projectServiceType }),
       });
       if (!res.ok) {
-        const text = await res.text().catch(() => "");
+        const text = await parseApiError(res, "");
         setError(text || "Matching failed. Please try again.");
         return;
       }
@@ -187,7 +188,7 @@ export default function ConsultantMatchingWidget({ projectId, projectServiceType
         }),
       });
       if (!res.ok) {
-        const text = await res.text().catch(() => "");
+        const text = await parseApiError(res, "");
         setAssignError((prev) => ({ ...prev, [m.consultantId]: text || "Assignment failed." }));
         return;
       }

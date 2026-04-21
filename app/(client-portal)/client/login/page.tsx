@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { parseApiError } from "@/lib/parse-api-error";
 
 export default function ClientPortalLoginPage() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function ClientPortalLoginPage() {
       });
 
       if (!res.ok) {
-        const msg = await res.text();
+        const msg = await parseApiError(res);
         setError(msg || "Login failed. Please check your credentials.");
         return;
       }

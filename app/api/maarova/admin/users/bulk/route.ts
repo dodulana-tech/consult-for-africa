@@ -17,10 +17,10 @@ interface UserRow {
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+  if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
   const { organisationId, users } = body as {

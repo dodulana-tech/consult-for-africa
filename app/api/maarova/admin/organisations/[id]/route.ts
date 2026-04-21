@@ -11,17 +11,17 @@ export const GET = handler(async function GET(
 ) {
   const { id } = await params;
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+  if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const org = await prisma.maarovaOrganisation.findUnique({
     where: { id },
     include: { _count: { select: { users: true } } },
   });
 
-  if (!org) return new Response("Organisation not found", { status: 404 });
+  if (!org) return Response.json({ error: "Organisation not found" }, { status: 404 });
 
   return Response.json({
     ...org,
@@ -36,13 +36,13 @@ export const PUT = handler(async function PUT(
 ) {
   const { id } = await params;
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+  if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const existing = await prisma.maarovaOrganisation.findUnique({ where: { id } });
-  if (!existing) return new Response("Organisation not found", { status: 404 });
+  if (!existing) return Response.json({ error: "Organisation not found" }, { status: 404 });
 
   const body = await req.json();
   const {
@@ -60,10 +60,7 @@ export const PUT = handler(async function PUT(
   } = body;
 
   if (stream !== undefined && !VALID_STREAMS.includes(stream)) {
-    return new Response(
-      `Invalid stream. Must be one of: ${VALID_STREAMS.join(", ")}`,
-      { status: 400 },
-    );
+    return Response.json({ error: `Invalid stream. Must be one of: ${VALID_STREAMS.join(", ")}` }, { status: 400 });
   }
 
   const data: Record<string, unknown> = {};
@@ -80,7 +77,7 @@ export const PUT = handler(async function PUT(
   if (notes !== undefined) data.notes = notes?.trim() || null;
 
   if (Object.keys(data).length === 0) {
-    return new Response("No fields to update", { status: 400 });
+    return Response.json({ error: "No fields to update" }, { status: 400 });
   }
 
   try {

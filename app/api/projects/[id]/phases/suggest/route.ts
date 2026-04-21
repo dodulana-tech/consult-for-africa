@@ -8,10 +8,10 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export const POST = handler(async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: projectId } = await params;
 
@@ -32,7 +32,7 @@ export const POST = handler(async function POST(_req: NextRequest, { params }: {
     },
   });
 
-  if (!project) return new Response("Not found", { status: 404 });
+  if (!project) return Response.json({ error: "Not found" }, { status: 404 });
 
   const durationWeeks = Math.round(
     ((project.endDate?.getTime() ?? (project.startDate.getTime() + 365 * 86400000)) - project.startDate.getTime()) / (7 * 86400000)
@@ -95,6 +95,6 @@ No em dashes. Be specific and practical.`;
     return Response.json({ suggestions: phasesWithDates });
   } catch (err) {
     console.error("Phase suggestion error:", err);
-    return new Response("AI suggestions unavailable", { status: 500 });
+    return Response.json({ error: "AI suggestions unavailable" }, { status: 500 });
   }
 });

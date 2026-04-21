@@ -12,10 +12,10 @@ export const POST = handler(async function POST(
   { params }: { params: Promise<{ id: string; frameworkId: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: projectId, frameworkId } = await params;
 
@@ -39,7 +39,7 @@ export const POST = handler(async function POST(
     },
   });
 
-  if (!pf || pf.engagement === null) return new Response("Not found", { status: 404 });
+  if (!pf || pf.engagement === null) return Response.json({ error: "Not found" }, { status: 404 });
 
   const project = pf.engagement;
   const dimensions = pf.framework.dimensions;
@@ -110,6 +110,6 @@ Be specific to this project. Use Nigerian healthcare context. No em dashes. No g
     });
   } catch (err) {
     console.error("Framework generation error:", err);
-    return new Response("AI analysis unavailable", { status: 500 });
+    return Response.json({ error: "AI analysis unavailable" }, { status: 500 });
   }
 });

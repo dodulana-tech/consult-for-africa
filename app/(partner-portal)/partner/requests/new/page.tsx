@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { parseApiError } from "@/lib/parse-api-error";
 
 const SERVICE_AREAS = [
   "Hospital Operations",
@@ -68,7 +69,7 @@ export default function NewStaffingRequestPage() {
       });
 
       if (!res.ok) {
-        const msg = await res.text();
+        const msg = await parseApiError(res);
         setError(msg || "Failed to submit request.");
         return;
       }

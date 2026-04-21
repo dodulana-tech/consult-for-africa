@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X, ChevronDown, Library } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 type Client = { id: string; name: string; currency: string };
 type EM = { id: string; name: string };
@@ -191,7 +192,7 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
         body: JSON.stringify(body),
       });
       if (!res.ok) {
-        setError(await res.text().catch(() => "Failed to create engagement."));
+        setError(await parseApiError(res, "Failed to create engagement."));
         return;
       }
       const project = await res.json();

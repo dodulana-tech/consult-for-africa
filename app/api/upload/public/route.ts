@@ -71,7 +71,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return new Response("Invalid JSON body", { status: 400 });
+    return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
   const { filename, contentType, folder, fileSize } = body;

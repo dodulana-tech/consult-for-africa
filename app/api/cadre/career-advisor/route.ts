@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
 import { getCadreLabel } from "@/lib/cadreHealth/cadres";
 import { rateLimit } from "@/lib/cadreHealth/rateLimit";
+import { checkAIMessageAllowance, incrementAIMessageCount, getOrCreateSubscription } from "@/lib/cadreHealth/subscription";
 import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
@@ -15,13 +16,16 @@ export const GET = handler(async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const messages = await prisma.cadreAdvisorMessage.findMany({
-      where: { professionalId: session.sub },
-      orderBy: { createdAt: "asc" },
-      take: 50,
-    });
+    const [messages, allowance] = await Promise.all([
+      prisma.cadreAdvisorMessage.findMany({
+        where: { professionalId: session.sub },
+        orderBy: { createdAt: "asc" },
+        take: 50,
+      }),
+      checkAIMessageAllowance(session.sub),
+    ]);
 
-    return NextResponse.json({ messages });
+    return NextResponse.json({ messages, subscription: allowance });
   } catch (error) {
     console.error("Advisor messages fetch error:", error);
     return NextResponse.json(
@@ -38,11 +42,24 @@ export const POST = handler(async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Rate limit: 20 requests per hour per user
-    const allowed = rateLimit(`advisor:${session.sub}`, 20, 60 * 60 * 1000);
-    if (!allowed) {
+    // Check subscription allowance
+    const allowance = await checkAIMessageAllowance(session.sub);
+    if (!allowance.allowed) {
       return NextResponse.json(
-        { error: "You have reached the daily advisor limit. Please try again later." },
+        {
+          error: "You have used all your free messages this month. Upgrade to Pro for unlimited access.",
+          upgrade: true,
+          remaining: 0,
+        },
+        { status: 429 }
+      );
+    }
+
+    // Rate limit: 20 requests per hour per user (anti-abuse, applies to all tiers)
+    const rateLimited = rateLimit(`advisor:${session.sub}`, 20, 60 * 60 * 1000);
+    if (!rateLimited) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
         { status: 429 }
       );
     }
@@ -158,25 +175,24 @@ Your role:
     const advisorResponse =
       response.content[0].type === "text" ? response.content[0].text : "";
 
-    // Save both messages
-    await prisma.cadreAdvisorMessage.createMany({
-      data: [
-        {
-          professionalId: session.sub,
-          role: "user",
-          content: message.trim(),
-        },
-        {
-          professionalId: session.sub,
-          role: "advisor",
-          content: advisorResponse,
-        },
-      ],
-    });
+    // Save both messages and increment counter
+    await Promise.all([
+      prisma.cadreAdvisorMessage.createMany({
+        data: [
+          { professionalId: session.sub, role: "user", content: message.trim() },
+          { professionalId: session.sub, role: "advisor", content: advisorResponse },
+        ],
+      }),
+      incrementAIMessageCount(session.sub),
+    ]);
+
+    // Return updated allowance
+    const updatedAllowance = await checkAIMessageAllowance(session.sub);
 
     return NextResponse.json({
       success: true,
       response: advisorResponse,
+      subscription: updatedAllowance,
     });
   } catch (error) {
     console.error("Career advisor error:", error);

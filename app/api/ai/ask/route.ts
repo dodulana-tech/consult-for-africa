@@ -9,10 +9,10 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { question } = await req.json();
-  if (!question?.trim()) return new Response("question required", { status: 400 });
+  if (!question?.trim()) return Response.json({ error: "question required" }, { status: 400 });
 
   const { role, id: userId } = session.user;
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
@@ -213,7 +213,7 @@ If asked something outside the data provided, say so honestly rather than guessi
     answer = (message.content[0] as { text: string }).text;
   } catch (err) {
     console.error("AI ask error:", err);
-    return new Response("Failed to get answer. Please try again.", { status: 500 });
+    return Response.json({ error: "Failed to get answer. Please try again." }, { status: 500 });
   }
 
   return Response.json({ answer, question });

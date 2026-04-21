@@ -32,14 +32,14 @@ function generatePassword(): string {
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role)) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const { contactId } = await req.json();
   if (!contactId) {
-    return new Response("contactId is required", { status: 400 });
+    return Response.json({ error: "contactId is required" }, { status: 400 });
   }
 
   const contact = await prisma.partnerContact.findUnique({
@@ -47,7 +47,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     select: { id: true, name: true, email: true, isPortalEnabled: true, partner: { select: { name: true } } },
   });
 
-  if (!contact) return new Response("Contact not found", { status: 404 });
+  if (!contact) return Response.json({ error: "Contact not found" }, { status: 404 });
 
   // Generate new password and update
   const tempPassword = generatePassword();

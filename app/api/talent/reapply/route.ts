@@ -10,7 +10,7 @@ import { handler } from "@/lib/api-handler";
  */
 export const GET = handler(async function GET() {
   const session = await auth();
-  if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
+  if (!session?.user?.id) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   if (session.user.role !== "ACADEMY_LEARNER") {
     return Response.json({ error: "Only Academy Learners can reapply" }, { status: 403 });
@@ -81,7 +81,7 @@ export const GET = handler(async function GET() {
  */
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
+  if (!session?.user?.id) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   if (session.user.role !== "ACADEMY_LEARNER") {
     return Response.json({ error: "Only Academy Learners can reapply" }, { status: 403 });

@@ -8,10 +8,10 @@ const VALID_STREAMS = ["RECRUITMENT", "DEVELOPMENT", "INTELLIGENCE"];
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+  if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
   const {
@@ -26,20 +26,14 @@ export const POST = handler(async function POST(req: NextRequest) {
     maxAssessments,
   } = body;
 
-  if (!name?.trim()) return new Response("Name is required", { status: 400 });
+  if (!name?.trim()) return Response.json({ error: "Name is required" }, { status: 400 });
   if (!type?.trim() || !VALID_TYPES.includes(type)) {
-    return new Response(
-      `Type is required. Must be one of: ${VALID_TYPES.join(", ")}`,
-      { status: 400 }
-    );
+    return Response.json({ error: `Type is required. Must be one of: ${VALID_TYPES.join(", ")}` }, { status: 400 });
   }
-  if (!contactName?.trim()) return new Response("Contact name is required", { status: 400 });
-  if (!contactEmail?.trim()) return new Response("Contact email is required", { status: 400 });
+  if (!contactName?.trim()) return Response.json({ error: "Contact name is required" }, { status: 400 });
+  if (!contactEmail?.trim()) return Response.json({ error: "Contact email is required" }, { status: 400 });
   if (!stream?.trim() || !VALID_STREAMS.includes(stream)) {
-    return new Response(
-      `Stream is required. Must be one of: ${VALID_STREAMS.join(", ")}`,
-      { status: 400 }
-    );
+    return Response.json({ error: `Stream is required. Must be one of: ${VALID_STREAMS.join(", ")}` }, { status: 400 });
   }
 
   const org = await prisma.maarovaOrganisation.create({

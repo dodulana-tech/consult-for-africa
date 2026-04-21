@@ -9,7 +9,7 @@ export const GET = handler(async function GET(
 ) {
   const session = await getClientPortalSession();
   if (!session) {
-    return new Response("Unauthorized", { status: 401 });
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -46,12 +46,12 @@ export const GET = handler(async function GET(
   });
 
   if (!deliverable) {
-    return new Response("Not found", { status: 404 });
+    return Response.json({ error: "Not found" }, { status: 404 });
   }
 
   // Verify ownership: the deliverable's project must belong to the client
   if (deliverable.engagement.clientId !== session.clientId) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   return Response.json({

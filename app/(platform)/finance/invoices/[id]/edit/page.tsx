@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import TopBar from "@/components/platform/TopBar";
 import { Plus, Trash2, Save, Send, Calculator } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 /* ─── Types ───────────────────────────────────────────────────────────────── */
 
@@ -168,7 +169,7 @@ export default function EditInvoicePage() {
       });
 
       if (!res.ok) {
-        setError(await res.text());
+        setError(await parseApiError(res));
         return;
       }
 
@@ -176,7 +177,7 @@ export default function EditInvoicePage() {
         // Send the invoice
         const sendRes = await fetch(`/api/invoices/${id}/send`, { method: "POST" });
         if (!sendRes.ok) {
-          setError(await sendRes.text());
+          setError(await parseApiError(sendRes));
           return;
         }
       }

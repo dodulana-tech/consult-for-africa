@@ -13,10 +13,10 @@ const APPROVAL_THRESHOLD: Record<string, number> = {
 
 export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canSend = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canSend) return new Response("Forbidden", { status: 403 });
+  if (!canSend) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
@@ -30,37 +30,34 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
     },
   });
 
-  if (!invoice) return new Response("Not found", { status: 404 });
+  if (!invoice) return Response.json({ error: "Not found" }, { status: 404 });
 
   // IDOR check for EMs
   if (!isElevated) {
     if (!invoice.engagement || invoice.engagement.engagementManagerId !== session.user.id) {
-      return new Response("Forbidden", { status: 403 });
+      return Response.json({ error: "Forbidden" }, { status: 403 });
     }
   }
 
   // Must be DRAFT or PENDING_APPROVAL
   if (!["DRAFT", "PENDING_APPROVAL"].includes(invoice.status)) {
     if (invoice.status === "SENT") {
-      return new Response("Invoice has already been sent", { status: 400 });
+      return Response.json({ error: "Invoice has already been sent" }, { status: 400 });
     }
-    return new Response(`Cannot send invoice with status ${invoice.status}`, { status: 400 });
+    return Response.json({ error: `Cannot send invoice with status ${invoice.status}` }, { status: 400 });
   }
 
   // Check approval requirement
   if (invoice.status === "DRAFT") {
     const threshold = APPROVAL_THRESHOLD[invoice.currency] ?? APPROVAL_THRESHOLD.NGN;
     if (Number(invoice.total) > threshold && !invoice.approvedById) {
-      return new Response(
-        `Invoice total exceeds ${invoice.currency} ${threshold.toLocaleString()}. Requires approval before sending.`,
-        { status: 400 }
-      );
+      return Response.json({ error: `Invoice total exceeds ${invoice.currency} ${threshold.toLocaleString()}. Requires approval before sending.` }, { status: 400 });
     }
   }
 
   if (invoice.status === "PENDING_APPROVAL") {
     if (!isElevated) {
-      return new Response("Director or above required to approve and send", { status: 403 });
+      return Response.json({ error: "Director or above required to approve and send" }, { status: 403 });
     }
   }
 

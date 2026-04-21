@@ -15,17 +15,17 @@ export const DELETE = handler(async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+  if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
   const referral = await prisma.referral.findUnique({ where: { id } });
-  if (!referral) return new Response("Referral not found", { status: 404 });
+  if (!referral) return Response.json({ error: "Referral not found" }, { status: 404 });
 
   if (referral.status === "CONVERTED") {
-    return new Response("Cannot delete a converted referral", { status: 400 });
+    return Response.json({ error: "Cannot delete a converted referral" }, { status: 400 });
   }
 
   await prisma.referral.delete({ where: { id } });
@@ -37,30 +37,30 @@ export const PATCH = handler(async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+  if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
   const body = await req.json();
   const { status, assessmentLevel, name, email, phone, organisation, suggestedRole, notes, type } = body;
 
   if (!status || !VALID_STATUSES.includes(status)) {
-    return new Response("Invalid status", { status: 400 });
+    return Response.json({ error: "Invalid status" }, { status: 400 });
   }
   if (type && !VALID_TYPES.includes(type)) {
-    return new Response("Invalid type", { status: 400 });
+    return Response.json({ error: "Invalid type" }, { status: 400 });
   }
 
   const referral = await prisma.referral.findUnique({ where: { id } });
-  if (!referral) return new Response("Referral not found", { status: 404 });
+  if (!referral) return Response.json({ error: "Referral not found" }, { status: 404 });
 
   // When converting a CONSULTANT referral, create platform user and send invite
   if (status === "CONVERTED" && referral.type === "CONSULTANT" && referral.status !== "CONVERTED") {
     const existing = await prisma.user.findUnique({ where: { email: referral.email } });
     if (existing) {
-      return new Response("A user with this email already exists", { status: 409 });
+      return Response.json({ error: "A user with this email already exists" }, { status: 409 });
     }
 
     const tempPassword = randomBytes(12).toString("base64url") + "!1A";
@@ -177,7 +177,7 @@ export const PATCH = handler(async function PATCH(
   if (status === "CONVERTED" && referral.type === "STAFF" && referral.status !== "CONVERTED") {
     const existingUser = await prisma.user.findUnique({ where: { email: referral.email } });
     if (existingUser) {
-      return new Response("A user with this email already exists", { status: 409 });
+      return Response.json({ error: "A user with this email already exists" }, { status: 409 });
     }
 
     const tempPassword = randomBytes(12).toString("base64url") + "!1A";

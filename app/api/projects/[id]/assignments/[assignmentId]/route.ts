@@ -11,7 +11,7 @@ type Ctx = { params: Promise<{ id: string; assignmentId: string }> };
 // EM can change status on their projects; Partner/Admin can change rate
 export const PATCH = handler(async function PATCH(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id: projectId, assignmentId } = await params;
   const role = session.user.role;
@@ -19,7 +19,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
   const isEM = role === "ENGAGEMENT_MANAGER";
   const canManageFinancials = ["PARTNER", "ADMIN"].includes(role);
 
-  if (!isElevated && !isEM) return new Response("Forbidden", { status: 403 });
+  if (!isElevated && !isEM) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const assignment = await prisma.assignment.findUnique({
     where: { id: assignmentId },
@@ -27,12 +27,12 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
   });
 
   if (!assignment || assignment.engagementId !== projectId) {
-    return new Response("Assignment not found", { status: 404 });
+    return Response.json({ error: "Assignment not found" }, { status: 404 });
   }
 
   // EM can only manage their own projects
   if (isEM && assignment.engagement.engagementManagerId !== session.user.id) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const { status, rateAmount, rateType, rateCurrency, role: assignmentRole } = await req.json();
@@ -41,7 +41,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
 
   if (status) {
     const VALID: AssignmentStatus[] = ["ACTIVE", "PENDING", "COMPLETED", "TERMINATED"];
-    if (!VALID.includes(status)) return new Response("Invalid status", { status: 400 });
+    if (!VALID.includes(status)) return Response.json({ error: "Invalid status" }, { status: 400 });
     updates.status = status;
   }
 
@@ -51,14 +51,14 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
 
   // Only Partner/Admin can change financial terms
   if (rateAmount !== undefined || rateType !== undefined || rateCurrency !== undefined) {
-    if (!canManageFinancials) return new Response("Only Partner/Admin can change rates", { status: 403 });
+    if (!canManageFinancials) return Response.json({ error: "Only Partner/Admin can change rates" }, { status: 403 });
     if (rateAmount !== undefined) updates.rateAmount = rateAmount;
     if (rateType !== undefined) updates.rateType = rateType;
     if (rateCurrency !== undefined) updates.rateCurrency = rateCurrency;
   }
 
   if (Object.keys(updates).length === 0) {
-    return new Response("No valid fields to update", { status: 400 });
+    return Response.json({ error: "No valid fields to update" }, { status: 400 });
   }
 
   const updated = await prisma.assignment.update({
@@ -87,14 +87,14 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
 // DELETE — remove consultant from project (set status TERMINATED)
 export const DELETE = handler(async function DELETE(_req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id: projectId, assignmentId } = await params;
   const role = session.user.role;
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
   const isEM = role === "ENGAGEMENT_MANAGER";
 
-  if (!isElevated && !isEM) return new Response("Forbidden", { status: 403 });
+  if (!isElevated && !isEM) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const assignment = await prisma.assignment.findUnique({
     where: { id: assignmentId },
@@ -102,11 +102,11 @@ export const DELETE = handler(async function DELETE(_req: NextRequest, { params 
   });
 
   if (!assignment || assignment.engagementId !== projectId) {
-    return new Response("Assignment not found", { status: 404 });
+    return Response.json({ error: "Assignment not found" }, { status: 404 });
   }
 
   if (isEM && assignment.engagement.engagementManagerId !== session.user.id) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   // Soft-delete: mark as TERMINATED rather than hard delete

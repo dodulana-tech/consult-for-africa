@@ -8,20 +8,20 @@ import { handler } from "@/lib/api-handler";
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isAdmin = ["PARTNER", "ADMIN"].includes(session.user.role);
-  if (!isAdmin) return new Response("Forbidden", { status: 403 });
+  if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { email } = await req.json();
-  if (!email) return new Response("Email required", { status: 400 });
+  if (!email) return Response.json({ error: "Email required" }, { status: 400 });
 
   const user = await prisma.user.findUnique({
     where: { email: email.trim().toLowerCase() },
     select: { id: true, name: true, email: true, role: true },
   });
 
-  if (!user) return new Response("User not found", { status: 404 });
+  if (!user) return Response.json({ error: "User not found" }, { status: 404 });
 
   // Generate new temp password
   const tempPassword = randomBytes(12).toString("base64url") + "!1A";
@@ -36,7 +36,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     await sendInvite(user.email, user.name, user.role, tempPassword);
   } catch (err) {
     console.error("Failed to resend invite:", err);
-    return new Response("Failed to send email", { status: 500 });
+    return Response.json({ error: "Failed to send email" }, { status: 500 });
   }
 
   return Response.json({ ok: true });

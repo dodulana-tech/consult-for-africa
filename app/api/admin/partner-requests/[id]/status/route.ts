@@ -19,9 +19,9 @@ export const POST = handler(async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role))
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: requestId } = await params;
 
@@ -29,12 +29,12 @@ export const POST = handler(async function POST(
   try {
     body = await req.json();
   } catch {
-    return new Response("Invalid JSON", { status: 400 });
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   const { status } = body;
   if (!status) {
-    return new Response("status is required", { status: 400 });
+    return Response.json({ error: "status is required" }, { status: 400 });
   }
 
   const request = await prisma.partnerStaffingRequest.findUnique({
@@ -46,16 +46,13 @@ export const POST = handler(async function POST(
   });
 
   if (!request) {
-    return new Response("Staffing request not found", { status: 404 });
+    return Response.json({ error: "Staffing request not found" }, { status: 404 });
   }
 
   // Validate transition
   const allowed = VALID_TRANSITIONS[request.status];
   if (!allowed || !allowed.includes(status)) {
-    return new Response(
-      `Invalid transition: ${request.status} -> ${status}`,
-      { status: 400 }
-    );
+    return Response.json({ error: `Invalid transition: ${request.status} -> ${status}` }, { status: 400 });
   }
 
   // Update request status

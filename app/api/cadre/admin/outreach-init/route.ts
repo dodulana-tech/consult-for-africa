@@ -43,9 +43,9 @@ function assignTier(cadre: string, subSpecialty: string | null, hasPhone: boolea
 
 export const POST = handler(async function POST(req: Request) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const { professionalIds, filter } = await req.json();

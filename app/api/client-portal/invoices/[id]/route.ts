@@ -13,7 +13,7 @@ export const GET = handler(async function GET(
 ) {
   const session = await getClientPortalSession();
   if (!session) {
-    return new Response("Unauthorized", { status: 401 });
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -48,12 +48,12 @@ export const GET = handler(async function GET(
   });
 
   if (!invoice) {
-    return new Response("Not found", { status: 404 });
+    return Response.json({ error: "Not found" }, { status: 404 });
   }
 
   // Verify ownership
   if (invoice.clientId !== session.clientId) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   return Response.json({
@@ -101,7 +101,7 @@ export const PATCH = handler(async function PATCH(
 ) {
   const session = await getClientPortalSession();
   if (!session) {
-    return new Response("Unauthorized", { status: 401 });
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -112,11 +112,11 @@ export const PATCH = handler(async function PATCH(
   });
 
   if (!invoice) {
-    return new Response("Not found", { status: 404 });
+    return Response.json({ error: "Not found" }, { status: 404 });
   }
 
   if (invoice.clientId !== session.clientId) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   // Only update status to VIEWED if currently SENT (first view)

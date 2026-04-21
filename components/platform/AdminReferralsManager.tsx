@@ -7,6 +7,7 @@ import {
   CheckCircle, Phone, XCircle, RotateCcw, Send,
 } from "lucide-react";
 import { timeAgo } from "@/lib/utils";
+import { parseApiError } from "@/lib/parse-api-error";
 
 type ReferralStatus = "PENDING" | "CONTACTED" | "CONVERTED" | "REJECTED";
 type ReferralType = "CLIENT" | "CONSULTANT" | "STAFF";
@@ -157,7 +158,7 @@ export default function AdminReferralsManager({
           }),
         });
         if (!res.ok) {
-          setModalError(await res.text().catch(() => "Failed to update"));
+          setModalError(await parseApiError(res, "Failed to update"));
           return;
         }
         setReferrals((prev) =>
@@ -192,7 +193,7 @@ export default function AdminReferralsManager({
           }),
         });
         if (!res.ok) {
-          setModalError(await res.text().catch(() => "Failed to create"));
+          setModalError(await parseApiError(res, "Failed to create"));
           return;
         }
         const data = await res.json();
@@ -226,7 +227,7 @@ export default function AdminReferralsManager({
     try {
       const res = await fetch(`/api/referrals/${id}`, { method: "DELETE" });
       if (!res.ok) {
-        const msg = await res.text().catch(() => "Failed to delete");
+        const msg = await parseApiError(res, "Failed to delete");
         alert(msg);
         return;
       }
@@ -250,7 +251,7 @@ export default function AdminReferralsManager({
         setReferrals((prev) => prev.map((r) => r.id === id ? { ...r, status } : r));
         setConvertingId(null);
       } else {
-        const msg = await res.text().catch(() => "Failed");
+        const msg = await parseApiError(res, "Failed");
         setConvertError(msg);
       }
     } finally {

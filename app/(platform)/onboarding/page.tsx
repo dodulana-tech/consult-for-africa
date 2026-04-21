@@ -16,6 +16,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { SPECIALTY_CATEGORIES, getServiceTypesForSpecialties } from "@/lib/specialties";
+import { parseApiError } from "@/lib/parse-api-error";
 
 interface OnboardingData {
   status: string;
@@ -193,7 +194,7 @@ export default function OnboardingPage() {
         }),
       });
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setError(text);
         return false;
       }
@@ -216,7 +217,7 @@ export default function OnboardingPage() {
         body: JSON.stringify({ bankName, accountNumber, accountName, swiftCode, currency }),
       });
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setError(text);
         return false;
       }
@@ -239,7 +240,7 @@ export default function OnboardingPage() {
         body: JSON.stringify({ scores }),
       });
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setError(text);
         return false;
       }
@@ -258,7 +259,7 @@ export default function OnboardingPage() {
     try {
       const res = await fetch("/api/onboarding/complete", { method: "POST" });
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setError(text);
         return false;
       }

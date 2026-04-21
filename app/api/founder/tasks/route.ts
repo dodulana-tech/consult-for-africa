@@ -32,7 +32,7 @@ export const GET = handler(async function GET(req: NextRequest) {
     where: { email: session.user.email! },
     select: { id: true },
   });
-  if (!profile) return new Response("Profile not found", { status: 404 });
+  if (!profile) return Response.json({ error: "Profile not found" }, { status: 404 });
 
   const { searchParams } = new URL(req.url);
   const statusFilter = searchParams.get("status");
@@ -57,13 +57,13 @@ export const POST = handler(async function POST(req: NextRequest) {
     where: { email: session.user.email! },
     select: { id: true },
   });
-  if (!profile) return new Response("Profile not found", { status: 404 });
+  if (!profile) return Response.json({ error: "Profile not found" }, { status: 404 });
 
   const body = await req.json();
   const { title, description, phase, week, priority, category, dueDate, estimatedMinutes, impact } =
     body;
 
-  if (!title?.trim()) return new Response("title required", { status: 400 });
+  if (!title?.trim()) return Response.json({ error: "title required" }, { status: 400 });
 
   const task = await prisma.founderTask.create({
     data: {

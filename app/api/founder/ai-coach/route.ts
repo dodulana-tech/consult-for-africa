@@ -74,13 +74,13 @@ export const POST = handler(async function POST(req: NextRequest) {
   if (error) return error;
 
   const { question } = await req.json();
-  if (!question?.trim()) return new Response("question required", { status: 400 });
+  if (!question?.trim()) return Response.json({ error: "question required" }, { status: 400 });
 
   const profile = await prisma.founderProfile.findUnique({
     where: { email: session.user.email! },
     select: { id: true, name: true, startDate: true, currentPhase: true },
   });
-  if (!profile) return new Response("Profile not found", { status: 404 });
+  if (!profile) return Response.json({ error: "Profile not found" }, { status: 404 });
 
   const [
     recentConversations,
@@ -149,7 +149,7 @@ ${recentConversations
     answer = (message.content[0] as { text: string }).text;
   } catch (err) {
     console.error("AI coach error:", err);
-    return new Response("Failed to get answer. Please try again.", { status: 500 });
+    return Response.json({ error: "Failed to get answer. Please try again." }, { status: 500 });
   }
 
   const conversation = await prisma.founderAIConversation.create({
@@ -171,7 +171,7 @@ export const GET = handler(async function GET() {
     where: { email: session.user.email! },
     select: { id: true },
   });
-  if (!profile) return new Response("Profile not found", { status: 404 });
+  if (!profile) return Response.json({ error: "Profile not found" }, { status: 404 });
 
   const conversations = await prisma.founderAIConversation.findMany({
     where: { founderId: profile.id },

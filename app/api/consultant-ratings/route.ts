@@ -5,7 +5,7 @@ import { handler } from "@/lib/api-handler";
 
 export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const consultantUserId = searchParams.get("consultantUserId");
@@ -19,7 +19,7 @@ export const GET = handler(async function GET(req: NextRequest) {
   if (session.user.role === "CONSULTANT") {
     where.consultant = { userId: session.user.id };
   } else if (!isElevated && !isEM) {
-    return new Response("Forbidden", { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   if (consultantUserId && (isElevated || isEM)) {
@@ -60,20 +60,20 @@ export const GET = handler(async function GET(req: NextRequest) {
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canRate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canRate) return new Response("Forbidden", { status: 403 });
+  if (!canRate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { consultantUserId, projectId, technicalQuality, communication, timeliness, professionalism, feedback } =
     await req.json();
 
   if (!consultantUserId || !projectId) {
-    return new Response("consultantUserId and projectId required", { status: 400 });
+    return Response.json({ error: "consultantUserId and projectId required" }, { status: 400 });
   }
   for (const score of [technicalQuality, communication, timeliness, professionalism]) {
     if (typeof score !== "number" || score < 1 || score > 5) {
-      return new Response("All scores must be 1-5", { status: 400 });
+      return Response.json({ error: "All scores must be 1-5" }, { status: 400 });
     }
   }
 
@@ -81,7 +81,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   const assignment = await prisma.assignment.findFirst({
     where: { consultantId: consultantUserId, engagementId: projectId },
   });
-  if (!assignment) return new Response("Consultant not assigned to this project", { status: 400 });
+  if (!assignment) return Response.json({ error: "Consultant not assigned to this project" }, { status: 400 });
 
   // Prevent duplicate rating from same rater on same project
   const existing = await prisma.consultantRating.findFirst({
@@ -91,13 +91,13 @@ export const POST = handler(async function POST(req: NextRequest) {
       ratedById: session.user.id,
     },
   });
-  if (existing) return new Response("Already rated this consultant on this project", { status: 409 });
+  if (existing) return Response.json({ error: "Already rated this consultant on this project" }, { status: 409 });
 
   const profile = await prisma.consultantProfile.findUnique({
     where: { userId: consultantUserId },
     select: { id: true },
   });
-  if (!profile) return new Response("Consultant profile not found", { status: 404 });
+  if (!profile) return Response.json({ error: "Consultant profile not found" }, { status: 404 });
 
   const overallRating = Math.round((technicalQuality + communication + timeliness + professionalism) / 4);
 

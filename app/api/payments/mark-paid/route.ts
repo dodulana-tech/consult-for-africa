@@ -7,13 +7,13 @@ import { handler } from "@/lib/api-handler";
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canPay = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canPay) return new Response("Forbidden", { status: 403 });
+  if (!canPay) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { entryIds, paymentReference, paymentMethod } = await req.json();
-  if (!Array.isArray(entryIds) || entryIds.length === 0) return new Response("No entries", { status: 400 });
+  if (!Array.isArray(entryIds) || entryIds.length === 0) return Response.json({ error: "No entries" }, { status: 400 });
 
   // IDOR: verify all entries belong to projects this user manages
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
@@ -26,7 +26,7 @@ export const POST = handler(async function POST(req: NextRequest) {
         },
       },
     });
-    if (unauthorised > 0) return new Response("Forbidden", { status: 403 });
+    if (unauthorised > 0) return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   await prisma.timeEntry.updateMany({

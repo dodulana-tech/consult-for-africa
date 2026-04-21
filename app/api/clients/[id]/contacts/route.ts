@@ -8,10 +8,10 @@ type Ctx = { params: Promise<{ id: string }> };
 
 export const POST = handler(async function POST(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: clientId } = await params;
 
@@ -21,13 +21,13 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
       where: { clientId, engagementManagerId: session.user.id },
       select: { id: true },
     });
-    if (!hasEngagement) return new Response("Forbidden", { status: 403 });
+    if (!hasEngagement) return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const { name, email, title, phone, isPrimary } = await req.json();
 
   if (!name?.trim() || !email?.trim()) {
-    return new Response("name and email are required", { status: 400 });
+    return Response.json({ error: "name and email are required" }, { status: 400 });
   }
 
   // Check for duplicate email within this client's contacts
@@ -36,7 +36,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
     where: { clientId, email: normalizedEmail },
   });
   if (existingContact) {
-    return new Response("A contact with this email already exists for this client.", { status: 409 });
+    return Response.json({ error: "A contact with this email already exists for this client." }, { status: 409 });
   }
 
   // If marking as primary, unset others
@@ -87,10 +87,10 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
 
 export const PATCH = handler(async function PATCH(req: NextRequest, { params }: Ctx) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canManage = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"].includes(session.user.role);
-  if (!canManage) return new Response("Forbidden", { status: 403 });
+  if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: clientId } = await params;
 
@@ -100,21 +100,21 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
       where: { clientId, engagementManagerId: session.user.id },
       select: { id: true },
     });
-    if (!hasEngagement) return new Response("Forbidden", { status: 403 });
+    if (!hasEngagement) return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const { contactId, name, email, title, phone, isPrimary } = await req.json();
 
-  if (!contactId) return new Response("contactId is required", { status: 400 });
+  if (!contactId) return Response.json({ error: "contactId is required" }, { status: 400 });
   if (!name?.trim() || !email?.trim()) {
-    return new Response("name and email are required", { status: 400 });
+    return Response.json({ error: "name and email are required" }, { status: 400 });
   }
 
   // Verify contact belongs to this client
   const existing = await prisma.clientContact.findFirst({
     where: { id: contactId, clientId },
   });
-  if (!existing) return new Response("Contact not found", { status: 404 });
+  if (!existing) return Response.json({ error: "Contact not found" }, { status: 404 });
 
   // Check for duplicate email (excluding this contact)
   const normalizedEmail = email.trim().toLowerCase();
@@ -123,7 +123,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
       where: { clientId, email: normalizedEmail, id: { not: contactId } },
     });
     if (duplicate) {
-      return new Response("A contact with this email already exists for this client.", { status: 409 });
+      return Response.json({ error: "A contact with this email already exists for this client." }, { status: 409 });
     }
   }
 

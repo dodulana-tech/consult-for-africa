@@ -8,13 +8,13 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canAnalyze = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canAnalyze) return new Response("Forbidden", { status: 403 });
+  if (!canAnalyze) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { projectId } = await req.json();
-  if (!projectId) return new Response("projectId required", { status: 400 });
+  if (!projectId) return Response.json({ error: "projectId required" }, { status: 400 });
 
   // Fetch full project state using separate queries for reliability
   const [project, assignments, milestones, deliverables, invoices, tracks] = await Promise.all([
@@ -63,7 +63,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     }),
   ]);
 
-  if (!project) return new Response("Project not found", { status: 404 });
+  if (!project) return Response.json({ error: "Project not found" }, { status: 404 });
 
   const now = new Date();
   const endTime = project.endDate ? new Date(project.endDate).getTime() : (new Date(project.startDate).getTime() + 365 * 86400000);

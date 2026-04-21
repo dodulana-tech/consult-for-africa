@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 const CLIENT_TYPES = [
   { value: "PRIVATE_ELITE", label: "Private Elite" },
@@ -50,7 +51,7 @@ export default function NewClientForm() {
         body: JSON.stringify(form),
       });
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setError(text || "Failed to create client.");
         return;
       }

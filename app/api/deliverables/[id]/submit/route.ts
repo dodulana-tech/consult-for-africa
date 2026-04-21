@@ -7,7 +7,7 @@ import { handler } from "@/lib/api-handler";
 
 export const POST = handler(async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
   const { description, fileUrl } = await req.json();
@@ -27,12 +27,12 @@ export const POST = handler(async function POST(req: NextRequest, { params }: { 
     },
   });
 
-  if (!deliverable) return new Response("Not found", { status: 404 });
+  if (!deliverable) return Response.json({ error: "Not found" }, { status: 404 });
 
   // Only the assigned consultant (or elevated roles) can submit
   const isElevated = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   const isAssigned = deliverable.assignment?.consultantId === session.user.id;
-  if (!isElevated && !isAssigned) return new Response("Forbidden", { status: 403 });
+  if (!isElevated && !isAssigned) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   // Bump version if resubmitting after revision
   const newVersion =

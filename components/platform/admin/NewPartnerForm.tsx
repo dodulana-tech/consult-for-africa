@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
+import { parseApiError } from "@/lib/parse-api-error";
 
 const PARTNER_TYPES = [
   { value: "CONSULTANCY", label: "Consultancy" },
@@ -51,7 +52,7 @@ export default function NewPartnerForm() {
         body: JSON.stringify(form),
       });
       if (!res.ok) {
-        const text = await res.text();
+        const text = await parseApiError(res);
         setError(text || "Failed to create partner.");
         return;
       }

@@ -48,11 +48,11 @@ function serialise(inv: Record<string, unknown>) {
 
 export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   const isEM = session.user.role === "ENGAGEMENT_MANAGER";
-  if (!isElevated && !isEM) return new Response("Forbidden", { status: 403 });
+  if (!isElevated && !isEM) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"));
@@ -129,10 +129,10 @@ interface LineItemInput {
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const canCreate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  if (!canCreate) return new Response("Forbidden", { status: 403 });
+  if (!canCreate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
   const {
@@ -151,12 +151,12 @@ export const POST = handler(async function POST(req: NextRequest) {
   } = body;
 
   if (!clientId || !lineItems?.length) {
-    return new Response("clientId and lineItems required", { status: 400 });
+    return Response.json({ error: "clientId and lineItems required" }, { status: 400 });
   }
 
   for (const item of lineItems as LineItemInput[]) {
     if (!item.description || typeof item.quantity !== "number" || typeof item.unitPrice !== "number") {
-      return new Response("Each line item needs description, quantity, unitPrice", { status: 400 });
+      return Response.json({ error: "Each line item needs description, quantity, unitPrice" }, { status: 400 });
     }
   }
 
@@ -165,11 +165,11 @@ export const POST = handler(async function POST(req: NextRequest) {
     "MOBILIZATION", "MILESTONE", "RETAINER", "FINAL_SETTLEMENT",
   ];
   if (!validTypes.includes(invoiceType)) {
-    return new Response("Invalid invoiceType", { status: 400 });
+    return Response.json({ error: "Invalid invoiceType" }, { status: 400 });
   }
 
   const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } });
-  if (!client) return new Response("Client not found", { status: 404 });
+  if (!client) return Response.json({ error: "Client not found" }, { status: 404 });
 
   const subtotal = (lineItems as LineItemInput[]).reduce(
     (sum, item) => sum + item.quantity * item.unitPrice, 0
@@ -201,7 +201,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     if (!exists) break;
     attempts++;
     if (attempts > 10) {
-      return new Response("Failed to generate unique invoice number", { status: 500 });
+      return Response.json({ error: "Failed to generate unique invoice number" }, { status: 500 });
     }
   }
 
