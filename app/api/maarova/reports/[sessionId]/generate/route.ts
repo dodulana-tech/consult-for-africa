@@ -299,12 +299,39 @@ RULES: topThree = 3 highest-scoring values with ranks 1,2,3. Return ONLY raw JSO
     );
   }
 
+  // Dimension keys per module type (excludes raw scores and metadata)
+  const DIMENSION_KEYS: Record<string, string[]> = {
+    DISC: ["D", "I", "S", "C"],
+    VALUES_DRIVERS: ["theoretical", "economic", "aesthetic", "social", "political", "regulatory"],
+    EMOTIONAL_INTEL: ["selfAwareness", "empathy", "socialSkills", "emotionalRegulation", "overallEQ"],
+    CILTI: ["clinicalIdentity", "leadershipIdentity", "transitionReadiness", "ciltiComposite"],
+    CULTURE_TEAM: ["teamEffectiveness"],
+  };
+
   // Build dimension scores for radar chart
   const dimensionScores: Record<string, number> = {};
   for (const mr of assessmentSession.moduleResponses) {
-    const scores = mr.scaledScores as Record<string, number> | null;
+    const scores = mr.scaledScores as Record<string, unknown> | null;
     if (!scores) continue;
-    const values = Object.values(scores).filter((v): v is number => typeof v === "number");
+
+    const keys = DIMENSION_KEYS[mr.module.type];
+    let values: number[];
+
+    if (keys) {
+      values = keys.map((k) => typeof scores[k] === "number" ? scores[k] as number : 0).filter((v) => v > 0);
+    } else {
+      // Fallback: grab all numeric values (for unknown module types)
+      values = Object.values(scores).filter((v): v is number => typeof v === "number" && v >= 0 && v <= 100);
+    }
+
+    // For CULTURE_TEAM, also include the nested culture dimension scores
+    if (mr.module.type === "CULTURE_TEAM" && typeof scores.culture === "object" && scores.culture !== null) {
+      const culture = scores.culture as Record<string, unknown>;
+      for (const k of ["collaborate", "create", "compete", "control"]) {
+        if (typeof culture[k] === "number") values.push(culture[k] as number);
+      }
+    }
+
     if (values.length > 0) {
       const avg = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
       const label = MODULE_LABELS[mr.module.type] ?? mr.module.name;
@@ -318,10 +345,17 @@ RULES: topThree = 3 highest-scoring values with ranks 1,2,3. Return ONLY raw JSO
     benchmark: 65,
   }));
 
+  // Compute overall score: weighted average of all dimensions
+  const allDimScores = Object.values(dimensionScores);
+  const overallScore = allDimScores.length > 0
+    ? Math.round(allDimScores.reduce((a, b) => a + b, 0) / allDimScores.length)
+    : null;
+
   const updatedReport = await prisma.maarovaReport.update({
     where: { id: reportRecord.id },
     data: {
       status: "READY",
+      overallScore,
       dimensionScores,
       radarChartData,
       executiveSummary: (reportData.executiveSummary as string) ?? null,

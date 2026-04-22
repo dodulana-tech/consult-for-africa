@@ -56,11 +56,16 @@ export const POST = handler(async function POST() {
     return NextResponse.json({ session: existingSession });
   }
 
-  // Get all active modules
-  const modules = await prisma.maarovaModule.findMany({
+  // Get active modules -- gate CILTI to users with clinical backgrounds
+  const allModules = await prisma.maarovaModule.findMany({
     where: { isActive: true },
     orderBy: { order: "asc" },
   });
+
+  const hasClinicalBackground = !!user.clinicalBackground?.trim();
+  const modules = allModules.filter(
+    (m) => m.type !== "CILTI" || hasClinicalBackground
+  );
 
   if (modules.length === 0) {
     return NextResponse.json(
