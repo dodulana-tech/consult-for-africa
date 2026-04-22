@@ -11,14 +11,41 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-export default async function CadreHealthAdmin() {
-  const [totalProfessionals, verified, byStatus, byCadre, recentSignups] = await Promise.all([
+export const dynamic = "force-dynamic";
+
+const PAGE_SIZE = 20;
+
+export default async function CadreHealthAdmin({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; status?: string; cadre?: string; q?: string }>;
+}) {
+  const params = await searchParams;
+  const page = Math.max(1, parseInt(params.page ?? "1") || 1);
+  const statusFilter = params.status || undefined;
+  const cadreFilter = params.cadre || undefined;
+  const search = params.q?.trim() || undefined;
+
+  const where: Record<string, unknown> = {};
+  if (statusFilter) where.accountStatus = statusFilter;
+  if (cadreFilter) where.cadre = cadreFilter;
+  if (search) {
+    where.OR = [
+      { firstName: { contains: search, mode: "insensitive" } },
+      { lastName: { contains: search, mode: "insensitive" } },
+      { email: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  const [totalProfessionals, verified, byStatus, byCadre, signups, filteredTotal] = await Promise.all([
     prisma.cadreProfessional.count(),
     prisma.cadreProfessional.count({ where: { accountStatus: "VERIFIED" } }),
     prisma.cadreProfessional.groupBy({ by: ["accountStatus"], _count: true }),
     prisma.cadreProfessional.groupBy({ by: ["cadre"], _count: true, orderBy: { _count: { cadre: "desc" } } }),
     prisma.cadreProfessional.findMany({
-      take: 10,
+      where,
+      take: PAGE_SIZE,
+      skip: (page - 1) * PAGE_SIZE,
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -31,7 +58,11 @@ export default async function CadreHealthAdmin() {
         createdAt: true,
       },
     }),
+    prisma.cadreProfessional.count({ where }),
   ]);
+
+  const totalPages = Math.ceil(filteredTotal / PAGE_SIZE);
+  const recentSignups = signups;
 
   const openMandates = await prisma.cadreMandate.count({ where: { status: "OPEN" } });
   const totalReviews = await prisma.cadreFacilityReview.count();
@@ -197,10 +228,67 @@ export default async function CadreHealthAdmin() {
         }}
       >
         <div className="border-b border-gray-100/80 px-6 py-5">
-          <h2 className="text-base font-bold tracking-tight" style={{ color: "#0F2744" }}>
-            Recent Signups
-          </h2>
-          <p className="mt-0.5 text-xs text-gray-400">Latest professionals joining the platform</p>
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h2 className="text-base font-bold tracking-tight" style={{ color: "#0F2744" }}>
+                {statusFilter || cadreFilter || search ? "Filtered Professionals" : "Recent Signups"}
+              </h2>
+              <p className="mt-0.5 text-xs text-gray-400">
+                {filteredTotal} professional{filteredTotal !== 1 ? "s" : ""}
+                {statusFilter || cadreFilter || search ? " matching filters" : ""}
+                {totalPages > 1 ? ` \u00b7 Page ${page} of ${totalPages}` : ""}
+              </p>
+            </div>
+            {/* Filters */}
+            <form className="flex items-center gap-2 flex-wrap" method="GET">
+              <input
+                name="q"
+                type="text"
+                placeholder="Search name or email..."
+                defaultValue={search ?? ""}
+                className="rounded-lg border px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#0B3C5D]"
+                style={{ borderColor: "#e5eaf0", width: "180px" }}
+              />
+              <select
+                name="status"
+                defaultValue={statusFilter ?? ""}
+                className="rounded-lg border px-2 py-1.5 text-xs focus:outline-none"
+                style={{ borderColor: "#e5eaf0" }}
+              >
+                <option value="">All statuses</option>
+                <option value="UNVERIFIED">Unverified</option>
+                <option value="PENDING_REVIEW">Pending Review</option>
+                <option value="VERIFIED">Verified</option>
+                <option value="SUSPENDED">Suspended</option>
+              </select>
+              <select
+                name="cadre"
+                defaultValue={cadreFilter ?? ""}
+                className="rounded-lg border px-2 py-1.5 text-xs focus:outline-none"
+                style={{ borderColor: "#e5eaf0" }}
+              >
+                <option value="">All cadres</option>
+                {byCadre.map((g) => (
+                  <option key={g.cadre} value={g.cadre}>{g.cadre.replace(/_/g, " ")} ({g._count})</option>
+                ))}
+              </select>
+              <button
+                type="submit"
+                className="rounded-lg px-3 py-1.5 text-xs font-semibold text-white"
+                style={{ background: "#0B3C5D" }}
+              >
+                Filter
+              </button>
+              {(statusFilter || cadreFilter || search) && (
+                <Link
+                  href="/admin/cadrehealth"
+                  className="text-xs text-gray-400 hover:text-gray-600"
+                >
+                  Clear
+                </Link>
+              )}
+            </form>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -273,6 +361,61 @@ export default async function CadreHealthAdmin() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-gray-100/80 px-6 py-3">
+            <p className="text-xs text-gray-400">
+              Showing {(page - 1) * PAGE_SIZE + 1} to {Math.min(page * PAGE_SIZE, filteredTotal)} of {filteredTotal}
+            </p>
+            <div className="flex items-center gap-1">
+              {page > 1 && (
+                <Link
+                  href={`/admin/cadrehealth?page=${page - 1}${statusFilter ? `&status=${statusFilter}` : ""}${cadreFilter ? `&cadre=${cadreFilter}` : ""}${search ? `&q=${encodeURIComponent(search)}` : ""}`}
+                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
+                  style={{ border: "1px solid #e5eaf0" }}
+                >
+                  Previous
+                </Link>
+              )}
+              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                let pageNum: number;
+                if (totalPages <= 7) {
+                  pageNum = i + 1;
+                } else if (page <= 4) {
+                  pageNum = i + 1;
+                } else if (page >= totalPages - 3) {
+                  pageNum = totalPages - 6 + i;
+                } else {
+                  pageNum = page - 3 + i;
+                }
+                return (
+                  <Link
+                    key={pageNum}
+                    href={`/admin/cadrehealth?page=${pageNum}${statusFilter ? `&status=${statusFilter}` : ""}${cadreFilter ? `&cadre=${cadreFilter}` : ""}${search ? `&q=${encodeURIComponent(search)}` : ""}`}
+                    className="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                    style={{
+                      background: pageNum === page ? "#0B3C5D" : "transparent",
+                      color: pageNum === page ? "#fff" : "#6B7280",
+                      border: pageNum === page ? "none" : "1px solid #e5eaf0",
+                    }}
+                  >
+                    {pageNum}
+                  </Link>
+                );
+              })}
+              {page < totalPages && (
+                <Link
+                  href={`/admin/cadrehealth?page=${page + 1}${statusFilter ? `&status=${statusFilter}` : ""}${cadreFilter ? `&cadre=${cadreFilter}` : ""}${search ? `&q=${encodeURIComponent(search)}` : ""}`}
+                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
+                  style={{ border: "1px solid #e5eaf0" }}
+                >
+                  Next
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
