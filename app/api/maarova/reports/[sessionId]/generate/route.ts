@@ -332,6 +332,14 @@ RULES: topThree = 3 highest-scoring values with ranks 1,2,3. Return ONLY raw JSO
       }
     }
 
+    // For THREE_SIXTY, extract overallOtherAvg from the nested dimensions array
+    if (mr.module.type === "THREE_SIXTY" && Array.isArray(scores.dimensions)) {
+      const dims = scores.dimensions as Array<{ overallOtherAvg?: number }>;
+      values = dims
+        .map((d) => typeof d.overallOtherAvg === "number" ? d.overallOtherAvg : 0)
+        .filter((v) => v > 0);
+    }
+
     if (values.length > 0) {
       const avg = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
       const label = MODULE_LABELS[mr.module.type] ?? mr.module.name;
