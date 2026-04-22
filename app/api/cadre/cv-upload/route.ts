@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
-import { PDFParse } from "pdf-parse";
+// PDFParse imported dynamically to avoid module-load crash on serverless
 import { generateUploadUrl, buildKey, getPublicUrl } from "@/lib/r2";
 import { handler } from "@/lib/api-handler";
 
@@ -123,6 +123,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     let extractedText = "";
 
     if (file.type === "application/pdf") {
+      const { PDFParse } = await import("pdf-parse");
       const parser = new PDFParse({ data: new Uint8Array(buffer) });
       const textResult = await parser.getText();
       extractedText = textResult.text;

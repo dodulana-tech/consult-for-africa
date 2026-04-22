@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
-import { PDFParse } from "pdf-parse";
 import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
@@ -69,6 +68,7 @@ export const POST = handler(async function POST(req: NextRequest) {
                 console.warn("[talent/apply] CV buffer too large:", arrayBuf.byteLength);
               } else {
                 const buffer = Buffer.from(arrayBuf);
+                const { PDFParse } = await import("pdf-parse");
                 const parser = new PDFParse({ data: buffer });
                 const result = await parser.getText();
                 if (result.text) {
