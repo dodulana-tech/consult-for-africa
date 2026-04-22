@@ -23,7 +23,29 @@ export default async function MaarovaOrgDetailPage({ params }: Props) {
         orderBy: { createdAt: "desc" },
         include: {
           sessions: {
-            select: { id: true, status: true, completedAt: true },
+            select: {
+              id: true,
+              status: true,
+              completedAt: true,
+              totalTimeMinutes: true,
+              report: {
+                select: {
+                  id: true,
+                  status: true,
+                  overallScore: true,
+                  leadershipArchetype: true,
+                  archetypeNarrative: true,
+                  executiveSummary: true,
+                  strengthsAnalysis: true,
+                  developmentAreas: true,
+                  dimensionScores: true,
+                  radarChartData: true,
+                  signatureStrengths: true,
+                  coachingPriorities: true,
+                  pdfUrl: true,
+                },
+              },
+            },
             orderBy: { createdAt: "desc" },
             take: 1,
           },
@@ -51,18 +73,39 @@ export default async function MaarovaOrgDetailPage({ params }: Props) {
     createdAt: org.createdAt.toISOString(),
   };
 
-  const serializedUsers = org.users.map((u) => ({
-    id: u.id,
-    name: u.name,
-    email: u.email,
-    role: u.role,
-    title: u.title,
-    department: u.department,
-    isPortalEnabled: u.isPortalEnabled,
-    lastLoginAt: u.lastLoginAt?.toISOString() ?? null,
-    createdAt: u.createdAt.toISOString(),
-    latestSessionStatus: u.sessions[0]?.status ?? null,
-  }));
+  const serializedUsers = org.users.map((u) => {
+    const session = u.sessions[0] ?? null;
+    const report = session?.report ?? null;
+    return {
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      role: u.role,
+      title: u.title,
+      department: u.department,
+      isPortalEnabled: u.isPortalEnabled,
+      lastLoginAt: u.lastLoginAt?.toISOString() ?? null,
+      createdAt: u.createdAt.toISOString(),
+      latestSessionStatus: session?.status ?? null,
+      latestSessionId: session?.id ?? null,
+      completedAt: session?.completedAt?.toISOString() ?? null,
+      totalTimeMinutes: session?.totalTimeMinutes ?? null,
+      report: report ? {
+        status: report.status,
+        overallScore: report.overallScore,
+        leadershipArchetype: report.leadershipArchetype,
+        archetypeNarrative: report.archetypeNarrative,
+        executiveSummary: report.executiveSummary,
+        strengthsAnalysis: report.strengthsAnalysis,
+        developmentAreas: report.developmentAreas,
+        dimensionScores: report.dimensionScores as Record<string, Record<string, number>> | null,
+        radarChartData: report.radarChartData as Array<{ dimension: string; score: number; benchmark: number }> | null,
+        signatureStrengths: report.signatureStrengths as Array<{ dimension: string; title: string; description: string }> | null,
+        coachingPriorities: report.coachingPriorities as Array<{ priority: number; title: string; description: string; timeframe: string }> | null,
+        pdfUrl: report.pdfUrl,
+      } : null,
+    };
+  });
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">

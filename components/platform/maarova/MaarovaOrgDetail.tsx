@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   UserPlus,
@@ -38,6 +38,21 @@ interface Org {
   createdAt: string;
 }
 
+interface ReportData {
+  status: string;
+  overallScore: number | null;
+  leadershipArchetype: string | null;
+  archetypeNarrative: string | null;
+  executiveSummary: string | null;
+  strengthsAnalysis: string | null;
+  developmentAreas: string | null;
+  dimensionScores: Record<string, Record<string, number>> | null;
+  radarChartData: Array<{ dimension: string; score: number; benchmark: number }> | null;
+  signatureStrengths: Array<{ dimension: string; title: string; description: string }> | null;
+  coachingPriorities: Array<{ priority: number; title: string; description: string; timeframe: string }> | null;
+  pdfUrl: string | null;
+}
+
 interface OrgUser {
   id: string;
   name: string;
@@ -48,6 +63,10 @@ interface OrgUser {
   lastLoginAt: string | null;
   createdAt: string;
   latestSessionStatus: string | null;
+  latestSessionId: string | null;
+  completedAt: string | null;
+  totalTimeMinutes: number | null;
+  report: ReportData | null;
 }
 
 interface Props {
@@ -162,6 +181,9 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
 
   // Portal actions
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  // Expanded assessment results
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
   // Bulk upload
   const [showBulkUpload, setShowBulkUpload] = useState(false);
@@ -968,10 +990,10 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
                     </td>
                   </tr>
                 ) : (
+                  <React.Fragment key={u.id}>
                   <tr
-                    key={u.id}
                     className="hover:bg-gray-50 transition-colors"
-                    style={{ borderBottom: "1px solid #F3F4F6" }}
+                    style={{ borderBottom: expandedUserId === u.id ? "none" : "1px solid #F3F4F6" }}
                   >
                     <td className="px-5 py-3 font-medium" style={{ color: "#0F2744" }}>{u.name}</td>
                     <td className="px-5 py-3 text-gray-600">{u.email}</td>
@@ -997,7 +1019,20 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
                         : "Never"}
                     </td>
                     <td className="px-5 py-3">
-                      <AssessmentBadge status={u.latestSessionStatus} />
+                      {u.report?.status === "READY" ? (
+                        <button
+                          onClick={() => setExpandedUserId(expandedUserId === u.id ? null : u.id)}
+                          className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium transition-colors hover:opacity-80"
+                          style={{ background: "#D1FAE5", color: "#065F46" }}
+                        >
+                          <span>{u.report.overallScore ?? "?"}/100</span>
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ transform: expandedUserId === u.id ? "rotate(180deg)" : "none", transition: "transform 0.15s" }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                      ) : (
+                        <AssessmentBadge status={u.latestSessionStatus} />
+                      )}
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-1.5 flex-wrap">
@@ -1047,6 +1082,14 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
                       </div>
                     </td>
                   </tr>
+                  {expandedUserId === u.id && u.report && (
+                    <tr>
+                      <td colSpan={7} className="px-0 py-0">
+                        <AssessmentResultsPanel user={u} report={u.report} />
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
                 )
               ))}
               {users.length === 0 && (
@@ -1102,6 +1145,140 @@ function FormInput({
         className="w-full px-3 py-2 rounded-lg text-sm border focus:outline-none focus:ring-2 focus:ring-blue-200"
         style={{ borderColor: "#e5eaf0", color: "#0F2744" }}
       />
+    </div>
+  );
+}
+
+/* ── Assessment Results Panel (Executive Search Dossier) ──────────────────────── */
+
+function AssessmentResultsPanel({ user, report }: { user: OrgUser; report: ReportData }) {
+  const radar = report.radarChartData ?? [];
+  const strengths = report.signatureStrengths ?? [];
+  const priorities = report.coachingPriorities ?? [];
+
+  return (
+    <div className="px-6 py-5" style={{ background: "#FAFBFC", borderBottom: "1px solid #E8EBF0" }}>
+      {/* Header: Score + Archetype */}
+      <div className="flex items-start gap-6 mb-5">
+        <div className="text-center shrink-0">
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto"
+            style={{
+              background: `conic-gradient(#0B3C5D ${(report.overallScore ?? 0) * 3.6}deg, #E8EBF0 0deg)`,
+            }}
+          >
+            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
+              <span className="text-lg font-bold" style={{ color: "#0B3C5D" }}>{report.overallScore ?? "-"}</span>
+            </div>
+          </div>
+          <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider">Score</p>
+        </div>
+
+        <div className="flex-1 min-w-0">
+          {report.leadershipArchetype && (
+            <p className="text-sm font-bold mb-0.5" style={{ color: "#0B3C5D" }}>{report.leadershipArchetype}</p>
+          )}
+          {report.archetypeNarrative && (
+            <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">{report.archetypeNarrative}</p>
+          )}
+          {user.completedAt && (
+            <p className="text-[10px] text-gray-400 mt-1">
+              Completed {new Date(user.completedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+              {user.totalTimeMinutes ? ` in ${user.totalTimeMinutes} min` : ""}
+            </p>
+          )}
+        </div>
+
+        {report.pdfUrl && (
+          <a
+            href={report.pdfUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors hover:bg-blue-50"
+            style={{ color: "#1E40AF", border: "1px solid #BFDBFE" }}
+          >
+            <Download size={11} /> PDF Report
+          </a>
+        )}
+      </div>
+
+      {/* Radar Dimensions */}
+      {radar.length > 0 && (
+        <div className="mb-5">
+          <p className="text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-2">Dimension Scores</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+            {radar.map((d) => (
+              <div key={d.dimension} className="rounded-lg p-2.5 bg-white" style={{ border: "1px solid #E8EBF0" }}>
+                <p className="text-[10px] text-gray-400 truncate mb-1">{d.dimension.replace(/\s*\(.*\)/, "")}</p>
+                <div className="flex items-end gap-1">
+                  <span className="text-sm font-bold" style={{ color: "#0B3C5D" }}>{d.score}</span>
+                  <span className="text-[10px] text-gray-300 mb-0.5">/ 100</span>
+                </div>
+                <div className="w-full h-1 rounded-full bg-gray-100 mt-1 overflow-hidden">
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: `${d.score}%`, background: d.score >= 70 ? "#059669" : d.score >= 50 ? "#D4AF37" : "#DC2626" }}
+                  />
+                </div>
+                {d.benchmark > 0 && (
+                  <p className="text-[9px] text-gray-300 mt-0.5">Benchmark: {d.benchmark}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Signature Strengths */}
+      {strengths.length > 0 && (
+        <div className="mb-5">
+          <p className="text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-2">Signature Strengths</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {strengths.slice(0, 3).map((s, i) => (
+              <div key={i} className="rounded-lg p-3 bg-white" style={{ border: "1px solid #E8EBF0" }}>
+                <p className="text-xs font-semibold mb-0.5" style={{ color: "#0B3C5D" }}>{s.title}</p>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">{s.dimension}</p>
+                <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">{s.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Executive Summary + Development */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        {report.executiveSummary && (
+          <div>
+            <p className="text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-1">Executive Summary</p>
+            <p className="text-xs text-gray-600 leading-relaxed line-clamp-4">{report.executiveSummary}</p>
+          </div>
+        )}
+        {report.strengthsAnalysis && (
+          <div>
+            <p className="text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-1">Key Strengths</p>
+            <p className="text-xs text-gray-600 leading-relaxed line-clamp-4">{report.strengthsAnalysis}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Coaching Priorities */}
+      {priorities.length > 0 && (
+        <div>
+          <p className="text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-2">Development Priorities</p>
+          <div className="flex gap-2 flex-wrap">
+            {priorities.slice(0, 3).map((p) => (
+              <div
+                key={p.priority}
+                className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full"
+                style={{ background: "#EFF6FF", color: "#1E40AF", border: "1px solid #BFDBFE" }}
+              >
+                <span className="font-semibold">{p.priority}.</span> {p.title}
+                {p.timeframe && <span className="text-[10px] text-blue-400">({p.timeframe})</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
