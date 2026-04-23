@@ -85,8 +85,8 @@ export const POST = handler(async function POST(req: NextRequest) {
     }
   }
 
-  const safeCvText = extractedCvText ? sanitise(extractedCvText).substring(0, 3000) : null;
-  const safeCoverLetter = coverLetter ? sanitise(coverLetter).substring(0, 5000) : null;
+  const safeCvText = extractedCvText ? sanitise(extractedCvText).substring(0, 12000) : null;
+  const safeCoverLetter = coverLetter ? sanitise(coverLetter).substring(0, 8000) : null;
 
   // AI Screening
   let aiScore: number | null = null;
