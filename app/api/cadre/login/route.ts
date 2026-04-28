@@ -26,15 +26,6 @@ async function verifyPassword(password: string, stored: string): Promise<boolean
 }
 
 export const POST = handler(async function POST(req: NextRequest) {
-  // Rate limit: 10 login attempts per hour per IP
-  const ip = getClientIp(req.headers);
-  if (!rateLimit(`login:${ip}`, 10, 60 * 60 * 1000)) {
-    return NextResponse.json(
-      { error: "Too many login attempts. Please try again later." },
-      { status: 429 }
-    );
-  }
-
   try {
     const { email, password } = await req.json();
 
@@ -45,8 +36,27 @@ export const POST = handler(async function POST(req: NextRequest) {
       );
     }
 
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Rate limit by email (10 failed attempts per hour) and IP (30 per hour
+    // for shared networks/NAT). Only checked here so that we can decide later
+    // whether to count this attempt against the email bucket on failure.
+    const ip = getClientIp(req.headers);
+    if (!rateLimit(`login-ip:${ip}`, 50, 60 * 60 * 1000)) {
+      return NextResponse.json(
+        { error: "Too many login attempts from this network. Please try again later." },
+        { status: 429 }
+      );
+    }
+    if (!rateLimit(`login-email:${normalizedEmail}`, 10, 60 * 60 * 1000)) {
+      return NextResponse.json(
+        { error: "Too many login attempts for this account. Please try again in an hour or reset your password." },
+        { status: 429 }
+      );
+    }
+
     const professional = await prisma.cadreProfessional.findUnique({
-      where: { email: email.toLowerCase().trim() },
+      where: { email: normalizedEmail },
     });
 
     const storedHash = professional?.passwordHash;
@@ -77,7 +87,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     cookieStore.set("cadre_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
       path: "/",
       maxAge: 30 * 24 * 60 * 60,
     });
