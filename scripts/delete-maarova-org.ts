@@ -38,7 +38,7 @@ async function main() {
   console.log(`Found organisation: ${org.name} (${org.id})`);
   console.log(`  Users: ${org.users.length}`);
   for (const u of org.users) {
-    console.log(`    - ${u.firstName ?? ""} ${u.lastName ?? ""} <${u.email}> -- ${u.sessions.length} session(s)`);
+    console.log(`    - ${u.name} <${u.email}> -- ${u.sessions.length} session(s)`);
   }
 
   // MaarovaReport.userId doesn't cascade -- delete reports explicitly first
