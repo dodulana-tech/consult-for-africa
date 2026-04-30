@@ -89,6 +89,8 @@ export const GET = handler(async function GET(
           fullReportContent: report.fullReportContent,
           generatedAt: report.generatedAt,
           pdfUrl: report.pdfUrl,
+          shareToken: report.shareToken,
+          shareEnabledAt: report.shareEnabledAt,
         }
       : null,
   });

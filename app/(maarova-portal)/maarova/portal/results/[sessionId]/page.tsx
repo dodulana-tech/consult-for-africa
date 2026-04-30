@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
+import ShareSection from "./ShareSection";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -93,6 +94,8 @@ interface ReportData {
   } | null;
   generatedAt: string | null;
   pdfUrl: string | null;
+  shareToken: string | null;
+  shareEnabledAt: string | null;
 }
 
 function scoreZone(score: number): { label: string; color: string; bg: string } {
@@ -1122,6 +1125,14 @@ export default function MaarovaResultDetailPage() {
                 </div>
               </div>
             )}
+
+          {/* Share profile */}
+          <ShareSection
+            sessionId={sessionId}
+            initialShareToken={report?.shareToken ?? null}
+            initialShareEnabledAt={report?.shareEnabledAt ?? null}
+            archetype={report?.leadershipArchetype ?? undefined}
+          />
 
           {/* Download PDF + Regenerate */}
           <div className="flex justify-end gap-3">
