@@ -316,6 +316,15 @@ model User {
   trackPurchases         TrackPurchase[]
   salesAgentProfile      SalesAgent?
   sourceApplicationId    String?            // TalentApplication ID that created this ACADEMY_LEARNER account
+
+  // Communications CRM back-relations
+  commsAsSubject         Communication[]            @relation("CommSubjectConsultant")
+  commsLogged            Communication[]            @relation("LoggedComms")
+  commsNextActions       Communication[]            @relation("CommNextAction")
+  commsAsParticipant     CommunicationParticipant[] @relation("CommParticipantConsultant")
+  commEventsActed        CommunicationEvent[]       @relation("CommEventActor")
+  bulkCommsCreated       BulkCommunication[]        @relation("CreatedBulkComms")
+  commTemplatesCreated   CommunicationTemplate[]    @relation("CreatedTemplates")
 }
 
 model ConsultantProfile {
@@ -398,6 +407,10 @@ model Client {
   ndas              Nda[]
   creditNotes       CreditNote[]
   agentOpportunities AgentOpportunity[]
+
+  // Communications CRM back-relations
+  communications     Communication[]
+  commParticipants   CommunicationParticipant[] @relation("CommParticipantClient")
 
   @@index([type, status])
 }
@@ -1187,6 +1200,10 @@ model TalentApplication {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Communications CRM back-relations
+  communications   Communication[]
+  commParticipants CommunicationParticipant[] @relation("CommParticipantApplication")
+
   @@index([status, createdAt])
   @@index([specialty])
   @@index([aiScore])
@@ -1420,6 +1437,10 @@ model ClientContact {
   resetTokenExpiry DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  // Communications CRM back-relations
+  communications   Communication[]
+  commParticipants CommunicationParticipant[] @relation("CommParticipantClientContact")
 
   @@index([clientId])
 }
@@ -1955,6 +1976,9 @@ model MaarovaUser {
   developmentGoals   MaarovaDevelopmentGoal[]
   raterInvites       Maarova360RaterInvite[]
   threeSixtyRequests Maarova360Request[]
+
+  // Communications CRM back-relations
+  communications     Communication[]
 
   @@index([organisationId])
   @@index([managerId])
@@ -2509,6 +2533,9 @@ model DiscoveryCall {
   // Meeting
   meetingId          String?  @unique
   meeting            Meeting? @relation(fields: [meetingId], references: [id])
+
+  // Communications CRM back-relations
+  communications     Communication[]
 
   @@index([conductedById])
   @@index([status])
@@ -3256,6 +3283,10 @@ model PartnerFirm {
   staffingRequests PartnerStaffingRequest[]
   invoices       PartnerInvoice[]
 
+  // Communications CRM back-relations
+  communications   Communication[]
+  commParticipants CommunicationParticipant[] @relation("CommParticipantPartnerFirm")
+
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -3727,6 +3758,10 @@ model CadreProfessional {
   // Profile analytics
   profileViews          Int                     @default(0)
   lastViewedAt          DateTime?
+
+  // Communications CRM back-relations
+  communications        Communication[]
+  commParticipants      CommunicationParticipant[] @relation("CommParticipantCadrePro")
 
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
@@ -4637,6 +4672,9 @@ model SalesAgent {
   payouts                AgentPayout[]
   documents              AgentDocument[]
 
+  // Communications CRM back-relations
+  communications         Communication[]
+
   @@index([status])
   @@index([email])
 }
@@ -5013,4 +5051,370 @@ model CampaignPost {
   @@index([status])
   @@index([scheduledAt])
   @@index([campaignId])
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMMUNICATIONS CRM
+// Per-contact timeline of all touchpoints across email, calls, meetings,
+// WhatsApp, SMS, LinkedIn, and internal notes. Polymorphic subject so a
+// single record can attach to consultants, clients, applicants, etc.
+// ═══════════════════════════════════════════════════════════════════════════
+
+enum CommunicationSubjectType {
+  CONSULTANT          // links to User where role=CONSULTANT
+  CLIENT              // links to Client (organisation)
+  CLIENT_CONTACT      // links to ClientContact (specific person)
+  TALENT_APPLICATION  // links to TalentApplication
+  CADRE_PROFESSIONAL  // links to CadreProfessional
+  PARTNER_FIRM        // links to PartnerFirm
+  SALES_AGENT         // links to SalesAgent
+  DISCOVERY_CALL      // links to DiscoveryCall
+  MAAROVA_USER        // links to MaarovaUser
+  PROSPECT            // not yet a record (free-text name + contact)
+}
+
+enum CommunicationType {
+  EMAIL
+  PHONE_CALL
+  VIDEO_CALL
+  IN_PERSON_MEETING
+  WHATSAPP
+  SMS
+  LINKEDIN_MESSAGE
+  NOTE                // internal-only, no actual contact made
+  OTHER
+}
+
+enum CommunicationDirection {
+  OUTBOUND
+  INBOUND
+  INTERNAL            // a note about the contact, no contact made
+}
+
+enum CommunicationStatus {
+  DRAFT
+  SCHEDULED
+  LOGGED              // manually entered after the fact
+  SENT                // sent through the platform
+  DELIVERED
+  OPENED
+  CLICKED
+  REPLIED
+  BOUNCED
+  FAILED
+  CANCELLED
+}
+
+enum CommunicationSentiment {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+enum CommunicationVisibility {
+  PRIVATE             // only loggedBy can see
+  TEAM                // anyone with elevated role on the platform
+  PUBLIC              // includes the contact via portal (future)
+}
+
+model Communication {
+  id              String                  @id @default(cuid())
+
+  // ── Subject (who this is about) ──────────────────────────────────────
+  subjectType     CommunicationSubjectType
+  // We keep explicit nullable FKs for indexing/joining. Exactly one matches subjectType.
+  consultantId    String?
+  consultant      User?                   @relation("CommSubjectConsultant", fields: [consultantId], references: [id], onDelete: Cascade)
+  clientId        String?
+  client          Client?                 @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientContactId String?
+  clientContact   ClientContact?          @relation(fields: [clientContactId], references: [id], onDelete: Cascade)
+  applicationId   String?
+  application     TalentApplication?      @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  cadreProfessionalId String?
+  cadreProfessional CadreProfessional?    @relation(fields: [cadreProfessionalId], references: [id], onDelete: Cascade)
+  partnerFirmId   String?
+  partnerFirm     PartnerFirm?            @relation(fields: [partnerFirmId], references: [id], onDelete: Cascade)
+  salesAgentId    String?
+  salesAgent      SalesAgent?             @relation(fields: [salesAgentId], references: [id], onDelete: Cascade)
+  discoveryCallId String?
+  discoveryCall   DiscoveryCall?          @relation(fields: [discoveryCallId], references: [id], onDelete: Cascade)
+  maarovaUserId   String?
+  maarovaUser     MaarovaUser?            @relation(fields: [maarovaUserId], references: [id], onDelete: Cascade)
+  // For PROSPECT type or general fallback
+  prospectName    String?
+  prospectEmail   String?
+  prospectPhone   String?
+
+  // ── What happened ────────────────────────────────────────────────────
+  type            CommunicationType
+  direction       CommunicationDirection
+  status          CommunicationStatus     @default(LOGGED)
+
+  // ── Content ──────────────────────────────────────────────────────────
+  subject         String?
+  body            String?                 @db.Text
+  bodyHtml        String?                 @db.Text
+  attachmentUrls  String[]                @default([])
+
+  // ── Timing ───────────────────────────────────────────────────────────
+  occurredAt      DateTime                @default(now())
+  scheduledFor    DateTime?
+  sentAt          DateTime?
+  deliveredAt     DateTime?
+  openedAt        DateTime?
+  clickedAt       DateTime?
+  repliedAt       DateTime?
+  durationMinutes Int?
+
+  // ── Email-specific ───────────────────────────────────────────────────
+  fromEmail       String?
+  toEmails        String[]                @default([])
+  ccEmails        String[]                @default([])
+  bccEmails       String[]                @default([])
+  externalId      String?                 // SMTP Message-ID for reply tracking
+  inReplyTo       String?                 // SMTP In-Reply-To header
+
+  // ── Meeting-specific ─────────────────────────────────────────────────
+  meetingLink     String?
+  meetingLocation String?
+
+  // ── Phone-specific ───────────────────────────────────────────────────
+  phoneNumber     String?
+
+  // ── Outcome & follow-up ──────────────────────────────────────────────
+  outcome         String?                 @db.Text
+  sentiment       CommunicationSentiment?
+  nextAction      String?
+  nextActionDate  DateTime?
+  nextActionAssignedToId String?
+  nextActionAssignedTo   User?            @relation("CommNextAction", fields: [nextActionAssignedToId], references: [id])
+
+  // ── Threading ────────────────────────────────────────────────────────
+  threadId        String?
+  replyToId       String?
+  replyTo         Communication?          @relation("CommReplies", fields: [replyToId], references: [id])
+  replies         Communication[]         @relation("CommReplies")
+
+  // ── Bulk send linkage ────────────────────────────────────────────────
+  bulkId          String?
+  bulk            BulkCommunication?      @relation(fields: [bulkId], references: [id], onDelete: SetNull)
+
+  // ── Metadata ─────────────────────────────────────────────────────────
+  tags            String[]                @default([])
+  metadata        Json?                   // misc structured data (campaign attribution, UTM, etc)
+  isPinned        Boolean                 @default(false)
+  isArchived      Boolean                 @default(false)
+
+  // ── Audit ────────────────────────────────────────────────────────────
+  loggedById      String
+  loggedBy        User                    @relation("LoggedComms", fields: [loggedById], references: [id])
+  visibility      CommunicationVisibility @default(TEAM)
+
+  // ── NDPR / data protection ───────────────────────────────────────────
+  lawfulBasis     CommunicationLawfulBasis @default(LEGITIMATE_INTEREST)
+  retentionExpiresAt DateTime?            // null = no expiry policy applied yet
+  redactedAt      DateTime?               // if set, body/subject/attachments were nulled
+  redactedReason  String?
+
+  // ── Many-to-many participant tracking (Pattern C) ────────────────────
+  // Each row in CommunicationParticipant links this comm to other subjects
+  // (e.g. an email FROM a consultant TO a client contact about a project).
+  participants    CommunicationParticipant[]
+
+  // ── Event log ────────────────────────────────────────────────────────
+  events          CommunicationEvent[]
+
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  @@index([subjectType])
+  @@index([consultantId])
+  @@index([clientId])
+  @@index([clientContactId])
+  @@index([applicationId])
+  @@index([cadreProfessionalId])
+  @@index([partnerFirmId])
+  @@index([salesAgentId])
+  @@index([loggedById])
+  @@index([occurredAt])
+  @@index([threadId])
+  @@index([status])
+  @@index([nextActionDate])
+}
+
+enum BulkCommunicationStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  CANCELLED
+  FAILED
+}
+
+model BulkCommunication {
+  id                 String                  @id @default(cuid())
+  name               String
+  templateId         String?
+  template           CommunicationTemplate?  @relation(fields: [templateId], references: [id])
+  type               CommunicationType       @default(EMAIL)
+  subject            String?
+  body               String                  @db.Text
+  bodyHtml           String?                 @db.Text
+  filterDescription  String?                 // human-readable filter that produced the recipient list
+  recipientCount     Int                     @default(0)
+  status             BulkCommunicationStatus @default(DRAFT)
+  scheduledFor       DateTime?
+  sentAt             DateTime?
+  completedAt        DateTime?
+  successCount       Int                     @default(0)
+  failureCount       Int                     @default(0)
+  createdById        String
+  createdBy          User                    @relation("CreatedBulkComms", fields: [createdById], references: [id])
+  communications     Communication[]
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+  @@index([status])
+  @@index([scheduledFor])
+  @@index([createdById])
+}
+
+model CommunicationTemplate {
+  id              String              @id @default(cuid())
+  name            String              @unique
+  description     String?
+  category        String?             // CONSULTANT_OUTREACH, CLIENT_FOLLOWUP, APPLICATION_RESPONSE, etc.
+  type            CommunicationType   @default(EMAIL)
+  subject         String?
+  body            String              @db.Text
+  bodyHtml        String?             @db.Text
+  variables       String[]            @default([])  // e.g. ["firstName", "company"]
+  createdById     String
+  createdBy       User                @relation("CreatedTemplates", fields: [createdById], references: [id])
+  isActive        Boolean             @default(true)
+  usageCount      Int                 @default(0)
+  bulkSends       BulkCommunication[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+}
+
+// Suppression list: contacts who have opted out or bounced
+model CommunicationSuppression {
+  id          String   @id @default(cuid())
+  email       String?
+  phoneNumber String?
+  reason      String   // OPTED_OUT, BOUNCED, COMPLAINT, MANUAL
+  channel     CommunicationType?  // null = all channels
+  notes       String?
+  addedById   String?
+  createdAt   DateTime @default(now())
+
+  @@unique([email, channel])
+  @@index([email])
+  @@index([phoneNumber])
+}
+
+// Lawful basis under NDPR/GDPR for processing this communication.
+enum CommunicationLawfulBasis {
+  CONSENT
+  CONTRACT
+  LEGAL_OBLIGATION
+  VITAL_INTEREST
+  PUBLIC_TASK
+  LEGITIMATE_INTEREST
+}
+
+enum CommunicationParticipantRole {
+  FROM        // sender
+  TO          // primary recipient
+  CC
+  BCC
+  ABOUT       // mentioned/subject of the comm but not addressed
+  PARTICIPANT // attendee on a call/meeting
+}
+
+// Many-to-many bridge: a single comm can involve multiple subjects in
+// different roles. Example: email FROM consultant TO client contact ABOUT
+// project. Each combination is one row here.
+model CommunicationParticipant {
+  id              String                       @id @default(cuid())
+  communicationId String
+  communication   Communication                @relation(fields: [communicationId], references: [id], onDelete: Cascade)
+  role            CommunicationParticipantRole
+
+  // Polymorphic subject. Exactly one of these IDs is set.
+  subjectType     CommunicationSubjectType
+  consultantId    String?
+  consultant      User?                        @relation("CommParticipantConsultant", fields: [consultantId], references: [id], onDelete: Cascade)
+  clientId        String?
+  client          Client?                      @relation("CommParticipantClient", fields: [clientId], references: [id], onDelete: Cascade)
+  clientContactId String?
+  clientContact   ClientContact?               @relation("CommParticipantClientContact", fields: [clientContactId], references: [id], onDelete: Cascade)
+  applicationId   String?
+  application     TalentApplication?           @relation("CommParticipantApplication", fields: [applicationId], references: [id], onDelete: Cascade)
+  cadreProfessionalId String?
+  cadreProfessional CadreProfessional?         @relation("CommParticipantCadrePro", fields: [cadreProfessionalId], references: [id], onDelete: Cascade)
+  partnerFirmId   String?
+  partnerFirm     PartnerFirm?                 @relation("CommParticipantPartnerFirm", fields: [partnerFirmId], references: [id], onDelete: Cascade)
+
+  // Free-text fallback for prospects or anyone not yet a record
+  externalName    String?
+  externalEmail   String?
+  externalPhone   String?
+
+  createdAt       DateTime                     @default(now())
+
+  @@index([communicationId])
+  @@index([role])
+  @@index([consultantId])
+  @@index([clientContactId])
+  @@index([cadreProfessionalId])
+  @@index([applicationId])
+}
+
+enum CommunicationEventType {
+  CREATED
+  STATUS_CHANGED
+  SCHEDULED
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  REPLIED
+  BOUNCED
+  COMPLAINED
+  FAILED
+  CANCELLED
+  REDACTED
+  EDITED
+  PROVIDER_WEBHOOK   // raw inbound provider event captured for audit
+}
+
+// Append-only audit log of all events touching a communication.
+// Used for debugging delivery, NDPR audit, and timeline regeneration.
+model CommunicationEvent {
+  id              String                  @id @default(cuid())
+  communicationId String
+  communication   Communication           @relation(fields: [communicationId], references: [id], onDelete: Cascade)
+  type            CommunicationEventType
+  fromStatus      CommunicationStatus?
+  toStatus        CommunicationStatus?
+  // Provider raw payload for SES/SendGrid/Postmark/Twilio webhooks
+  provider        String?                 // "POSTMARK", "TWILIO", "ZOHO", "MANUAL"
+  providerEventId String?
+  providerPayload Json?
+  // Who triggered (null for system/webhook events)
+  actorUserId     String?
+  actorUser       User?                   @relation("CommEventActor", fields: [actorUserId], references: [id])
+  notes           String?
+  createdAt       DateTime                @default(now())
+
+  @@index([communicationId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([providerEventId])
 }

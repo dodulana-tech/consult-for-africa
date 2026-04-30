@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import TopBar from "@/components/platform/TopBar";
 import TalentApplicationDetail from "@/components/talent/TalentApplicationDetail";
+import CommunicationsTimeline from "@/components/platform/communications/CommunicationsTimeline";
 
 export default async function TalentApplicationPage({
   params,
@@ -44,8 +45,18 @@ export default async function TalentApplicationPage({
         backHref="/talent"
       />
       <main className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-4xl">
+        <div className="max-w-4xl space-y-6">
           <TalentApplicationDetail application={serialized} />
+
+          <CommunicationsTimeline
+            subject={{
+              subjectType: "TALENT_APPLICATION",
+              applicationId: application.id,
+              subjectName: `${application.firstName} ${application.lastName}`,
+              subjectEmail: application.email,
+              subjectPhone: application.phone ?? undefined,
+            }}
+          />
         </div>
       </main>
     </div>

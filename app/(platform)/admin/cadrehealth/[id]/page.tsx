@@ -6,6 +6,7 @@ import { VerifyButton } from "@/components/cadrehealth/VerifyButton";
 import { InviteProfessionalButton, InviteMentorButton, PushSingleToOutreachButton } from "@/components/cadrehealth/AdminActions";
 import { ArrowLeft, FileText, Download, Calendar } from "lucide-react";
 import { RecruitmentActions } from "@/components/cadrehealth/RecruitmentActions";
+import CommunicationsTimeline from "@/components/platform/communications/CommunicationsTimeline";
 
 const ACCOUNT_STATUS_COLORS: Record<string, string> = {
   UNVERIFIED: "bg-gray-100 text-gray-600",
@@ -482,6 +483,17 @@ export default async function ProfessionalDetailPage({
             )}
           </Card>
         )}
+
+        {/* Communications timeline */}
+        <CommunicationsTimeline
+          subject={{
+            subjectType: "CADRE_PROFESSIONAL",
+            cadreProfessionalId: professional.id,
+            subjectName: `${professional.firstName} ${professional.lastName}`,
+            subjectEmail: professional.email,
+            subjectPhone: professional.phone ?? undefined,
+          }}
+        />
       </div>
     </div>
   );

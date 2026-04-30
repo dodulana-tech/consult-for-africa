@@ -33,6 +33,7 @@ import {
   BarChart3,
   Stethoscope,
   Banknote,
+  MessageSquare,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import type { LucideIcon } from "lucide-react";
@@ -96,6 +97,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: "Consultants",    href: "/consultants",    icon: Users },
       { label: "Talent",         href: "/talent",         icon: UserPlus },
+      { label: "Communications", href: "/communications", icon: MessageSquare },
     ],
     roles: ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"],
   },

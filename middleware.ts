@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
-const PLATFORM_ROUTES = ["/dashboard", "/projects", "/deliverables", "/consultants", "/clients", "/timesheets", "/settings", "/proposals", "/ai", "/admin", "/founder", "/talent", "/meetings"];
+const PLATFORM_ROUTES = ["/dashboard", "/projects", "/deliverables", "/consultants", "/clients", "/timesheets", "/settings", "/proposals", "/ai", "/admin", "/founder", "/talent", "/meetings", "/communications"];
 const AUTH_ROUTES = ["/login"];
 const ONBOARDING_ROUTE = "/onboarding";
 const ONBOARDING_COMPLETE_STATUSES = ["ACTIVE", "ASSESSMENT_COMPLETE", "REVIEW"];

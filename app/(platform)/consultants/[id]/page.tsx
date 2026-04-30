@@ -17,6 +17,7 @@ import {
   Mail,
 } from "lucide-react";
 import RateConsultantForm from "@/components/platform/RateConsultantForm";
+import CommunicationsTimeline from "@/components/platform/communications/CommunicationsTimeline";
 
 const TIER_COLORS: Record<string, { bg: string; color: string }> = {
   ELITE:      { bg: "#FEF3C7", color: "#D97706" },
@@ -356,6 +357,18 @@ export default async function ConsultantProfilePage({
                 </div>
               </div>
             )}
+
+          {/* Communications timeline (EM+ only) */}
+          {["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role) && (
+            <CommunicationsTimeline
+              subject={{
+                subjectType: "CONSULTANT",
+                consultantId: user.id,
+                subjectName: user.name,
+                subjectEmail: user.email,
+              }}
+            />
+          )}
         </div>
       </main>
     </div>

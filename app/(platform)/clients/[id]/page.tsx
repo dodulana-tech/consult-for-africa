@@ -8,6 +8,7 @@ import ClientContactsSection from "@/components/client-portal/ClientContactsSect
 import { formatCurrency, formatCompactCurrency, formatDate } from "@/lib/utils";
 import EditableClientInfo from "@/components/platform/EditableClientInfo";
 import InlineProjectBudget from "@/components/platform/InlineProjectBudget";
+import CommunicationsTimeline from "@/components/platform/communications/CommunicationsTimeline";
 import {
   FolderOpen,
   FileText,
@@ -401,6 +402,19 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               )}
             </div>
           </div>
+
+          {/* Communications timeline (EM+ only) */}
+          {["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(role) && (
+            <CommunicationsTimeline
+              subject={{
+                subjectType: "CLIENT",
+                clientId: client.id,
+                subjectName: client.name,
+                subjectEmail: client.email,
+                subjectPhone: client.phone,
+              }}
+            />
+          )}
         </div>
       </main>
     </div>
