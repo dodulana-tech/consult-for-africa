@@ -71,7 +71,10 @@ export default function OutreachOnboardPage() {
           organization: data?.organization,
           city: data?.city,
           yearsInHealthcare: yearsInHealthcare || undefined,
-          clinicalBackground: clinicalBackground || undefined,
+          clinicalBackground:
+            clinicalBackground && clinicalBackground !== "__non_clinical__"
+              ? clinicalBackground
+              : undefined,
         }),
       });
 
@@ -205,15 +208,26 @@ export default function OutreachOnboardPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Clinical background</label>
-                <input
-                  type="text"
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Are you a clinical practitioner?
+                </label>
+                <select
                   value={clinicalBackground}
                   onChange={(e) => setClinicalBackground(e.target.value)}
-                  className="w-full border rounded-lg px-3 py-2 text-sm"
+                  className="w-full border rounded-lg px-3 py-2 text-sm bg-white"
                   style={{ borderColor: "#e5eaf0" }}
-                  placeholder="e.g. Medicine"
-                />
+                >
+                  <option value="">Select your background</option>
+                  <option value="Medicine">Medicine (Doctor)</option>
+                  <option value="Nursing">Nursing</option>
+                  <option value="Pharmacy">Pharmacy</option>
+                  <option value="Dentistry">Dentistry</option>
+                  <option value="Allied Health">Allied Health (Lab, Radiography, Therapy)</option>
+                  <option value="__non_clinical__">Non-clinical / Administrative</option>
+                </select>
+                <p className="mt-1 text-[11px] text-gray-400">
+                  This determines which assessment modules apply to you.
+                </p>
               </div>
             </div>
           </div>

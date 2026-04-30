@@ -34,10 +34,17 @@ async function beginAssessmentAction() {
     redirect("/maarova/portal/assessment");
   }
 
-  const modules = await prisma.maarovaModule.findMany({
+  const allModules = await prisma.maarovaModule.findMany({
     where: { isActive: true },
     orderBy: { order: "asc" },
   });
+
+  // Gate CILTI to users with a clinical background. Non-clinical users skip it.
+  const hasClinicalBackground = !!user.clinicalBackground?.trim();
+  const modules = allModules.filter(
+    (m) => m.type !== "CILTI" || hasClinicalBackground
+  );
+
   if (modules.length === 0) {
     redirect("/maarova/portal/assessment?error=no-modules");
   }

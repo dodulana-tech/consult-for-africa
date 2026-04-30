@@ -778,7 +778,24 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
               <FormInput label="Email *" type="email" value={userForm.email} onChange={(v) => setUserForm({ ...userForm, email: v })} required />
               <FormInput label="Title" value={userForm.title} onChange={(v) => setUserForm({ ...userForm, title: v })} placeholder="e.g. Medical Director" />
               <FormInput label="Department" value={userForm.department} onChange={(v) => setUserForm({ ...userForm, department: v })} placeholder="e.g. Surgery" />
-              <FormInput label="Clinical Background" value={userForm.clinicalBackground} onChange={(v) => setUserForm({ ...userForm, clinicalBackground: v })} placeholder="e.g. MBBS, FWACS" />
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Clinical Background</label>
+                <select
+                  value={userForm.clinicalBackground}
+                  onChange={(e) => setUserForm({ ...userForm, clinicalBackground: e.target.value })}
+                  className="w-full border rounded-lg px-3 py-2 text-sm bg-white"
+                  style={{ borderColor: "#e5eaf0" }}
+                >
+                  <option value="">Select background</option>
+                  <option value="Medicine">Medicine (Doctor)</option>
+                  <option value="Nursing">Nursing</option>
+                  <option value="Pharmacy">Pharmacy</option>
+                  <option value="Dentistry">Dentistry</option>
+                  <option value="Allied Health">Allied Health</option>
+                  <option value="">Non-clinical / Administrative</option>
+                </select>
+                <p className="mt-1 text-[11px] text-gray-400">Determines which assessment modules apply.</p>
+              </div>
               <FormInput label="Years in Healthcare" type="number" value={userForm.yearsInHealthcare} onChange={(v) => setUserForm({ ...userForm, yearsInHealthcare: v })} placeholder="e.g. 15" />
             </div>
             <div className="flex gap-3">
