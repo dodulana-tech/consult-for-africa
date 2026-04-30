@@ -1,0 +1,5 @@
+-- Split HEALTH_ADMINISTRATION into HEALTH_RECORDS and HOSPITAL_MANAGEMENT
+-- HEALTH_ADMINISTRATION is kept for legacy data; new signups will use the new cadres.
+
+ALTER TYPE "CadreProfessionalCadre" ADD VALUE IF NOT EXISTS 'HEALTH_RECORDS';
+ALTER TYPE "CadreProfessionalCadre" ADD VALUE IF NOT EXISTS 'HOSPITAL_MANAGEMENT';

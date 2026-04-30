@@ -264,8 +264,42 @@ export const CADRE_DEFINITIONS: CadreDefinition[] = [
     ],
   },
   {
+    value: "HEALTH_RECORDS",
+    label: "Health Records",
+    shortLabel: "Health Records",
+    regulatoryBody: "Health Records Registration Board of Nigeria",
+    regulatoryAbbrev: "HRRBN",
+    subSpecialties: [
+      "Medical Records",
+      "Health Information Management",
+      "Medical Coding",
+      "Health Informatics",
+      "Clinical Documentation",
+    ],
+  },
+  {
+    value: "HOSPITAL_MANAGEMENT",
+    label: "Hospital Management & Leadership",
+    shortLabel: "Hospital Mgmt",
+    regulatoryBody: "Association of Hospital and Healthcare Management Nigeria",
+    regulatoryAbbrev: "AHHMN",
+    subSpecialties: [
+      "Chief Medical Director",
+      "Chief Executive Officer",
+      "Chief Operating Officer",
+      "Hospital Administrator",
+      "Care Coordinator",
+      "Quality Management",
+      "Operations Manager",
+      "HMO Operations",
+      "Healthcare Finance",
+      "Healthcare HR",
+      "Healthcare Procurement",
+    ],
+  },
+  {
     value: "HEALTH_ADMINISTRATION",
-    label: "Health Administration",
+    label: "Health Administration (legacy)",
     shortLabel: "Health Admin",
     regulatoryBody: "Health Records Registration Board of Nigeria",
     regulatoryAbbrev: "HRRBN",
@@ -273,10 +307,6 @@ export const CADRE_DEFINITIONS: CadreDefinition[] = [
       "Hospital Management / Administration",
       "Health Information Management",
       "Medical Records",
-      "Health Informatics",
-      "Medical Coding",
-      "Quality Management",
-      "HMO Operations",
     ],
   },
   {
@@ -318,7 +348,12 @@ export function getRegulatoryBody(cadreValue: string): string {
 
 // ─── For dropdowns ───
 
-export const CADRE_OPTIONS = CADRE_DEFINITIONS.map((c) => ({
+// Excludes deprecated/legacy cadres from new signup forms.
+const DEPRECATED_CADRES = new Set(["HEALTH_ADMINISTRATION"]);
+
+export const CADRE_OPTIONS = CADRE_DEFINITIONS.filter(
+  (c) => !DEPRECATED_CADRES.has(c.value)
+).map((c) => ({
   value: c.value,
   label: c.label,
 }));
