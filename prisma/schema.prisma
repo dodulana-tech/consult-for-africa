@@ -2229,6 +2229,10 @@ model MaarovaReport {
   generatedAt DateTime?
   deliveredAt DateTime?
   pdfUrl      String?
+
+  shareToken     String?   @unique
+  shareEnabledAt DateTime?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
