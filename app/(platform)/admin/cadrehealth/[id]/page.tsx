@@ -149,13 +149,30 @@ export default async function ProfessionalDetailPage({
         </div>
       )}
 
-      {/* Recruitment Pipeline */}
-      <RecruitmentActions
-        professionalId={professional.id}
-        currentStage={professional.recruitmentStage}
-        interviewDate={professional.interviewDate?.toISOString() ?? null}
-        notes={professional.recruitmentNotes}
-      />
+      {/* Recruitment Pipeline - only show if professional is in recruitment */}
+      {professional.recruitmentStage && (
+        <RecruitmentActions
+          professionalId={professional.id}
+          currentStage={professional.recruitmentStage}
+          interviewDate={professional.interviewDate?.toISOString() ?? null}
+          notes={professional.recruitmentNotes}
+        />
+      )}
+      {!professional.recruitmentStage && (
+        <details className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+          <summary className="cursor-pointer text-sm font-semibold text-gray-700 hover:text-[#0B3C5D]">
+            Place this professional in a recruitment pipeline
+          </summary>
+          <div className="mt-4">
+            <RecruitmentActions
+              professionalId={professional.id}
+              currentStage={professional.recruitmentStage}
+              interviewDate={professional.interviewDate?.toISOString() ?? null}
+              notes={professional.recruitmentNotes}
+            />
+          </div>
+        </details>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Personal Info */}
