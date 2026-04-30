@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   Mail, Phone, Video, Users, MessageCircle, MessageSquare,
   Linkedin, FileText, MoreHorizontal, ArrowRight, ArrowLeft,
-  Clock, Search, Send,
+  Clock, Search, Send, FileStack,
 } from "lucide-react";
 
 type CommunicationType =
@@ -130,6 +130,13 @@ export default function CommunicationsInbox({
               />
             </div>
           </form>
+          <Link
+            href="/communications/templates"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
+            style={{ border: "1px solid #e5eaf0", color: "#0F2744" }}
+          >
+            <FileStack size={11} /> Templates
+          </Link>
           <Link
             href="/communications/compose"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"

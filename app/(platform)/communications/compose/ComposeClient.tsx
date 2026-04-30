@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Send, Users, User, Loader2, AlertCircle, CheckCircle, Eye, AlertTriangle } from "lucide-react";
 import { parseApiError } from "@/lib/parse-api-error";
+import TemplatePicker from "@/components/platform/communications/TemplatePicker";
 
 const AUDIENCES = [
   { code: "CONSULTANTS_ALL", label: "All consultants in the network", group: "Consultants" },
@@ -229,7 +230,16 @@ export default function ComposeClient() {
 
         {/* Subject */}
         <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1.5">Subject</label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-xs font-semibold text-gray-600">Subject</label>
+            <TemplatePicker
+              type="EMAIL"
+              onPick={(tpl) => {
+                if (tpl.subject) setSubject(tpl.subject);
+                setBody(tpl.body);
+              }}
+            />
+          </div>
           <input
             type="text"
             value={subject}

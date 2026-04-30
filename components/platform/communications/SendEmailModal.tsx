@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X, Send, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import { parseApiError } from "@/lib/parse-api-error";
 import type { SubjectRef } from "./CommunicationsTimeline";
+import TemplatePicker from "./TemplatePicker";
 
 const inputClass = "w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#0F2744]";
 const inputStyle = { borderColor: "#e5eaf0" };
@@ -115,7 +116,20 @@ export default function SendEmailModal({
             )}
 
             <div>
-              <label className={labelClass}>Subject</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className={labelClass.replace("mb-1.5", "")}>Subject</label>
+                <TemplatePicker
+                  type="EMAIL"
+                  onPick={(tpl) => {
+                    // Render with this contact's first name
+                    const firstName = subject.subjectName?.split(" ")[0] ?? "";
+                    const renderedSubject = (tpl.subject ?? "").replace(/\{\{\s*firstName\s*\}\}/g, firstName);
+                    const renderedBody = tpl.body.replace(/\{\{\s*firstName\s*\}\}/g, firstName);
+                    if (renderedSubject) setEmailSubject(renderedSubject);
+                    setBody(renderedBody);
+                  }}
+                />
+              </div>
               <input
                 type="text"
                 value={emailSubject}
