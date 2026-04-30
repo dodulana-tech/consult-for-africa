@@ -28,6 +28,7 @@ export default function ShareSection({
   const [shareToken, setShareToken] = useState<string | null>(initialShareToken);
   const [shareEnabledAt, setShareEnabledAt] = useState<string | null>(initialShareEnabledAt);
   const [busy, setBusy] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -96,7 +97,7 @@ export default function ShareSection({
     if (!shareToken) return "#";
     const url = profileUrl(shareToken);
     const text = archetype && leaderName
-      ? `${leaderName}'s Maarova leadership profile — ${archetype}: ${url}`
+      ? `${leaderName}'s Maarova leadership profile (${archetype}): ${url}`
       : `My Maarova leadership profile: ${url}`;
     return `https://wa.me/?text=${encodeURIComponent(text)}`;
   }
@@ -104,6 +105,28 @@ export default function ShareSection({
   function linkedInUrl() {
     if (!shareToken) return "#";
     return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(profileUrl(shareToken))}`;
+  }
+
+  async function downloadProfilePdf() {
+    setPdfLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/maarova/reports/${sessionId}/profile-pdf`);
+      if (!res.ok) throw new Error("Could not generate the profile PDF.");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const cd = res.headers.get("Content-Disposition");
+      const match = cd?.match(/filename="?([^"]+)"?/);
+      a.download = match?.[1] ?? "Maarova-Profile.pdf";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not download PDF.");
+    } finally {
+      setPdfLoading(false);
+    }
   }
 
   return (
@@ -139,14 +162,24 @@ export default function ShareSection({
       )}
 
       {!isShared && (
-        <button
-          onClick={enableSharing}
-          disabled={busy}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-white text-sm font-medium transition-all disabled:opacity-60"
-          style={{ backgroundColor: GOLD }}
-        >
-          {busy ? "Generating link..." : "Make profile shareable"}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={enableSharing}
+            disabled={busy}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-white text-sm font-medium transition-all disabled:opacity-60"
+            style={{ backgroundColor: GOLD }}
+          >
+            {busy ? "Generating link..." : "Make profile shareable"}
+          </button>
+          <button
+            onClick={downloadProfilePdf}
+            disabled={pdfLoading}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium border transition-colors hover:bg-gray-50 disabled:opacity-60"
+            style={{ borderColor: NAVY, color: NAVY }}
+          >
+            {pdfLoading ? "Preparing PDF..." : "Download CV profile"}
+          </button>
+        </div>
       )}
 
       {isShared && shareToken && (
@@ -171,6 +204,14 @@ export default function ShareSection({
           </div>
 
           <div className="flex flex-wrap gap-2">
+            <button
+              onClick={downloadProfilePdf}
+              disabled={pdfLoading}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors disabled:opacity-60"
+              style={{ backgroundColor: NAVY }}
+            >
+              {pdfLoading ? "Preparing PDF..." : "Download CV profile"}
+            </button>
             <a
               href={profileUrl(shareToken)}
               target="_blank"

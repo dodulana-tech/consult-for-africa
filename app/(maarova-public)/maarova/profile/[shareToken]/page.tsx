@@ -69,7 +69,7 @@ export async function generateMetadata(
 
   const name = report.user.name;
   const archetype = report.leadershipArchetype ?? "Leadership Profile";
-  const title = `${name} — ${archetype} | Maarova`;
+  const title = `${name}: ${archetype} | Maarova`;
   const description =
     report.archetypeNarrative?.slice(0, 200) ??
     `${name}'s verified Maarova leadership profile. Healthcare leadership assessment from Consult for Africa.`;
