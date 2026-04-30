@@ -48,6 +48,8 @@ function cadreSeoTitle(c: CadreDefinition): string {
     NUTRITION_DIETETICS: "Dietitian & Nutrition Jobs in Nigeria",
     PSYCHOLOGY_SOCIAL_WORK: "Psychology & Social Work Jobs in Nigeria",
     PUBLIC_HEALTH: "Public Health Jobs & Salary Data in Nigeria",
+    HEALTH_RECORDS: "Health Records Jobs & Salary Data in Nigeria",
+    HOSPITAL_MANAGEMENT: "Hospital Management Jobs & Salary Data in Nigeria",
     HEALTH_ADMINISTRATION: "Health Admin Jobs & Salary Data in Nigeria",
     BIOMEDICAL_ENGINEERING: "Biomedical Engineering Jobs in Nigeria",
   };

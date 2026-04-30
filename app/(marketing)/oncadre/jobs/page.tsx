@@ -235,7 +235,7 @@ export default async function JobBoardPage({
                 "MEDICINE", "NURSING", "MIDWIFERY", "PHARMACY", "DENTISTRY",
                 "MEDICAL_LABORATORY_SCIENCE", "RADIOGRAPHY_IMAGING", "REHABILITATION_THERAPY",
                 "OPTOMETRY", "COMMUNITY_HEALTH", "ENVIRONMENTAL_HEALTH", "NUTRITION_DIETETICS",
-                "PSYCHOLOGY_SOCIAL_WORK", "PUBLIC_HEALTH", "HEALTH_ADMINISTRATION",
+                "PSYCHOLOGY_SOCIAL_WORK", "PUBLIC_HEALTH", "HEALTH_RECORDS", "HOSPITAL_MANAGEMENT",
               ].map((c) => (
                 <option key={c} value={c}>
                   {getCadreLabel(c)}

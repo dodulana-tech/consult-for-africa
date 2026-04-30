@@ -18,7 +18,8 @@ const CADRE_OPTIONS = [
   { value: "NUTRITION_DIETETICS", label: "Nutrition / Dietetics" },
   { value: "PSYCHOLOGY_SOCIAL_WORK", label: "Psychology / Social Work" },
   { value: "PUBLIC_HEALTH", label: "Public Health" },
-  { value: "HEALTH_ADMINISTRATION", label: "Health Administration" },
+  { value: "HEALTH_RECORDS", label: "Health Records" },
+  { value: "HOSPITAL_MANAGEMENT", label: "Hospital Management & Leadership" },
 ];
 
 const MANDATE_TYPES = [

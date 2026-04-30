@@ -86,8 +86,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // DB unavailable during build - skip dynamic routes
   }
 
-  // Dynamic cadre pages
-  const cadreRoutes: MetadataRoute.Sitemap = CADRE_DEFINITIONS.map((c) => ({
+  // Dynamic cadre pages (excludes deprecated cadres)
+  const cadreRoutes: MetadataRoute.Sitemap = CADRE_DEFINITIONS.filter(
+    (c) => c.value !== "HEALTH_ADMINISTRATION",
+  ).map((c) => ({
     url: `${base}/oncadre/cadre/${c.value.toLowerCase().replace(/_/g, "-")}`,
     lastModified: new Date(),
     changeFrequency: "monthly" as const,
