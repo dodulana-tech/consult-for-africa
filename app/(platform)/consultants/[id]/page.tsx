@@ -14,6 +14,7 @@ import {
   DollarSign,
   Award,
   TrendingUp,
+  Mail,
 } from "lucide-react";
 import RateConsultantForm from "@/components/platform/RateConsultantForm";
 
@@ -85,6 +86,8 @@ export default async function ConsultantProfilePage({
 
   const canRate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canSeeContact = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)
+    || session.user.id === user.id;
   // Only show projects where this consultant was assigned
   const rateableProjects = user.assignments
     .filter((a) => ["ACTIVE", "COMPLETED"].includes(a.status))
@@ -133,6 +136,15 @@ export default async function ConsultantProfilePage({
                   <MapPin size={11} />
                   {profile.location}
                 </p>
+                {canSeeContact && (
+                  <a
+                    href={`mailto:${user.email}`}
+                    className="text-xs text-gray-500 mt-1 flex items-center gap-1 hover:text-[#0F2744] transition-colors"
+                  >
+                    <Mail size={11} />
+                    {user.email}
+                  </a>
+                )}
               </div>
               <div className="text-right shrink-0">
                 {profile.hourlyRateUSD && (

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import TopBar from "@/components/platform/TopBar";
 import StatusBadge from "@/components/platform/StatusBadge";
-import { MapPin, Star, Users, ChevronRight } from "lucide-react";
+import { MapPin, Star, Users, ChevronRight, Mail } from "lucide-react";
 import { formatCompactCurrency, formatEnumLabel } from "@/lib/utils";
 
 
@@ -20,6 +20,8 @@ export default async function ConsultantsPage() {
     });
     redirect(profile ? `/consultants/${profile.id}` : "/dashboard");
   }
+
+  const canSeeContact = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
 
   const consultants = await prisma.consultantProfile.findMany({
     include: {
@@ -109,6 +111,12 @@ export default async function ConsultantsPage() {
                       <MapPin size={11} />
                       {c.location}
                     </span>
+                    {canSeeContact && (
+                      <span className="flex items-center gap-1 truncate max-w-[200px]">
+                        <Mail size={11} />
+                        {c.user.email}
+                      </span>
+                    )}
                     {c.averageRating && (
                       <span className="flex items-center gap-1">
                         <Star size={11} className="text-amber-400" />
