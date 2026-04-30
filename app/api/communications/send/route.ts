@@ -13,6 +13,7 @@ import {
   type AudienceCode,
   type AudienceMember,
 } from "@/lib/communications-send";
+import { computeRetentionExpiry, defaultLawfulBasis } from "@/lib/communications-retention";
 import type { CommunicationSubjectType } from "@prisma/client";
 
 interface SingleRecipient {
@@ -261,6 +262,8 @@ async function sendOneAndLog(input: SendOneInput): Promise<SendOneResult> {
       bulkId: bulkId ?? null,
       loggedById,
       threadId: null, // self-thread; set below for replies
+      lawfulBasis: defaultLawfulBasis(recipient.subjectType),
+      retentionExpiresAt: computeRetentionExpiry(recipient.subjectType),
     },
   });
 

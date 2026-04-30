@@ -9,6 +9,7 @@ import {
   validateSubject,
   type CommSubjectFilter,
 } from "@/lib/communications";
+import { computeRetentionExpiry, defaultLawfulBasis } from "@/lib/communications-retention";
 import type {
   CommunicationSubjectType,
   CommunicationType,
@@ -186,6 +187,8 @@ export const POST = handler(async function POST(req: NextRequest) {
       replyToId: body.replyToId || null,
       tags: Array.isArray(body.tags) ? body.tags : [],
       visibility: (body.visibility as CommunicationVisibility) || "TEAM",
+      lawfulBasis: defaultLawfulBasis(body.subjectType),
+      retentionExpiresAt: computeRetentionExpiry(body.subjectType, occurredAt),
       loggedById: session.user.id,
       events: {
         create: {
