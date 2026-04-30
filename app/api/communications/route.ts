@@ -202,13 +202,31 @@ export const POST = handler(async function POST(req: NextRequest) {
     },
   });
 
+  // If this is a reply, bump the parent's status to REPLIED
+  if (body.replyToId && body.direction === "INBOUND") {
+    await prisma.communication.updateMany({
+      where: { id: body.replyToId, status: { not: "REPLIED" } },
+      data: { status: "REPLIED", repliedAt: created.occurredAt },
+    });
+    await prisma.communicationEvent.create({
+      data: {
+        communicationId: body.replyToId,
+        type: "REPLIED",
+        toStatus: "REPLIED",
+        actorUserId: session.user.id,
+        provider: "MANUAL",
+        notes: `Reply logged: ${created.id}`,
+      },
+    });
+  }
+
   await logAudit({
     userId: session.user.id,
     action: "CREATE",
     entityType: "Communication",
     entityId: created.id,
     entityName: created.subject ?? `${created.type} ${created.direction}`,
-    details: { subjectType: created.subjectType, type: created.type },
+    details: { subjectType: created.subjectType, type: created.type, replyTo: body.replyToId ?? null },
   });
 
   return Response.json(created, { status: 201 });

@@ -235,37 +235,55 @@ interface SendOneResult {
 async function sendOneAndLog(input: SendOneInput): Promise<SendOneResult> {
   const { subject, bodyText, recipient, loggedById, bulkId } = input;
 
-  // Send first, then log the result with the assigned Message-ID.
-  // (We pre-generate the Message-ID using a placeholder so it's stable.)
-  const tempMessageId = buildMessageId(`pending-${Date.now()}`);
+  // Pre-create a placeholder Communication so we can use its ID in the
+  // VERP Reply-To address. This way the inbound webhook can decode the
+  // reply directly to this comm without needing header-based matching.
+  const placeholder = await prisma.communication.create({
+    data: {
+      subjectType: recipient.subjectType,
+      consultantId: recipient.consultantId ?? null,
+      clientId: recipient.clientId ?? null,
+      clientContactId: recipient.clientContactId ?? null,
+      applicationId: recipient.applicationId ?? null,
+      cadreProfessionalId: recipient.cadreProfessionalId ?? null,
+      partnerFirmId: recipient.partnerFirmId ?? null,
+      salesAgentId: recipient.salesAgentId ?? null,
+      discoveryCallId: recipient.discoveryCallId ?? null,
+      maarovaUserId: recipient.maarovaUserId ?? null,
+      type: "EMAIL",
+      direction: "OUTBOUND",
+      status: "DRAFT",
+      subject,
+      body: bodyText,
+      occurredAt: new Date(),
+      fromEmail: process.env.SMTP_FROM ?? null,
+      toEmails: [recipient.email],
+      bulkId: bulkId ?? null,
+      loggedById,
+      threadId: null, // self-thread; set below for replies
+    },
+  });
+
+  // Use the comm ID as the threadId (self-thread root)
+  const messageId = buildMessageId(placeholder.id);
+  const replyDomain = process.env.REPLY_DOMAIN ?? "consultforafrica.com";
+  const replyTo = `reply+${placeholder.id}@${replyDomain}`;
 
   const sendResult = await sendOutboundEmail({
     to: recipient.email,
     subject,
     bodyText,
-    messageId: tempMessageId,
+    messageId,
+    replyTo,
   });
 
-  const comm = await prisma.communication.create({
+  const comm = await prisma.communication.update({
+    where: { id: placeholder.id },
     data: {
-      subjectType: recipient.subjectType,
-      consultantId: recipient.consultantId ?? null,
-      clientContactId: recipient.clientContactId ?? null,
-      applicationId: recipient.applicationId ?? null,
-      cadreProfessionalId: recipient.cadreProfessionalId ?? null,
-      partnerFirmId: recipient.partnerFirmId ?? null,
-      type: "EMAIL",
-      direction: "OUTBOUND",
       status: sendResult.ok ? "SENT" : "FAILED",
-      subject,
-      body: bodyText,
-      occurredAt: new Date(),
       sentAt: sendResult.ok ? new Date() : null,
-      fromEmail: process.env.SMTP_FROM ?? null,
-      toEmails: [recipient.email],
       externalId: sendResult.ok ? sendResult.messageId : null,
-      bulkId: bulkId ?? null,
-      loggedById,
+      threadId: placeholder.id, // self-thread root
       events: {
         create: [
           {

@@ -41,6 +41,7 @@ interface Comm {
   toEmails: string[];
   meetingLink: string | null;
   phoneNumber: string | null;
+  threadId: string | null;
   loggedBy: { id: string; name: string };
   nextActionAssignedTo: { id: string; name: string } | null;
   _count: { replies: number; events: number };
@@ -125,6 +126,7 @@ export default function CommunicationsTimeline({ subject }: { subject: SubjectRe
   const [error, setError] = useState("");
   const [showLogForm, setShowLogForm] = useState(false);
   const [showSendForm, setShowSendForm] = useState(false);
+  const [replyToParent, setReplyToParent] = useState<{ id: string; subject: string | null; threadId: string | null } | null>(null);
   const [typeFilter, setTypeFilter] = useState<CommunicationType | "ALL">("ALL");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -387,6 +389,19 @@ export default function CommunicationsTimeline({ subject }: { subject: SubjectRe
 
                 {/* Actions */}
                 <div className="flex items-center gap-1 shrink-0">
+                  {c.type === "EMAIL" && c.direction === "OUTBOUND" && c.status !== "REPLIED" && (
+                    <button
+                      onClick={() => {
+                        setReplyToParent({ id: c.id, subject: c.subject, threadId: c.threadId ?? c.id });
+                        setShowLogForm(true);
+                      }}
+                      className="px-2 py-1 text-[10px] font-semibold rounded transition-colors"
+                      style={{ background: "#EFF6FF", color: "#1E40AF" }}
+                      title="Log a reply received via email"
+                    >
+                      Log Reply
+                    </button>
+                  )}
                   <button
                     onClick={() => handleDelete(c.id)}
                     className="p-1 text-gray-300 hover:text-red-500 transition-colors"
@@ -404,8 +419,15 @@ export default function CommunicationsTimeline({ subject }: { subject: SubjectRe
       {showLogForm && (
         <LogCommunicationForm
           subject={subject}
-          onClose={() => setShowLogForm(false)}
-          onLogged={handleLogged}
+          replyTo={replyToParent}
+          onClose={() => {
+            setShowLogForm(false);
+            setReplyToParent(null);
+          }}
+          onLogged={() => {
+            setReplyToParent(null);
+            handleLogged();
+          }}
         />
       )}
 

@@ -38,14 +38,22 @@ export default function LogCommunicationForm({
   subject,
   onClose,
   onLogged,
+  replyTo,
 }: {
   subject: SubjectRef;
   onClose: () => void;
   onLogged: () => void;
+  replyTo?: {
+    id: string;
+    subject: string | null;
+    threadId: string | null;
+  } | null;
 }) {
-  const [type, setType] = useState("PHONE_CALL");
-  const [direction, setDirection] = useState("OUTBOUND");
-  const [subj, setSubj] = useState("");
+  const [type, setType] = useState(replyTo ? "EMAIL" : "PHONE_CALL");
+  const [direction, setDirection] = useState(replyTo ? "INBOUND" : "OUTBOUND");
+  const [subj, setSubj] = useState(
+    replyTo?.subject ? (replyTo.subject.toLowerCase().startsWith("re:") ? replyTo.subject : `Re: ${replyTo.subject}`) : ""
+  );
   const [body, setBody] = useState("");
   const [outcome, setOutcome] = useState("");
   const [sentiment, setSentiment] = useState("");
@@ -106,6 +114,8 @@ export default function LogCommunicationForm({
       meetingLink: isMeeting ? meetingLink.trim() || null : null,
       phoneNumber: isPhoneType ? phoneNumber.trim() || null : null,
       toEmails: isEmail && toEmail.trim() ? [toEmail.trim()] : [],
+      replyToId: replyTo?.id ?? null,
+      threadId: replyTo?.threadId ?? replyTo?.id ?? null,
     };
 
     try {
@@ -131,9 +141,18 @@ export default function LogCommunicationForm({
       <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b px-5 py-4 flex items-center justify-between" style={{ borderColor: "#e5eaf0" }}>
           <div>
-            <h3 className="text-base font-semibold" style={{ color: "#0F2744" }}>Log Communication</h3>
+            <h3 className="text-base font-semibold" style={{ color: "#0F2744" }}>
+              {replyTo ? "Log Reply" : "Log Communication"}
+            </h3>
             {subject.subjectName && (
-              <p className="text-xs text-gray-500 mt-0.5">with {subject.subjectName}</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {replyTo ? `Reply from ${subject.subjectName}` : `with ${subject.subjectName}`}
+              </p>
+            )}
+            {replyTo?.subject && (
+              <p className="text-[11px] text-gray-400 mt-1 italic line-clamp-1">
+                Re: {replyTo.subject}
+              </p>
             )}
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
