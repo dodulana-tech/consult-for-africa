@@ -5,10 +5,11 @@ import {
   Mail, Phone, Video, Users, MessageCircle, MessageSquare,
   Linkedin, FileText, MoreHorizontal, ArrowRight, ArrowLeft,
   Pin, Archive, Trash2, Edit3, Plus, Calendar, AlertCircle, Loader2,
-  CheckCircle, Clock,
+  CheckCircle, Clock, Send,
 } from "lucide-react";
 import { parseApiError } from "@/lib/parse-api-error";
 import LogCommunicationForm from "./LogCommunicationForm";
+import SendEmailModal from "./SendEmailModal";
 
 type CommunicationType =
   | "EMAIL" | "PHONE_CALL" | "VIDEO_CALL" | "IN_PERSON_MEETING"
@@ -123,6 +124,7 @@ export default function CommunicationsTimeline({ subject }: { subject: SubjectRe
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showLogForm, setShowLogForm] = useState(false);
+  const [showSendForm, setShowSendForm] = useState(false);
   const [typeFilter, setTypeFilter] = useState<CommunicationType | "ALL">("ALL");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -197,13 +199,24 @@ export default function CommunicationsTimeline({ subject }: { subject: SubjectRe
               </p>
             )}
           </div>
-          <button
-            onClick={() => setShowLogForm(true)}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg text-white"
-            style={{ background: "#0F2744" }}
-          >
-            <Plus size={11} /> Log Communication
-          </button>
+          <div className="flex items-center gap-2">
+            {subject.subjectEmail && (
+              <button
+                onClick={() => setShowSendForm(true)}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg text-white"
+                style={{ background: "#0F2744" }}
+              >
+                <Send size={11} /> Send Email
+              </button>
+            )}
+            <button
+              onClick={() => setShowLogForm(true)}
+              className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg"
+              style={{ border: "1px solid #e5eaf0", color: "#0F2744" }}
+            >
+              <Plus size={11} /> Log
+            </button>
+          </div>
         </div>
 
         {summary && summary.openNextActions > 0 && (
@@ -393,6 +406,14 @@ export default function CommunicationsTimeline({ subject }: { subject: SubjectRe
           subject={subject}
           onClose={() => setShowLogForm(false)}
           onLogged={handleLogged}
+        />
+      )}
+
+      {showSendForm && subject.subjectEmail && (
+        <SendEmailModal
+          subject={subject}
+          onClose={() => setShowSendForm(false)}
+          onSent={handleLogged}
         />
       )}
     </div>

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   Mail, Phone, Video, Users, MessageCircle, MessageSquare,
   Linkedin, FileText, MoreHorizontal, ArrowRight, ArrowLeft,
-  Clock, Search,
+  Clock, Search, Send,
 } from "lucide-react";
 
 type CommunicationType =
@@ -97,7 +97,7 @@ export default function CommunicationsInbox({
 
   return (
     <div className="max-w-5xl space-y-4">
-      {/* Tabs */}
+      {/* Tabs + Compose */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex gap-2">
           {TABS.map((t) => (
@@ -116,19 +116,28 @@ export default function CommunicationsInbox({
           ))}
         </div>
 
-        <form onSubmit={handleSearch} className="flex items-center gap-2">
-          <div className="relative">
-            <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              name="q"
-              defaultValue={activeSearch ?? ""}
-              placeholder="Search subject or body..."
-              className="rounded-lg border pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
-              style={{ borderColor: "#e5eaf0", width: "240px" }}
-            />
-          </div>
-        </form>
+        <div className="flex items-center gap-2">
+          <form onSubmit={handleSearch}>
+            <div className="relative">
+              <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                name="q"
+                defaultValue={activeSearch ?? ""}
+                placeholder="Search subject or body..."
+                className="rounded-lg border pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
+                style={{ borderColor: "#e5eaf0", width: "200px" }}
+              />
+            </div>
+          </form>
+          <Link
+            href="/communications/compose"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
+            style={{ background: "#0F2744" }}
+          >
+            <Send size={11} /> Compose
+          </Link>
+        </div>
       </div>
 
       {/* Type filter pills */}
