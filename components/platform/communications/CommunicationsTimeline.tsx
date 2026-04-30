@@ -10,6 +10,8 @@ import {
 import { parseApiError } from "@/lib/parse-api-error";
 import LogCommunicationForm from "./LogCommunicationForm";
 import SendEmailModal from "./SendEmailModal";
+import WhatsAppButton from "./WhatsAppButton";
+import SummarizeButton from "./SummarizeButton";
 
 type CommunicationType =
   | "EMAIL" | "PHONE_CALL" | "VIDEO_CALL" | "IN_PERSON_MEETING"
@@ -201,7 +203,11 @@ export default function CommunicationsTimeline({ subject }: { subject: SubjectRe
               </p>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            {summary && summary.total > 2 && (
+              <SummarizeButton subject={subject} />
+            )}
+            <WhatsAppButton subject={subject} onLogged={fetchData} />
             {subject.subjectEmail && (
               <button
                 onClick={() => setShowSendForm(true)}
