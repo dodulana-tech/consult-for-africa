@@ -124,8 +124,15 @@ export const POST = handler(async function POST(req: NextRequest) {
         dryRun: true,
         audience,
         recipientCount: members.length,
-        recipients: members.slice(0, 20).map((m) => ({ email: m.email, fullName: m.fullName })),
+        recipients: members.map((m) => ({ email: m.email, fullName: m.fullName })),
       });
+    }
+
+    const excludeEmails = Array.isArray(body.excludeEmails)
+      ? new Set((body.excludeEmails as string[]).map((e) => e.toLowerCase()))
+      : null;
+    if (excludeEmails && excludeEmails.size > 0) {
+      members = members.filter((m) => !excludeEmails.has(m.email.toLowerCase()));
     }
 
     if (members.length === 0) {
