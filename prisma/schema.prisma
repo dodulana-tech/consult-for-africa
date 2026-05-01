@@ -303,6 +303,7 @@ model User {
   supervisedRotations    InternRotation[] @relation("SupervisedRotations")
   internEvaluations      InternEvaluation[] @relation("InternEvaluations")
   outreachCampaigns      OutreachCampaign[] @relation("CampaignCreator")
+  maarovaCircleReviews   MaarovaCircleApplication[] @relation("MaarovaCircleReviewer")
   organizedMeetings      Meeting[]          @relation("MeetingOrganizer")
   meetingParticipations  MeetingParticipant[] @relation("MeetingParticipants")
   consultantNdas         Nda[]              @relation("ConsultantNdas")
@@ -2800,6 +2801,7 @@ model OutreachCampaign {
   updatedAt   DateTime @updatedAt
 
   targets OutreachTarget[]
+  circleApplications MaarovaCircleApplication[]
 
   @@index([status])
   @@index([month])
@@ -2827,6 +2829,76 @@ model OutreachTarget {
   createdAt    DateTime         @default(now())
 
   @@index([campaignId, status])
+}
+
+// ─── Maarova Founding Circle (Public Apply) ──────────────────────────────────
+
+enum MaarovaCircleStatus {
+  PENDING_REVIEW       // 40-74 score, needs Debo
+  APPROVED             // slot granted, invite sent
+  DECLINED             // didn't qualify
+  WAITLISTED           // qualified but slots full
+  COMPLETED            // took assessment
+  EXPIRED              // didn't redeem in time
+}
+
+model MaarovaCircleApplication {
+  id              String                 @id @default(cuid())
+  campaignId      String?                // links to OutreachCampaign once approved
+  campaign        OutreachCampaign?      @relation(fields: [campaignId], references: [id])
+
+  // Application data
+  firstName       String
+  lastName        String
+  email           String                 @unique
+  phone           String?
+  linkedinUrl     String
+  currentRole     String
+  currentEmployer String
+  city            String?
+  country         String?
+  yearsInRole     Int?
+  cvFileUrl       String?
+  cvText          String?                @db.Text
+
+  // Screening
+  status          MaarovaCircleStatus    @default(PENDING_REVIEW)
+  aiScore         Int?
+  aiSummary       String?                @db.Text
+  aiStrengths     String[]
+  aiConcerns      String[]
+  aiRecommendation String?               // AUTO_APPROVE, REVIEW, AUTO_DECLINE
+  aiBreakdown     Json?
+
+  // Decision
+  reviewedById    String?
+  reviewedById2   String?                // unused, kept for future
+  reviewedBy      User?                  @relation("MaarovaCircleReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedAt      DateTime?
+  declineReason   String?
+
+  // Linked outreach target after approval
+  outreachTargetId String?               @unique
+  inviteToken      String?               @unique
+  tokenExpiresAt   DateTime?
+  invitedAt        DateTime?
+
+  // Coaching opt-in (June 2026 follow-up)
+  coachingOptIn      Boolean             @default(true)
+  coachingDiscountCode String?           @unique  // e.g. "FOUNDING-A1B2"
+  coachingNotifiedAt DateTime?
+
+  // Metadata
+  ipAddress       String?
+  userAgent       String?
+  source          String?                // linkedin, twitter, direct, referral
+
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([campaignId])
 }
 
 // ─── Nuru Pricing Intelligence ───────────────────────────────────────────────

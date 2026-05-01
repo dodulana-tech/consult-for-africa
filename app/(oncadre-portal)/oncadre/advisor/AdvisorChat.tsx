@@ -18,6 +18,12 @@ interface Professional {
   yearsOfExperience: number | null;
 }
 
+interface Subscription {
+  plan: string;
+  remaining: number;
+  allowed: boolean;
+}
+
 const STARTER_QUESTIONS = [
   "What should I do to improve my employability?",
   "Should I pursue a fellowship or emigrate?",
@@ -30,14 +36,18 @@ const STARTER_QUESTIONS = [
 export default function AdvisorChat({
   initialMessages,
   professional,
+  initialSubscription,
 }: {
   initialMessages: Message[];
   professional: Professional;
+  initialSubscription: Subscription;
 }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [subscription, setSubscription] = useState<Subscription>(initialSubscription);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -73,6 +83,13 @@ export default function AdvisorChat({
 
       if (!res.ok) {
         const data = await res.json();
+        if (data.upgrade) {
+          setShowUpgrade(true);
+          setSubscription((prev) => ({ ...prev, allowed: false, remaining: 0 }));
+          // Remove optimistic message
+          setMessages((prev) => prev.filter((m) => m.id !== userMsg.id));
+          return;
+        }
         throw new Error(data.error || "Failed to send message");
       }
 
@@ -86,6 +103,7 @@ export default function AdvisorChat({
       };
 
       setMessages((prev) => [...prev, advisorMsg]);
+      if (data.subscription) setSubscription(data.subscription);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
       // Remove optimistic user message on error
@@ -119,7 +137,13 @@ export default function AdvisorChat({
           <div>
             <h1 className="text-lg font-bold text-gray-900">Career Advisor</h1>
             <p className="text-xs text-gray-500">
-              Your personal career guide for {professional.cadre}
+              {subscription.plan === "PRO" ? (
+                <span style={{ color: "#D4AF37" }} className="font-semibold">Pro · Unlimited</span>
+              ) : subscription.remaining > 0 ? (
+                <>{subscription.remaining} free message{subscription.remaining === 1 ? "" : "s"} left this month</>
+              ) : (
+                <span className="text-red-500">Free tier limit reached</span>
+              )}
             </p>
           </div>
         </div>
@@ -246,6 +270,28 @@ export default function AdvisorChat({
       {error && (
         <div className="mt-2 rounded-lg bg-red-50 p-2 text-xs text-red-600">
           {error}
+        </div>
+      )}
+
+      {/* Upgrade banner */}
+      {(showUpgrade || (subscription.plan === "FREE" && !subscription.allowed)) && (
+        <div
+          className="mt-3 rounded-2xl p-4 flex items-center justify-between gap-3"
+          style={{ background: "linear-gradient(135deg, rgba(11,60,93,0.04), rgba(212,175,55,0.08))", border: "1px solid #D4AF37" }}
+        >
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gray-900">You have used all 3 free messages this month</p>
+            <p className="text-xs text-gray-600 mt-0.5">
+              Upgrade to Pro for N1,500/month to get unlimited career advice plus access to paid coaching sessions.
+            </p>
+          </div>
+          <Link
+            href="/oncadre/coaching/upgrade"
+            className="flex-shrink-0 rounded-xl px-4 py-2 text-xs font-semibold text-white whitespace-nowrap"
+            style={{ background: "linear-gradient(135deg, #0B3C5D, #0d4a73)" }}
+          >
+            Upgrade to Pro
+          </Link>
         </div>
       )}
 

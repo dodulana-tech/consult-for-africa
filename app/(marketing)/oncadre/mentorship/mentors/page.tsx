@@ -360,8 +360,15 @@ export default async function BrowseMentorsPage({ searchParams }: PageProps) {
                     }}
                   >
                     {spotsLeft > 0
-                      ? "Request Mentorship"
+                      ? "Request Free Mentorship"
                       : "Currently Full"}
+                  </Link>
+                  <Link
+                    href={`/oncadre/mentorship/book/${mentor.id}`}
+                    className="mt-2 block w-full rounded-xl border py-2.5 text-center text-xs font-medium transition hover:bg-gray-50"
+                    style={{ borderColor: "#D4AF37", color: "#0B3C5D" }}
+                  >
+                    Or book 1:1 session (N5,000)
                   </Link>
                 </div>
               );

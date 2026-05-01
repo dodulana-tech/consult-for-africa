@@ -1806,3 +1806,91 @@ export async function emailAssignmentTerminated({
     layout(`${h1("Assignment Ended")}${p(`Hi ${consultantName}, your assignment on ${projectName} has been concluded.`)}${infoTable([["Project", projectName], ["Role", role]])}${p("Thank you for your contribution to this engagement. If you have any questions, please reach out to your engagement manager.")}${btn("View Opportunities", `${BASE_URL}/opportunities`)}`)
   );
 }
+
+// ─── Maarova Founding Circle ─────────────────────────────────────────────────
+
+export async function emailMaarovaCircleReceived({
+  email, firstName,
+}: {
+  email: string; firstName: string;
+}) {
+  await send(email, "We have your Maarova Founding Circle application",
+    layout(`
+      ${h1("Application received")}
+      ${p(`Hi ${esc(firstName)},`)}
+      ${p("Thank you for applying to the Maarova Founding Circle. We are reviewing every application personally. You will hear back within 24 hours either way.")}
+      ${p("Best,<br/>Debo Odulana<br/>Founding Partner, Consult For Africa")}
+    `)
+  );
+}
+
+export async function emailMaarovaCircleApproved({
+  email, firstName, inviteToken, discountCode,
+}: {
+  email: string; firstName: string; inviteToken: string; discountCode: string;
+}) {
+  const onboardUrl = `${BASE_URL}/maarova/onboard/${inviteToken}`;
+  await send(email, `${firstName}, you are in the Maarova Founding Circle`,
+    layout(`
+      ${h1("You are in")}
+      ${p(`Hi ${esc(firstName)},`)}
+      ${p("Welcome to the Maarova Founding Circle. Your slot is confirmed.")}
+      <div style="margin:20px 0;padding:18px 22px;background:#F9FAFB;border-left:4px solid #D4AF37;border-radius:6px;">
+        <p style="margin:0 0 8px;font-size:14px;color:#0F2744;font-weight:600;">Here is what to do next:</p>
+        <ul style="margin:0;padding-left:18px;color:#374151;font-size:13.5px;line-height:1.8;">
+          <li>Click below to set up your private Maarova account</li>
+          <li>Complete the 60-minute leadership assessment on your schedule</li>
+          <li>Your full report arrives by email within minutes of completion</li>
+        </ul>
+      </div>
+      ${btn("Start your Maarova assessment", onboardUrl)}
+      <div style="margin:24px 0 0;padding:16px 20px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:6px;">
+        <p style="margin:0 0 6px;font-size:13px;color:#92400E;font-weight:600;">Your Founding Circle coaching code</p>
+        <p style="margin:0;font-size:18px;color:#0F2744;font-weight:700;letter-spacing:0.05em;">${esc(discountCode)}</p>
+        <p style="margin:8px 0 0;font-size:12px;color:#92400E;">Apply this code at checkout for 10% off Maarova executive coaching when bookings open in June 2026.</p>
+      </div>
+      ${p("If anything is unclear, reply to this email directly.")}
+      ${p("Looking forward to your report,<br/>Debo Odulana<br/>Founding Partner, Consult For Africa")}
+    `)
+  );
+}
+
+export async function emailMaarovaCircleDeclined({
+  email, firstName, reason,
+}: {
+  email: string; firstName: string; reason: string | null;
+}) {
+  const reasonLine = reason
+    ? `<div style="margin:16px 0;padding:14px 18px;background:#F9FAFB;border-radius:6px;color:#4B5563;font-size:13.5px;">Note: ${esc(reason)}</div>`
+    : "";
+  await send(email, "Update on your Maarova Founding Circle application",
+    layout(`
+      ${h1("Thank you for applying")}
+      ${p(`Hi ${esc(firstName)},`)}
+      ${p("Thank you for applying to the Maarova Founding Circle. This round is calibrated specifically for healthcare operators across Africa with current leadership scope. Based on the information provided, this round is not the right fit.")}
+      ${reasonLine}
+      ${p("If your situation changes, or if you would like to bring Maarova to your hospital or organisation, get in touch directly. We will also notify you about future cohorts if you would like to be included.")}
+      ${p("With respect,<br/>Debo Odulana<br/>Founding Partner, Consult For Africa")}
+    `)
+  );
+}
+
+export async function emailMaarovaCircleCoachingOpen({
+  email, firstName, discountCode,
+}: {
+  email: string; firstName: string; discountCode: string;
+}) {
+  await send(email, `${firstName}, Maarova coaching is now open`,
+    layout(`
+      ${h1("Coaching is open")}
+      ${p(`Hi ${esc(firstName)},`)}
+      ${p("Maarova executive coaching is now bookable. As a Founding Circle member, your 10% discount is ready.")}
+      <div style="margin:20px 0;padding:18px 22px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:6px;">
+        <p style="margin:0 0 6px;font-size:13px;color:#92400E;font-weight:600;">Your Founding Circle code</p>
+        <p style="margin:0;font-size:18px;color:#0F2744;font-weight:700;letter-spacing:0.05em;">${esc(discountCode)}</p>
+      </div>
+      ${btn("Book a coach", `${BASE_URL}/maarova/coaching`)}
+      ${p("Best,<br/>Debo Odulana<br/>Founding Partner, Consult For Africa")}
+    `)
+  );
+}

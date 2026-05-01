@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 import { getCadreLabel } from "@/lib/cadreHealth/cadres";
+import { checkAIMessageAllowance } from "@/lib/cadreHealth/subscription";
 import AdvisorChat from "./AdvisorChat";
 
 export default async function AdvisorPage() {
@@ -21,11 +22,14 @@ export default async function AdvisorPage() {
 
   if (!professional) redirect("/oncadre/register");
 
-  const messages = await prisma.cadreAdvisorMessage.findMany({
-    where: { professionalId: session.sub },
-    orderBy: { createdAt: "asc" },
-    take: 50,
-  });
+  const [messages, allowance] = await Promise.all([
+    prisma.cadreAdvisorMessage.findMany({
+      where: { professionalId: session.sub },
+      orderBy: { createdAt: "asc" },
+      take: 50,
+    }),
+    checkAIMessageAllowance(session.sub),
+  ]);
 
   const serializedMessages = messages.map((m) => ({
     id: m.id,
@@ -46,6 +50,7 @@ export default async function AdvisorPage() {
         subSpecialty: professional.subSpecialty,
         yearsOfExperience: professional.yearsOfExperience,
       }}
+      initialSubscription={allowance}
     />
   );
 }
