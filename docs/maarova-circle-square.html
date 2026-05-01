@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 1200px; overflow: hidden; }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    background: #0F2744;
+    color: white;
+    position: relative;
+  }
+  .glow1 {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 60% 70% at 85% 30%, rgba(20,130,200,0.35) 0%, transparent 60%);
+  }
+  .glow2 {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 30% 40% at 75% 0%, rgba(212,175,55,0.18) 0%, transparent 50%);
+  }
+  .grain {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px;
+  }
+  .container {
+    position: relative;
+    padding: 96px 96px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 1;
+  }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .brand {
+    font-size: 13px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #D4AF37;
+    font-weight: 600;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(212,175,55,0.15);
+    color: #D4AF37;
+    border: 1px solid rgba(212,175,55,0.45);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .badge-dot {
+    width: 7px; height: 7px; border-radius: 999px; background: #D4AF37;
+  }
+  .accent { width: 56px; height: 3px; background: #D4AF37; margin: 24px 0 28px; }
+  h1 {
+    font-size: 84px;
+    line-height: 1.05;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    max-width: 1000px;
+  }
+  h1 .gold { color: #D4AF37; }
+  .subline {
+    margin-top: 24px;
+    font-size: 22px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.4;
+    max-width: 900px;
+  }
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .stats {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+  }
+  .stat-block .label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .stat-block .value {
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+  }
+  .stat-block .value strong { color: #D4AF37; }
+  .url {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.04em;
+  }
+  .pricing-strip {
+    margin-top: 20px;
+    font-size: 18px;
+    color: rgba(255,255,255,0.55);
+  }
+  .pricing-strip s { text-decoration-thickness: 2px; }
+  .pricing-strip strong { color: #D4AF37; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="glow1"></div>
+<div class="glow2"></div>
+<div class="grain"></div>
+
+<div class="container">
+  <div class="top">
+    <div class="brand">Consult For Africa &middot; Maarova</div>
+    <div class="badge"><span class="badge-dot"></span>Founding Circle</div>
+  </div>
+
+  <div>
+    <div class="accent"></div>
+    <h1>
+      <span class="gold">50 free leadership assessments</span><br/>
+      for healthcare leaders across Africa.
+    </h1>
+    <p class="subline">
+      Brilliant operators fail in healthcare management roles. Doctors included. Maarova shows you why before it costs you.
+    </p>
+    <p class="pricing-strip">
+      Each assessment is normally <s>N460,000 to N690,000</s>. Founding Circle members pay <strong>nothing</strong>.
+    </p>
+  </div>
+
+  <div class="footer">
+    <div class="stats">
+      <div class="stat-block">
+        <div class="label">Slots</div>
+        <div class="value"><strong>50</strong></div>
+      </div>
+      <div class="stat-block">
+        <div class="label">Closes</div>
+        <div class="value">8 May</div>
+      </div>
+      <div class="stat-block">
+        <div class="label">Apply</div>
+        <div class="value">consultforafrica.com/maarova/circle</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

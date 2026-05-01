@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EMR & Digitization Advocacy Programme — Partnership Proposal</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 20mm 16mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    color: #1a1a1a;
+    background: #fff;
+    line-height: 1.55;
+    font-size: 11pt;
+  }
+  .container { max-width: 720px; margin: 0 auto; padding: 32px 28px; }
+
+  /* Cover */
+  .cover {
+    page-break-after: always;
+    min-height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 60px 0 30px;
+  }
+  .cover-top { }
+  .cover-brand {
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 9pt;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #0B3C5D;
+    font-weight: 600;
+  }
+  .cover-logo {
+    height: 56px;
+    width: auto;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .cover-rule {
+    width: 48px;
+    height: 2px;
+    background: #D4AF37;
+    margin: 18px 0 28px;
+  }
+  .header-logo {
+    height: 28px;
+    width: auto;
+  }
+  .cover-title {
+    font-family: Georgia, serif;
+    font-size: 32pt;
+    line-height: 1.1;
+    color: #0B3C5D;
+    margin: 0 0 8px;
+    font-weight: 600;
+  }
+  .cover-sub {
+    font-size: 14pt;
+    color: #555;
+    margin: 0;
+  }
+  .cover-meta {
+    margin-top: 60px;
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 10pt;
+    color: #555;
+  }
+  .cover-meta div { margin-bottom: 6px; }
+  .cover-meta strong { color: #0B3C5D; font-weight: 600; }
+  .cover-bottom {
+    border-top: 1px solid #E8EBF0;
+    padding-top: 16px;
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 8.5pt;
+    color: #888;
+    letter-spacing: 0.05em;
+  }
+
+  /* Headings */
+  h1, h2, h3 {
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    color: #0B3C5D;
+    page-break-after: avoid;
+  }
+  h1 {
+    font-size: 22pt;
+    margin: 0 0 8px;
+    line-height: 1.15;
+    font-weight: 600;
+  }
+  h2 {
+    font-size: 14pt;
+    margin: 32px 0 12px;
+    padding-top: 16px;
+    border-top: 1px solid #E8EBF0;
+    font-weight: 600;
+  }
+  h3 {
+    font-size: 11.5pt;
+    margin: 22px 0 8px;
+    font-weight: 600;
+    color: #1a3a55;
+  }
+  h2 .num {
+    color: #D4AF37;
+    margin-right: 10px;
+    font-weight: 600;
+  }
+
+  /* Body text */
+  p { margin: 0 0 12px; }
+  ul, ol { margin: 0 0 14px; padding-left: 22px; }
+  li { margin-bottom: 6px; }
+  strong { color: #1a3a55; }
+  em { color: #555; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 18px;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border-bottom: 1px solid #E8EBF0;
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: #F8F9FB;
+    color: #0B3C5D;
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-weight: 600;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 2px solid #D4AF37;
+  }
+  td .total { font-weight: 700; color: #0B3C5D; }
+  tr.total td { background: #F8F9FB; font-weight: 700; color: #0B3C5D; }
+
+  /* Callout */
+  .callout {
+    border-left: 3px solid #D4AF37;
+    background: #FFFBEB;
+    padding: 14px 18px;
+    margin: 16px 0 20px;
+    page-break-inside: avoid;
+  }
+  .callout p { margin: 0; }
+  .callout .label {
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 9pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #B8860B;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  /* Quote / script box */
+  blockquote {
+    margin: 12px 0;
+    padding: 14px 18px;
+    border-left: 3px solid #0B3C5D;
+    background: #F8F9FB;
+    color: #333;
+    font-style: italic;
+    font-size: 10.5pt;
+  }
+
+  /* TOC */
+  .toc {
+    background: #F8F9FB;
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin: 24px 0 40px;
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+  .toc h3 {
+    margin: 0 0 12px;
+    font-size: 9pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #0B3C5D;
+    border: 0;
+    padding: 0;
+  }
+  .toc ol { margin: 0; padding-left: 22px; }
+  .toc li { margin-bottom: 4px; color: #333; }
+
+  /* Footer */
+  .signoff {
+    margin-top: 36px;
+    padding-top: 18px;
+    border-top: 1px solid #E8EBF0;
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 10pt;
+    color: #555;
+  }
+  .signoff strong { color: #0B3C5D; }
+
+  /* Page break helpers */
+  .page-break { page-break-before: always; }
+  .avoid-break { page-break-inside: avoid; }
+
+  /* Print refinements */
+  @media print {
+    body { font-size: 10.5pt; }
+    .container { max-width: none; padding: 0; }
+    h2 { page-break-after: avoid; }
+    table { page-break-inside: avoid; }
+    .no-print { display: none; }
+  }
+
+  .print-bar {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    background: #0B3C5D;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-family: -apple-system, sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border: none;
+    z-index: 999;
+  }
+  .print-bar:hover { background: #0d4a73; }
+</style>
+</head>
+<body>
+
+<button class="print-bar no-print" onclick="window.print()">Save as PDF (Cmd+P)</button>
+
+<div class="container">
+
+  <!-- Cover -->
+  <section class="cover">
+    <div class="cover-top">
+      <img src="c4a-logo.png" alt="Consult For Africa" class="cover-logo" />
+      <div class="cover-rule"></div>
+      <h1 class="cover-title">EMR & Digitization<br/>Advocacy Programme</h1>
+      <p class="cover-sub">Partnership Proposal — National Pilot</p>
+      <div class="cover-meta">
+        <div><strong>Prepared for:</strong> Dr. Simpa Dania, Founder, HealthStack Africa</div>
+        <div><strong>Prepared by:</strong> Consult For Africa (C4A)</div>
+        <div><strong>Date:</strong> 21 April 2026</div>
+        <div><strong>Status:</strong> Pilot Proposal v1.0</div>
+      </div>
+    </div>
+    <div class="cover-bottom">CONFIDENTIAL — For HealthStack Africa internal review only</div>
+  </section>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li>Executive Summary</li>
+      <li>Strategic Context</li>
+      <li>Programme Overview</li>
+      <li>Operating Model</li>
+      <li>Advocate Role Definition</li>
+      <li>Coverage Strategy</li>
+      <li>Standard Operating Procedures</li>
+      <li>Recruitment & Selection</li>
+      <li>Training & Certification</li>
+      <li>Performance Management & KPIs</li>
+      <li>Commercial Structure</li>
+      <li>Governance & Reporting</li>
+      <li>Timeline</li>
+      <li>Risks and Mitigations</li>
+      <li>Why This Will Work</li>
+      <li>Next Steps</li>
+      <li>Appendix A: First Contact Script</li>
+      <li>Appendix B: Digital Readiness Framework</li>
+    </ol>
+  </div>
+
+  <!-- 1. Executive Summary -->
+  <h2><span class="num">01</span>Executive Summary</h2>
+  <p>HealthStack Africa and Consult For Africa propose a joint pilot to deploy a national network of EMR and Digitization Advocates across Nigeria. These advocates will provide system-agnostic, on-the-ground support to healthcare facilities navigating the move from paper to digital.</p>
+  <p>The pilot will field <strong>four advocates</strong> with national remote coverage, each owning a defined geopolitical zone, supported centrally by C4A operations. The programme is structured to be commercially modest in Phase 1, prove operating mechanics over six months, then scale based on validated unit economics.</p>
+  <div class="callout">
+    <div class="label">Headline ask</div>
+    <p>N13.32M for the six-month pilot covering four advocates, central coordination, and tooling. Expected output: 60 to 100 facility engagements, validated SOPs, and a scalable playbook for nationwide rollout.</p>
+  </div>
+
+  <!-- 2. Strategic Context -->
+  <h2><span class="num">02</span>Strategic Context</h2>
+  <p>Nigeria's health digitization gap is well documented. Despite Federal mandates, donor-funded EMR deployments, and the proliferation of vendor solutions, adoption remains patchy. The reasons are not technical. They are operational, behavioural, and human.</p>
+  <p>Most facilities lack:</p>
+  <ul>
+    <li>A trusted advisor to guide system selection without a vendor agenda</li>
+    <li>Hands-on support through the messy middle of implementation</li>
+    <li>Continuity when external consultants leave or grants end</li>
+    <li>Peer-level connection to other facilities who have made the journey</li>
+  </ul>
+  <p>HealthStack has built one of the more credible digital health platforms in Nigeria. Consult For Africa is the leading healthcare management consulting network on the continent, with a verified pool of clinicians and healthcare operators through CadreHealth and the C4A Agent Channel.</p>
+  <p>The opportunity: combine HealthStack's product credibility with C4A's distribution and human capital infrastructure to create a category-defining advocacy programme.</p>
+
+  <!-- 3. Programme Overview -->
+  <h2><span class="num">03</span>Programme Overview</h2>
+  <h3>3.1 What is an EMR & Digitization Advocate?</h3>
+  <p>An EMR & Digitization Advocate is a healthcare-literate, technology-fluent professional embedded within C4A's operational umbrella, deployed to engage healthcare facilities in their assigned zone. Their role is to:</p>
+  <ol>
+    <li>Identify and qualify facilities ready for digitization</li>
+    <li>Conduct neutral, structured digital readiness assessments</li>
+    <li>Recommend appropriate solutions (HealthStack and others) based on facility context</li>
+    <li>Provide hands-on support through implementation</li>
+    <li>Maintain ongoing relationships post-deployment</li>
+    <li>Escalate to specialists when needed</li>
+  </ol>
+  <p>Critically, advocates are positioned as <strong>trusted advisors, not vendor representatives</strong>. The system-agnostic stance is the differentiator and must be defended rigorously throughout the programme.</p>
+
+  <h3>3.2 Scope of the Pilot</h3>
+  <table>
+    <tr><th>Element</th><th>Detail</th></tr>
+    <tr><td>Duration</td><td>6 months (May 2026 to October 2026)</td></tr>
+    <tr><td>Team size</td><td>4 advocates + 1 programme manager (C4A)</td></tr>
+    <tr><td>Geographic coverage</td><td>National, zonal allocation</td></tr>
+    <tr><td>Operating mode</td><td>Remote-first with regional travel</td></tr>
+    <tr><td>Target output</td><td>60 to 100 facility engagements</td></tr>
+    <tr><td>Reporting cadence</td><td>Weekly to C4A, fortnightly joint review with HealthStack</td></tr>
+  </table>
+
+  <!-- 4. Operating Model -->
+  <h2><span class="num">04</span>Operating Model</h2>
+  <h3>4.1 Role Split</h3>
+  <p><strong>Consult For Africa is responsible for:</strong></p>
+  <ul>
+    <li>Recruitment, vetting, and onboarding of advocates</li>
+    <li>Employment contracts, statutory compliance, and payroll</li>
+    <li>Training curriculum design and delivery</li>
+    <li>Day-to-day operational management</li>
+    <li>Performance monitoring and SOP enforcement</li>
+    <li>CRM and reporting infrastructure</li>
+    <li>Quality assurance on facility engagements</li>
+    <li>Monthly invoicing and financial reporting to HealthStack</li>
+  </ul>
+  <p><strong>HealthStack Africa is responsible for:</strong></p>
+  <ul>
+    <li>Programme funding under agreed commercials</li>
+    <li>Subject-matter input into advocate training (HealthStack product, EMR landscape)</li>
+    <li>Lead handover of inbound HealthStack-aligned opportunities to advocates</li>
+    <li>Strategic direction and quarterly programme review</li>
+    <li>Co-branding approval and marketing alignment</li>
+  </ul>
+  <h3>4.2 Why C4A Manages the Operating Layer</h3>
+  <p>Healthcare workforce deployment is operationally heavy. Recruiting, contracting, training, performance-managing, and paying field personnel across Nigeria is a discipline in its own right. C4A's CadreHealth platform already handles this for clinical placements. Layering advocacy on top is a natural extension.</p>
+  <p>It also preserves HealthStack's positioning. The advocacy programme is not a HealthStack sales channel. It is a neutral healthcare advisory function that happens to surface HealthStack as one option among many. That neutrality is strongest when the operating entity is not HealthStack itself.</p>
+
+  <!-- 5. Advocate Role -->
+  <h2><span class="num">05</span>Advocate Role Definition</h2>
+  <h3>5.1 Position Profile</h3>
+  <table>
+    <tr><th>Field</th><th>Detail</th></tr>
+    <tr><td>Job Title</td><td>EMR & Digitization Advocate</td></tr>
+    <tr><td>Reports To</td><td>Programme Manager (C4A)</td></tr>
+    <tr><td>Engagement Type</td><td>12-month consulting contract via Consult For Africa</td></tr>
+    <tr><td>Location</td><td>Remote, with assigned zone of responsibility</td></tr>
+  </table>
+
+  <h3>5.2 Core Responsibilities</h3>
+  <ol>
+    <li><strong>Discovery and outreach.</strong> Identify priority facilities in assigned zone using CadreHealth data, public records, and partner referrals. Conduct first-contact engagements via phone, video, or in-person where warranted.</li>
+    <li><strong>Digital readiness assessment.</strong> Run a standardized 60 to 90 minute structured assessment covering: current workflows, infrastructure, staff readiness, leadership commitment, budget posture, and existing systems.</li>
+    <li><strong>Recommendation and roadmapping.</strong> Produce a written report for the facility outlining strengths, gaps, and a phased pathway. Include a shortlist of two to three system options matched to facility profile. HealthStack appears where genuinely fit-for-purpose.</li>
+    <li><strong>Implementation support.</strong> Where the facility selects a path forward, provide structured hand-holding through vendor engagement, configuration choices, training, and go-live. The advocate does not implement systems. They orchestrate.</li>
+    <li><strong>Post-deployment continuity.</strong> Maintain quarterly check-ins with engaged facilities for at least 12 months. Surface adoption issues, escalate to vendors, and track outcomes.</li>
+    <li><strong>Knowledge contribution.</strong> Submit weekly field intelligence to C4A. Participate in monthly cohort calls. Contribute to evolving SOPs.</li>
+  </ol>
+
+  <h3>5.3 Required Profile</h3>
+  <ul>
+    <li>Healthcare background (clinical or hospital management) with 3+ years experience</li>
+    <li>Demonstrated comfort with digital tools and systems thinking</li>
+    <li>Strong written and verbal communication in English</li>
+    <li>Local language fluency relevant to assigned zone (Hausa, Yoruba, Igbo, or Pidgin)</li>
+    <li>Self-directed, mobile, and willing to travel within zone</li>
+    <li>Reference-checkable and license-verified through CadreHealth</li>
+  </ul>
+
+  <h3>5.4 Disqualifying Affiliations</h3>
+  <p>To preserve neutrality, advocates may not:</p>
+  <ul>
+    <li>Hold equity, stipends, or referral arrangements with any EMR or HIS vendor</li>
+    <li>Concurrently work as a sales agent for any health technology product</li>
+    <li>Receive personal compensation from vendors during their tenure</li>
+  </ul>
+  <p>This will be enforced through contract clauses, periodic attestations, and random audit.</p>
+
+  <!-- 6. Coverage -->
+  <h2><span class="num">06</span>Coverage Strategy</h2>
+  <h3>6.1 Zonal Allocation (4 Advocates)</h3>
+  <table>
+    <tr><th>Advocate</th><th>Zone</th><th>States Covered</th><th>Est. Facilities</th></tr>
+    <tr><td>1</td><td>South West + part South South</td><td>Lagos, Ogun, Oyo, Ondo, Osun, Ekiti, Edo, Delta</td><td>280+</td></tr>
+    <tr><td>2</td><td>South East + rest South South</td><td>Imo, Anambra, Enugu, Abia, Ebonyi, Cross River, Akwa Ibom, Bayelsa, Rivers</td><td>220+</td></tr>
+    <tr><td>3</td><td>North Central including FCT</td><td>FCT, Plateau, Benue, Kogi, Kwara, Niger, Nasarawa</td><td>180+</td></tr>
+    <tr><td>4</td><td>North West + North East</td><td>Kano, Kaduna, Katsina, Sokoto, Kebbi, Jigawa, Zamfara, Bauchi, Borno, Adamawa, Gombe, Taraba, Yobe</td><td>240+</td></tr>
+  </table>
+
+  <h3>6.2 Travel Posture</h3>
+  <p>Default operating mode is remote (phone, video, structured digital assessments). Physical site visits are reserved for:</p>
+  <ul>
+    <li>Facilities that have signalled high readiness and require trust-building</li>
+    <li>Implementation kickoff for facilities adopting any platform</li>
+    <li>Quarterly tier-1 facility reviews</li>
+  </ul>
+  <p>Each advocate will have a quarterly travel budget to support up to four in-zone trips per month, scaling based on engagement volume.</p>
+
+  <!-- 7. SOPs -->
+  <h2><span class="num">07</span>Standard Operating Procedures</h2>
+  <h3>7.1 SOP 1: Facility Identification and Qualification</h3>
+  <p><strong>Trigger:</strong> Weekly territory planning session.</p>
+  <p><strong>Steps:</strong></p>
+  <ol>
+    <li>Pull list of priority facilities in zone from CadreHealth facility database (filtered by bed count, ownership type, prior engagement status).</li>
+    <li>Cross-reference with publicly available digitization signals (state grant lists, JCI/COHSASA pipeline, NHIA partnership status).</li>
+    <li>Score and rank using the C4A Digital Readiness Lead Score (proprietary).</li>
+    <li>Submit weekly engagement plan to Programme Manager every Monday by 12:00 WAT.</li>
+  </ol>
+  <p><strong>Output:</strong> Ranked list of 8 to 12 facilities for the week's outreach.</p>
+
+  <h3>7.2 SOP 2: First Contact and Engagement Booking</h3>
+  <p><strong>Trigger:</strong> Facility appears on weekly engagement plan.</p>
+  <ol>
+    <li>Identify decision-maker (Medical Director, Hospital Administrator, IT lead, or owner).</li>
+    <li>Reach out via the C4A-approved channel (warm referral, LinkedIn, association introduction, or cold WhatsApp).</li>
+    <li>Use the standardized first-contact script (see Appendix A).</li>
+    <li>Book a 60-minute discovery call within 14 days.</li>
+    <li>Log every contact attempt in CadreHealth CRM.</li>
+  </ol>
+  <p><strong>Service standards:</strong> No more than three follow-up attempts per facility within a four-week window. After that, mark as cold and move on.</p>
+
+  <h3>7.3 SOP 3: Digital Readiness Assessment</h3>
+  <p><strong>Trigger:</strong> Discovery call confirmed.</p>
+  <ol>
+    <li>Send pre-call briefing pack 48 hours in advance.</li>
+    <li>Conduct structured 60 to 90 minute assessment using the C4A Digital Readiness Framework.</li>
+    <li>Score across six dimensions: workflows, infrastructure, staff, leadership, budget, current systems.</li>
+    <li>Within 5 business days, deliver a written assessment report (10 to 15 pages) including findings, score, and prioritized recommendations.</li>
+    <li>Schedule follow-up to walk through the report.</li>
+  </ol>
+  <p><strong>Quality gate:</strong> Programme Manager reviews and approves every assessment report before delivery to facility.</p>
+
+  <h3>7.4 SOP 4: Solution Recommendation</h3>
+  <p><strong>Trigger:</strong> Assessment complete, facility ready to consider options.</p>
+  <ol>
+    <li>Match facility profile to the C4A Solution Library (maintained by Programme Manager, includes HealthStack and competing systems).</li>
+    <li>Identify two to three viable solutions across price points.</li>
+    <li>Present options in a single comparison document. Never recommend a single system. Always present alternatives.</li>
+    <li>Disclose any C4A affiliation with vendors in the recommendation footer.</li>
+    <li>Hand off to facility for vendor engagement.</li>
+  </ol>
+  <p><strong>Neutrality safeguard:</strong> Quarterly external audit of recommendation patterns. If any single vendor exceeds 50% of recommendations, trigger root-cause review.</p>
+
+  <h3>7.5 SOP 5: Implementation Support</h3>
+  <p><strong>Trigger:</strong> Facility selects a vendor.</p>
+  <ol>
+    <li>Co-develop a phased implementation plan with vendor and facility (12 to 16 weeks typical).</li>
+    <li>Attend vendor kickoff meeting.</li>
+    <li>Conduct fortnightly check-ins with facility through go-live.</li>
+    <li>Surface and escalate blockers to Programme Manager and vendor.</li>
+    <li>Conduct 30, 60, and 90-day post-go-live adoption reviews.</li>
+  </ol>
+
+  <h3>7.6 SOP 6: Reporting and Cadence</h3>
+  <table>
+    <tr><th>Cadence</th><th>Activity</th><th>Owner</th></tr>
+    <tr><td>Daily</td><td>Activity log in CadreHealth CRM</td><td>Advocate</td></tr>
+    <tr><td>Weekly</td><td>Pipeline update to Programme Manager</td><td>Advocate</td></tr>
+    <tr><td>Weekly</td><td>Cohort sync, 45 min, all advocates</td><td>Programme Manager</td></tr>
+    <tr><td>Fortnightly</td><td>Joint review with HealthStack</td><td>PM + HealthStack</td></tr>
+    <tr><td>Monthly</td><td>Performance dashboard to all stakeholders</td><td>Programme Manager</td></tr>
+    <tr><td>Quarterly</td><td>Strategic review and SOP iteration</td><td>Joint leadership</td></tr>
+  </table>
+
+  <h3>7.7 SOP 7: Escalation Matrix</h3>
+  <table>
+    <tr><th>Issue Type</th><th>First Responder</th><th>Escalation Path</th></tr>
+    <tr><td>Facility complaint</td><td>Advocate within 24h</td><td>PM within 48h</td></tr>
+    <tr><td>Vendor non-performance</td><td>Advocate logs in CRM</td><td>PM engages vendor</td></tr>
+    <tr><td>Conflict of interest</td><td>Programme Manager</td><td>Joint partnership leadership</td></tr>
+    <tr><td>Compliance breach</td><td>Programme Manager</td><td>C4A Partner + HealthStack Founder</td></tr>
+    <tr><td>Safety or clinical risk</td><td>Advocate within 4h</td><td>C4A Partner + facility leadership</td></tr>
+  </table>
+
+  <!-- 8. Recruitment -->
+  <h2><span class="num">08</span>Recruitment & Selection</h2>
+  <h3>8.1 Pipeline</h3>
+  <p>C4A will source advocates from three pools:</p>
+  <ol>
+    <li><strong>CadreHealth verified pool.</strong> 4,000+ professionals across cadres, license-verified.</li>
+    <li><strong>Doctors Foundation for Care alumni.</strong> 500+ diaspora-connected clinicians and admins.</li>
+    <li><strong>Open application.</strong> Public posting through CadreHealth jobs board and the C4A Agent Channel.</li>
+  </ol>
+  <h3>8.2 Selection Process</h3>
+  <ol>
+    <li>Application screen</li>
+    <li>Structured competency interview (C4A)</li>
+    <li>Joint final-round panel (C4A + HealthStack)</li>
+    <li>Reference check and license verification</li>
+    <li>Offer and contract</li>
+  </ol>
+  <p><strong>Target time-to-hire:</strong> 4 weeks from programme greenlight.</p>
+
+  <!-- 9. Training -->
+  <h2><span class="num">09</span>Training & Certification</h2>
+  <p>A 10-day induction programme delivered jointly by C4A and HealthStack:</p>
+  <table>
+    <tr><th>Module</th><th>Duration</th><th>Delivery</th></tr>
+    <tr><td>Healthcare digital landscape Nigeria</td><td>1 day</td><td>C4A</td></tr>
+    <tr><td>EMR/HIS technology fundamentals</td><td>2 days</td><td>HealthStack</td></tr>
+    <tr><td>C4A Digital Readiness Framework</td><td>2 days</td><td>C4A</td></tr>
+    <tr><td>Vendor landscape and product comparison</td><td>1 day</td><td>HealthStack + C4A</td></tr>
+    <tr><td>Field SOPs and CRM workflows</td><td>1 day</td><td>C4A</td></tr>
+    <tr><td>Engagement skills and consultative selling</td><td>1 day</td><td>C4A</td></tr>
+    <tr><td>Compliance, ethics, and neutrality</td><td>1 day</td><td>C4A</td></tr>
+    <tr><td>Field shadowing and case clinics</td><td>1 day</td><td>Joint</td></tr>
+  </table>
+  <p>Advocates must pass a certification assessment before being deployed. Recertification every six months.</p>
+
+  <!-- 10. KPIs -->
+  <h2><span class="num">10</span>Performance Management & KPIs</h2>
+  <h3>10.1 Per-Advocate KPIs</h3>
+  <table>
+    <tr><th>Metric</th><th>Monthly Target</th><th>Notes</th></tr>
+    <tr><td>Facilities contacted</td><td>20 to 30</td><td>Quality over quantity</td></tr>
+    <tr><td>Discovery calls completed</td><td>8 to 12</td><td>At least 60-min structured</td></tr>
+    <tr><td>Assessments delivered</td><td>4 to 6</td><td>Quality-gated</td></tr>
+    <tr><td>Implementation engagements active</td><td>2 to 4</td><td>Cumulative</td></tr>
+    <tr><td>90-day adoption review rate</td><td>80%+</td><td>Of facilities that go live</td></tr>
+    <tr><td>CRM hygiene score</td><td>95%+</td><td>Audited monthly</td></tr>
+  </table>
+  <h3>10.2 Programme-Level KPIs (6 months)</h3>
+  <ul>
+    <li>60 to 100 facility engagements</li>
+    <li>30 to 50 assessments delivered</li>
+    <li>10 to 20 implementations supported (any vendor)</li>
+    <li>Net Promoter Score from facilities: 40+</li>
+    <li>Programme cost per facility engaged: under N50k</li>
+  </ul>
+  <h3>10.3 Performance Reviews</h3>
+  <ul>
+    <li>30-day post-induction probation review</li>
+    <li>Quarterly performance reviews</li>
+    <li>Underperformance triggers a 30-day improvement plan</li>
+    <li>Repeated failure to meet KPIs results in offboarding</li>
+  </ul>
+
+  <!-- 11. Commercials -->
+  <h2><span class="num">11</span>Commercial Structure</h2>
+  <h3>11.1 Pilot Commercials (6 months)</h3>
+  <p><strong>Per advocate, monthly:</strong></p>
+  <table>
+    <tr><th>Item</th><th>Amount (NGN)</th></tr>
+    <tr><td>Base retainer</td><td>250,000</td></tr>
+    <tr><td>Travel and field allowance</td><td>60,000</td></tr>
+    <tr><td>Communications and tooling</td><td>20,000</td></tr>
+    <tr><td>Performance bonus pool (capped)</td><td>up to 70,000</td></tr>
+    <tr class="total"><td>Total per advocate / month</td><td>up to 400,000</td></tr>
+  </table>
+
+  <p><strong>Programme-level monthly:</strong></p>
+  <table>
+    <tr><th>Item</th><th>Amount (NGN)</th></tr>
+    <tr><td>4 advocates fully loaded</td><td>1,600,000</td></tr>
+    <tr><td>Programme Manager (C4A, 50% allocation)</td><td>250,000</td></tr>
+    <tr><td>CRM, training platform, analytics</td><td>80,000</td></tr>
+    <tr><td>C4A management fee (15%)</td><td>290,000</td></tr>
+    <tr class="total"><td>Total monthly run rate</td><td>2,220,000</td></tr>
+  </table>
+
+  <div class="callout">
+    <div class="label">Pilot total</div>
+    <p><strong>N13.32M for 6 months</strong>, paid in three tranches: 40% upfront, 30% at month 3, 30% at month 6.</p>
+  </div>
+
+  <h3>11.2 Performance Bonus Mechanics</h3>
+  <p>The performance bonus pool of up to N70k per advocate per month is unlocked based on:</p>
+  <ul>
+    <li>Facility engagement volume (40%)</li>
+    <li>Assessment quality score from PM audit (30%)</li>
+    <li>90-day adoption review completion (20%)</li>
+    <li>Cohort contribution (10%)</li>
+  </ul>
+  <p>This creates upside without distorting neutrality.</p>
+
+  <h3>11.3 Optional Variable Layer (Phase 2)</h3>
+  <p>If the pilot succeeds, Phase 2 can layer in a per-facility-onboarded bonus paid by HealthStack only when a facility chooses HealthStack. To preserve neutrality, this would be paid into a programme bonus pool (split equally among all four advocates regardless of who closed), not directly to the closing advocate.</p>
+
+  <!-- 12. Governance -->
+  <h2><span class="num">12</span>Governance & Reporting</h2>
+  <h3>12.1 Joint Steering Committee</h3>
+  <ul>
+    <li>Quarterly meetings</li>
+    <li>Members: HealthStack Founder, C4A Partner, Programme Manager, one advocate (rotating)</li>
+    <li>Agenda: KPI review, budget tracking, strategic direction, escalations</li>
+  </ul>
+  <h3>12.2 Monthly Performance Pack</h3>
+  <p>C4A delivers to HealthStack on the 5th of each month:</p>
+  <ul>
+    <li>Activity dashboard (per advocate, per zone)</li>
+    <li>Pipeline analysis</li>
+    <li>Win/loss review</li>
+    <li>Field intelligence summary</li>
+    <li>Financial reconciliation</li>
+    <li>Risk and issue log</li>
+  </ul>
+  <h3>12.3 Data and IP</h3>
+  <ul>
+    <li>Anonymized facility intelligence is shared in aggregate</li>
+    <li>Identified facility data requires facility consent before sharing</li>
+    <li>SOPs, training material, and CRM templates are jointly owned</li>
+    <li>The C4A Digital Readiness Framework remains C4A intellectual property, licensed to the programme</li>
+  </ul>
+
+  <!-- 13. Timeline -->
+  <h2><span class="num">13</span>Timeline</h2>
+  <table>
+    <tr><th>Month</th><th>Milestones</th></tr>
+    <tr><td>Month 0 (April)</td><td>Sign partnership agreement, kick off recruitment</td></tr>
+    <tr><td>Month 1 (May)</td><td>Hire 4 advocates, complete induction, deploy to zones</td></tr>
+    <tr><td>Months 2 to 3</td><td>Pilot phase 1: outreach and assessments</td></tr>
+    <tr><td>Month 3 review</td><td>First quarterly review, SOP refinement</td></tr>
+    <tr><td>Months 4 to 5</td><td>Pilot phase 2: implementations and continuity</td></tr>
+    <tr><td>Month 6 (October)</td><td>Pilot close-out review, commercial decision on Phase 2</td></tr>
+  </table>
+
+  <!-- 14. Risks -->
+  <h2><span class="num">14</span>Risks and Mitigations</h2>
+  <table>
+    <tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr>
+    <tr><td>Advocates drift toward HealthStack as default recommendation</td><td>Medium</td><td>High</td><td>Quarterly recommendation audit, contract clauses, neutrality KPI</td></tr>
+    <tr><td>Slow facility engagement in target months</td><td>Medium</td><td>Medium</td><td>Conservative KPIs, pivot to government channel if private market resistant</td></tr>
+    <tr><td>Advocate attrition</td><td>Medium</td><td>Medium</td><td>Strong vetting, cohort structure, performance bonus, 12-month commitment</td></tr>
+    <tr><td>Funding interruption</td><td>Low</td><td>High</td><td>Tranched payments, monthly invoicing, 30-day notice clauses</td></tr>
+    <tr><td>Vendor relations strained by neutrality</td><td>Low</td><td>Medium</td><td>Transparent positioning, public framework, vendor briefings</td></tr>
+    <tr><td>Reputational risk to HealthStack from advocate behaviour</td><td>Low</td><td>High</td><td>C4A QA, escalation matrix, contractual indemnities</td></tr>
+  </table>
+
+  <!-- 15. Why This Will Work -->
+  <h2><span class="num">15</span>Why This Will Work</h2>
+  <p>This is not a sales programme dressed up as advisory. It is genuinely structured to be neutral, which is precisely what creates the strategic value for HealthStack. Facilities are tired of being sold to. They are starved for trustworthy guidance.</p>
+  <p>When advocates earn their trust, three things follow:</p>
+  <ol>
+    <li>Facilities self-select toward the systems best fit for them (HealthStack often wins on merit)</li>
+    <li>Adoption rates rise because the implementation discipline is enforced by a neutral party</li>
+    <li>The programme generates field intelligence that informs HealthStack product roadmap</li>
+  </ol>
+  <p>Six months is enough time to prove this. Four advocates is the minimum viable footprint for national signal. C4A has the people, processes, and platform to make it happen.</p>
+
+  <!-- 16. Next Steps -->
+  <h2><span class="num">16</span>Next Steps</h2>
+  <p>If aligned in principle:</p>
+  <ol>
+    <li>Two-hour working session to refine commercials and finalise zonal allocation (within 7 days)</li>
+    <li>Sign Memorandum of Understanding (within 14 days)</li>
+    <li>Begin recruitment immediately, target deployment by 1 May 2026</li>
+    <li>Co-announce the programme externally at month 2</li>
+  </ol>
+  <p>We are ready to move. Look forward to your response.</p>
+
+  <div class="signoff">
+    <strong>Debo Odulana</strong><br/>
+    Founding Partner, Consult For Africa<br/>
+    dodulana@gmail.com
+  </div>
+
+  <!-- Appendix A -->
+  <h2 class="page-break"><span class="num">A</span>Appendix A: First Contact Script</h2>
+  <p><em>To be developed jointly during induction. Below is a draft of the spirit and key talking points.</em></p>
+  <blockquote>"Good afternoon, this is [Name] calling from Consult For Africa. We are running a national programme to support hospitals through the digitization journey, regardless of which system you eventually choose. Most facilities we speak with are weighing options, dealing with vendor pressure, or trying to make sense of where to start. We provide free initial consultations and work as your independent advisor through the process. Would you have 30 minutes next week for a structured conversation about where your facility currently sits on this journey?"</blockquote>
+  <p>Key principles:</p>
+  <ul>
+    <li>Lead with neutrality</li>
+    <li>Offer the consultation as free in pilot phase</li>
+    <li>Position as advisor, never as salesperson</li>
+    <li>Defer questions about specific systems to the assessment</li>
+  </ul>
+
+  <!-- Appendix B -->
+  <h2><span class="num">B</span>Appendix B: Digital Readiness Framework</h2>
+  <p>The six assessment dimensions:</p>
+  <ol>
+    <li><strong>Workflows.</strong> Patient registration, clinical documentation, billing, pharmacy, lab, imaging, discharge. Where is paper, where is digital, where is hybrid.</li>
+    <li><strong>Infrastructure.</strong> Internet reliability, power, hardware fleet, network, security baseline.</li>
+    <li><strong>Staff readiness.</strong> Digital literacy distribution, change appetite, prior system experience, training infrastructure.</li>
+    <li><strong>Leadership commitment.</strong> Executive sponsorship, board awareness, budget allocation, change management capacity.</li>
+    <li><strong>Budget posture.</strong> Capital available, operating expense tolerance, willingness to consider subscription models, donor or grant context.</li>
+    <li><strong>Current systems.</strong> What exists, what is used, what was abandoned, vendor relationships, data exportability.</li>
+  </ol>
+  <p>Each dimension scores 0 to 10. Composite score determines readiness band: Not Ready, Foundational, Implementation Ready, Optimization, Advanced.</p>
+
+  <div class="signoff" style="text-align:center; margin-top:48px;">
+    End of Proposal<br/>
+    <span style="font-size:9pt; color:#888;">Consult For Africa &middot; consultforafrica.com</span>
+  </div>
+
+</div>
+
+</body>
+</html>
