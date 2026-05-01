@@ -45,52 +45,159 @@ export default async function CircleLandingPage() {
   return (
     <main className="bg-white">
       {/* HERO */}
-      <section className="relative overflow-hidden text-white" style={{ paddingTop: "5rem", minHeight: "70svh" }}>
+      <section className="relative overflow-hidden text-white" style={{ paddingTop: "5rem", minHeight: "92svh" }}>
         <div className="absolute inset-0" style={{ background: "#0F2744" }} />
         <div
           className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 70% 80% at 80% 30%, rgba(20,130,200,0.25) 0%, transparent 60%)" }}
+          style={{ background: "radial-gradient(ellipse 70% 80% at 85% 25%, rgba(20,130,200,0.32) 0%, transparent 60%)" }}
         />
         <div
           className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 40% 50% at 70% 0%, rgba(212,175,55,0.12) 0%, transparent 50%)" }}
+          style={{ background: "radial-gradient(ellipse 50% 60% at 70% 5%, rgba(212,175,55,0.18) 0%, transparent 55%)" }}
+        />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse 30% 40% at 10% 90%, rgba(20,130,200,0.18) 0%, transparent 60%)" }}
+        />
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.04]"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+            backgroundSize: "200px",
+          }}
         />
 
-        <div className="relative max-w-5xl mx-auto px-6 py-20 md:py-24">
-          <div className="inline-flex items-center gap-2 mb-6 rounded-full px-3 py-1 text-[10px] font-bold tracking-[0.18em] uppercase"
-               style={{ background: "rgba(212,175,55,0.15)", color: "#D4AF37", border: "1px solid rgba(212,175,55,0.4)" }}>
-            <span style={{ width: 6, height: 6, borderRadius: 999, background: "#D4AF37" }} />
-            Maarova Founding Circle
-          </div>
+        <div className="relative max-w-7xl mx-auto px-6 pt-16 pb-20 md:pt-20 md:pb-28">
+          <div className="grid lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-16 items-center">
+            {/* LEFT: Editorial */}
+            <div>
+              <div
+                className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[10px] font-bold tracking-[0.18em] uppercase"
+                style={{ background: "rgba(212,175,55,0.12)", color: "#D4AF37", border: "1px solid rgba(212,175,55,0.4)" }}
+              >
+                <span style={{ width: 6, height: 6, borderRadius: 999, background: "#D4AF37" }} />
+                Maarova Founding Circle
+              </div>
 
-          <h1 className="font-semibold leading-[1.05] tracking-tight" style={{ fontSize: "clamp(2.2rem, 5.5vw, 4rem)" }}>
-            Consult For Africa is opening{" "}
-            <span style={{ color: "#D4AF37" }}>50 free slots</span>
-            {" "}on Maarova for healthcare leaders across Africa.
-          </h1>
+              <h1
+                className="mt-7 font-bold tracking-tight"
+                style={{ fontSize: "clamp(3rem, 6.5vw, 5.5rem)", lineHeight: 0.92 }}
+              >
+                <span className="block" style={{ color: "#D4AF37", fontSize: "1.45em", lineHeight: 0.78, letterSpacing: "-0.04em" }}>
+                  50
+                </span>
+                <span className="block mt-3 text-white" style={{ fontWeight: 500, fontSize: "0.62em", lineHeight: 1.05 }}>
+                  free leadership
+                </span>
+                <span className="block text-white" style={{ fontWeight: 500, fontSize: "0.62em", lineHeight: 1.05 }}>
+                  assessments.
+                </span>
+              </h1>
 
-          <p className="mt-6 max-w-2xl text-lg text-white/75 leading-relaxed">
-            Brilliant operators fail in healthcare management roles. Doctors included. Maarova shows you why before it costs you.
-          </p>
-          <p className="mt-4 text-sm text-white/60">
-            Each assessment is normally <span className="line-through">N460,000 to N690,000</span>. Founding Circle members pay nothing.
-          </p>
+              <div className="mt-8 w-14 h-[2px]" style={{ background: "#D4AF37" }} />
 
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <a
-              href="#apply"
-              className="rounded-xl px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-              style={{ background: "linear-gradient(135deg, #D4AF37, #b8932d)", color: "#0F2744" }}
-            >
-              Apply for a slot
-            </a>
-            <div className="flex items-center gap-3 text-sm text-white/75">
-              <span className="flex items-center gap-2">
-                <span style={{ width: 8, height: 8, borderRadius: 999, background: slotsRemaining > 0 ? "#10B981" : "#EF4444" }} />
-                <strong className="text-white">{slotsRemaining}</strong> of {TOTAL_SLOTS} slots remaining
-              </span>
-              <span className="text-white/30">·</span>
-              <span>Applications close <strong className="text-white">{APPLICATIONS_CLOSE}</strong></span>
+              <p className="mt-6 max-w-md text-lg text-white/75 leading-relaxed">
+                Brilliant operators fail in healthcare management roles. Doctors included. Maarova shows you why before it costs you.
+              </p>
+              <p className="mt-3 text-sm text-white/55">
+                Each assessment normally <span className="line-through">N460,000 to N690,000</span>. Free for 50 healthcare leaders this round.
+              </p>
+
+              <div className="mt-10 flex flex-wrap items-center gap-5">
+                <a
+                  href="#apply"
+                  className="inline-flex items-center gap-2 rounded-xl px-7 py-4 text-sm font-bold transition hover:-translate-y-0.5"
+                  style={{
+                    background: "#D4AF37",
+                    color: "#0F2744",
+                    boxShadow: "0 14px 36px rgba(212, 175, 55, 0.28)",
+                  }}
+                >
+                  Apply for a slot
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M13 5l7 7-7 7" />
+                  </svg>
+                </a>
+                <div className="text-xs leading-relaxed text-white/55">
+                  <div>
+                    <span style={{ color: slotsRemaining > 0 ? "#10B981" : "#EF4444" }}>●</span>{" "}
+                    <strong className="text-white font-semibold">{slotsRemaining}</strong> of {TOTAL_SLOTS} slots remaining
+                  </div>
+                  <div>Applications close <strong className="text-white font-semibold">{APPLICATIONS_CLOSE}</strong></div>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT: Sample report preview */}
+            <div className="hidden lg:block">
+              <div className="relative">
+                <div
+                  className="absolute -inset-8 rounded-[40px] blur-3xl opacity-40 pointer-events-none"
+                  style={{ background: "radial-gradient(circle at 30% 30%, rgba(212,175,55,0.35), transparent 70%)" }}
+                />
+                <div
+                  className="relative rounded-3xl p-8"
+                  style={{
+                    background: "linear-gradient(160deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02))",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    boxShadow: "0 30px 80px rgba(0,0,0,0.35)",
+                    backdropFilter: "blur(24px)",
+                    WebkitBackdropFilter: "blur(24px)",
+                  }}
+                >
+                  <div className="flex items-start justify-between mb-6">
+                    <div>
+                      <p className="text-[9px] tracking-[0.22em] uppercase font-bold" style={{ color: "#D4AF37" }}>
+                        Sample Profile
+                      </p>
+                      <h3 className="text-lg font-bold mt-1.5">Maarova Leadership Report</h3>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-5xl font-bold leading-none" style={{ color: "#D4AF37" }}>76</div>
+                      <div className="text-[9px] uppercase tracking-[0.18em] text-white/45 mt-1">overall</div>
+                    </div>
+                  </div>
+
+                  <div className="mb-6 pb-6 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+                    <p className="text-[10px] tracking-[0.18em] uppercase text-white/45 mb-2 font-semibold">Leadership archetype</p>
+                    <p className="text-base font-semibold">The Strategic Caregiver</p>
+                  </div>
+
+                  <div className="space-y-3.5">
+                    {[
+                      { label: "Behavioural style", score: 82 },
+                      { label: "Values & drivers", score: 71 },
+                      { label: "Emotional intelligence", score: 78 },
+                      { label: "Clinical leadership transition", score: 64 },
+                      { label: "Team dynamics", score: 80 },
+                      { label: "Cultural fit", score: 81 },
+                    ].map((d) => (
+                      <div key={d.label} className="flex items-center gap-3">
+                        <div className="text-xs text-white/70 w-[170px] truncate">{d.label}</div>
+                        <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${d.score}%`,
+                              background: "linear-gradient(to right, #D4AF37, #f0c850)",
+                              boxShadow: "0 0 12px rgba(212,175,55,0.4)",
+                            }}
+                          />
+                        </div>
+                        <div className="text-xs font-mono w-7 text-right text-white/55">{d.score}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div
+                    className="mt-7 pt-5 text-[9px] uppercase tracking-[0.22em] text-white/30 text-center font-semibold"
+                    style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
+                  >
+                    Sample · Real reports are personalised
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
