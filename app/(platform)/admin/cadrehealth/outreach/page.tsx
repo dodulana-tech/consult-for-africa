@@ -60,7 +60,10 @@ export default async function OutreachDashboard({
       where,
       take: pageSize,
       skip: (currentPage - 1) * pageSize,
-      orderBy: { lastContactedAt: { sort: "desc", nulls: "last" } },
+      orderBy: [
+        { lastContactedAt: { sort: "desc", nulls: "last" } },
+        { id: "asc" },
+      ],
       select: {
         id: true,
         status: true,

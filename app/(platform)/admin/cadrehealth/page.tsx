@@ -119,6 +119,13 @@ export default async function CadreHealthAdmin({
             >
               Employer Accounts
             </Link>
+            <Link
+              href="/admin/cadrehealth/duplicates"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+              style={{ backdropFilter: "blur(8px)" }}
+            >
+              Duplicates
+            </Link>
             <PushToOutreachButton mode="all" />
           </div>
         </div>
