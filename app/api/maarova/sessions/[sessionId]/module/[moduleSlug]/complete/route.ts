@@ -5,6 +5,7 @@ import { scoreModule } from "@/lib/maarova/scoring";
 import { handler } from "@/lib/api-handler";
 import { generateMaarovaReport } from "@/lib/maarova/generateReport";
 import { renderAndStoreReportPdf } from "@/lib/maarova/renderReportPdf";
+import { notifyReportReady } from "@/lib/maarova/notifyReportReady";
 
 // Triggering Claude generation can take 40-60s; bump function timeout
 // so the fire-and-forget actually completes when the runtime stays warm.
@@ -189,6 +190,7 @@ export const POST = handler(async function POST(_req: NextRequest, { params }: R
         const result = await generateMaarovaReport(sessionId);
         if (result.ok && result.reportId) {
           await renderAndStoreReportPdf(result.reportId);
+          await notifyReportReady(result.reportId);
         }
       } catch (err) {
         console.error("[session-complete] auto-report pipeline failed:", err);

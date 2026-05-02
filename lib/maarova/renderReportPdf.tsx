@@ -139,7 +139,7 @@ export async function renderAndStoreReportPdf(
     const pdfUrl = await getPublicUrl(key);
     await prisma.maarovaReport.update({
       where: { id: reportId },
-      data: { pdfUrl, deliveredAt: report.deliveredAt ?? new Date() },
+      data: { pdfUrl },
     });
 
     return { ok: true, pdfUrl };

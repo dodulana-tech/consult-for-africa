@@ -1009,7 +1009,7 @@ export async function emailOutreachInvite({
         This is a personal invitation, not a mass email. We select 20-30 leaders each month for this programme. Your results are private and shared only with you.
       </p>
       <p style="margin:12px 0 0;font-size:12px;color:#9CA3AF;">
-        Dr. Debo Odulana, Founding Partner<br/>Consult For Africa | hello@consultforafrica.com
+        Dr. Debo Odulana, Managing Director<br/>Consult For Africa | hello@consultforafrica.com
       </p>
     `)
   );
@@ -1819,7 +1819,7 @@ export async function emailMaarovaCircleReceived({
       ${h1("Application received")}
       ${p(`Hi ${esc(firstName)},`)}
       ${p("Thank you for applying to the Maarova Founding Circle. We are reviewing every application personally. You will hear back within 24 hours either way.")}
-      ${p("Best,<br/>Debo Odulana<br/>Founding Partner, Consult For Africa")}
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">Best,<br/>Debo Odulana<br/>Managing Director, Consult For Africa</p>
     `)
   );
 }
@@ -1850,7 +1850,7 @@ export async function emailMaarovaCircleApproved({
         <p style="margin:8px 0 0;font-size:12px;color:#92400E;">Apply this code at checkout for 10% off Maarova executive coaching when bookings open in June 2026.</p>
       </div>
       ${p("If anything is unclear, reply to this email directly.")}
-      ${p("Looking forward to your report,<br/>Debo Odulana<br/>Founding Partner, Consult For Africa")}
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">Looking forward to your report,<br/>Debo Odulana<br/>Managing Director, Consult For Africa</p>
     `)
   );
 }
@@ -1870,7 +1870,7 @@ export async function emailMaarovaCircleDeclined({
       ${p("Thank you for applying to the Maarova Founding Circle. This round is calibrated specifically for healthcare operators across Africa with current leadership scope. Based on the information provided, this round is not the right fit.")}
       ${reasonLine}
       ${p("If your situation changes, or if you would like to bring Maarova to your hospital or organisation, get in touch directly. We will also notify you about future cohorts if you would like to be included.")}
-      ${p("With respect,<br/>Debo Odulana<br/>Founding Partner, Consult For Africa")}
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">With respect,<br/>Debo Odulana<br/>Managing Director, Consult For Africa</p>
     `)
   );
 }
@@ -1890,7 +1890,7 @@ export async function emailMaarovaCircleCoachingOpen({
         <p style="margin:0;font-size:18px;color:#0F2744;font-weight:700;letter-spacing:0.05em;">${esc(discountCode)}</p>
       </div>
       ${btn("Book a coach", `${BASE_URL}/maarova/coaching`)}
-      ${p("Best,<br/>Debo Odulana<br/>Founding Partner, Consult For Africa")}
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">Best,<br/>Debo Odulana<br/>Managing Director, Consult For Africa</p>
     `)
   );
 }
@@ -2027,6 +2027,79 @@ export async function email360RaterInviteV2({
       </p>
       <p style="margin:14px 0 0;font-size:12px;color:#9CA3AF;line-height:1.5;">
         Maarova by Consult For Africa
+      </p>
+    `)
+  );
+}
+
+/**
+ * Sent to a leader when their Maarova report is ready and has a stable PDF.
+ * Drives them to the portal AND offers the PDF download. Includes the 360
+ * viral hook so they don't see this as the end of the journey.
+ */
+export async function emailMaarovaReportReady({
+  email,
+  name,
+  reportUrl,
+  pdfUrl,
+  inviteRatersUrl,
+  has360,
+}: {
+  email: string;
+  name: string;
+  reportUrl: string;
+  pdfUrl: string | null;
+  inviteRatersUrl: string;
+  has360: boolean;
+}) {
+  const firstName = esc(name.split(" ")[0]);
+
+  const downloadBlock = pdfUrl
+    ? `<p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#374151;">
+         You can read your report online or download a confidential PDF copy to keep.
+       </p>
+       ${btn("Read your report", esc(reportUrl))}
+       <div style="margin:14px 0 0;">
+         <a href="${esc(pdfUrl)}" style="display:inline-block;font-size:13px;color:#0F2744;text-decoration:underline;font-weight:600;">
+           Download PDF copy
+         </a>
+       </div>`
+    : `<p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#374151;">
+         Open your report in the portal to read it.
+       </p>
+       ${btn("Read your report", esc(reportUrl))}`;
+
+  const ratersBlock = has360
+    ? ""
+    : `<div style="margin:32px 0 8px;padding:18px 22px;background:#FFFBEB;border-left:4px solid #D4AF37;border-radius:6px;">
+         <p style="margin:0 0 8px;font-size:13px;color:#92400E;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;">
+           One step left
+         </p>
+         <p style="margin:0;font-size:14px;line-height:1.6;color:#0F2744;">
+           This report is your self-perception. The full Maarova picture comes when 5 to 8 colleagues, supervisors, and direct reports give anonymous feedback. The gap between how you see yourself and how others see you is where most leadership growth happens.
+         </p>
+         <p style="margin:14px 0 0;">
+           <a href="${esc(inviteRatersUrl)}" style="display:inline-block;font-size:13px;color:#0F2744;text-decoration:underline;font-weight:700;">
+             Invite raters now (90 seconds)
+           </a>
+         </p>
+       </div>`;
+
+  await send(
+    email,
+    `${firstName}, your Maarova Leadership Profile is ready`,
+    layout(`
+      ${h1("Your report is ready")}
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#374151;">
+        Hi ${firstName},
+      </p>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#374151;">
+        Thank you for completing your Maarova Leadership Assessment. Your personalised report is ready.
+      </p>
+      ${downloadBlock}
+      ${ratersBlock}
+      <p style="margin:24px 0 0;font-size:12px;color:#9CA3AF;line-height:1.5;">
+        Best,<br/>The Maarova team<br/>Consult For Africa
       </p>
     `)
   );

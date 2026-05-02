@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import TopBar from "@/components/platform/TopBar";
 import Link from "next/link";
 import BackfillReportsButton from "./BackfillReportsButton";
+import NotifyCompletedReportsButton from "./NotifyCompletedReportsButton";
 
 export default async function MaarovaAdminPage() {
   const session = await auth();
@@ -166,6 +167,7 @@ export default async function MaarovaAdminPage() {
             Manage Coaches
           </Link>
           <BackfillReportsButton />
+          <NotifyCompletedReportsButton />
         </div>
 
         {/* Recent Organisations Table */}
