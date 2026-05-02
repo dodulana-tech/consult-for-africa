@@ -3,6 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { scoreModule } from "@/lib/maarova/scoring";
 import { handler } from "@/lib/api-handler";
+import { generateMaarovaReport } from "@/lib/maarova/generateReport";
+import { renderAndStoreReportPdf } from "@/lib/maarova/renderReportPdf";
+
+// Triggering Claude generation can take 40-60s; bump function timeout
+// so the fire-and-forget actually completes when the runtime stays warm.
+export const maxDuration = 300;
 
 interface RouteParams {
   params: Promise<{ sessionId: string; moduleSlug: string }>;
@@ -156,6 +162,7 @@ export const POST = handler(async function POST(_req: NextRequest, { params }: R
   const allCompleted = allModuleResponses.every((mr) => mr.status === "COMPLETED");
 
   // Mark session complete when all 5 core modules are done (360 is async/optional)
+  let sessionJustCompleted = false;
   if (coreCompleted && session.status !== "COMPLETED") {
     await prisma.maarovaAssessmentSession.update({
       where: { id: sessionId },
@@ -170,6 +177,23 @@ export const POST = handler(async function POST(_req: NextRequest, { params }: R
         ),
       },
     });
+    sessionJustCompleted = true;
+  }
+
+  // Auto-generate the report + PDF in the background. The user can keep
+  // browsing while Claude works. By the time they hit /results their report
+  // will likely already be READY without them having to click anything.
+  if (sessionJustCompleted) {
+    (async () => {
+      try {
+        const result = await generateMaarovaReport(sessionId);
+        if (result.ok && result.reportId) {
+          await renderAndStoreReportPdf(result.reportId);
+        }
+      } catch (err) {
+        console.error("[session-complete] auto-report pipeline failed:", err);
+      }
+    })();
   }
 
   return NextResponse.json({

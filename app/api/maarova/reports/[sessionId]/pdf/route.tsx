@@ -232,7 +232,7 @@ function BulletList({ items }: { items: string[] | undefined | null }) {
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
-interface ModuleScore {
+export interface ModuleScore {
   name: string;
   type: string;
   scores: Record<string, number>;
@@ -259,9 +259,9 @@ interface ValueInterpretation {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type FullReport = Record<string, any>;
+export type FullReport = Record<string, any>;
 
-interface DevelopmentGoal {
+export interface DevelopmentGoal {
   title: string;
   description: string | null;
   dimension: string;
@@ -284,7 +284,8 @@ interface PDFProps {
 
 /* ─── Main PDF Document ──────────────────────────────────────────────────── */
 
-function LeadershipReport(props: PDFProps) {
+export { MODULE_ORDER, SKIP_KEYS };
+export function LeadershipReport(props: PDFProps) {
   const dateStr = props.completedAt
     ? new Date(props.completedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
     : "";

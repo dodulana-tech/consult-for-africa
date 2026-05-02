@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import TopBar from "@/components/platform/TopBar";
 import Link from "next/link";
+import BackfillReportsButton from "./BackfillReportsButton";
 
 export default async function MaarovaAdminPage() {
   const session = await auth();
@@ -164,6 +165,7 @@ export default async function MaarovaAdminPage() {
           >
             Manage Coaches
           </Link>
+          <BackfillReportsButton />
         </div>
 
         {/* Recent Organisations Table */}
