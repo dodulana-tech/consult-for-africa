@@ -16,6 +16,12 @@ interface Target {
   invitedAt: string | null;
   respondedAt: string | null;
   notes: string | null;
+  maarovaUserId?: string | null;
+  maarovaOrgId?: string | null;
+  sessionStatus?: string | null;
+  sessionCompletedAt?: string | null;
+  reportStatus?: string | null;
+  reportPdfUrl?: string | null;
 }
 
 interface Campaign {
@@ -381,10 +387,38 @@ export default function CampaignDetailPage() {
                         <p className="text-xs text-gray-500">
                           {t.title && `${t.title} | `}{t.organization ?? ""}{t.city ? ` | ${t.city}` : ""}
                         </p>
-                        <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
+                        <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400 flex-wrap">
                           {t.email && <span>{t.email}</span>}
                           {t.linkedinUrl && <a href={t.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">LinkedIn Profile</a>}
                           {t.source && <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100">{t.source}</span>}
+                          {t.maarovaOrgId && (
+                            <a
+                              href={`/admin/maarova/organisations/${t.maarovaOrgId}`}
+                              className="text-[10px] px-1.5 py-0.5 rounded font-semibold"
+                              style={{ background: "#FFFBEB", color: "#92400E" }}
+                            >
+                              View assessment
+                            </a>
+                          )}
+                          {t.reportPdfUrl && (
+                            <a
+                              href={t.reportPdfUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[10px] px-1.5 py-0.5 rounded font-semibold"
+                              style={{ background: "#ECFDF5", color: "#065F46" }}
+                            >
+                              Report PDF
+                            </a>
+                          )}
+                          {t.sessionStatus && (
+                            <span
+                              className="text-[10px] px-1.5 py-0.5 rounded"
+                              style={{ background: "#EFF6FF", color: "#1E40AF" }}
+                            >
+                              Session: {t.sessionStatus}
+                            </span>
+                          )}
                         </div>
                       </div>
 

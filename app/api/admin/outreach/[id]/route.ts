@@ -22,7 +22,49 @@ export const GET = handler(async function GET(
 
   if (!campaign) return Response.json({ error: "Not found" }, { status: 404 });
 
-  return Response.json({ campaign: JSON.parse(JSON.stringify(campaign)) });
+  // For each target with a linked MaarovaUser, fetch the org id + latest
+  // session/report so the UI can link directly to the assessment.
+  const userIds = campaign.targets
+    .map((t) => t.maarovaUserId)
+    .filter((id): id is string => Boolean(id));
+
+  const users = userIds.length
+    ? await prisma.maarovaUser.findMany({
+        where: { id: { in: userIds } },
+        select: {
+          id: true,
+          organisationId: true,
+          sessions: {
+            orderBy: { startedAt: "desc" },
+            take: 1,
+            select: { status: true, completedAt: true },
+          },
+          reports: {
+            orderBy: { generatedAt: "desc" },
+            take: 1,
+            select: { status: true, pdfUrl: true },
+          },
+        },
+      })
+    : [];
+  const userMap = new Map(users.map((u) => [u.id, u]));
+
+  const enriched = {
+    ...campaign,
+    targets: campaign.targets.map((t) => {
+      const user = t.maarovaUserId ? userMap.get(t.maarovaUserId) : null;
+      return {
+        ...t,
+        maarovaOrgId: user?.organisationId ?? null,
+        sessionStatus: user?.sessions[0]?.status ?? null,
+        sessionCompletedAt: user?.sessions[0]?.completedAt ?? null,
+        reportStatus: user?.reports[0]?.status ?? null,
+        reportPdfUrl: user?.reports[0]?.pdfUrl ?? null,
+      };
+    }),
+  };
+
+  return Response.json({ campaign: JSON.parse(JSON.stringify(enriched)) });
 });
 
 export const PATCH = handler(async function PATCH(
