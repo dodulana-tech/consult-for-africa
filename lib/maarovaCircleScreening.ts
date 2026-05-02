@@ -11,6 +11,10 @@ export interface CircleScreeningInput {
   city?: string;
   country?: string;
   linkedinUrl: string;
+  /** PDF or DOCX buffer. If null, screens on form data alone. */
+  cvBuffer?: Buffer | null;
+  cvMimeType?: string | null;
+  /** Pre-extracted CV text. Used as a fallback when no buffer is supplied. */
   cvText?: string | null;
 }
 
@@ -28,6 +32,8 @@ export interface CircleScreeningResult {
     profileQuality: number;
   };
   declineReason?: string;
+  /** CV text Claude extracted from the document - useful for storing on the application. */
+  extractedCvText?: string;
 }
 
 const SYSTEM_PROMPT = `You are screening applications for the Maarova Founding Circle, a programme that gives 50 free leadership assessments to senior healthcare operators across Africa.
@@ -66,7 +72,8 @@ Return strict JSON only, with this exact shape:
     "careerSeniority": number,
     "profileQuality": number
   },
-  "declineReason": "short reason if AUTO_DECLINE, otherwise empty string"
+  "declineReason": "short reason if AUTO_DECLINE, otherwise empty string",
+  "extractedCvText": "full plain text content extracted from the attached CV. Include all sections: experience, education, qualifications, achievements. If no CV was attached, use empty string."
 }
 
 Do not include any text outside the JSON.`;
@@ -79,9 +86,7 @@ export async function screenCircleApplication(
   input: CircleScreeningInput,
 ): Promise<CircleScreeningResult | null> {
   try {
-    const cv = input.cvText ? sanitise(input.cvText).substring(0, 12000) : "(no CV text extracted)";
-
-    const userPrompt = `Application to screen:
+    const profileText = `Application to screen:
 
 Name: ${input.firstName} ${input.lastName}
 Current role: ${input.currentRole}
@@ -90,16 +95,54 @@ Years in current role: ${input.yearsInRole ?? "not provided"}
 Location: ${input.city ?? "not provided"}, ${input.country ?? "not provided"}
 LinkedIn: ${input.linkedinUrl}
 
-CV text:
-${cv}
+Screen this application against the Founding Circle eligibility criteria. The CV is ${input.cvBuffer ? "attached as a document" : input.cvText ? "provided as plain text below" : "not available"}. Extract the full CV text into extractedCvText so we can save it.${
+      !input.cvBuffer && input.cvText
+        ? `\n\nCV text:\n${sanitise(input.cvText).substring(0, 12000)}`
+        : ""
+    }
 
-Screen this application against the Founding Circle eligibility criteria and return strict JSON.`;
+Return strict JSON.`;
+
+    const userContent: Anthropic.Messages.MessageParam["content"] = [];
+
+    // Attach PDF as a document if we have one. Claude reads PDFs natively
+    // (as of Sonnet 3.5 and Haiku 4.5+), so we can skip pdf-parse entirely.
+    if (input.cvBuffer) {
+      const isPdf = (input.cvMimeType ?? "").includes("pdf");
+      if (isPdf) {
+        userContent.push({
+          type: "document",
+          source: {
+            type: "base64",
+            media_type: "application/pdf",
+            data: input.cvBuffer.toString("base64"),
+          },
+        });
+      } else {
+        // For DOCX or other formats: extract whatever text we can with a basic
+        // approach and inject as text. Claude only reads PDFs natively today.
+        const text = input.cvBuffer
+          .toString("utf-8")
+          .replace(/<[^>]+>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+          .substring(0, 12000);
+        if (text.length > 50) {
+          userContent.push({
+            type: "text",
+            text: `CV text (extracted from non-PDF document):\n\n${text}`,
+          });
+        }
+      }
+    }
+
+    userContent.push({ type: "text", text: profileText });
 
     const res = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 1200,
+      max_tokens: 4000,
       system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: userPrompt }],
+      messages: [{ role: "user", content: userContent }],
     });
 
     const text = res.content[0].type === "text" ? res.content[0].text : "";
@@ -112,7 +155,8 @@ Screen this application against the Founding Circle eligibility criteria and ret
     const parsed = JSON.parse(text.slice(jsonStart, jsonEnd + 1)) as CircleScreeningResult;
     return parsed;
   } catch (err) {
-    console.error("[maarovaCircleScreening] error:", err);
+    console.error("[maarovaCircleScreening] error:", err instanceof Error ? err.message : err);
+    if (err instanceof Error && err.stack) console.error(err.stack);
     return null;
   }
 }

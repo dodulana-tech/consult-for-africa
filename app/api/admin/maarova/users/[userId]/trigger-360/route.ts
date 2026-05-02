@@ -79,6 +79,10 @@ export const POST = handler(async function POST(
       inviteUrl: `${BASE_URL}/maarova/portal/three-sixty`,
     });
     emailSent = true;
+    await prisma.maarova360Request.update({
+      where: { id: request.id },
+      data: { lastReminderSentAt: new Date() },
+    });
   } catch (err) {
     console.error("[trigger-360] email failed:", err);
   }

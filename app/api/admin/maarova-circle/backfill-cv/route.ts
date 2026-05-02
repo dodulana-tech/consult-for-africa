@@ -9,9 +9,10 @@ export const maxDuration = 300;
 /**
  * POST /api/admin/maarova-circle/backfill-cv
  *
- * Re-fetches each applicant's CV from R2, re-extracts the text, re-runs the
- * Claude screening, and updates the application. Used to recover from the
- * silent CV-extraction failure that affected the first cohort of applicants.
+ * Re-fetches each applicant's CV from R2 and re-runs the Claude screening
+ * with the PDF passed as a native document attachment. Used to recover the
+ * cohort whose CVs were uploaded fine but never had text extracted (because
+ * pdf-parse fails silently on Vercel).
  */
 export const POST = handler(async function POST() {
   const session = await auth();
@@ -39,25 +40,9 @@ export const POST = handler(async function POST() {
       }
       const arrayBuf = await fileRes.arrayBuffer();
       const buffer = Buffer.from(arrayBuf);
-      const contentType = fileRes.headers.get("content-type") || "";
+      const contentType = fileRes.headers.get("content-type") || (app.cvFileUrl!.toLowerCase().endsWith(".pdf") ? "application/pdf" : "");
 
-      let text = "";
-      if (contentType.includes("pdf") || app.cvFileUrl!.toLowerCase().endsWith(".pdf")) {
-        const { PDFParse } = await import("pdf-parse");
-        const parser = new PDFParse({ data: buffer });
-        const result = await parser.getText();
-        text = result.text || "";
-        await parser.destroy();
-      } else {
-        text = buffer.toString("utf-8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-      }
-
-      if (!text) {
-        results.push({ id: app.id, email: app.email, ok: false, chars: 0, error: "no text extracted" });
-        continue;
-      }
-
-      // Re-screen with the freshly extracted CV text
+      // Pass the buffer directly to Claude as a document attachment.
       const screening = await screenCircleApplication({
         firstName: app.firstName,
         lastName: app.lastName,
@@ -67,19 +52,27 @@ export const POST = handler(async function POST() {
         city: app.city ?? undefined,
         country: app.country ?? undefined,
         linkedinUrl: app.linkedinUrl,
-        cvText: text,
+        cvBuffer: buffer,
+        cvMimeType: contentType,
       });
+
+      if (!screening) {
+        results.push({ id: app.id, email: app.email, ok: false, chars: 0, error: "screening returned null" });
+        continue;
+      }
+
+      const extractedText = screening.extractedCvText || "";
 
       await prisma.maarovaCircleApplication.update({
         where: { id: app.id },
         data: {
-          cvText: text.slice(0, 30000),
-          aiScore: screening?.score ?? app.aiScore,
-          aiSummary: screening?.summary ?? app.aiSummary,
-          aiStrengths: screening?.strengths ?? app.aiStrengths,
-          aiConcerns: screening?.concerns ?? app.aiConcerns,
-          aiRecommendation: screening?.recommendation ?? app.aiRecommendation,
-          aiBreakdown: (screening?.breakdown as never) ?? (app.aiBreakdown as never),
+          cvText: extractedText ? extractedText.slice(0, 30000) : null,
+          aiScore: screening.score ?? app.aiScore,
+          aiSummary: screening.summary ?? app.aiSummary,
+          aiStrengths: screening.strengths ?? app.aiStrengths,
+          aiConcerns: screening.concerns ?? app.aiConcerns,
+          aiRecommendation: screening.recommendation ?? app.aiRecommendation,
+          aiBreakdown: (screening.breakdown as never) ?? (app.aiBreakdown as never),
         },
       });
 
@@ -87,8 +80,8 @@ export const POST = handler(async function POST() {
         id: app.id,
         email: app.email,
         ok: true,
-        chars: text.length,
-        newScore: screening?.score,
+        chars: extractedText.length,
+        newScore: screening.score,
       });
     } catch (err) {
       results.push({

@@ -2167,15 +2167,16 @@ model MaarovaItemResponse {
 }
 
 model Maarova360Request {
-  id        String      @id @default(cuid())
-  subjectId String
-  subject   MaarovaUser @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  sessionId String?
-  status    String      @default("COLLECTING")
-  minRaters Int         @default(5)
-  deadline  DateTime
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id                   String      @id @default(cuid())
+  subjectId            String
+  subject              MaarovaUser @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  sessionId            String?
+  status               String      @default("COLLECTING")
+  minRaters            Int         @default(5)
+  deadline             DateTime
+  lastReminderSentAt   DateTime?   // last time we emailed the leader to invite raters (admin or auto)
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
 
   invites Maarova360RaterInvite[]
 

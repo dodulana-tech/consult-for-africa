@@ -79,28 +79,10 @@ export const POST = handler(async function POST(req: NextRequest) {
     return NextResponse.json({ error: "CV must be smaller than 5 MB" }, { status: 413 });
   }
 
-  // Extract CV text. Match the working pattern from /api/talent/apply
-  // (Buffer directly, not wrapped in Uint8Array - the wrapping fails silently
-  // on Vercel's serverless bundler even though it works locally).
+  // Read the CV into a buffer. We pass it directly to Claude as a document
+  // attachment - Claude reads PDFs natively, so we no longer need pdf-parse
+  // (which was failing silently on Vercel's serverless bundler for everyone).
   const buffer = Buffer.from(await cvFile.arrayBuffer());
-  let extractedText = "";
-  try {
-    if (cvFile.type === "application/pdf") {
-      const { PDFParse } = await import("pdf-parse");
-      const parser = new PDFParse({ data: buffer });
-      const textResult = await parser.getText();
-      extractedText = textResult.text || "";
-      await parser.destroy();
-    } else {
-      extractedText = buffer.toString("utf-8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-    }
-  } catch (err) {
-    console.error("[maarova/circle/apply] CV extraction failed:", err instanceof Error ? err.message : err);
-    if (err instanceof Error && err.stack) console.error(err.stack);
-  }
-  if (!extractedText) {
-    console.warn("[maarova/circle/apply] no text extracted for", email, "size:", buffer.length, "type:", cvFile.type);
-  }
 
   // Upload CV to R2
   let cvFileUrl: string | null = null;
@@ -136,7 +118,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     });
   }
 
-  // Run Claude screening
+  // Run Claude screening with the PDF attached as a document
   const screening = await screenCircleApplication({
     firstName,
     lastName,
@@ -146,7 +128,8 @@ export const POST = handler(async function POST(req: NextRequest) {
     city: city ?? undefined,
     country: country ?? undefined,
     linkedinUrl,
-    cvText: extractedText || null,
+    cvBuffer: buffer,
+    cvMimeType: cvFile.type,
   });
 
   // Determine status based on screening + slot availability
@@ -247,7 +230,7 @@ export const POST = handler(async function POST(req: NextRequest) {
         country,
         yearsInRole,
         cvFileUrl,
-        cvText: extractedText ? extractedText.slice(0, 30000) : null,
+        cvText: screening?.extractedCvText ? screening.extractedCvText.slice(0, 30000) : null,
         status,
         aiScore: screening?.score ?? null,
         aiSummary: screening?.summary ?? null,
