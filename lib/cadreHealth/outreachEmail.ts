@@ -47,16 +47,13 @@ interface ProfessionalInfo {
 function buildEmailHTML(professional: ProfessionalInfo): string {
   const claimUrl = `${BASE_URL}/oncadre/claim/${professional.id}`;
   const unsubscribeUrl = `${BASE_URL}/oncadre/unsubscribe/${professional.id}`;
-  const specialty = professional.subSpecialty
-    ? esc(professional.subSpecialty)
-    : esc(professional.cadre);
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Your CadreHealth Profile</title>
+  <title>CadreHealth</title>
 </head>
 <body style="margin:0;padding:0;background:#F9FAFB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
@@ -74,78 +71,100 @@ function buildEmailHTML(professional: ProfessionalInfo): string {
           <!-- Body -->
           <tr>
             <td style="padding:40px;">
-              <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#111827;">
-                Dr. ${esc(professional.lastName)}, your specialist profile is ready
-              </h1>
-
-              <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#4B5563;">
-                Your ${specialty} profile has been created on CadreHealth, the career intelligence platform built for Nigerian healthcare professionals.
+              <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#111827;">
+                Dear Dr ${esc(professional.lastName)},
               </p>
 
-              <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#4B5563;">
-                Here is what you get with your free profile:
+              <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#111827;">
+                You are a registered Nigerian specialist. We are building the directory you should already have.
+              </p>
+
+              <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#4B5563;">
+                CadreHealth is a verified register of Nigerian specialists, wherever they currently practise. You can use it to:
               </p>
 
               <!-- Value Props -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
                 <tr>
-                  <td style="padding:12px 0;border-bottom:1px solid #F3F4F6;">
+                  <td style="padding:10px 0;border-bottom:1px solid #F3F4F6;">
                     <table cellpadding="0" cellspacing="0"><tr>
                       <td style="width:32px;vertical-align:top;">
-                        <div style="width:24px;height:24px;background:#D4AF37;border-radius:50%;text-align:center;line-height:24px;color:#0B3C5D;font-size:12px;font-weight:700;">&#10003;</div>
+                        <div style="width:22px;height:22px;background:#D4AF37;border-radius:50%;text-align:center;line-height:22px;color:#0B3C5D;font-size:11px;font-weight:700;">&#10003;</div>
                       </td>
-                      <td style="padding-left:12px;font-size:15px;color:#374151;line-height:1.5;">
-                        <strong>Salary intelligence:</strong> See what your cadre earns across facilities and states
+                      <td style="padding-left:10px;font-size:15px;color:#374151;line-height:1.5;">
+                        confirm your specialty record and contact preferences
                       </td>
                     </tr></table>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:12px 0;border-bottom:1px solid #F3F4F6;">
+                  <td style="padding:10px 0;border-bottom:1px solid #F3F4F6;">
                     <table cellpadding="0" cellspacing="0"><tr>
                       <td style="width:32px;vertical-align:top;">
-                        <div style="width:24px;height:24px;background:#D4AF37;border-radius:50%;text-align:center;line-height:24px;color:#0B3C5D;font-size:12px;font-weight:700;">&#10003;</div>
+                        <div style="width:22px;height:22px;background:#D4AF37;border-radius:50%;text-align:center;line-height:22px;color:#0B3C5D;font-size:11px;font-weight:700;">&#10003;</div>
                       </td>
-                      <td style="padding-left:12px;font-size:15px;color:#374151;line-height:1.5;">
-                        <strong>Honest hospital reviews:</strong> Read verified reviews from colleagues before you accept a role
+                      <td style="padding-left:10px;font-size:15px;color:#374151;line-height:1.5;">
+                        receive salary, locum and fractional benchmarks for your specialty
                       </td>
                     </tr></table>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:12px 0;">
+                  <td style="padding:10px 0;">
                     <table cellpadding="0" cellspacing="0"><tr>
                       <td style="width:32px;vertical-align:top;">
-                        <div style="width:24px;height:24px;background:#D4AF37;border-radius:50%;text-align:center;line-height:24px;color:#0B3C5D;font-size:12px;font-weight:700;">&#10003;</div>
+                        <div style="width:22px;height:22px;background:#D4AF37;border-radius:50%;text-align:center;line-height:22px;color:#0B3C5D;font-size:11px;font-weight:700;">&#10003;</div>
                       </td>
-                      <td style="padding-left:12px;font-size:15px;color:#374151;line-height:1.5;">
-                        <strong>Career opportunities:</strong> Get matched to roles based on your cadre, location, and preferences
+                      <td style="padding-left:10px;font-size:15px;color:#374151;line-height:1.5;">
+                        opt in (or not) to visiting consultant, advisory or mentorship roles in Nigeria
                       </td>
                     </tr></table>
                   </td>
                 </tr>
               </table>
 
+              <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#4B5563;">
+                We are writing to a small group of senior consultants. Many of you are still in Nigeria. A significant number now practise abroad. Some have stepped back from full-time clinical work. The platform is built for all three.
+              </p>
+
+              <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#4B5563;">
+                Many of you will know me through the Doctors Foundation for Care, where I serve as president. CadreHealth is what comes after the annual convention: a continuous directory, not a once-a-year set-piece.
+              </p>
+
+              <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#4B5563;">
+                Twenty minutes will let you claim and update your profile.
+              </p>
+
               <!-- CTA Button -->
-              <table cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
+              <table cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
                 <tr>
                   <td style="background:#0B3C5D;border-radius:8px;">
                     <a href="${claimUrl}" style="display:inline-block;padding:14px 32px;font-size:16px;font-weight:600;color:#FFFFFF;text-decoration:none;">
-                      View Your Profile
+                      Claim your profile
                     </a>
                   </td>
                 </tr>
               </table>
 
-              <p style="margin:0 0 8px;font-size:14px;color:#9CA3AF;line-height:1.5;">
+              <p style="margin:0 0 4px;font-size:15px;line-height:1.6;color:#111827;">
+                With respect,
+              </p>
+              <p style="margin:0 0 2px;font-size:15px;line-height:1.5;color:#111827;font-weight:600;">
+                Dr Debo Odulana
+              </p>
+              <p style="margin:0 0 24px;font-size:14px;line-height:1.5;color:#6B7280;">
+                Founding Partner, Consult For Africa
+              </p>
+
+              <p style="margin:0 0 8px;font-size:13px;color:#9CA3AF;line-height:1.5;">
                 If the button does not work, copy and paste this link into your browser:
               </p>
-              <p style="margin:0 0 24px;font-size:13px;color:#6B7280;word-break:break-all;">
+              <p style="margin:0 0 20px;font-size:12px;color:#6B7280;word-break:break-all;">
                 ${claimUrl}
               </p>
 
-              <p style="margin:0;font-size:14px;color:#9CA3AF;line-height:1.5;">
-                This is a one-time message. If you are no longer practising in Nigeria or prefer not to receive further messages, you can
+              <p style="margin:0;font-size:13px;color:#9CA3AF;line-height:1.5;">
+                If you would prefer not to receive further messages, you can
                 <a href="${unsubscribeUrl}" style="color:#6B7280;text-decoration:underline;">unsubscribe here</a>.
               </p>
             </td>
@@ -182,7 +201,7 @@ export async function sendReactivationEmail(
     return { ok: false, error };
   }
 
-  const subject = `Dr. ${professional.lastName}, your specialist profile on CadreHealth`;
+  const subject = "For Nigerian specialists, wherever you practise";
   const html = buildEmailHTML(professional);
 
   try {
