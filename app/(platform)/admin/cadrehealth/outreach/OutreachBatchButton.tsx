@@ -22,6 +22,7 @@ interface BatchResult {
   failed: number;
   total: number;
   channel: Channel;
+  errorSample?: { professionalId: string; error: string }[];
 }
 
 const WHATSAPP_DISABLED = true;
@@ -267,15 +268,53 @@ export function OutreachBatchButton({ pendingCount }: { pendingCount: number }) 
           )}
 
           {result && (
-            <div className="mb-3 rounded-xl bg-emerald-50 px-4 py-3 ring-1 ring-emerald-200">
-              <p className="text-sm font-semibold text-emerald-800">
+            <div
+              className={`mb-3 rounded-xl px-4 py-3 ring-1 ${
+                result.failed === 0
+                  ? "bg-emerald-50 ring-emerald-200"
+                  : result.sent === 0
+                    ? "bg-red-50 ring-red-200"
+                    : "bg-amber-50 ring-amber-200"
+              }`}
+            >
+              <p
+                className={`text-sm font-semibold ${
+                  result.failed === 0
+                    ? "text-emerald-800"
+                    : result.sent === 0
+                      ? "text-red-800"
+                      : "text-amber-800"
+                }`}
+              >
                 Batch complete ({result.channel === "EMAIL" ? "Email" : "WhatsApp"})
               </p>
-              <div className="mt-1 flex gap-4 text-xs text-emerald-700">
+              <div
+                className={`mt-1 flex gap-4 text-xs ${
+                  result.failed === 0
+                    ? "text-emerald-700"
+                    : result.sent === 0
+                      ? "text-red-700"
+                      : "text-amber-700"
+                }`}
+              >
                 <span>Sent: {result.sent}</span>
                 <span>Failed: {result.failed}</span>
                 <span>Total: {result.total}</span>
               </div>
+              {result.errorSample && result.errorSample.length > 0 && (
+                <div className="mt-2 rounded-lg bg-white/60 p-2">
+                  <p className="text-[11px] font-semibold text-gray-700">
+                    Sample failure{result.errorSample.length === 1 ? "" : "s"}:
+                  </p>
+                  <ul className="mt-1 space-y-1 text-[11px] text-gray-600">
+                    {result.errorSample.map((e, i) => (
+                      <li key={i} className="break-words">
+                        {e.error}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 

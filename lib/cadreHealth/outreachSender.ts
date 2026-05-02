@@ -113,7 +113,7 @@ export async function sendInitialWhatsApp(
  */
 export async function sendInitialEmail(
   professionalId: string,
-): Promise<boolean> {
+): Promise<{ ok: boolean; error?: string }> {
   const professional = await prisma.cadreProfessional.findUnique({
     where: { id: professionalId },
     select: {
@@ -127,11 +127,14 @@ export async function sendInitialEmail(
     },
   });
 
-  if (!professional || !professional.email) {
-    return false;
+  if (!professional) {
+    return { ok: false, error: "Professional not found" };
+  }
+  if (!professional.email) {
+    return { ok: false, error: "No email on record" };
   }
 
-  const sent = await sendReactivationEmail({
+  const result = await sendReactivationEmail({
     id: professional.id,
     firstName: professional.firstName,
     lastName: professional.lastName,
@@ -140,14 +143,14 @@ export async function sendInitialEmail(
     subSpecialty: professional.subSpecialty,
   });
 
-  if (!sent) {
+  if (!result.ok) {
     if (professional.outreachRecord) {
       await prisma.cadreOutreachRecord.update({
         where: { id: professional.outreachRecord.id },
         data: { lastContactedAt: new Date(), contactAttempts: { increment: 1 } },
       });
     }
-    return false;
+    return { ok: false, error: result.error };
   }
 
   const now = new Date();
@@ -188,7 +191,7 @@ export async function sendInitialEmail(
     });
   }
 
-  return true;
+  return { ok: true };
 }
 
 /**
@@ -313,10 +316,18 @@ export async function sendFollowUpEmail(
  * Email batches skip pros with no email; WhatsApp batches skip pros with no
  * phone. Tier A is prioritized within each batch.
  */
+export interface BatchResult {
+  sent: number;
+  failed: number;
+  total: number;
+  channel: OutreachChannel;
+  errorSample: { professionalId: string; error: string }[];
+}
+
 export async function sendOutreachBatch(
   batchSize: number = 50,
   channel: OutreachChannel = "EMAIL",
-): Promise<{ sent: number; failed: number; total: number; channel: OutreachChannel }> {
+): Promise<BatchResult> {
   const professionalFilter =
     channel === "EMAIL"
       ? { email: { not: "" } }
@@ -337,19 +348,33 @@ export async function sendOutreachBatch(
 
   let sent = 0;
   let failed = 0;
+  const errorSample: { professionalId: string; error: string }[] = [];
 
   for (const record of readyRecords) {
-    const success =
-      channel === "EMAIL"
-        ? await sendInitialEmail(record.professionalId)
-        : await sendInitialWhatsApp(record.professionalId);
+    let ok: boolean;
+    let error: string | undefined;
 
-    if (success) sent++;
-    else failed++;
+    if (channel === "EMAIL") {
+      const r = await sendInitialEmail(record.professionalId);
+      ok = r.ok;
+      error = r.error;
+    } else {
+      ok = await sendInitialWhatsApp(record.professionalId);
+      if (!ok) error = "WhatsApp send failed (see server logs)";
+    }
+
+    if (ok) {
+      sent++;
+    } else {
+      failed++;
+      if (errorSample.length < 5 && error) {
+        errorSample.push({ professionalId: record.professionalId, error });
+      }
+    }
 
     // Small delay to stay under Zoho / WA rate limits.
     await new Promise((resolve) => setTimeout(resolve, 200));
   }
 
-  return { sent, failed, total: readyRecords.length, channel };
+  return { sent, failed, total: readyRecords.length, channel, errorSample };
 }

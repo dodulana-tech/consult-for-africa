@@ -17,7 +17,12 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const FROM = "CadreHealth <platform@consultforafrica.com>";
+// Fall back to the same env vars cadreEmail.ts uses so the FROM matches the
+// SMTP-authenticated mailbox -- Zoho rejects sends where they differ.
+const FROM =
+  process.env.CADRE_SMTP_FROM ??
+  process.env.SMTP_FROM ??
+  "CadreHealth <hello@consultforafrica.com>";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://consultforafrica.com";
 
@@ -163,14 +168,18 @@ function buildEmailHTML(professional: ProfessionalInfo): string {
 </html>`;
 }
 
+export interface ReactivationEmailResult {
+  ok: boolean;
+  error?: string;
+}
+
 export async function sendReactivationEmail(
-  professional: ProfessionalInfo
-): Promise<boolean> {
+  professional: ProfessionalInfo,
+): Promise<ReactivationEmailResult> {
   if (!process.env.SMTP_USER) {
-    console.log(
-      `[outreach-email] SMTP not configured. Would send to ${professional.email}`
-    );
-    return false;
+    const error = "SMTP not configured (SMTP_USER missing)";
+    console.log(`[outreach-email] ${error}. Would send to ${professional.email}`);
+    return { ok: false, error };
   }
 
   const subject = `Dr. ${professional.lastName}, your specialist profile on CadreHealth`;
@@ -180,9 +189,10 @@ export async function sendReactivationEmail(
     console.log(`[outreach-email] Sending to ${professional.email}`);
     await transporter.sendMail({ from: FROM, to: professional.email, subject, html });
     console.log(`[outreach-email] Sent to ${professional.email}`);
-    return true;
+    return { ok: true };
   } catch (err) {
-    console.error(`[outreach-email] Failed to send to ${professional.email}:`, err);
-    return false;
+    const error = err instanceof Error ? err.message : String(err);
+    console.error(`[outreach-email] Failed to send to ${professional.email}:`, error);
+    return { ok: false, error };
   }
 }
