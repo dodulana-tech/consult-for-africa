@@ -1894,3 +1894,140 @@ export async function emailMaarovaCircleCoachingOpen({
     `)
   );
 }
+
+// ─── Maarova 360 viral conversion ────────────────────────────────────────────
+
+/**
+ * Sent to the leader as soon as their core Maarova report is generated.
+ * Frame: report is only 70% complete without 360. Drive them back into
+ * the portal to invite their raters.
+ */
+export async function emailMaarovaInviteRaters({
+  email,
+  name,
+  reportUrl,
+  inviteUrl,
+}: {
+  email: string;
+  name: string;
+  reportUrl: string;
+  inviteUrl: string;
+}) {
+  const firstName = esc(name.split(" ")[0]);
+  await send(
+    email,
+    `${firstName}, your Maarova report is ready (and incomplete)`,
+    layout(`
+      ${h1("Your report is ready")}
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#374151;">
+        Hi ${firstName},
+      </p>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#374151;">
+        Your Maarova Leadership Profile is generated. You can read it now.
+      </p>
+      ${btn("Read your report", esc(reportUrl))}
+
+      <div style="margin:28px 0 8px;padding:18px 22px;background:#FFFBEB;border-left:4px solid #D4AF37;border-radius:6px;">
+        <p style="margin:0 0 8px;font-size:13px;color:#92400E;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;">
+          One thing missing
+        </p>
+        <p style="margin:0;font-size:14px;line-height:1.6;color:#0F2744;">
+          Your report so far is your own self-perception. The Maarova framework only becomes complete when 5 to 8 colleagues, supervisors, and direct reports give anonymous feedback on how they experience your leadership.
+        </p>
+        <p style="margin:10px 0 0;font-size:14px;line-height:1.6;color:#0F2744;">
+          The gap between how you see yourself and how others see you is where most leadership growth happens.
+        </p>
+      </div>
+
+      <p style="margin:24px 0 16px;font-size:15px;line-height:1.65;color:#374151;">
+        Inviting raters takes about 90 seconds. They each spend 10 to 15 minutes giving you feedback. You see the aggregated themes - never the individual responses.
+      </p>
+
+      ${btn("Invite raters now", esc(inviteUrl))}
+
+      <p style="margin:20px 0 4px;font-size:13px;color:#6B7280;line-height:1.6;">
+        Recommended mix: 1 supervisor or board member, 2 to 3 peers, 2 to 3 direct reports.
+      </p>
+
+      <p style="margin:24px 0 0;font-size:12px;color:#9CA3AF;line-height:1.5;">
+        Best,<br/>The Maarova team<br/>Consult For Africa
+      </p>
+    `)
+  );
+}
+
+/**
+ * Improved rater invite email - viral conversion driver.
+ * Adds: explicit "you can take Maarova too" CTA, social proof, healthcare-specific framing.
+ */
+export async function email360RaterInviteV2({
+  raterEmail,
+  raterName,
+  subjectName,
+  subjectTitle,
+  subjectOrg,
+  role,
+  token,
+}: {
+  raterEmail: string;
+  raterName: string;
+  subjectName: string;
+  subjectTitle?: string | null;
+  subjectOrg?: string | null;
+  role: string;
+  token: string;
+}) {
+  const firstName = esc(raterName.split(" ")[0]);
+  const safeSubject = esc(subjectName);
+  const subjectContext = subjectTitle && subjectOrg
+    ? `${esc(subjectTitle)} at ${esc(subjectOrg)}`
+    : subjectTitle
+    ? esc(subjectTitle)
+    : subjectOrg
+    ? `colleague at ${esc(subjectOrg)}`
+    : "healthcare leader";
+  const roleLabel = role.replace(/_/g, " ").toLowerCase();
+  const rateUrl = `${BASE_URL}/maarova/rate/${esc(token)}`;
+  const ownAssessmentUrl = `${BASE_URL}/maarova`;
+
+  await send(
+    raterEmail,
+    `${firstName}, ${safeSubject} asked for your feedback`,
+    layout(`
+      ${h1(`${safeSubject} chose you`)}
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#374151;">
+        Hi ${firstName},
+      </p>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#374151;">
+        ${safeSubject}, ${subjectContext}, has asked for your honest feedback as part of their Maarova leadership development. You were named specifically as a <strong>${esc(roleLabel)}</strong>.
+      </p>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#374151;">
+        Your responses are anonymous and aggregated with other raters. ${safeSubject} sees themes, never individual answers. The form takes 10 to 15 minutes on phone or laptop.
+      </p>
+
+      ${btn("Give honest feedback", rateUrl)}
+
+      <div style="margin:32px 0 8px;padding:20px 22px;background:linear-gradient(135deg, rgba(212,175,55,0.08), rgba(15,39,68,0.04));border:1px solid rgba(212,175,55,0.3);border-radius:8px;">
+        <p style="margin:0 0 8px;font-size:11px;color:#92400E;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">
+          About Maarova
+        </p>
+        <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#0F2744;">
+          Maarova is the leadership assessment built for healthcare leaders working in African contexts. Six dimensions calibrated to the realities of running a hospital in Lagos, Lome, Bamako, Abuja or Nairobi.
+        </p>
+        <p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#0F2744;">
+          If you lead a clinical team, run a hospital, manage a public health programme, or operate inside a healthtech company, you can take Maarova for yourself.
+        </p>
+        <a href="${ownAssessmentUrl}" style="display:inline-block;font-size:13px;color:#0F2744;font-weight:700;text-decoration:underline;">
+          Learn more about Maarova
+        </a>
+      </div>
+
+      <p style="margin:24px 0 0;font-size:12px;color:#9CA3AF;line-height:1.5;">
+        If you do not recognise ${safeSubject}, please disregard this email or reply to let us know at hello@consultforafrica.com.
+      </p>
+      <p style="margin:14px 0 0;font-size:12px;color:#9CA3AF;line-height:1.5;">
+        Maarova by Consult For Africa
+      </p>
+    `)
+  );
+}

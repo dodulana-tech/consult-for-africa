@@ -563,6 +563,43 @@ export default function MaarovaResultDetailPage() {
         )}
       </div>
 
+      {/* 360 incomplete banner - report is self-perception only without it */}
+      {reportReady && session?.moduleResponses && !session.moduleResponses.some(
+        (mr) => mr.moduleType === "THREE_SIXTY" && mr.status === "COMPLETED",
+      ) && (
+        <div
+          className="mb-6 rounded-xl p-5 sm:p-6"
+          style={{
+            background: "linear-gradient(135deg, rgba(212,165,116,0.08), rgba(15,39,68,0.04))",
+            border: "1px solid rgba(212,165,116,0.4)",
+          }}
+        >
+          <div className="flex flex-col sm:flex-row items-start gap-4 justify-between">
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-1" style={{ color: "#92400E" }}>
+                Your report is incomplete
+              </p>
+              <h3 className="text-base font-bold mb-2" style={{ color: "#0F2744" }}>
+                This is your self-perception. Add 360 feedback to see how others experience your leadership.
+              </h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                The gap between how you see yourself and how 5 to 8 colleagues, supervisors, and direct reports see you is where most leadership growth happens. Inviting raters takes 90 seconds.
+              </p>
+            </div>
+            <a
+              href="/maarova/portal/three-sixty"
+              className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold whitespace-nowrap transition hover:opacity-90"
+              style={{ background: "#0F2744", color: "#fff" }}
+            >
+              Invite raters
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* Report not ready: generate prompt */}
       {!reportReady && (
         <div className="bg-white rounded-xl border border-gray-200 p-12 text-center mb-8">

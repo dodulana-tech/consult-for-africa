@@ -416,6 +416,31 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
     }
   }
 
+  async function handleTrigger360(userId: string, userName: string) {
+    if (!confirm(`Send ${userName} an email asking them to invite raters for 360 feedback? This will create a 360 request if one does not exist.`)) return;
+    setActionLoading(`trigger360-${userId}`);
+    clearFeedback();
+
+    try {
+      const res = await fetch(`/api/admin/maarova/users/${userId}/trigger-360`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed");
+
+      const msg = data.requestCreated
+        ? `360 request created and email sent to ${userName}.`
+        : `Reminder email sent to ${userName} (360 request was already active).`;
+      setSuccess(msg);
+      router.refresh();
+    } catch (err) {
+      console.error("[trigger-360]", err);
+      setError(err instanceof Error ? err.message : "Unable to trigger 360.");
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
   /* ── Bulk Upload ───────────────────────────────────────────────────────── */
 
   function handleCsvFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -1094,6 +1119,20 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
                           >
                             <ShieldCheck size={11} />
                             {actionLoading === `enable-${u.id}` ? "..." : "Enable"}
+                          </button>
+                        )}
+
+                        {/* Trigger 360 - only when user has a completed session */}
+                        {u.latestSessionStatus === "COMPLETED" && (
+                          <button
+                            onClick={() => handleTrigger360(u.id, u.name)}
+                            disabled={actionLoading === `trigger360-${u.id}`}
+                            className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-colors disabled:opacity-50"
+                            style={{ background: "#FFFBEB", color: "#92400E", border: "1px solid #FDE68A" }}
+                            title="Send the leader an email asking them to invite raters for 360 feedback"
+                          >
+                            <Mail size={11} />
+                            {actionLoading === `trigger360-${u.id}` ? "..." : "Trigger 360"}
                           </button>
                         )}
                       </div>

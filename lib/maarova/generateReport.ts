@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
+import { emailMaarovaInviteRaters } from "@/lib/email";
+
+const BASE_URL = process.env.NEXTAUTH_URL ?? "https://consultforafrica.com";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -264,6 +267,50 @@ CRITICAL: You must ONLY reference information explicitly provided in the leader 
       generatedAt: new Date(),
     },
   });
+
+  // Auto-create a 360 request (idempotent) so the leader has a place to invite
+  // raters into. Skip if a 360 module response is already COMPLETED.
+  const has360Complete = assessmentSession.moduleResponses.some(
+    (mr) => mr.module.type === "THREE_SIXTY" && mr.status === "COMPLETED",
+  );
+  let threeSixtyRequestId: string | null = null;
+  if (!has360Complete) {
+    try {
+      const existing360 = await prisma.maarova360Request.findFirst({
+        where: { subjectId: assessmentSession.userId, status: { in: ["COLLECTING", "PROCESSING"] } },
+      });
+      if (existing360) {
+        threeSixtyRequestId = existing360.id;
+      } else {
+        const deadline = new Date();
+        deadline.setDate(deadline.getDate() + 14);
+        const newRequest = await prisma.maarova360Request.create({
+          data: {
+            subjectId: assessmentSession.userId,
+            deadline,
+            minRaters: 5,
+            status: "COLLECTING",
+          },
+        });
+        threeSixtyRequestId = newRequest.id;
+      }
+    } catch (err) {
+      console.error("[generateMaarovaReport] failed to create 360 request:", err);
+    }
+
+    // Email the leader prompting them to invite raters. Best-effort - if it
+    // fails the report is still readable in the portal.
+    try {
+      await emailMaarovaInviteRaters({
+        email: user.email,
+        name: user.name,
+        reportUrl: `${BASE_URL}/maarova/portal/results/${sessionId}`,
+        inviteUrl: `${BASE_URL}/maarova/portal/three-sixty`,
+      });
+    } catch (err) {
+      console.error("[generateMaarovaReport] failed to send invite-raters email:", err);
+    }
+  }
 
   return { ok: true, reportId: updatedReport.id };
 }

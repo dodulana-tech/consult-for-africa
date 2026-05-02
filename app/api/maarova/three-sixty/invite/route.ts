@@ -1,6 +1,6 @@
 import { getMaarovaSession } from "@/lib/maarovaAuth";
 import { prisma } from "@/lib/prisma";
-import { email360RaterInvite } from "@/lib/email";
+import { email360RaterInviteV2 } from "@/lib/email";
 import crypto from "crypto";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
@@ -67,16 +67,22 @@ export const POST = handler(async function POST(req: NextRequest) {
 
     invites.push(invite);
 
-    // Fetch subject name for the email
+    // Fetch subject details for personalisation
     const subject = await prisma.maarovaUser.findUnique({
       where: { id: session.sub },
-      select: { name: true },
+      select: {
+        name: true,
+        title: true,
+        organisation: { select: { name: true } },
+      },
     });
 
-    email360RaterInvite({
+    email360RaterInviteV2({
       raterEmail: raterEmail.toLowerCase().trim(),
       raterName: raterName.trim(),
       subjectName: subject?.name ?? "a colleague",
+      subjectTitle: subject?.title ?? null,
+      subjectOrg: subject?.organisation?.name ?? null,
       role,
       token,
     }).catch((err) => console.error("Failed to send 360 rater invite:", err));

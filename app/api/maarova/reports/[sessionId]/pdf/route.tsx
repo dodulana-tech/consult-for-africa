@@ -316,7 +316,7 @@ export function LeadershipReport(props: PDFProps) {
           {props.logoBase64 && <Image src={props.logoBase64} style={s.coverLogo} />}
           <Text style={s.coverLabel}>Maarova Leadership Profile</Text>
           <Text style={s.coverTitle}>Leadership Assessment</Text>
-          <Text style={s.coverSubtitle}>Comprehensive Report</Text>
+          <Text style={s.coverSubtitle}>{props.has360 ? "Comprehensive Report" : "Self-Perception Report"}</Text>
           <View style={s.coverDivider} />
           <Text style={s.coverName}>{props.userName}</Text>
           {props.userTitle && <Text style={s.coverMeta}>{props.userTitle}</Text>}
