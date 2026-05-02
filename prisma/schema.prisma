@@ -2828,6 +2828,7 @@ model OutreachTarget {
   tokenExpiresAt DateTime?      // token expiry (30 days from invite)
   createdAt    DateTime         @default(now())
 
+  @@unique([campaignId, email])
   @@index([campaignId, status])
 }
 

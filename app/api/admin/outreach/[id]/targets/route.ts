@@ -19,15 +19,33 @@ export const POST = handler(async function POST(
   const targets = Array.isArray(body) ? body : [body];
 
   const created = [];
+  const skipped: Array<{ email: string; reason: string }> = [];
+
+  // Pre-fetch existing emails on this campaign so we can dedupe in-memory
+  // (covers both same-request duplicates and prior-request duplicates).
+  const existing = await prisma.outreachTarget.findMany({
+    where: { campaignId: id, email: { not: null } },
+    select: { email: true },
+  });
+  const seenEmails = new Set(existing.map((e) => e.email!.toLowerCase()));
+
   for (const t of targets) {
     if (!t.name?.trim()) continue;
+    const email = t.email?.trim().toLowerCase() || null;
+
+    // Dedupe by email within this campaign
+    if (email && seenEmails.has(email)) {
+      skipped.push({ email, reason: "already in campaign" });
+      continue;
+    }
+
     const target = await prisma.outreachTarget.create({
       data: {
         campaignId: id,
         name: t.name.trim(),
         title: t.title?.trim() || null,
         organization: t.organization?.trim() || null,
-        email: t.email?.trim().toLowerCase() || null,
+        email,
         phone: t.phone?.trim() || null,
         linkedinUrl: t.linkedinUrl?.trim() || null,
         city: t.city?.trim() || null,
@@ -36,13 +54,14 @@ export const POST = handler(async function POST(
       },
     });
     created.push(target);
+    if (email) seenEmails.add(email);
   }
 
   // Update campaign target count
   const count = await prisma.outreachTarget.count({ where: { campaignId: id } });
   await prisma.outreachCampaign.update({ where: { id }, data: { targetCount: count } });
 
-  return Response.json({ targets: created, count }, { status: 201 });
+  return Response.json({ targets: created, skipped, count }, { status: 201 });
 });
 
 export const PATCH = handler(async function PATCH(

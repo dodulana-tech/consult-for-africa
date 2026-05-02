@@ -10,6 +10,10 @@ import {
   emailMaarovaCircleDeclined,
 } from "@/lib/email";
 
+// Pipeline does PDF parse + R2 upload + Claude screening + DB writes.
+// Default 10s Vercel cap is too tight; bump to 60s to avoid mid-flight kill.
+export const maxDuration = 60;
+
 const TOTAL_SLOTS = 50;
 const FOUNDING_CIRCLE_CAMPAIGN_NAME = "2026-05 Maarova Founding Circle";
 
@@ -36,9 +40,22 @@ export const POST = handler(async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email" }, { status: 400 });
   }
 
-  // Check duplicates
-  const existing = await prisma.maarovaCircleApplication.findUnique({ where: { email } });
-  if (existing) {
+  // Dedupe across BOTH tables: prior application AND prior outreach target on
+  // the Founding Circle campaign. Looking only at MaarovaCircleApplication
+  // missed cases where the application save failed (timeout) but the
+  // OutreachTarget was already written, leaving the email un-deduplicated.
+  const [existingApp, existingTarget] = await Promise.all([
+    prisma.maarovaCircleApplication.findUnique({ where: { email } }),
+    prisma.outreachTarget.findFirst({
+      where: {
+        email,
+        campaign: { name: FOUNDING_CIRCLE_CAMPAIGN_NAME },
+      },
+      select: { id: true },
+    }),
+  ]);
+
+  if (existingApp || existingTarget) {
     return NextResponse.json(
       { error: "An application with this email already exists. Each person may apply once." },
       { status: 409 },
@@ -150,9 +167,42 @@ export const POST = handler(async function POST(req: NextRequest) {
       tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
       coachingDiscountCode = `FOUNDING-${randomBytes(3).toString("hex").toUpperCase()}`;
       invitedAt = new Date();
+    } else if (screening.recommendation === "AUTO_DECLINE") {
+      status = "DECLINED";
+      reviewedAt = new Date();
+      declineReason = screening.declineReason || null;
+    } else if (slotsLeft <= 0) {
+      status = "WAITLISTED";
+    } else {
+      status = "PENDING_REVIEW";
+    }
+  } else {
+    // Screening failed: queue for manual review
+    status = "PENDING_REVIEW";
+  }
 
-      // Create OutreachTarget so it shows up in existing /admin/outreach view
-      const target = await prisma.outreachTarget.create({
+  // Atomic write: application + (optional) outreach target + counter bump.
+  // If any step fails, none persist. This eliminates the partial-state class
+  // of bug where an OutreachTarget was created but the application save
+  // timed out, leaving the email un-deduplicated on retry.
+  const ipAddress = req.headers.get("x-forwarded-for") || null;
+  const userAgent = req.headers.get("user-agent") || null;
+  const source = req.headers.get("referer") || null;
+
+  const application = await prisma.$transaction(async (tx) => {
+    // Re-check inside the transaction in case a concurrent submission
+    // beat us to it.
+    const dupApp = await tx.maarovaCircleApplication.findUnique({ where: { email } });
+    if (dupApp) throw new Error("DUPLICATE_EMAIL");
+    const dupTarget = await tx.outreachTarget.findFirst({
+      where: { email, campaignId: campaign.id },
+      select: { id: true },
+    });
+    if (dupTarget) throw new Error("DUPLICATE_EMAIL");
+
+    let createdTargetId: string | null = null;
+    if (status === "APPROVED" && inviteToken) {
+      const target = await tx.outreachTarget.create({
         data: {
           campaignId: campaign.id,
           name: `${firstName} ${lastName}`,
@@ -169,63 +219,61 @@ export const POST = handler(async function POST(req: NextRequest) {
           tokenExpiresAt,
         },
       });
-      outreachTargetId = target.id;
+      createdTargetId = target.id;
 
-      // Bump campaign counters
-      await prisma.outreachCampaign.update({
+      await tx.outreachCampaign.update({
         where: { id: campaign.id },
         data: { sentCount: { increment: 1 } },
       });
-    } else if (screening.recommendation === "AUTO_DECLINE") {
-      status = "DECLINED";
-      reviewedAt = new Date();
-      declineReason = screening.declineReason || null;
-    } else if (slotsLeft <= 0) {
-      status = "WAITLISTED";
-    } else {
-      status = "PENDING_REVIEW";
     }
-  } else {
-    // Screening failed: queue for manual review
-    status = "PENDING_REVIEW";
-  }
 
-  // Save the application
-  const application = await prisma.maarovaCircleApplication.create({
-    data: {
-      campaignId: campaign.id,
-      firstName,
-      lastName,
-      email,
-      phone,
-      linkedinUrl,
-      currentRole,
-      currentEmployer,
-      city,
-      country,
-      yearsInRole,
-      cvFileUrl,
-      cvText: extractedText ? extractedText.slice(0, 30000) : null,
-      status,
-      aiScore: screening?.score ?? null,
-      aiSummary: screening?.summary ?? null,
-      aiStrengths: screening?.strengths ?? [],
-      aiConcerns: screening?.concerns ?? [],
-      aiRecommendation: screening?.recommendation ?? null,
-      aiBreakdown: (screening?.breakdown as never) ?? undefined,
-      reviewedAt,
-      declineReason,
-      outreachTargetId,
-      inviteToken,
-      tokenExpiresAt,
-      invitedAt,
-      coachingOptIn,
-      coachingDiscountCode,
-      ipAddress: req.headers.get("x-forwarded-for") || null,
-      userAgent: req.headers.get("user-agent") || null,
-      source: req.headers.get("referer") || null,
-    },
+    return tx.maarovaCircleApplication.create({
+      data: {
+        campaignId: campaign.id,
+        firstName,
+        lastName,
+        email,
+        phone,
+        linkedinUrl,
+        currentRole,
+        currentEmployer,
+        city,
+        country,
+        yearsInRole,
+        cvFileUrl,
+        cvText: extractedText ? extractedText.slice(0, 30000) : null,
+        status,
+        aiScore: screening?.score ?? null,
+        aiSummary: screening?.summary ?? null,
+        aiStrengths: screening?.strengths ?? [],
+        aiConcerns: screening?.concerns ?? [],
+        aiRecommendation: screening?.recommendation ?? null,
+        aiBreakdown: (screening?.breakdown as never) ?? undefined,
+        reviewedAt,
+        declineReason,
+        outreachTargetId: createdTargetId,
+        inviteToken,
+        tokenExpiresAt,
+        invitedAt,
+        coachingOptIn,
+        coachingDiscountCode,
+        ipAddress,
+        userAgent,
+        source,
+      },
+    });
+  }).catch((err: Error) => {
+    if (err.message === "DUPLICATE_EMAIL") return null;
+    throw err;
   });
+
+  if (!application) {
+    return NextResponse.json(
+      { error: "An application with this email already exists. Each person may apply once." },
+      { status: 409 },
+    );
+  }
+  outreachTargetId = application.outreachTargetId;
 
   // Send appropriate email (best-effort)
   try {
