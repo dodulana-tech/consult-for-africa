@@ -175,7 +175,7 @@ export function OutreachBatchButton({ pendingCount }: { pendingCount: number }) 
             Batch size
           </label>
           <div className="flex gap-2">
-            {[10, 25, 50, 100, 200].map((size) => (
+            {[2, 10, 25, 50, 100, 200].map((size) => (
               <button
                 key={size}
                 onClick={() => setBatchSize(size)}
