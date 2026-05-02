@@ -34,6 +34,7 @@ import {
   Stethoscope,
   Banknote,
   MessageSquare,
+  Star,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import type { LucideIcon } from "lucide-react";
@@ -163,6 +164,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Outreach",       href: "/admin/outreach", icon: Share2 },
       { label: "Referrals",      href: "/admin/referrals", icon: Share2 },
       { label: "Maarova",        href: "/admin/maarova",  icon: Brain },
+      { label: "Founding Circle", href: "/admin/maarova-circle", icon: Star },
       { label: "Partners",       href: "/admin/partners",     icon: Building2 },
       { label: "Satisfaction",   href: "/admin/satisfaction", icon: HeartPulse },
       { label: "Gig Approvals",  href: "/admin/own-gig-approvals", icon: FileCheck },
