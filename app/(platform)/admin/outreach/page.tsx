@@ -101,7 +101,7 @@ export default function OutreachCampaignsPage() {
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <h3 className="text-sm font-bold" style={{ color: "#0F2744" }}>{c.name}</h3>
-                      <p className="text-xs text-gray-400">{c.month} | Created by {c.createdBy.name}</p>
+                      <p className="text-xs text-gray-400">{c.month}{c.createdBy?.name ? ` | Created by ${c.createdBy.name}` : ""}</p>
                     </div>
                     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${st.bg} ${st.text}`}>{c.status}</span>
                   </div>

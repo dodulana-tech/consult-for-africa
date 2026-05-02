@@ -130,12 +130,12 @@ export default function MaarovaPage() {
             {/* Left: copy */}
             <div>
               <div className="flex items-center gap-3 mb-6">
-                <span className="px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-[0.2em]"
-                  style={{ background: "rgba(212,165,116,0.15)", color: "#D4A574", border: "1px solid rgba(212,165,116,0.2)" }}>
+                <span style={{ width: 24, height: 1, background: "#D4A574" }} />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.28em]" style={{ color: "#D4A574" }}>
                   C4A Proprietary
                 </span>
-                <span className="text-xs tracking-wide" style={{ color: "rgba(255,255,255,0.35)" }}>
-                  Maarova{"\u2122"} Platform
+                <span className="text-xs tracking-wide" style={{ color: "rgba(255,255,255,0.3)" }}>
+                  Maarova{"\u2122"}
                 </span>
               </div>
 

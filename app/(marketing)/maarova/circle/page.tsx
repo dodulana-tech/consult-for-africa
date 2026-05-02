@@ -72,12 +72,11 @@ export default async function CircleLandingPage() {
           <div className="grid lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-16 items-center">
             {/* LEFT: Editorial */}
             <div>
-              <div
-                className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[10px] font-bold tracking-[0.18em] uppercase"
-                style={{ background: "rgba(212,175,55,0.12)", color: "#D4AF37", border: "1px solid rgba(212,175,55,0.4)" }}
-              >
-                <span style={{ width: 6, height: 6, borderRadius: 999, background: "#D4AF37" }} />
-                Maarova Founding Circle
+              <div className="flex items-center gap-3">
+                <span style={{ width: 24, height: 1, background: "#D4AF37" }} />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.28em]" style={{ color: "#D4AF37" }}>
+                  Maarova Founding Circle
+                </span>
               </div>
 
               <h1
