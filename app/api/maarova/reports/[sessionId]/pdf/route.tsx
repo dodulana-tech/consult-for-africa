@@ -188,11 +188,26 @@ function PageFooter({ dateStr, pageLabel }: { dateStr: string; pageLabel?: strin
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function Paragraphs({ text, style }: { text: string | null | undefined; style?: any }) {
-  if (!text) return null;
+function Paragraphs({ text, style }: { text: any; style?: any }) {
+  // Defensive: handle legacy reports where some fields were stored as
+  // { score, interpretation } objects instead of plain strings, or as
+  // arrays of strings, etc. Coerce to a string before splitting.
+  let str: string | null = null;
+  if (text == null) {
+    str = null;
+  } else if (typeof text === "string") {
+    str = text;
+  } else if (Array.isArray(text)) {
+    str = text.filter((x) => typeof x === "string").join("\n\n");
+  } else if (typeof text === "object") {
+    if (typeof text.interpretation === "string") str = text.interpretation;
+    else if (typeof text.text === "string") str = text.text;
+    else if (typeof text.summary === "string") str = text.summary;
+  }
+  if (!str) return null;
   return (
     <>
-      {text.split("\n\n").map((p, i) => (
+      {str.split("\n\n").map((p, i) => (
         <Text key={i} style={style ?? s.paragraph}>{p.trim()}</Text>
       ))}
     </>
