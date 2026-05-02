@@ -138,11 +138,9 @@ export default async function CircleLandingPage() {
                 <div
                   className="relative rounded-3xl p-8"
                   style={{
-                    background: "linear-gradient(160deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02))",
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    boxShadow: "0 30px 80px rgba(0,0,0,0.35)",
-                    backdropFilter: "blur(24px)",
-                    WebkitBackdropFilter: "blur(24px)",
+                    background: "linear-gradient(160deg, #14304F 0%, #0B2238 100%)",
+                    border: "1px solid rgba(212,175,55,0.18)",
+                    boxShadow: "0 40px 90px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)",
                   }}
                 >
                   <div className="flex items-start justify-between mb-6">
@@ -150,17 +148,19 @@ export default async function CircleLandingPage() {
                       <p className="text-[9px] tracking-[0.22em] uppercase font-bold" style={{ color: "#D4AF37" }}>
                         Sample Profile
                       </p>
-                      <h3 className="text-lg font-bold mt-1.5">Maarova Leadership Report</h3>
+                      <h3 className="text-lg font-bold mt-1.5 text-white">Maarova Leadership Report</h3>
                     </div>
                     <div className="text-right">
                       <div className="text-5xl font-bold leading-none" style={{ color: "#D4AF37" }}>76</div>
-                      <div className="text-[9px] uppercase tracking-[0.18em] text-white/45 mt-1">overall</div>
+                      <div className="text-[9px] uppercase tracking-[0.18em] text-white/65 mt-1 font-semibold">overall</div>
                     </div>
                   </div>
 
-                  <div className="mb-6 pb-6 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                    <p className="text-[10px] tracking-[0.18em] uppercase text-white/45 mb-2 font-semibold">Leadership archetype</p>
-                    <p className="text-base font-semibold">The Strategic Caregiver</p>
+                  <div className="mb-6 pb-6 border-b" style={{ borderColor: "rgba(255,255,255,0.12)" }}>
+                    <p className="text-[10px] tracking-[0.18em] uppercase mb-2 font-semibold" style={{ color: "#D4AF37" }}>
+                      Leadership archetype
+                    </p>
+                    <p className="text-lg font-bold text-white">The Strategic Caregiver</p>
                   </div>
 
                   <div className="space-y-3.5">
@@ -173,25 +173,25 @@ export default async function CircleLandingPage() {
                       { label: "Cultural fit", score: 81 },
                     ].map((d) => (
                       <div key={d.label} className="flex items-center gap-3">
-                        <div className="text-xs text-white/70 w-[170px] truncate">{d.label}</div>
-                        <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
+                        <div className="text-xs text-white/85 w-[170px] truncate font-medium">{d.label}</div>
+                        <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.12)" }}>
                           <div
                             className="h-full rounded-full"
                             style={{
                               width: `${d.score}%`,
-                              background: "linear-gradient(to right, #D4AF37, #f0c850)",
-                              boxShadow: "0 0 12px rgba(212,175,55,0.4)",
+                              background: "linear-gradient(to right, #D4AF37, #f5d97a)",
+                              boxShadow: "0 0 14px rgba(212,175,55,0.55)",
                             }}
                           />
                         </div>
-                        <div className="text-xs font-mono w-7 text-right text-white/55">{d.score}</div>
+                        <div className="text-xs font-mono w-7 text-right text-white/80 font-semibold">{d.score}</div>
                       </div>
                     ))}
                   </div>
 
                   <div
-                    className="mt-7 pt-5 text-[9px] uppercase tracking-[0.22em] text-white/30 text-center font-semibold"
-                    style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
+                    className="mt-7 pt-5 text-[9px] uppercase tracking-[0.22em] text-center font-semibold"
+                    style={{ borderTop: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)" }}
                   >
                     Sample · Real reports are personalised
                   </div>
