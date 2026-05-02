@@ -79,21 +79,27 @@ export const POST = handler(async function POST(req: NextRequest) {
     return NextResponse.json({ error: "CV must be smaller than 5 MB" }, { status: 413 });
   }
 
-  // Extract CV text
+  // Extract CV text. Match the working pattern from /api/talent/apply
+  // (Buffer directly, not wrapped in Uint8Array - the wrapping fails silently
+  // on Vercel's serverless bundler even though it works locally).
   const buffer = Buffer.from(await cvFile.arrayBuffer());
   let extractedText = "";
   try {
     if (cvFile.type === "application/pdf") {
       const { PDFParse } = await import("pdf-parse");
-      const parser = new PDFParse({ data: new Uint8Array(buffer) });
+      const parser = new PDFParse({ data: buffer });
       const textResult = await parser.getText();
-      extractedText = textResult.text;
+      extractedText = textResult.text || "";
       await parser.destroy();
     } else {
       extractedText = buffer.toString("utf-8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
     }
   } catch (err) {
-    console.error("[maarova/circle/apply] CV extraction failed:", err);
+    console.error("[maarova/circle/apply] CV extraction failed:", err instanceof Error ? err.message : err);
+    if (err instanceof Error && err.stack) console.error(err.stack);
+  }
+  if (!extractedText) {
+    console.warn("[maarova/circle/apply] no text extracted for", email, "size:", buffer.length, "type:", cvFile.type);
   }
 
   // Upload CV to R2
