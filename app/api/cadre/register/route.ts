@@ -84,7 +84,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     });
     if (existing) {
       return NextResponse.json(
-        { error: "An account with this email already exists" },
+        { error: "An account with this email already exists. Use 'Forgot password' on the login page to reset your password.", code: "EMAIL_EXISTS" },
         { status: 409 }
       );
     }
@@ -140,7 +140,7 @@ export const POST = handler(async function POST(req: NextRequest) {
       // P2002 = unique constraint violation (email race condition)
       if (err && typeof err === "object" && "code" in err && (err as { code: string }).code === "P2002") {
         return NextResponse.json(
-          { error: "An account with this email already exists" },
+          { error: "An account with this email already exists. Use 'Forgot password' on the login page to reset your password.", code: "EMAIL_EXISTS" },
           { status: 409 }
         );
       }

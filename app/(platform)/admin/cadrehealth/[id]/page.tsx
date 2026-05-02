@@ -3,7 +3,13 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getCadreLabel, getRegulatoryBody } from "@/lib/cadreHealth/cadres";
 import { VerifyButton } from "@/components/cadrehealth/VerifyButton";
-import { InviteProfessionalButton, InviteMentorButton, PushSingleToOutreachButton } from "@/components/cadrehealth/AdminActions";
+import {
+  InviteProfessionalButton,
+  InviteMentorButton,
+  PushSingleToOutreachButton,
+  GenerateResetLinkButton,
+  ResendVerificationButton,
+} from "@/components/cadrehealth/AdminActions";
 import { ArrowLeft, FileText, Download, Calendar } from "lucide-react";
 import { RecruitmentActions } from "@/components/cadrehealth/RecruitmentActions";
 import CommunicationsTimeline from "@/components/platform/communications/CommunicationsTimeline";
@@ -115,9 +121,14 @@ export default async function ProfessionalDetailPage({
       </div>
 
       {/* Admin Actions */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-start gap-3">
         <InviteProfessionalButton professionalId={professional.id} />
         <InviteMentorButton professionalId={professional.id} />
+        <GenerateResetLinkButton professionalId={professional.id} />
+        <ResendVerificationButton
+          professionalId={professional.id}
+          alreadyVerified={professional.emailVerified}
+        />
         <PushSingleToOutreachButton professionalId={professional.id} />
       </div>
 
