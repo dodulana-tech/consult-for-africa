@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendOutreachBatch } from "@/lib/cadreHealth/outreachSender";
+import { sendOutreachBatch, type OutreachChannel } from "@/lib/cadreHealth/outreachSender";
 import { auth } from "@/auth";
 import { handler } from "@/lib/api-handler";
+
+const VALID_CHANNELS: OutreachChannel[] = ["EMAIL", "WHATSAPP"];
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
@@ -19,7 +21,12 @@ export const POST = handler(async function POST(req: NextRequest) {
       200
     );
 
-    const result = await sendOutreachBatch(batchSize);
+    const requestedChannel = (body.channel ?? "EMAIL").toString().toUpperCase() as OutreachChannel;
+    const channel: OutreachChannel = VALID_CHANNELS.includes(requestedChannel)
+      ? requestedChannel
+      : "EMAIL";
+
+    const result = await sendOutreachBatch(batchSize, channel);
     return NextResponse.json(result);
   } catch (err) {
     console.error("Outreach batch error:", err);

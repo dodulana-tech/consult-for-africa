@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Mail, MessageCircle } from "lucide-react";
+
+type Channel = "EMAIL" | "WHATSAPP";
 
 interface ReadyProfessional {
   id: string;
@@ -10,35 +13,47 @@ interface ReadyProfessional {
   cadre: string;
   state: string | null;
   tier: string | null;
-  phone: string | null;
+  hasEmail: boolean;
+  hasPhone: boolean;
 }
 
 interface BatchResult {
   sent: number;
   failed: number;
   total: number;
+  channel: Channel;
 }
+
+const WHATSAPP_DISABLED = true;
 
 export function OutreachBatchButton({ pendingCount }: { pendingCount: number }) {
   const [open, setOpen] = useState(false);
+  const [channel, setChannel] = useState<Channel>("EMAIL");
   const [batchSize, setBatchSize] = useState(25);
   const [preview, setPreview] = useState<ReadyProfessional[]>([]);
+  const [previewTotal, setPreviewTotal] = useState(0);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<BatchResult | null>(null);
   const [error, setError] = useState("");
   const router = useRouter();
 
-  // Load preview when panel opens or batch size changes
+  // Load preview when panel opens, batch size, or channel changes
   useEffect(() => {
     if (!open) return;
     setLoadingPreview(true);
-    fetch(`/api/cadre/outreach/preview?limit=${batchSize}`)
+    fetch(`/api/cadre/outreach/preview?limit=${batchSize}&channel=${channel}`)
       .then((r) => r.json())
-      .then((data) => setPreview(data.professionals ?? []))
-      .catch(() => setPreview([]))
+      .then((data) => {
+        setPreview(data.professionals ?? []);
+        setPreviewTotal(data.total ?? 0);
+      })
+      .catch(() => {
+        setPreview([]);
+        setPreviewTotal(0);
+      })
       .finally(() => setLoadingPreview(false));
-  }, [open, batchSize]);
+  }, [open, batchSize, channel]);
 
   async function handleSendBatch() {
     setSending(true);
@@ -49,7 +64,7 @@ export function OutreachBatchButton({ pendingCount }: { pendingCount: number }) 
       const res = await fetch("/api/cadre/whatsapp/outreach-batch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ batchSize }),
+        body: JSON.stringify({ batchSize, channel }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -111,6 +126,48 @@ export function OutreachBatchButton({ pendingCount }: { pendingCount: number }) 
           </button>
         </div>
 
+        {/* Channel selector */}
+        <div className="border-b border-gray-100 px-6 py-4">
+          <label className="mb-2 block text-sm font-medium text-gray-700">Channel</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setChannel("EMAIL")}
+              className={`flex flex-col items-start gap-1 rounded-xl border p-3 text-left transition ${
+                channel === "EMAIL"
+                  ? "border-[#0B3C5D] bg-[#0B3C5D]/5 ring-2 ring-[#0B3C5D]/10"
+                  : "border-gray-200 hover:bg-gray-50"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4" style={{ color: channel === "EMAIL" ? "#0B3C5D" : "#9CA3AF" }} />
+                <span className="text-sm font-semibold" style={{ color: "#0F2744" }}>Email</span>
+              </div>
+              <span className="text-[11px] text-gray-500">Send via SMTP now</span>
+            </button>
+            <button
+              onClick={() => !WHATSAPP_DISABLED && setChannel("WHATSAPP")}
+              disabled={WHATSAPP_DISABLED}
+              title={WHATSAPP_DISABLED ? "WhatsApp Business API not yet provisioned" : undefined}
+              className={`flex flex-col items-start gap-1 rounded-xl border p-3 text-left transition ${
+                channel === "WHATSAPP"
+                  ? "border-[#0B3C5D] bg-[#0B3C5D]/5 ring-2 ring-[#0B3C5D]/10"
+                  : "border-gray-200 hover:bg-gray-50"
+              } ${WHATSAPP_DISABLED ? "cursor-not-allowed opacity-50" : ""}`}
+            >
+              <div className="flex items-center gap-2">
+                <MessageCircle className="h-4 w-4" style={{ color: channel === "WHATSAPP" ? "#0B3C5D" : "#9CA3AF" }} />
+                <span className="text-sm font-semibold" style={{ color: "#0F2744" }}>WhatsApp</span>
+                {WHATSAPP_DISABLED && (
+                  <span className="rounded-md bg-amber-50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-700">
+                    Soon
+                  </span>
+                )}
+              </div>
+              <span className="text-[11px] text-gray-500">Awaiting Business API</span>
+            </button>
+          </div>
+        </div>
+
         {/* Batch size selector */}
         <div className="border-b border-gray-100 px-6 py-4">
           <label className="mb-2 block text-sm font-medium text-gray-700">
@@ -133,7 +190,7 @@ export function OutreachBatchButton({ pendingCount }: { pendingCount: number }) 
             ))}
           </div>
           <p className="mt-2 text-xs text-gray-400">
-            Will contact the {Math.min(batchSize, pendingCount)} oldest READY professionals, prioritizing Tier A
+            Will contact the {Math.min(batchSize, previewTotal)} oldest READY professionals with a valid {channel === "EMAIL" ? "email address" : "phone number"}, prioritizing Tier A.
           </p>
         </div>
 
@@ -150,48 +207,53 @@ export function OutreachBatchButton({ pendingCount }: { pendingCount: number }) 
 
           {preview.length === 0 && !loadingPreview ? (
             <div className="rounded-xl py-8 text-center" style={{ background: "rgba(15,39,68,0.02)" }}>
-              <p className="text-sm text-gray-400">No professionals ready for outreach</p>
+              <p className="text-sm text-gray-400">
+                No professionals ready for {channel === "EMAIL" ? "email" : "WhatsApp"} outreach.
+              </p>
             </div>
           ) : (
             <div className="space-y-2">
-              {preview.map((p) => (
-                <div
-                  key={p.id}
-                  className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm"
-                  style={{ background: "rgba(15,39,68,0.02)", border: "1px solid rgba(15,39,68,0.04)" }}
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-gray-900 truncate">
-                      {p.firstName} {p.lastName}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      {p.cadre.replace(/_/g, " ")} {p.state ? `- ${p.state}` : ""}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {p.tier && (
-                      <span
-                        className="rounded-md px-1.5 py-0.5 text-[10px] font-bold"
-                        style={{
-                          background: p.tier === "A" ? "rgba(5,150,105,0.08)" : p.tier === "B" ? "rgba(37,99,235,0.08)" : "rgba(156,163,175,0.15)",
-                          color: p.tier === "A" ? "#059669" : p.tier === "B" ? "#2563EB" : "#6B7280",
-                        }}
-                      >
-                        Tier {p.tier}
+              {preview.map((p) => {
+                const channelOk = channel === "EMAIL" ? p.hasEmail : p.hasPhone;
+                return (
+                  <div
+                    key={p.id}
+                    className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm"
+                    style={{ background: "rgba(15,39,68,0.02)", border: "1px solid rgba(15,39,68,0.04)" }}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-gray-900">
+                        {p.firstName} {p.lastName}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {p.cadre.replace(/_/g, " ")} {p.state ? `· ${p.state}` : ""}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {p.tier && (
+                        <span
+                          className="rounded-md px-1.5 py-0.5 text-[10px] font-bold"
+                          style={{
+                            background: p.tier === "A" ? "rgba(5,150,105,0.08)" : p.tier === "B" ? "rgba(37,99,235,0.08)" : "rgba(156,163,175,0.15)",
+                            color: p.tier === "A" ? "#059669" : p.tier === "B" ? "#2563EB" : "#6B7280",
+                          }}
+                        >
+                          Tier {p.tier}
+                        </span>
+                      )}
+                      <span title="Email available" className={p.hasEmail ? "text-emerald-500" : "text-gray-300"}>
+                        <Mail className="h-3.5 w-3.5" />
                       </span>
-                    )}
-                    {p.phone ? (
-                      <svg className="h-3.5 w-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                      </svg>
-                    ) : (
-                      <svg className="h-3.5 w-3.5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    )}
+                      <span title="Phone available" className={p.hasPhone ? "text-emerald-500" : "text-gray-300"}>
+                        <MessageCircle className="h-3.5 w-3.5" />
+                      </span>
+                      {!channelOk && (
+                        <span className="text-[10px] font-semibold text-amber-600">missing</span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -206,7 +268,9 @@ export function OutreachBatchButton({ pendingCount }: { pendingCount: number }) 
 
           {result && (
             <div className="mb-3 rounded-xl bg-emerald-50 px-4 py-3 ring-1 ring-emerald-200">
-              <p className="text-sm font-semibold text-emerald-800">Batch complete</p>
+              <p className="text-sm font-semibold text-emerald-800">
+                Batch complete ({result.channel === "EMAIL" ? "Email" : "WhatsApp"})
+              </p>
               <div className="mt-1 flex gap-4 text-xs text-emerald-700">
                 <span>Sent: {result.sent}</span>
                 <span>Failed: {result.failed}</span>
@@ -237,7 +301,7 @@ export function OutreachBatchButton({ pendingCount }: { pendingCount: number }) 
                   </>
                 ) : (
                   <>
-                    Send to {Math.min(batchSize, preview.length)} professionals
+                    Send {channel === "EMAIL" ? "Email" : "WhatsApp"} to {Math.min(batchSize, preview.length)}
                   </>
                 )}
               </button>

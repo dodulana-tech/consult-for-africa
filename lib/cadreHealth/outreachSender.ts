@@ -4,6 +4,9 @@ import {
   normalizePhoneNumber,
 } from "@/lib/cadreHealth/whatsapp";
 import { getCadreShortLabel } from "@/lib/cadreHealth/cadres";
+import { sendReactivationEmail } from "@/lib/cadreHealth/outreachEmail";
+
+export type OutreachChannel = "EMAIL" | "WHATSAPP";
 
 // ─── CadreHealth: Outbound Outreach Sender ───
 
@@ -96,6 +99,91 @@ export async function sendInitialWhatsApp(
         whatsAppSentAt: now,
         lastContactedAt: now,
         nextContactAt: nextContact,
+      },
+    });
+  }
+
+  return true;
+}
+
+/**
+ * Send the initial outreach email to a professional.
+ * This is the email-channel equivalent of sendInitialWhatsApp -- it is the
+ * first touch when the WhatsApp API is not yet provisioned.
+ */
+export async function sendInitialEmail(
+  professionalId: string,
+): Promise<boolean> {
+  const professional = await prisma.cadreProfessional.findUnique({
+    where: { id: professionalId },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      cadre: true,
+      subSpecialty: true,
+      outreachRecord: { select: { id: true, status: true } },
+    },
+  });
+
+  if (!professional || !professional.email) {
+    return false;
+  }
+
+  const sent = await sendReactivationEmail({
+    id: professional.id,
+    firstName: professional.firstName,
+    lastName: professional.lastName,
+    email: professional.email,
+    cadre: professional.cadre,
+    subSpecialty: professional.subSpecialty,
+  });
+
+  if (!sent) {
+    if (professional.outreachRecord) {
+      await prisma.cadreOutreachRecord.update({
+        where: { id: professional.outreachRecord.id },
+        data: { lastContactedAt: new Date(), contactAttempts: { increment: 1 } },
+      });
+    }
+    return false;
+  }
+
+  const now = new Date();
+  // Email cycles are looser than WhatsApp -- 7 days before any reminder.
+  const nextContact = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  await prisma.cadreWhatsAppMessage.create({
+    data: {
+      professionalId: professional.id,
+      direction: "OUTBOUND",
+      channel: "EMAIL",
+      content: `[Email: cadrehealth_intro_v1] Sent to ${professional.email}`,
+      deliveryStatus: "sent",
+    },
+  });
+
+  if (professional.outreachRecord) {
+    await prisma.cadreOutreachRecord.update({
+      where: { id: professional.outreachRecord.id },
+      data: {
+        status: "EMAIL_SENT",
+        emailSentAt: now,
+        lastContactedAt: now,
+        nextContactAt: nextContact,
+        contactAttempts: { increment: 1 },
+      },
+    });
+  } else {
+    await prisma.cadreOutreachRecord.create({
+      data: {
+        professionalId: professional.id,
+        status: "EMAIL_SENT",
+        emailSentAt: now,
+        lastContactedAt: now,
+        nextContactAt: nextContact,
+        contactAttempts: 1,
       },
     });
   }
@@ -221,19 +309,29 @@ export async function sendFollowUpEmail(
 }
 
 /**
- * Send outreach to a batch of pending professionals.
- * Returns the count of successfully sent messages.
+ * Send outreach to a batch of pending professionals on the chosen channel.
+ * Email batches skip pros with no email; WhatsApp batches skip pros with no
+ * phone. Tier A is prioritized within each batch.
  */
-export async function sendOutreachBatch(batchSize: number = 50): Promise<{
-  sent: number;
-  failed: number;
-  total: number;
-}> {
-  // Find professionals with READY status (enriched, ready for outreach)
+export async function sendOutreachBatch(
+  batchSize: number = 50,
+  channel: OutreachChannel = "EMAIL",
+): Promise<{ sent: number; failed: number; total: number; channel: OutreachChannel }> {
+  const professionalFilter =
+    channel === "EMAIL"
+      ? { email: { not: "" } }
+      : { phone: { not: null } };
+
   const readyRecords = await prisma.cadreOutreachRecord.findMany({
-    where: { status: "READY" },
+    where: {
+      status: "READY",
+      professional: professionalFilter,
+    },
     take: batchSize,
-    orderBy: { createdAt: "asc" },
+    orderBy: [
+      { tier: "asc" }, // A first, then B, then C
+      { createdAt: "asc" },
+    ],
     select: { professionalId: true },
   });
 
@@ -241,16 +339,17 @@ export async function sendOutreachBatch(batchSize: number = 50): Promise<{
   let failed = 0;
 
   for (const record of readyRecords) {
-    const success = await sendInitialWhatsApp(record.professionalId);
-    if (success) {
-      sent++;
-    } else {
-      failed++;
-    }
+    const success =
+      channel === "EMAIL"
+        ? await sendInitialEmail(record.professionalId)
+        : await sendInitialWhatsApp(record.professionalId);
 
-    // Small delay to avoid rate limiting
+    if (success) sent++;
+    else failed++;
+
+    // Small delay to stay under Zoho / WA rate limits.
     await new Promise((resolve) => setTimeout(resolve, 200));
   }
 
-  return { sent, failed, total: readyRecords.length };
+  return { sent, failed, total: readyRecords.length, channel };
 }

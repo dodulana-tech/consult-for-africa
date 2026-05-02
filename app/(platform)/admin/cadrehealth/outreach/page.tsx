@@ -5,6 +5,7 @@ import {
   Download,
   Sparkles,
   Send,
+  Mail,
   MessageCircle,
   UserCheck,
   XCircle,
@@ -31,6 +32,7 @@ export default async function OutreachDashboard({
     totalImported,
     enriched,
     whatsAppSent,
+    emailSent,
     replied,
     converted,
     unreachable,
@@ -45,7 +47,8 @@ export default async function OutreachDashboard({
     prisma.cadreOutreachRecord.count({
       where: { status: { in: ["READY", "WHATSAPP_SENT", "WHATSAPP_REPLIED", "SMS_SENT", "EMAIL_SENT", "CONVERTED", "NOT_INTERESTED", "EMIGRATED", "RETIRED"] } },
     }),
-    prisma.cadreOutreachRecord.count({ where: { status: { in: ["WHATSAPP_SENT", "WHATSAPP_REPLIED", "SMS_SENT", "EMAIL_SENT", "CONVERTED"] } } }),
+    prisma.cadreOutreachRecord.count({ where: { status: { in: ["WHATSAPP_SENT", "WHATSAPP_REPLIED"] } } }),
+    prisma.cadreOutreachRecord.count({ where: { status: "EMAIL_SENT" } }),
     prisma.cadreOutreachRecord.count({ where: { status: "WHATSAPP_REPLIED" } }),
     prisma.cadreOutreachRecord.count({ where: { status: "CONVERTED" } }),
     prisma.cadreOutreachRecord.count({ where: { status: "UNREACHABLE" } }),
@@ -111,7 +114,7 @@ export default async function OutreachDashboard({
               Outreach Pipeline
             </h1>
             <p className="mt-1 text-sm text-white/60">
-              WhatsApp outreach to healthcare professionals
+              Email and WhatsApp outreach to healthcare professionals
             </p>
           </div>
           <div className="flex gap-3">
@@ -129,9 +132,10 @@ export default async function OutreachDashboard({
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-7">
         <StatCard label="Imported" value={totalImported} icon={<Download className="h-5 w-5" />} iconBg="bg-gray-100" iconColor="text-gray-500" accent="#6B7280" />
         <StatCard label="Enriched" value={enriched} icon={<Sparkles className="h-5 w-5" />} iconBg="bg-[#0B3C5D]/8" iconColor="text-[#0B3C5D]" accent="#0B3C5D" />
+        <StatCard label="Email Sent" value={emailSent} icon={<Mail className="h-5 w-5" />} iconBg="bg-orange-50" iconColor="text-orange-600" accent="#EA580C" />
         <StatCard label="WhatsApp Sent" value={whatsAppSent} icon={<Send className="h-5 w-5" />} iconBg="bg-blue-50" iconColor="text-blue-600" accent="#2563EB" />
         <StatCard label="Replied" value={replied} icon={<MessageCircle className="h-5 w-5" />} iconBg="bg-emerald-50" iconColor="text-emerald-600" accent="#059669" />
         <StatCard label="Converted" value={converted} icon={<UserCheck className="h-5 w-5" />} iconBg="bg-emerald-50" iconColor="text-emerald-700" accent="#047857" />
@@ -154,6 +158,7 @@ export default async function OutreachDashboard({
         <div className="space-y-3">
           <FunnelBar label="Imported" count={totalImported} total={totalImported} color="#9CA3AF" />
           <FunnelBar label="Enriched" count={enriched} total={totalImported} color="#64748B" />
+          <FunnelBar label="Email Sent" count={emailSent} total={totalImported} color="#EA580C" />
           <FunnelBar label="WhatsApp Sent" count={whatsAppSent} total={totalImported} color="#3B82F6" />
           <FunnelBar label="Replied" count={replied} total={totalImported} color="#10B981" />
           <FunnelBar label="Converted" count={converted} total={totalImported} color="#0B3C5D" />
