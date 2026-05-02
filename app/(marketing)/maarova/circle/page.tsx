@@ -94,9 +94,7 @@ export default async function CircleLandingPage() {
                 </span>
               </h1>
 
-              <div className="mt-8 w-14 h-[2px]" style={{ background: "#D4AF37" }} />
-
-              <p className="mt-6 max-w-md text-lg text-white/75 leading-relaxed">
+              <p className="mt-8 max-w-md text-lg text-white/75 leading-relaxed">
                 Brilliant operators fail in healthcare management roles. Doctors included. Maarova shows you why before it costs you.
               </p>
               <p className="mt-3 text-sm text-white/55">
