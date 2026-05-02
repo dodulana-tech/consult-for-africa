@@ -252,7 +252,7 @@ export default async function FounderDashboardPage() {
             <p className="text-xs font-semibold text-gray-500 mb-2">Outreach Funnel</p>
             <div className="flex gap-1 overflow-x-auto pb-1 -mx-1 px-1">
               {outreachByStatus.sort((a, b) => {
-                const order = ["READY", "WHATSAPP_SENT", "WHATSAPP_REPLIED", "SMS_SENT", "EMAIL_SENT", "CONVERTED", "NOT_INTERESTED", "UNREACHABLE", "EMIGRATED", "RETIRED"];
+                const order = ["READY", "WHATSAPP_SENT", "WHATSAPP_REPLIED", "SMS_SENT", "EMAIL_SENT", "CONVERTED", "DIASPORA_NETWORK", "ALUMNI_NETWORK", "NOT_INTERESTED", "UNREACHABLE"];
                 return order.indexOf(a.status) - order.indexOf(b.status);
               }).map(o => (
                 <div key={o.status} className="min-w-[56px] flex-1 text-center shrink-0">

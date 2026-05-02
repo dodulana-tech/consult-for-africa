@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/cadre-outreach-batch",
       "schedule": "0 7-17/2 * * 1-5"
+    },
+    {
+      "path": "/api/cron/cadre-outreach-followup",
+      "schedule": "0 8 * * 1-5"
     }
   ]
 }

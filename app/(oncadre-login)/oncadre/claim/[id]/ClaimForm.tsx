@@ -39,7 +39,9 @@ export default function ClaimForm({ professionalId }: Props) {
         throw new Error(data.error || "Something went wrong");
       }
 
-      router.push("/oncadre/dashboard");
+      // Send them to the segmentation step before the dashboard so we can
+      // tailor what they see based on their self-declared situation.
+      router.push(`/oncadre/claim/${professionalId}/where`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {

@@ -37,15 +37,15 @@ export default async function OutreachDashboard({
     converted,
     unreachable,
     notInterested,
-    emigrated,
-    retired,
+    diasporaNetwork,
+    alumniNetwork,
     statusCounts,
     conversations,
     totalConversations,
   ] = await Promise.all([
     prisma.cadreOutreachRecord.count(),
     prisma.cadreOutreachRecord.count({
-      where: { status: { in: ["READY", "WHATSAPP_SENT", "WHATSAPP_REPLIED", "SMS_SENT", "EMAIL_SENT", "CONVERTED", "NOT_INTERESTED", "EMIGRATED", "RETIRED"] } },
+      where: { status: { in: ["READY", "WHATSAPP_SENT", "WHATSAPP_REPLIED", "SMS_SENT", "EMAIL_SENT", "CONVERTED", "NOT_INTERESTED", "DIASPORA_NETWORK", "ALUMNI_NETWORK"] } },
     }),
     prisma.cadreOutreachRecord.count({ where: { status: { in: ["WHATSAPP_SENT", "WHATSAPP_REPLIED"] } } }),
     prisma.cadreOutreachRecord.count({ where: { status: "EMAIL_SENT" } }),
@@ -53,8 +53,8 @@ export default async function OutreachDashboard({
     prisma.cadreOutreachRecord.count({ where: { status: "CONVERTED" } }),
     prisma.cadreOutreachRecord.count({ where: { status: "UNREACHABLE" } }),
     prisma.cadreOutreachRecord.count({ where: { status: "NOT_INTERESTED" } }),
-    prisma.cadreOutreachRecord.count({ where: { status: "EMIGRATED" } }),
-    prisma.cadreOutreachRecord.count({ where: { status: "RETIRED" } }),
+    prisma.cadreOutreachRecord.count({ where: { status: "DIASPORA_NETWORK" } }),
+    prisma.cadreOutreachRecord.count({ where: { status: "ALUMNI_NETWORK" } }),
     prisma.cadreOutreachRecord.groupBy({ by: ["status"], _count: true }),
     prisma.cadreOutreachRecord.findMany({
       where,
@@ -166,23 +166,37 @@ export default async function OutreachDashboard({
           <FunnelBar label="Replied" count={replied} total={totalImported} color="#10B981" />
           <FunnelBar label="Converted" count={converted} total={totalImported} color="#0B3C5D" />
         </div>
-        <div className="mt-5 flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-400">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-red-300" />
-            Not interested: {notInterested}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-sky-300" />
-            Emigrated: {emigrated}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-amber-300" />
-            Retired: {retired}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-gray-300" />
-            Unreachable: {unreachable}
-          </span>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div className="rounded-xl p-3" style={{ background: "rgba(11,60,93,0.04)", border: "1px solid rgba(11,60,93,0.08)" }}>
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+              Engagement tracks
+            </p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-700">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-sky-400" />
+                Diaspora network: {diasporaNetwork}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-amber-400" />
+                Alumni network: {alumniNetwork}
+              </span>
+            </div>
+          </div>
+          <div className="rounded-xl p-3" style={{ background: "rgba(15,39,68,0.02)", border: "1px solid rgba(15,39,68,0.05)" }}>
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+              Off-pipeline
+            </p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-red-300" />
+                Not interested: {notInterested}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-gray-300" />
+                Unreachable: {unreachable}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -436,8 +450,8 @@ function StatusBadge({ status }: { status: string }) {
     CONVERTED: "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200",
     NOT_INTERESTED: "bg-red-50 text-red-600 ring-1 ring-red-200",
     UNREACHABLE: "bg-gray-100 text-gray-500 ring-1 ring-gray-200",
-    EMIGRATED: "bg-sky-50 text-sky-700 ring-1 ring-sky-200",
-    RETIRED: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
+    DIASPORA_NETWORK: "bg-sky-50 text-sky-700 ring-1 ring-sky-200",
+    ALUMNI_NETWORK: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
   };
 
   return (

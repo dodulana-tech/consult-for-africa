@@ -3761,6 +3761,10 @@ model CadreProfessional {
   isDiaspora            Boolean                 @default(false)
   diasporaCountry       String?
 
+  // Self-declared engagement segment (set on claim or by admin)
+  practiceLocation      CadrePracticeLocation?
+  practiceLocationSetAt DateTime?
+
   // Status
   accountStatus         CadreAccountStatus      @default(UNVERIFIED)
   availability          CadreAvailability?
@@ -4288,18 +4292,24 @@ model CadreMandateMatch {
 // ─── CadreHealth: Outreach & Engagement ──────────────────────────────────────
 
 enum CadreOutreachStatus {
-  PENDING          // not yet contacted
-  ENRICHING        // running email/phone verification
-  READY            // enriched, ready for outreach
-  WHATSAPP_SENT    // template message sent
-  WHATSAPP_REPLIED // professional replied, Claude engaging
-  SMS_SENT         // SMS fallback sent
-  EMAIL_SENT       // email fallback sent
-  CONVERTED        // claimed profile / set password
-  NOT_INTERESTED   // opted out
-  UNREACHABLE      // all channels failed
-  EMIGRATED        // confirmed abroad (still valuable)
-  RETIRED          // no longer practising
+  PENDING            // not yet contacted
+  ENRICHING          // running email/phone verification
+  READY              // enriched, ready for outreach
+  WHATSAPP_SENT      // template message sent
+  WHATSAPP_REPLIED   // professional replied, Claude engaging
+  SMS_SENT           // SMS fallback sent
+  EMAIL_SENT         // email fallback sent
+  CONVERTED          // claimed profile / set password
+  NOT_INTERESTED     // opted out
+  UNREACHABLE        // all channels failed
+  DIASPORA_NETWORK   // confirmed abroad: ongoing diaspora engagement track
+  ALUMNI_NETWORK     // confirmed retired/stepped back: ongoing alumni engagement track
+}
+
+enum CadrePracticeLocation {
+  IN_NIGERIA
+  DIASPORA
+  STEPPED_BACK
 }
 
 enum CadreOutreachChannel {

@@ -354,10 +354,12 @@ async function updateOutreachStatus(
       data.status = "NOT_INTERESTED";
       break;
     case "EMIGRATED":
-      data.status = "EMIGRATED";
+      // Intent describes the doctor's life situation; outreach status is the
+      // engagement track we move them into. Diaspora pros stay valuable.
+      data.status = "DIASPORA_NETWORK";
       break;
     case "RETIRED":
-      data.status = "RETIRED";
+      data.status = "ALUMNI_NETWORK";
       break;
     case "INTERESTED":
     case "QUESTION":
