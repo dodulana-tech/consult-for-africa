@@ -21,6 +21,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const FROM = process.env.SMTP_FROM ?? "Consult For Africa <platform@consultforafrica.com>";
+const REPLY_TO = process.env.REPLY_TO_EMAIL ?? "hello@consultforafrica.com";
 
 // ─── Retry helper ─────────────────────────────────────────────────────────────
 
@@ -62,7 +63,7 @@ async function send(to: string, subject: string, html: string) {
   }
   try {
     console.log(`[email] sending to ${to}: ${subject}`);
-    await sendWithRetry(() => transporter.sendMail({ from: FROM, to, subject, html }).then(() => {}));
+    await sendWithRetry(() => transporter.sendMail({ from: FROM, replyTo: REPLY_TO, to, subject, html }).then(() => {}));
     console.log(`[email] sent to ${to}`);
   } catch (err) {
     console.error(`[email] send error to ${to}:`, err);

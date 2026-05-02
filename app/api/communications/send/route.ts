@@ -274,10 +274,11 @@ async function sendOneAndLog(input: SendOneInput): Promise<SendOneResult> {
     },
   });
 
-  // Use the comm ID as the threadId (self-thread root)
+  // Use the comm ID as the threadId (self-thread root). Reply-To goes to
+  // the public hello@ address; replies still thread back via the
+  // In-Reply-To header on the inbound webhook (matches the stored Message-ID).
   const messageId = buildMessageId(placeholder.id);
-  const replyDomain = process.env.REPLY_DOMAIN ?? "consultforafrica.com";
-  const replyTo = `reply+${placeholder.id}@${replyDomain}`;
+  const replyTo = process.env.REPLY_TO_EMAIL ?? "hello@consultforafrica.com";
 
   const sendResult = await sendOutboundEmail({
     to: recipient.email,

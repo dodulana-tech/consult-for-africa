@@ -5,6 +5,7 @@ import TopBar from "@/components/platform/TopBar";
 import Link from "next/link";
 import BackfillReportsButton from "./BackfillReportsButton";
 import NotifyCompletedReportsButton from "./NotifyCompletedReportsButton";
+import Remind360Button from "./Remind360Button";
 
 export default async function MaarovaAdminPage() {
   const session = await auth();
@@ -168,6 +169,7 @@ export default async function MaarovaAdminPage() {
           </Link>
           <BackfillReportsButton />
           <NotifyCompletedReportsButton />
+          <Remind360Button />
         </div>
 
         {/* Recent Organisations Table */}
