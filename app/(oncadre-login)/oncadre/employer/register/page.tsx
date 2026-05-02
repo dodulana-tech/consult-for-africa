@@ -33,6 +33,10 @@ export default function EmployerRegisterPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Registration failed");
+      if (data.requiresLogin) {
+        router.push(`/oncadre/employer/login?email=${encodeURIComponent(form.contactEmail)}&just_registered=1`);
+        return;
+      }
       router.push("/oncadre/employer/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");

@@ -60,25 +60,40 @@ export const POST = handler(async function POST(req: NextRequest) {
       },
     });
 
-    const token = signCadreEmployerJWT({
-      sub: employer.id,
-      email: employer.contactEmail,
-      companyName: employer.companyName,
-      contactName: employer.contactName,
-      isVerified: employer.isVerified,
-      facilityId: employer.facilityId,
-    });
+    // Account is now created. If anything below fails (JWT signing, cookie set),
+    // we still return a useful response so the user can log in rather than see
+    // a generic "registration failed" message that masks a successful create.
+    try {
+      const token = signCadreEmployerJWT({
+        sub: employer.id,
+        email: employer.contactEmail,
+        companyName: employer.companyName,
+        contactName: employer.contactName,
+        isVerified: employer.isVerified,
+        facilityId: employer.facilityId,
+      });
 
-    const cookieStore = await cookies();
-    cookieStore.set("cadre_employer_token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 30 * 24 * 60 * 60,
-    });
+      const cookieStore = await cookies();
+      cookieStore.set("cadre_employer_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 30 * 24 * 60 * 60,
+      });
 
-    return NextResponse.json({ id: employer.id });
+      return NextResponse.json({ id: employer.id });
+    } catch (sessionErr) {
+      console.error("Employer registration session error (account was created):", sessionErr);
+      return NextResponse.json(
+        {
+          id: employer.id,
+          requiresLogin: true,
+          message: "Account created. Please log in to continue.",
+        },
+        { status: 201 }
+      );
+    }
   } catch (error) {
     console.error("Employer registration error:", error);
     return NextResponse.json(

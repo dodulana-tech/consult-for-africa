@@ -2,8 +2,11 @@ import crypto from "crypto";
 import { cookies } from "next/headers";
 
 const SECRET = () => {
-  const s = process.env.CADRE_EMPLOYER_SECRET || process.env.CADRE_PORTAL_SECRET;
-  if (!s) throw new Error("CADRE_EMPLOYER_SECRET or CADRE_PORTAL_SECRET environment variable is required");
+  const s =
+    process.env.CADRE_EMPLOYER_SECRET ||
+    process.env.CADRE_PORTAL_SECRET ||
+    process.env.NEXTAUTH_SECRET;
+  if (!s) throw new Error("No JWT secret available (set CADRE_EMPLOYER_SECRET, CADRE_PORTAL_SECRET, or NEXTAUTH_SECRET)");
   return s + "_employer"; // namespace even if sharing the same env var
 };
 
