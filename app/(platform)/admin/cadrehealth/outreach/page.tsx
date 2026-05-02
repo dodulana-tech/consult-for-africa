@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { OutreachBatchButton } from "./OutreachBatchButton";
+import { PreviewSelfButton } from "./PreviewSelfButton";
 import {
   Download,
   Sparkles,
@@ -120,7 +121,7 @@ export default async function OutreachDashboard({
               Email and WhatsApp outreach to healthcare professionals
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <Link
               href="/admin/cadrehealth"
               className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
@@ -129,6 +130,7 @@ export default async function OutreachDashboard({
               <ArrowLeft className="h-3.5 w-3.5" />
               Dashboard
             </Link>
+            <PreviewSelfButton />
             <OutreachBatchButton pendingCount={pendingReady} />
           </div>
         </div>
