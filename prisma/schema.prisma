@@ -4027,6 +4027,10 @@ model CadreEmployerAccount {
 
   isVerified            Boolean                 @default(false)
 
+  // Password reset
+  passwordResetToken    String?
+  passwordResetExpiry   DateTime?
+
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
 

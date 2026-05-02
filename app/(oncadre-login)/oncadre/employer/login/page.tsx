@@ -166,6 +166,15 @@ export default function EmployerLoginPage() {
             >
               {loading ? "Signing in..." : "Sign in"}
             </button>
+
+            <p className="text-right">
+              <Link
+                href="/oncadre/employer/forgot-password"
+                className="text-sm font-medium text-[#0B3C5D] hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </p>
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-500">
