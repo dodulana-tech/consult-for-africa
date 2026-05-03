@@ -46,7 +46,7 @@ export const POST = handler(async function POST(req: NextRequest) {
       contactEmail: contactEmail.trim().toLowerCase(),
       contactPhone: contactPhone?.trim() || null,
       stream: stream as "RECRUITMENT" | "DEVELOPMENT" | "INTELLIGENCE",
-      maxAssessments: maxAssessments ? parseInt(String(maxAssessments), 10) : 1,
+      maxAssessments: maxAssessments ? parseInt(String(maxAssessments), 10) : 20,
     },
   });
 

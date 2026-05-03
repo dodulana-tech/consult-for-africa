@@ -27,7 +27,7 @@ const INITIAL = {
   contactEmail: "",
   contactPhone: "",
   stream: "RECRUITMENT",
-  maxAssessments: "10",
+  maxAssessments: "20",
 };
 
 export default function MaarovaOrgCreateForm() {
@@ -57,7 +57,7 @@ export default function MaarovaOrgCreateForm() {
           contactEmail: form.contactEmail.trim(),
           contactPhone: form.contactPhone.trim() || undefined,
           stream: form.stream,
-          maxAssessments: parseInt(form.maxAssessments, 10) || 10,
+          maxAssessments: parseInt(form.maxAssessments, 10) || 20,
         }),
       });
 

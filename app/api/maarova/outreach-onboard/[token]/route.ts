@@ -124,7 +124,7 @@ export const POST = handler(async function POST(
         contactEmail: email,
         city: city?.trim() || null,
         stream: "RECRUITMENT",
-        maxAssessments: 1,
+        maxAssessments: 20,
       },
     });
 

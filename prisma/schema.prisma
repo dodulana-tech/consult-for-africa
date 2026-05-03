@@ -1931,7 +1931,7 @@ model MaarovaOrganisation {
   contactEmail   String
   contactPhone   String?
   stream         MaarovaStream
-  maxAssessments Int      @default(1)
+  maxAssessments Int      @default(20)
   usedAssessments Int     @default(0)
   isActive       Boolean  @default(true)
   notes          String?  @db.Text
