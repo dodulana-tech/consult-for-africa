@@ -179,6 +179,39 @@ export const POST = handler(async function POST(_req: NextRequest, { params }: R
       },
     });
     sessionJustCompleted = true;
+
+    // Slot accounting: a slot is consumed when a NEW user completes their
+    // FIRST assessment, excluding the org admin (whose first assessment is
+    // free since they are the paying contact). Retakes by the same user
+    // and any assessment by the org admin do not consume a slot.
+    const completer = await prisma.maarovaUser.findUnique({
+      where: { id: session.userId },
+      select: {
+        id: true,
+        email: true,
+        organisationId: true,
+        organisation: { select: { contactEmail: true } },
+      },
+    });
+
+    if (completer && completer.organisation) {
+      const isOrgAdmin = completer.email === completer.organisation.contactEmail;
+      // Count COMPLETED sessions for this user excluding the one we just marked.
+      const previouslyCompleted = await prisma.maarovaAssessmentSession.count({
+        where: {
+          userId: completer.id,
+          status: "COMPLETED",
+          id: { not: sessionId },
+        },
+      });
+
+      if (!isOrgAdmin && previouslyCompleted === 0) {
+        await prisma.maarovaOrganisation.update({
+          where: { id: completer.organisationId },
+          data: { usedAssessments: { increment: 1 } },
+        });
+      }
+    }
   }
 
   // Auto-generate the report + PDF in the background. The user can keep

@@ -1931,6 +1931,11 @@ model MaarovaOrganisation {
   contactEmail   String
   contactPhone   String?
   stream         MaarovaStream
+  // maxAssessments = "leader coverage" credits the org has paid for.
+  // usedAssessments = count of distinct users in this org with at least one
+  // COMPLETED assessment, EXCLUDING the org admin (whose email matches
+  // contactEmail). Retakes by the same user are free. Abandoned or expired
+  // sessions consume nothing.
   maxAssessments Int      @default(20)
   usedAssessments Int     @default(0)
   isActive       Boolean  @default(true)
@@ -2827,6 +2832,7 @@ model OutreachTarget {
   maarovaUserId String?         // if they completed assessment, link to MaarovaUser
   inviteToken  String?          @unique // token for self-onboarding link
   tokenExpiresAt DateTime?      // token expiry (30 days from invite)
+  lastReminderSentAt DateTime?  // last onboarding reminder sent to this target
   createdAt    DateTime         @default(now())
 
   @@unique([campaignId, email])

@@ -26,16 +26,9 @@ export const POST = handler(async function POST() {
     );
   }
 
-  // Check available assessment slots
   const org = user.organisation;
-  if (org.usedAssessments >= org.maxAssessments) {
-    return NextResponse.json(
-      { error: "No remaining assessment slots for your organisation. Contact your administrator." },
-      { status: 403 }
-    );
-  }
 
-  // Check for existing active (non-expired, non-completed) session
+  // Existing active session takes precedence over any cap check.
   const existingSession = await prisma.maarovaAssessmentSession.findFirst({
     where: {
       userId: user.id,
@@ -56,6 +49,31 @@ export const POST = handler(async function POST() {
     return NextResponse.json({ session: existingSession });
   }
 
+  // Cap check is now per-leader-coverage, not per-attempt:
+  //   - The org admin (email matches contactEmail) gets unlimited free
+  //     assessments since they are the paying contact.
+  //   - A user already covered (has at least one COMPLETED session) is
+  //     starting a retake; retakes are free.
+  //   - A new user only consumes a slot when they finish (incremented in
+  //     the session-complete handler), but we still pre-check here so they
+  //     do not start a session whose completion would push the org over
+  //     the cap.
+  const isOrgAdmin = user.email === org.contactEmail;
+  const previouslyCompleted = await prisma.maarovaAssessmentSession.count({
+    where: { userId: user.id, status: "COMPLETED" },
+  });
+  const wouldConsumeSlot = !isOrgAdmin && previouslyCompleted === 0;
+
+  if (wouldConsumeSlot && org.usedAssessments >= org.maxAssessments) {
+    return NextResponse.json(
+      {
+        error:
+          "Your organisation has covered all paid leader slots. Contact your administrator to add more.",
+      },
+      { status: 403 }
+    );
+  }
+
   // Get active modules -- gate CILTI to users with clinical backgrounds
   const allModules = await prisma.maarovaModule.findMany({
     where: { isActive: true },
@@ -74,39 +92,36 @@ export const POST = handler(async function POST() {
     );
   }
 
-  // Create session and increment slot atomically to prevent race conditions
+  // Create the session. The slot counter is NOT incremented here -- a slot
+  // is only consumed when the user actually completes their first
+  // assessment (handled in module/[slug]/complete). Abandoned and expired
+  // sessions cost the org nothing under the new model.
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7);
 
-  const [session] = await prisma.$transaction([
-    prisma.maarovaAssessmentSession.create({
-      data: {
-        userId: user.id,
-        status: "NOT_STARTED",
-        sessionType: "full",
-        stream: org.stream,
-        expiresAt,
-        moduleResponses: {
-          create: modules.map((mod) => ({
-            moduleId: mod.id,
-            status: "NOT_STARTED",
-          })),
-        },
+  const session = await prisma.maarovaAssessmentSession.create({
+    data: {
+      userId: user.id,
+      status: "NOT_STARTED",
+      sessionType: "full",
+      stream: org.stream,
+      expiresAt,
+      moduleResponses: {
+        create: modules.map((mod) => ({
+          moduleId: mod.id,
+          status: "NOT_STARTED",
+        })),
       },
-      include: {
-        moduleResponses: {
-          include: {
-            module: true,
-          },
-          orderBy: { module: { order: "asc" } },
+    },
+    include: {
+      moduleResponses: {
+        include: {
+          module: true,
         },
+        orderBy: { module: { order: "asc" } },
       },
-    }),
-    prisma.maarovaOrganisation.update({
-      where: { id: org.id },
-      data: { usedAssessments: { increment: 1 } },
-    }),
-  ]);
+    },
+  });
 
   return NextResponse.json({ session });
 });
