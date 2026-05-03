@@ -64,7 +64,13 @@ function useSessionId(): { sessionId: string | null; sessionError: string | null
       })
       .catch((err) => {
         console.error("Session start failed:", err);
-        setSessionError("Failed to start session. Please try again.");
+        // Surface the API-provided reason instead of swallowing it -- a
+        // user being told "no remaining assessment slots" can act on it,
+        // a user being told "Failed to start session" cannot.
+        const detail = err instanceof Error ? err.message : "";
+        setSessionError(
+          detail ? `Could not start session: ${detail}` : "Could not start session. Please try again.",
+        );
       });
   }, []);
   return { sessionId, sessionError };
