@@ -2105,3 +2105,61 @@ export async function emailMaarovaReportReady({
     `)
   );
 }
+
+/**
+ * Sent to a Maarova outreach target who was invited but hasn't redeemed
+ * their onboarding link yet. Re-attaches the same /maarova/onboard/{token}
+ * URL with a friendlier nudge.
+ */
+export async function emailMaarovaOnboardReminder({
+  email,
+  name,
+  inviteToken,
+  campaignName,
+}: {
+  email: string;
+  name: string;
+  inviteToken: string;
+  campaignName: string;
+}) {
+  const firstName = esc(name.split(" ")[0]);
+  const onboardUrl = `${BASE_URL}/maarova/onboard/${esc(inviteToken)}`;
+  const isFoundingCircle = campaignName.toLowerCase().includes("founding");
+
+  await send(
+    email,
+    `${firstName}, your Maarova spot is still open`,
+    layout(`
+      ${h1("Your spot is still open")}
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#374151;">
+        Hi ${firstName},
+      </p>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#374151;">
+        ${isFoundingCircle
+          ? "We held your Founding Circle slot, and your private invitation is still active. Use the link below to set your password and start your assessment whenever you have 60 minutes."
+          : "We held your Maarova invitation, and your link is still active. Use it below to set your password and start your assessment whenever you have 60 minutes."}
+      </p>
+
+      ${btn("Set up my account", esc(onboardUrl))}
+
+      <div style="margin:28px 0 8px;padding:18px 22px;background:#F9FAFB;border-left:4px solid #D4AF37;border-radius:6px;">
+        <p style="margin:0 0 8px;font-size:13px;color:#0F2744;font-weight:700;">
+          What happens after you click
+        </p>
+        <ul style="margin:0;padding-left:18px;color:#374151;font-size:13.5px;line-height:1.8;">
+          <li>Set a password (takes 30 seconds)</li>
+          <li>Land in your private Maarova portal</li>
+          <li>Take the 60-minute assessment, pause and resume any time</li>
+          <li>Your full leadership report arrives by email when complete</li>
+        </ul>
+      </div>
+
+      <p style="margin:20px 0 0;font-size:13px;color:#6B7280;line-height:1.6;">
+        If anything is unclear or the link doesn't work, just reply to this email.
+      </p>
+      <p style="margin:14px 0 0;font-size:12px;color:#9CA3AF;line-height:1.5;">
+        Best,<br/>The Maarova team<br/>Consult For Africa
+      </p>
+    `)
+  );
+}

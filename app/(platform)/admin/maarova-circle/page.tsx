@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import ApplicationActions from "./ApplicationActions";
 import BackfillCvButton from "./BackfillCvButton";
+import RemindUnredeemedButton from "./RemindUnredeemedButton";
 
 export const dynamic = "force-dynamic";
 
@@ -89,6 +90,7 @@ export default async function MaarovaCircleAdminPage() {
           </div>
           <div className="flex items-center gap-2">
             <BackfillCvButton />
+            <RemindUnredeemedButton />
             <Link
               href="/admin/maarova-circle/coaching-blast"
               className="rounded-lg border px-3 py-2 text-xs font-medium hover:bg-white"
