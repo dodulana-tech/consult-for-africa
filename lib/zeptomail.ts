@@ -45,10 +45,14 @@ function parseAddress(input: string): ZeptoMailRecipient {
 }
 
 export async function sendViaZeptoMail(input: ZeptoMailSendInput): Promise<ZeptoMailSendResult> {
-  const apiKey = process.env.ZEPTOMAIL_API_KEY;
-  if (!apiKey) {
+  const rawKey = process.env.ZEPTOMAIL_API_KEY;
+  if (!rawKey) {
     return { ok: false, error: "ZEPTOMAIL_API_KEY not set" };
   }
+  // Strip the "Zoho-enczapikey " or "Zoho-enczapikey" prefix if the user
+  // pasted it from the ZeptoMail dashboard which sometimes shows the
+  // full Authorization header value.
+  const apiKey = rawKey.replace(/^Zoho-enczapikey\s*/i, "").trim();
 
   const body = {
     from: { address: input.from.email, name: input.from.name },
