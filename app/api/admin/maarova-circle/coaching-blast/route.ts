@@ -32,7 +32,8 @@ export const POST = handler(async function POST() {
   });
 
   let sent = 0;
-  for (const r of recipients) {
+  for (let i = 0; i < recipients.length; i++) {
+    const r = recipients[i];
     try {
       await emailMaarovaCircleCoachingOpen({
         email: r.email,
@@ -47,6 +48,7 @@ export const POST = handler(async function POST() {
     } catch (err) {
       console.error("[coaching-blast]", r.email, err);
     }
+    if (i < recipients.length - 1) await new Promise((res) => setTimeout(res, 2000));
   }
 
   return NextResponse.json({ ok: true, sent, total: recipients.length });

@@ -28,7 +28,8 @@ export const POST = handler(async function POST() {
   });
 
   const results: Array<{ reportId: string; user: string; ok: boolean; error?: string }> = [];
-  for (const r of reports) {
+  for (let i = 0; i < reports.length; i++) {
+    const r = reports[i];
     try {
       const result = await notifyReportReady(r.id);
       results.push({
@@ -45,6 +46,7 @@ export const POST = handler(async function POST() {
         error: err instanceof Error ? err.message : "unknown",
       });
     }
+    if (i < reports.length - 1) await new Promise((res) => setTimeout(res, 2000));
   }
 
   return NextResponse.json({

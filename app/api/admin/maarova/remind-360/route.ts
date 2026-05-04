@@ -60,7 +60,8 @@ export const POST = handler(async function POST() {
 
   const results: Array<{ userId: string; user: string; ok: boolean; skipped?: string; error?: string }> = [];
 
-  for (const r of requests) {
+  for (let i = 0; i < requests.length; i++) {
+    const r = requests[i];
     const user = r.subject;
     const session = user.sessions[0];
     if (!session) {
@@ -77,6 +78,7 @@ export const POST = handler(async function POST() {
       continue;
     }
 
+    let sentThisIteration = false;
     try {
       await emailMaarovaInviteRaters({
         email: user.email,
@@ -89,6 +91,7 @@ export const POST = handler(async function POST() {
         data: { lastReminderSentAt: new Date() },
       });
       results.push({ userId: user.id, user: user.name, ok: true });
+      sentThisIteration = true;
     } catch (err) {
       results.push({
         userId: user.id,
@@ -96,6 +99,10 @@ export const POST = handler(async function POST() {
         ok: false,
         error: err instanceof Error ? err.message : "unknown",
       });
+    }
+    // Throttle only on actual sends (not skips) so we don't waste time
+    if (sentThisIteration && i < requests.length - 1) {
+      await new Promise((res) => setTimeout(res, 2000));
     }
   }
 

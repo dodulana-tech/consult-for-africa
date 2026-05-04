@@ -186,10 +186,12 @@ export const POST = handler(async function POST(req: NextRequest) {
       if (result.ok) successCount++;
       else failureCount++;
 
-      // Throttle: wait 200ms between sends (5/sec) to stay under Zoho limits.
-      // For large lists this is the bottleneck -- migrate to Postmark for >100.
+      // Throttle: wait 2s between sends (~30/min) to stay well under Zoho's
+      // hourly cap. Zoho free SMTP rate-limits aggressively; we tripped it
+      // once already. For >50 recipients, migrate the SMTP host to ZeptoMail
+      // (Zoho's transactional service - same vendor, dedicated for this).
       if (i < members.length - 1) {
-        await new Promise((r) => setTimeout(r, 200));
+        await new Promise((r) => setTimeout(r, 2000));
       }
     }
 

@@ -41,7 +41,8 @@ export async function runFoundingCircleReminders(): Promise<ReminderRunResult> {
 
   const results: Array<{ id: string; email: string; ok: boolean; error?: string }> = [];
 
-  for (const t of targets) {
+  for (let i = 0; i < targets.length; i++) {
+    const t = targets[i];
     try {
       await emailMaarovaOnboardReminder({
         email: t.email!,
@@ -62,6 +63,7 @@ export async function runFoundingCircleReminders(): Promise<ReminderRunResult> {
         error: err instanceof Error ? err.message : "unknown",
       });
     }
+    if (i < targets.length - 1) await new Promise((r) => setTimeout(r, 2000));
   }
 
   return {
