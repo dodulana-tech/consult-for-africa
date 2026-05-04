@@ -39,6 +39,18 @@ export const GET = handler(async function GET(req: NextRequest) {
   const transport = usingZepto ? "ZeptoMail HTTP API" : "SMTP fallback (nodemailer)";
   const sentAt = new Date().toISOString();
 
+  // Diagnostic: token shape (no actual value leaked)
+  const rawKey = process.env.ZEPTOMAIL_API_KEY ?? "";
+  const strippedKey = rawKey.replace(/^Zoho-enczapikey\s*/i, "").trim();
+  const keyDiag = {
+    rawLength: rawKey.length,
+    strippedLength: strippedKey.length,
+    hasPrefix: /^Zoho-enczapikey/i.test(rawKey),
+    firstChars: strippedKey.slice(0, 4),
+    lastChars: strippedKey.slice(-2),
+    hasWhitespaceInside: /\s/.test(strippedKey),
+  };
+
   const html = `
     <h1 style="color:#0F2744;">CFA Email Transport Test</h1>
     <p>Outbound email is working through <strong>${transport}</strong>.</p>
@@ -61,6 +73,7 @@ export const GET = handler(async function GET(req: NextRequest) {
       requestId: result.requestId,
       error: result.error,
       sentAt,
+      keyDiag,
     });
   }
 
