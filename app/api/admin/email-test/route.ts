@@ -15,14 +15,24 @@ const REPLY_TO = process.env.REPLY_TO_EMAIL ?? "hello@consultforafrica.com";
  * only. Use this to confirm ZEPTOMAIL_API_KEY is wired correctly.
  */
 export const GET = handler(async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  // Allow either an admin browser session OR a bearer with CRON_SECRET
+  // so the transport check can be triggered from CI / CLI without auth.
+  const authHeader = req.headers.get("authorization");
+  const cronSecret = process.env.CRON_SECRET;
+  const hasBearer = !!cronSecret && authHeader === `Bearer ${cronSecret}`;
+
+  let userEmail: string | null = null;
+  if (!hasBearer) {
+    const session = await auth();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+    userEmail = session.user.email ?? null;
   }
 
   const url = new URL(req.url);
-  const to = url.searchParams.get("to") || session.user.email;
+  const to = url.searchParams.get("to") || userEmail;
   if (!to) return NextResponse.json({ error: "no recipient" }, { status: 400 });
 
   const usingZepto = !!process.env.ZEPTOMAIL_API_KEY;
