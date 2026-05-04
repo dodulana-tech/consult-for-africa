@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
+import { sendViaZeptoMail } from "@/lib/zeptomail";
 import type { CommunicationSubjectType } from "@prisma/client";
 
 const transporter = nodemailer.createTransport({
@@ -44,18 +45,40 @@ export interface SendEmailResult {
 }
 
 /**
- * Send a single email via Zoho SMTP, returning the assigned Message-ID
- * for reply tracking. Does NOT log to Communication table -- callers do that.
+ * Send a single email, returning the assigned Message-ID for reply tracking.
+ * Prefers ZeptoMail HTTP API when ZEPTOMAIL_API_KEY is set, falls back to
+ * SMTP via nodemailer otherwise. Does NOT log to Communication table --
+ * callers do that.
  */
 export async function sendOutboundEmail(params: SendEmailParams): Promise<SendEmailResult> {
-  if (!process.env.SMTP_USER) {
-    console.log(`[comm-send] SMTP not configured. Would send to ${params.to}`);
-    return { ok: false, messageId: null, error: "SMTP not configured" };
+  const messageId = params.messageId ?? `<${randomBytes(12).toString("hex")}@${REPLY_DOMAIN}>`;
+  const html = params.bodyHtml ?? `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.6;color:#1F2937;white-space:pre-wrap;">${escapeHtml(params.bodyText)}</div>`;
+
+  // Preferred: ZeptoMail HTTP API
+  if (process.env.ZEPTOMAIL_API_KEY) {
+    const fromMatch = FROM.match(/^\s*([^<]+?)\s*<([^>]+)>\s*$/);
+    const result = await sendViaZeptoMail({
+      from: fromMatch
+        ? { email: fromMatch[2].trim(), name: fromMatch[1].trim() }
+        : { email: FROM.trim() },
+      to: [{ email: params.to }],
+      subject: params.subject,
+      htmlbody: html,
+      textbody: params.bodyText,
+      replyTo: params.replyTo ? { email: params.replyTo } : undefined,
+    });
+    if (!result.ok) {
+      console.error(`[comm-send] ZeptoMail failed to ${params.to}: ${result.error}`);
+      return { ok: false, messageId, error: result.error };
+    }
+    return { ok: true, messageId: result.messageId ?? messageId };
   }
 
-  const messageId = params.messageId ?? `<${randomBytes(12).toString("hex")}@${REPLY_DOMAIN}>`;
-
-  const html = params.bodyHtml ?? `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.6;color:#1F2937;white-space:pre-wrap;">${escapeHtml(params.bodyText)}</div>`;
+  // Fallback: SMTP
+  if (!process.env.SMTP_USER) {
+    console.log(`[comm-send] No transport configured. Would send to ${params.to}`);
+    return { ok: false, messageId: null, error: "No transport configured" };
+  }
 
   try {
     await transporter.sendMail({
@@ -75,7 +98,7 @@ export async function sendOutboundEmail(params: SendEmailParams): Promise<SendEm
     return { ok: true, messageId };
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
-    console.error(`[comm-send] send failed to ${params.to}:`, errMsg);
+    console.error(`[comm-send] SMTP failed to ${params.to}:`, errMsg);
     return { ok: false, messageId, error: errMsg };
   }
 }
