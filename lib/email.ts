@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { sendTransactionalEmail } from "@/lib/zeptomail";
 
 /** Escape HTML entities in user-supplied values to prevent XSS in emails */
 function esc(str: string): string {
@@ -57,17 +58,39 @@ async function sendWithRetry(
 // ─── Send helper ──────────────────────────────────────────────────────────────
 
 async function send(to: string, subject: string, html: string) {
+  // Preferred path: ZeptoMail HTTP API. Used whenever ZEPTOMAIL_API_KEY is
+  // set in the environment. Better deliverability + higher rate limits +
+  // tracking/webhook support compared to relaying through Zoho regular SMTP.
+  if (process.env.ZEPTOMAIL_API_KEY) {
+    console.log(`[email] sending to ${to} via ZeptoMail: ${subject}`);
+    const result = await sendTransactionalEmail({
+      from: FROM,
+      replyTo: REPLY_TO,
+      to,
+      subject,
+      html,
+    });
+    if (!result.ok) {
+      console.error(`[email] ZeptoMail send error to ${to}:`, result.error);
+      throw new Error(`ZeptoMail: ${result.error}`);
+    }
+    console.log(`[email] sent to ${to} (msgId: ${result.messageId ?? "unknown"})`);
+    return;
+  }
+
+  // Fallback: SMTP via nodemailer. Used when ZEPTOMAIL_API_KEY is not set,
+  // or as a manual fallback if you want to revert to the old transport.
   if (!process.env.SMTP_USER) {
-    console.log(`[email] SMTP not configured. To: ${to} | Subject: ${subject}`);
+    console.log(`[email] No transport configured (set ZEPTOMAIL_API_KEY or SMTP_USER). To: ${to} | Subject: ${subject}`);
     return;
   }
   try {
-    console.log(`[email] sending to ${to}: ${subject}`);
+    console.log(`[email] sending to ${to} via SMTP: ${subject}`);
     await sendWithRetry(() => transporter.sendMail({ from: FROM, replyTo: REPLY_TO, to, subject, html }).then(() => {}));
     console.log(`[email] sent to ${to}`);
   } catch (err) {
-    console.error(`[email] send error to ${to}:`, err);
-    throw err; // re-throw so callers can catch
+    console.error(`[email] SMTP send error to ${to}:`, err);
+    throw err;
   }
 }
 

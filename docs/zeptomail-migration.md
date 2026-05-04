@@ -1,69 +1,84 @@
-# Migrate outbound email from Zoho SMTP to ZeptoMail
+# Migrate outbound email to ZeptoMail (HTTP API)
 
 ## Why
 
 Zoho rate-limited `hello@consultforafrica.com` after a series of bulk
-admin sends (Email Reports to Leaders, Remind 360, etc.). Zoho regular
-SMTP is built for human inboxes, not transactional volume. ZeptoMail
-is Zoho's dedicated transactional service - same vendor, much higher
-limits, free tier of 10,000 emails/month.
+admin sends. Zoho regular SMTP is built for human inboxes, not
+transactional volume. ZeptoMail is Zoho's dedicated transactional
+service - higher limits, delivery webhooks, simple HTTP API.
 
-## What we did already
+## What's already wired in the code
 
-- Throttled every bulk send loop (Communications, notify-completed-reports,
-  remind-360, remind-unredeemed, coaching-blast) from 200ms to 2s between
-  sends. That alone keeps us well under Zoho's hourly cap, but ZeptoMail
-  is the proper fix.
+`lib/email.ts` now prefers the **ZeptoMail HTTP API** when
+`ZEPTOMAIL_API_KEY` is set, and falls back to SMTP via nodemailer
+when it isn't. So the migration is literally:
+
+> Set one env var. Done.
 
 ## What you need to do (5 minutes)
 
-### Step 1: Unblock the current account
+### Step 1: Unblock the Zoho account
 
-Click the "unblock" link in the Zoho email. This restores Zoho SMTP for
-1-to-1 human emails (e.g. when you reply to a consultant from the
-Communications module).
+Click the unblock link in the Zoho email so you can still send 1-to-1
+emails from `hello@consultforafrica.com`.
 
 ### Step 2: Sign up for ZeptoMail
 
-1. Go to https://www.zoho.com/zeptomail/
-2. Sign in with your existing Zoho Mail account (no separate signup
-   needed if you already have Zoho)
-3. Verify the `consultforafrica.com` domain (DNS TXT records, takes
-   ~5 minutes)
-4. In ZeptoMail dashboard: Mail Agents -> Add a new mail agent ->
-   "CFA Platform"
-5. Copy the **Send Mail Token** (looks like `Zoho-enczapikey ...`)
+1. Go to https://www.zoho.com/zeptomail/ and sign in with your
+   existing Zoho account
+2. **Verify the `consultforafrica.com` domain** by adding the DNS TXT
+   records ZeptoMail provides. Wait ~5 minutes.
+3. **Verify `hello@consultforafrica.com`** as a sender (one-click
+   confirmation email)
+4. Mail Agents -> Add new -> name it "CFA Platform"
+5. Copy the **Send Mail Token** from the agent page
 
-### Step 3: Update Vercel env vars
+### Step 3: Add the env var to Vercel
 
 Vercel Dashboard -> consult-for-africa project -> Settings ->
-Environment Variables. Update these (Production scope):
+Environment Variables. Add in **Production** scope:
 
-| Variable | Old value | New value |
-|---|---|---|
-| `SMTP_HOST` | smtp.zoho.com | `smtp.zeptomail.com` |
-| `SMTP_PORT` | 465 | `587` |
-| `SMTP_USER` | hello@... | `emailapikey` (literal string) |
-| `SMTP_PASS` | (your zoho password) | (the Send Mail Token from step 2) |
-| `SMTP_FROM` | unchanged | `Consult For Africa <hello@consultforafrica.com>` |
-| `REPLY_TO_EMAIL` | unchanged | `hello@consultforafrica.com` |
+| Variable | Value |
+|---|---|
+| `ZEPTOMAIL_API_KEY` | (the Send Mail Token from step 2) |
+
+Leave `SMTP_*` env vars alone - they stay as the fallback if you
+ever need to revert.
 
 ### Step 4: Redeploy
 
-In Vercel: trigger a redeploy of the latest commit so the function
-runtime picks up the new env vars. (Or just push any commit.)
+Trigger a Vercel redeploy of latest main so the function runtime
+picks up the new env var. Push any commit, or use the redeploy
+button.
 
 ### Step 5: Test
 
-Hit `/admin/maarova` -> "Email Reports to Leaders" with one test
-recipient. ZeptoMail dashboard will show the send in real time. If the
-email arrives at the recipient inbox, you're done.
+Send a test from `/admin/maarova` -> "Email Reports to Leaders"
+or any other admin button. The ZeptoMail dashboard shows the send
+in real time. Logs in Vercel will show
+`[email] sending to ... via ZeptoMail`.
 
 ## After migration
 
-- All transactional emails (Maarova reports, Founding Circle, 360,
-  reminders, password resets) flow through ZeptoMail
-- Daily cron continues to fire safely
-- Bulk sends from admin buttons are no longer constrained by the 2s
-  throttle (you can revert it if you want, but it doesn't hurt)
-- 10,000 emails/month free tier covers anything we'd realistically do
+- All transactional emails flow through the ZeptoMail HTTP API
+- Daily/weekly crons resume safely
+- Open + click tracking available in the ZeptoMail dashboard
+- 10,000 emails/month free tier covers our realistic volume
+- Delivery webhooks available if we ever need real-time bounce
+  handling (separate work)
+
+## Rolling back
+
+Remove `ZEPTOMAIL_API_KEY` from Vercel env vars. The send helper
+falls back to the existing SMTP credentials. No code change needed.
+
+## Bumping the cron back to daily
+
+Once ZeptoMail is confirmed working, edit `vercel.json`:
+
+```diff
+-      "schedule": "0 9 * * 1"
++      "schedule": "0 9 * * *"
+```
+
+Push, redeploy, daily reminders resume.
