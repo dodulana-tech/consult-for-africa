@@ -14,6 +14,15 @@ export const POST = handler(async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Honour the same kill switch the cron uses so manual sends do not slip
+  // through while sending is officially paused.
+  if (process.env.OUTREACH_PAUSED === "true") {
+    return NextResponse.json(
+      { error: "Outreach is currently paused (OUTREACH_PAUSED=true)." },
+      { status: 503 }
+    );
+  }
+
   try {
     const body = await req.json().catch(() => ({}));
     const batchSize = Math.min(

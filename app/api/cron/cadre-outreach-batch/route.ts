@@ -36,6 +36,17 @@ async function run(req: NextRequest) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Kill switch -- set OUTREACH_PAUSED=true in Vercel env to halt without
+  // a redeploy when the bounce rate is too high or sender reputation is at
+  // risk. The cron continues to fire but does nothing.
+  if (process.env.OUTREACH_PAUSED === "true") {
+    return Response.json({
+      ok: true,
+      paused: true,
+      reason: "OUTREACH_PAUSED env var is set to true",
+    });
+  }
+
   const { searchParams } = new URL(req.url);
   const channelParam = (
     searchParams.get("channel") ?? process.env.OUTREACH_CRON_CHANNEL ?? "EMAIL"

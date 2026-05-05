@@ -171,6 +171,15 @@ async function run(req: NextRequest) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Same kill switch the initial-batch cron honours.
+  if (process.env.OUTREACH_PAUSED === "true") {
+    return Response.json({
+      ok: true,
+      paused: true,
+      reason: "OUTREACH_PAUSED env var is set to true",
+    });
+  }
+
   const now = new Date();
   const results = await Promise.all([
     runReminderCadence(now),
