@@ -2,9 +2,13 @@
  * 7-day reminder email for outreach records that received the initial
  * note but have not yet claimed. Tone is intentionally lighter than the
  * first email: brief, factual, no value-prop pitch, single CTA.
+ *
+ * Prefers ZeptoMail HTTP API when ZEPTOMAIL_API_KEY is set; falls back
+ * to Zoho SMTP via nodemailer otherwise.
  */
 
 import nodemailer from "nodemailer";
+import { sendTransactionalEmail } from "@/lib/zeptomail";
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST ?? "smtp.zoho.com",
@@ -133,17 +137,32 @@ function buildReminderHTML(p: ReminderProfessional): string {
 }
 
 export async function sendReminderEmail(p: ReminderProfessional): Promise<ReminderEmailResult> {
+  const subject = "Following up on last week's note";
+  const html = buildReminderHTML(p);
+
+  if (process.env.ZEPTOMAIL_API_KEY) {
+    console.log(`[outreach-reminder] Sending to ${p.email} via ZeptoMail`);
+    const result = await sendTransactionalEmail({
+      from: FROM,
+      to: p.email,
+      subject,
+      html,
+    });
+    if (!result.ok) {
+      console.error(`[outreach-reminder] ZeptoMail failed for ${p.email}:`, result.error);
+      return { ok: false, error: result.error };
+    }
+    return { ok: true };
+  }
+
   if (!process.env.SMTP_USER) {
-    const error = "SMTP not configured (SMTP_USER missing)";
+    const error = "No transport configured (set ZEPTOMAIL_API_KEY or SMTP_USER)";
     console.log(`[outreach-reminder] ${error}. Would send to ${p.email}`);
     return { ok: false, error };
   }
 
-  const subject = "Following up on last week's note";
-  const html = buildReminderHTML(p);
-
   try {
-    console.log(`[outreach-reminder] Sending to ${p.email}`);
+    console.log(`[outreach-reminder] Sending to ${p.email} via SMTP`);
     await transporter.sendMail({ from: FROM, to: p.email, subject, html });
     return { ok: true };
   } catch (err) {

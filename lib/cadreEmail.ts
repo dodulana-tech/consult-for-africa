@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { sendTransactionalEmail } from "@/lib/zeptomail";
 
 /** Escape HTML entities in user-supplied values */
 function esc(str: string): string {
@@ -79,13 +80,24 @@ export async function sendCadreEmail({
     }
   `);
 
+  if (process.env.ZEPTOMAIL_API_KEY) {
+    console.log(`[cadreEmail] sending to ${to} via ZeptoMail: ${subject}`);
+    const result = await sendTransactionalEmail({ from: FROM, to, subject, html });
+    if (!result.ok) {
+      console.error(`[cadreEmail] ZeptoMail failed for ${to}:`, result.error);
+      throw new Error(`ZeptoMail: ${result.error}`);
+    }
+    console.log(`[cadreEmail] sent to ${to} (msgId: ${result.messageId ?? "unknown"})`);
+    return;
+  }
+
   if (!process.env.SMTP_USER) {
-    console.log(`[cadreEmail] SMTP not configured. To: ${to} | Subject: ${subject}`);
+    console.log(`[cadreEmail] No transport configured. To: ${to} | Subject: ${subject}`);
     return;
   }
 
   try {
-    console.log(`[cadreEmail] sending to ${to}: ${subject}`);
+    console.log(`[cadreEmail] sending to ${to} via SMTP: ${subject}`);
     await transporter.sendMail({ from: FROM, to, subject, html });
     console.log(`[cadreEmail] sent to ${to}`);
   } catch (err) {

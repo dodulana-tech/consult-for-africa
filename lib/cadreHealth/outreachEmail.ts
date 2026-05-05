@@ -1,11 +1,13 @@
 /**
  * CadreHealth Outreach Email Sender
  *
- * Sends reactivation/claim emails to imported professionals
- * using existing Zoho SMTP configuration.
+ * Sends reactivation/claim emails to imported professionals.
+ * Prefers ZeptoMail HTTP API when ZEPTOMAIL_API_KEY is set; falls back
+ * to Zoho SMTP via nodemailer otherwise.
  */
 
 import nodemailer from "nodemailer";
+import { sendTransactionalEmail } from "@/lib/zeptomail";
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST ?? "smtp.zoho.com",
@@ -195,17 +197,33 @@ export interface ReactivationEmailResult {
 export async function sendReactivationEmail(
   professional: ProfessionalInfo,
 ): Promise<ReactivationEmailResult> {
+  const subject = "For Nigerian specialists, wherever you practise";
+  const html = buildEmailHTML(professional);
+
+  if (process.env.ZEPTOMAIL_API_KEY) {
+    console.log(`[outreach-email] Sending to ${professional.email} via ZeptoMail`);
+    const result = await sendTransactionalEmail({
+      from: FROM,
+      to: professional.email,
+      subject,
+      html,
+    });
+    if (!result.ok) {
+      console.error(`[outreach-email] ZeptoMail failed for ${professional.email}:`, result.error);
+      return { ok: false, error: result.error };
+    }
+    console.log(`[outreach-email] Sent to ${professional.email} (msgId: ${result.messageId ?? "unknown"})`);
+    return { ok: true };
+  }
+
   if (!process.env.SMTP_USER) {
-    const error = "SMTP not configured (SMTP_USER missing)";
+    const error = "No transport configured (set ZEPTOMAIL_API_KEY or SMTP_USER)";
     console.log(`[outreach-email] ${error}. Would send to ${professional.email}`);
     return { ok: false, error };
   }
 
-  const subject = "For Nigerian specialists, wherever you practise";
-  const html = buildEmailHTML(professional);
-
   try {
-    console.log(`[outreach-email] Sending to ${professional.email}`);
+    console.log(`[outreach-email] Sending to ${professional.email} via SMTP`);
     await transporter.sendMail({ from: FROM, to: professional.email, subject, html });
     console.log(`[outreach-email] Sent to ${professional.email}`);
     return { ok: true };
