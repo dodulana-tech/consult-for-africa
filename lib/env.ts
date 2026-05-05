@@ -69,6 +69,10 @@ const serverSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   CONTACT_EMAIL: z.string().email().optional(),
 
+  // ── ZeptoMail (preferred transactional email provider) ────────────────────
+  ZEPTOMAIL_API_KEY: z.string().optional(),
+  ZEPTOMAIL_WEBHOOK_SECRET: z.string().optional(),
+
   // ── CadreHealth extras ─────────────────────────────────────────────────────
   CADRE_SMTP_FROM: z.string().optional(),
   CADRE_WHATSAPP_TOKEN: z.string().optional(),
