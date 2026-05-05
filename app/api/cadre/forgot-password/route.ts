@@ -40,15 +40,28 @@ export const POST = handler(async function POST(req: NextRequest) {
     const baseUrl = process.env.NEXTAUTH_URL ?? "https://consultforafrica.com";
     const resetLink = `${baseUrl}/oncadre/reset-password/${token}`;
 
-    await sendCadreEmail({
-      to: professional.email,
-      subject: "Reset your CadreHealth password",
-      heading: "Password Reset Request",
-      body: `Hi ${professional.firstName}, we received a request to reset your password. Click the button below to choose a new password. This link expires in 1 hour.`,
-      ctaText: "Reset Password",
-      ctaHref: resetLink,
-      footer: "If you did not request this, you can safely ignore this email.",
-    });
+    // Catch SMTP failures so a Zoho rate-limit or transient transport
+    // hiccup does not bubble into a 500 for the user. The reset token is
+    // already written; if the email fails, support can resend it from
+    // the admin panel, and the user's retry will just generate a new
+    // token without confusion.
+    try {
+      await sendCadreEmail({
+        to: professional.email,
+        subject: "Reset your CadreHealth password",
+        heading: "Password Reset Request",
+        body: `Hi ${professional.firstName}, we received a request to reset your password. Click the button below to choose a new password. This link expires in 1 hour.`,
+        ctaText: "Reset Password",
+        ctaHref: resetLink,
+        footer: "If you did not request this, you can safely ignore this email.",
+      });
+    } catch (err) {
+      console.error(
+        `[cadre-forgot-password] email send failed for ${professional.email}:`,
+        err,
+      );
+      // Fall through to the generic success response. Token is in the DB.
+    }
 
     return NextResponse.json({
       message: "If that email is registered, you will receive a reset link shortly.",

@@ -43,6 +43,16 @@ function generateReferralCode(): string {
 }
 
 export const POST = handler(async function POST(req: NextRequest) {
+  // Validate the JWT secret BEFORE any DB write or email send. Same
+  // defensive pattern as /api/cadre/claim and /api/cadre/login.
+  if (!process.env.CADRE_PORTAL_SECRET) {
+    console.error("[cadre-register] Refusing to register: CADRE_PORTAL_SECRET is not set");
+    return NextResponse.json(
+      { error: "Registration is temporarily unavailable. Please try again in a few minutes.", ref: "ENV_MISCONFIGURED" },
+      { status: 503 }
+    );
+  }
+
   // Rate limit: 5 registrations per hour per IP
   const ip = getClientIp(req.headers);
   if (!rateLimit(`register:${ip}`, 5, 60 * 60 * 1000)) {

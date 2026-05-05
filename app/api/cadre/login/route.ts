@@ -26,6 +26,18 @@ async function verifyPassword(password: string, stored: string): Promise<boolean
 }
 
 export const POST = handler(async function POST(req: NextRequest) {
+  // Same defensive check as the claim flow: refuse the request before we
+  // hash a password and burn a rate-limit slot if the JWT secret is not
+  // configured. Returns 503 so monitoring can distinguish config errors
+  // from real auth failures.
+  if (!process.env.CADRE_PORTAL_SECRET) {
+    console.error("[cadre-login] Refusing to log in: CADRE_PORTAL_SECRET is not set");
+    return NextResponse.json(
+      { error: "Sign-in is temporarily unavailable. Please try again in a few minutes.", ref: "ENV_MISCONFIGURED" },
+      { status: 503 }
+    );
+  }
+
   try {
     const { email, password } = await req.json();
 

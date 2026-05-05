@@ -14,6 +14,22 @@ function hashPassword(password: string): string {
 }
 
 export const POST = handler(async function POST(req: NextRequest) {
+  // Validate the JWT secret BEFORE any DB write. The earlier version did
+  // the DB updates first and then signed the JWT; if the secret was
+  // missing the user saw a 500 but the record was already CONVERTED,
+  // leaving them locked out without a clean retry path. Fail fast here.
+  if (!process.env.CADRE_PORTAL_SECRET) {
+    console.error("[cadre-claim] Refusing to claim: CADRE_PORTAL_SECRET is not set");
+    return NextResponse.json(
+      {
+        error:
+          "We could not activate your profile. Please email hello@consultforafrica.com and we will fix this for you.",
+        ref: "ENV_MISCONFIGURED",
+      },
+      { status: 503 },
+    );
+  }
+
   try {
     const { professionalId, password } = await req.json();
 

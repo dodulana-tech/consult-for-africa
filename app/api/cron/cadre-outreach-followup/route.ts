@@ -84,6 +84,24 @@ async function runReminderCadence(now: Date): Promise<CadenceResult> {
 
   for (const record of records) {
     result.attempted++;
+
+    // Skip suppressed recipients and mark them UNREACHABLE so future
+    // queries do not bring them back.
+    const suppressed = await prisma.communicationSuppression.findFirst({
+      where: {
+        email: record.professional.email.toLowerCase(),
+        OR: [{ channel: "EMAIL" }, { channel: null }],
+      },
+      select: { id: true },
+    });
+    if (suppressed) {
+      await prisma.cadreOutreachRecord.update({
+        where: { id: record.id },
+        data: { status: "UNREACHABLE", notes: "Suppressed at reminder time" },
+      });
+      continue;
+    }
+
     const r = await sendReminderEmail({
       id: record.professional.id,
       firstName: record.professional.firstName,

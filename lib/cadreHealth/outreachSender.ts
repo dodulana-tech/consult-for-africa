@@ -8,6 +8,24 @@ import { sendReactivationEmail } from "@/lib/cadreHealth/outreachEmail";
 
 export type OutreachChannel = "EMAIL" | "WHATSAPP";
 
+/**
+ * Check the platform-wide CommunicationSuppression list before sending.
+ * Once a recipient bounces, opts out, or files a complaint, they belong
+ * here -- the cron should never hit them again.
+ */
+async function isSuppressed(email: string): Promise<boolean> {
+  if (!email) return false;
+  const lower = email.toLowerCase();
+  const hit = await prisma.communicationSuppression.findFirst({
+    where: {
+      email: lower,
+      OR: [{ channel: "EMAIL" }, { channel: null }],
+    },
+    select: { id: true },
+  });
+  return !!hit;
+}
+
 // ─── CadreHealth: Outbound Outreach Sender ───
 
 /**
@@ -132,6 +150,20 @@ export async function sendInitialEmail(
   }
   if (!professional.email) {
     return { ok: false, error: "No email on record" };
+  }
+
+  // Skip recipients on the suppression list (bounced, opted out, complained).
+  if (await isSuppressed(professional.email)) {
+    if (professional.outreachRecord && professional.outreachRecord.status !== "UNREACHABLE") {
+      await prisma.cadreOutreachRecord.update({
+        where: { id: professional.outreachRecord.id },
+        data: {
+          status: "UNREACHABLE",
+          notes: professional.outreachRecord ? "Suppressed (bounced/opted-out)" : null,
+        },
+      });
+    }
+    return { ok: false, error: "Recipient is on the suppression list" };
   }
 
   const result = await sendReactivationEmail({
