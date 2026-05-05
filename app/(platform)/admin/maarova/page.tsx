@@ -195,8 +195,11 @@ export default async function MaarovaAdminPage() {
                   <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
                     Users
                   </th>
-                  <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Assessments
+                  <th
+                    className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide"
+                    title="Paid leader-coverage slots used out of total purchased. The org admin's own assessment is free."
+                  >
+                    Slots used
                   </th>
                   <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
                     Status
