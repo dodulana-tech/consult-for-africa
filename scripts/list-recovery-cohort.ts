@@ -40,21 +40,32 @@ async function main() {
           email: true,
           cadre: true,
           emailVerified: true,
+          lastLoginAt: true,
         },
       },
     },
   });
 
   // CSV header
-  console.log("id,firstName,lastName,email,cadre,emailVerified,claimedAt");
+  console.log(
+    "id,firstName,lastName,email,cadre,emailVerified,claimedAt,lastLoginAt,probablyStuck",
+  );
 
+  let stuckCount = 0;
   for (const r of records) {
     const p = r.professional;
     const claimedAt = r.profileClaimedAt
       ? r.profileClaimedAt.toISOString().slice(0, 10)
       : "";
-    // Quote any field that contains a comma. Names/emails almost never do
-    // but we should still be safe.
+    const lastLoginAt = p.lastLoginAt
+      ? p.lastLoginAt.toISOString().slice(0, 10)
+      : "";
+    // A user with a CONVERTED record but no lastLoginAt is suspicious:
+    // they completed the claim DB write but never came back (or came
+    // back and hit the 500 caused by missing CADRE_PORTAL_SECRET).
+    const probablyStuck = !p.lastLoginAt;
+    if (probablyStuck) stuckCount++;
+
     const row = [
       p.id,
       p.firstName,
@@ -63,13 +74,17 @@ async function main() {
       p.cadre,
       p.emailVerified ? "yes" : "no",
       claimedAt,
+      lastLoginAt,
+      probablyStuck ? "yes" : "no",
     ]
       .map((v) => (v.includes(",") ? `"${v.replace(/"/g, '""')}"` : v))
       .join(",");
     console.log(row);
   }
 
-  console.error(`\n${records.length} CONVERTED professionals listed.`);
+  console.error(
+    `\n${records.length} CONVERTED professionals total. ${stuckCount} have not logged in (probably stuck and need recovery email).`,
+  );
 }
 
 main()

@@ -114,6 +114,22 @@ export default async function ProfessionalDetailPage({
           >
             {professional.accountStatus.replace(/_/g, " ")}
           </span>
+          {professional.passwordHash && !professional.lastLoginAt && (
+            <span
+              className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-200"
+              title="Password was set but the user has never successfully logged in. May have hit the May 2026 env-misconfig bug."
+            >
+              Never signed in
+            </span>
+          )}
+          {professional.lastLoginAt && (
+            <span
+              className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200"
+              title={`Last signed in ${professional.lastLoginAt.toISOString()}`}
+            >
+              Active &middot; signed in {professional.lastLoginAt.toLocaleDateString("en-NG", { day: "numeric", month: "short" })}
+            </span>
+          )}
           {professional.accountStatus !== "VERIFIED" && (
             <VerifyButton professionalId={professional.id} />
           )}

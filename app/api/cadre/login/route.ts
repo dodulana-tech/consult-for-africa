@@ -104,6 +104,13 @@ export const POST = handler(async function POST(req: NextRequest) {
       maxAge: 30 * 24 * 60 * 60,
     });
 
+    // Stamp the successful sign-in so admin can confirm end-to-end auth
+    // worked (not just the claim DB write). Done after the cookie is set
+    // so a Prisma hiccup here does not block a working login.
+    prisma.cadreProfessional
+      .update({ where: { id: professional.id }, data: { lastLoginAt: new Date() } })
+      .catch((err) => console.error("[cadre-login] failed to stamp lastLoginAt:", err));
+
     return NextResponse.json({
       id: professional.id,
       firstName: professional.firstName,

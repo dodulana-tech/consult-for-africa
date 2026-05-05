@@ -3771,6 +3771,12 @@ model CadreProfessional {
   practiceLocation      CadrePracticeLocation?
   practiceLocationSetAt DateTime?
 
+  // Stamped on every successful login. Used by admin to confirm a
+  // CONVERTED record actually completed the JWT handshake (not just the
+  // claim DB write); a CONVERTED user with lastLoginAt = null is
+  // suspicious -- their claim may have hit the May 2026 env-misconfig.
+  lastLoginAt           DateTime?
+
   // Status
   accountStatus         CadreAccountStatus      @default(UNVERIFIED)
   availability          CadreAvailability?
