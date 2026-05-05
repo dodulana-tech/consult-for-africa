@@ -124,16 +124,25 @@ export const POST = handler(async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     let extractedText = "";
 
-    if (file.type === "application/pdf") {
-      const { PDFParse } = await import("pdf-parse");
-      const parser = new PDFParse({ data: new Uint8Array(buffer) });
-      const textResult = await parser.getText();
-      extractedText = textResult.text;
-      await parser.destroy();
-    } else {
-      // For DOCX, extract raw text from the XML
-      // A basic approach: DOCX is a zip file, we can extract text nodes
-      extractedText = buffer.toString("utf-8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    try {
+      if (file.type === "application/pdf") {
+        const { PDFParse } = await import("pdf-parse");
+        const parser = new PDFParse({ data: new Uint8Array(buffer) });
+        const textResult = await parser.getText();
+        extractedText = textResult.text;
+        await parser.destroy();
+      } else {
+        // For DOCX, extract raw text from the XML
+        // A basic approach: DOCX is a zip file, we can extract text nodes
+        extractedText = buffer.toString("utf-8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      }
+    } catch (e) {
+      const reason = e instanceof Error ? e.message : String(e);
+      console.error("[cv-upload] text extraction failed:", reason);
+      return NextResponse.json(
+        { error: `Could not read the file: ${reason}` },
+        { status: 422 }
+      );
     }
 
     if (!extractedText || extractedText.trim().length < 50) {
@@ -146,20 +155,37 @@ export const POST = handler(async function POST(req: NextRequest) {
     // Truncate to avoid token limits
     const truncatedText = extractedText.slice(0, 15000);
 
-    const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 4096,
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: `Extract structured data from this healthcare CV:\n\n${truncatedText}`,
-        },
-      ],
-    });
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.error("[cv-upload] ANTHROPIC_API_KEY not set in runtime env");
+      return NextResponse.json(
+        { error: "CV extraction service not configured (ANTHROPIC_API_KEY missing)" },
+        { status: 500 }
+      );
+    }
 
-    const responseText =
-      message.content[0].type === "text" ? message.content[0].text : "";
+    let responseText = "";
+    try {
+      const message = await anthropic.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 4096,
+        system: SYSTEM_PROMPT,
+        messages: [
+          {
+            role: "user",
+            content: `Extract structured data from this healthcare CV:\n\n${truncatedText}`,
+          },
+        ],
+      });
+      responseText =
+        message.content[0]?.type === "text" ? message.content[0].text : "";
+    } catch (e) {
+      const reason = e instanceof Error ? e.message : String(e);
+      console.error("[cv-upload] Anthropic call failed:", reason);
+      return NextResponse.json(
+        { error: `AI extraction failed: ${reason}` },
+        { status: 502 }
+      );
+    }
 
     // Parse JSON from response (handle potential markdown wrapping)
     let parsed;
@@ -167,9 +193,11 @@ export const POST = handler(async function POST(req: NextRequest) {
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error("No JSON found");
       parsed = JSON.parse(jsonMatch[0]);
-    } catch {
+    } catch (e) {
+      const reason = e instanceof Error ? e.message : String(e);
+      console.error("[cv-upload] JSON parse failed. Raw response head:", responseText.slice(0, 500));
       return NextResponse.json(
-        { error: "Failed to parse extracted data. Please try again." },
+        { error: `Could not parse extracted data: ${reason}` },
         { status: 500 }
       );
     }
@@ -256,9 +284,10 @@ export const POST = handler(async function POST(req: NextRequest) {
       data: parsed,
     });
   } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
     console.error("CV upload error:", error);
     return NextResponse.json(
-      { error: "Failed to process CV. Please try again." },
+      { error: `Failed to process CV: ${reason}` },
       { status: 500 }
     );
   }
