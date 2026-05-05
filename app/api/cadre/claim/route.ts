@@ -98,9 +98,25 @@ export const POST = handler(async function POST(req: NextRequest) {
       lastName: professional.lastName,
     });
   } catch (error) {
-    console.error("CadreHealth claim error:", error);
+    // Log with full context so support can trace a specific failed claim
+    // attempt back to a professional ID (the user has no other handle).
+    const detail = error instanceof Error ? error.message : String(error);
+    const code =
+      error && typeof error === "object" && "code" in error
+        ? (error as { code: string }).code
+        : null;
+    console.error(
+      `[cadre-claim] Failed claim. detail=${detail} code=${code ?? "none"}`,
+      error,
+    );
     return NextResponse.json(
-      { error: "Failed to claim profile. Please try again." },
+      {
+        error:
+          "We could not activate your profile. Please email hello@consultforafrica.com and we will fix this for you.",
+        // Surface a short fingerprint the support team can grep against
+        // without exposing internal stack traces.
+        ref: code ?? "INTERNAL",
+      },
       { status: 500 }
     );
   }

@@ -105,6 +105,20 @@ export default function ClaimForm({ professionalId }: Props) {
         By activating, you agree to CadreHealth&apos;s Terms of Service and
         Privacy Policy.
       </p>
+
+      <p className="text-center text-xs text-gray-500">
+        Trouble activating?{" "}
+        <a
+          href={`mailto:hello@consultforafrica.com?subject=${encodeURIComponent(
+            "Trouble activating my CadreHealth profile",
+          )}&body=${encodeURIComponent(
+            `Hello,\n\nI am having trouble activating my CadreHealth profile. Please assist.\n\nMy profile reference: ${professionalId}\n\nThank you.`,
+          )}`}
+          className="font-medium text-[#0B3C5D] hover:underline"
+        >
+          Email us and we will activate it for you
+        </a>
+      </p>
     </form>
   );
 }
