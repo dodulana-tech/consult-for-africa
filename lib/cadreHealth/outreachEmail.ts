@@ -138,7 +138,7 @@ function buildEmailHTML(professional: ProfessionalInfo): string {
               </p>
 
               <!-- CTA Button -->
-              <table cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
+              <table cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
                 <tr>
                   <td style="background:#0B3C5D;border-radius:8px;">
                     <a href="${claimUrl}" style="display:inline-block;padding:14px 32px;font-size:16px;font-weight:600;color:#FFFFFF;text-decoration:none;">
@@ -147,6 +147,10 @@ function buildEmailHTML(professional: ProfessionalInfo): string {
                   </td>
                 </tr>
               </table>
+
+              <p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#6B7280;">
+                If you run into any difficulty, or would simply like to reply, you can reach us directly on WhatsApp at <a href="https://wa.me/2349138138553" style="color:#0B3C5D;text-decoration:none;font-weight:600;">+234 913 813 8553</a>.
+              </p>
 
               <p style="margin:0 0 4px;font-size:15px;line-height:1.6;color:#111827;">
                 With respect,

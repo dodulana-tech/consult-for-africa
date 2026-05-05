@@ -85,7 +85,7 @@ function buildReminderHTML(p: ReminderProfessional): string {
                 Claiming takes about twenty minutes. The first question is simply where you are in your career today, in Nigeria, abroad, or stepped back from full-time clinical work. The platform is built for all three.
               </p>
 
-              <table cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
+              <table cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
                 <tr>
                   <td style="background:#0B3C5D;border-radius:8px;">
                     <a href="${claimUrl}" style="display:inline-block;padding:13px 30px;font-size:15px;font-weight:600;color:#FFFFFF;text-decoration:none;">
@@ -94,6 +94,10 @@ function buildReminderHTML(p: ReminderProfessional): string {
                   </td>
                 </tr>
               </table>
+
+              <p style="margin:0 0 22px;font-size:13px;line-height:1.6;color:#6B7280;">
+                Any trouble or feedback, message us on WhatsApp at <a href="https://wa.me/2349138138553" style="color:#0B3C5D;text-decoration:none;font-weight:600;">+234 913 813 8553</a>.
+              </p>
 
               <p style="margin:0 0 4px;font-size:14px;line-height:1.6;color:#111827;">
                 With respect,

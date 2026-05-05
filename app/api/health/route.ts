@@ -33,7 +33,6 @@ const REQUIRED_ENVS: { name: string; affects: string }[] = [
   { name: "MAAROVA_PORTAL_SECRET", affects: "maarova login, assessments, reports" },
   { name: "CLIENT_PORTAL_SECRET", affects: "client portal" },
   { name: "PARTNER_PORTAL_SECRET", affects: "partner firm portal" },
-  { name: "PAYSTACK_SECRET_KEY", affects: "payments" },
   { name: "R2_ACCOUNT_ID", affects: "file uploads, CV storage" },
   { name: "R2_ACCESS_KEY_ID", affects: "file uploads, CV storage" },
   { name: "R2_SECRET_ACCESS_KEY", affects: "file uploads, CV storage" },
@@ -41,6 +40,7 @@ const REQUIRED_ENVS: { name: string; affects: string }[] = [
 ];
 
 const OPTIONAL_ENVS: { name: string; affects: string }[] = [
+  { name: "PAYSTACK_SECRET_KEY", affects: "payments (optional until Paystack verification clears)" },
   { name: "ZEPTOMAIL_API_KEY", affects: "preferred email transport (falls back to SMTP)" },
   { name: "SMTP_FROM", affects: "default From address (hardcoded fallback used otherwise)" },
   { name: "CADRE_EMPLOYER_SECRET", affects: "cadre employer portal (falls back to CADRE_PORTAL_SECRET)" },

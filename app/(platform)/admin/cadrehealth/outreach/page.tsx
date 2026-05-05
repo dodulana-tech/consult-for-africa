@@ -138,13 +138,13 @@ export default async function OutreachDashboard({
 
       {/* Stats row */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-7">
-        <StatCard label="Imported" value={totalImported} icon={<Download className="h-5 w-5" />} iconBg="bg-gray-100" iconColor="text-gray-500" accent="#6B7280" />
-        <StatCard label="Enriched" value={enriched} icon={<Sparkles className="h-5 w-5" />} iconBg="bg-[#0B3C5D]/8" iconColor="text-[#0B3C5D]" accent="#0B3C5D" />
-        <StatCard label="Email Sent" value={emailSent} icon={<Mail className="h-5 w-5" />} iconBg="bg-orange-50" iconColor="text-orange-600" accent="#EA580C" />
-        <StatCard label="WhatsApp Sent" value={whatsAppSent} icon={<Send className="h-5 w-5" />} iconBg="bg-blue-50" iconColor="text-blue-600" accent="#2563EB" />
-        <StatCard label="Replied" value={replied} icon={<MessageCircle className="h-5 w-5" />} iconBg="bg-emerald-50" iconColor="text-emerald-600" accent="#059669" />
-        <StatCard label="Converted" value={converted} icon={<UserCheck className="h-5 w-5" />} iconBg="bg-emerald-50" iconColor="text-emerald-700" accent="#047857" />
-        <StatCard label="Unreachable" value={unreachable} icon={<XCircle className="h-5 w-5" />} iconBg="bg-red-50" iconColor="text-red-500" accent="#EF4444" />
+        <StatCard label="Imported" value={totalImported} icon={<Download className="h-5 w-5" />} iconBg="bg-gray-100" iconColor="text-gray-500" accent="#6B7280" href="/admin/cadrehealth/outreach" />
+        <StatCard label="Enriched" value={enriched} icon={<Sparkles className="h-5 w-5" />} iconBg="bg-[#0B3C5D]/8" iconColor="text-[#0B3C5D]" accent="#0B3C5D" href="/admin/cadrehealth/outreach" />
+        <StatCard label="Email Sent" value={emailSent} icon={<Mail className="h-5 w-5" />} iconBg="bg-orange-50" iconColor="text-orange-600" accent="#EA580C" href="/admin/cadrehealth/outreach?status=EMAIL_SENT" />
+        <StatCard label="WhatsApp Sent" value={whatsAppSent} icon={<Send className="h-5 w-5" />} iconBg="bg-blue-50" iconColor="text-blue-600" accent="#2563EB" href="/admin/cadrehealth/outreach?status=WHATSAPP_SENT" />
+        <StatCard label="Replied" value={replied} icon={<MessageCircle className="h-5 w-5" />} iconBg="bg-emerald-50" iconColor="text-emerald-600" accent="#059669" href="/admin/cadrehealth/outreach?status=WHATSAPP_REPLIED" />
+        <StatCard label="Converted" value={converted} icon={<UserCheck className="h-5 w-5" />} iconBg="bg-emerald-50" iconColor="text-emerald-700" accent="#047857" href="/admin/cadrehealth/outreach?status=CONVERTED" />
+        <StatCard label="Unreachable" value={unreachable} icon={<XCircle className="h-5 w-5" />} iconBg="bg-red-50" iconColor="text-red-500" accent="#EF4444" href="/admin/cadrehealth/outreach?status=UNREACHABLE" />
       </div>
 
       {/* Funnel visualization */}
@@ -367,6 +367,7 @@ function StatCard({
   iconBg,
   iconColor,
   accent,
+  href,
 }: {
   label: string;
   value: number;
@@ -374,16 +375,17 @@ function StatCard({
   iconBg: string;
   iconColor: string;
   accent: string;
+  href?: string;
 }) {
-  return (
-    <div
-      className="group relative overflow-hidden rounded-2xl border border-white/60 p-5 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
-      style={{
-        background: "rgba(255,255,255,0.72)",
-        backdropFilter: "blur(16px) saturate(200%)",
-        WebkitBackdropFilter: "blur(16px) saturate(200%)",
-      }}
-    >
+  const cardClasses =
+    "group relative block overflow-hidden rounded-2xl border border-white/60 p-5 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5";
+  const cardStyle = {
+    background: "rgba(255,255,255,0.72)",
+    backdropFilter: "blur(16px) saturate(200%)",
+    WebkitBackdropFilter: "blur(16px) saturate(200%)",
+  } as const;
+  const inner = (
+    <>
       <div
         className="pointer-events-none absolute bottom-0 right-0 h-24 w-24 rounded-tl-full opacity-[0.04] transition-opacity group-hover:opacity-[0.08]"
         style={{ background: accent }}
@@ -397,6 +399,18 @@ function StatCard({
           {value}
         </p>
       </div>
+    </>
+  );
+  if (href) {
+    return (
+      <Link href={href} className={cardClasses} style={cardStyle}>
+        {inner}
+      </Link>
+    );
+  }
+  return (
+    <div className={cardClasses} style={cardStyle}>
+      {inner}
     </div>
   );
 }

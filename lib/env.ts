@@ -35,7 +35,9 @@ const serverSchema = z.object({
   R2_PUBLIC_URL: z.string().optional(),
 
   // ── Paystack ───────────────────────────────────────────────────────────────
-  PAYSTACK_SECRET_KEY: z.string().min(1),
+  // Optional until Paystack verification clears. Promote back to .min(1)
+  // once the live key is provisioned so misconfigurations get caught at boot.
+  PAYSTACK_SECRET_KEY: z.string().optional(),
   PAYSTACK_PUBLIC_KEY: z.string().optional(),
   PAYSTACK_WEBHOOK_SECRET: z.string().optional(),
 
