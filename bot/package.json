@@ -1,0 +1,25 @@
+{
+  "name": "cfa-nuru-bot",
+  "version": "0.1.0",
+  "description": "Nuru meeting bot service - joins Google Meet, transcribes via Deepgram, posts results back to CFA platform",
+  "main": "server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsx watch server.ts"
+  },
+  "dependencies": {
+    "@deepgram/sdk": "^3.9.0",
+    "express": "^4.21.1",
+    "puppeteer-core": "^23.10.4"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

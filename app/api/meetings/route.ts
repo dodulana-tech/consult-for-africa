@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { createGoogleMeetMeeting } from "@/lib/google";
 import { sendMeetingInvite } from "@/lib/email";
+import { dispatchScheduleJob } from "@/lib/nuru-bot/dispatch";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
 
@@ -174,6 +175,15 @@ export const POST = handler(async function POST(req: NextRequest) {
         console.error(`[meetings] Failed to send invite to ${participant.email}:`, err)
       );
     }
+  }
+
+  // Schedule the Nuru bot on the bot service (Fly.io). The bot will join
+  // 1 minute before the scheduled start and stay until the meeting ends.
+  if (meeting.nuruEnabled && meetLink) {
+    const botJoinAt = new Date(startTime.getTime() - 60 * 1000);
+    dispatchScheduleJob(meeting.id, meetLink, botJoinAt).catch((err) =>
+      console.error(`[meetings] Nuru dispatch failed for ${meeting.id}:`, err),
+    );
   }
 
   return Response.json({ meeting }, { status: 201 });
