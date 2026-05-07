@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { PushToOutreachButton } from "@/components/cadrehealth/AdminActions";
 import { RecoveryEmailButton } from "@/components/cadrehealth/RecoveryEmailButton";
+import { ReEngagementButton } from "@/components/cadrehealth/ReEngagementButton";
 import {
   Users,
   ShieldCheck,
@@ -128,6 +129,7 @@ export default async function CadreHealthAdmin({
               Duplicates
             </Link>
             <RecoveryEmailButton />
+            <ReEngagementButton />
             <PushToOutreachButton mode="all" />
           </div>
         </div>
