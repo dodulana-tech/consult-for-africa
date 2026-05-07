@@ -131,6 +131,9 @@ export type AudienceCode =
   | "CADRE_VERIFIED"
   | "CADRE_ALL"
   | "CADRE_PENDING_REVIEW"
+  | "CADRE_DIASPORA_NETWORK"
+  | "CADRE_ALUMNI_NETWORK"
+  | "CADRE_OUTREACH_EMAIL_SENT_NO_CLAIM"
   | "CLIENT_CONTACTS_ACTIVE"
   | "TALENT_APPLICANTS_RECENT"
   | "PARTNERS_ACTIVE";
@@ -161,6 +164,10 @@ export const AUDIENCE_LABELS: Record<AudienceCode, string> = {
   CADRE_VERIFIED: "CadreHealth: verified professionals",
   CADRE_ALL: "CadreHealth: all professionals",
   CADRE_PENDING_REVIEW: "CadreHealth: pending review",
+  CADRE_DIASPORA_NETWORK: "CadreHealth: diaspora network",
+  CADRE_ALUMNI_NETWORK: "CadreHealth: alumni / senior fellows",
+  CADRE_OUTREACH_EMAIL_SENT_NO_CLAIM:
+    "CadreHealth: emailed but never claimed (re-engage)",
   CLIENT_CONTACTS_ACTIVE: "Client contacts at active clients",
   TALENT_APPLICANTS_RECENT: "Talent applicants from last 30 days",
   PARTNERS_ACTIVE: "Active partner firm contacts",
@@ -205,12 +212,52 @@ export async function resolveAudience(code: AudienceCode): Promise<AudienceMembe
 
     case "CADRE_VERIFIED":
     case "CADRE_ALL":
-    case "CADRE_PENDING_REVIEW": {
-      const status =
+    case "CADRE_PENDING_REVIEW":
+    case "CADRE_DIASPORA_NETWORK":
+    case "CADRE_ALUMNI_NETWORK":
+    case "CADRE_OUTREACH_EMAIL_SENT_NO_CLAIM": {
+      // Account-status filters
+      const accountStatus =
         code === "CADRE_VERIFIED" ? "VERIFIED" :
         code === "CADRE_PENDING_REVIEW" ? "PENDING_REVIEW" : undefined;
+
+      // Engagement-track filters via outreach record + practiceLocation
+      let extraWhere: Record<string, unknown> = {};
+      if (code === "CADRE_DIASPORA_NETWORK") {
+        extraWhere = {
+          OR: [
+            { practiceLocation: "DIASPORA" },
+            { outreachRecord: { is: { status: "DIASPORA_NETWORK" } } },
+          ],
+        };
+      } else if (code === "CADRE_ALUMNI_NETWORK") {
+        extraWhere = {
+          OR: [
+            { practiceLocation: "STEPPED_BACK" },
+            { outreachRecord: { is: { status: "ALUMNI_NETWORK" } } },
+          ],
+        };
+      } else if (code === "CADRE_OUTREACH_EMAIL_SENT_NO_CLAIM") {
+        // Got an email at some point but never claimed: their outreach
+        // record was emailed-but-not-converted, or they progressed into
+        // a track without ever logging in.
+        extraWhere = {
+          outreachRecord: {
+            is: {
+              status: { in: ["EMAIL_SENT", "WHATSAPP_SENT", "WHATSAPP_REPLIED", "SMS_SENT"] },
+            },
+          },
+          // Conservative: only contact people who have not yet logged in.
+          // Avoids re-spamming anyone who already engaged successfully.
+          lastLoginAt: null,
+        };
+      }
+
       const pros = await prisma.cadreProfessional.findMany({
-        where: status ? { accountStatus: status } : {},
+        where: {
+          ...(accountStatus ? { accountStatus } : {}),
+          ...extraWhere,
+        },
         select: { id: true, firstName: true, lastName: true, email: true },
       });
       return pros.map((p) => ({
