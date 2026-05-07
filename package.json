@@ -34,6 +34,7 @@
     "framer-motion": "^12.34.1",
     "googleapis": "^171.4.0",
     "lucide-react": "^0.574.0",
+    "mammoth": "^1.12.0",
     "next": "16.1.6",
     "next-auth": "^5.0.0-beta.30",
     "next-sanity": "^11.6.12",

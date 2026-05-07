@@ -3,10 +3,16 @@ import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { getCadreLabel } from "@/lib/cadreHealth/cadres";
+import { WelcomeBanner } from "@/components/cadrehealth/WelcomeBanner";
 
-export default async function CadreDashboard() {
+export default async function CadreDashboard({
+  searchParams,
+}: {
+  searchParams: Promise<{ welcome?: string }>;
+}) {
   const session = await getCadreSession();
   if (!session) redirect("/oncadre/login");
+  const params = await searchParams;
 
   const professional = await prisma.cadreProfessional.findUnique({
     where: { id: session.sub },
@@ -30,6 +36,10 @@ export default async function CadreDashboard() {
 
   return (
     <div className="space-y-8">
+      {/* Per-segment welcome banner -- shown only when ?welcome=ng|diaspora|alumni is set,
+          which the post-claim segmentation flow appends. Dismissible client-side. */}
+      <WelcomeBanner welcome={params.welcome} />
+
       {/* Welcome header band */}
       <div
         className="relative overflow-hidden rounded-2xl px-6 py-8 sm:px-8 sm:py-10"

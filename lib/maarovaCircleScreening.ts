@@ -1,6 +1,43 @@
 import Anthropic from "@anthropic-ai/sdk";
+import mammoth from "mammoth";
 
 const anthropic = new Anthropic();
+
+/**
+ * Extract readable text from a non-PDF CV upload. Most CVs that are not
+ * PDF are .docx (modern Word). DOCX is a zip of XML files; the previous
+ * implementation called buffer.toString("utf-8") which produced garbage
+ * (binary zip data interpreted as UTF-8) and caused Claude to flag the
+ * CV as unreadable.
+ *
+ * Mammoth handles .docx natively. Other formats (.doc, .pages, .txt) get
+ * a best-effort UTF-8 read with HTML stripped.
+ */
+async function extractNonPdfText(
+  buffer: Buffer,
+  mimeType: string,
+): Promise<string> {
+  const isDocx =
+    mimeType.includes("officedocument.wordprocessingml") ||
+    mimeType.includes("application/vnd.openxmlformats");
+
+  if (isDocx) {
+    try {
+      const result = await mammoth.extractRawText({ buffer });
+      return result.value;
+    } catch (err) {
+      console.error("[circle-screening] mammoth extract failed:", err);
+      // Fall through to the naive UTF-8 path. Better to send something
+      // imperfect to Claude than nothing.
+    }
+  }
+
+  return buffer
+    .toString("utf-8")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 export interface CircleScreeningInput {
   firstName: string;
@@ -119,14 +156,14 @@ Return strict JSON.`;
           },
         });
       } else {
-        // For DOCX or other formats: extract whatever text we can with a basic
-        // approach and inject as text. Claude only reads PDFs natively today.
-        const text = input.cvBuffer
-          .toString("utf-8")
-          .replace(/<[^>]+>/g, " ")
-          .replace(/\s+/g, " ")
-          .trim()
-          .substring(0, 12000);
+        // For DOCX or other formats, extract text first then inject. Claude
+        // only reads PDFs natively today; for everything else we hand it
+        // already-parsed text.
+        const extracted = await extractNonPdfText(
+          input.cvBuffer,
+          input.cvMimeType ?? "",
+        );
+        const text = extracted.substring(0, 12000);
         if (text.length > 50) {
           userContent.push({
             type: "text",

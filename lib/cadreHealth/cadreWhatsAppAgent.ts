@@ -5,6 +5,14 @@ import { getCadreShortLabel, getCadreLabel, getCadreByValue } from "./cadres";
 
 const anthropic = new Anthropic();
 
+/**
+ * What the doctor TOLD US in their reply, not where we put them in the
+ * pipeline. EMIGRATED and RETIRED are kept as intent labels even though
+ * the corresponding outreach status was renamed to DIASPORA_NETWORK and
+ * ALUMNI_NETWORK -- the intent describes the doctor's life situation,
+ * the status describes our engagement track. The mapping happens in
+ * /api/cadre/whatsapp/webhook/route.ts.
+ */
 export type ConversationIntent =
   | "INTERESTED"
   | "NOT_INTERESTED"
