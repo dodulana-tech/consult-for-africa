@@ -4,7 +4,13 @@ import crypto from "crypto";
 import { handler } from "@/lib/api-handler";
 
 function hashPassword(password: string): string {
-  const salt = crypto.randomBytes(16).toString("hex");
+  // 32-byte salt to keep the resulting hash distinct from the legacy
+  // 16-byte-salt placeholder format used by the import script. The
+  // null-import-placeholder-hashes cleanup targets the 161-char length
+  // that 16-byte salts produce, so we MUST stay at 32 bytes here to
+  // avoid having reset hashes wiped by that cleanup. See
+  // scripts/null-import-placeholder-hashes.ts.
+  const salt = crypto.randomBytes(32).toString("hex");
   const hash = crypto
     .pbkdf2Sync(password, salt, 100000, 64, "sha512")
     .toString("hex");
