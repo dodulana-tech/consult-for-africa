@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import RateConsultantForm from "@/components/platform/RateConsultantForm";
 import CommunicationsTimeline from "@/components/platform/communications/CommunicationsTimeline";
+import ConsultantCv from "@/components/platform/ConsultantCv";
 
 const TIER_COLORS: Record<string, { bg: string; color: string }> = {
   ELITE:      { bg: "#FEF3C7", color: "#D97706" },
@@ -45,6 +46,7 @@ export default async function ConsultantProfilePage({
             orderBy: { createdAt: "desc" },
             take: 10,
           },
+          cvUploadedBy: { select: { id: true, name: true } },
         },
       },
       assignments: {
@@ -172,6 +174,17 @@ export default async function ConsultantProfilePage({
               </p>
             )}
           </div>
+
+          {/* CV / Resume */}
+          <ConsultantCv
+            consultantUserId={user.id}
+            consultantName={user.name}
+            initialCvFileUrl={profile.cvFileUrl ?? null}
+            initialCvUploadedAt={profile.cvUploadedAt?.toISOString() ?? null}
+            uploadedByName={profile.cvUploadedBy?.name ?? null}
+            isOwn={session.user.id === user.id}
+            isElevated={["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)}
+          />
 
           {/* Own Gig Override (admin only) */}
           {isElevated && (

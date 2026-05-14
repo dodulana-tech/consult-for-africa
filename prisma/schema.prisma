@@ -326,6 +326,7 @@ model User {
   commEventsActed        CommunicationEvent[]       @relation("CommEventActor")
   bulkCommsCreated       BulkCommunication[]        @relation("CreatedBulkComms")
   commTemplatesCreated   CommunicationTemplate[]    @relation("CreatedTemplates")
+  cvUploadsForConsultants ConsultantProfile[]       @relation("CvUploader")
 }
 
 model ConsultantProfile {
@@ -358,6 +359,13 @@ model ConsultantProfile {
   accountName     String?
   swiftCode       String?
   currency        Currency  @default(NGN)
+
+  // CV / Resume
+  cvFileUrl       String?
+  cvText          String?   @db.Text
+  cvUploadedAt    DateTime?
+  cvUploadedById  String?   // FK to User who uploaded (may be admin uploading on consultant's behalf)
+  cvUploadedBy    User?     @relation("CvUploader", fields: [cvUploadedById], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
