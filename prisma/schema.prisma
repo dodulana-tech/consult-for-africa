@@ -327,6 +327,7 @@ model User {
   bulkCommsCreated       BulkCommunication[]        @relation("CreatedBulkComms")
   commTemplatesCreated   CommunicationTemplate[]    @relation("CreatedTemplates")
   cvUploadsForConsultants ConsultantProfile[]       @relation("CvUploader")
+  pilotMandatesOwned     CadreMandate[]             @relation("PilotOwner")
 }
 
 model ConsultantProfile {
@@ -4266,6 +4267,39 @@ model CadreMandate {
   slug                  String?                 @unique
   applicationCount      Int                     @default(0)
 
+  // ─── White-glove pilot tracking ──────────────────────────────────────
+  // Flag for mandates we're running as a hand-managed pilot search for
+  // a hospital we already have a relationship with. Used to (a) prove
+  // the network works before opening self-serve job posting, (b)
+  // generate case studies for cold outreach later.
+  isPilot               Boolean                 @default(false)
+  pilotOwnerId          String?
+  pilotOwner            User?                   @relation("PilotOwner", fields: [pilotOwnerId], references: [id], onDelete: SetNull)
+  pilotNotes            String?                 @db.Text
+
+  // Stage timestamps for funnel analytics (time-to-shortlist,
+  // time-to-fill etc). Set when status transitions occur.
+  briefedAt             DateTime?
+  sourcingStartedAt     DateTime?
+  shortlistedAt         DateTime?
+  interviewingAt        DateTime?
+  offerExtendedAt       DateTime?
+  placedAt              DateTime?
+  lostAt                DateTime?
+  lostReason            String?
+
+  // Placement value tracking
+  placementFeeNGN       Decimal?                @db.Decimal(12, 2)
+  placedConsultantId    String?                 // FK to CadreProfessional who was placed
+
+  // Case study capture (once PLACED). Hospital must opt-in to public
+  // reference before we use it for cold outreach.
+  caseStudyApproved     Boolean                 @default(false)
+  caseStudyApprovedAt   DateTime?
+  caseStudyContactName  String?
+  caseStudyContactTitle String?
+  caseStudyQuote        String?                 @db.Text
+
   // Relations
   matches               CadreMandateMatch[]
 
@@ -4277,6 +4311,8 @@ model CadreMandate {
   @@index([type])
   @@index([isPublished, status])
   @@index([slug])
+  @@index([isPilot, status])
+  @@index([pilotOwnerId])
 }
 
 // ─── CadreHealth: Mandate-Professional Matching ───

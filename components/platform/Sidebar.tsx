@@ -130,6 +130,7 @@ const NAV_SECTIONS: NavSection[] = [
     title: "CadreHealth",
     items: [
       { label: "Dashboard",       href: "/admin/cadrehealth",            icon: Stethoscope },
+      { label: "Pilots",          href: "/admin/cadrehealth/pilots",     icon: Star },
       { label: "Mandates",        href: "/admin/cadrehealth/mandates",   icon: ClipboardList },
       { label: "Outreach",        href: "/admin/cadrehealth/outreach",   icon: Radio },
       { label: "Import",          href: "/admin/cadrehealth/import",     icon: UserPlus },
