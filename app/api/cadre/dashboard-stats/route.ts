@@ -22,16 +22,37 @@ export const GET = handler(async function GET() {
 
   const me = await prisma.cadreProfessional.findUnique({
     where: { id: session.sub },
-    select: { cadre: true, state: true },
+    select: {
+      cadre: true,
+      state: true,
+      currentFacilityId: true,
+      currentFacility: true,
+      currentFacilityRef: { select: { id: true, name: true, slug: true } },
+    },
   });
   if (!me) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const [salaryReportsInCadre, salaryReportsInState, hospitalReviews, peersInCadre] = await Promise.all([
+  const [
+    salaryReportsInCadre,
+    salaryReportsInState,
+    totalReviews,
+    reviewsForMyFacility,
+    reviewsInMyState,
+    myReviewCount,
+    peersInCadre,
+  ] = await Promise.all([
     prisma.cadreSalaryReport.count({ where: { cadre: me.cadre } }),
     me.state
       ? prisma.cadreSalaryReport.count({ where: { cadre: me.cadre, state: me.state } })
       : Promise.resolve(0),
     prisma.cadreFacilityReview.count(),
+    me.currentFacilityId
+      ? prisma.cadreFacilityReview.count({ where: { facilityId: me.currentFacilityId } })
+      : Promise.resolve(0),
+    me.state
+      ? prisma.cadreFacilityReview.count({ where: { facility: { state: me.state } } })
+      : Promise.resolve(0),
+    prisma.cadreFacilityReview.count({ where: { professionalId: session.sub } }),
     prisma.cadreProfessional.count({ where: { cadre: me.cadre } }),
   ]);
 
@@ -40,7 +61,15 @@ export const GET = handler(async function GET() {
     state: me.state,
     salaryReportsInCadre,
     salaryReportsInState,
-    hospitalReviews,
+    totalReviews,
+    reviewsForMyFacility,
+    reviewsInMyState,
+    myReviewCount,
+    currentFacility: me.currentFacilityRef
+      ? { id: me.currentFacilityRef.id, name: me.currentFacilityRef.name, slug: me.currentFacilityRef.slug }
+      : me.currentFacility
+      ? { id: null, name: me.currentFacility, slug: null }
+      : null,
     peersInCadre,
   });
 });

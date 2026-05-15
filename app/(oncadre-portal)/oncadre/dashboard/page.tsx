@@ -8,6 +8,7 @@ import NextBestAction from "@/components/cadrehealth/dashboard/NextBestAction";
 import CredentialRenewals from "@/components/cadrehealth/dashboard/CredentialRenewals";
 import AskNuruCard from "@/components/cadrehealth/dashboard/AskNuruCard";
 import SalaryMapUnlock from "@/components/cadrehealth/dashboard/SalaryMapUnlock";
+import HospitalReviewUnlock from "@/components/cadrehealth/dashboard/HospitalReviewUnlock";
 
 export default async function CadreDashboard({
   searchParams,
@@ -110,10 +111,11 @@ export default async function CadreDashboard({
       {/* Credential renewals (only shows if any expire within 90 days) */}
       <CredentialRenewals credentials={professional.credentials} />
 
-      {/* Two-up: career advisor + salary map unlock */}
+      {/* Advisor (top) + density unlocks (two-up below) */}
+      <AskNuruCard firstName={professional.firstName} />
       <div className="grid gap-5 lg:grid-cols-2">
-        <AskNuruCard firstName={professional.firstName} />
         <SalaryMapUnlock hasReported={!!professional.salaryReportedAt} />
+        <HospitalReviewUnlock />
       </div>
 
       {/* Cards grid */}
