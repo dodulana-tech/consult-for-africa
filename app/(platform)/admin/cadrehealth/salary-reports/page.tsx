@@ -149,6 +149,18 @@ export default async function SalaryReportsAdminPage({
                 Push members to share via the dashboard SalaryMapUnlock card to start building organic data.
               </p>
             )}
+
+            {seedTotal > 0 && (
+              <div className="mt-3 p-3 rounded-lg" style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Seed data provenance</p>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Seed entries are derived from public NSIWC CONMESS / CONHESS salary structures (2023 review, +25–35%),
+                  ClinIKEHR salary guides 2026, Glassdoor / PayScale Nigeria 2025–2026, Punch HealthWise and Nairametrics reporting,
+                  and industry recruiter benchmarks. Tagged to a single system contributor so they can be cleanly removed once
+                  real member reports accumulate. See <code className="text-[11px] bg-gray-100 px-1 rounded">scripts/seed-salary-data.ts</code> for full source list per entry.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Filters */}

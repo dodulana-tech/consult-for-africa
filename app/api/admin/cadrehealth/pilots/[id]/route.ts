@@ -19,6 +19,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { handler } from "@/lib/api-handler";
 import { logAudit } from "@/lib/audit";
+import { notifyAdmins } from "@/lib/admin-notify";
 import type { CadreMandateStatus } from "@prisma/client";
 
 const ALLOWED = ["DIRECTOR", "PARTNER", "ADMIN"];
@@ -144,6 +145,32 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
       ...(body.caseStudyApproved === true && { caseStudyApproved: true }),
     },
   });
+
+  // Admin notification on key transitions
+  try {
+    if (body.status === "PLACED") {
+      await notifyAdmins({
+        type: "PILOT_PLACED",
+        severity: "SUCCESS",
+        title: `Pilot placed: ${existing.title}`,
+        body: `${existing.title} was just marked as PLACED. Capture the case study to use this for cold outreach.`,
+        href: `/admin/cadrehealth/pilots`,
+        metadata: { mandateId: id },
+        emailAdmins: true,
+      });
+    } else if (body.status && body.status !== existing.status && body.status !== "CANCELLED" && body.status !== "CLOSED") {
+      await notifyAdmins({
+        type: "PILOT_STAGE_ADVANCED",
+        severity: "INFO",
+        title: `Pilot advanced: ${existing.title}`,
+        body: `${existing.status.replace(/_/g, " ")} → ${body.status.replace(/_/g, " ")}`,
+        href: `/admin/cadrehealth/pilots`,
+        metadata: { mandateId: id, from: existing.status, to: body.status },
+      });
+    }
+  } catch (e) {
+    console.error("[pilot] admin notify failed:", e);
+  }
 
   return Response.json(updated);
 });

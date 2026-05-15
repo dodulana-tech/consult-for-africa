@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { handler } from "@/lib/api-handler";
+import { notifyAdmins } from "@/lib/admin-notify";
 
 // POST: Submit salary report (give)
 export const POST = handler(async function POST(req: NextRequest) {
@@ -42,6 +43,43 @@ export const POST = handler(async function POST(req: NextRequest) {
         profileCompleteness: { increment: 10 },
       },
     });
+
+    // Notify admins. Detect "first ever real member" (excluding seed contributors
+    // whose emails contain "system@" or "noreply@") so we can fire the high-
+    // priority alert + email exactly once.
+    try {
+      const me = await prisma.cadreProfessional.findUnique({
+        where: { id: session.sub },
+        select: { firstName: true, lastName: true, email: true, cadre: true, state: true },
+      });
+      if (me && me.email && !/system@|noreply@/i.test(me.email)) {
+        const otherRealReports = await prisma.cadreSalaryReport.count({
+          where: {
+            professional: {
+              email: { not: { contains: "@cadrehealth.system" } },
+              AND: { email: { not: { contains: "noreply@" } } },
+            },
+            NOT: { id: report.id },
+          },
+        });
+        const isFirstReal = otherRealReports === 0;
+        await notifyAdmins({
+          type: isFirstReal ? "FIRST_REAL_SALARY_REPORT" : "REAL_SALARY_REPORT",
+          severity: isFirstReal ? "SUCCESS" : "INFO",
+          title: isFirstReal
+            ? "First real member salary report just landed"
+            : `New salary report: ${me.cadre.replace(/_/g, " ")} in ${me.state ?? "—"}`,
+          body: isFirstReal
+            ? `${me.firstName} ${me.lastName} (${me.cadre.replace(/_/g, " ")}) shared the first real member salary. The map's now seeded with organic data.`
+            : `${me.firstName} ${me.lastName} (${me.cadre.replace(/_/g, " ")}, ${me.state ?? "no state"}) added a salary contribution.`,
+          href: "/admin/cadrehealth/salary-reports?source=real",
+          metadata: { professionalId: session.sub, reportId: report.id, cadre: me.cadre, state: me.state },
+          emailAdmins: isFirstReal,
+        });
+      }
+    } catch (e) {
+      console.error("[salary] admin notify failed:", e);
+    }
 
     return NextResponse.json({ id: report.id });
   } catch (error) {

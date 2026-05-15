@@ -4,6 +4,7 @@ import { signCadreJWT } from "@/lib/cadreAuth";
 import crypto from "crypto";
 import { cookies } from "next/headers";
 import { handler } from "@/lib/api-handler";
+import { notifyAdmins } from "@/lib/admin-notify";
 
 function hashPassword(password: string): string {
   const salt = crypto.randomBytes(32).toString("hex");
@@ -86,6 +87,20 @@ export const POST = handler(async function POST(req: NextRequest) {
           profileClaimedAt: new Date(),
         },
       });
+    }
+
+    // Notify admins of conversion
+    try {
+      await notifyAdmins({
+        type: "CADRE_CLAIM_CONVERTED",
+        severity: "SUCCESS",
+        title: `${professional.firstName} ${professional.lastName} claimed their CadreHealth account`,
+        body: `${professional.cadre.replace(/_/g, " ")}${hasCredentials > 0 ? " · added credentials (PENDING_REVIEW)" : " · awaiting credentials"}`,
+        href: `/admin/cadrehealth/${professional.id}`,
+        metadata: { professionalId: professional.id, hasCredentials: hasCredentials > 0 },
+      });
+    } catch (e) {
+      console.error("[claim] admin notify failed:", e);
     }
 
     // Sign JWT and set cookie

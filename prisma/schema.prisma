@@ -328,6 +328,7 @@ model User {
   commTemplatesCreated   CommunicationTemplate[]    @relation("CreatedTemplates")
   cvUploadsForConsultants ConsultantProfile[]       @relation("CvUploader")
   pilotMandatesOwned     CadreMandate[]             @relation("PilotOwner")
+  adminNotificationsRead AdminNotification[]        @relation("AdminNotificationReader")
 }
 
 model ConsultantProfile {
@@ -3994,6 +3995,10 @@ model CadreFacility {
   yearEstablished       Int?
   isVerified            Boolean                 @default(false)
 
+  // Employer branding (used on the public facility page)
+  logoUrl               String?
+  bannerUrl             String?
+
   // Aggregate ratings (computed, cached)
   overallRating         Decimal?                @db.Decimal(3, 2) // 1.00 - 5.00
   compensationRating    Decimal?                @db.Decimal(3, 2)
@@ -5567,4 +5572,50 @@ model CommunicationEvent {
   @@index([type])
   @@index([createdAt])
   @@index([providerEventId])
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Admin notifications
+// In-platform notification feed for staff. Fires on conversion events
+// admins want to know about: first real salary report, hospital review
+// submissions, claim conversions, pilot stage advances, placements.
+// ═══════════════════════════════════════════════════════════════════════════
+
+enum AdminNotificationType {
+  FIRST_REAL_SALARY_REPORT
+  REAL_SALARY_REPORT
+  HOSPITAL_REVIEW_SUBMITTED
+  CADRE_CLAIM_CONVERTED
+  CADRE_PROFILE_VERIFIED
+  PILOT_STAGE_ADVANCED
+  PILOT_PLACED
+  MANDATE_CREATED
+  TALENT_APPLICATION_HIGH_SCORE
+  SYSTEM
+}
+
+enum AdminNotificationSeverity {
+  INFO
+  SUCCESS
+  WARNING
+  CRITICAL
+}
+
+model AdminNotification {
+  id          String                    @id @default(cuid())
+  type        AdminNotificationType
+  severity    AdminNotificationSeverity @default(INFO)
+  title       String
+  body        String?                   @db.Text
+  href        String?                   // deep link into the platform
+  metadata    Json?
+  isRead      Boolean                   @default(false)
+  readAt      DateTime?
+  readById    String?
+  readBy      User?                     @relation("AdminNotificationReader", fields: [readById], references: [id], onDelete: SetNull)
+  createdAt   DateTime                  @default(now())
+
+  @@index([isRead, createdAt])
+  @@index([type])
+  @@index([severity])
 }

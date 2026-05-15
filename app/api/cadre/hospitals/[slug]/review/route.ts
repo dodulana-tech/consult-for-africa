@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { notifyNewReview } from "@/lib/cadreHealth/notifications";
+import { notifyAdmins } from "@/lib/admin-notify";
 import { handler } from "@/lib/api-handler";
 
 // POST: Submit a facility review
@@ -206,6 +207,30 @@ export const POST = handler(async function POST(
       );
     } catch (notifErr) {
       console.error("Failed to send new review notifications:", notifErr);
+    }
+
+    // Notify admins (count this facility's prior reviews to detect a "first")
+    try {
+      const reviewer = await prisma.cadreProfessional.findUnique({
+        where: { id: session.sub },
+        select: { firstName: true, lastName: true, cadre: true },
+      });
+      const priorAtFacility = await prisma.cadreFacilityReview.count({
+        where: { facilityId: facility.id, NOT: { id: review.id } },
+      });
+      const isFirstForFacility = priorAtFacility === 0;
+      await notifyAdmins({
+        type: "HOSPITAL_REVIEW_SUBMITTED",
+        severity: isFirstForFacility ? "SUCCESS" : "INFO",
+        title: isFirstForFacility
+          ? `First review for ${facility.name}`
+          : `New review: ${facility.name} (${review.overallRating}/5)`,
+        body: `${reviewer?.firstName ?? "A member"} ${reviewer?.lastName ?? ""}${reviewer?.cadre ? ` (${reviewer.cadre.replace(/_/g, " ")})` : ""} reviewed ${facility.name}. Rating ${review.overallRating}/5.`,
+        href: `/admin/cadrehealth/hospital-reviews?facilityId=${facility.id}`,
+        metadata: { facilityId: facility.id, reviewId: review.id, rating: review.overallRating },
+      });
+    } catch (e) {
+      console.error("[review] admin notify failed:", e);
     }
 
     return NextResponse.json({ id: review.id });

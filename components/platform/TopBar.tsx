@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ChevronDown, ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import NotificationsDrawer from "./NotificationsDrawer";
+import AdminNotificationBell from "./AdminNotificationBell";
 
 interface TopBarProps {
   title: string;
@@ -56,6 +57,9 @@ export default function TopBar({ title, subtitle, backHref, action }: TopBarProp
         >
           <RefreshCw size={15} className={refreshing ? "animate-spin" : ""} />
         </button>
+        {user?.role && ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(user.role) && (
+          <AdminNotificationBell />
+        )}
         <NotificationsDrawer />
 
         {/* User */}
