@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { getCadreLabel } from "@/lib/cadreHealth/cadres";
 import { WelcomeBanner } from "@/components/cadrehealth/WelcomeBanner";
+import NextBestAction from "@/components/cadrehealth/dashboard/NextBestAction";
+import CredentialRenewals from "@/components/cadrehealth/dashboard/CredentialRenewals";
+import AskNuruCard from "@/components/cadrehealth/dashboard/AskNuruCard";
+import SalaryMapUnlock from "@/components/cadrehealth/dashboard/SalaryMapUnlock";
 
 export default async function CadreDashboard({
   searchParams,
@@ -17,7 +21,7 @@ export default async function CadreDashboard({
   const professional = await prisma.cadreProfessional.findUnique({
     where: { id: session.sub },
     include: {
-      credentials: { take: 5, orderBy: { createdAt: "desc" } },
+      credentials: { orderBy: { expiryDate: "asc" } },
       cpdEntries: { take: 5, orderBy: { dateCompleted: "desc" } },
       qualifications: { take: 5, orderBy: { createdAt: "desc" } },
     },
@@ -26,13 +30,27 @@ export default async function CadreDashboard({
   if (!professional) redirect("/oncadre/register");
 
   const cadreLabel = getCadreLabel(professional.cadre);
-  const completeness = professional.profileCompleteness;
 
   // CPD summary
   const cpdTotal = professional.cpdEntries.reduce(
     (sum, e) => sum + Number(e.points),
     0
   );
+
+  // Next-best-action state
+  const daysSinceJoined = Math.floor(
+    (Date.now() - professional.createdAt.getTime()) / (1000 * 60 * 60 * 24)
+  );
+  const nbaState = {
+    hasReadiness: !!professional.readinessComputedAt,
+    hasCredentials: professional.credentials.length > 0,
+    hasSalaryReport: !!professional.salaryReportedAt,
+    hasQualifications: professional.qualifications.length > 0,
+    hasCv: !!professional.cvFileUrl,
+    isVerified: professional.accountStatus === "VERIFIED",
+    emailVerified: professional.emailVerified,
+    daysSinceJoined,
+  };
 
   return (
     <div className="space-y-8">
@@ -86,89 +104,17 @@ export default async function CadreDashboard({
         </div>
       </div>
 
-      {/* Profile completeness */}
-      {completeness < 80 && (
-        <div
-          className="rounded-2xl p-6"
-          style={{
-            background: "linear-gradient(135deg, #FFFBEB, #FEF3C7)",
-            border: "1px solid rgba(245,158,11,0.2)",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
-          }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-amber-900">
-                Complete your profile
-              </h3>
-              <p className="mt-1 text-sm text-amber-700">
-                A stronger profile gets you better matches and unlocks salary data.
-              </p>
-            </div>
-            <div
-              className="text-3xl font-bold"
-              style={{
-                background: "linear-gradient(135deg, #D97706, #B45309)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              {completeness}%
-            </div>
-          </div>
-          <div
-            className="mt-4 h-3 overflow-hidden rounded-full"
-            style={{ background: "rgba(245,158,11,0.15)" }}
-          >
-            <div
-              className="h-full rounded-full transition-all duration-700 ease-out"
-              style={{
-                width: `${completeness}%`,
-                background: "linear-gradient(90deg, #F59E0B, #D97706)",
-                boxShadow: "0 0 8px rgba(245,158,11,0.4)",
-              }}
-            />
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {professional.credentials.length === 0 && (
-              <Link
-                href="/oncadre/profile#credentials"
-                className="rounded-full px-3.5 py-1.5 text-xs font-medium text-amber-800 transition-all duration-200 hover:scale-[1.02]"
-                style={{
-                  background: "rgba(255,255,255,0.8)",
-                  border: "1px solid rgba(245,158,11,0.25)",
-                }}
-              >
-                + Add practicing license
-              </Link>
-            )}
-            {professional.qualifications.length === 0 && (
-              <Link
-                href="/oncadre/profile#qualifications"
-                className="rounded-full px-3.5 py-1.5 text-xs font-medium text-amber-800 transition-all duration-200 hover:scale-[1.02]"
-                style={{
-                  background: "rgba(255,255,255,0.8)",
-                  border: "1px solid rgba(245,158,11,0.25)",
-                }}
-              >
-                + Add qualifications
-              </Link>
-            )}
-            {!professional.salaryReportedAt && (
-              <Link
-                href="/oncadre/salary-map"
-                className="rounded-full px-3.5 py-1.5 text-xs font-medium text-amber-800 transition-all duration-200 hover:scale-[1.02]"
-                style={{
-                  background: "rgba(255,255,255,0.8)",
-                  border: "1px solid rgba(245,158,11,0.25)",
-                }}
-              >
-                + Share your salary (anonymous)
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Hero next-best-action */}
+      <NextBestAction state={nbaState} />
+
+      {/* Credential renewals (only shows if any expire within 90 days) */}
+      <CredentialRenewals credentials={professional.credentials} />
+
+      {/* Two-up: career advisor + salary map unlock */}
+      <div className="grid gap-5 lg:grid-cols-2">
+        <AskNuruCard firstName={professional.firstName} />
+        <SalaryMapUnlock hasReported={!!professional.salaryReportedAt} />
+      </div>
 
       {/* Cards grid */}
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
