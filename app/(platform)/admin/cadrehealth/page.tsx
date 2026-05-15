@@ -20,7 +20,7 @@ const PAGE_SIZE = 20;
 export default async function CadreHealthAdmin({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; status?: string; cadre?: string; q?: string }>;
+  searchParams: Promise<{ page?: string; status?: string; cadre?: string; q?: string; cv?: string }>;
 }) {
   const params = await searchParams;
   const page = Math.max(1, parseInt(params.page ?? "1") || 1);
@@ -28,9 +28,12 @@ export default async function CadreHealthAdmin({
   const cadreFilter = params.cadre || undefined;
   const search = params.q?.trim() || undefined;
 
+  const cvFilter = params.cv;
   const where: Record<string, unknown> = {};
   if (statusFilter) where.accountStatus = statusFilter;
   if (cadreFilter) where.cadre = cadreFilter;
+  if (cvFilter === "yes") where.cvFileUrl = { not: null };
+  if (cvFilter === "no") where.cvFileUrl = null;
   if (search) {
     where.OR = [
       { firstName: { contains: search, mode: "insensitive" } },
@@ -57,6 +60,7 @@ export default async function CadreHealthAdmin({
         cadre: true,
         state: true,
         accountStatus: true,
+        cvFileUrl: true,
         createdAt: true,
       },
     }),
@@ -167,6 +171,7 @@ export default async function CadreHealthAdmin({
           iconBg="bg-blue-50"
           iconColor="text-blue-600"
           accent="#2563EB"
+          href="/admin/cadrehealth/mandates"
         />
         <StatCard
           label="Hospital Reviews"
@@ -175,6 +180,7 @@ export default async function CadreHealthAdmin({
           iconBg="bg-amber-50"
           iconColor="text-amber-600"
           accent="#D97706"
+          href="/admin/cadrehealth/hospital-reviews"
         />
         <StatCard
           label="Salary Reports"
@@ -183,6 +189,7 @@ export default async function CadreHealthAdmin({
           iconBg="bg-purple-50"
           iconColor="text-purple-600"
           accent="#7C3AED"
+          href="/admin/cadrehealth/salary-reports"
         />
         <StatCard
           label="Verification Rate"
@@ -453,6 +460,7 @@ function StatCard({
   iconBg,
   iconColor,
   accent,
+  href,
 }: {
   label: string;
   value: number | string;
@@ -460,14 +468,19 @@ function StatCard({
   iconBg: string;
   iconColor: string;
   accent: string;
+  href?: string;
 }) {
+  const Wrapper = href ? Link : "div";
+  const wrapperProps = href ? { href } : {};
   return (
-    <div
-      className="group relative overflow-hidden rounded-2xl border border-white/60 p-5 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
+    <Wrapper
+      {...wrapperProps as { href: string }}
+      className="group relative block overflow-hidden rounded-2xl border border-white/60 p-5 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
       style={{
         background: "rgba(255,255,255,0.72)",
         backdropFilter: "blur(16px) saturate(200%)",
         WebkitBackdropFilter: "blur(16px) saturate(200%)",
+        cursor: href ? "pointer" : "default",
       }}
     >
       <div
@@ -483,6 +496,6 @@ function StatCard({
           {value}
         </p>
       </div>
-    </div>
+    </Wrapper>
   );
 }
