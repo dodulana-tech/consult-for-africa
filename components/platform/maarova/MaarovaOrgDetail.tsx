@@ -39,6 +39,7 @@ interface Org {
 }
 
 interface ReportData {
+  id: string;
   status: string;
   overallScore: number | null;
   leadershipArchetype: string | null;
@@ -1165,6 +1166,60 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
 
 /* ── Shared Helpers ───────────────────────────────────────────────────────────── */
 
+function PdfReportLink({ report }: { report: ReportData }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (report.pdfUrl) {
+    return (
+      <a
+        href={report.pdfUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="shrink-0 inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors hover:bg-blue-50"
+        style={{ color: "#1E40AF", border: "1px solid #BFDBFE" }}
+      >
+        <Download size={11} /> PDF Report
+      </a>
+    );
+  }
+
+  const regenerate = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/maarova/reports/${report.id}/regenerate-pdf`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const msg = await parseApiError(res, "Could not generate the PDF. Please try again.");
+        throw new Error(msg);
+      }
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="shrink-0 flex flex-col items-end gap-1">
+      <button
+        onClick={regenerate}
+        disabled={busy}
+        className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors hover:bg-amber-50 disabled:opacity-50"
+        style={{ color: "#92400E", border: "1px solid #FDE68A", background: "#FFFBEB" }}
+        title="The background render did not produce a PDF. Click to retry."
+      >
+        <Download size={11} /> {busy ? "Generating..." : "Generate PDF"}
+      </button>
+      {error && <span className="text-[10px] text-red-600 max-w-[200px] text-right">{error}</span>}
+    </div>
+  );
+}
+
 function InfoField({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -1245,17 +1300,7 @@ function AssessmentResultsPanel({ user, report }: { user: OrgUser; report: Repor
           )}
         </div>
 
-        {report.pdfUrl && (
-          <a
-            href={report.pdfUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors hover:bg-blue-50"
-            style={{ color: "#1E40AF", border: "1px solid #BFDBFE" }}
-          >
-            <Download size={11} /> PDF Report
-          </a>
-        )}
+        <PdfReportLink report={report} />
       </div>
 
       {/* Radar Dimensions */}

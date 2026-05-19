@@ -37,12 +37,28 @@ export const POST = handler(async function POST(
     return NextResponse.json({ error: result.error || "Report generation failed" }, { status: 500 });
   }
 
-  // Fire-and-forget PDF render and store. The PDF link will appear on next
-  // page load. We don't await so the user gets their report immediately.
+  // Best-effort: await the PDF render for up to ~25s so the user typically
+  // sees the link immediately. If it takes longer or fails, we kick the work
+  // into the background (with retry + admin notification inside the helper)
+  // and still return the report so the user is unblocked.
   if (result.reportId) {
-    renderAndStoreReportPdf(result.reportId).catch((err) => {
+    const reportId = result.reportId;
+    const renderPromise = renderAndStoreReportPdf(reportId).catch((err) => {
       console.error("[generate] background PDF render failed:", err);
+      return { ok: false as const, error: err instanceof Error ? err.message : String(err) };
     });
+    const timeout = new Promise<{ ok: false; timeout: true }>((resolve) =>
+      setTimeout(() => resolve({ ok: false, timeout: true }), 25_000),
+    );
+    const raceResult = await Promise.race([renderPromise, timeout]);
+    if ("timeout" in raceResult) {
+      // Let the original promise keep running in the background. The
+      // helper will retry once on failure and notify admins if it can't
+      // recover - so the silent-failure mode that produced this bug is gone.
+      renderPromise.then((r) => {
+        if (!r.ok) console.error("[generate] PDF render eventually failed:", r);
+      });
+    }
   }
 
   const report = await prisma.maarovaReport.findUnique({ where: { id: result.reportId! } });

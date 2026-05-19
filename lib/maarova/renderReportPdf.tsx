@@ -10,6 +10,7 @@ import {
   type FullReport,
 } from "@/app/api/maarova/reports/[sessionId]/pdf/route";
 import { generateUploadUrl, buildKey, getPublicUrl } from "@/lib/r2";
+import { notifyAdmins } from "@/lib/admin-notify";
 import React from "react";
 
 export interface RenderResult {
@@ -102,8 +103,7 @@ export async function renderAndStoreReportPdf(
   if (!fullReport.signatureStrengths && report.signatureStrengths) fullReport.signatureStrengths = report.signatureStrengths;
   if (!fullReport.coachingPriorities && report.coachingPriorities) fullReport.coachingPriorities = report.coachingPriorities;
 
-  let buffer: Buffer;
-  try {
+  const renderOnce = async (): Promise<Buffer> => {
     const stream = await renderToBuffer(
       <LeadershipReport
         userName={session.user.name}
@@ -117,17 +117,32 @@ export async function renderAndStoreReportPdf(
         has360={has360}
       />,
     );
-    buffer = Buffer.from(stream as unknown as Buffer);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error("[renderAndStoreReportPdf] render failed:", msg);
-    return { ok: false, error: `render failed: ${msg}` };
+    return Buffer.from(stream as unknown as Buffer);
+  };
+
+  // Retry once on transient render failure (Yoga/font init flakiness has
+  // been observed on cold serverless instances).
+  let buffer: Buffer;
+  try {
+    buffer = await renderOnce();
+  } catch (err1) {
+    const msg1 = err1 instanceof Error ? err1.message : String(err1);
+    console.error("[renderAndStoreReportPdf] render attempt 1 failed:", msg1);
+    try {
+      buffer = await renderOnce();
+    } catch (err2) {
+      const msg2 = err2 instanceof Error ? err2.message : String(err2);
+      console.error("[renderAndStoreReportPdf] render attempt 2 failed:", msg2);
+      await notifyOnPdfFailure(report.id, session.user.name, `render failed: ${msg2}`);
+      return { ok: false, error: `render failed: ${msg2}` };
+    }
   }
 
-  // Upload to R2
-  try {
-    const safeName = session.user.name.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9-]/g, "");
-    const key = buildKey("maarova-reports", `${safeName}.pdf`);
+  // Upload to R2 (with one retry on transient network failure)
+  const safeName = session.user.name.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9-]/g, "");
+  const key = buildKey("maarova-reports", `${safeName}.pdf`);
+
+  const uploadOnce = async (): Promise<{ ok: true; pdfUrl: string } | { ok: false; error: string }> => {
     const uploadUrl = await generateUploadUrl(key, "application/pdf", 600, buffer.length);
     const putRes = await fetch(uploadUrl, {
       method: "PUT",
@@ -135,17 +150,47 @@ export async function renderAndStoreReportPdf(
       body: new Uint8Array(buffer),
     });
     if (!putRes.ok) return { ok: false, error: `r2 upload status ${putRes.status}` };
-
     const pdfUrl = await getPublicUrl(key);
+    return { ok: true, pdfUrl };
+  };
+
+  try {
+    let result = await uploadOnce();
+    if (!result.ok) {
+      console.error("[renderAndStoreReportPdf] upload attempt 1 failed:", result.error);
+      result = await uploadOnce();
+    }
+    if (!result.ok) {
+      console.error("[renderAndStoreReportPdf] upload attempt 2 failed:", result.error);
+      await notifyOnPdfFailure(report.id, session.user.name, `upload failed: ${result.error}`);
+      return result;
+    }
+
     await prisma.maarovaReport.update({
       where: { id: reportId },
-      data: { pdfUrl },
+      data: { pdfUrl: result.pdfUrl },
     });
 
-    return { ok: true, pdfUrl };
+    return { ok: true, pdfUrl: result.pdfUrl };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[renderAndStoreReportPdf] upload failed:", msg);
+    await notifyOnPdfFailure(report.id, session.user.name, `upload failed: ${msg}`);
     return { ok: false, error: `upload failed: ${msg}` };
+  }
+}
+
+async function notifyOnPdfFailure(reportId: string, userName: string, reason: string) {
+  try {
+    await notifyAdmins({
+      type: "SYSTEM",
+      severity: "WARNING",
+      title: `Maarova PDF render failed for ${userName}`,
+      body: `${reason} - the user's report has no downloadable PDF. Click through to retry.`,
+      href: `/admin/maarova/organisations`,
+      metadata: { reportId, reason },
+    });
+  } catch (e) {
+    console.error("[renderAndStoreReportPdf] admin notify failed:", e);
   }
 }

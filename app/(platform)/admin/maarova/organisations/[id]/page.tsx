@@ -91,6 +91,7 @@ export default async function MaarovaOrgDetailPage({ params }: Props) {
       completedAt: session?.completedAt?.toISOString() ?? null,
       totalTimeMinutes: session?.totalTimeMinutes ?? null,
       report: report ? {
+        id: report.id,
         status: report.status,
         overallScore: report.overallScore,
         leadershipArchetype: report.leadershipArchetype,
