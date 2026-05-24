@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { isRateLimited } from "@/lib/rate-limit";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
+import { finaliseThreeSixtyForRequest } from "@/lib/maarova/finaliseThreeSixty";
 
 // NO AUTH REQUIRED - token-based access for external raters
 
@@ -116,7 +117,7 @@ export const POST = handler(async function POST(
           id: true,
           status: true,
           minRaters: true,
-          invites: { select: { id: true, status: true } },
+          invites: { select: { id: true, role: true, status: true } },
         },
       },
     },
@@ -157,18 +158,22 @@ export const POST = handler(async function POST(
     },
   });
 
-  // Check if all invites are completed
-  const allInvites = invite.request.invites;
-  const completedCount =
-    allInvites.filter((i) => i.status === "COMPLETED").length + 1; // +1 for this one
-  const totalInvites = allInvites.length;
+  // Threshold is minRaters, not "all invites completed". Counting only
+  // non-self ratings here, plus this submission if non-self.
+  const otherCompleted = invite.request.invites.filter(
+    (i) => i.id !== invite.id && i.role !== "SELF" && i.status === "COMPLETED",
+  ).length;
+  const thisCountsTowardThreshold = invite.role !== "SELF" ? 1 : 0;
+  const totalNonSelfCompleted = otherCompleted + thisCountsTowardThreshold;
 
-  // If all invites are done, update request status
-  if (completedCount >= totalInvites) {
-    await prisma.maarova360Request.update({
-      where: { id: invite.request.id },
-      data: { status: "COMPLETE" },
-    });
+  if (
+    invite.request.status !== "COMPLETE" &&
+    totalNonSelfCompleted >= invite.request.minRaters
+  ) {
+    // Fire-and-forget finalisation. Rater shouldn't wait on report regen.
+    finaliseThreeSixtyForRequest(invite.request.id).catch((err) =>
+      console.error("[360 rate POST] finaliseThreeSixtyForRequest failed:", err),
+    );
   }
 
   return Response.json({

@@ -145,30 +145,41 @@ CRITICAL: You must ONLY reference information explicitly provided in the leader 
   try {
     const [resultA, resultB] = await Promise.all([callA, callB]);
 
-    const parseJson = (text: string, stopReason: string) => {
-      let cleaned = text.replace(/```json\s*/gi, "").replace(/```\s*/g, "");
-      const match = cleaned.match(/\{[\s\S]*\}/);
-      if (!match) throw new Error("No JSON found");
-      let str = match[0];
-      if (stopReason === "max_tokens") {
-        let braces = 0,
-          brackets = 0,
-          inStr = false;
-        for (let i = 0; i < str.length; i++) {
-          const ch = str[i];
-          if (ch === '"' && str[i - 1] !== "\\") inStr = !inStr;
-          if (!inStr) {
-            if (ch === "{") braces++;
-            else if (ch === "}") braces--;
-            if (ch === "[") brackets++;
-            else if (ch === "]") brackets--;
+    const parseJson = (text: string, _stopReason: string) => {
+      const cleaned = text.replace(/```json\s*/gi, "").replace(/```\s*/g, "");
+      const start = cleaned.indexOf("{");
+      if (start === -1) throw new Error("No JSON found");
+
+      // Walk from the first '{' tracking string state to find the matching
+      // close. If we find a balanced object, ignore anything after it.
+      let braces = 0;
+      let brackets = 0;
+      let inStr = false;
+      let end = -1;
+      for (let i = start; i < cleaned.length; i++) {
+        const ch = cleaned[i];
+        if (ch === '"' && cleaned[i - 1] !== "\\") inStr = !inStr;
+        if (inStr) continue;
+        if (ch === "{") braces++;
+        else if (ch === "}") {
+          braces--;
+          if (braces === 0) {
+            end = i;
+            break;
           }
-        }
-        if (inStr) str += '"';
-        str = str.replace(/,\s*$/, "");
-        for (let i = 0; i < brackets; i++) str += "]";
-        for (let i = 0; i < braces; i++) str += "}";
+        } else if (ch === "[") brackets++;
+        else if (ch === "]") brackets--;
       }
+
+      if (end !== -1) return JSON.parse(cleaned.slice(start, end + 1));
+
+      // No matching close found: response is truncated. Close braces /
+      // brackets / strings to recover what we can.
+      let str = cleaned.slice(start);
+      if (inStr) str += '"';
+      str = str.replace(/,\s*$/, "");
+      for (let i = 0; i < brackets; i++) str += "]";
+      for (let i = 0; i < braces; i++) str += "}";
       return JSON.parse(str);
     };
 
