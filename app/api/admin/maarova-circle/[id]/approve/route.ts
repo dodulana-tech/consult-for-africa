@@ -85,6 +85,9 @@ export const POST = handler(async function POST(
       tokenExpiresAt,
       invitedAt,
       coachingDiscountCode: discountCode,
+      // Clear any prior decline reason so an overridden decline does not keep
+      // showing a stale rejection note in the admin UI.
+      declineReason: null,
     },
   });
 

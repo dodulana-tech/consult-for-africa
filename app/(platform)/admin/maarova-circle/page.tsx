@@ -254,8 +254,10 @@ export default async function MaarovaCircleAdminPage() {
                     </div>
 
                     {/* Actions */}
-                    {app.status === "PENDING_REVIEW" && (
-                      <ApplicationActions applicationId={app.id} />
+                    {(app.status === "PENDING_REVIEW" ||
+                      app.status === "DECLINED" ||
+                      app.status === "APPROVED") && (
+                      <ApplicationActions applicationId={app.id} status={app.status} />
                     )}
                   </div>
                 );
