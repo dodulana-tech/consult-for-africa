@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 };
 
 const TOTAL_SLOTS = 50;
-const APPLICATIONS_CLOSE = "8 May 2026";
+const APPLICATIONS_CLOSE = "31 July 2026";
 
 export default async function CircleLandingPage() {
   const approvedCount = await prisma.maarovaCircleApplication.count({
@@ -249,7 +249,7 @@ export default async function CircleLandingPage() {
               },
               {
                 title: "10% off Maarova executive coaching",
-                body: "When coaching bookings open in June 2026, your Founding Circle discount applies automatically. We are still concluding coach contracts so coaching is not yet bookable.",
+                body: "When coaching bookings open in August 2026, your Founding Circle discount applies automatically. We are still concluding coach contracts so coaching is not yet bookable.",
               },
               {
                 title: "No credit card. No catch.",
@@ -361,7 +361,7 @@ export default async function CircleLandingPage() {
               },
               {
                 q: "When does coaching open?",
-                a: "Maarova executive coaching opens in June 2026. We are still concluding coach contracts. Founding Circle members get an automatic 10% discount when bookings open.",
+                a: "Maarova executive coaching opens in August 2026. We are still concluding coach contracts. Founding Circle members get an automatic 10% discount when bookings open.",
               },
               {
                 q: "What if my application is declined?",
