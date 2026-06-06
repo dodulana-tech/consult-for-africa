@@ -263,9 +263,12 @@ async function main() {
 
   console.log(`Parsed ${rows.length} rows from CSV`);
 
-  // Default password for imported accounts (they'll need to reset)
-  const defaultPasswordHash = hashPassword("CadreHealth2026!");
-
+  // SECURITY: do NOT set a default passwordHash. The previous version
+  // computed `hashPassword("CadreHealth2026!")` once and applied the same
+  // value to every imported row, which meant anyone who learned that
+  // string could log in as any of the ~4,000 imported doctors. Imported
+  // professionals must claim via /oncadre/claim/[id] which writes a real
+  // per-user hash. The schema allows passwordHash to be null until then.
   let imported = 0;
   let skippedDuplicate = 0;
   let skippedNoEmail = 0;
@@ -325,7 +328,8 @@ async function main() {
           lastName: r.lastName,
           email: r.email,
           phone: r.phone,
-          passwordHash: defaultPasswordHash,
+          // passwordHash intentionally omitted; set on claim, not import
+
           cadre: r.cadre as "MEDICINE" | "DENTISTRY",
           subSpecialty: r.subSpecialty,
           country: "Nigeria",
@@ -345,7 +349,8 @@ async function main() {
           await prisma.cadreProfessional.create({
             data: {
               firstName: r.firstName, lastName: r.lastName, email: r.email,
-              phone: r.phone, passwordHash: defaultPasswordHash,
+              phone: r.phone,
+              // passwordHash intentionally omitted; set on claim, not import
               cadre: r.cadre as "MEDICINE" | "DENTISTRY", subSpecialty: r.subSpecialty,
               country: "Nigeria", isDiaspora: false, accountStatus: "UNVERIFIED",
               referralCode: generateReferralCode(), profileCompleteness: 30,
