@@ -74,6 +74,11 @@ export const POST = handler(async function POST(req: NextRequest) {
       data: {
         passwordHash,
         accountStatus: hasCredentials > 0 ? "PENDING_REVIEW" : "UNVERIFIED",
+        // Claim implicitly logs the user in (we set the cadre_token cookie
+        // below). Without this stamp, anyone who claims and then leaves
+        // before their 30-day session expires never appears in our
+        // "ever signed in" metrics, undercounting real engagement.
+        lastLoginAt: new Date(),
       },
     });
 

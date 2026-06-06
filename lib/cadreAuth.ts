@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
 
 const SECRET = () => {
   const s = process.env.CADRE_PORTAL_SECRET;
@@ -67,5 +68,34 @@ export async function getCadreSession(): Promise<CadreSession | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get("cadre_token")?.value;
   if (!token) return null;
-  return verifyCadreToken(token);
+  const session = verifyCadreToken(token);
+  if (session) {
+    // Fire-and-forget heartbeat so we can tell "active in last 7/30 days"
+    // honestly. Without this, lastLoginAt only updates when the user
+    // re-authenticates via the login form (every 30 days, when the cookie
+    // expires) — so it dramatically undercounts real engagement.
+    touchLastLogin(session.sub);
+  }
+  return session;
+}
+
+// In-memory throttle: only update lastLoginAt once per HEARTBEAT_THROTTLE_MS
+// per professional. Avoids hammering the DB on every page request. Map is
+// per-process; on a multi-instance deploy we may write up to N times per
+// window, which is fine — N is small and the write is idempotent.
+const HEARTBEAT_THROTTLE_MS = 60 * 60 * 1000; // 1 hour
+const lastHeartbeat = new Map<string, number>();
+
+function touchLastLogin(professionalId: string): void {
+  const now = Date.now();
+  const last = lastHeartbeat.get(professionalId) ?? 0;
+  if (now - last < HEARTBEAT_THROTTLE_MS) return;
+  lastHeartbeat.set(professionalId, now);
+  // Cap the cache so a long-running process doesn't leak memory. 10k is
+  // well above the active-cadre pool size; eviction is a clean wipe rather
+  // than LRU to keep the code dead simple.
+  if (lastHeartbeat.size > 10000) lastHeartbeat.clear();
+  prisma.cadreProfessional
+    .update({ where: { id: professionalId }, data: { lastLoginAt: new Date() } })
+    .catch((err) => console.error("[cadre-heartbeat] failed:", err));
 }
