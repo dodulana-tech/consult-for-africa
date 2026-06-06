@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
 import { handler } from "@/lib/api-handler";
+import { notifyAdmins } from "@/lib/admin-notify";
 
 const anthropic = new Anthropic();
 
@@ -147,12 +148,30 @@ Return ONLY valid JSON matching this exact structure:
   "recommendation_rationale": "<1-2 sentence rationale>"
 }`;
 
+  // Retry once on transient failure (network blips, rate limits). Total 2
+  // attempts. Without this, ~1 in 30 applications save with aiScore=null and
+  // status=SUBMITTED — invisible until someone notices the dashboard.
+  async function callScreening(): Promise<Anthropic.Messages.Message> {
+    let lastErr: unknown;
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        return await anthropic.messages.create({
+          model: "claude-sonnet-4-6",
+          max_tokens: 1000,
+          messages: [{ role: "user", content: screeningPrompt }],
+        });
+      } catch (err) {
+        lastErr = err;
+        if (attempt < 2) await new Promise((r) => setTimeout(r, 1500));
+      }
+    }
+    throw lastErr;
+  }
+
+  let screeningFailureReason: string | null = null;
+
   try {
-    const screening = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 1000,
-      messages: [{ role: "user", content: screeningPrompt }],
-    });
+    const screening = await callScreening();
 
     const firstBlock = screening.content[0];
     if (!firstBlock || firstBlock.type !== "text" || !("text" in firstBlock)) {
@@ -184,8 +203,11 @@ Return ONLY valid JSON matching this exact structure:
       }
     }
   } catch (err) {
-    console.error("[talent/apply] AI screening failed", err);
-    // Continue without AI screening - do not block submission
+    screeningFailureReason = err instanceof Error ? err.message : String(err);
+    console.error("[talent/apply] AI screening failed after retry:", screeningFailureReason);
+    // Continue without AI screening - do not block submission.
+    // notifyAdmins is fired below, after the application row is persisted,
+    // so the notification can deep-link to the row id.
   }
 
   let application;
@@ -228,6 +250,21 @@ Return ONLY valid JSON matching this exact structure:
       { error: "Something went wrong saving your application. Please try again." },
       { status: 500 }
     );
+  }
+
+  // If screening failed, alert admins so they can rescore via the script
+  // (npx tsx scripts/rescore-talent-application.ts --id <id> --apply).
+  // Fire-and-forget; never block the candidate response.
+  if (screeningFailureReason) {
+    notifyAdmins({
+      type: "SYSTEM",
+      severity: "WARNING",
+      title: `Talent screening failed: ${firstName} ${lastName}`,
+      body: `The Claude screening call failed after retry for ${firstName} ${lastName} (${email}). The application was saved with no score and status SUBMITTED. Rescore via scripts/rescore-talent-application.ts --id ${application.id} --apply\n\nError: ${screeningFailureReason}`,
+      href: `/talent/${application.id}`,
+      metadata: { applicationId: application.id, email, error: screeningFailureReason },
+      emailAdmins: true,
+    }).catch((err) => console.error("[talent/apply] notify failed:", err));
   }
 
   return Response.json({
