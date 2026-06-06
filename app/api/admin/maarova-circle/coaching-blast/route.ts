@@ -6,7 +6,7 @@ import { emailMaarovaCircleCoachingOpen } from "@/lib/email";
 
 /**
  * POST /api/admin/maarova-circle/coaching-blast
- * Send the June 2026 "coaching is open" email to all Founding Circle members
+ * Send the August 2026 "coaching is open" email to all Founding Circle members
  * who opted in and have not been notified yet.
  */
 export const POST = handler(async function POST() {

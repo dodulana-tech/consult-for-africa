@@ -1871,7 +1871,7 @@ export async function emailMaarovaCircleApproved({
       <div style="margin:24px 0 0;padding:16px 20px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:6px;">
         <p style="margin:0 0 6px;font-size:13px;color:#92400E;font-weight:600;">Your Founding Circle coaching code</p>
         <p style="margin:0;font-size:18px;color:#0F2744;font-weight:700;letter-spacing:0.05em;">${esc(discountCode)}</p>
-        <p style="margin:8px 0 0;font-size:12px;color:#92400E;">Apply this code at checkout for 10% off Maarova executive coaching when bookings open in June 2026.</p>
+        <p style="margin:8px 0 0;font-size:12px;color:#92400E;">Apply this code at checkout for 10% off Maarova executive coaching when bookings open in August 2026.</p>
       </div>
       ${p("If anything is unclear, reply to this email directly.")}
       <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">Looking forward to your report,<br/>Debo Odulana<br/>Managing Director, Consult For Africa</p>

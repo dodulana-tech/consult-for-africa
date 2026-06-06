@@ -236,7 +236,7 @@ export default function CircleApplicationForm({ slotsRemaining }: { slotsRemaini
           style={{ accentColor: "#D4AF37" }}
         />
         <span className="text-sm text-gray-700">
-          Notify me when Maarova coaching opens in June 2026 with my 10% Founding Circle discount.
+          Notify me when Maarova coaching opens in August 2026 with my 10% Founding Circle discount.
         </span>
       </label>
 
