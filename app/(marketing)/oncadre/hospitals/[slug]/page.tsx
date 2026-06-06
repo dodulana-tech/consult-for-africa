@@ -156,12 +156,18 @@ export default async function HospitalDetailPage({ params }: Props) {
     hasContributed = reviewCount > 0;
   }
 
-  const openJobs = await prisma.cadreMandate.findMany({
-    where: { facilityId: facility.id, isPublished: true, status: "OPEN" },
-    select: { id: true, slug: true, title: true, cadre: true, type: true, salaryRangeMin: true, salaryRangeMax: true, salaryCurrency: true, urgency: true },
-    orderBy: { createdAt: "desc" },
-    take: 10,
-  });
+  const OPEN_JOBS_DISPLAY_CAP = 50;
+  const [openJobs, openJobsTotal] = await Promise.all([
+    prisma.cadreMandate.findMany({
+      where: { facilityId: facility.id, isPublished: true, status: "OPEN" },
+      select: { id: true, slug: true, title: true, cadre: true, type: true, salaryRangeMin: true, salaryRangeMax: true, salaryCurrency: true, urgency: true },
+      orderBy: { createdAt: "desc" },
+      take: OPEN_JOBS_DISPLAY_CAP,
+    }),
+    prisma.cadreMandate.count({
+      where: { facilityId: facility.id, isPublished: true, status: "OPEN" },
+    }),
+  ]);
 
   const overallRating = facility.overallRating ? Number(facility.overallRating) : null;
   const recommendPct = facility.wouldRecommendPct ? Number(facility.wouldRecommendPct) : null;
@@ -224,7 +230,9 @@ export default async function HospitalDetailPage({ params }: Props) {
       <div
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(145deg, #061424 0%, #0B3C5D 50%, #0F2744 100%)",
+          background: facility.bannerUrl
+            ? `linear-gradient(135deg, rgba(6,20,36,0.78) 0%, rgba(11,60,93,0.72) 50%, rgba(15,39,68,0.82) 100%), url(${facility.bannerUrl}) center/cover`
+            : "linear-gradient(145deg, #061424 0%, #0B3C5D 50%, #0F2744 100%)",
           paddingTop: "calc(var(--navbar-height, 4rem) + 1.5rem)",
         }}
       >
@@ -252,6 +260,19 @@ export default async function HospitalDetailPage({ params }: Props) {
 
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0 flex-1">
+              {facility.logoUrl && (
+                <div
+                  className="mb-4 inline-flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-white p-1.5 sm:h-20 sm:w-20"
+                  style={{ boxShadow: "0 4px 14px rgba(0,0,0,0.18)" }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={facility.logoUrl}
+                    alt={`${facility.name} logo`}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+              )}
               <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl">
                 {facility.name}
               </h1>
@@ -406,20 +427,26 @@ export default async function HospitalDetailPage({ params }: Props) {
         )}
 
         {/* ─── Open Jobs ──────────────────────────────────────────────── */}
-        {openJobs.length > 0 && (
+        {openJobsTotal > 0 && (
           <div
-            className="mt-6 rounded-2xl border border-white/60 p-6 shadow-sm sm:p-8"
+            id="open-positions"
+            className="mt-6 scroll-mt-24 rounded-2xl border border-white/60 p-6 shadow-sm sm:p-8"
             style={{ background: "rgba(255,255,255,0.8)", backdropFilter: "blur(16px) saturate(200%)" }}
           >
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">
-                Open Positions
-                <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">{openJobs.length}</span>
+                Open Positions at {facility.name}
+                <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">{openJobsTotal}</span>
               </h2>
               <Link href="/oncadre/jobs" className="text-xs font-medium text-[#0B3C5D] hover:underline">
-                View all jobs
+                Browse all jobs
               </Link>
             </div>
+            {openJobsTotal > OPEN_JOBS_DISPLAY_CAP && (
+              <p className="mt-2 text-xs text-gray-500">
+                Showing the {OPEN_JOBS_DISPLAY_CAP} most recent of {openJobsTotal} open roles.
+              </p>
+            )}
             <div className="mt-4 space-y-3">
               {openJobs.map((job) => {
                 const salary = formatSalaryShort(job.salaryRangeMin, job.salaryRangeMax, job.salaryCurrency);

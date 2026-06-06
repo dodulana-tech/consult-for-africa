@@ -111,6 +111,18 @@ export default async function JobDetailPage({
   const avgSalaryValue = avgSalary._avg.baseSalary ? Number(avgSalary._avg.baseSalary) : null;
   const avgSalaryCount = avgSalary._count;
 
+  // Count of other open roles at the same facility (for back-link)
+  const otherFacilityOpenRolesCount = job.facilityId
+    ? await prisma.cadreMandate.count({
+        where: {
+          facilityId: job.facilityId,
+          id: { not: job.id },
+          isPublished: true,
+          status: "OPEN",
+        },
+      })
+    : 0;
+
   // Related jobs
   const relatedJobs = await prisma.cadreMandate.findMany({
     where: { cadre: job.cadre, id: { not: job.id }, isPublished: true, status: "OPEN" },
@@ -482,6 +494,14 @@ export default async function JobDetailPage({
                 >
                   View hospital reviews &rarr;
                 </Link>
+                {otherFacilityOpenRolesCount > 0 && (
+                  <Link
+                    href={`/oncadre/hospitals/${job.facility.slug}#open-positions`}
+                    className="mt-1 block text-xs font-medium text-[#0B3C5D] hover:underline"
+                  >
+                    View all {otherFacilityOpenRolesCount + 1} open roles at {job.facility.name} &rarr;
+                  </Link>
+                )}
               </div>
             )}
 
