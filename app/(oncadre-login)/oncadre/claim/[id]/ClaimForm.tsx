@@ -14,6 +14,7 @@ export default function ClaimForm({ professionalId }: Props) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [errorRef, setErrorRef] = useState("");
 
   const passwordValid = password.length >= 8;
   const passwordsMatch = password === confirmPassword;
@@ -25,6 +26,7 @@ export default function ClaimForm({ professionalId }: Props) {
 
     setLoading(true);
     setError("");
+    setErrorRef("");
 
     try {
       const res = await fetch("/api/cadre/claim", {
@@ -36,13 +38,16 @@ export default function ClaimForm({ professionalId }: Props) {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Something went wrong");
+        if (data.ref) setErrorRef(String(data.ref));
+        throw new Error(data.error || `Something went wrong (status ${res.status})`);
       }
 
       // Send them to the segmentation step before the dashboard so we can
       // tailor what they see based on their self-declared situation.
       router.push(`/oncadre/claim/${professionalId}/where`);
     } catch (err) {
+      // Network failures (DNS, offline, CORS) hit here too. Surface the
+      // raw message so users can paste it to support instead of guessing.
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
@@ -54,6 +59,11 @@ export default function ClaimForm({ professionalId }: Props) {
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
+          {errorRef && (
+            <span className="ml-1 text-xs font-mono text-red-500">
+              (ref: {errorRef})
+            </span>
+          )}
         </div>
       )}
 
@@ -106,19 +116,21 @@ export default function ClaimForm({ professionalId }: Props) {
         Privacy Policy.
       </p>
 
-      <p className="text-center text-xs text-gray-500">
-        Trouble activating?{" "}
-        <a
-          href={`mailto:hello@consultforafrica.com?subject=${encodeURIComponent(
-            "Trouble activating my CadreHealth profile",
-          )}&body=${encodeURIComponent(
-            `Hello,\n\nI am having trouble activating my CadreHealth profile. Please assist.\n\nMy profile reference: ${professionalId}\n\nThank you.`,
-          )}`}
-          className="font-medium text-[#0B3C5D] hover:underline"
-        >
-          Email us and we will activate it for you
-        </a>
-      </p>
+      {error && (
+        <p className="text-center text-xs text-gray-500">
+          Still stuck?{" "}
+          <a
+            href={`mailto:hello@consultforafrica.com?subject=${encodeURIComponent(
+              "Trouble activating my CadreHealth profile",
+            )}&body=${encodeURIComponent(
+              `Hello,\n\nI tried to activate my CadreHealth profile but got this error:\n  ${error}${errorRef ? `\n  ref: ${errorRef}` : ""}\n\nMy profile reference: ${professionalId}\n\nPlease assist.\n\nThank you.`,
+            )}`}
+            className="font-medium text-[#0B3C5D] hover:underline"
+          >
+            Email us and we will activate it for you
+          </a>
+        </p>
+      )}
     </form>
   );
 }
