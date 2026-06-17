@@ -1890,6 +1890,7 @@ enum MaarovaReportStatus {
   READY
   DELIVERED
   ARCHIVED
+  FAILED
 }
 
 enum MaarovaCoachingStatus {
@@ -1979,6 +1980,9 @@ model MaarovaUser {
   isPortalEnabled    Boolean         @default(false)
   lastLoginAt        DateTime?
   invitedAt          DateTime?
+  inviteEmailStatus  String?         // SENT | FAILED (null = not yet attempted)
+  inviteEmailSentAt  DateTime?
+  inviteEmailError   String?         @db.Text
   resetToken         String?
   resetTokenExpiry   DateTime?
   outreachCampaignId String?         // which outreach campaign brought this user in (null = org invite)
@@ -2843,6 +2847,9 @@ model OutreachTarget {
   inviteToken  String?          @unique // token for self-onboarding link
   tokenExpiresAt DateTime?      // token expiry (30 days from invite)
   lastReminderSentAt DateTime?  // last onboarding reminder sent to this target
+  inviteEmailStatus  String?    // SENT | FAILED (null = not yet attempted)
+  inviteEmailSentAt  DateTime?
+  inviteEmailError   String?    @db.Text
   createdAt    DateTime         @default(now())
 
   @@unique([campaignId, email])

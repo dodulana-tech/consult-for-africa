@@ -199,12 +199,17 @@ CRITICAL: You must ONLY reference information explicitly provided in the leader 
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
     console.error("[generateMaarovaReport] FAILED:", errMsg);
-    if (existingReport?.fullReportContent) {
+    // Re-read the row to avoid stomping on a concurrent generate that already
+    // succeeded. Never delete: a concurrent renderAndStoreReportPdf may be
+    // holding this id, and deleting orphans the R2 upload.
+    const current = await prisma.maarovaReport
+      .findUnique({ where: { id: reportRecord.id }, select: { status: true } })
+      .catch(() => null);
+    if (current && current.status !== "READY" && current.status !== "DELIVERED") {
+      const nextStatus = existingReport?.fullReportContent ? "READY" : "FAILED";
       await prisma.maarovaReport
-        .update({ where: { id: reportRecord.id }, data: { status: "READY" } })
+        .update({ where: { id: reportRecord.id }, data: { status: nextStatus } })
         .catch(() => {});
-    } else {
-      await prisma.maarovaReport.delete({ where: { id: reportRecord.id } }).catch(() => {});
     }
     return { ok: false, error: errMsg.slice(0, 200) };
   }
