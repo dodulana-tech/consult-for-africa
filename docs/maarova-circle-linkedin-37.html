@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1200px; height:1200px; }
+  body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background:#0F2744;
+    color:#fff;
+    position:relative;
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .glow1 { position:absolute; inset:0; background: radial-gradient(ellipse 60% 55% at 88% 16%, rgba(212,175,55,0.28) 0%, transparent 60%); }
+  .glow2 { position:absolute; inset:0; background: radial-gradient(ellipse 65% 70% at 92% 60%, rgba(20,130,200,0.30) 0%, transparent 62%); }
+  .glow3 { position:absolute; inset:0; background: radial-gradient(ellipse 40% 45% at 6% 96%, rgba(20,130,200,0.20) 0%, transparent 60%); }
+  .grain { position:absolute; inset:0; opacity:0.05;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:240px; }
+
+  .wrap { position:absolute; inset:0; padding:96px 92px; display:flex; flex-direction:column; }
+
+  .eyebrow { display:flex; align-items:center; gap:16px; }
+  .rule { width:46px; height:2px; background:#D4AF37; display:inline-block; }
+  .eyebrow span { font-size:19px; font-weight:700; letter-spacing:0.30em; text-transform:uppercase; color:#D4AF37; }
+
+  .body { flex:1; display:flex; align-items:center; gap:40px; }
+  .left { flex:1.05; }
+  .right { flex:1; display:flex; justify-content:flex-end; }
+
+  .num { color:#D4AF37; font-weight:700; font-size:340px; line-height:0.78; letter-spacing:-0.04em; }
+  .head { margin-top:18px; font-weight:500; font-size:74px; line-height:1.02; color:#fff; }
+  .sub { margin-top:34px; max-width:560px; font-size:27px; line-height:1.5; color:rgba(255,255,255,0.74); }
+
+  /* report card */
+  .card {
+    width:430px;
+    border-radius:26px;
+    padding:38px 36px;
+    background:linear-gradient(160deg, #14304F 0%, #0B2238 100%);
+    border:1px solid rgba(212,175,55,0.20);
+    box-shadow:0 40px 90px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  .ctop { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:26px; }
+  .ckick { font-size:13px; letter-spacing:0.20em; text-transform:uppercase; font-weight:700; color:#D4AF37; }
+  .ctitle { font-size:22px; font-weight:700; margin-top:8px; }
+  .cscore { font-size:78px; font-weight:700; line-height:0.9; color:#D4AF37; text-align:right; }
+  .cscorel { font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.65); font-weight:700; text-align:right; margin-top:4px;}
+  .arch { padding-bottom:24px; margin-bottom:24px; border-bottom:1px solid rgba(255,255,255,0.12); }
+  .archl { font-size:13px; letter-spacing:0.16em; text-transform:uppercase; color:#D4AF37; font-weight:700; margin-bottom:8px; }
+  .archv { font-size:23px; font-weight:700; }
+  .bar { display:flex; align-items:center; gap:14px; margin-bottom:15px; }
+  .barl { font-size:15px; color:rgba(255,255,255,0.86); width:200px; font-weight:500; }
+  .bart { flex:1; height:9px; border-radius:99px; background:rgba(255,255,255,0.12); overflow:hidden; }
+  .barf { height:100%; border-radius:99px; background:linear-gradient(to right,#D4AF37,#f5d97a); box-shadow:0 0 14px rgba(212,175,55,0.55); }
+  .barv { font-size:15px; width:30px; text-align:right; color:rgba(255,255,255,0.82); font-weight:700; font-variant-numeric:tabular-nums; }
+
+  .foot { display:flex; justify-content:space-between; align-items:flex-end; }
+  .brand { font-size:24px; font-weight:700; letter-spacing:0.02em; }
+  .brand b { color:#D4AF37; }
+  .price { text-align:right; font-size:21px; color:rgba(255,255,255,0.70); line-height:1.45; }
+  .price s { color:rgba(255,255,255,0.45); }
+  .price b { color:#fff; }
+</style>
+</head>
+<body>
+  <div class="glow1"></div><div class="glow2"></div><div class="glow3"></div><div class="grain"></div>
+  <div class="wrap">
+    <div class="eyebrow"><span class="rule"></span><span>Maarova Founding Circle</span></div>
+
+    <div class="body">
+      <div class="left">
+        <div class="num">37</div>
+        <div class="head">free leadership<br/>assessments left.</div>
+        <div class="sub">Built for healthcare leaders across Africa. Six dimensions, calibrated by clinicians and operators who ran the wards. Not borrowed from Wall Street.</div>
+      </div>
+      <div class="right">
+        <div class="card">
+          <div class="ctop">
+            <div>
+              <div class="ckick">Sample Profile</div>
+              <div class="ctitle">Leadership Report</div>
+            </div>
+            <div>
+              <div class="cscore">76</div>
+              <div class="cscorel">overall</div>
+            </div>
+          </div>
+          <div class="arch">
+            <div class="archl">Leadership archetype</div>
+            <div class="archv">The Strategic Caregiver</div>
+          </div>
+          <div class="bar"><div class="barl">Behavioural style</div><div class="bart"><div class="barf" style="width:82%"></div></div><div class="barv">82</div></div>
+          <div class="bar"><div class="barl">Values &amp; drivers</div><div class="bart"><div class="barf" style="width:71%"></div></div><div class="barv">71</div></div>
+          <div class="bar"><div class="barl">Emotional intelligence</div><div class="bart"><div class="barf" style="width:78%"></div></div><div class="barv">78</div></div>
+          <div class="bar"><div class="barl">Clinical leadership</div><div class="bart"><div class="barf" style="width:64%"></div></div><div class="barv">64</div></div>
+          <div class="bar"><div class="barl">Team dynamics</div><div class="bart"><div class="barf" style="width:80%"></div></div><div class="barv">80</div></div>
+          <div class="bar"><div class="barl">Cultural fit</div><div class="bart"><div class="barf" style="width:81%"></div></div><div class="barv">81</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <div class="brand">CONSULT FOR <b>AFRICA</b></div>
+      <div class="price">Normally <s>N460,000 to N690,000</s>.<br/><b>Free for the Founding Circle.</b></div>
+    </div>
+  </div>
+</body>
+</html>
