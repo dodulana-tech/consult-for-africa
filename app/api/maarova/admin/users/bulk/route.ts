@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
-import { emailMaarovaInvite } from "@/lib/email";
+import { sendMaarovaInviteAndRecord } from "@/lib/maarova/inviteEmail";
 import { handler } from "@/lib/api-handler";
 
 interface UserRow {
@@ -92,13 +92,13 @@ export const POST = handler(async function POST(req: NextRequest) {
   }
 
   // Create all users
-  const created: { name: string; email: string }[] = [];
+  const created: { name: string; email: string; inviteEmailSent: boolean }[] = [];
 
   for (const u of normalised) {
     const tempPassword = randomBytes(12).toString("base64url") + "!1A";
     const passwordHash = await bcrypt.hash(tempPassword, 12);
 
-    await prisma.maarovaUser.create({
+    const newUser = await prisma.maarovaUser.create({
       data: {
         organisationId,
         name: u.name.trim(),
@@ -113,20 +113,21 @@ export const POST = handler(async function POST(req: NextRequest) {
         isPortalEnabled: true,
         invitedAt: new Date(),
       },
+      select: { id: true },
     });
 
-    created.push({ name: u.name.trim(), email: u.normEmail });
-
-    // Send invite (non-blocking)
-    emailMaarovaInvite({
+    // Send invite and record the outcome (awaited so it survives serverless teardown)
+    const invite = await sendMaarovaInviteAndRecord({
+      userId: newUser.id,
       email: u.normEmail,
       name: u.name.trim(),
       organisationName: org.name,
       password: tempPassword,
-    }).catch((err) =>
-      console.error(`[maarova] bulk invite email error for ${u.normEmail}:`, err)
-    );
+    });
+
+    created.push({ name: u.name.trim(), email: u.normEmail, inviteEmailSent: invite.sent });
   }
 
-  return Response.json({ created: created.length, users: created });
+  const emailsFailed = created.filter((c) => !c.inviteEmailSent).length;
+  return Response.json({ created: created.length, emailsFailed, users: created });
 });

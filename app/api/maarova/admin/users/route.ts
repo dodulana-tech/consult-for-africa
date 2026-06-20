@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
-import { emailMaarovaInvite } from "@/lib/email";
+import { sendMaarovaInviteAndRecord } from "@/lib/maarova/inviteEmail";
 import { handler } from "@/lib/api-handler";
 
 export const POST = handler(async function POST(req: NextRequest) {
@@ -73,18 +73,20 @@ export const POST = handler(async function POST(req: NextRequest) {
     },
   });
 
-  // Send invite email (non-blocking)
-  emailMaarovaInvite({
+  // Send invite email and record the outcome (awaited so it survives serverless teardown)
+  const invite = await sendMaarovaInviteAndRecord({
+    userId: user.id,
     email: user.email,
     name: user.name,
     organisationName: org.name,
     password: tempPassword,
-  }).catch((err) => console.error("[maarova] invite email error:", err));
+  });
 
   return Response.json({
     user: {
       ...user,
       createdAt: user.createdAt.toISOString(),
     },
+    inviteEmailSent: invite.sent,
   });
 });

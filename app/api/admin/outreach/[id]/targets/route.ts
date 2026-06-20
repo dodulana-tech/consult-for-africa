@@ -112,16 +112,32 @@ export const PATCH = handler(async function PATCH(
 
     const updated = await prisma.outreachTarget.update({ where: { id: targetId }, data: updateData });
 
-    // Fire-and-forget: email + count recomputation (don't block the response)
+    // Send the invite email and record the outcome (awaited so it survives
+    // serverless teardown and is visible on the target row).
     if (updated.email && updated.inviteToken) {
-      emailOutreachInvite({
-        targetEmail: updated.email,
-        targetName: updated.name,
-        targetTitle: updated.title ?? undefined,
-        targetOrg: updated.organization ?? undefined,
-        campaignName: current?.campaign.name ?? "Maarova Leadership Assessment",
-        inviteToken: updated.inviteToken,
-      }).catch((err) => console.error("[outreach] invite email failed:", err));
+      try {
+        await emailOutreachInvite({
+          targetEmail: updated.email,
+          targetName: updated.name,
+          targetTitle: updated.title ?? undefined,
+          targetOrg: updated.organization ?? undefined,
+          campaignName: current?.campaign.name ?? "Maarova Leadership Assessment",
+          inviteToken: updated.inviteToken,
+        });
+        await prisma.outreachTarget.update({
+          where: { id: updated.id },
+          data: { inviteEmailStatus: "SENT", inviteEmailSentAt: new Date(), inviteEmailError: null },
+        });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error("[outreach] invite email failed:", err);
+        await prisma.outreachTarget
+          .update({
+            where: { id: updated.id },
+            data: { inviteEmailStatus: "FAILED", inviteEmailError: msg.slice(0, 1000) },
+          })
+          .catch(() => {});
+      }
     }
 
     // Recompute counts in background (don't block response)

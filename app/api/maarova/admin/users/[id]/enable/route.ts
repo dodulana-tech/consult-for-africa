@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
-import { emailMaarovaInvite } from "@/lib/email";
+import { sendMaarovaInviteAndRecord } from "@/lib/maarova/inviteEmail";
 import { handler } from "@/lib/api-handler";
 
 export const POST = handler(async function POST(
@@ -41,13 +41,14 @@ export const POST = handler(async function POST(
     },
   });
 
-  // Send invite email (non-blocking)
-  emailMaarovaInvite({
+  // Send invite email and record the outcome (awaited so it survives serverless teardown)
+  const invite = await sendMaarovaInviteAndRecord({
+    userId: id,
     email: user.email,
     name: user.name,
     organisationName: user.organisation.name,
     password: tempPassword,
-  }).catch((err) => console.error("[maarova] enable portal email error:", err));
+  });
 
-  return Response.json({ success: true });
+  return Response.json({ success: true, inviteEmailSent: invite.sent });
 });
