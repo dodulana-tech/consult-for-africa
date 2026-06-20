@@ -11,9 +11,10 @@ import {
   Plus,
   X,
   Sparkles,
+  Layers,
 } from "lucide-react";
 import StatusBadge from "../StatusBadge";
-import { DeliverableFeeEditor, AssignDeliverableDropdown } from "./DeliverableHelpers";
+import { DeliverableFeeEditor, AssignDeliverableDropdown, MoveToTrackDropdown } from "./DeliverableHelpers";
 import type { Project, Deliverable } from "./types";
 import { formatDate, timeAgo } from "@/lib/utils";
 
@@ -32,7 +33,8 @@ export default function DeliverablesTab({
 }) {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [newDeliv, setNewDeliv] = useState({ name: "", description: "", dueDate: "", assignmentId: "" });
+  const [groupByTrack, setGroupByTrack] = useState(false);
+  const [newDeliv, setNewDeliv] = useState({ name: "", description: "", dueDate: "", assignmentId: "", trackId: "" });
   const [extraDeliverables, setExtraDeliverables] = useState<Deliverable[]>([]);
   const [suggesting, setSuggesting] = useState(false);
   const [pricingLoading, setPricingLoading] = useState(false);
@@ -71,6 +73,8 @@ export default function DeliverablesTab({
   const [addedSuggestions, setAddedSuggestions] = useState<Set<number>>(new Set());
 
   const allDeliverables = [...extraDeliverables, ...filteredDeliverables];
+  const trackOptions = project.tracks.map((t) => ({ id: t.id, name: t.name }));
+  const trackNameOf = (id?: string | null) => (id ? project.tracks.find((t) => t.id === id)?.name ?? null : null);
 
   async function createDeliverable() {
     if (!newDeliv.name.trim()) return;
@@ -84,7 +88,7 @@ export default function DeliverablesTab({
       if (res.ok) {
         const { deliverable } = await res.json();
         setExtraDeliverables((prev) => [deliverable, ...prev]);
-        setNewDeliv({ name: "", description: "", dueDate: "", assignmentId: "" });
+        setNewDeliv({ name: "", description: "", dueDate: "", assignmentId: "", trackId: "" });
         setShowForm(false);
       }
     } finally {
@@ -143,6 +147,124 @@ export default function DeliverablesTab({
       count: project.deliverables.filter((d) => d.status === "NEEDS_REVISION").length,
     },
   ];
+
+  const renderDeliverable = (d: Deliverable) => (
+    <div
+      key={d.id}
+      className="rounded-xl p-5"
+      style={{ background: "#fff", border: "1px solid #e5eaf0" }}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <StatusBadge status={d.status} />
+            {d.reviewScore && (
+              <span className="text-xs flex items-center gap-1 text-amber-600">
+                <Star size={11} className="text-amber-400" />
+                {d.reviewScore}/10
+              </span>
+            )}
+            {d.version > 1 && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
+                v{d.version}
+              </span>
+            )}
+            {trackOptions.length > 0 && (d.trackId ? (
+              <span className="text-[10px] px-1.5 py-0.5 rounded inline-flex items-center gap-1" style={{ background: "#0F27440D", color: "#0F2744" }}>
+                <Layers size={9} />
+                {trackNameOf(d.trackId) ?? "Workstream"}
+                {isEM && <MoveToTrackDropdown deliverableId={d.id} tracks={trackOptions} currentTrackId={d.trackId} onMoved={() => window.location.reload()} />}
+              </span>
+            ) : (
+              isEM && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded inline-flex items-center gap-1 text-amber-600 bg-amber-50">
+                  No workstream
+                  <MoveToTrackDropdown deliverableId={d.id} tracks={trackOptions} currentTrackId={null} onMoved={() => window.location.reload()} />
+                </span>
+              )
+            ))}
+          </div>
+          <p className="font-semibold text-gray-900 text-sm">{d.name}</p>
+          <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{d.description}</p>
+          <div className="flex items-center gap-3 mt-2 text-xs text-gray-400 flex-wrap">
+            {d.assignment ? (
+              <span className="inline-flex items-center gap-1">
+                {d.assignment.consultant.name}
+                {isEM && <AssignDeliverableDropdown deliverableId={d.id} projectId={project.id} assignments={project.assignments} currentAssignmentId={d.assignment?.id ?? null} onAssigned={() => window.location.reload()} />}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-amber-500">
+                Unassigned
+                {isEM && <AssignDeliverableDropdown deliverableId={d.id} projectId={project.id} assignments={project.assignments} currentAssignmentId={null} onAssigned={() => window.location.reload()} />}
+              </span>
+            )}
+            {d.dueDate && (
+              <>
+                <span>·</span>
+                <span className={`flex items-center gap-0.5 ${d.dueDate && new Date(d.dueDate) < new Date() && d.status !== "APPROVED" && d.status !== "DELIVERED_TO_CLIENT" ? "text-red-500 font-medium" : ""}`}>
+                  <Clock size={9} />
+                  {d.dueDate && new Date(d.dueDate) < new Date() && d.status !== "APPROVED" && d.status !== "DELIVERED_TO_CLIENT" ? "Overdue" : `Due ${formatDate(new Date(d.dueDate!))}`}
+                </span>
+              </>
+            )}
+            {d.submittedAt && (
+              <>
+                <span>·</span>
+                <span>Submitted {timeAgo(new Date(d.submittedAt))}</span>
+              </>
+            )}
+          </div>
+          {d.reviewNotes && (
+            <p className="mt-2 text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2">
+              {d.reviewNotes}
+            </p>
+          )}
+
+          {/* Deliverable fee - EM only */}
+          {isEM && <DeliverableFeeEditor deliverable={d} projectServiceType={project.serviceType} budgetSensitivity={project.budgetSensitivity} consultantTierMin={project.consultantTierMin} consultantTierMax={project.consultantTierMax} />}
+        </div>
+
+        <div className="flex flex-col items-end gap-1.5 shrink-0">
+          {(d.status === "SUBMITTED" || d.status === "IN_REVIEW" || d.status === "NEEDS_REVISION") && (
+            <Link
+              href={`/deliverables/${d.id}`}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80"
+              style={{ background: "#D4AF37", color: "#06090f" }}
+            >
+              Review
+              <ChevronRight size={12} />
+            </Link>
+          )}
+          {d.status === "DRAFT" && (
+            <Link
+              href={`/deliverables/${d.id}`}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80"
+              style={{ background: "#F3F4F6", color: "#374151" }}
+            >
+              Manage
+              <ChevronRight size={12} />
+            </Link>
+          )}
+          {isEM && d.status === "DRAFT" && (
+            <button
+              onClick={async () => {
+                if (!confirm(`Delete "${d.name}"?`)) return;
+                const res = await fetch(`/api/deliverables/${d.id}`, { method: "DELETE" });
+                if (res.ok) {
+                  setExtraDeliverables((prev) => prev.filter((x) => x.id !== d.id));
+                  project.deliverables = project.deliverables.filter((x) => x.id !== d.id);
+                  onFilterChange(filter);
+                }
+              }}
+              className="text-[10px] text-gray-400 hover:text-red-500 transition-colors"
+            >
+              Delete
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="max-w-3xl space-y-4">
@@ -246,6 +368,22 @@ export default function DeliverablesTab({
             className="w-full text-sm rounded-lg px-3 py-2 resize-none focus:outline-none"
             style={{ border: "1px solid #e5eaf0", background: "#fff" }}
           />
+          {project.tracks.length > 0 && (
+            <div>
+              <label className="text-[10px] text-gray-500 mb-1 block">Workstream</label>
+              <select
+                value={newDeliv.trackId}
+                onChange={(e) => setNewDeliv((f) => ({ ...f, trackId: e.target.value }))}
+                className="w-full text-xs rounded-lg px-2 py-1.5 focus:outline-none"
+                style={{ border: "1px solid #e5eaf0", background: "#fff" }}
+              >
+                <option value="">No workstream</option>
+                {project.tracks.map((t) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-[10px] text-gray-500 mb-1 block">Due date</label>
@@ -311,115 +449,69 @@ export default function DeliverablesTab({
         </div>
       )}
 
+      {/* View toggle: flat vs grouped by workstream */}
+      {trackOptions.length > 0 && (
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-gray-400 uppercase tracking-wider">View</span>
+          <div className="flex rounded-lg overflow-hidden" style={{ border: "1px solid #e5eaf0" }}>
+            <button
+              onClick={() => setGroupByTrack(false)}
+              className="text-[11px] px-3 py-1 font-medium transition-colors"
+              style={{ background: groupByTrack ? "#fff" : "#0F2744", color: groupByTrack ? "#6B7280" : "#fff" }}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setGroupByTrack(true)}
+              className="text-[11px] px-3 py-1 font-medium transition-colors"
+              style={{ background: groupByTrack ? "#0F2744" : "#fff", color: groupByTrack ? "#fff" : "#6B7280" }}
+            >
+              By workstream
+            </button>
+          </div>
+        </div>
+      )}
+
       {allDeliverables.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-100 p-10 text-center">
           <FileCheck size={28} className="text-gray-300 mx-auto mb-2" />
           <p className="text-gray-500 text-sm">No deliverables in this category.</p>
         </div>
+      ) : groupByTrack ? (
+        <div className="space-y-6">
+          {project.tracks.map((t) => {
+            const items = allDeliverables.filter((d) => d.trackId === t.id);
+            return (
+              <div key={t.id}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Layers size={13} style={{ color: "#0F2744" }} />
+                  <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: "#0F2744" }}>{t.name}</h3>
+                  <span className="text-[10px] text-gray-400">{items.length}</span>
+                </div>
+                {items.length === 0 ? (
+                  <p className="text-xs text-gray-400 pl-1 pb-1">No deliverables in this workstream yet.</p>
+                ) : (
+                  <div className="space-y-3">{items.map(renderDeliverable)}</div>
+                )}
+              </div>
+            );
+          })}
+          {(() => {
+            const orphans = allDeliverables.filter((d) => !d.trackId);
+            if (orphans.length === 0) return null;
+            return (
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600">No workstream</h3>
+                  <span className="text-[10px] text-gray-400">{orphans.length}</span>
+                </div>
+                <div className="space-y-3">{orphans.map(renderDeliverable)}</div>
+              </div>
+            );
+          })()}
+        </div>
       ) : (
-        allDeliverables.map((d) => (
-          <div
-            key={d.id}
-            className="rounded-xl p-5"
-            style={{ background: "#fff", border: "1px solid #e5eaf0" }}
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <StatusBadge status={d.status} />
-                  {d.reviewScore && (
-                    <span className="text-xs flex items-center gap-1 text-amber-600">
-                      <Star size={11} className="text-amber-400" />
-                      {d.reviewScore}/10
-                    </span>
-                  )}
-                  {d.version > 1 && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
-                      v{d.version}
-                    </span>
-                  )}
-                </div>
-                <p className="font-semibold text-gray-900 text-sm">{d.name}</p>
-                <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{d.description}</p>
-                <div className="flex items-center gap-3 mt-2 text-xs text-gray-400 flex-wrap">
-                  {d.assignment ? (
-                    <span className="inline-flex items-center gap-1">
-                      {d.assignment.consultant.name}
-                      {isEM && <AssignDeliverableDropdown deliverableId={d.id} projectId={project.id} assignments={project.assignments} currentAssignmentId={d.assignment?.id ?? null} onAssigned={() => window.location.reload()} />}
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-amber-500">
-                      Unassigned
-                      {isEM && <AssignDeliverableDropdown deliverableId={d.id} projectId={project.id} assignments={project.assignments} currentAssignmentId={null} onAssigned={() => window.location.reload()} />}
-                    </span>
-                  )}
-                  {d.dueDate && (
-                    <>
-                      <span>·</span>
-                      <span className={`flex items-center gap-0.5 ${d.dueDate && new Date(d.dueDate) < new Date() && d.status !== "APPROVED" && d.status !== "DELIVERED_TO_CLIENT" ? "text-red-500 font-medium" : ""}`}>
-                        <Clock size={9} />
-                        {d.dueDate && new Date(d.dueDate) < new Date() && d.status !== "APPROVED" && d.status !== "DELIVERED_TO_CLIENT" ? "Overdue" : `Due ${formatDate(new Date(d.dueDate!))}`}
-                      </span>
-                    </>
-                  )}
-                  {d.submittedAt && (
-                    <>
-                      <span>·</span>
-                      <span>Submitted {timeAgo(new Date(d.submittedAt))}</span>
-                    </>
-                  )}
-                </div>
-                {d.reviewNotes && (
-                  <p className="mt-2 text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2">
-                    {d.reviewNotes}
-                  </p>
-                )}
-
-                {/* Deliverable fee - EM only */}
-                {isEM && <DeliverableFeeEditor deliverable={d} projectServiceType={project.serviceType} budgetSensitivity={project.budgetSensitivity} consultantTierMin={project.consultantTierMin} consultantTierMax={project.consultantTierMax} />}
-              </div>
-
-              <div className="flex flex-col items-end gap-1.5 shrink-0">
-                {(d.status === "SUBMITTED" || d.status === "IN_REVIEW" || d.status === "NEEDS_REVISION") && (
-                  <Link
-                    href={`/deliverables/${d.id}`}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80"
-                    style={{ background: "#D4AF37", color: "#06090f" }}
-                  >
-                    Review
-                    <ChevronRight size={12} />
-                  </Link>
-                )}
-                {d.status === "DRAFT" && (
-                  <Link
-                    href={`/deliverables/${d.id}`}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80"
-                    style={{ background: "#F3F4F6", color: "#374151" }}
-                  >
-                    Manage
-                    <ChevronRight size={12} />
-                  </Link>
-                )}
-                {isEM && d.status === "DRAFT" && (
-                  <button
-                    onClick={async () => {
-                      if (!confirm(`Delete "${d.name}"?`)) return;
-                      const res = await fetch(`/api/deliverables/${d.id}`, { method: "DELETE" });
-                      if (res.ok) {
-                        setExtraDeliverables((prev) => prev.filter((x) => x.id !== d.id));
-                        project.deliverables = project.deliverables.filter((x) => x.id !== d.id);
-                        onFilterChange(filter);
-                      }
-                    }}
-                    className="text-[10px] text-gray-400 hover:text-red-500 transition-colors"
-                  >
-                    Delete
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        ))
+        allDeliverables.map(renderDeliverable)
       )}
     </div>
   );

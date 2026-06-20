@@ -178,6 +178,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       reviewScore: d.reviewScore,
       reviewNotes: d.reviewNotes,
       assignmentId: d.assignmentId,
+      trackId: d.trackId,
       fee: d.fee ? Number(d.fee) : null,
       feeCurrency: d.feeCurrency,
       feePaidAt: d.feePaidAt?.toISOString() ?? null,

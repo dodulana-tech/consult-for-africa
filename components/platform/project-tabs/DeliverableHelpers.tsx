@@ -121,6 +121,81 @@ export function DeliverableFeeEditor({ deliverable, projectServiceType, budgetSe
   );
 }
 
+export function MoveToTrackDropdown({
+  deliverableId,
+  tracks,
+  currentTrackId,
+  onMoved,
+}: {
+  deliverableId: string;
+  tracks: { id: string; name: string }[];
+  currentTrackId: string | null;
+  onMoved: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  async function move(trackId: string | null) {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/deliverables/${deliverableId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trackId }),
+      });
+      if (res.ok) {
+        setOpen(false);
+        onMoved();
+      }
+    } catch {}
+    finally { setSaving(false); }
+  }
+
+  return (
+    <div className="relative inline-block">
+      <button
+        onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
+        className="text-[10px] text-blue-600 hover:underline"
+      >
+        {currentTrackId ? "(move)" : "(set workstream)"}
+      </button>
+      {open && (
+        <div className="absolute z-20 left-0 top-full mt-1 bg-white border rounded-lg shadow-lg min-w-[200px]" style={{ borderColor: "#e5eaf0" }}>
+          {tracks.length === 0 ? (
+            <p className="px-3 py-2 text-xs text-gray-400">No workstreams on this project yet</p>
+          ) : (
+            <>
+              {tracks.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => move(t.id)}
+                  disabled={saving || t.id === currentTrackId}
+                  className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors disabled:opacity-40 ${t.id === currentTrackId ? "bg-blue-50 font-medium" : ""}`}
+                >
+                  {t.name}
+                </button>
+              ))}
+              {currentTrackId && (
+                <button
+                  onClick={() => move(null)}
+                  disabled={saving}
+                  className="w-full text-left px-3 py-2 text-xs text-red-500 hover:bg-red-50 border-t transition-colors"
+                  style={{ borderColor: "#F3F4F6" }}
+                >
+                  Remove from workstream
+                </button>
+              )}
+            </>
+          )}
+          <button onClick={() => setOpen(false)} className="w-full text-left px-3 py-1.5 text-[10px] text-gray-400 border-t" style={{ borderColor: "#F3F4F6" }}>
+            Cancel
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function AssignDeliverableDropdown({
   deliverableId,
   projectId,

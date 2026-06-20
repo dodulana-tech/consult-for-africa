@@ -54,6 +54,7 @@ export interface Deliverable {
   reviewNotes: string | null;
   version: number;
   assignmentId?: string | null;
+  trackId?: string | null;
   assignment: { id?: string; consultant: { name: string } } | null;
   fee: number | null;
   feeCurrency: string | null;

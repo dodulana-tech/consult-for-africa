@@ -26,11 +26,23 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  // Validate trackId belongs to the same engagement if provided
+  if (body.trackId) {
+    const track = await prisma.engagementTrack.findFirst({
+      where: { id: body.trackId, engagementId: existing.engagementId },
+      select: { id: true },
+    });
+    if (!track) {
+      return Response.json({ error: "Track not found or does not belong to this engagement" }, { status: 400 });
+    }
+  }
+
   const data: Record<string, unknown> = {};
   if (body.name !== undefined) data.name = body.name.trim();
   if (body.description !== undefined) data.description = body.description.trim();
   if (body.dueDate !== undefined) data.dueDate = body.dueDate ? new Date(body.dueDate) : null;
   if (body.assignmentId !== undefined) data.assignmentId = body.assignmentId || null;
+  if (body.trackId !== undefined) data.trackId = body.trackId || null;
   if (body.status !== undefined) data.status = body.status;
   if (body.clientVisible !== undefined) data.clientVisible = body.clientVisible;
   if (body.fee !== undefined) data.fee = body.fee ? parseFloat(String(body.fee)) : null;

@@ -25,6 +25,12 @@ export default function TracksTab({ project, isEM }: { project: Project; isEM: b
   const [suggesting, setSuggesting] = useState(false);
   const [suggestions, setSuggestions] = useState<{ name: string; description: string; suggestedRole: string; suggestedSkills: string[]; suggestedDeliverables: string[]; estimatedWeeks: number }[]>([]);
 
+  // Per-track quick-add deliverable
+  const [addDelivTrack, setAddDelivTrack] = useState<string | null>(null);
+  const [delivName, setDelivName] = useState("");
+  const [delivDue, setDelivDue] = useState("");
+  const [delivSaving, setDelivSaving] = useState(false);
+
   async function refresh() {
     const res = await fetch(`/api/projects/${project.id}/tracks`);
     if (res.ok) {
@@ -48,6 +54,24 @@ export default function TracksTab({ project, isEM }: { project: Project; isEM: b
       setAddDesc("");
       setShowAdd(false);
     } catch {} finally { setSaving(false); }
+  }
+
+  async function addDeliverable(trackId: string) {
+    if (!delivName.trim()) return;
+    setDelivSaving(true);
+    try {
+      const res = await fetch(`/api/projects/${project.id}/deliverables`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: delivName.trim(), dueDate: delivDue || undefined, trackId }),
+      });
+      if (res.ok) {
+        setDelivName("");
+        setDelivDue("");
+        setAddDelivTrack(null);
+        await refresh();
+      }
+    } catch {} finally { setDelivSaving(false); }
   }
 
   async function updateTrackStatus(trackId: string, status: string) {
@@ -90,8 +114,32 @@ export default function TracksTab({ project, isEM }: { project: Project; isEM: b
   }
 
   async function addSuggestion(s: typeof suggestions[0], idx: number) {
-    await createTrack(s.name, s.description);
-    setSuggestions((prev) => prev.filter((_, i) => i !== idx));
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/projects/${project.id}/tracks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: s.name, description: s.description }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const track = data.tracks?.[0];
+        // Create the suggested deliverables, already linked to the new track
+        if (track && s.suggestedDeliverables?.length) {
+          await Promise.all(
+            s.suggestedDeliverables.map((name) =>
+              fetch(`/api/projects/${project.id}/deliverables`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, trackId: track.id }),
+              })
+            )
+          );
+        }
+      }
+      await refresh();
+      setSuggestions((prev) => prev.filter((_, i) => i !== idx));
+    } catch {} finally { setSaving(false); }
   }
 
   const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
@@ -303,8 +351,59 @@ export default function TracksTab({ project, isEM }: { project: Project; isEM: b
                   </div>
                 )}
 
-                {/* Empty state for unstaffed tracks */}
-                {track.team.length === 0 && track.deliverables.length === 0 && (
+                {/* Quick-add deliverable (EM) */}
+                {isEM && (
+                  <div className="px-5 pb-4">
+                    {addDelivTrack === track.id ? (
+                      <form
+                        onSubmit={(e) => { e.preventDefault(); addDeliverable(track.id); }}
+                        className="flex flex-wrap items-center gap-2"
+                      >
+                        <input
+                          autoFocus
+                          value={delivName}
+                          onChange={(e) => setDelivName(e.target.value)}
+                          placeholder="Deliverable name"
+                          className="flex-1 min-w-[160px] text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                          style={{ border: "1px solid #e5eaf0" }}
+                        />
+                        <input
+                          type="date"
+                          value={delivDue}
+                          onChange={(e) => setDelivDue(e.target.value)}
+                          className="text-xs rounded-lg px-2 py-1.5 focus:outline-none"
+                          style={{ border: "1px solid #e5eaf0" }}
+                        />
+                        <button
+                          type="submit"
+                          disabled={delivSaving || !delivName.trim()}
+                          className="text-[11px] px-3 py-1.5 rounded-lg text-white font-medium disabled:opacity-50"
+                          style={{ background: "#0F2744" }}
+                        >
+                          {delivSaving ? "Adding..." : "Add"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setAddDelivTrack(null); setDelivName(""); setDelivDue(""); }}
+                          className="text-[11px] px-2 py-1.5 rounded-lg text-gray-400"
+                        >
+                          Cancel
+                        </button>
+                      </form>
+                    ) : (
+                      <button
+                        onClick={() => { setAddDelivTrack(track.id); setDelivName(""); setDelivDue(""); }}
+                        className="text-xs font-medium flex items-center gap-1 hover:opacity-70"
+                        style={{ color: "#0F2744" }}
+                      >
+                        + Add deliverable
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Empty state for non-EM viewers */}
+                {!isEM && track.team.length === 0 && track.deliverables.length === 0 && (
                   <div className="px-5 pb-4 text-center">
                     <p className="text-xs text-gray-400">No team or deliverables assigned yet</p>
                   </div>
