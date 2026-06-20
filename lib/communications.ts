@@ -14,6 +14,7 @@ import type {
  */
 export const COMMS_ELEVATED_ROLES = [
   "ENGAGEMENT_MANAGER",
+  "ASSOCIATE_DIRECTOR",
   "DIRECTOR",
   "PARTNER",
   "ADMIN",

@@ -19,7 +19,7 @@ export const GET = handler(async function GET(req: NextRequest) {
   const emEligible = searchParams.get("emEligible") === "true";
 
   const where = emEligible
-    ? { role: { in: ["ENGAGEMENT_MANAGER" as const, "DIRECTOR" as const, "PARTNER" as const, "ADMIN" as const] } }
+    ? { role: { in: ["ENGAGEMENT_MANAGER" as const, "ASSOCIATE_DIRECTOR" as const, "DIRECTOR" as const, "PARTNER" as const, "ADMIN" as const] } }
     : {};
 
   const users = await prisma.user.findMany({

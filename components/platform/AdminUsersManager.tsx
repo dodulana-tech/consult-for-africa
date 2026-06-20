@@ -21,6 +21,7 @@ type UserRow = {
 const ROLES = [
   { value: "CONSULTANT", label: "Consultant" },
   { value: "ENGAGEMENT_MANAGER", label: "Engagement Manager" },
+  { value: "ASSOCIATE_DIRECTOR", label: "Associate Director" },
   { value: "DIRECTOR", label: "Director" },
   { value: "PARTNER", label: "Partner" },
   { value: "ADMIN", label: "Admin" },
@@ -29,6 +30,7 @@ const ROLES = [
 const ROLE_COLORS: Record<string, string> = {
   CONSULTANT: "#374151",
   ENGAGEMENT_MANAGER: "#0F2744",
+  ASSOCIATE_DIRECTOR: "#6D28D9",
   DIRECTOR: "#7C3AED",
   PARTNER: "#D97706",
   ADMIN: "#DC2626",

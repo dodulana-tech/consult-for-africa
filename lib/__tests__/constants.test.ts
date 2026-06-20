@@ -2,7 +2,8 @@ import { describe, it, expect } from "vitest";
 import { ELEVATED_ROLES, EM_AND_ABOVE, ALL_STAFF_ROLES } from "../constants";
 
 describe("ELEVATED_ROLES", () => {
-  it("contains DIRECTOR, PARTNER, and ADMIN", () => {
+  it("contains ASSOCIATE_DIRECTOR, DIRECTOR, PARTNER, and ADMIN", () => {
+    expect(ELEVATED_ROLES).toContain("ASSOCIATE_DIRECTOR");
     expect(ELEVATED_ROLES).toContain("DIRECTOR");
     expect(ELEVATED_ROLES).toContain("PARTNER");
     expect(ELEVATED_ROLES).toContain("ADMIN");
@@ -13,14 +14,15 @@ describe("ELEVATED_ROLES", () => {
     expect(ELEVATED_ROLES).not.toContain("ENGAGEMENT_MANAGER");
   });
 
-  it("has exactly 3 roles", () => {
-    expect(ELEVATED_ROLES).toHaveLength(3);
+  it("has exactly 4 roles", () => {
+    expect(ELEVATED_ROLES).toHaveLength(4);
   });
 });
 
 describe("EM_AND_ABOVE", () => {
   it("includes ENGAGEMENT_MANAGER plus all elevated roles", () => {
     expect(EM_AND_ABOVE).toContain("ENGAGEMENT_MANAGER");
+    expect(EM_AND_ABOVE).toContain("ASSOCIATE_DIRECTOR");
     expect(EM_AND_ABOVE).toContain("DIRECTOR");
     expect(EM_AND_ABOVE).toContain("PARTNER");
     expect(EM_AND_ABOVE).toContain("ADMIN");
@@ -30,8 +32,8 @@ describe("EM_AND_ABOVE", () => {
     expect(EM_AND_ABOVE).not.toContain("CONSULTANT");
   });
 
-  it("has exactly 4 roles", () => {
-    expect(EM_AND_ABOVE).toHaveLength(4);
+  it("has exactly 5 roles", () => {
+    expect(EM_AND_ABOVE).toHaveLength(5);
   });
 });
 
@@ -52,7 +54,7 @@ describe("ALL_STAFF_ROLES", () => {
     }
   });
 
-  it("has exactly 5 roles", () => {
-    expect(ALL_STAFF_ROLES).toHaveLength(5);
+  it("has exactly 6 roles", () => {
+    expect(ALL_STAFF_ROLES).toHaveLength(6);
   });
 });
