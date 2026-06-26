@@ -77,7 +77,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canCreate = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canCreate = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canCreate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const parsed = createClientSchema.safeParse(await req.json());

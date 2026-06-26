@@ -7,7 +7,7 @@ import { ArrowLeft, Users, MapPin, Database } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED = ["DIRECTOR", "PARTNER", "ADMIN"];
+const ALLOWED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 const PAGE_SIZE = 50;
 
 const SEED_EMAIL_PATTERNS = [

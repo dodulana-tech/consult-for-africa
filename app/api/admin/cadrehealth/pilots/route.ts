@@ -15,7 +15,7 @@ import { handler } from "@/lib/api-handler";
 import { logAudit } from "@/lib/audit";
 import type { CadreProfessionalCadre, CadreMandateType } from "@prisma/client";
 
-const ALLOWED = ["DIRECTOR", "PARTNER", "ADMIN"];
+const ALLOWED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 export const GET = handler(async function GET() {
   const session = await auth();

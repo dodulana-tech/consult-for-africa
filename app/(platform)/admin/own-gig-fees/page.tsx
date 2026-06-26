@@ -14,7 +14,7 @@ export default async function OwnGigFeesPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  if (!["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) {
+  if (!["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) {
     redirect("/dashboard");
   }
 

@@ -22,7 +22,7 @@ export default async function ProjectsPage() {
 
   const { role, id: userId } = session.user;
   const isEM = role === "ENGAGEMENT_MANAGER";
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(role);
   const isConsultant = role === "CONSULTANT";
 
   const projects = await prisma.engagement.findMany({

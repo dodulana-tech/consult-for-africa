@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function MetricsPage() {
   const session = await auth();
   if (!session) redirect("/login");
-  if (!["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) redirect("/dashboard");
+  if (!["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) redirect("/dashboard");
 
   const now = new Date();
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);

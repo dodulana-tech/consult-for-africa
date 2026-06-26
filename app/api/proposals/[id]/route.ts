@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { handler } from "@/lib/api-handler";
 
-const ELEVATED_ROLES = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
+const ELEVATED_ROLES = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 export const GET = handler(async function GET(
   _req: Request,

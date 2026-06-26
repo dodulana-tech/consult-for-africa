@@ -8,7 +8,7 @@ import { handler } from "@/lib/api-handler";
  * POST /api/credit-notes - Create a new credit note (Director+ only)
  */
 
-const DIRECTOR_PLUS = ["DIRECTOR", "PARTNER", "ADMIN"];
+const DIRECTOR_PLUS = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 export const GET = handler(async function GET(req: Request) {
   const session = await auth();

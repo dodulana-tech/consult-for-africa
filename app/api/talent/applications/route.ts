@@ -7,7 +7,7 @@ export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const allowed = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"];
+  const allowed = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"];
   if (!allowed.includes(session.user.role)) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { searchParams } = new URL(req.url);

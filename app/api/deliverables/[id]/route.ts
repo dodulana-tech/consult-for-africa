@@ -8,7 +8,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canManage = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canManage = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
@@ -82,7 +82,7 @@ export const DELETE = handler(async function DELETE(_req: NextRequest, { params 
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canDelete = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canDelete = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canDelete) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;

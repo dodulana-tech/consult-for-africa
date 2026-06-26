@@ -23,7 +23,7 @@ export async function getDashboardInsights(
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const isConsultant = role === "CONSULTANT";
   const isEM = role === "ENGAGEMENT_MANAGER";
-  const isDirectorPlus = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
+  const isDirectorPlus = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(role);
 
   // ─── 1. Project milestones celebrated ─────────────────────────────────────
 

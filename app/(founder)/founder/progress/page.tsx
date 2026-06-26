@@ -86,7 +86,7 @@ function computeMilestones(data: {
 export default async function ProgressPage() {
   const session = await auth();
   if (!session) redirect("/login");
-  if (!["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) redirect("/dashboard");
+  if (!["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) redirect("/dashboard");
 
   const [
     revenue, activeClients, engagementsByStatus, totalConsultants,

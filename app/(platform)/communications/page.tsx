@@ -6,7 +6,7 @@ import CommunicationsInbox from "@/components/platform/communications/Communicat
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED_ROLES = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
+const ALLOWED_ROLES = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 export default async function CommunicationsPage({
   searchParams,

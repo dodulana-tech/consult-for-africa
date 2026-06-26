@@ -12,7 +12,7 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canView = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canView = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canView) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
@@ -27,7 +27,7 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
   });
   if (!invoice) return Response.json({ error: "Not found" }, { status: 404 });
 
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isElevated) {
     if (!invoice.engagement || invoice.engagement.engagementManagerId !== session.user.id) {
       return Response.json({ error: "Forbidden" }, { status: 403 });
@@ -61,7 +61,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   // Require EM+ role
-  const canRecord = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canRecord = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canRecord) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
@@ -76,7 +76,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
   if (!invoice) return Response.json({ error: "Not found" }, { status: 404 });
 
   // IDOR check
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isElevated) {
     if (!invoice.engagement || invoice.engagement.engagementManagerId !== session.user.id) {
       return Response.json({ error: "Forbidden" }, { status: 403 });

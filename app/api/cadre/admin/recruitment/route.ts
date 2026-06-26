@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { handleRecruitmentStageChange } from "@/lib/cadreHealth/recruitmentPipeline";
 import { handler } from "@/lib/api-handler";
 
-const ALLOWED_ROLES = ["DIRECTOR", "PARTNER", "ADMIN"];
+const ALLOWED_ROLES = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 export const PATCH = handler(async function PATCH(req: NextRequest) {
   const session = await auth();

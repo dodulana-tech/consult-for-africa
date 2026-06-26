@@ -32,7 +32,7 @@ export default async function OwnGigsPage() {
   if (!session) redirect("/login");
 
   const { role, id: userId } = session.user;
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(role);
 
   if (role !== "CONSULTANT" && !isElevated) redirect("/dashboard");
 

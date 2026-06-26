@@ -15,7 +15,7 @@ import { auth } from "@/auth";
 import { handler } from "@/lib/api-handler";
 import { sendReactivationEmail } from "@/lib/cadreHealth/outreachEmail";
 
-const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR"];
+const ALLOWED_ROLES = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"];
 
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();

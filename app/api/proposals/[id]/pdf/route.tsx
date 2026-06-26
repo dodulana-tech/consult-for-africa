@@ -10,7 +10,7 @@ import path from "path";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const ELEVATED_ROLES = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
+const ELEVATED_ROLES = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 type Ctx = { params: Promise<{ id: string }> };
 

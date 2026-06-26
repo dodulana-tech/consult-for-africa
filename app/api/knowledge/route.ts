@@ -13,7 +13,7 @@ export const GET = handler(async function GET(req: NextRequest) {
   const reusable = searchParams.get("reusable");
 
   // Non-elevated users can only see assets from their projects or reusable assets
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"].includes(session.user.role);
   const scopeFilter = isElevated
     ? {}
     : {

@@ -11,7 +11,7 @@ export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  if (!["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) {
+  if (!["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 

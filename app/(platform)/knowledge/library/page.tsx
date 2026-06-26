@@ -30,7 +30,7 @@ export default async function LibraryPage() {
   // Collect unique stream tags
   const allStreams = Array.from(new Set(assets.flatMap((a) => a.streamTags)));
 
-  const canCreate = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canCreate = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">

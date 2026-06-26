@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export default async function CoachingBlastPage() {
   const session = await auth();
   if (!session) redirect("/login");
-  if (!["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) redirect("/dashboard");
+  if (!["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) redirect("/dashboard");
 
   const [pending, alreadyNotified, total] = await Promise.all([
     prisma.maarovaCircleApplication.count({

@@ -12,7 +12,7 @@ export const PATCH = handler(async function PATCH(
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canChange = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canChange = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canChange) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: projectId } = await params;
@@ -30,7 +30,7 @@ export const PATCH = handler(async function PATCH(
 
   if (!newEM) return Response.json({ error: "User not found" }, { status: 404 });
 
-  const eligibleRoles = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
+  const eligibleRoles = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
   if (!eligibleRoles.includes(newEM.role)) {
     return Response.json({ error: "User is not eligible to be an Engagement Manager" }, { status: 400 });
   }

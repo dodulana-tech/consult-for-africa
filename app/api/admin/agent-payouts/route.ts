@@ -6,7 +6,7 @@ export const GET = handler(async function GET(req: Request) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const isAdmin = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isAdmin = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
@@ -42,7 +42,7 @@ export const POST = handler(async function POST(req: Request) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const isAdmin = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isAdmin = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();

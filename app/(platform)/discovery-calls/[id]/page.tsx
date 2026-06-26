@@ -23,7 +23,7 @@ export default async function DiscoveryCallDetailPage({
 
   if (!call) notFound();
 
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
 
   return (
     <div className="flex-1 overflow-y-auto">

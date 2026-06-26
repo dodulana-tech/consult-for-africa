@@ -24,7 +24,8 @@ export default async function DashboardPage() {
   if (role === "ACADEMY_LEARNER") redirect("/academy");
 
   const isEM = role === "ENGAGEMENT_MANAGER";
-  const isDirector = role === "DIRECTOR" || role === "PARTNER" || role === "ADMIN";
+  const isDirector =
+    role === "ASSOCIATE_DIRECTOR" || role === "DIRECTOR" || role === "PARTNER" || role === "ADMIN";
   const isConsultant = role === "CONSULTANT";
 
   // Redirect new consultants to onboarding if not yet completed

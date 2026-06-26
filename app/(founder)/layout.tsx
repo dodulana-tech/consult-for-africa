@@ -13,7 +13,7 @@ export default async function FounderLayout({
   if (!session) redirect("/login");
 
   const role = session.user.role;
-  const allowed = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
+  const allowed = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(role);
   if (!allowed) redirect("/dashboard");
 
   return (

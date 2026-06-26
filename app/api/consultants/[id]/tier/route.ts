@@ -16,7 +16,7 @@ export const PATCH = handler(async function PATCH(
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  if (!["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) {
+  if (!["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) {
     return Response.json({ error: "Only Directors and above can change consultant tiers" }, { status: 403 });
   }
 

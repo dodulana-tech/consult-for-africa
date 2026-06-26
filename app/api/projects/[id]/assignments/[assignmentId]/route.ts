@@ -15,7 +15,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
 
   const { id: projectId, assignmentId } = await params;
   const role = session.user.role;
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(role);
   const isEM = role === "ENGAGEMENT_MANAGER";
   const canManageFinancials = ["PARTNER", "ADMIN"].includes(role);
 
@@ -91,7 +91,7 @@ export const DELETE = handler(async function DELETE(_req: NextRequest, { params 
 
   const { id: projectId, assignmentId } = await params;
   const role = session.user.role;
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(role);
   const isEM = role === "ENGAGEMENT_MANAGER";
 
   if (!isElevated && !isEM) return Response.json({ error: "Forbidden" }, { status: 403 });

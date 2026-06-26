@@ -19,7 +19,7 @@ export default async function ExpansionRequestsPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const allowed = ["PARTNER", "ADMIN", "DIRECTOR"].includes(session.user.role);
+  const allowed = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"].includes(session.user.role);
   if (!allowed) redirect("/dashboard");
 
   const requests = await prisma.clientExpansionRequest.findMany({

@@ -24,7 +24,7 @@ export const GET = handler(async function GET(
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const isAuthorized = ["PARTNER", "ADMIN", "DIRECTOR", "ENGAGEMENT_MANAGER"].includes(
+  const isAuthorized = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR", "ENGAGEMENT_MANAGER"].includes(
     session.user.role
   );
   if (!isAuthorized) return Response.json({ error: "Forbidden" }, { status: 403 });
@@ -78,7 +78,7 @@ export const POST = handler(async function POST(
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const isAuthorized = ["PARTNER", "ADMIN", "DIRECTOR", "ENGAGEMENT_MANAGER"].includes(
+  const isAuthorized = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR", "ENGAGEMENT_MANAGER"].includes(
     session.user.role
   );
   if (!isAuthorized) return Response.json({ error: "Forbidden" }, { status: 403 });

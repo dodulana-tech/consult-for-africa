@@ -52,7 +52,7 @@ export default async function DeliverablesPage({ searchParams }: { searchParams:
   const sort = (sp.sort ?? "status") as typeof SORT_OPTIONS[number]["id"];
 
   const { role, id: userId } = session.user;
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(role);
   const isEM = role === "ENGAGEMENT_MANAGER";
   const isConsultant = role === "CONSULTANT";
   const canManage = isEM || isElevated;

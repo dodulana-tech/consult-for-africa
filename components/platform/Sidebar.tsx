@@ -58,7 +58,7 @@ interface NavSection {
 // DIRECTOR+ sees: Above + Admin section
 // ACADEMY_LEARNER sees: Academy only (+ Settings/Sign out in bottom)
 
-const STAFF_ROLES = ["CONSULTANT", "ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
+const STAFF_ROLES = ["CONSULTANT", "ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 const NAV_SECTIONS: NavSection[] = [
   {
@@ -77,7 +77,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Pipeline",       href: "/pipeline",       icon: TrendingUp },
       { label: "Clients",        href: "/clients",        icon: Building2 },
     ],
-    roles: ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"],
+    roles: ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"],
   },
   {
     title: "opportunities",
@@ -100,7 +100,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Talent",         href: "/talent",         icon: UserPlus },
       { label: "Communications", href: "/communications", icon: MessageSquare },
     ],
-    roles: ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"],
+    roles: ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"],
   },
   {
     title: "Operations",
@@ -118,7 +118,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: "Campaigns",      href: "/campaigns",      icon: Megaphone },
     ],
-    roles: ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"],
+    roles: ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"],
   },
   {
     title: "Learning",
@@ -141,7 +141,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Salary Reports",   href: "/admin/cadrehealth/salary-reports",  icon: Banknote },
       { label: "Hospital Reviews", href: "/admin/cadrehealth/hospital-reviews", icon: MessageSquare },
     ],
-    roles: ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"],
+    roles: ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"],
   },
   {
     title: "Agent Channel",
@@ -150,7 +150,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Opportunities",     href: "/admin/agent-opportunities",  icon: Briefcase },
       { label: "Payouts",           href: "/admin/agent-payouts",        icon: Banknote },
     ],
-    roles: ["DIRECTOR", "PARTNER", "ADMIN"],
+    roles: ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"],
   },
   {
     title: "Finance",
@@ -158,7 +158,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Invoices",        href: "/finance/invoices",  icon: FileText },
       { label: "Reports",         href: "/finance/reports",   icon: BarChart3 },
     ],
-    roles: ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"],
+    roles: ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"],
   },
   {
     title: "Admin",

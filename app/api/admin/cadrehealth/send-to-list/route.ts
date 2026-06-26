@@ -23,7 +23,7 @@ import { handler } from "@/lib/api-handler";
 import { sendCadreEmail } from "@/lib/cadreEmail";
 import { logAudit } from "@/lib/audit";
 
-const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR"];
+const ALLOWED_ROLES = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"];
 const SEND_DELAY_MS = 250;
 const MAX_RECIPIENTS = 500;
 

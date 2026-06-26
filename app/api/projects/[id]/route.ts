@@ -7,7 +7,7 @@ import { NextRequest } from "next/server";
 import { Decimal } from "@prisma/client/runtime/library";
 import { handler } from "@/lib/api-handler";
 
-const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
+const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 /**
  * PATCH /api/projects/[id]
@@ -65,7 +65,7 @@ export const PATCH = handler(async function PATCH(
 
     if (!newEM) return Response.json({ error: "New EM not found" }, { status: 404 });
 
-    const validEMRoles = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
+    const validEMRoles = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
     if (!validEMRoles.includes(newEM.role)) {
       return Response.json({ error: "User must be an Engagement Manager or above" }, { status: 400 });
     }

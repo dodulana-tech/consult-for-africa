@@ -9,7 +9,7 @@ export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (
     !session?.user?.role ||
-    !["PARTNER", "ADMIN", "DIRECTOR"].includes(session.user.role)
+    !["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"].includes(session.user.role)
   ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

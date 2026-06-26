@@ -8,7 +8,7 @@ import {
 } from "@/lib/email";
 import { handler } from "@/lib/api-handler";
 
-const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
+const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 export const POST = handler(async function POST(
   req: NextRequest,

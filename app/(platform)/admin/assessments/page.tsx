@@ -22,7 +22,7 @@ export default async function AdminAssessmentsPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const isAdmin = ["PARTNER", "ADMIN", "DIRECTOR"].includes(session.user.role);
+  const isAdmin = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"].includes(session.user.role);
   if (!isAdmin) redirect("/dashboard");
 
   const assessments = await prisma.consultantAssessment.findMany({

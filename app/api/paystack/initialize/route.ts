@@ -10,7 +10,7 @@ import { handler } from "@/lib/api-handler";
  */
 
 const ALLOWED_STATUSES = ["SENT", "VIEWED", "PARTIALLY_PAID", "OVERDUE"];
-const ELEVATED_ROLES = ["DIRECTOR", "PARTNER", "ADMIN"];
+const ELEVATED_ROLES = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 export const POST = handler(async function POST(req: Request) {
   const session = await auth();

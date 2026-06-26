@@ -8,7 +8,7 @@ export default async function PipelinePage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const isElevated = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
 
   const [leads, discoveryCalls, proposals, staffingRequests, expansionRequests] = await Promise.all([
     isElevated

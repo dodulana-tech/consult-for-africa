@@ -6,7 +6,7 @@ import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
-const ELEVATED = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
+const ELEVATED = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 /**
  * POST /api/ai/price-deliverable

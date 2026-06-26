@@ -77,7 +77,7 @@ export default function ProjectTabs({
   const pendingReview = project.deliverables.filter((d) => d.status === "SUBMITTED" || d.status === "IN_REVIEW").length;
   const completedMilestones = project.milestones.filter((m) => m.status === "COMPLETED").length;
 
-  const isEM = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(userRole);
+  const isEM = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(userRole);
   const isConsultant = userRole === "CONSULTANT";
 
   async function postUpdate() {

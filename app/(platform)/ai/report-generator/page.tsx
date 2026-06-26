@@ -8,7 +8,7 @@ export default async function ReportGeneratorPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const allowedRoles = ["CONSULTANT", "ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
+  const allowedRoles = ["CONSULTANT", "ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
   if (!allowedRoles.includes(session.user.role)) redirect("/dashboard");
 
   return (

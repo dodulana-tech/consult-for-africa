@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
 
-const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
+const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 /**
  * GET /api/own-gig/[id]/fees — list platform fees for this gig

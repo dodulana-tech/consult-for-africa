@@ -50,7 +50,7 @@ export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   const isEM = session.user.role === "ENGAGEMENT_MANAGER";
   if (!isElevated && !isEM) return Response.json({ error: "Forbidden" }, { status: 403 });
 
@@ -131,7 +131,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canCreate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canCreate = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canCreate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();

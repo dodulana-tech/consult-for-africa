@@ -8,7 +8,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canCreate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canCreate = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canCreate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { engagementId, periodStart, periodEnd, trackId } = await req.json();
@@ -36,7 +36,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   if (!engagement) return Response.json({ error: "Engagement not found" }, { status: 404 });
 
   // IDOR check for EMs
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isElevated && engagement.engagementManagerId !== session.user.id) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }

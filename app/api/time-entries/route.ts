@@ -12,7 +12,7 @@ export const GET = handler(async function GET(req: NextRequest) {
   const status = searchParams.get("status");
   const consultantId = searchParams.get("consultantId");
 
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   const isEM = session.user.role === "ENGAGEMENT_MANAGER";
 
   const baseWhere = isElevated

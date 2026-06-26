@@ -36,7 +36,7 @@ export default async function TalentPage({
   const session = await auth();
   if (!session) redirect("/login");
 
-  const allowed = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"];
+  const allowed = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"];
   if (!allowed.includes(session.user.role)) redirect("/dashboard");
 
   const { page: pageParam } = await searchParams;

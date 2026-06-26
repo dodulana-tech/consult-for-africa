@@ -24,7 +24,7 @@ type TransitionCheck = {
 };
 
 const STATUS_TRANSITIONS: Record<string, TransitionCheck> = {
-  DRAFT: { from: ["SENT", "PENDING_APPROVAL"], requireRole: ["DIRECTOR", "PARTNER", "ADMIN"] },
+  DRAFT: { from: ["SENT", "PENDING_APPROVAL"], requireRole: ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"] },
   PENDING_APPROVAL: { from: ["DRAFT"] },
   SENT: { from: ["DRAFT", "PENDING_APPROVAL"] },
   VIEWED: { from: ["SENT"] },

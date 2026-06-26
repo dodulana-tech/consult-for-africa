@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Generated claim-token data (PII + access tokens — never commit)
+scripts/data/

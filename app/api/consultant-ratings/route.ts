@@ -11,7 +11,7 @@ export const GET = handler(async function GET(req: NextRequest) {
   const consultantUserId = searchParams.get("consultantUserId");
   const projectId = searchParams.get("projectId");
 
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   const isEM = session.user.role === "ENGAGEMENT_MANAGER";
 
   // Consultants can only see their own ratings
@@ -62,7 +62,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canRate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canRate = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canRate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { consultantUserId, projectId, technicalQuality, communication, timeliness, professionalism, feedback } =

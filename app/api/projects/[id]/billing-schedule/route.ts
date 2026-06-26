@@ -29,13 +29,13 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canView = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canView = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canView) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: engagementId } = await params;
 
   // IDOR for EMs
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isElevated) {
     const eng = await prisma.engagement.findUnique({
       where: { id: engagementId },
@@ -84,7 +84,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isElevated) return Response.json({ error: "Only Directors and above can create billing schedules" }, { status: 403 });
 
   const { id: engagementId } = await params;
@@ -161,7 +161,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isElevated) return Response.json({ error: "Only Directors and above can update billing schedules" }, { status: 403 });
 
   const { id: engagementId } = await params;

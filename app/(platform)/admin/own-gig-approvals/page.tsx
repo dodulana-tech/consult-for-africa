@@ -9,7 +9,7 @@ export default async function OwnGigApprovalsPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
+  const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
   if (!ELEVATED.includes(session.user.role)) redirect("/dashboard");
 
   const gigs = await prisma.engagement.findMany({

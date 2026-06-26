@@ -71,7 +71,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
+  const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
   const isElevated = ELEVATED.includes(session.user.role);
   const canManage = isElevated || session.user.role === "ENGAGEMENT_MANAGER";
   if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });

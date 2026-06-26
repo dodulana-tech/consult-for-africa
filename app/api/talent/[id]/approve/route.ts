@@ -14,7 +14,7 @@ export const POST = handler(async function POST(
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const isAuthorized = ["PARTNER", "ADMIN", "DIRECTOR"].includes(session.user.role);
+  const isAuthorized = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"].includes(session.user.role);
   if (!isAuthorized) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;

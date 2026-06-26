@@ -6,7 +6,7 @@ import PilotsClient from "./PilotsClient";
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED = ["DIRECTOR", "PARTNER", "ADMIN"];
+const ALLOWED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 export default async function PilotsPage() {
   const session = await auth();
@@ -24,7 +24,7 @@ export default async function PilotsPage() {
   });
 
   const owners = await prisma.user.findMany({
-    where: { role: { in: ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"] } },
+    where: { role: { in: ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"] } },
     select: { id: true, name: true },
     orderBy: { name: "asc" },
   });

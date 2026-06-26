@@ -8,7 +8,7 @@ export default async function TimesheetsPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const isEM = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isEM = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
 
   const entries = await prisma.timeEntry.findMany({
     where: isEM

@@ -46,7 +46,7 @@ export default function NewProjectForm({ clients, engagementManagers, userRole, 
   const [error, setError] = useState("");
   const [methodologies, setMethodologies] = useState<Methodology[]>([]);
 
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(userRole);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(userRole);
 
   const [form, setForm] = useState({
     engagementType: "PROJECT",

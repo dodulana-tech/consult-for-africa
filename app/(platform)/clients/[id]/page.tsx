@@ -63,7 +63,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   const { id } = await params;
 
   const role = session.user.role;
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(role);
   const isEM = role === "ENGAGEMENT_MANAGER";
   const isConsultant = role === "CONSULTANT";
 
@@ -97,8 +97,8 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 
   if (!client) notFound();
 
-  const canManageInvoices = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  const canEnablePortal = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"].includes(session.user.role);
+  const canManageInvoices = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canEnablePortal = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"].includes(session.user.role);
 
   const totalRevenue = client.invoices
     .filter((i) => i.status === "PAID")
@@ -404,7 +404,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
           </div>
 
           {/* Communications timeline (EM+ only) */}
-          {["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(role) && (
+          {["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(role) && (
             <CommunicationsTimeline
               subject={{
                 subjectType: "CLIENT",

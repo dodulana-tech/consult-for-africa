@@ -55,7 +55,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
   if (!deliverable) return Response.json({ error: "Not found" }, { status: 404 });
 
   const role = (session.user as { role: string }).role;
-  const isEM = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(role);
+  const isEM = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(role);
   const isOwner = deliverable.assignment?.consultantId === session.user.id;
 
   if (!isEM && !isOwner) return Response.json({ error: "Forbidden" }, { status: 403 });

@@ -14,7 +14,7 @@ export const PUT = handler(async function PUT(req: NextRequest, { params }: Ctx)
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canManage = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canManage = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: consultantId } = await params;
@@ -72,7 +72,7 @@ export const DELETE = handler(async function DELETE(_req: NextRequest, { params 
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canManage = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canManage = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: consultantId } = await params;

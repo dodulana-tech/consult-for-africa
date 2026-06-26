@@ -13,7 +13,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Pr
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const allowed = ["PARTNER", "ADMIN", "DIRECTOR"].includes(session.user.role);
+  const allowed = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"].includes(session.user.role);
   if (!allowed) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();

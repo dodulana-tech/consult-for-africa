@@ -23,7 +23,7 @@ export default async function MaarovaCircleAdminPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const allowed = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const allowed = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!allowed) redirect("/dashboard");
 
   const [applications, counts] = await Promise.all([

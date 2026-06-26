@@ -10,7 +10,7 @@ export const DELETE = handler(async function DELETE(
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canDelete = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canDelete = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canDelete) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id, contactId } = await params;

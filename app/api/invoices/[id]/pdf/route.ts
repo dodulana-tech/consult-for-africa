@@ -29,7 +29,7 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canView = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canView = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canView) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
@@ -47,7 +47,7 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
   if (!invoice) return Response.json({ error: "Not found" }, { status: 404 });
 
   // IDOR check for EMs
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isElevated) {
     const withEM = await prisma.invoice.findUnique({
       where: { id },

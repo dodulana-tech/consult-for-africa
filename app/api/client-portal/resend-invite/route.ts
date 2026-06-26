@@ -6,7 +6,7 @@ import { NextRequest } from "next/server";
 import { emailClientPortalInvite } from "@/lib/email";
 import { handler } from "@/lib/api-handler";
 
-const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR", "ENGAGEMENT_MANAGER"];
+const ALLOWED_ROLES = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR", "ENGAGEMENT_MANAGER"];
 
 /** Generate a secure 14-char password meeting complexity requirements */
 function generatePassword(): string {

@@ -27,7 +27,7 @@ export const GET = handler(async function GET(_req: NextRequest, ctx: Ctx) {
   if (!nda) return Response.json({ error: "NDA not found" }, { status: 404 });
 
   // Only elevated roles, the NDA creator, or the consultant party can view
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"].includes(session.user.role);
   if (!isElevated && nda.createdBy?.id !== session.user.id && nda.consultant?.id !== session.user.id) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -43,7 +43,7 @@ export const DELETE = handler(async function DELETE(_req: NextRequest, ctx: Ctx)
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
+  const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
   if (!ELEVATED.includes(session.user.role)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }

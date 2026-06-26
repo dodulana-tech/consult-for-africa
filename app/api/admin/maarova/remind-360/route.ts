@@ -24,7 +24,7 @@ const REMINDER_COOLDOWN_DAYS = 7;
 export const POST = handler(async function POST() {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) {
+  if (!["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

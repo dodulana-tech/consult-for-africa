@@ -73,7 +73,7 @@ export default function OverviewTab({
   isConsultant: boolean;
   userRole: string;
 }) {
-  const isDirectorPlus = ["DIRECTOR", "PARTNER", "ADMIN"].includes(userRole);
+  const isDirectorPlus = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(userRole);
   const [showChangeEM, setShowChangeEM] = useState(false);
   const [newEMId, setNewEMId] = useState("");
   const [emList, setEmList] = useState<{ id: string; name: string }[]>([]);
@@ -108,7 +108,7 @@ export default function OverviewTab({
         project.deliverables.filter((d) => d.reviewScore !== null).length
       : null;
 
-  const canManageFinancials = ["PARTNER", "ADMIN", "DIRECTOR"].includes(userRole);
+  const canManageFinancials = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"].includes(userRole);
 
   return (
     <div className="space-y-6 max-w-6xl">

@@ -4,7 +4,7 @@ import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
 
-const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR"];
+const ALLOWED_ROLES = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"];
 
 export const GET = handler(async function GET() {
   const session = await auth();

@@ -4,7 +4,7 @@ import { logAudit } from "@/lib/audit";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
 
-const MANAGEMENT = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
+const MANAGEMENT = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 export const PATCH = handler(async function PATCH(
   req: NextRequest,

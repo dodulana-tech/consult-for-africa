@@ -7,7 +7,7 @@ import { ArrowLeft, MapPin, Star, AlertCircle } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED = ["DIRECTOR", "PARTNER", "ADMIN"];
+const ALLOWED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 const PAGE_SIZE = 30;
 
 export default async function HospitalReviewsAdminPage({

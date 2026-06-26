@@ -6,7 +6,7 @@ import TemplatesClient from "./TemplatesClient";
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED_ROLES = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
+const ALLOWED_ROLES = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 export default async function TemplatesPage() {
   const session = await auth();

@@ -21,7 +21,7 @@ export default async function ConsultantsPage() {
     redirect(profile ? `/consultants/${profile.id}` : "/dashboard");
   }
 
-  const canSeeContact = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canSeeContact = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
 
   const consultants = await prisma.consultantProfile.findMany({
     include: {

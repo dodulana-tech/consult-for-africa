@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
 
-const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR"];
+const ALLOWED_ROLES = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"];
 
 // Tier hierarchy (higher index = higher tier)
 const TIER_RANK: Record<string, number> = {

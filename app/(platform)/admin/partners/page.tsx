@@ -25,7 +25,7 @@ export default async function AdminPartnersPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const isAllowed = ["PARTNER", "ADMIN", "DIRECTOR"].includes(session.user.role);
+  const isAllowed = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"].includes(session.user.role);
   if (!isAllowed) redirect("/dashboard");
 
   const partners = await prisma.partnerFirm.findMany({

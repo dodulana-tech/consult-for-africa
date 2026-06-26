@@ -79,7 +79,7 @@ export const POST = handler(async function POST(req: NextRequest, ctx: Ctx) {
     }
 
     // C4A countersign - only elevated roles
-    const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
+    const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
     if (!ELEVATED.includes(session.user.role)) {
       return Response.json({ error: "Only Directors/Partners can countersign" }, { status: 403 });
     }

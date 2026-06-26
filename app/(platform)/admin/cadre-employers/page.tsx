@@ -7,7 +7,7 @@ import { EmployerResetButton } from "@/components/cadrehealth/EmployerResetButto
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR"];
+const ALLOWED_ROLES = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"];
 const PAGE_SIZE = 25;
 
 export default async function CadreEmployersAdminPage({

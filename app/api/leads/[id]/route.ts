@@ -6,7 +6,7 @@ import { handler } from "@/lib/api-handler";
 /**
  * GET /api/leads/[id]
  */
-const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"];
+const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"];
 
 export const GET = handler(async function GET(
   _req: NextRequest,

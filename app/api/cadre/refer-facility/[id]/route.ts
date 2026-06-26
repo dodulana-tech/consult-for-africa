@@ -11,7 +11,7 @@ export const PATCH = handler(async function PATCH(
     const session = await auth();
     if (
       !session?.user?.role ||
-      !["PARTNER", "ADMIN", "DIRECTOR"].includes(session.user.role)
+      !["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"].includes(session.user.role)
     ) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

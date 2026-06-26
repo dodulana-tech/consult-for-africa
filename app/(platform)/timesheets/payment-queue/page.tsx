@@ -8,7 +8,7 @@ export default async function PaymentQueuePage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const isAuthorized = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(
+  const isAuthorized = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(
     session.user.role
   );
   if (!isAuthorized) redirect("/timesheets");

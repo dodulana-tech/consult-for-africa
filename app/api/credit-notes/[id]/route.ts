@@ -8,7 +8,7 @@ import { handler } from "@/lib/api-handler";
  * PATCH /api/credit-notes/[id] - Issue (DRAFT->ISSUED) or Apply (ISSUED->APPLIED)
  */
 
-const DIRECTOR_PLUS = ["DIRECTOR", "PARTNER", "ADMIN"];
+const DIRECTOR_PLUS = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 export const GET = handler(async function GET(
   _req: Request,

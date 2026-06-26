@@ -7,7 +7,7 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
   const session = await auth();
   if (!session) redirect("/login");
 
-  const canAccess = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canAccess = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canAccess) redirect("/dashboard");
 
   const { id } = await params;

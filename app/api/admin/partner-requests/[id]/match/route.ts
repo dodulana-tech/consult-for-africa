@@ -5,7 +5,7 @@ import { NextRequest } from "next/server";
 import { Decimal } from "@prisma/client/runtime/library";
 import { handler } from "@/lib/api-handler";
 
-const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR"];
+const ALLOWED_ROLES = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"];
 
 export const POST = handler(async function POST(
   req: NextRequest,

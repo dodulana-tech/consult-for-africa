@@ -6,7 +6,7 @@ import { SendTargetedClient } from "./SendTargetedClient";
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR"];
+const ALLOWED_ROLES = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"];
 
 export default async function SendTargetedPage({
   searchParams,

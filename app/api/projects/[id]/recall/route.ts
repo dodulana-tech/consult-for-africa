@@ -4,7 +4,7 @@ import { emailSecondmentRecall } from "@/lib/email";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
 
-const DIRECTOR_PLUS = ["DIRECTOR", "PARTNER", "ADMIN"];
+const DIRECTOR_PLUS = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 /**
  * POST /api/projects/[id]/recall

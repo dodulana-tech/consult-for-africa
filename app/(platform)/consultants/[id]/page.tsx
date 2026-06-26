@@ -87,9 +87,9 @@ export default async function ConsultantProfilePage({
   const avgRating = profile.averageRating ? Number(profile.averageRating) : null;
   const tierStyle = TIER_COLORS[profile.tier] ?? TIER_COLORS.STANDARD;
 
-  const canRate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
-  const canSeeContact = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)
+  const canRate = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canSeeContact = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)
     || session.user.id === user.id;
   // Only show projects where this consultant was assigned
   const rateableProjects = user.assignments
@@ -183,7 +183,7 @@ export default async function ConsultantProfilePage({
             initialCvUploadedAt={profile.cvUploadedAt?.toISOString() ?? null}
             uploadedByName={profile.cvUploadedBy?.name ?? null}
             isOwn={session.user.id === user.id}
-            isElevated={["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)}
+            isElevated={["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)}
           />
 
           {/* Own Gig Override (admin only) */}
@@ -342,7 +342,7 @@ export default async function ConsultantProfilePage({
           )}
 
           {/* Bank details - only visible to PARTNER/DIRECTOR/ADMIN */}
-          {["PARTNER", "DIRECTOR", "ADMIN"].includes(session.user.role) &&
+          {["PARTNER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "ADMIN"].includes(session.user.role) &&
             profile.bankName && (
               <div className="rounded-xl p-5 bg-white" style={{ border: "1px solid #e5eaf0" }}>
                 <h2 className="text-sm font-semibold text-gray-900 mb-3">
@@ -372,7 +372,7 @@ export default async function ConsultantProfilePage({
             )}
 
           {/* Communications timeline (EM+ only) */}
-          {["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role) && (
+          {["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role) && (
             <CommunicationsTimeline
               subject={{
                 subjectType: "CONSULTANT",

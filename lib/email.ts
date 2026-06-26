@@ -722,7 +722,7 @@ export async function emailWeeklyDigest({
   nuruInsight: string;
 }) {
   const firstName = esc(name.split(" ")[0]);
-  const isDirectorPlus = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
+  const isDirectorPlus = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(role);
   const fmt = (n: number) => n.toLocaleString("en-NG");
 
   // Stat card helper

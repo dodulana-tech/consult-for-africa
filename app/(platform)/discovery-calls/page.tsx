@@ -16,7 +16,7 @@ export default async function DiscoveryCallsPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const canAccess = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canAccess = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canAccess) redirect("/dashboard");
 
   const calls = await prisma.discoveryCall.findMany({

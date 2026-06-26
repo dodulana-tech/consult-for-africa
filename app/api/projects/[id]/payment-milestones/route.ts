@@ -12,7 +12,7 @@ export const GET = handler(async function GET(_req: NextRequest, { params }: Ctx
   const { id: projectId } = await params;
 
   // Verify user has access to this project
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   const isEM = session.user.role === "ENGAGEMENT_MANAGER";
   if (!isElevated) {
     const project = await prisma.engagement.findUnique({
@@ -59,7 +59,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canManage = ["PARTNER", "ADMIN", "DIRECTOR"].includes(session.user.role);
+  const canManage = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"].includes(session.user.role);
   if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: projectId } = await params;

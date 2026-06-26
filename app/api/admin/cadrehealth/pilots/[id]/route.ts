@@ -22,7 +22,7 @@ import { logAudit } from "@/lib/audit";
 import { notifyAdmins } from "@/lib/admin-notify";
 import type { CadreMandateStatus } from "@prisma/client";
 
-const ALLOWED = ["DIRECTOR", "PARTNER", "ADMIN"];
+const ALLOWED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 type Ctx = { params: Promise<{ id: string }> };
 
 const VALID_STATUS: CadreMandateStatus[] = [

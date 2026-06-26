@@ -17,7 +17,7 @@ export default async function SatisfactionPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const allowed = ["PARTNER", "ADMIN", "DIRECTOR"].includes(session.user.role);
+  const allowed = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"].includes(session.user.role);
   if (!allowed) redirect("/dashboard");
 
   const pulses = await prisma.clientSatisfactionPulse.findMany({

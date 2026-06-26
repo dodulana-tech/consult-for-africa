@@ -14,7 +14,7 @@ export async function canAccessProject(
   projectId: string
 ): Promise<boolean> {
   // Elevated roles can access all projects
-  if (["DIRECTOR", "PARTNER", "ADMIN"].includes(userRole)) {
+  if (["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(userRole)) {
     return true;
   }
 

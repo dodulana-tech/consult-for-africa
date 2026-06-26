@@ -12,7 +12,7 @@ export const GET = handler(async function GET() {
   if (!session?.user?.id) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const isConsultant = session.user.role === "CONSULTANT";
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   const isEM = session.user.role === "ENGAGEMENT_MANAGER";
 
   const where = isConsultant
@@ -67,7 +67,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canCreate = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canCreate = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canCreate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { projectId, role, description, skillsRequired, hoursPerWeek, duration, rateType, rateBudget, rateCurrency, urgency, trackId } = await req.json();

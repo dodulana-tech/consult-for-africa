@@ -12,7 +12,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: { 
   if (!content?.trim()) return Response.json({ error: "Content required" }, { status: 400 });
 
   // Verify caller has access to this project
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isElevated) {
     const project = await prisma.engagement.findUnique({
       where: { id },

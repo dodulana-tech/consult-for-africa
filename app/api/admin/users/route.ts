@@ -8,7 +8,7 @@ import { sendInvite } from "@/lib/email";
 import type { UserRole } from "@prisma/client";
 import { handler } from "@/lib/api-handler";
 
-const VALID_ROLES: UserRole[] = ["CONSULTANT", "ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"];
+const VALID_ROLES: UserRole[] = ["CONSULTANT", "ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 export const GET = handler(async function GET() {
   const session = await auth();

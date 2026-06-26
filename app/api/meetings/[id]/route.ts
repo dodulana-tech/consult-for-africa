@@ -52,7 +52,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest, ctx: Ctx) {
   }
 
   // Only organizer or elevated roles can edit
-  const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
+  const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
   if (existing.organizerId !== session.user.id && !ELEVATED.includes(session.user.role)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -124,7 +124,7 @@ export const DELETE = handler(async function DELETE(_req: NextRequest, ctx: Ctx)
     return Response.json({ error: "Meeting not found" }, { status: 404 });
   }
 
-  const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
+  const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
   if (existing.organizerId !== session.user.id && !ELEVATED.includes(session.user.role)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }

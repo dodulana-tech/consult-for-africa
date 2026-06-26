@@ -34,7 +34,7 @@ const createOwnGigSchema = z.object({
   { message: "flatMonthlyFee is required for FLAT_MONTHLY model", path: ["flatMonthlyFee"] }
 );
 
-const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
+const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 async function generateOwnGigCode(): Promise<string> {
   const year = new Date().getFullYear();
@@ -212,7 +212,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   // Notify admins about pending own gig
   try {
     const admins = await prisma.user.findMany({
-      where: { role: { in: ["DIRECTOR", "PARTNER", "ADMIN"] } },
+      where: { role: { in: ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"] } },
       select: { email: true, name: true },
     });
     for (const admin of admins) {

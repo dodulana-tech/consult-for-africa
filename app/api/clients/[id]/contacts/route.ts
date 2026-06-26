@@ -10,7 +10,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: Ct
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canManage = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"].includes(session.user.role);
+  const canManage = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"].includes(session.user.role);
   if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: clientId } = await params;
@@ -89,7 +89,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canManage = ["DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"].includes(session.user.role);
+  const canManage = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"].includes(session.user.role);
   if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id: clientId } = await params;

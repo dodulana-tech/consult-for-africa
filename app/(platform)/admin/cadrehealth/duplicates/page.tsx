@@ -7,7 +7,7 @@ import { DeleteDuplicateButton } from "./DeleteDuplicateButton";
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED_ROLES = ["PARTNER", "ADMIN", "DIRECTOR"];
+const ALLOWED_ROLES = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"];
 
 interface DuplicateRow {
   id: string;

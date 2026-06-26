@@ -12,7 +12,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: { 
   const { id } = await params;
   const { action, scores, notes, microFeedback } = await req.json();
 
-  const canReview = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canReview = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canReview) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   // Verify EM owns this project (Directors/Partners/Admins can review any)

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
 
-const ALLOWED_ROLES = ["DIRECTOR", "PARTNER", "ADMIN"];
+const ALLOWED_ROLES = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 const PRIORITY_ORDER: Record<string, number> = {
   critical: 0,

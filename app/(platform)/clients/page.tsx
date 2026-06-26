@@ -26,7 +26,7 @@ export default async function ClientsPage() {
   if (!session) redirect("/login");
 
   const role = session.user.role;
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(role);
   const isEM = role === "ENGAGEMENT_MANAGER";
   const isConsultant = role === "CONSULTANT";
 

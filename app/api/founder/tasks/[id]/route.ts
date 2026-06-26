@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
 
-const ALLOWED_ROLES = ["DIRECTOR", "PARTNER", "ADMIN"];
+const ALLOWED_ROLES = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 export const PATCH = handler(async function PATCH(
   req: NextRequest,

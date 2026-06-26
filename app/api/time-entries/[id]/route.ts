@@ -13,7 +13,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest, { params }: 
   const { action, reason } = await req.json();
   // action: "approve" | "reject"
 
-  const canApprove = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canApprove = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canApprove) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   // EMs can only approve entries in their projects

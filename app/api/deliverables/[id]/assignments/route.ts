@@ -8,7 +8,7 @@ export const GET = handler(async function GET(_req: NextRequest, { params }: { p
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canManage = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canManage = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canManage) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;

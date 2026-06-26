@@ -15,7 +15,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   if (!question?.trim()) return Response.json({ error: "question required" }, { status: 400 });
 
   const { role, id: userId } = session.user;
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(role);
   const isEM = role === "ENGAGEMENT_MANAGER";
   const isConsultant = role === "CONSULTANT";
 

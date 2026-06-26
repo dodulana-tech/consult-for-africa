@@ -10,7 +10,7 @@ export const POST = handler(async function POST(
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canDeliver = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canDeliver = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canDeliver) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;

@@ -17,7 +17,7 @@ import { prisma } from "@/lib/prisma";
 import { handler } from "@/lib/api-handler";
 import { logAudit } from "@/lib/audit";
 
-const ELEVATED = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"] as const;
+const ELEVATED = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"] as const;
 
 function canManageCvFor(sessionUserId: string, sessionRole: string, targetUserId: string): boolean {
   if (sessionUserId === targetUserId) return true;

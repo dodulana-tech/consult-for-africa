@@ -68,7 +68,7 @@ export async function getDigestForUser(userId: string): Promise<DigestData | nul
 
   const weekAgo = ONE_WEEK_AGO();
   const isEM = user.role === "ENGAGEMENT_MANAGER";
-  const isDirectorPlus = ["DIRECTOR", "PARTNER", "ADMIN"].includes(user.role);
+  const isDirectorPlus = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(user.role);
   const isElevated = isEM || isDirectorPlus;
 
   // Scope projects: EM sees own, Director+ sees all
@@ -340,7 +340,7 @@ Data: ${data.activeProjects} active projects, ${data.atRiskProjects} at risk, ${
 export async function getDigestRecipients() {
   return prisma.user.findMany({
     where: {
-      role: { in: ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"] },
+      role: { in: ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"] },
     },
     select: { id: true, name: true, email: true, role: true },
   });

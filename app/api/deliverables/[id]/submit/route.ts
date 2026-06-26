@@ -30,7 +30,7 @@ export const POST = handler(async function POST(req: NextRequest, { params }: { 
   if (!deliverable) return Response.json({ error: "Not found" }, { status: 404 });
 
   // Only the assigned consultant (or elevated roles) can submit
-  const isElevated = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   const isAssigned = deliverable.assignment?.consultantId === session.user.id;
   if (!isElevated && !isAssigned) return Response.json({ error: "Forbidden" }, { status: 403 });
 

@@ -57,7 +57,7 @@ export default async function AIPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const isEM = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isEM = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   const features = isEM ? [...EM_FEATURES, { icon: FileEdit, title: "Report Generator", description: "Enter your findings and recommendations. Nuru drafts a polished, executive-ready consulting report with Nigerian healthcare context.", href: "/ai/report-generator", cta: "Generate report" }] : CONSULTANT_FEATURES;
 
   return (

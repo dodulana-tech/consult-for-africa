@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { calculateTierScore } from "@/lib/consultantTier";
 import { handler } from "@/lib/api-handler";
 
-const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
+const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 /**
  * GET /api/consultant/tier — returns the calling consultant's tier score,

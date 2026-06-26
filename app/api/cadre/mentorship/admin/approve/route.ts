@@ -8,7 +8,7 @@ export const POST = handler(async function POST(req: NextRequest) {
     const session = await auth();
     if (
       !session?.user?.role ||
-      !["ADMIN", "PARTNER", "DIRECTOR"].includes(session.user.role)
+      !["ADMIN", "PARTNER", "ASSOCIATE_DIRECTOR", "DIRECTOR"].includes(session.user.role)
     ) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

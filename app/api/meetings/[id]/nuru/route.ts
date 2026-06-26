@@ -41,7 +41,7 @@ export const POST = handler(async function POST(req: NextRequest, ctx: Ctx) {
   }
 
   // Only organizer or elevated roles can trigger Nuru
-  const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
+  const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
   if (meeting.organizerId !== session.user.id && !ELEVATED.includes(session.user.role)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }

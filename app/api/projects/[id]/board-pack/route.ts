@@ -5,7 +5,7 @@ import { handler } from "@/lib/api-handler";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-const ELEVATED = ["DIRECTOR", "PARTNER", "ADMIN"];
+const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
 
 /* ── helpers ──────────────────────────────────────────────────────────────────── */
 

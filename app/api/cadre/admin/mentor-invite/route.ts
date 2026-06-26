@@ -8,7 +8,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://www.consultforafri
 export const POST = handler(async function POST(req: Request) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
-  if (!["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) {
+  if (!["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 

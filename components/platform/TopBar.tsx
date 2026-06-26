@@ -57,7 +57,7 @@ export default function TopBar({ title, subtitle, backHref, action }: TopBarProp
         >
           <RefreshCw size={15} className={refreshing ? "animate-spin" : ""} />
         </button>
-        {user?.role && ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(user.role) && (
+        {user?.role && ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(user.role) && (
           <AdminNotificationBell />
         )}
         <NotificationsDrawer />

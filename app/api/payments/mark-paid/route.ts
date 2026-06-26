@@ -9,14 +9,14 @@ export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canPay = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canPay = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!canPay) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { entryIds, paymentReference, paymentMethod } = await req.json();
   if (!Array.isArray(entryIds) || entryIds.length === 0) return Response.json({ error: "No entries" }, { status: 400 });
 
   // IDOR: verify all entries belong to projects this user manages
-  const isElevated = ["DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
   if (!isElevated) {
     const unauthorised = await prisma.timeEntry.count({
       where: {

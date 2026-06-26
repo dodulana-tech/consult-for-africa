@@ -62,7 +62,7 @@ export default async function PartnerDetailPage({ params }: { params: Promise<{ 
   const session = await auth();
   if (!session) redirect("/login");
 
-  const isAllowed = ["PARTNER", "ADMIN", "DIRECTOR"].includes(session.user.role);
+  const isAllowed = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"].includes(session.user.role);
   if (!isAllowed) redirect("/dashboard");
 
   const { id } = await params;

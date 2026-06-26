@@ -25,7 +25,7 @@ async function main() {
   console.log("Creating Haven Paediatric Centre engagement...\n");
 
   const em = await prisma.user.findFirst({
-    where: { role: { in: ["PARTNER", "ADMIN", "DIRECTOR"] } },
+    where: { role: { in: ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"] } },
   });
   if (!em) {
     console.error("No admin/partner/director user found. Seed a user first.");

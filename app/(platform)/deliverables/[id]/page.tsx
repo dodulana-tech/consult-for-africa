@@ -53,7 +53,7 @@ export default async function DeliverableReviewPage({ params }: { params: Promis
       : null,
   };
 
-  const isEM = ["ENGAGEMENT_MANAGER", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isEM = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
