@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Haven Paediatric Centre — Your Experience</title>
+<style>
+  :root{--navy:#0B3C5D;--gold:#D4AF37;--teal:#1F7A8C;--body:#1F2937;--muted:#6B7280;
+        --surface:#F1F5F9;--line:#E2E8F0;--cream:#FBF6E6}
+  *{box-sizing:border-box}html,body{margin:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:var(--body);background:#eef2f6;line-height:1.5;font-size:17px}
+  .wrap{max-width:640px;margin:0 auto;padding:0 16px 60px}
+  header.top{background:var(--navy);color:#fff;padding:22px 0 20px;border-bottom:3px solid var(--gold)}
+  header.top .wrap{padding-bottom:0}
+  .eyebrow{color:var(--gold);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+  header.top h1{font-size:22px;margin:6px 0 2px}header.top p{margin:0;color:#C9D6E0;font-size:15px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:16px 0}
+  .intro{background:var(--cream);border-left:4px solid var(--gold)}.intro strong{color:var(--navy)}
+  h2.section{font-size:16px;color:var(--navy);margin:24px 2px 6px;padding-top:6px;border-top:1px solid var(--line)}
+  .q{padding:14px 0;border-bottom:1px solid var(--line)}.q:last-child{border-bottom:0}
+  .q .qt{font-size:16px;margin-bottom:10px}
+  .opts{display:flex;gap:8px}
+  .opts label{flex:1;text-align:center;border:1px solid var(--line);border-radius:10px;padding:12px 4px;
+     cursor:pointer;background:#fff;font-size:13px}
+  .opts input{position:absolute;opacity:0;width:0;height:0}
+  .opts label:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy)}
+  .opts .emoji{display:block;font-size:22px;line-height:1;margin-bottom:3px}
+  .grades{display:flex;flex-wrap:wrap;gap:8px}
+  .grades label{flex:1 1 30%;text-align:center;border:1px solid var(--line);border-radius:10px;padding:12px 6px;cursor:pointer;font-size:14px}
+  .grades label:has(input:checked){background:var(--gold);border-color:var(--gold);color:#081521;font-weight:700}
+  textarea{width:100%;font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:10px;min-height:80px}
+  button.submit{width:100%;background:var(--navy);color:#fff;border:0;border-radius:11px;padding:16px;
+     font-size:17px;font-weight:700;cursor:pointer;margin-top:10px}
+  button.submit:disabled{opacity:.6}
+  .foot{color:var(--muted);font-size:12px;text-align:center;margin-top:20px}
+  .thanks{display:none;text-align:center;padding:44px 10px}
+  .thanks .check{width:60px;height:60px;border-radius:50%;background:var(--cream);color:var(--gold);
+     display:inline-flex;align-items:center;justify-content:center;font-size:32px;border:2px solid var(--gold)}
+  .thanks h2{color:var(--navy)}
+  .err{background:#fdecec;border-left:4px solid #c0392b;color:#7a2f2f;font-size:14px;display:none}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="eyebrow">Haven Paediatric Centre</div>
+  <h1>How was your experience?</h1>
+  <p>Anonymous · about 5 minutes · it helps us care for children better</p>
+</div></header>
+
+<div class="wrap">
+  <div id="form">
+    <div class="card intro">
+      <strong>Thank you for trusting us with your child.</strong> This short survey is anonymous — we don't
+      ask your name. Please be honest; it is how we make Haven better and safer for every family.
+    </div>
+    <div class="card err" id="err"></div>
+    <form id="survey" novalidate></form>
+    <button class="submit" id="submitBtn" type="button">Submit</button>
+    <div class="foot">Run by Consult for Africa on behalf of Haven Paediatric Centre · consultforafrica.com</div>
+  </div>
+  <div class="thanks card" id="thanks">
+    <div class="check">✓</div><h2>Thank you.</h2>
+    <p>Your answers are in, and they are anonymous. Thank you for helping us care for children better.
+       You can close this page.</p>
+  </div>
+</div>
+
+<script>
+const ENDPOINT = "/api/haven-audit/responses"; // survey stored on the CFA platform
+const SCALE = [["1","😟"],["2","🙁"],["3","😐"],["4","🙂"],["5","😀"]]; // strongly disagree → strongly agree
+
+const SECTIONS = [
+  ["Getting seen", [
+    "It was easy to book and be seen at Haven.",
+    "I did not wait too long to be attended to."
+  ]],
+  ["The team & how they treated us", [
+    "Staff treated me and my child with respect and kindness.",
+    "The doctor or nurse explained my child's care in a way I understood.",
+    "I felt listened to, and able to ask questions.",
+    "I always knew what was happening with my child's care."
+  ]],
+  ["Safety & the place", [
+    "The facility was clean and comfortable.",
+    "I felt my child was safe and well cared for here.",
+    "I had confidence in the medical team."
+  ]],
+  ["Cost", [
+    "Charges and payments were explained to me clearly."
+  ]]
+];
+
+const form = document.getElementById("survey");
+let n = 0; const items = [];
+SECTIONS.forEach((sec, si) => {
+  const h = document.createElement("h2"); h.className="section"; h.textContent = sec[0]; form.appendChild(h);
+  sec[1].forEach(text => {
+    n++; const name="q"+n; items.push(name);
+    const q = document.createElement("div"); q.className="q";
+    let opts=""; SCALE.forEach(o=>{ opts+='<label><input type="radio" name="'+name+'" value="'+o[0]+'"><span class="emoji">'+o[1]+'</span>'+o[0]+'</label>'; });
+    q.innerHTML='<div class="qt">'+text+'</div><div class="opts">'+opts+'</div>';
+    form.appendChild(q);
+  });
+});
+const extra = document.createElement("div");
+extra.innerHTML = `
+  <h2 class="section">Overall</h2>
+  <div class="q"><div class="qt">Overall, how would you rate your experience at Haven?</div>
+    <div class="grades">${["Excellent","Very good","Good","Fair","Poor"].map(g=>'<label><input type="radio" name="overall" value="'+g+'">'+g+'</label>').join("")}</div></div>
+  <div class="q"><div class="qt">Would you recommend Haven to other parents?</div>
+    <div class="grades">${["Definitely","Probably","Not sure","Probably not","No"].map(g=>'<label><input type="radio" name="recommend" value="'+g+'">'+g+'</label>').join("")}</div></div>
+  <div class="q"><div class="qt">What is the one thing we could do better? (optional)</div>
+    <textarea name="open_better"></textarea></div>`;
+form.appendChild(extra);
+
+document.getElementById("submitBtn").addEventListener("click", async ()=>{
+  const data={}; new FormData(form).forEach((v,k)=>data[k]=v);
+  const answered = items.filter(k=>data[k]).length;
+  const err=document.getElementById("err");
+  if(answered < items.length*0.6){ err.style.display="block"; err.textContent="Please answer a few more before submitting."; window.scrollTo({top:0,behavior:"smooth"}); return; }
+  err.style.display="none";
+  const payload={survey:"haven-patient-experience",submittedAt:new Date().toISOString(),responses:data};
+  const btn=document.getElementById("submitBtn"); btn.disabled=true; btn.textContent="Submitting…";
+  try{
+    if(ENDPOINT){ const r=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}); if(!r.ok) throw new Error("bad"); }
+    else console.log("[preview]",payload);
+    document.getElementById("form").style.display="none"; document.getElementById("thanks").style.display="block";
+    window.scrollTo({top:0,behavior:"smooth"});
+  }catch(e){ btn.disabled=false; btn.textContent="Submit"; err.style.display="block"; err.textContent="Something went wrong. Please try again."; }
+});
+</script>
+</body>
+</html>

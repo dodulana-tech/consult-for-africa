@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Haven Paediatric Centre — Staff Safety Culture Survey</title>
+<style>
+  :root{
+    --navy:#0B3C5D; --deep:#081521; --gold:#D4AF37; --teal:#1F7A8C;
+    --body:#1F2937; --muted:#6B7280; --surface:#F1F5F9; --line:#E2E8F0;
+    --cream:#FBF6E6; --white:#fff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:var(--body);background:#eef2f6;line-height:1.5;font-size:16px}
+  .wrap{max-width:720px;margin:0 auto;padding:0 16px 64px}
+  header.top{background:var(--navy);color:#fff;padding:22px 0 20px;border-bottom:3px solid var(--gold)}
+  header.top .wrap{padding-top:0;padding-bottom:0}
+  .eyebrow{color:var(--gold);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+  header.top h1{font-size:22px;margin:6px 0 2px;line-height:1.2}
+  header.top p{margin:0;color:#C9D6E0;font-size:14px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 18px;margin:16px 0;
+        box-shadow:0 1px 2px rgba(8,21,33,.04)}
+  .privacy{background:var(--cream);border-left:4px solid var(--gold)}
+  .privacy strong{color:var(--navy)}
+  .scalekey{background:var(--surface);border-left:4px solid var(--teal);font-size:14px}
+  .scalekey b{color:var(--navy)}
+  h2.section{font-size:16px;color:var(--navy);margin:26px 2px 8px;padding-top:6px;
+             border-top:1px solid var(--line)}
+  h2.section .n{color:var(--teal);font-weight:800;margin-right:8px}
+  .q{padding:14px 0;border-bottom:1px solid var(--line)}
+  .q:last-child{border-bottom:0}
+  .q .qt{font-size:15px;margin-bottom:10px}
+  .q .qt .num{color:var(--muted);font-weight:700;margin-right:6px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opts label{flex:1 1 auto;min-width:56px;text-align:center;border:1px solid var(--line);
+     border-radius:9px;padding:9px 6px;font-size:13px;cursor:pointer;background:#fff;user-select:none}
+  .opts.five label{min-width:0}
+  .opts input{position:absolute;opacity:0;width:0;height:0}
+  .opts label:hover{border-color:var(--teal)}
+  .opts label.na{color:var(--muted);flex-basis:100%;min-width:100%;margin-top:2px}
+  .opts input:checked + span{}
+  .opts label:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy)}
+  .opts label:has(input:checked) .sub{color:#C9D6E0}
+  .opts .big{display:block;font-weight:800;font-size:15px;line-height:1}
+  .opts .sub{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+  textarea,select{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);
+     border-radius:9px;background:#fff;color:var(--body)}
+  textarea{min-height:74px;resize:vertical}
+  .field{margin:12px 0}
+  .field label.lbl{display:block;font-size:14px;margin-bottom:6px}
+  .grades{display:flex;flex-wrap:wrap;gap:8px}
+  .grades label{flex:1 1 auto;text-align:center;border:1px solid var(--line);border-radius:9px;
+     padding:10px 6px;font-size:13px;cursor:pointer}
+  .grades label:has(input:checked){background:var(--gold);border-color:var(--gold);color:var(--deep);font-weight:700}
+  .progress{position:sticky;top:0;z-index:5;background:#eef2f6;padding:10px 0}
+  .bar{height:8px;background:var(--line);border-radius:20px;overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width .25s}
+  .bar-t{font-size:12px;color:var(--muted);margin:6px 2px 0}
+  button.submit{width:100%;background:var(--navy);color:#fff;border:0;border-radius:11px;
+     padding:16px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px}
+  button.submit:disabled{opacity:.6;cursor:not-allowed}
+  .foot{color:var(--muted);font-size:12px;text-align:center;margin-top:22px}
+  .thanks{display:none;text-align:center;padding:40px 10px}
+  .thanks h2{color:var(--navy)}
+  .thanks .check{width:56px;height:56px;border-radius:50%;background:var(--cream);color:var(--gold);
+     display:inline-flex;align-items:center;justify-content:center;font-size:30px;border:2px solid var(--gold)}
+  .err{background:#fdecec;border-left:4px solid #c0392b;color:#7a2f2f;font-size:14px;display:none}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Consult for Africa · Confidential</div>
+    <h1>Haven Paediatric Centre — Staff Safety &amp; Culture Survey</h1>
+    <p>Anonymous · about 10 minutes · your honest voice makes Haven safer</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="form">
+    <div class="card privacy">
+      <strong>Your answers are anonymous.</strong> They go to Consult for Africa, not to Haven
+      management, and are reported only as grouped totals — never in a way that identifies you.
+      There are no right answers. Honesty is the whole point: it is how we make Haven safer and
+      fairer to work in.
+    </div>
+    <div class="card scalekey">
+      For most questions, choose how much you agree — or how often it happens — from
+      <b>1</b> to <b>5</b>. Every question also has <b>N/A · Don't know</b>. Take your time.
+    </div>
+
+    <div class="progress">
+      <div class="bar"><i id="barfill"></i></div>
+      <div class="bar-t"><span id="answered">0</span> of <span id="total">0</span> answered</div>
+    </div>
+
+    <div class="card err" id="err"></div>
+    <form id="survey" novalidate></form>
+
+    <button class="submit" id="submitBtn" type="button">Submit my answers</button>
+    <div class="foot">Consult for Africa · hello@consultforafrica.com · consultforafrica.com</div>
+  </div>
+
+  <div class="thanks card" id="thanks">
+    <div class="check">✓</div>
+    <h2>Thank you.</h2>
+    <p>Your answers are in, and they are anonymous. Every honest response makes the plan we give
+       the board sharper and fairer. You can close this page.</p>
+  </div>
+</div>
+
+<script>
+// ── Where responses are stored. Set at go-live (a platform API route or form backend). ──
+const ENDPOINT = "/api/haven-audit/responses"; // stored on the CFA platform
+
+const AGREE = [["1","Strongly disagree"],["2","Disagree"],["3","Neither"],["4","Agree"],["5","Strongly agree"]];
+const FREQ  = [["1","Never"],["2","Rarely"],["3","Sometimes"],["4","Most times"],["5","Always"]];
+
+// scale: 'a' agreement, 'f' frequency
+const SECTIONS = [
+  ["Your area & teamwork", "a", [
+    "Staff in my area treat each other with respect.",
+    "When the workload is heavy, we work together as a team to get it done.",
+    "In this area, people support one another.",
+    "During busy or difficult moments, we have the staff we need to handle the work.",
+    "The work pace here is so high that it feels unsafe."
+  ]],
+  ["Communication & openness", "a", [
+    "Staff feel free to question the decisions or actions of those with more authority.",
+    "Staff speak up if they see something that might negatively affect patient care.",
+    "Staff are afraid to ask questions when something does not seem right.",
+    "When staff make an error, we talk about it so we can learn from it.",
+    "We are told about changes to procedures and about mistakes that happen here."
+  ]],
+  ["Response to mistakes", "a", [
+    "Staff feel that their mistakes are held against them.",
+    "When an event is reported, it feels like the person is blamed, not the problem fixed.",
+    "When we make mistakes, we are treated fairly.",
+    "Repeated problems are dealt with constructively, not just punished."
+  ]],
+  ["Reporting & learning", "a", [
+    "When a mistake is caught before it reaches a patient, it is reported.",
+    "When a mistake reaches a patient but causes no harm, it is reported.",
+    "We are given feedback about changes made because of what gets reported.",
+    "After a problem, this area actually changes how it works to prevent it recurring.",
+    "I know how to report a patient-safety concern here."
+  ]],
+  ["Management & supervisor support", "a", [
+    "My supervisor / matron seriously considers staff suggestions for improving safety.",
+    "My supervisor / matron overlooks safety problems that happen over and over.",
+    "Management provides the resources (staff, equipment, drugs) needed to give safe care.",
+    "Management's actions show that patient safety is a top priority.",
+    "Management only seems interested in patient safety after something goes wrong."
+  ]],
+  ["Handovers between shifts", "a", [
+    "Important patient-care information is shared clearly across shifts.",
+    "Things fall between the cracks when patients are handed over between shifts or staff.",
+    "Shift changes are a risky time for patients here."
+  ]],
+  ["Emergency readiness & routines", "f", [
+    "The crash cart / emergency tray is fully stocked and ready.",
+    "There is a routine, every shift, for checking emergency drugs and equipment.",
+    "If a child needed emergency resuscitation right now, we would have what we need.",
+    "Essential drugs or consumables are out of stock when we need them."
+  ]],
+  ["Emergency readiness (about you)", "a", [
+    "I have had recent resuscitation training (BLS / PALS / NRP) for the patients I care for."
+  ]],
+  ["Fairness, incentives & ownership", "a", [
+    "I understand clearly what I am responsible for and what good performance looks like in my role.",
+    "The way pay, commission or rewards work here is fair and clear.",
+    "The rewards and recognition here encourage good, safe, careful work — not just speed or volume.",
+    "I feel a sense of ownership for how well Haven runs, not just my own tasks."
+  ]]
+];
+
+const form = document.getElementById("survey");
+let idx = 0;
+const scaleItems = [];
+
+SECTIONS.forEach((sec, si) => {
+  const h = document.createElement("h2"); h.className="section";
+  h.innerHTML = '<span class="n">'+(si+1)+'</span>'+sec[0];
+  form.appendChild(h);
+  const scale = sec[1]==="f" ? FREQ : AGREE;
+  sec[2].forEach(text => {
+    idx++;
+    const name = "q"+idx;
+    scaleItems.push(name);
+    const q = document.createElement("div"); q.className="q";
+    let opts = '';
+    scale.forEach(o => {
+      opts += '<label><input type="radio" name="'+name+'" value="'+o[0]+'">'
+            + '<span class="big">'+o[0]+'</span><span class="sub">'+o[1]+'</span></label>';
+    });
+    opts += '<label class="na"><input type="radio" name="'+name+'" value="NA">N/A · Don\'t know</label>';
+    q.innerHTML = '<div class="qt"><span class="num">'+idx+'.</span>'+text+'</div>'
+                + '<div class="opts five">'+opts+'</div>';
+    form.appendChild(q);
+  });
+});
+
+// Overall + open + demographics (not part of the 1-5 progress count, but captured)
+const overall = document.createElement("div");
+overall.innerHTML = `
+  <h2 class="section"><span class="n">10</span>Overall</h2>
+  <div class="q"><div class="qt">Please give Haven an overall grade on patient safety:</div>
+    <div class="grades">
+      ${["Excellent","Very good","Acceptable","Poor","Failing"].map(g =>
+        '<label><input type="radio" name="grade" value="'+g+'">'+g+'</label>').join("")}
+    </div>
+  </div>
+  <div class="q field"><label class="lbl">I would recommend Haven as a place to receive care.</label>
+    <div class="opts five">${AGREE.map(o=>'<label><input type="radio" name="rec_care" value="'+o[0]+'"><span class="big">'+o[0]+'</span><span class="sub">'+o[1]+'</span></label>').join("")}<label class="na"><input type="radio" name="rec_care" value="NA">N/A</label></div></div>
+  <div class="q field"><label class="lbl">I would recommend Haven as a place to work.</label>
+    <div class="opts five">${AGREE.map(o=>'<label><input type="radio" name="rec_work" value="'+o[0]+'"><span class="big">'+o[0]+'</span><span class="sub">'+o[1]+'</span></label>').join("")}<label class="na"><input type="radio" name="rec_work" value="NA">N/A</label></div></div>
+
+  <h2 class="section"><span class="n">11</span>A little about you <span style="font-weight:400;color:var(--muted);font-size:13px">(optional — helps us group answers, never to identify you)</span></h2>
+  <div class="field"><label class="lbl">Primary area</label>
+    <select name="area"><option value="">Prefer not to say</option>
+      <option>Nursing</option><option>Medical / Clinical</option><option>Pharmacy</option>
+      <option>Front desk / Customer service</option><option>Admin / Accounts</option>
+      <option>Operations</option><option>Other</option></select></div>
+  <div class="field"><label class="lbl">Time at Haven</label>
+    <select name="tenure"><option value="">Prefer not to say</option>
+      <option>Under 6 months</option><option>6–12 months</option>
+      <option>1–2 years</option><option>2 years or more</option></select></div>
+
+  <h2 class="section"><span class="n">12</span>Two open questions <span style="font-weight:400;color:var(--muted);font-size:13px">(optional)</span></h2>
+  <div class="field"><label class="lbl">The one thing that would make Haven safer for patients:</label>
+    <textarea name="open_safe"></textarea></div>
+  <div class="field"><label class="lbl">The one thing that would make Haven a better place to work:</label>
+    <textarea name="open_work"></textarea></div>
+`;
+form.appendChild(overall);
+
+document.getElementById("total").textContent = scaleItems.length;
+function updateProgress(){
+  let n=0; scaleItems.forEach(name=>{ if(form.querySelector('input[name="'+name+'"]:checked')) n++; });
+  document.getElementById("answered").textContent=n;
+  document.getElementById("barfill").style.width=(n/scaleItems.length*100)+"%";
+}
+form.addEventListener("change", updateProgress);
+
+document.getElementById("submitBtn").addEventListener("click", async () => {
+  const data = {};
+  new FormData(form).forEach((v,k)=>{ data[k]=v; });
+  const answered = scaleItems.filter(n=>data[n]).length;
+  const err = document.getElementById("err");
+  if(answered < scaleItems.length * 0.6){
+    err.style.display="block";
+    err.textContent="Please answer a few more questions before submitting — your responses are most useful when the survey is mostly complete.";
+    window.scrollTo({top:0,behavior:"smooth"}); return;
+  }
+  err.style.display="none";
+  const payload = { survey:"haven-safety-culture", submittedAt:new Date().toISOString(), responses:data };
+  const btn=document.getElementById("submitBtn"); btn.disabled=true; btn.textContent="Submitting…";
+  try{
+    if(ENDPOINT){
+      const r = await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+      if(!r.ok) throw new Error("bad status");
+    } else {
+      console.log("[preview mode] responses:", payload); // no endpoint configured
+    }
+    document.getElementById("form").style.display="none";
+    document.getElementById("thanks").style.display="block";
+    window.scrollTo({top:0,behavior:"smooth"});
+  }catch(e){
+    btn.disabled=false; btn.textContent="Submit my answers";
+    err.style.display="block";
+    err.textContent="Something went wrong sending your answers. Please try again in a moment.";
+  }
+});
+</script>
+</body>
+</html>
