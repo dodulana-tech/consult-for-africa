@@ -5627,3 +5627,17 @@ model AdminNotification {
   @@index([type])
   @@index([severity])
 }
+
+/// Anonymous responses to Haven diagnostic-audit surveys (staff safety culture,
+/// patient/caregiver experience). No PII collected; payload is the raw form JSON.
+model AuditSurveyResponse {
+  id           String   @id @default(cuid())
+  survey       String   // "haven-safety-culture" | "haven-patient-experience"
+  engagementId String?
+  payload      Json
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  @@index([survey])
+  @@index([createdAt])
+}
