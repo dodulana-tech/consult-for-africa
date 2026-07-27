@@ -42,3 +42,15 @@ next-env.d.ts
 
 # Generated claim-token data (PII + access tokens — never commit)
 scripts/data/
+
+# Local DB backups (contain client project data — never commit)
+*-backup.json
+realign-backup-*.json
+
+# Private / confidential working docs (never commit)
+docs/*PRIVATE*
+docs/*-DRAFT.md
+
+# Local design-sync tooling
+.design-sync/
+.ds-sync/

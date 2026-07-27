@@ -141,33 +141,44 @@ export default function TalentPage() {
           <p className="text-center text-gray-500 text-sm mb-10 max-w-xl mx-auto">
             Building the next generation of African healthcare leaders. Our structured programmes offer hands-on experience inside real hospital engagements.
           </p>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
+                title: "Junior Analyst (NYSC)",
+                track: "NYSC",
+                duration: "Service year",
+                who: "Sharp recent graduates of any discipline serving NYSC in Lagos",
+                what: "Own real pieces of live engagements: research, data, drafting decks and proposals, call synthesis",
+              },
+              {
                 title: "SIWES Placement",
+                track: "SIWES",
                 duration: "6 months",
                 who: "Health Admin, Public Health, Hospital Management students (300-500 level)",
                 what: "Data collection, process mapping, gap analysis, research support on active C4A engagements",
               },
               {
                 title: "Summer Internship",
+                track: "INTERN",
                 duration: "8-12 weeks",
                 who: "Medical students, MPH students, health admin students seeking practical exposure",
                 what: "Embedded in hospital operations projects, producing a mini consulting report on a real problem",
               },
               {
                 title: "Graduate Fellowship",
+                track: "FELLOWSHIP",
                 duration: "12 months",
                 who: "Fresh MPH, MBA, MHA graduates ready for a structured entry into healthcare consulting",
                 what: "3 rotations across C4A service lines, capstone insight publication, guaranteed interview for Associate Consultant",
               },
             ].map((prog) => (
-              <div key={prog.title} className="bg-white rounded-xl p-6" style={{ border: "1px solid #e5eaf0" }}>
+              <Link key={prog.title} href={`/careers/apply?track=${prog.track}`}
+                className="bg-white rounded-xl p-6 block transition-shadow hover:shadow-md" style={{ border: "1px solid #e5eaf0" }}>
                 <h3 className="font-semibold text-gray-900 mb-1">{prog.title}</h3>
                 <p className="text-xs font-medium mb-3" style={{ color: "#D4AF37" }}>{prog.duration}</p>
                 <p className="text-xs text-gray-500 mb-2"><span className="font-medium text-gray-700">Who:</span> {prog.who}</p>
                 <p className="text-xs text-gray-500"><span className="font-medium text-gray-700">What:</span> {prog.what}</p>
-              </div>
+              </Link>
             ))}
           </div>
           <div className="text-center mt-8">
