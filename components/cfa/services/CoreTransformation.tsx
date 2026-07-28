@@ -111,6 +111,20 @@ const services = [
     tag: "Powered by CadreHealth",
     href: "/oncadre",
   },
+  {
+    num: "09",
+    title: "Healthcare Marketing Agency",
+    summary:
+      "Empowering health brands through strategic marketing. A specialist agency inside the firm, blending data-driven strategy with medical expertise and creativity for hospitals, HMOs, NGOs, and life sciences.",
+    points: [
+      "Brand strategy, positioning, and market research",
+      "Campaign planning, creative, and medically vetted content",
+      "Digital marketing, web and app build, SEO, and social",
+      "Influencer engagement, public relations, analytics, and CRM",
+    ],
+    tag: "Marketing Agency",
+    href: "/services/healthcare-marketing",
+  },
 ];
 
 export default function CoreTransformation() {
