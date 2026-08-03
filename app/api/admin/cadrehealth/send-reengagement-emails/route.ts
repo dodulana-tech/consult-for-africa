@@ -46,7 +46,13 @@ async function findReEngageCohort() {
       },
     },
     orderBy: { createdAt: "asc" },
-    select: { id: true, firstName: true, lastName: true, email: true },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      outreachRecord: { select: { id: true } },
+    },
   });
 }
 
@@ -116,6 +122,37 @@ Founding Partner, Consult For Africa`,
         footer: "If you would prefer not to receive further messages, simply ignore this email.",
       });
       sent++;
+
+      // Feed the send back into the outreach pipeline so the automated 7-day
+      // reminder cadence (cadre-outreach-followup) resumes from this contact.
+      // Treat the re-engagement email as a fresh "just emailed" touch: mark
+      // EMAIL_SENT, stamp emailSentAt now, schedule the next contact, and reset
+      // contactAttempts to 1 so the reminder is eligible to fire again. Without
+      // this the record keeps its stale emailSentAt/attempts and the cron never
+      // picks it up, so the resend would be a dead end.
+      if (p.outreachRecord) {
+        const now = new Date();
+        const nextContact = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        await prisma.cadreOutreachRecord.update({
+          where: { id: p.outreachRecord.id },
+          data: {
+            status: "EMAIL_SENT",
+            emailSentAt: now,
+            lastContactedAt: now,
+            nextContactAt: nextContact,
+            contactAttempts: 1,
+          },
+        });
+        await prisma.cadreWhatsAppMessage.create({
+          data: {
+            professionalId: p.id,
+            direction: "OUTBOUND",
+            channel: "EMAIL",
+            content: `[Email: cadrehealth_reengage_v1] Sent to ${p.email}`,
+            deliveryStatus: "sent",
+          },
+        });
+      }
     } catch (err) {
       failed++;
       const msg = err instanceof Error ? err.message : String(err);
