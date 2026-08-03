@@ -172,6 +172,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Founding Circle", href: "/admin/maarova-circle", icon: Star },
       { label: "Partners",       href: "/admin/partners",     icon: Building2 },
       { label: "Satisfaction",   href: "/admin/satisfaction", icon: HeartPulse },
+      { label: "Haven Survey",   href: "/admin/haven-survey", icon: Stethoscope },
       { label: "Gig Approvals",  href: "/admin/own-gig-approvals", icon: FileCheck },
       { label: "Gig Fees",       href: "/admin/own-gig-fees", icon: BarChart3 },
     ],
