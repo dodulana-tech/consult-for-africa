@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>A new private consulting facility in Abuja - consultant survey</title>
+<style>
+  :root{--navy:#0F3D2E;--gold:#C6A15B;--teal:#2F6B52;--body:#23302B;--muted:#7C7C74;
+        --surface:#F5F2EA;--line:#E2E6E2;--cream:#F6EFDD;--panel:#E9F0EA}
+  *{box-sizing:border-box}html,body{margin:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:var(--body);background:#eef1ee;line-height:1.5;font-size:17px}
+  .wrap{max-width:660px;margin:0 auto;padding:0 16px 60px}
+  header.top{background:var(--navy);color:#fff;padding:22px 0 20px;border-bottom:3px solid var(--gold)}
+  header.top .wrap{padding-bottom:0}
+  .eyebrow{color:var(--gold);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+  header.top h1{font-size:23px;margin:6px 0 2px}header.top p{margin:0;color:#CBDDD1;font-size:15px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:16px 0}
+  .intro{background:var(--panel);border-left:4px solid var(--gold)}.intro strong{color:var(--navy)}
+  h2.section{font-size:16px;color:var(--navy);margin:26px 2px 6px;padding-top:8px;border-top:1px solid var(--line)}
+  h2.section span{color:var(--gold);font-size:12px;letter-spacing:.12em;display:block;text-transform:uppercase}
+  .q{padding:14px 0;border-bottom:1px solid var(--line)}.q:last-child{border-bottom:0}
+  .q .qt{font-size:16px;margin-bottom:10px;font-weight:600;color:var(--navy)}
+  .q .hint{font-size:14px;color:var(--muted);margin:-6px 0 10px}
+  .choices{display:flex;flex-wrap:wrap;gap:8px}
+  .choices label{flex:1 1 46%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;
+     cursor:pointer;background:#fff;font-size:14.5px}
+  .choices.narrow label{flex:1 1 30%;text-align:center}
+  .choices input{position:absolute;opacity:0;width:0;height:0}
+  .choices label:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy)}
+  input[type=text],input[type=email],input[type=tel]{width:100%;font:inherit;padding:11px 12px;
+     border:1px solid var(--line);border-radius:10px;background:#fff}
+  .money{max-width:240px}
+  table.grid{width:100%;border-collapse:collapse;font-size:14px}
+  table.grid th{background:var(--navy);color:#fff;font-weight:700;padding:8px 6px;font-size:12.5px}
+  table.grid th:first-child{text-align:left}
+  table.grid td{border-bottom:1px solid var(--line);padding:9px 6px;text-align:center}
+  table.grid td:first-child{text-align:left}
+  table.grid input{width:20px;height:20px;accent-color:var(--navy)}
+  button.submit{width:100%;background:var(--navy);color:#fff;border:0;border-radius:11px;padding:16px;
+     font-size:17px;font-weight:700;cursor:pointer;margin-top:10px}
+  button.submit:disabled{opacity:.6}
+  .foot{color:var(--muted);font-size:12px;text-align:center;margin-top:20px}
+  .thanks{display:none;text-align:center;padding:44px 10px}
+  .thanks .check{width:60px;height:60px;border-radius:50%;background:var(--cream);color:var(--gold);
+     display:inline-flex;align-items:center;justify-content:center;font-size:32px;border:2px solid var(--gold)}
+  .thanks h2{color:var(--navy)}
+  .err{background:#fdecec;border-left:4px solid #c0392b;color:#7a2f2f;font-size:14px;display:none}
+  #contactFields{display:none}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="eyebrow">Consult for Africa</div>
+  <h1>Would you use it?</h1>
+  <p>A short survey for consultants practising privately in Abuja &middot; about 5 minutes</p>
+</div></header>
+
+<div class="wrap">
+  <div id="form">
+    <div class="card intro">
+      <strong>We are advising on a new private consulting facility in Abuja:</strong> serviced
+      consulting rooms available by the session, with an on-site laboratory, imaging and pharmacy,
+      trained nursing support, and billing and collection handled for you. Before anything is built,
+      we want to hear from the consultants who might actually use it. Your answers are confidential
+      and will be reported only in aggregate.
+    </div>
+    <div class="card err" id="err"></div>
+    <div id="survey"></div>
+    <button class="submit" id="submitBtn" type="button">Submit</button>
+    <p class="foot">Consult for Africa is a healthcare strategy practice. This survey is research.
+      It is not an offer and completing it commits you to nothing.</p>
+  </div>
+
+  <div class="thanks" id="thanks">
+    <div class="check">&#10003;</div>
+    <h2>Thank you</h2>
+    <p>Your answers are recorded. They genuinely shape what gets built.</p>
+  </div>
+</div>
+
+<script>
+const ENDPOINT = "/api/medipark/survey";
+
+const SECTIONS = [
+  {n:"A", title:"Your practice", qs:[
+    {id:"specialty", t:"What is your specialty?", type:"text"},
+    {id:"where", t:"Where do you currently see private patients?", hint:"Tick all that apply", type:"multi",
+     o:["My own consulting rooms","Rooms I rent or borrow","A hospital where I have privileges",
+        "At the patient's home or office","I do not currently see private patients","Other"]},
+    {id:"volume", t:"In a typical week, roughly how many private patients do you see?", type:"one", narrow:true,
+     o:["None","1 to 5","6 to 10","11 to 20","21 to 30","More than 30"]},
+    {id:"fee", t:"Roughly what do you charge for a first private consultation?", type:"one", narrow:true,
+     o:["Under NGN 25,000","NGN 25,000 to 50,000","NGN 50,000 to 75,000",
+        "NGN 75,000 to 100,000","NGN 100,000 to 150,000","Over NGN 150,000"]}]},
+  {n:"B", title:"Sessions", qs:[
+    {id:"sessions", t:"If serviced consulting rooms were available in Abuja, how many sessions a week would you realistically use?",
+     hint:"A session is a half day of exclusive use of a private consulting room, booked in advance",
+     type:"one", narrow:true, o:["None","1","2","3","4 or more"]},
+    {id:"bands", t:"Which time bands would work for you?", hint:"Tick all that apply", type:"multi",
+     o:["Early morning, 07:00 to 09:00","Morning, 09:00 to 13:00","Afternoon, 13:00 to 17:00",
+        "Evening, 17:00 to 21:00","Saturday morning","Saturday afternoon"]},
+    {id:"bestBand", t:"Which single band would you most want?", type:"text"},
+    {id:"currentRent", t:"If you currently rent consulting space, what do you pay?",
+     hint:"Per session, per month or per year, whichever is easiest", type:"text"}]},
+  {n:"C", title:"What it would be worth", qs:[
+    {id:"vwCheap", t:"At what price per session would it be so low that you would question the quality?",
+     hint:"A serviced half day includes the room, reception and check-in, a trained nurse or chaperone on call, records and results, billing and collection, on-site laboratory, imaging and pharmacy, and patient parking. There are no right answers, and the four figures should be different.",
+     type:"money"},
+    {id:"vwGood", t:"At what price would you consider it good value?", type:"money"},
+    {id:"vwPricey", t:"At what price would it start to feel expensive, but still worth considering?", type:"money"},
+    {id:"vwTooMuch", t:"At what price would it be too expensive to consider at all?", type:"money"},
+    {id:"membership", t:"An annual membership would give you member session rates, priority booking of your preferred room and band, and inclusion in the facility's directory. What would you consider paying a year?",
+     type:"one", o:["I would not pay a membership","Under NGN 500,000","NGN 500,000 to 1 million",
+        "NGN 1 to 2 million","NGN 2 to 3 million","Over NGN 3 million"]}]},
+];
+
+const GRID_ROWS = ["The address, and how the place looks and feels",
+  "On-site laboratory and imaging, same visit","Billing and collection handled for you",
+  "A trained nurse or chaperone on call","Parking and discretion for your patients",
+  "Booking by the session, with no lease","Which other consultants practise there",
+  "A room you can call your own"];
+const GRID_COLS = ["Not important","Useful","Important","Essential"];
+
+const PROCEDURES = ["Minor procedures under local anaesthesia",
+  "Procedures needing sedation and an anaesthetist","Procedures needing a full operating theatre",
+  "None of these"];
+
+let qNum = 0;
+function renderQ(q){
+  qNum++;
+  let inner = "";
+  if(q.type === "text"){
+    inner = `<input type="text" name="${q.id}" />`;
+  } else if(q.type === "money"){
+    inner = `<input type="text" inputmode="numeric" class="money" name="${q.id}" placeholder="NGN" />`;
+  } else {
+    const tag = q.type === "multi" ? "checkbox" : "radio";
+    inner = `<div class="choices${q.narrow ? " narrow" : ""}">` + q.o.map(o =>
+      `<label><input type="${tag}" name="${q.id}" value="${o.replace(/"/g,"&quot;")}" />${o}</label>`
+    ).join("") + `</div>`;
+  }
+  return `<div class="q"><div class="qt">${qNum}. ${q.t}</div>` +
+         (q.hint ? `<div class="hint">${q.hint}</div>` : "") + inner + `</div>`;
+}
+
+let html = "";
+for(const s of SECTIONS){
+  html += `<h2 class="section"><span>Section ${s.n}</span>${s.title}</h2><div class="card">`;
+  html += s.qs.map(renderQ).join("");
+  html += `</div>`;
+}
+qNum++;
+html += `<h2 class="section"><span>Section D</span>What would matter most</h2><div class="card">
+  <div class="q"><div class="qt">${qNum}. How important would each of these be to you?</div>
+  <table class="grid"><thead><tr><th></th>` +
+  GRID_COLS.map(c=>`<th>${c}</th>`).join("") + `</tr></thead><tbody>` +
+  GRID_ROWS.map((r,i)=>`<tr><td>${r}</td>` +
+    GRID_COLS.map(c=>`<td><input type="radio" name="matters_${i}" value="${c}" /></td>`).join("") +
+    `</tr>`).join("") + `</tbody></table></div></div>`;
+
+qNum++;
+html += `<h2 class="section"><span>Section E</span>Procedures</h2><div class="card">
+  <div class="q"><div class="qt">${qNum}. Do you perform any of the following?</div>
+  <div class="hint">Tick all that apply</div><div class="choices">` +
+  PROCEDURES.map(o=>`<label><input type="checkbox" name="procedures" value="${o}" />${o}</label>`).join("") +
+  `</div></div></div>`;
+
+qNum++;
+html += `<h2 class="section"><span>Section F</span>If you would like to hear more</h2><div class="card">
+  <div class="q"><div class="qt">${qNum}. We are assembling a founding group of consultants who will help
+    shape the facility and take the first rooms. Would you like to be contacted about it?</div>
+  <div class="choices narrow">
+    <label><input type="radio" name="contactChoice" value="contact" />Yes, contact me</label>
+    <label><input type="radio" name="contactChoice" value="findings" />Send findings only</label>
+    <label><input type="radio" name="contactChoice" value="none" />No thank you</label>
+  </div>
+  <div id="contactFields" style="margin-top:14px">
+    <input type="text"  id="cName"      placeholder="Name" style="margin-bottom:8px" />
+    <input type="text"  id="cSpecialty" placeholder="Specialty" style="margin-bottom:8px" />
+    <input type="email" id="cEmail"     placeholder="Email" style="margin-bottom:8px" />
+    <input type="tel"   id="cPhone"     placeholder="Phone" />
+  </div></div></div>`;
+
+document.getElementById("survey").innerHTML = html;
+
+document.getElementById("survey").addEventListener("change", e=>{
+  if(e.target.name === "contactChoice"){
+    document.getElementById("contactFields").style.display =
+      (e.target.value === "none") ? "none" : "block";
+  }
+});
+
+document.getElementById("submitBtn").addEventListener("click", async ()=>{
+  const err = document.getElementById("err");
+  const root = document.getElementById("survey");
+  const data = {};
+  root.querySelectorAll('input[type=text],input[type=email],input[type=tel]').forEach(i=>{
+    if(i.name && i.value.trim()) data[i.name] = i.value.trim();
+  });
+  root.querySelectorAll('input[type=radio]:checked').forEach(i=>{ data[i.name] = i.value; });
+  root.querySelectorAll('input[type=checkbox]:checked').forEach(i=>{
+    (data[i.name] = data[i.name] || []).push(i.value);
+  });
+
+  if(!data.sessions){
+    err.style.display = "block";
+    err.textContent = "Please answer question 5, on how many sessions a week you would use. It is the one we most need.";
+    window.scrollTo({top:0,behavior:"smooth"});
+    return;
+  }
+
+  const choice = data.contactChoice;
+  const contact = {
+    choice: choice,
+    name: document.getElementById("cName").value,
+    specialty: document.getElementById("cSpecialty").value,
+    email: document.getElementById("cEmail").value,
+    phone: document.getElementById("cPhone").value,
+  };
+  delete data.contactChoice;
+
+  const payload = {survey:"premium-medipark", submittedAt:new Date().toISOString(),
+                   responses:data, contact:contact};
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true; btn.textContent = "Submitting...";
+  try{
+    const r = await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},
+                                    body:JSON.stringify(payload)});
+    if(!r.ok) throw new Error("bad");
+    document.getElementById("form").style.display = "none";
+    document.getElementById("thanks").style.display = "block";
+    window.scrollTo({top:0,behavior:"smooth"});
+  }catch{
+    btn.disabled = false; btn.textContent = "Submit";
+    err.style.display = "block";
+    err.textContent = "Something went wrong. Please try again, or WhatsApp us on +234 913 813 8553.";
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+});
+</script>
+</body>
+</html>
