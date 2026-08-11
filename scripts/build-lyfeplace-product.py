@@ -380,6 +380,12 @@ def build():
           "lounge. Pays for itself at 1.2 a week"],
          ["<b>Fellow</b>", "4,200,000", "35% off guest", "All of the above, plus a standing weekly "
           "slot, directory prominence and inclusion in campus marketing"],
+         ["<b>Group</b>", "2,000,000 each", "35% off guest", "Three or more from one practice. A "
+          "shared named room, pooled blocks, one invoice. A 17% discount on Full for bundling"],
+         ["<b>Partnership</b>", "Revenue share", "n/a", "Not a membership. For anchor service "
+          "lines: Lyfe Place provides the room, equipment and marketing, the clinician provides the "
+          "practice, and the revenue is shared. This is how the hair transplant suite and the "
+          "theatre should be structured"],
          ["Family practice, individual", "600,000", "", ""],
          ["Family practice, family of four", "1,500,000", "", ""],
          ["Family practice, corporate per head", "400,000", "", ""]],
@@ -392,6 +398,16 @@ def build():
         "indemnity checks, references, annual re-verification and the insurance exposure of having "
         "someone on the premises, so <b>NGN 400,000</b>. And a single membership tier was leaving "
         "money and members on the table, so there are now three.", bg=PANEL))
+    el.append(Spacer(1, 3))
+    el.append(card(
+        "<b>The ladder now runs from occasional user to co-venturer.</b> Panel for someone who wants "
+        "the address occasionally. Associate, Full and Fellow for individuals in rising order of "
+        "commitment. <b>Group</b> for a practice of three or more who want a shared room and one "
+        "relationship, which is how orthopaedic and obstetric practices actually operate. And "
+        "<b>Partnership</b>, which is not a membership at all: for the anchor lines, Lyfe Place puts "
+        "up the room, the equipment and the marketing, the clinician puts up the practice, and the "
+        "revenue is shared. <b>That is the right structure for the hair transplant suite and the "
+        "theatre</b>, because neither works as a room somebody rents.", bg=PANEL))
     el.append(Spacer(1, 3))
     el.append(Paragraph(
         "<b>Tiering does not raise the price, it widens the funnel.</b> Run as one tier, the fee that "

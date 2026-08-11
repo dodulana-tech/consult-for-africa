@@ -33,18 +33,28 @@ Produce a drawing set for the target operating state described below.
 Existing: Living Room, Dining, Kitchen, Store, four Bedrooms, four Baths, V.T, Lobby,
 Corridor, staircase.
 
-| Existing room | Becomes | Approx sqm | Requirements |
-|---|---|---|---|
-| Living Room (8,776 x 6,615) | **Reception, waiting and concierge** | 58.1 | Single arrival point for the entire campus. Reception desk with 2 to 3 positions. **Two distinct waiting zones** within the one room: a quiet lounge and a general waiting area, visually separated by joinery or a low screen, not a wall. 16 to 18 seats at premium spacing, 2.5 sqm per seat |
-| Bedroom (5,729 x 4,306) | **Day-case theatre** | 24.7 | Level trolley access to the exterior for ambulance transfer. Positive-pressure HEPA ventilation from an AHU, plant sited externally. Isolated power supply panel with UPS. Theatre pendant, operating light and table. Piped gases and suction. **The only space on the campus where general anaesthesia or sedation may be administered** |
-| Bedroom (5,690 x 3,385) | **Monitored recovery, two bays** | 19.3 | Adjoins the theatre. Oxygen, suction and monitoring to each bay. Nurse station with sight of both. Formal discharge criteria before the patient leaves |
-| Kitchen (5,306 x 3,435) | **Phlebotomy and specimen handling** | 18.2 | Retain existing water and drainage. Draw chair, hand-wash, specimen pass-through |
-| Bedroom (3,010 x 4,695) | **Digital X-ray, lead shielded** | 14.1 | Lead lining to walls, door and observation panel. Warning light interlock. Cannot be located anywhere else on the campus: weight, shielding and evacuation all fix it here |
-| Dining (3,170 x 4,095) | **Ultrasound and echocardiography** | 13.0 | Dimmable lighting, hand-wash, changing space |
-| Bedroom (3,760 x 2,776) | **Scrub and prep** | 10.4 | Serving the theatre. Scrub trough, gowning, and space to induce before transfer |
-| Bath (3,760 x 2,080) | **Sterile store and dirty utility** | 7.8 | Serving the theatre, with one-way dirty-to-clean flow. Imaging reporting folds into the ultrasound room |
-| Store (3,170 x 1,905) | **Medication collection point** | 6.0 | Serving hatch to the waiting area. The pharmacy's only patient-facing space |
-| Bath, Bath, V.T | **Patient WCs** | 10.4 | Emergency pull cords. One WC to be accessible |
+| Existing room | Becomes | Approx sqm | Zone | Requirements |
+|---|---|---|---|---|
+| Living Room (8,776 x 6,615) | **Reception, waiting and concierge** | 58.1 | Common | Single arrival point for the entire campus. Desk with 2 to 3 positions. **Two distinct waiting zones** within the one room, visually separated by joinery or a low screen, not a wall. 16 to 18 seats at 2.5 sqm each. A **scrub recess** off the lobby serving the theatre |
+| Bedroom (5,729 x 4,306) | **THEATRE** | 24.7 | Theatre suite, sole use | Level trolley access to the exterior for ambulance transfer. Positive-pressure HEPA ventilation from an AHU with plant sited externally. Isolated power supply panel with UPS. Theatre pendant, operating light and table. Piped gases and suction |
+| Dining (3,170 x 4,095) | **Monitored recovery, 2 bays** | 13.0 | Theatre suite, sole use | Adjoins the theatre. Oxygen, suction and monitoring to each bay. Tight at two bays: confirm against the equipment schedule before committing |
+| Bath (3,760 x 2,080) | **Sterile store and dirty utility** | 7.8 | Theatre suite, sole use | One-way dirty-to-clean flow |
+| Bedroom (5,690 x 3,385) | **Conversion clinic, consulting 1** | 19.3 | Alameda | Standard consulting fit-out |
+| Kitchen (5,306 x 3,435) | **Conversion clinic, consulting 2** | 18.2 | Alameda | Retain existing water and drainage |
+| Bedroom (3,010 x 4,695) | **Digital X-ray, lead shielded** | 14.1 | Campus | Lead lining to walls, door and observation panel. Warning light interlock. Cannot be located anywhere else: weight, shielding and evacuation all fix it here |
+| Bedroom (3,760 x 2,776) | **Phlebotomy draw point** | 10.4 | Campus | Draw chair, hand-wash, specimen pass-through to the chalet route |
+| Store (3,170 x 1,905) | **Medication collection point** | 6.0 | Campus | Serving hatch to the waiting area. The pharmacy's only patient-facing space |
+| Bath, Bath, V.T | **Patient WCs** | 10.4 | Common | Emergency pull cords. One WC accessible |
+
+**The theatre suite is ring-fenced.** Its three rooms are sole-use and must read as one
+zone on the drawing, with a controlled entry off the lobby. The conversion clinic and the
+campus diagnostics sit outside it and do not pass through it.
+
+**Two moves make this fit, and both are improvements rather than compromises.** Ultrasound
+and echocardiography go to the **first floor**, beside the obstetrics, gynaecology and
+musculoskeletal consultants who use them, leaving X-ray downstairs beside the theatre and
+orthopaedics. Specimen handling goes to the **guest chalet**, with the laboratory, which is
+where it belonged in the first place.
 
 ---
 
@@ -61,7 +71,7 @@ Existing: two Living Rooms, Playroom, four Bedrooms, Kitchen, Store, four Baths,
 | Bedroom (5,925 x 3,340) | **Consulting room 4** | 19.8 | Retain en-suite WC |
 | Bedroom (3,845 x 5,145) | **Consulting room 5** | 19.8 | Retain en-suite WC |
 | Kitchen (4,700 x 3,148) | **Treatment room** | 14.8 | Retain existing water and drainage. Procedure couch, adjustable light, minor sets, diathermy. **Local and topical anaesthesia only. No sedation** |
-| Bedroom (5,690 x 2,408) | **Consulting room 7** | 13.7 | Standard consulting fit-out |
+| Bedroom (5,690 x 2,408) | **Ultrasound and echocardiography** | 13.7 | Moved up from the ground floor. Dimmable lighting, hand-wash, changing space. Sits beside the consultants who order it |
 | Store (3,810 x 2,600) | **Linen and consumables** | 9.9 | |
 | Bath (4,465 x 2,100) | **Sterilising** | 9.4 | Retain existing water and drainage. Dirty-to-clean flow in one direction |
 | Bath (3,588 x 1,990) | **Patient WC** | 7.1 | Emergency pull cord |
@@ -157,7 +167,7 @@ These are not preferences. A drawing that breaks any of them is wrong.
 
 | | |
 |---|---|
-| Consulting rooms | 7, all on the first floor. The ground floor has none once the theatre suite is placed |
+| Consulting rooms | 6 on the first floor, of which 1 to the family practice, leaving a **sessional pool of 5**. Plus 2 on the ground floor for the conversion clinic |
 | FUE suite | 1 |
 | Procedure rooms | 2, one sedation-capable on the ground floor |
 | Imaging modalities | 3: digital X-ray, ultrasound, echocardiography |
