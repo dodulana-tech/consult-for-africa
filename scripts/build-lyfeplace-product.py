@@ -373,13 +373,34 @@ def build():
         ["Sessions, NGN", "Member", "Panel or guest"], [239, 114, 114]))
     el.append(Spacer(1, 3))
     el.append(tbl(
-        [["Membership, specialist", "2,500,000 a year", "Member rates, priority booking, named room "
-          "preference, lounge"],
-         ["Panel, specialist", "150,000 a year", "Credentialing, directory listing, booking access"],
-         ["Family practice, individual", "600,000 a year", ""],
-         ["Family practice, family of four", "1,500,000 a year", ""],
-         ["Family practice, corporate per head", "400,000 a year", ""]],
-        ["Fees", "Price", "What it buys"], [163, 100, 204], aligns=["l", "l"]))
+        [["<b>Panel</b>", "400,000", "Guest rates", "Credentialing, directory listing, booking "
+          "access. Recovered in four sessions"],
+         ["<b>Associate</b>", "1,200,000", "20% off guest", "Pays for itself at 0.8 sessions a week"],
+         ["<b>Full</b>", "2,400,000", "35% off guest", "Priority booking, named room preference, "
+          "lounge. Pays for itself at 1.2 a week"],
+         ["<b>Fellow</b>", "4,200,000", "35% off guest", "All of the above, plus a standing weekly "
+          "slot, directory prominence and inclusion in campus marketing"],
+         ["Family practice, individual", "600,000", "", ""],
+         ["Family practice, family of four", "1,500,000", "", ""],
+         ["Family practice, corporate per head", "400,000", "", ""]],
+        ["Fees, NGN a year", "Price", "Session rate", "What it buys"],
+        [148, 62, 74, 183], aligns=["r", "l", "l"], hi={0}))
+    el.append(Spacer(1, 3))
+    el.append(card(
+        "<b>Two corrections to earlier pricing.</b> The panel was NGN 150,000, which is recovered in "
+        "1.4 sessions and is not a filter but a rounding error. It has to pay for MDCN verification, "
+        "indemnity checks, references, annual re-verification and the insurance exposure of having "
+        "someone on the premises, so <b>NGN 400,000</b>. And a single membership tier was leaving "
+        "money and members on the table, so there are now three.", bg=PANEL))
+    el.append(Spacer(1, 3))
+    el.append(Paragraph(
+        "<b>Tiering does not raise the price, it widens the funnel.</b> Run as one tier, the fee that "
+        "breaks even at a committed 1.5 sessions a week is about NGN 2.5M, which is roughly where we "
+        "already were. The problem is not the number, it is that it asks every specialist to commit "
+        "at the same level. The ladder lets someone join at NGN 1.2M who would never have joined at "
+        "NGN 2.4M, and lets the busiest pay NGN 4.2M for a standing slot they would otherwise have to "
+        "fight for each week. Every tier pays for itself at a usage level the member can check "
+        "against their own diary, which is what makes it an easy sale rather than a persuasion.", P))
     el.append(Spacer(1, 3))
     el.append(Paragraph(
         "Guest and panel rates are set at 1.5x member. The evening rate is the one most exposed: at "
@@ -408,7 +429,7 @@ def build():
     # 08
     sec(el, "08", "FINANCIALS", "What it earns, on the empanelled model.")
     el.append(tbl(
-        [["Members", "15", "25", "40"],
+        [["Members, all tiers", "18", "31", "48"],
          ["Panel specialists", "30", "45", "60"],
          ["Room fill", "20%", "38%", "65%"],
          ["Sessions and fees", "181.1", "342.2", "583.7"],
@@ -429,7 +450,7 @@ def build():
     el.append(card(
         "<b>Empanelment gives a lower number with far better odds of hitting it, and that is the "
         "right trade.</b> The earlier single-tier model needed 60 specialists each paying NGN 2.5M, "
-        "which is a lot of persuasion. This needs 25 members and 45 on a panel at NGN 150,000, which "
+        "which is a lot of persuasion. This needs 25 members and 45 on a panel at NGN 400,000, which "
         "is a much easier sale and a much shorter path to breadth. <b>Everything turns on the member "
         "count, which is precisely what the survey measures.</b>", bg=PANEL))
     el.append(Spacer(1, 4))
