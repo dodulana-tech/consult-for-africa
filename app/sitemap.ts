@@ -27,6 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: "/services/digital-health", priority: 0.8, changeFrequency: "monthly" as const },
     { url: "/services/health-systems", priority: 0.8, changeFrequency: "monthly" as const },
     { url: "/services/diaspora-expertise", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/services/healthcare-marketing", priority: 0.8, changeFrequency: "monthly" as const },
     // Solution pages
     { url: "/solutions/advisory", priority: 0.8, changeFrequency: "monthly" as const },
     { url: "/solutions/retainer", priority: 0.8, changeFrequency: "monthly" as const },

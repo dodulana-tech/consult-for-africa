@@ -56,6 +56,33 @@ export default function Capabilities() {
         "Change adoption",
       ],
     ],
+    [
+      "Marketing, Brand & Communications",
+      [
+        "Brand strategy & market research",
+        "Campaign planning & creative",
+        "Digital marketing, web & social",
+        "Public relations, analytics & CRM",
+      ],
+    ],
+    [
+      "Workforce & Recruitment",
+      [
+        "Permanent & locum recruitment",
+        "Credential verification",
+        "Leadership assessment",
+        "Salary & workforce benchmarking",
+      ],
+    ],
+    [
+      "Health Systems & Public Sector",
+      [
+        "Health system & network design",
+        "Policy to implementation",
+        "Primary healthcare strengthening",
+        "Development partner advisory",
+      ],
+    ],
   ];
 
   return (

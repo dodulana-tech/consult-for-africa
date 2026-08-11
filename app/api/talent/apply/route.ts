@@ -25,7 +25,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   } = body;
 
   const applicantTrack = track || "CONSULTANT";
-  const isInternTrack = ["INTERN", "SIWES", "FELLOWSHIP"].includes(applicantTrack);
+  const isInternTrack = ["INTERN", "SIWES", "FELLOWSHIP", "NYSC"].includes(applicantTrack);
 
   if (!firstName || !lastName || !email || !location || !specialty || (!isInternTrack && !yearsExperience)) {
     return Response.json({ error: "firstName, lastName, email, location, specialty, yearsExperience are required" }, { status: 400 });
@@ -101,9 +101,9 @@ export const POST = handler(async function POST(req: NextRequest) {
 
   const trackContext = isInternTrack
     ? `\nAPPLICANT TRACK: ${applicantTrack}
-This is a ${applicantTrack === "SIWES" ? "SIWES (Student Industrial Work Experience Scheme)" : applicantTrack === "FELLOWSHIP" ? "Graduate Fellowship" : "Student Internship"} application.
-${university ? `University: ${university}` : ""}${programme ? ` | Programme: ${programme}` : ""}${yearOfStudy ? ` | Year: ${yearOfStudy}` : ""}
-IMPORTANT: Adjust your evaluation for a student/graduate level candidate. Do NOT penalise for lack of years of experience. Instead evaluate: analytical ability, communication quality, genuine interest in healthcare management, and potential to learn. The experience_depth criterion should assess academic background and any relevant exposure rather than professional years.`
+This is a ${applicantTrack === "SIWES" ? "SIWES (Student Industrial Work Experience Scheme)" : applicantTrack === "FELLOWSHIP" ? "Graduate Fellowship" : applicantTrack === "NYSC" ? "NYSC (National Youth Service Corps) junior analyst" : "Student Internship"} application.
+${university ? `University: ${university}` : ""}${programme ? ` | ${applicantTrack === "NYSC" ? "Discipline" : "Programme"}: ${programme}` : ""}${yearOfStudy ? ` | ${applicantTrack === "NYSC" ? "Status" : "Year"}: ${yearOfStudy}` : ""}
+IMPORTANT: Adjust your evaluation for a student/graduate level candidate. Do NOT penalise for lack of years of experience. ${applicantTrack === "NYSC" ? "This is a serving corps member or recent graduate applying for a junior analyst seat; they need not have a healthcare background, and specialty_fit should reward general analytical, research, and business aptitude rather than healthcare-management specialisation. " : ""}Instead evaluate: analytical ability, communication quality, genuine interest, and potential to learn. The experience_depth criterion should assess academic background and any relevant exposure rather than professional years.`
     : "";
 
   const screeningPrompt = `You are the talent screening system for Consult For Africa (C4A), a premium healthcare management consulting firm operating across Africa. C4A places elite healthcare consultants into hospitals, health systems, and government health agencies.

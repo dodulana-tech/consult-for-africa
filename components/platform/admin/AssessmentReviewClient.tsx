@@ -189,7 +189,7 @@ export default function AssessmentReviewClient({
             <p className="text-gray-400 text-xs mb-0.5">Track</p>
             <p className="font-medium text-gray-900">
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                assessment.track === "INTERN" || assessment.track === "SIWES" ? "bg-green-50 text-green-700" :
+                assessment.track === "INTERN" || assessment.track === "SIWES" || assessment.track === "NYSC" ? "bg-green-50 text-green-700" :
                 assessment.track === "FELLOWSHIP" ? "bg-purple-50 text-purple-700" :
                 "bg-blue-50 text-blue-700"
               }`}>

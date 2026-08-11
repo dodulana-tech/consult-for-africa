@@ -27,7 +27,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ApplyPage() {
+const VALID_TRACKS = ["CONSULTANT", "NYSC", "INTERN", "SIWES", "FELLOWSHIP"];
+
+export default async function ApplyPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ track?: string }>;
+}) {
+  const { track } = await searchParams;
+  const defaultTrack = track && VALID_TRACKS.includes(track.toUpperCase())
+    ? track.toUpperCase()
+    : "CONSULTANT";
   return (
     <div className="min-h-screen py-16 px-6" style={{ background: "#FAFAFA" }}>
       <div className="max-w-2xl mx-auto">
@@ -41,11 +51,12 @@ export default function ApplyPage() {
             Join C4A
           </p>
           <h1 className="text-3xl font-bold mb-3" style={{ color: "#0F2744" }}>
-            Consultant Application
+            {defaultTrack === "NYSC" ? "Junior Analyst Application" : "Consultant Application"}
           </h1>
           <p className="text-gray-500 text-sm leading-relaxed">
-            Complete the form below to apply to C4A's exclusive consultant network.
-            Applications are reviewed by our team within 5 business days.
+            {defaultTrack === "NYSC"
+              ? "Complete the form below to apply for a junior analyst placement at C4A. Applications are reviewed by our team within 5 business days."
+              : "Complete the form below to apply to C4A's exclusive consultant network. Applications are reviewed by our team within 5 business days."}
           </p>
         </div>
 
@@ -65,7 +76,7 @@ export default function ApplyPage() {
 
         {/* Form card */}
         <div className="bg-white rounded-2xl p-8" style={{ border: "1px solid #e5eaf0" }}>
-          <ApplicationForm />
+          <ApplicationForm defaultTrack={defaultTrack} />
         </div>
       </div>
     </div>

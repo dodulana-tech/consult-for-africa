@@ -13,8 +13,11 @@ const SPECIALTIES = [
   "Health Systems Strengthening",
   "Health Finance & Insurance (NHIS/HMO)",
   "Diaspora Healthcare Expertise",
+  "Analyst / Generalist (Research, Strategy, Operations)",
   "Other",
 ];
+
+const EARLY_CAREER_TRACKS = ["INTERN", "SIWES", "FELLOWSHIP", "NYSC"];
 
 const ENGAGEMENT_TYPES = [
   { value: "FULL_TIME", label: "Full-time (embedded)" },
@@ -37,7 +40,7 @@ const labelClass = "block text-xs font-semibold text-gray-600 mb-1.5 uppercase t
 
 type Step = 1 | 2 | 3;
 
-export default function ApplicationForm() {
+export default function ApplicationForm({ defaultTrack = "CONSULTANT" }: { defaultTrack?: string }) {
   const [step, setStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -45,7 +48,7 @@ export default function ApplicationForm() {
   const [result, setResult] = useState<{ aiScore: number | null; message: string } | null>(null);
 
   const [form, setForm] = useState({
-    track: "CONSULTANT",
+    track: defaultTrack,
     firstName: "",
     lastName: "",
     email: "",
@@ -68,6 +71,8 @@ export default function ApplicationForm() {
     yearOfStudy: "",
     siwesEligible: false,
   });
+
+  const earlyCareer = EARLY_CAREER_TRACKS.includes(form.track);
 
   function set(key: string, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -92,10 +97,14 @@ export default function ApplicationForm() {
       }
     }
     if (s === 2) {
-      if (!form.specialty || !form.yearsExperience) {
-        return "Please select your specialty and years of experience.";
+      const earlyCareer = EARLY_CAREER_TRACKS.includes(form.track);
+      if (!form.specialty) {
+        return "Please select a focus area.";
       }
-      if (form.engagementTypes.length === 0) {
+      if (!earlyCareer && !form.yearsExperience) {
+        return "Please select your years of experience.";
+      }
+      if (!earlyCareer && form.engagementTypes.length === 0) {
         return "Please select at least one engagement type.";
       }
     }
@@ -215,9 +224,10 @@ export default function ApplicationForm() {
             {/* Track selection */}
             <div>
               <label className={labelClass}>I am applying as</label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-1">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-1">
                 {[
                   { value: "CONSULTANT", label: "Consultant", desc: "Experienced professional" },
+                  { value: "NYSC", label: "NYSC Corper", desc: "Junior analyst" },
                   { value: "INTERN", label: "Intern", desc: "Student placement" },
                   { value: "SIWES", label: "SIWES Student", desc: "IT/SIWES placement" },
                   { value: "FELLOWSHIP", label: "Fellow", desc: "Graduate programme" },
@@ -272,11 +282,11 @@ export default function ApplicationForm() {
         {/* Step 2: Professional */}
         {step === 2 && (
           <div className="space-y-4">
-            {/* Intern-specific fields */}
-            {(form.track === "INTERN" || form.track === "SIWES") && (
+            {/* Early-career details (student / graduate / NYSC) */}
+            {(form.track === "INTERN" || form.track === "SIWES" || form.track === "NYSC") && (
               <div className="rounded-lg border p-4 space-y-3" style={{ borderColor: "#D4AF37" + "40", background: "#D4AF37" + "08" }}>
                 <p className="text-xs font-semibold" style={{ color: "#0F2744" }}>
-                  {form.track === "SIWES" ? "SIWES Placement Details" : "Internship Details"}
+                  {form.track === "SIWES" ? "SIWES Placement Details" : form.track === "NYSC" ? "NYSC Placement Details" : "Internship Details"}
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -285,34 +295,50 @@ export default function ApplicationForm() {
                       className={inputClass} style={inputStyle} placeholder="e.g. University of Lagos" />
                   </div>
                   <div>
-                    <label className={labelClass}>Programme <span className="text-red-400">*</span></label>
-                    <select value={form.programme} onChange={(e) => set("programme", e.target.value)}
-                      className={inputClass} style={inputStyle}>
-                      <option value="">Select programme...</option>
-                      <option value="Health Administration">Health Administration</option>
-                      <option value="Public Health">Public Health</option>
-                      <option value="Hospital Management">Hospital Management</option>
-                      <option value="Health Information Management">Health Information Management</option>
-                      <option value="Nursing Administration">Nursing Administration</option>
-                      <option value="Health Economics">Health Economics</option>
-                      <option value="Business Administration (Healthcare)">Business Administration (Healthcare)</option>
-                      <option value="Other">Other</option>
-                    </select>
+                    <label className={labelClass}>{form.track === "NYSC" ? "Degree / Discipline" : "Programme"} <span className="text-red-400">*</span></label>
+                    {form.track === "NYSC" ? (
+                      <input value={form.programme} onChange={(e) => set("programme", e.target.value)}
+                        className={inputClass} style={inputStyle} placeholder="e.g. Economics, Microbiology, Business" />
+                    ) : (
+                      <select value={form.programme} onChange={(e) => set("programme", e.target.value)}
+                        className={inputClass} style={inputStyle}>
+                        <option value="">Select programme...</option>
+                        <option value="Health Administration">Health Administration</option>
+                        <option value="Public Health">Public Health</option>
+                        <option value="Hospital Management">Hospital Management</option>
+                        <option value="Health Information Management">Health Information Management</option>
+                        <option value="Nursing Administration">Nursing Administration</option>
+                        <option value="Health Economics">Health Economics</option>
+                        <option value="Business Administration (Healthcare)">Business Administration (Healthcare)</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    )}
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className={labelClass}>Year of Study</label>
-                    <select value={form.yearOfStudy} onChange={(e) => set("yearOfStudy", e.target.value)}
-                      className={inputClass} style={inputStyle}>
-                      <option value="">Select...</option>
-                      <option value="200-level">200 Level</option>
-                      <option value="300-level">300 Level</option>
-                      <option value="400-level">400 Level</option>
-                      <option value="500-level">500 Level</option>
-                      <option value="Postgraduate">Postgraduate</option>
-                      <option value="Recent Graduate">Recent Graduate</option>
-                    </select>
+                    <label className={labelClass}>{form.track === "NYSC" ? "NYSC status / batch" : "Year of Study"}</label>
+                    {form.track === "NYSC" ? (
+                      <select value={form.yearOfStudy} onChange={(e) => set("yearOfStudy", e.target.value)}
+                        className={inputClass} style={inputStyle}>
+                        <option value="">Select...</option>
+                        <option value="Awaiting deployment">Awaiting deployment</option>
+                        <option value="Currently serving">Currently serving (posted to Lagos)</option>
+                        <option value="Completing soon">Completing service soon</option>
+                        <option value="Recent Graduate">Recent graduate (yet to serve)</option>
+                      </select>
+                    ) : (
+                      <select value={form.yearOfStudy} onChange={(e) => set("yearOfStudy", e.target.value)}
+                        className={inputClass} style={inputStyle}>
+                        <option value="">Select...</option>
+                        <option value="200-level">200 Level</option>
+                        <option value="300-level">300 Level</option>
+                        <option value="400-level">400 Level</option>
+                        <option value="500-level">500 Level</option>
+                        <option value="Postgraduate">Postgraduate</option>
+                        <option value="Recent Graduate">Recent Graduate</option>
+                      </select>
+                    )}
                   </div>
                   {form.track === "SIWES" && (
                     <div className="flex items-center gap-2 pt-5">
@@ -337,50 +363,55 @@ export default function ApplicationForm() {
                   className={inputClass} style={inputStyle} placeholder={form.track === "INTERN" || form.track === "SIWES" ? "Same as above or different" : "Lagos University Teaching Hospital"} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className={earlyCareer ? "" : "grid grid-cols-2 gap-4"}>
               <div>
-                <label className={labelClass}>Primary Specialty <span className="text-red-400">*</span></label>
+                <label className={labelClass}>{earlyCareer ? "Focus area" : "Primary Specialty"} <span className="text-red-400">*</span></label>
                 <div className="relative">
                   <select value={form.specialty} onChange={(e) => set("specialty", e.target.value)}
                     className={`${inputClass} appearance-none pr-8`} style={inputStyle}>
-                    <option value="">Select specialty</option>
+                    <option value="">{earlyCareer ? "Select a focus area" : "Select specialty"}</option>
                     {SPECIALTIES.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
                   <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                 </div>
               </div>
+              {!earlyCareer && (
+                <div>
+                  <label className={labelClass}>Years of Experience <span className="text-red-400">*</span></label>
+                  <div className="relative">
+                    <select value={form.yearsExperience} onChange={(e) => set("yearsExperience", e.target.value)}
+                      className={`${inputClass} appearance-none pr-8`} style={inputStyle}>
+                      <option value="">Select range</option>
+                      {[
+                        { label: "1-3 years", value: "1" },
+                        { label: "3-5 years", value: "3" },
+                        { label: "5-8 years", value: "5" },
+                        { label: "8-12 years", value: "8" },
+                        { label: "12-15 years", value: "12" },
+                        { label: "15-20 years", value: "15" },
+                        { label: "20+ years", value: "20" },
+                      ].map((r) => (
+                        <option key={r.value} value={r.value}>{r.label}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+              )}
+            </div>
+            {!earlyCareer && (
               <div>
-                <label className={labelClass}>Years of Experience <span className="text-red-400">*</span></label>
+                <label className={labelClass}>Work Authorisation</label>
                 <div className="relative">
-                  <select value={form.yearsExperience} onChange={(e) => set("yearsExperience", e.target.value)}
+                  <select value={form.workAuthorization} onChange={(e) => set("workAuthorization", e.target.value)}
                     className={`${inputClass} appearance-none pr-8`} style={inputStyle}>
-                    <option value="">Select range</option>
-                    {[
-                      { label: "1-3 years", value: "1" },
-                      { label: "3-5 years", value: "3" },
-                      { label: "5-8 years", value: "5" },
-                      { label: "8-12 years", value: "8" },
-                      { label: "12-15 years", value: "12" },
-                      { label: "15-20 years", value: "15" },
-                      { label: "20+ years", value: "20" },
-                    ].map((r) => (
-                      <option key={r.value} value={r.value}>{r.label}</option>
-                    ))}
+                    {WORK_AUTH.map((w) => <option key={w.value} value={w.value}>{w.label}</option>)}
                   </select>
                   <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                 </div>
               </div>
-            </div>
-            <div>
-              <label className={labelClass}>Work Authorisation</label>
-              <div className="relative">
-                <select value={form.workAuthorization} onChange={(e) => set("workAuthorization", e.target.value)}
-                  className={`${inputClass} appearance-none pr-8`} style={inputStyle}>
-                  {WORK_AUTH.map((w) => <option key={w.value} value={w.value}>{w.label}</option>)}
-                </select>
-                <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
+            )}
+            {!earlyCareer && (
             <div>
               <label className={labelClass}>Preferred Engagement Types <span className="text-red-400">*</span></label>
               <div className="grid grid-cols-2 gap-2 mt-1">
@@ -398,6 +429,7 @@ export default function ApplicationForm() {
                 ))}
               </div>
             </div>
+            )}
             <div>
               <label className={labelClass}>Available From</label>
               <input type="date" value={form.availableFrom} onChange={(e) => set("availableFrom", e.target.value)}
@@ -442,13 +474,21 @@ export default function ApplicationForm() {
             <div>
               <label className={labelClass}>Cover Letter / Statement of Interest <span className="text-red-400">*</span></label>
               <p className="text-xs text-gray-500 mb-1">
-                Written communication is a core consulting competency. This letter is evaluated as a writing sample.
+                Clear writing is a core skill here. This letter is read as a writing sample.
               </p>
-              <p className="text-xs text-gray-400 mb-3">
-                In 400-800 words, articulate: (1) your specific expertise and how it maps to healthcare challenges in Africa,
-                (2) a concrete example of institutional impact you have driven, and (3) why Consult For Africa specifically.
-                Avoid generic statements. Write as you would for a hospital CEO or board audience.
-              </p>
+              {earlyCareer ? (
+                <p className="text-xs text-gray-400 mb-3">
+                  In 250-500 words, tell us: (1) why this role interests you, (2) one problem you have
+                  enjoyed thinking through (from your studies, a project, or life), and how you approached
+                  it, and (3) why Consult For Africa specifically. Write plainly and in your own voice.
+                </p>
+              ) : (
+                <p className="text-xs text-gray-400 mb-3">
+                  In 400-800 words, articulate: (1) your specific expertise and how it maps to healthcare challenges in Africa,
+                  (2) a concrete example of institutional impact you have driven, and (3) why Consult For Africa specifically.
+                  Avoid generic statements. Write as you would for a hospital CEO or board audience.
+                </p>
+              )}
               <textarea
                 value={form.coverLetter}
                 onChange={(e) => set("coverLetter", e.target.value)}
@@ -461,8 +501,8 @@ export default function ApplicationForm() {
                 <p className="text-[10px] text-gray-300">
                   {form.coverLetter ? `${form.coverLetter.split(/\s+/).filter(Boolean).length} words` : "0 words"}
                 </p>
-                {form.coverLetter && form.coverLetter.split(/\s+/).filter(Boolean).length < 200 && (
-                  <p className="text-[10px] text-amber-500">We recommend at least 400 words for a strong submission</p>
+                {form.coverLetter && form.coverLetter.split(/\s+/).filter(Boolean).length < (earlyCareer ? 120 : 200) && (
+                  <p className="text-[10px] text-amber-500">We recommend at least {earlyCareer ? "250" : "400"} words for a strong submission</p>
                 )}
               </div>
             </div>

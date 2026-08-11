@@ -6,7 +6,7 @@ import AboutServices from "@/components/cfa/services/AboutServices";
 
 export const metadata: Metadata = {
   title: "Services | Consult For Africa",
-  description: "Hospital operations, turnaround and recovery, embedded leadership, clinical governance, digital health, and health systems strengthening across Africa.",
+  description: "Hospital operations, turnaround and recovery, embedded leadership, clinical governance, digital health, healthcare marketing, and health systems strengthening across Africa.",
   keywords: [
     "hospital turnaround services",
     "clinical governance consulting",
@@ -16,13 +16,15 @@ export const metadata: Metadata = {
     "health systems strengthening",
     "hospital recovery consulting",
     "embedded leadership healthcare",
+    "healthcare marketing agency Nigeria",
+    "hospital patient acquisition",
   ],
   alternates: {
     canonical: "https://consultforafrica.com/services",
   },
   openGraph: {
     title: "Services | Consult For Africa",
-    description: "Hospital operations, turnaround, embedded leadership, clinical governance, digital health, and health systems strengthening across Africa.",
+    description: "Hospital operations, turnaround, embedded leadership, clinical governance, digital health, healthcare marketing, and health systems strengthening across Africa.",
     type: "website",
     images: ["/og-image.jpg"],
   },
@@ -51,6 +53,7 @@ const servicesJsonLd = [
         { "@type": "Offer", itemOffered: { "@type": "Service", name: "Digital Health", url: "https://consultforafrica.com/services/digital-health" } },
         { "@type": "Offer", itemOffered: { "@type": "Service", name: "Health Systems Strengthening", url: "https://consultforafrica.com/services/health-systems" } },
         { "@type": "Offer", itemOffered: { "@type": "Service", name: "Diaspora Expertise", url: "https://consultforafrica.com/services/diaspora-expertise" } },
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Healthcare Marketing Agency", url: "https://consultforafrica.com/services/healthcare-marketing" } },
       ],
     },
   },
