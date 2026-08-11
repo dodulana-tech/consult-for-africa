@@ -428,11 +428,12 @@ def build():
     el.append(tbl(
         [["<b>It is</b>", "A private ambulatory campus where senior specialists hold sessions at a "
           "good address, families buy bundled care, and aesthetic and day-case work anchors the "
-          "identity. Diagnostics, pharmacy and procedure rooms on site, so a patient is worked up "
-          "and treated in one visit"],
-         ["<b>It is not</b>", "A hospital. No theatre, no beds, no emergency department, no "
-          "overnight stay. It does not compete with the tertiary centres and should never be "
-          "described as though it does"],
+          "identity. Diagnostics, pharmacy, procedure rooms and a day-case theatre on site, so a "
+          "patient is worked up, operated on and home the same day"],
+         ["<b>It is not</b>", "A hospital. There is a day-case theatre, but <b>no beds, no emergency "
+          "department, no intensive care and no overnight stay</b>. Every patient goes home the same "
+          "day. It does not compete with the tertiary centres and should never be described as "
+          "though it does"],
          ["<b>For specialists</b>", "The address and the infrastructure, without a lease. Turn up, "
           "practise, be paid, leave. Somebody else handles reception, records, billing, collection "
           "and the nurse"],

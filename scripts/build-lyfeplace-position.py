@@ -184,9 +184,10 @@ def build():
         ["", "", ""], [128, 62, 277], aligns=["r", "l"], hi={6}))
     el.append(Spacer(1, 3))
     el.append(Paragraph(
-        "That is a serious ambulatory facility. What the building will not support, at any budget, "
-        "is a theatre, an inpatient bed, or sedation above ground level, because there is no lift "
-        "and a sedated patient must be evacuated horizontally.", P))
+        "That is a serious ambulatory facility. A day-case theatre sits on the ground floor, where "
+        "there is level trolley access to an ambulance. What the building will not support, at any "
+        "budget, is an inpatient bed, an emergency department, or <b>any sedation above ground "
+        "level</b>: there is no lift, and a sedated patient must be evacuated horizontally.", P))
 
     el.append(Paragraph("2.  What it costs, and what it returns", Q))
     el.append(tbl(

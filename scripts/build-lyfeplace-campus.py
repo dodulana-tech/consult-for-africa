@@ -332,11 +332,12 @@ def build():
         ["", "Constraint", "What it means"], [20, 118, 329], aligns=["l", "l"]))
     el.append(Spacer(1, 5))
     el.append(card(
-        "<b>The building supports an eight-room plaza with proper diagnostics, two procedure rooms and "
-        "a hair transplant suite, and that is a serious facility.</b> What it will not support is a "
-        "theatre, an inpatient bed, or a second high-volume clinic sharing the same front door. "
-        "Those need either a lift, a modular unit on the grounds, or a different building.",
-        bg=PANEL))
+        "<b>The building supports a plaza with proper diagnostics, a hair transplant suite, two "
+        "procedure rooms and a ground-floor day-case theatre, and that is a serious facility.</b> "
+        "What it will not support is an inpatient bed, an emergency department, or <b>any sedation "
+        "above ground level</b>, because there is no lift and a sedated patient must be evacuated "
+        "horizontally on a trolley. Those need a lift, a modular unit on the grounds, or a different "
+        "building.", bg=PANEL))
     el.append(Spacer(1, 6))
     el.append(card(
         "<b>Debo Odulana</b> &nbsp; Consult for Africa &nbsp; / &nbsp; +234 913 813 8553 &nbsp; / "

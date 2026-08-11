@@ -822,7 +822,7 @@ def build():
     el.append(PageBreak())
 
     # ================= 06 PROCEDURE =================
-    sec(el, "07", "PROCEDURE AND DAY CASE", "Two graded rooms. No theatre in this building.")
+    sec(el, "07", "PROCEDURE AND DAY CASE", "Two graded rooms, and a ground-floor theatre.")
     el.append(Paragraph(
         "A procedure room and a day case theatre are different facilities with different ventilation, "
         "power, staffing and regulation. Conflating them is how clinical projects get into trouble.", LEDE))
