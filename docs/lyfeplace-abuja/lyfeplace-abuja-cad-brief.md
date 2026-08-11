@@ -37,7 +37,7 @@ Corridor, staircase.
 |---|---|---|---|
 | Living Room (8,776 x 6,615) | **Reception, waiting and concierge** | 58.1 | Single arrival point for the entire campus. Reception desk with 2 to 3 positions. **Two distinct waiting zones** within the one room: a quiet lounge and a general waiting area, visually separated by joinery or a low screen, not a wall. 16 to 18 seats at premium spacing, 2.5 sqm per seat |
 | Bedroom (5,729 x 4,306) | **Clean procedure room and recovery bay** | 24.7 | Level trolley access to the exterior for ambulance transfer. Filtered supply air at modest positive pressure from a dedicated unit. Piped or cylinder oxygen and suction. Two recovery bays. **The only space on the campus where sedation may be administered** |
-| Bedroom (5,690 x 3,385) | **Consulting room** | 19.3 | Standard consulting fit-out |
+| Bedroom (5,690 x 3,385) | **Consulting room, plaster-capable** | 19.3 | Standard consulting fit-out, plus a **plaster trap to the sink** and space for a **cast saw**. Sited next to X-ray so the check film, the cast and the review film all happen in one place. This is what enables Ponseti clubfoot serial casting and paediatric orthopaedics |
 | Kitchen (5,306 x 3,435) | **Phlebotomy and specimen handling** | 18.2 | Retain existing water and drainage. Draw chair, hand-wash, specimen pass-through |
 | Bedroom (3,010 x 4,695) | **Digital X-ray, lead shielded** | 14.1 | Lead lining to walls, door and observation panel. Warning light interlock. Cannot be located anywhere else on the campus: weight, shielding and evacuation all fix it here |
 | Dining (3,170 x 4,095) | **Ultrasound and echocardiography** | 13.0 | Dimmable lighting, hand-wash, changing space |
