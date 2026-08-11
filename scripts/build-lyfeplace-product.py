@@ -241,8 +241,10 @@ def build():
     # 03
     sec(el, "03", "LINE 2", "Family practice, bundled and packaged.")
     el.append(Paragraph(
-        "Lyfe Place's own operating company, not a tenant. Two ground-floor rooms beside the "
-        "diagnostics, which is exactly where a first-contact service belongs.", P))
+        "Lyfe Place's own operating company, not a tenant. It launches in <b>one first-floor consulting "
+        "room</b> and takes a second when member numbers justify it. The ground floor has no room for "
+        "it: every space there is committed to arrival, diagnostics or the theatre suite. The first-floor "
+        "phlebotomy draw point serves it, so the screening product keeps its diagnostics adjacency.", P))
     el.append(tbl(
         [["Individual", "Unlimited GP access, annual screen, vaccinations, chronic disease "
           "management, quarterbacked referral into the panel", "600,000"],
@@ -270,6 +272,39 @@ def build():
          ["Hair transplant", "FUE, six to ten hour single-patient cases under local anaesthesia",
           "FUE suite"]],
         ["Sub-line", "What is done", "Where"], [104, 285, 78], aligns=["l", "l"]))
+    el.append(Spacer(1, 4))
+    el.append(Paragraph("The theatre, and what it costs to have one", H2))
+    el.append(Paragraph(
+        "A day-case theatre goes on the <b>ground floor</b>. I had ruled a theatre out entirely, and "
+        "that was wrong: the objection was evacuation, and it only applies above ground level where "
+        "a sedated patient cannot be moved horizontally. At ground level with trolley access to an "
+        "ambulance, a theatre is an engineering and cost question rather than a safety stopper.", P))
+    el.append(tbl(
+        [["Theatre", "24.7", "The largest ground floor room, level access to the exterior"],
+         ["Recovery, 2 monitored bays", "19.3", "Was the plaster-capable consulting room"],
+         ["Scrub and prep", "10.4", "Was the talking-consultation room"],
+         ["Sterile store and dirty utility", "7.8", "Was imaging reporting, which folds into "
+          "ultrasound"],
+         ["The suite", "62.2", ""]],
+        ["The suite", "sqm", "What it takes"], [148, 52, 267], total_row=True, aligns=["r", "l"]))
+    el.append(Spacer(1, 3))
+    el.append(tbl(
+        [["Ventilation: AHU, HEPA, ductwork, external plant", "25 to 40"],
+         ["Theatre lighting, pendant, operating table", "25 to 40"],
+         ["Anaesthetic machine and full monitoring", "15 to 25"],
+         ["Scrub, sterile store, dirty utility fit-out", "12 to 18"],
+         ["Isolated power supply panel and UPS", "8 to 15"],
+         ["Recovery, two monitored stations", "8 to 12"],
+         ["On top of the NGN 232M fit-out", "93 to 150"]],
+        ["Capital, NGN M", "Amount"], [383, 84], total_row=True))
+    el.append(Spacer(1, 4))
+    el.append(card(
+        "<b>The trade, stated plainly.</b> The theatre unlocks the surgical half of the anchor: "
+        "liposuction, abdominoplasty, breast augmentation and reduction, rhinoplasty, facelift and "
+        "gynaecomastia, plus general day surgery and gynaecology under general anaesthesia. None of "
+        "it can be done any other way. <b>The cost is NGN 93M to 150M, every consulting room on the "
+        "ground floor, and the plaster room with its X-ray adjacency.</b> Campus fit-out goes from "
+        "NGN 232M to between NGN 325M and NGN 382M.", bg=ALERT, rule=RUST))
     el.append(Spacer(1, 4))
     el.append(card(
         "<b>Hair transplant is the best single fit for this building.</b> Local anaesthesia only, so "
@@ -397,6 +432,14 @@ def build():
         "which is a lot of persuasion. This needs 25 members and 45 on a panel at NGN 150,000, which "
         "is a much easier sale and a much shorter path to breadth. <b>Everything turns on the member "
         "count, which is precisely what the survey measures.</b>", bg=PANEL))
+    el.append(Spacer(1, 4))
+    el.append(card(
+        "<b>One capacity consequence to hold in view.</b> With the theatre taking the ground floor "
+        "and the family practice taking a first-floor room, the sessional pool falls to <b>six "
+        "rooms</b>, all upstairs. At a practical booking ceiling of about 75%, that is roughly 4,970 "
+        "blocks a year. It carries the base case comfortably and about half as much again, but "
+        "<b>the high case does not fit in it</b>. The theatre buys surgical revenue and caps "
+        "sessional revenue, and both effects are real.", bg=ALERT, rule=RUST))
     el.append(Spacer(1, 4))
     el.append(Paragraph(
         "The family practice line is indicative and needs its own model: panel size, physician "

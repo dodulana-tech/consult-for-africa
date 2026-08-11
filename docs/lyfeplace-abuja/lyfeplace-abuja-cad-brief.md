@@ -36,13 +36,13 @@ Corridor, staircase.
 | Existing room | Becomes | Approx sqm | Requirements |
 |---|---|---|---|
 | Living Room (8,776 x 6,615) | **Reception, waiting and concierge** | 58.1 | Single arrival point for the entire campus. Reception desk with 2 to 3 positions. **Two distinct waiting zones** within the one room: a quiet lounge and a general waiting area, visually separated by joinery or a low screen, not a wall. 16 to 18 seats at premium spacing, 2.5 sqm per seat |
-| Bedroom (5,729 x 4,306) | **Clean procedure room and recovery bay** | 24.7 | Level trolley access to the exterior for ambulance transfer. Filtered supply air at modest positive pressure from a dedicated unit. Piped or cylinder oxygen and suction. Two recovery bays. **The only space on the campus where sedation may be administered** |
-| Bedroom (5,690 x 3,385) | **Consulting room, plaster-capable** | 19.3 | Standard consulting fit-out, plus a **plaster trap to the sink** and space for a **cast saw**. Sited next to X-ray so the check film, the cast and the review film all happen in one place. This is what enables Ponseti clubfoot serial casting and paediatric orthopaedics |
+| Bedroom (5,729 x 4,306) | **Day-case theatre** | 24.7 | Level trolley access to the exterior for ambulance transfer. Positive-pressure HEPA ventilation from an AHU, plant sited externally. Isolated power supply panel with UPS. Theatre pendant, operating light and table. Piped gases and suction. **The only space on the campus where general anaesthesia or sedation may be administered** |
+| Bedroom (5,690 x 3,385) | **Monitored recovery, two bays** | 19.3 | Adjoins the theatre. Oxygen, suction and monitoring to each bay. Nurse station with sight of both. Formal discharge criteria before the patient leaves |
 | Kitchen (5,306 x 3,435) | **Phlebotomy and specimen handling** | 18.2 | Retain existing water and drainage. Draw chair, hand-wash, specimen pass-through |
 | Bedroom (3,010 x 4,695) | **Digital X-ray, lead shielded** | 14.1 | Lead lining to walls, door and observation panel. Warning light interlock. Cannot be located anywhere else on the campus: weight, shielding and evacuation all fix it here |
 | Dining (3,170 x 4,095) | **Ultrasound and echocardiography** | 13.0 | Dimmable lighting, hand-wash, changing space |
-| Bedroom (3,760 x 2,776) | **Talking-consultation room** | 10.4 | Psychology, dietetics, counselling. Desk and seating only, no examination couch. Must not be drawn as a full consulting room |
-| Bath (3,760 x 2,080) | **Imaging reporting and control** | 7.8 | Adjacent to X-ray. Low ambient light |
+| Bedroom (3,760 x 2,776) | **Scrub and prep** | 10.4 | Serving the theatre. Scrub trough, gowning, and space to induce before transfer |
+| Bath (3,760 x 2,080) | **Sterile store and dirty utility** | 7.8 | Serving the theatre, with one-way dirty-to-clean flow. Imaging reporting folds into the ultrasound room |
 | Store (3,170 x 1,905) | **Medication collection point** | 6.0 | Serving hatch to the waiting area. The pharmacy's only patient-facing space |
 | Bath, Bath, V.T | **Patient WCs** | 10.4 | Emergency pull cords. One WC to be accessible |
 
@@ -135,7 +135,7 @@ These are not preferences. A drawing that breaks any of them is wrong.
 1. **No lift, and none is to be added.** No sedation-dependent work above ground level, at any budget. A sedated patient must be evacuated horizontally on a trolley.
 2. **One reception only.** Do not draw a second reception or a second entrance for patients. The single desk sustains seven to eight arrivals an hour across a 07:00 to 21:00 window, and that is the binding constraint on the whole campus.
 3. **X-ray stays on the ground floor.** Weight, lead shielding and evacuation.
-4. **No operating theatre.** Positive-pressure HEPA ventilation, isolated power and monitored recovery cannot be accommodated. If day-case surgery is ever wanted it goes in a modular unit on the grounds, drawn separately.
+4. **A day-case theatre goes on the ground floor, and nowhere else.** It requires positive-pressure HEPA ventilation from an AHU with external plant, an isolated power supply panel with UPS, a scrub, a sterile store, a dirty utility and two monitored recovery bays. It must have level trolley access to an ambulance. Do not draw a theatre, or any sedation space, above ground level.
 5. **No inpatient beds.** This is an ambulatory facility. Recovery bays are for the same day.
 
 ---
@@ -157,7 +157,7 @@ These are not preferences. A drawing that breaks any of them is wrong.
 
 | | |
 |---|---|
-| Consulting rooms | 8 at full clinical standard, plus one 10.4 sqm talking-consultation room |
+| Consulting rooms | 7, all on the first floor. The ground floor has none once the theatre suite is placed |
 | FUE suite | 1 |
 | Procedure rooms | 2, one sedation-capable on the ground floor |
 | Imaging modalities | 3: digital X-ray, ultrasound, echocardiography |
