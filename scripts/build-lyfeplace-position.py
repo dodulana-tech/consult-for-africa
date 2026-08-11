@@ -8,7 +8,7 @@ line).
 
 The finding it exists to deliver: with the conversion clinic paused and Medlyfe
 displaced from the guest chalet by the laboratory, THERE IS NO CONTRACTED INCOME
-LEFT. Break-even moves to about 35% of stabilised plaza revenue, all of it
+LEFT. Break-even moves to about 37% of stabilised plaza revenue, all of it
 usage-based. Earlier notes quoted 6% and then 26%, both on lease income that no
 longer exists. That reframes the critical path from lease terms to proven demand,
 and is why the consultant survey matters.
@@ -174,7 +174,7 @@ def build():
         "Four structures, 711 sqm gross, 519 sqm of usable rooms. Measured from the as-built "
         "drawings and to be confirmed against the CAD.", P))
     el.append(tbl(
-        [["Consulting rooms", "9", "7 upstairs, 2 on the ground floor"],
+        [["Consulting rooms", "8", "7 upstairs, 1 on the ground, all at full clinical standard"],
          ["Hair transplant suite", "1", "All-day single-patient cases"],
          ["Procedure rooms", "2", "One sedation-capable, ground floor, level ambulance access"],
          ["Imaging", "3", "Digital X-ray, ultrasound, echocardiography"],
@@ -200,16 +200,16 @@ def build():
         ["Capital, NGN M", "Amount"], [383, 84], total_row=True))
     el.append(Spacer(1, 3))
     el.append(tbl(
-        [["Sessions, 9 rooms at 41% fill", "280.3"],
+        [["Sessions, 8 rooms at 41% fill", "249.2"],
          ["Memberships, 60 at NGN 2.5M", "150.0"],
          ["Procedure and treatment rooms", "101.6"],
-         ["Revenue at stabilisation", "531.9"],
+         ["Revenue at stabilisation", "500.7"],
          ["Fixed annual cost base", "(185.5)"],
-         ["Contribution", "346.4"]],
+         ["Contribution", "315.2"]],
         ["Stabilised trading, NGN M", "Amount"], [383, 84], total_row=True, hi={3}))
     el.append(Spacer(1, 3))
     el.append(Paragraph(
-        "<b>Payback is about 1.5 years from stabilisation</b>, or roughly three and a half years "
+        "<b>Payback is about 1.7 years from stabilisation</b>, or roughly three and a half years "
         "including the ramp. On its own that is a good return.", P))
     el.append(PageBreak())
 
@@ -217,16 +217,16 @@ def build():
     el.append(tbl(
         [["Original plan", "6%", "Alameda, Medlyfe, diagnostics and pharmacy all paying rent"],
          ["After diagnostics and pharmacy became facility", "26%", "Two payers left"],
-         ["Now, with the conversion clinic paused", "<b>35%</b>",
+         ["Now, with the conversion clinic paused", "<b>37%</b>",
           "<b>No payers left. Nothing is contracted</b>"]],
         ["Break-even, as a share of stabilised plaza revenue", "Fill", "Why"],
         [214, 46, 207], aligns=["r", "l"], hi={2}))
     el.append(Spacer(1, 4))
     el.append(card(
-        "<b>Every naira of the NGN 532M is now usage-based.</b> Pausing the conversion clinic removed "
+        "<b>Every naira of the NGN 501M is now usage-based.</b> Pausing the conversion clinic removed "
         "the last anchor tenant, and the laboratory taking the guest chalet displaced Medlyfe, which "
         "was the other one. There is no longer a single contracted lease line in the model. The "
-        "campus is sound at 35% utilisation, but it has to earn that from a standing start rather "
+        "campus is sound at 37% utilisation, but it has to earn that from a standing start rather "
         "than inherit it from a lease.", bg=ALERT, rule=RUST))
     el.append(Spacer(1, 4))
     el.append(Paragraph(

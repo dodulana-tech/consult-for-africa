@@ -41,7 +41,7 @@ Corridor, staircase.
 | Kitchen (5,306 x 3,435) | **Phlebotomy and specimen handling** | 18.2 | Retain existing water and drainage. Draw chair, hand-wash, specimen pass-through |
 | Bedroom (3,010 x 4,695) | **Digital X-ray, lead shielded** | 14.1 | Lead lining to walls, door and observation panel. Warning light interlock. Cannot be located anywhere else on the campus: weight, shielding and evacuation all fix it here |
 | Dining (3,170 x 4,095) | **Ultrasound and echocardiography** | 13.0 | Dimmable lighting, hand-wash, changing space |
-| Bedroom (3,760 x 2,776) | **Counselling and small office** | 10.4 | Below minimum for premium consulting. Do not designate as a consulting room |
+| Bedroom (3,760 x 2,776) | **Talking-consultation room** | 10.4 | Psychology, dietetics, counselling. Desk and seating only, no examination couch. Must not be drawn as a full consulting room |
 | Bath (3,760 x 2,080) | **Imaging reporting and control** | 7.8 | Adjacent to X-ray. Low ambient light |
 | Store (3,170 x 1,905) | **Medication collection point** | 6.0 | Serving hatch to the waiting area. The pharmacy's only patient-facing space |
 | Bath, Bath, V.T | **Patient WCs** | 10.4 | Emergency pull cords. One WC to be accessible |
@@ -157,7 +157,7 @@ These are not preferences. A drawing that breaks any of them is wrong.
 
 | | |
 |---|---|
-| Consulting rooms | 9 |
+| Consulting rooms | 8 at full clinical standard, plus one 10.4 sqm talking-consultation room |
 | FUE suite | 1 |
 | Procedure rooms | 2, one sedation-capable on the ground floor |
 | Imaging modalities | 3: digital X-ray, ultrasound, echocardiography |

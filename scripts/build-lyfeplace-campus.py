@@ -21,7 +21,7 @@ be confirmed against the CAD.
 
   CAMPUS                  711 sqm gross, 519 sqm of rooms (73% efficiency)
 
-Headline capacity: 9 consulting rooms, 1 FUE suite, 2 procedure rooms, against a
+Headline capacity: 8 consulting rooms, 1 FUE suite, 2 procedure rooms, against a
 single-reception throughput ceiling of about 98 arrivals a day.
 
 Output: docs/lyfeplace-abuja/lyfeplace-abuja-campus-cfa.pdf
@@ -276,7 +276,6 @@ def build():
         "The laboratory fills the chalet. There is no room left in it for anything else, which is "
         "why Medlyfe cannot also be housed there and needs a separate decision.", P))
 
-    el.append(PageBreak())
 
     # 05
     sec(el, "05", "BOYS' QUARTERS", "52 sqm gross. Medbury Pharmaceuticals.")
@@ -299,20 +298,21 @@ def build():
     # 06
     sec(el, "06", "WHAT THE CAMPUS CAN DO", "Capacity, at stabilisation.")
     el.append(tbl(
-        [["Consulting rooms", "9", "7 on the first floor, 2 on the ground"],
+        [["Consulting rooms", "8", "7 on the first floor, 1 on the ground, all at full clinical standard"],
+         ["Talking-consultation room", "1", "The 10.4 sqm ground floor room. Psychology, dietetics, counselling. No examination couch"],
          ["FUE hair transplant suite", "1", "One all-day case, so one arrival a day"],
          ["Procedure rooms", "2", "Treatment room upstairs at local only, clean procedure room "
           "downstairs with sedation"],
          ["Imaging modalities", "3", "Digital X-ray, ultrasound, echocardiography"],
          ["Phlebotomy points", "2", "One per floor"],
-         ["Sessional blocks a year", "9,936", "9 rooms, 4 bands a day, 6 days, 46 weeks"],
-         ["Blocks sold at 41% fill", "4,074", "Fill varies by band, 35% to 55%"],
-         ["Consultations a year", "20,370", "At 5 patients a block"],
-         ["Arrivals a day", "about 72", "Including procedure and FUE"]],
+         ["Sessional blocks a year", "8,832", "8 rooms, 4 bands a day, 6 days, 46 weeks"],
+         ["Blocks sold at 41% fill", "3,621", "Fill varies by band, 35% to 55%"],
+         ["Consultations a year", "18,105", "At 5 patients a block"],
+         ["Arrivals a day", "about 65", "Including procedure and FUE"]],
         ["Capacity", "Number", "Basis"], [148, 60, 259], hi={8}))
     el.append(Spacer(1, 4))
     el.append(card(
-        "<b>About 72 arrivals a day against a single-reception ceiling of roughly 98.</b> That is "
+        "<b>About 65 arrivals a day against a single-reception ceiling of roughly 98.</b> That is "
         "real headroom, but not a great deal, and it assumes the two calendar rules hold: staggered "
         "start times in the early band, and timed arrival slots whenever the ground floor is running "
         "at volume.", bg=PANEL))
@@ -332,7 +332,7 @@ def build():
         ["", "Constraint", "What it means"], [20, 118, 329], aligns=["l", "l"]))
     el.append(Spacer(1, 5))
     el.append(card(
-        "<b>The building supports a nine-room plaza with proper diagnostics, two procedure rooms and "
+        "<b>The building supports an eight-room plaza with proper diagnostics, two procedure rooms and "
         "a hair transplant suite, and that is a serious facility.</b> What it will not support is a "
         "theatre, an inpatient bed, or a second high-volume clinic sharing the same front door. "
         "Those need either a lift, a modular unit on the grounds, or a different building.",
