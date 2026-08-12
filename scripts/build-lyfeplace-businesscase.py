@@ -177,9 +177,9 @@ def build():
         [["Campus", "711 sqm gross across four structures, 519 sqm of usable rooms"],
          ["Clinical capacity", "5 sessional consulting rooms, a day-case theatre, a treatment room, "
           "a hair transplant suite, three imaging modalities, a laboratory and a pharmacy"],
-         ["Capital", "NGN 647M, including two years of rent in advance"],
+         ["Capital", "NGN 647M, including two years of rent in advance. NGN 526M on the reduced fit-out"],
          ["Revenue at stabilisation", "NGN 584M campus revenue, base case"],
-         ["Return", "NGN 356M a year to Medbury, payback 1.8 years from stabilisation"]],
+         ["Return", "NGN 356M a year to Medbury, payback 1.8 years from stabilisation. 1.4 years on the reduced fit-out"]],
         ["", ""], [110, 357], aligns=["l"], hi={4}))
 
     # 02 BUILDING
@@ -296,70 +296,85 @@ def build():
     # 05 CAPITAL
     sec(el, "05", "CAPITAL", "NGN 647M, and where it goes.")
     el.append(tbl(
-        [["Head rent, two years in advance", "100.0"],
-         ["Agency, legal and caution deposit at 15%", "15.0"],
-         ["Building fit-out", "232.0"],
-         ["Theatre suite", "120.0"],
-         ["Power, 25KVA hybrid solar", "33.0"],
-         ["Medbury Diagnostics unit", "28.0"],
-         ["Medbury Pharmaceuticals unit", "24.0"],
-         ["Working capital, six months", "95.0"],
-         ["Total capital", "647.0"]],
-        ["Capital, NGN M", "Amount"], [383, 84], total_row=True))
+        [["Head rent, two years in advance", "100.0", "100.0"],
+         ["Agency, legal and caution deposit at 15%", "15.0", "15.0"],
+         ["Building fit-out", "232.0", "162.4"],
+         ["Theatre suite", "120.0", "84.0"],
+         ["Power, 25KVA hybrid solar", "33.0", "33.0"],
+         ["Medbury Diagnostics unit", "28.0", "19.6"],
+         ["Medbury Pharmaceuticals unit", "24.0", "16.8"],
+         ["Working capital, six months", "95.0", "95.0"],
+         ["Total capital", "647.0", "525.8"]],
+        ["Capital, NGN M", "As costed", "At 70%"], [321, 73, 73], total_row=True))
+    el.append(Spacer(1, 3))
+    el.append(card(
+        "<b>The second column carries every fit-out line at 30% below the costed figure.</b> It is a "
+        "reasonable target on builder's work, finishes and sourced furniture, which together are "
+        "about 46% of the building package: local sourcing, retained joinery and doors, and "
+        "good-commercial rather than premium-clinical finishes all pull in that direction. It is far "
+        "less likely on the theatre, which is <b>88% equipment</b>. An air handling unit, an "
+        "anaesthetic machine and an isolated power panel have hard prices and do not negotiate down "
+        "by a third.", bg=PANEL))
     el.append(Spacer(1, 4))
     el.append(Paragraph("Building fit-out, NGN 232M", H2))
     el.append(tbl(
-        [["Cooling, about 28 split units and cassettes", "24.0"],
-         ["ICT: cabling, network, CCTV, access control, emergency call, room status", "15.0"],
-         ["Electrical: boards, solar and grid zoning, medical circuits, emergency lighting", "14.0"],
-         ["Joinery: reception, nurse stations, room casework", "14.0"],
-         ["Interior decoration: painting, window treatments, soft finishes", "12.0"],
-         ["Fire: detection, alarm, escape lighting", "9.0"],
-         ["Clinical flooring, welded and coved vinyl", "9.0"],
-         ["Ceilings and lighting", "9.0"],
-         ["Partitioning to form the consulting rooms", "8.0"],
-         ["Procedure room: scrub and clinical services", "7.0"],
-         ["Signage and wayfinding", "7.0"],
-         ["Mechanical fresh air and extract", "6.0"],
-         ["Plumbing: clinical hand-wash, condensate", "6.0"],
-         ["Doors and ironmongery", "5.0"],
-         ["Medical waste holding and route", "3.0"],
-         ["FF&E: consulting rooms, reception, waiting, lounge", "30.0"],
-         ["External: car park, lighting, drainage, gate house", "10.0"],
-         ["Water: treatment, storage, pressure, hot water", "5.0"],
-         ["Design, project management and approvals", "14.0"],
-         ["Contingency at 12%", "25.0"],
-         ["Building fit-out", "232.0"]],
-        ["Package", "NGN M"], [383, 84], total_row=True))
+        [["Cooling, about 28 split units and cassettes", "24.0", "16.8"],
+         ["ICT: cabling, network, CCTV, access control, emergency call, room status", "15.0", "10.5"],
+         ["Electrical: boards, solar and grid zoning, medical circuits, emergency lighting", "14.0", "9.8"],
+         ["Joinery: reception, nurse stations, room casework", "14.0", "9.8"],
+         ["Interior decoration: painting, window treatments, soft finishes", "12.0", "8.4"],
+         ["Fire: detection, alarm, escape lighting", "9.0", "6.3"],
+         ["Clinical flooring, welded and coved vinyl", "9.0", "6.3"],
+         ["Ceilings and lighting", "9.0", "6.3"],
+         ["Partitioning to form the consulting rooms", "8.0", "5.6"],
+         ["Procedure room: scrub and clinical services", "7.0", "4.9"],
+         ["Signage and wayfinding", "7.0", "4.9"],
+         ["Mechanical fresh air and extract", "6.0", "4.2"],
+         ["Plumbing: clinical hand-wash, condensate", "6.0", "4.2"],
+         ["Doors and ironmongery", "5.0", "3.5"],
+         ["Medical waste holding and route", "3.0", "2.1"],
+         ["FF&E: consulting rooms, reception, waiting, lounge", "30.0", "21.0"],
+         ["External: car park, lighting, drainage, gate house", "10.0", "7.0"],
+         ["Water: treatment, storage, pressure, hot water", "5.0", "3.5"],
+         ["Design, project management and approvals", "14.0", "9.8"],
+         ["Contingency at 12%", "25.0", "17.5"],
+         ["Building fit-out", "232.0", "162.4"]],
+        ["Package", "As costed", "At 70%"], [321, 73, 73], total_row=True))
     el.append(Spacer(1, 3))
     el.append(Paragraph("Theatre suite, NGN 120M", H2))
     el.append(tbl(
-        [["Ventilation: AHU, HEPA, ductwork, external plant", "32.0"],
-         ["Theatre lighting, pendant, operating table", "32.0"],
-         ["Anaesthetic machine and full monitoring", "20.0"],
-         ["Scrub, sterile store and dirty utility fit-out", "15.0"],
-         ["Isolated power supply panel and UPS", "11.0"],
-         ["Recovery, two monitored stations", "10.0"],
-         ["Theatre suite", "120.0"]],
-        ["Package", "NGN M"], [383, 84], total_row=True))
+        [["Ventilation: AHU, HEPA, ductwork, external plant", "32.0", "22.4", "Equipment"],
+         ["Theatre lighting, pendant, operating table", "32.0", "22.4", "Equipment"],
+         ["Anaesthetic machine and full monitoring", "20.0", "14.0", "Equipment"],
+         ["Scrub, sterile store and dirty utility fit-out", "15.0", "10.5", "Builder's work"],
+         ["Isolated power supply panel and UPS", "11.0", "7.7", "Equipment"],
+         ["Recovery, two monitored stations", "10.0", "7.0", "Equipment"],
+         ["Theatre suite", "120.0", "84.0", ""]],
+        ["Package", "As costed", "At 70%", "Nature"], [235, 66, 66, 100], total_row=True))
     el.append(PageBreak())
 
     # 06 OPERATING COSTS
     sec(el, "06", "OPERATING COSTS", "NGN 312M a year at stabilisation.")
     el.append(tbl(
-        [["Reimbursed on-site payroll: front office, nursing, records", "45.0"],
-         ["Family practice: two physicians, nurse, administration", "45.0"],
-         ["Power", "28.0"],
-         ["Theatre running: scrub nurse, operating department practitioner, consumables", "18.0"],
-         ["Security, cleaning, waste, insurance, internet", "15.0"],
-         ["Maintenance and biomedical", "8.0"],
-         ["Campus marketing and concierge", "8.0"],
-         ["Operating costs", "167.0"],
-         ["Mezo Health management fee, 6% of revenue plus incentive, capped at 10%", "51.7"],
-         ["Head rent", "55.0"],
-         ["Amortisation of fit-out and power over ten years", "38.5"],
-         ["Total", "312.2"]],
-        ["Cost, NGN M a year", "Amount"], [383, 84], total_row=True, sub={7}))
+        [["Reimbursed on-site payroll: front office, nursing, records", "45.0", "3.75"],
+         ["Family practice: two physicians, nurse, administration", "45.0", "3.75"],
+         ["Power", "28.0", "2.33"],
+         ["Theatre running: scrub nurse, operating department practitioner, consumables", "18.0", "1.50"],
+         ["Security, cleaning, waste, insurance, internet", "15.0", "1.25"],
+         ["Maintenance and biomedical", "8.0", "0.67"],
+         ["Campus marketing and concierge", "8.0", "0.67"],
+         ["Operating costs", "167.0", "13.92"],
+         ["Mezo Health management fee, 6% of revenue plus incentive, capped at 10%", "51.7", "4.31"],
+         ["Head rent", "55.0", "4.58"],
+         ["Amortisation of fit-out and power over ten years", "38.5", "3.21"],
+         ["Total", "312.2", "26.02"]],
+        ["Cost", "NGN M a year", "NGN M a month"], [307, 80, 80], total_row=True, sub={7}))
+    el.append(Spacer(1, 3))
+    el.append(Paragraph(
+        "<b>All figures are annual, with the monthly equivalent alongside. The campus runs at about "
+        "NGN 26M a month at stabilisation</b>, of which NGN 14M is operating cost, NGN 4.6M is rent, "
+        "NGN 4.3M is the management fee and NGN 3.2M is amortisation rather than cash. On the reduced "
+        "fit-out the amortisation falls to NGN 2.3M a month.", P))
     el.append(Spacer(1, 3))
     el.append(Paragraph(
         "Mezo Health manages the campus. The fee is 6% of campus revenue plus 10% of gross operating "
@@ -391,10 +406,12 @@ def build():
         [239, 76, 76, 76], total_row=True, sub={5, 10, 11, 16}, hi={10, 15}))
     el.append(Spacer(1, 4))
     el.append(tbl(
-        [["Capital", "647", "647", "647"],
+        [["Capital, as costed", "647", "647", "647"],
          ["Payback from stabilisation", "6.6 yrs", "1.8 yrs", "1.1 yrs"],
-         ["Break-even, share of campus revenue", "78%", "53%", "42%"]],
-        ["", "Low", "Base", "High"], [239, 76, 76, 76]))
+         ["Capital, reduced fit-out", "526", "526", "526"],
+         ["Payback from stabilisation", "5.1 yrs", "1.4 yrs", "0.8 yrs"],
+         ["Break-even, share of campus revenue", "76%", "52%", "41%"]],
+        ["", "Low", "Base", "High"], [239, 76, 76, 76], hi={2, 3}))
     el.append(Spacer(1, 4))
     el.append(card(
         "<b>The high case runs the sessional pool at 78% fill, which is at the practical ceiling for "
@@ -408,8 +425,56 @@ def build():
         "approximately NGN 60M a year for the two ground-floor rooms and campus services, and it is "
         "the only contracted lease line in the model.", P))
 
-    # 08 CONDITIONS
-    sec(el, "08", "CONDITIONS", "In order of when they bind.")
+    # 08 RAMP
+    sec(el, "08", "THE RAMP", "What Medbury carries before the campus carries itself.")
+    el.append(Paragraph(
+        "Every figure above is at stabilisation. Getting there takes 24 months from opening, and the "
+        "campus loses money for part of that. This is what has to be funded in the meantime.", LEDE))
+    el.append(tbl(
+        [["Pre-opening", "-", "-", "25.0", "(25.0)", "(25.0)"],
+         ["Q1", "15%", "21.9", "38.4", "(16.5)", "(41.5)"],
+         ["Q2", "25%", "36.5", "39.8", "(3.3)", "(44.8)"],
+         ["Q3", "40%", "58.4", "41.7", "16.6", "(28.2)"],
+         ["Q4", "55%", "80.3", "46.5", "33.7", "5.6"],
+         ["Q5", "70%", "102.2", "48.5", "53.6", "59.2"],
+         ["Q6", "82%", "119.7", "48.1", "71.6", "130.8"],
+         ["Q7", "92%", "134.3", "49.4", "84.8", "215.6"],
+         ["Q8", "100%", "145.9", "50.5", "95.4", "311.0"]],
+        ["Quarter from opening", "Ramp", "Cash in", "Cash out", "Net", "Cumulative"],
+        [116, 52, 66, 66, 66, 76], hi={2, 3}))
+    el.append(Spacer(1, 4))
+    el.append(card(
+        "<b>The campus turns cash positive in month 9 and repays the whole ramp by month 12.</b> The "
+        "deepest point is <b>NGN 45M</b> at the end of Q2, against the NGN 95M of working capital in "
+        "the capital plan. Two things make that possible: rent is prepaid two years, so no rent cash "
+        "leaves during the ramp; and NGN 209M of the NGN 584M stabilised revenue is memberships and "
+        "family practice packages, which are annual and paid up front, so the money arrives ahead of "
+        "the use it pays for.", bg=PANEL))
+    el.append(Spacer(1, 4))
+    el.append(Paragraph("If the ramp disappoints", H2))
+    el.append(tbl(
+        [["Brisk, 100% by month 24", "45", "72", "Month 9"],
+         ["Slow, 82% by month 24", "71", "116", "Month 12 to 15"],
+         ["Very slow, 66% by month 24", "93", "150", "Month 15 to 18"]],
+        ["Ramp speed", "Funding, rent prepaid", "Funding, rent monthly", "Cash break-even"],
+        [148, 106, 106, 107], hi={2}))
+    el.append(Spacer(1, 4))
+    el.append(card(
+        "<b>The NGN 95M provision holds in every case except one: a very slow ramp combined with "
+        "rent not prepaid, which needs NGN 150M.</b> Those two are linked, and that is the useful "
+        "part. A landlord who will not take two years up front is the same landlord who will not "
+        "give five plus five, and without five plus five the project should not proceed at all. The "
+        "lease negotiation therefore protects the ramp as well as the amortisation.",
+        bg=ALERT, rule=RUST))
+    el.append(Spacer(1, 4))
+    el.append(Paragraph(
+        "Cash out during the ramp excludes rent, which is prepaid, and amortisation, which is not "
+        "cash. Marketing runs at double the stabilised rate until the campus reaches 80% of base "
+        "case, because demand has to be built before it can be served.", SMALL))
+    el.append(PageBreak())
+
+    # 09 CONDITIONS
+    sec(el, "09", "CONDITIONS", "In order of when they bind.")
     el.append(tbl(
         [["1", "Head lease extended to five plus five",
           "NGN 352M of fit-out amortised over two years does not work. Over five plus five it is "
