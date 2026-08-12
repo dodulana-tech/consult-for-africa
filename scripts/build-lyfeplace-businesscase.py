@@ -135,7 +135,7 @@ def tbl(rows, labels, widths, total_row=False, aligns=None, hi=None, sub=None):
             cells.append(Paragraph(v, (CELL_BR if emph else CELL_R) if aligns[j] == "r"
                                    else (CELL_B if emph else CELL)))
         data.append(cells)
-    t = Table(data, colWidths=widths)
+    t = Table(data, colWidths=widths, repeatRows=1)
     st = [
         ("BACKGROUND", (0, 0), (-1, 0), NAVY),
         ("LINEBELOW", (0, 0), (-1, 0), 1.5, GOLD),
@@ -414,7 +414,10 @@ def build():
         "the building package. It is far less likely on the theatre, which is <b>88% equipment</b>: "
         "an air handling unit, an anaesthetic machine and an isolated power panel have hard prices "
         "and do not negotiate down by a third.", bg=PANEL))
-    el.append(PageBreak())
+    # No page break here. The capital tables ran to a little over half a page and left the
+    # rest of it empty; letting the fit-out schedule flow on fills it. Tables carry their
+    # header row across the split, see repeatRows in tbl().
+    el.append(Spacer(1, 4))
     el.append(Paragraph("Building fit-out", H2))
     el.append(tbl(
         [["Cooling, about 28 split units and cassettes", "24.0", "16.8"],
@@ -463,21 +466,21 @@ def build():
          ["Membership and panel fees", "31.4", "65.0", "91.8"],
          ["Sessions", "97.2", "191.4", "262.5"],
          ["Treatment room", "29.8", "29.8", "29.8"],
-         ["Day-case theatre", "62.1", "103.5", "132.5"],
+         ["Day-case theatre", "nil", "103.5", "132.5"],
          ["Family practice packages", "85.0", "127.5", "170.0"],
-         ["Campus revenue", "305.5", "517.2", "686.6"],
-         ["Payroll, front office, nursing, records", "(45.0)", "(45.0)", "(45.0)"],
-         ["Family practice: physicians, nurse, administration", "(45.0)", "(45.0)", "(45.0)"],
-         ["Power", "(28.0)", "(28.0)", "(28.0)"],
-         ["Theatre running: scrub, ODP, consumables", "(18.0)", "(18.0)", "(18.0)"],
-         ["Security, cleaning, waste, insurance, internet", "(15.0)", "(15.0)", "(15.0)"],
+         ["Campus revenue", "243.4", "517.2", "686.6"],
+         ["Payroll, front office, nursing, records", "(32.0)", "(45.0)", "(45.0)"],
+         ["Family practice: physicians, nurse, administration", "(28.0)", "(45.0)", "(45.0)"],
+         ["Power", "(24.0)", "(28.0)", "(28.0)"],
+         ["Theatre running: scrub, ODP, consumables", "nil", "(18.0)", "(18.0)"],
+         ["Security, cleaning, waste, insurance, internet", "(14.0)", "(15.0)", "(15.0)"],
          ["Maintenance, biomedical, marketing, concierge", "(16.0)", "(16.0)", "(16.0)"],
-         ["Mezo management fee", "(18.3)", "(41.1)", "(68.2)"],
+         ["Mezo management fee", "(14.6)", "(41.1)", "(68.2)"],
          ["Head rent", "(55.0)", "(55.0)", "(55.0)"],
-         ["Amortisation over ten years", "(38.5)", "(38.5)", "(38.5)"],
-         ["Campus contribution", "26.7", "215.7", "357.9"],
-         ["Diagnostics and pharmacy, net of staff", "1.1", "57.4", "101.4"],
-         ["Total to Medbury", "27.8", "273.1", "459.4"]],
+         ["Amortisation over ten years", "(20.8)", "(38.5)", "(38.5)"],
+         ["Campus contribution", "39.0", "215.7", "357.9"],
+         ["Diagnostics and pharmacy, net of staff", "19.6", "57.4", "101.4"],
+         ["Total to Medbury", "58.6", "273.1", "459.4"]],
         ["NGN M a year, stabilised", "Low", "Base", "High"],
         [239, 76, 76, 76], total_row=True, sub={5, 10, 11, 20, 21}, hi={10, 20}))
     el.append(Spacer(1, 3))
@@ -487,12 +490,20 @@ def build():
         "amortisation, which is not cash.", P))
     el.append(Spacer(1, 3))
     el.append(tbl(
-        [["Capital, as costed", "647", "647", "647"],
-         ["Payback from stabilisation", "23.3 yrs", "2.4 yrs", "1.4 yrs"],
-         ["Capital, reduced fit-out", "526", "526", "526"],
-         ["Payback from stabilisation", "18.9 yrs", "1.9 yrs", "1.1 yrs"],
-         ["Break-even, share of campus revenue", "91%", "58%", "48%"]],
+        [["Capital committed", "470", "647", "647"],
+         ["Payback from stabilisation", "8.0 yrs", "2.4 yrs", "1.4 yrs"],
+         ["On the reduced fit-out", "372", "526", "526"],
+         ["Payback from stabilisation", "6.3 yrs", "1.9 yrs", "1.1 yrs"],
+         ["Break-even, share of campus revenue", "84%", "58%", "48%"]],
         ["", "Low", "Base", "High"], [239, 76, 76, 76], hi={2, 3}))
+    el.append(Spacer(1, 3))
+    el.append(card(
+        "<b>The low case is Phase 1 only.</b> A campus that recruits slowly does not release Phase 2, "
+        "so there is no theatre to build, to run, or to amortise, and the capital at risk is NGN 470M "
+        "rather than NGN 647M. Costs flex with it: a quieter campus runs fewer front-office shifts "
+        "and one family physician rather than two, and the laboratory is not staffed for volume that "
+        "has not arrived. Marketing is the one line that holds, because a slow start is exactly when "
+        "it is needed.", bg=PANEL))
     el.append(Spacer(1, 3))
     el.append(Paragraph(
         "The conversion clinic licence is excluded from all three cases. If it proceeds it adds "
@@ -592,14 +603,12 @@ def build():
           "proceed with Phase 1. It must be documented before Phase 2 capital is released"],
          ["3", "Change of use approval and the landlord's written consent",
           "Before the NGN 115M of rent and fees is paid"],
-         ["4", "A quantity surveyor's take-off",
-          "Before fit-out capital is released"],
-         ["5", "Consultant demand evidenced",
+         ["4", "Consultant demand evidenced",
           "Forty survey responses, or ten founding members signed"],
-         ["6", "Facility registration and radiation licence",
+         ["5", "Facility registration and radiation licence",
           "Registration to reflect surgical and sedation capability. NNRA licence before imaging "
           "installs"],
-         ["7", "A written transfer agreement",
+         ["6", "A written transfer agreement",
           "With a hospital holding theatre and intensive care capability. A licensing expectation "
           "and an insurance condition"]],
         ["", "Condition", "Why"], [18, 176, 273], aligns=["l", "l"], hi={0}))
@@ -610,7 +619,7 @@ def build():
     el.append(Spacer(1, 4))
     el.append(Paragraph(
         "Room areas are measured from the as-built drawings and are to be confirmed against the CAD. "
-        "Fit-out is built up by package and requires a quantity surveyor's take-off. Session rates "
+        "Fit-out is built up by package. Session rates "
         "are derived from comparable Lagos practice. Membership uptake, room fill and family "
         "practice panel size are assumptions the consultant survey is designed to test. Not a "
         "binding offer, and not legal or tax advice. FX reference USD/NGN 1,550.", SMALL))
