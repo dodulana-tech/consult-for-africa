@@ -189,8 +189,8 @@ def build():
          ["Capacity", "5 sessional consulting rooms, a day-case theatre, a treatment room, a hair "
           "transplant suite, three imaging modalities, a laboratory and a pharmacy"],
          ["Investment", "NGN 647M as costed, NGN 526M on a reduced fit-out"],
-         ["Return", "NGN 584M campus revenue and NGN 356M a year to Medbury at stabilisation"],
-         ["Payback", "1.8 years from stabilisation, 1.4 on the reduced fit-out"],
+         ["Return", "NGN 517M campus revenue and NGN 273M a year to Medbury at stabilisation"],
+         ["Payback", "2.4 years from stabilisation, 1.9 on the reduced fit-out"],
          ["Ramp funding", "NGN 45M at its deepest, cash positive in month 9"]],
         ["", ""], [104, 363], aligns=["l"], hi={5}))
 
@@ -278,17 +278,27 @@ def build():
     el.append(Spacer(1, 4))
     el.append(Paragraph("Membership ladder", H2))
     el.append(tbl(
-        [["Panel", "400,000", "Guest rates", "Credentialing, directory listing, booking access"],
-         ["Associate", "1,200,000", "20% off guest", "Pays for itself at 0.8 sessions a week"],
-         ["Full", "2,400,000", "35% off guest", "Priority booking, named room preference, lounge"],
-         ["Fellow", "4,200,000", "35% off guest", "A standing weekly slot, directory prominence, "
-          "inclusion in campus marketing"],
-         ["Group", "2,000,000 each", "35% off guest", "Three or more from one practice. Shared named "
-          "room, pooled blocks, one invoice"],
-         ["Partnership", "Revenue share", "n/a", "For anchor lines. The campus provides room, "
-          "equipment and marketing, the clinician provides the practice"]],
-        ["Tier", "NGN a year", "Session rate", "What it buys"],
-        [72, 84, 82, 229], aligns=["r", "l", "l"], hi={5}))
+        [["Panel", "200,000", "400,000", "Guest rates", "Credentialing, directory listing, "
+          "booking access"],
+         ["Associate", "600,000", "1,200,000", "20% off guest", "Pays for itself at 0.8 sessions "
+          "a week"],
+         ["Full", "1,500,000", "2,400,000", "35% off guest", "Priority booking, named room "
+          "preference, lounge"],
+         ["Fellow", "2,500,000", "4,200,000", "35% off guest", "A standing weekly slot, directory "
+          "prominence, inclusion in campus marketing"],
+         ["Group", "1,200,000 each", "2,000,000 each", "35% off guest", "Three or more from one "
+          "practice. Shared named room, pooled blocks, one invoice"],
+         ["Partnership", "Revenue share", "Revenue share", "n/a", "For anchor lines. The campus "
+          "provides room, equipment and marketing, the clinician provides the practice"]],
+        ["Tier", "Launch", "Mature", "Session rate", "What it buys"],
+        [66, 74, 74, 70, 183], aligns=["r", "r", "l", "l"], hi={5}))
+    el.append(Spacer(1, 3))
+    el.append(card(
+        "<b>Launch rates run for the first two years and are held for three years for anyone who "
+        "joins in year one.</b> That is the reason to join early, and it costs less than an empty "
+        "diary costs. Mature rates apply to everyone joining from year three, at which point the "
+        "address is established and the ladder pays for itself on usage: Associate at 0.8 sessions "
+        "a week, Full at 1.2, Fellow at 2.2.", bg=PANEL))
     el.append(Spacer(1, 4))
     el.append(Paragraph("Family practice packages", H2))
     el.append(tbl(
@@ -305,20 +315,34 @@ def build():
         "The base case requires the following. Each is stated so it can be checked rather than "
         "assumed.", LEDE))
     el.append(tbl(
-        [["31 members across the tiers", "Specialists committing annually", "Not yet evidenced",
+        [["25 members across the tiers", "Specialists committing annually", "Not yet evidenced",
           "Survey in the field"],
-         ["45 panel specialists", "Credentialed, booking at guest rates", "Not yet evidenced",
+         ["35 panel specialists", "Credentialed, booking at guest rates", "Not yet evidenced",
           "Survey in the field"],
-         ["52% room fill", "2,855 half-day blocks sold a year", "Borrowed from comparable Lagos "
+         ["41% room fill", "2,270 half-day blocks sold a year", "Borrowed from comparable Lagos "
           "practice", "Survey in the field"],
          ["150 family practice members", "Households and corporate heads", "Not yet evidenced",
           "Needs its own panel model"],
          ["25% theatre fill", "138 half-day lists a year", "Judgement for a new day-case theatre",
           "Anchor clinician discussions"],
-         ["16,200 patient contacts", "Across all lines, about 65 arrivals a day", "Within the "
+         ["13,300 patient contacts", "Across all lines, about 53 arrivals a day", "Within the "
           "single-reception ceiling of 98", "Arithmetic, not assumption"]],
         ["What the base case needs", "Meaning", "Status", "How it gets settled"],
         [122, 122, 116, 107], aligns=["l", "l", "l"], hi={5}))
+    el.append(Spacer(1, 4))
+    el.append(Paragraph("How large the pool actually is", H2))
+    el.append(tbl(
+        [["Consultants in the FCT with meaningful private practice", "300 to 600"],
+         ["In specialties an ambulatory plaza suits, needing no theatre or beds", "x 60%"],
+         ["Who would pay for a private address rather than use hospital rooms", "x 15 to 25%"],
+         ["Addressable", "36 to 72"],
+         ["Converted within two years at 30% to 50%", "12 to 36"]],
+        ["Sizing the specialist market", "Count"], [383, 84], total_row=True, hi={3}))
+    el.append(Spacer(1, 3))
+    el.append(Paragraph(
+        "The base case needs 60 names in total, 25 of them paying members. That sits inside the "
+        "addressable pool rather than consuming it, and the low case at 32 names is comfortably "
+        "within two years of ordinary conversion.", P))
     el.append(Spacer(1, 4))
     el.append(card(
         "<b>Membership uptake and room fill together carry most of the revenue, and neither is yet "
@@ -364,10 +388,10 @@ def build():
     el.append(Spacer(1, 3))
     el.append(Paragraph("Release it in two phases", H2))
     el.append(Paragraph(
-        "The lease agreed and drawn up is for two years. Amortising NGN 352M of fit-out over two "
-        "years is NGN 176M a year, which no trading position carries; over ten it is NGN 35M. So the "
-        "fit-out is only rational if occupation runs well beyond the agreed term, and the capital "
-        "should be staged against how certain that is.", P))
+        "Fit-out and power amortise over ten years. The campus is expected to hold the building well "
+        "beyond the initial term, and equipment can move to another balance sheet within the group "
+        "if it does not. Phasing the release is about capital efficiency rather than accounting: "
+        "there is no reason to expose the whole sum before the campus is trading.", P))
     el.append(tbl(
         [["Phase 1, on the two-year certainty already agreed", "470",
           "Rent, fees, working capital, power, the diagnostics and pharmacy units, and enough "
@@ -379,10 +403,10 @@ def build():
         total_row=True, aligns=["r", "l"], hi={0}))
     el.append(Spacer(1, 3))
     el.append(card(
-        "<b>Phase 1 trades on its own.</b> Without the theatre it earns NGN 480M of campus revenue "
-        "and returns NGN 276M a year on NGN 470M, a 1.7 year payback. The theatre is simultaneously "
-        "the most lease-sensitive capital on the campus and the least certain demand, so deferring "
-        "it is the same decision taken twice.", bg=PANEL))
+        "<b>Phase 1 trades on its own.</b> Without the theatre it earns NGN 414M of campus revenue "
+        "and returns NGN 205M a year on NGN 470M, a 2.3 year payback. The theatre carries the least "
+        "certain demand on the campus, so it is the natural thing to hold until the surgical anchor "
+        "is signed rather than built on expectation.", bg=PANEL))
     el.append(Spacer(1, 4))
     el.append(card(
         "<b>The second column carries every fit-out line at 30% below the costed figure.</b> It is a "
@@ -431,43 +455,43 @@ def build():
     # ---------------- 06 THE RETURN ----------------
     sec(el, "06", "THE RETURN", "What comes out, at stabilisation.")
     el.append(tbl(
-        [["Members, all tiers", "19", "31", "42"],
-         ["Panel specialists", "30", "45", "55"],
+        [["Members, paying tiers", "12", "25", "35"],
+         ["Panel specialists", "20", "35", "45"],
          ["Family practice members", "100", "150", "200"],
-         ["Sessional blocks sold", "1,550", "2,855", "4,288"],
-         ["Room fill", "28%", "52%", "78%"],
-         ["Membership and panel fees", "49.2", "81.6", "109.6"],
-         ["Sessions", "133.5", "241.4", "361.2"],
+         ["Sessional blocks sold", "1,130", "2,270", "3,150"],
+         ["Room fill", "20%", "41%", "57%"],
+         ["Membership and panel fees", "31.4", "65.0", "91.8"],
+         ["Sessions", "97.2", "191.4", "262.5"],
          ["Treatment room", "29.8", "29.8", "29.8"],
          ["Day-case theatre", "62.1", "103.5", "132.5"],
          ["Family practice packages", "85.0", "127.5", "170.0"],
-         ["Campus revenue", "359.6", "583.8", "803.1"],
+         ["Campus revenue", "305.5", "517.2", "686.6"],
          ["Payroll, front office, nursing, records", "(45.0)", "(45.0)", "(45.0)"],
          ["Family practice: physicians, nurse, administration", "(45.0)", "(45.0)", "(45.0)"],
          ["Power", "(28.0)", "(28.0)", "(28.0)"],
          ["Theatre running: scrub, ODP, consumables", "(18.0)", "(18.0)", "(18.0)"],
          ["Security, cleaning, waste, insurance, internet", "(15.0)", "(15.0)", "(15.0)"],
          ["Maintenance, biomedical, marketing, concierge", "(16.0)", "(16.0)", "(16.0)"],
-         ["Mezo management fee", "(21.6)", "(51.7)", "(80.3)"],
+         ["Mezo management fee", "(18.3)", "(41.1)", "(68.2)"],
          ["Head rent", "(55.0)", "(55.0)", "(55.0)"],
          ["Amortisation over ten years", "(38.5)", "(38.5)", "(38.5)"],
-         ["Campus contribution", "77.5", "271.6", "462.3"],
-         ["Diagnostics and pharmacy, net of staff", "20.4", "84.4", "153.9"],
-         ["Total to Medbury", "98.0", "356.0", "616.2"]],
+         ["Campus contribution", "26.7", "215.7", "357.9"],
+         ["Diagnostics and pharmacy, net of staff", "1.1", "57.4", "101.4"],
+         ["Total to Medbury", "27.8", "273.1", "459.4"]],
         ["NGN M a year, stabilised", "Low", "Base", "High"],
         [239, 76, 76, 76], total_row=True, sub={5, 10, 11, 20, 21}, hi={10, 20}))
     el.append(Spacer(1, 3))
     el.append(Paragraph(
-        "Costs total NGN 312.2M a year at the base case, which is NGN 26.0M a month. Of that, "
-        "NGN 13.9M is operating cost, NGN 4.6M rent, NGN 4.3M the management fee and NGN 3.2M "
+        "Costs total NGN 301.6M a year at the base case, which is NGN 25.1M a month. Of that, "
+        "NGN 13.9M is operating cost, NGN 4.6M rent, NGN 3.4M the management fee and NGN 3.2M "
         "amortisation, which is not cash.", P))
     el.append(Spacer(1, 3))
     el.append(tbl(
         [["Capital, as costed", "647", "647", "647"],
-         ["Payback from stabilisation", "6.6 yrs", "1.8 yrs", "1.1 yrs"],
+         ["Payback from stabilisation", "23.3 yrs", "2.4 yrs", "1.4 yrs"],
          ["Capital, reduced fit-out", "526", "526", "526"],
-         ["Payback from stabilisation", "5.1 yrs", "1.4 yrs", "0.8 yrs"],
-         ["Break-even, share of campus revenue", "76%", "52%", "41%"]],
+         ["Payback from stabilisation", "18.9 yrs", "1.9 yrs", "1.1 yrs"],
+         ["Break-even, share of campus revenue", "91%", "58%", "48%"]],
         ["", "Low", "Base", "High"], [239, 76, 76, 76], hi={2, 3}))
     el.append(Spacer(1, 3))
     el.append(Paragraph(
@@ -551,9 +575,9 @@ def build():
          ["Key clinician", "Medium", "The anchor lines depend on named individuals",
           "Partnership terms rather than session lets, so the clinician is invested in the campus "
           "rather than renting from it"],
-         ["Lease term", "High", "The agreement drawn up is for two years. Ten-year amortisation "
-          "assumes occupation well beyond it", "Phase the capital. Phase 1 is justifiable on two "
-          "years alone; Phase 2 waits for a documented longer term"]],
+         ["Lease term", "Medium", "The agreement drawn up is for two years and a longer term has "
+          "yet to be raised", "Communicate the intent early and secure verbal approval. Phase the "
+          "capital so the larger commitments follow the conversation"]],
         ["Risk", "Level", "What it is", "What reduces it"],
         [76, 46, 172, 173], aligns=["l", "l", "l"], hi={0}))
     el.append(Spacer(1, 5))
