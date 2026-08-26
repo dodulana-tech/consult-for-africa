@@ -16,6 +16,9 @@ import {
   Download,
   FileSpreadsheet,
   Trash2,
+  Link2,
+  Copy,
+  RefreshCw,
 } from "lucide-react";
 import { parseApiError } from "@/lib/parse-api-error";
 
@@ -36,6 +39,9 @@ interface Org {
   isActive: boolean;
   notes: string | null;
   createdAt: string;
+  joinUrl: string | null;
+  joinEnabled: boolean;
+  joinExpiresAt: string | null;
 }
 
 interface ReportData {
@@ -185,6 +191,12 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
 
   // Expanded assessment results
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+
+  // Staff join link
+  const [joinUrl, setJoinUrl] = useState<string | null>(org.joinUrl);
+  const [joinEnabled, setJoinEnabled] = useState(org.joinEnabled);
+  const [joinLoading, setJoinLoading] = useState(false);
+  const [joinCopied, setJoinCopied] = useState(false);
 
   // Bulk upload
   const [showBulkUpload, setShowBulkUpload] = useState(false);
@@ -444,6 +456,65 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
 
   /* ── Bulk Upload ───────────────────────────────────────────────────────── */
 
+  /* ── Staff join link ──────────────────────────────────────────────── */
+
+  async function handleJoinLink(rotate: boolean) {
+    clearFeedback();
+    setJoinLoading(true);
+    try {
+      const res = await fetch(`/api/maarova/admin/organisations/${org.id}/join-link`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rotate }),
+      });
+      if (!res.ok) {
+        const msg = await parseApiError(res);
+        throw new Error(msg || "Failed to update the join link");
+      }
+      const data = await res.json();
+      setJoinUrl(data.joinUrl);
+      setJoinEnabled(true);
+      setSuccess(rotate ? "New link generated. The previous one no longer works." : "Staff join link is open.");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update the join link");
+    } finally {
+      setJoinLoading(false);
+    }
+  }
+
+  async function handleCloseJoinLink() {
+    clearFeedback();
+    setJoinLoading(true);
+    try {
+      const res = await fetch(`/api/maarova/admin/organisations/${org.id}/join-link`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const msg = await parseApiError(res);
+        throw new Error(msg || "Failed to close the join link");
+      }
+      setJoinEnabled(false);
+      setSuccess("Staff join link closed.");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not close the join link");
+    } finally {
+      setJoinLoading(false);
+    }
+  }
+
+  async function handleCopyJoinLink() {
+    if (!joinUrl) return;
+    try {
+      await navigator.clipboard.writeText(joinUrl);
+      setJoinCopied(true);
+      setTimeout(() => setJoinCopied(false), 2000);
+    } catch {
+      setError("Could not copy. Select the link and copy it by hand.");
+    }
+  }
+
   function handleCsvFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -522,6 +593,10 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
   }
 
   /* ── Render ───────────────────────────────────────────────────────────────── */
+
+  // Join-link places are counted the same way the API counts them: everyone in
+  // the org except the admin contact, who is not one of the paid seats.
+  const staffRegistered = users.filter((u) => u.email !== org.contactEmail).length;
 
   return (
     <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -750,6 +825,112 @@ export default function MaarovaOrgDetail({ org, users }: Props) {
             )}
           </div>
         )}
+      </div>
+
+      {/* ── Staff Join Link ────────────────────────────────────────────────── */}
+      <div
+        className="rounded-xl"
+        style={{ background: "#fff", border: "1px solid #e5eaf0" }}
+      >
+        <div
+          className="px-6 py-4 flex items-center justify-between"
+          style={{ borderBottom: "1px solid #e5eaf0" }}
+        >
+          <div className="flex items-center gap-2">
+            <Link2 size={15} style={{ color: "#0F2744" }} />
+            <h2 className="text-sm font-semibold" style={{ color: "#0F2744" }}>
+              Staff Join Link
+            </h2>
+            <span
+              className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide"
+              style={
+                joinEnabled
+                  ? { background: "#D1FAE5", color: "#065F46" }
+                  : { background: "#F3F4F6", color: "#6B7280" }
+              }
+            >
+              {joinEnabled ? "Open" : "Closed"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {joinUrl && joinEnabled && (
+              <button
+                onClick={() => handleJoinLink(true)}
+                disabled={joinLoading}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50"
+                style={{ background: "#fff", color: "#0F2744", border: "1px solid #e5eaf0" }}
+              >
+                <RefreshCw size={13} />
+                New Link
+              </button>
+            )}
+            {joinEnabled ? (
+              <button
+                onClick={handleCloseJoinLink}
+                disabled={joinLoading}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50"
+                style={{ background: "#fff", color: "#991B1B", border: "1px solid #FECACA" }}
+              >
+                <ShieldOff size={13} />
+                Close Link
+              </button>
+            ) : (
+              <button
+                onClick={() => handleJoinLink(false)}
+                disabled={joinLoading || !org.isActive}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50"
+                style={{ background: "#0F2744", color: "#fff" }}
+              >
+                <ShieldCheck size={13} />
+                {joinUrl ? "Reopen Link" : "Create Link"}
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="px-6 py-5">
+          <p className="text-sm text-gray-600 mb-4">
+            One link for the whole team. Anyone with it registers themselves into this organisation and
+            goes straight into the assessment, capped at {org.maxAssessments} places.
+            {" "}
+            <span className="font-medium text-gray-800">
+              {staffRegistered} of {org.maxAssessments} taken.
+            </span>
+          </p>
+
+          {joinUrl ? (
+            <div className="flex items-center gap-2">
+              <code
+                className="flex-1 px-3 py-2.5 rounded-lg text-xs break-all"
+                style={{ background: "#F9FAFB", border: "1px solid #e5eaf0", color: joinEnabled ? "#0F2744" : "#9CA3AF" }}
+              >
+                {joinUrl}
+              </code>
+              <button
+                onClick={handleCopyJoinLink}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap"
+                style={{ background: "#fff", color: "#0F2744", border: "1px solid #e5eaf0" }}
+              >
+                {joinCopied ? <CheckCircle size={13} /> : <Copy size={13} />}
+                {joinCopied ? "Copied" : "Copy"}
+              </button>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-400">No link yet. Create one to share with the team.</p>
+          )}
+
+          {joinUrl && !joinEnabled && (
+            <p className="mt-3 text-xs text-gray-500">
+              This link is closed. Anyone opening it is told to get in touch. Reopen it to let the rest of
+              the team register.
+            </p>
+          )}
+          {org.joinExpiresAt && (
+            <p className="mt-3 text-xs text-gray-500">
+              Expires {new Date(org.joinExpiresAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}.
+            </p>
+          )}
+        </div>
       </div>
 
       {/* ── Users Section ──────────────────────────────────────────────────── */}

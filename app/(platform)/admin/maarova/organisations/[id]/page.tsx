@@ -71,6 +71,11 @@ export default async function MaarovaOrgDetailPage({ params }: Props) {
     isActive: org.isActive,
     notes: org.notes,
     createdAt: org.createdAt.toISOString(),
+    joinUrl: org.joinToken
+      ? `${process.env.NEXTAUTH_URL ?? ""}/maarova/join/${org.joinToken}`
+      : null,
+    joinEnabled: org.joinEnabled,
+    joinExpiresAt: org.joinExpiresAt?.toISOString() ?? null,
   };
 
   const serializedUsers = org.users.map((u) => {

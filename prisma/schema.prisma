@@ -1952,6 +1952,14 @@ model MaarovaOrganisation {
   usedAssessments Int           @default(0)
   isActive        Boolean       @default(true)
   notes           String?       @db.Text
+
+  // Self-serve staff join link. One shareable URL per org so a client can put
+  // the assessment in front of a whole team without us creating each user by
+  // hand. Registration through the link is capped by maxAssessments.
+  joinToken     String?   @unique
+  joinEnabled   Boolean   @default(false)
+  joinExpiresAt DateTime?
+
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
