@@ -2935,6 +2935,41 @@ model MaarovaCircleApplication {
   @@index([campaignId])
 }
 
+// ─── Paystack webhook routing ────────────────────────────────────────────────
+// One Paystack account serves several products, and Paystack allows a single
+// webhook URL per mode. Every event therefore lands on /api/paystack/webhook,
+// which handles what belongs to this codebase and forwards the rest to the
+// product that owns it. Every event is recorded here first so nothing is lost
+// when a downstream target is down: see scripts/replay-paystack-events.ts.
+model PaystackWebhookEvent {
+  id         String  @id @default(cuid())
+  eventType  String // charge.success, subscription.disable, ...
+  reference  String?
+  paystackId String?
+  // Resolved owner: an internal handler name, an external target key, or null
+  // when the event carried nothing that identifies a product.
+  product    String?
+
+  // Raw body and signature are kept verbatim so a replay can be re-verified
+  // and re-forwarded byte for byte.
+  signature String @unique
+  rawBody   String @db.Text
+
+  // PENDING | HANDLED | FORWARDED | PARTIAL | UNROUTED | FAILED
+  status            String  @default("PENDING")
+  handledInternally Boolean @default(false)
+  forwardResults    Json? // [{ target, url, ok, status, error }]
+  attempts          Int     @default(0)
+  lastError         String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([reference])
+  @@index([eventType, createdAt])
+}
+
 // ─── Nuru Pricing Intelligence ───────────────────────────────────────────────
 
 model PricingIntelligence {
