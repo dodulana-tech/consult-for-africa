@@ -18,6 +18,10 @@
  *   npx tsx --env-file=.env.local scripts/setup-house-of-refuge-maarova.ts
  *   npx tsx --env-file=.env.local scripts/setup-house-of-refuge-maarova.ts --apply
  *
+ * Add --resend to reissue to people who already have an account. Their password
+ * is regenerated, so the one they already hold stops working, and the email
+ * carries a line saying these details replace the earlier ones.
+ *
  * --env-file=.env.local is not optional: without it ZEPTOMAIL_API_KEY is
  * missing and the script refuses to send rather than falling back to SMTP.
  */
@@ -30,8 +34,10 @@ const prisma = new PrismaClient();
 
 const SITE = "https://consultforafrica.com";
 const PORTAL = `${SITE}/maarova/portal/login`;
-const FROM = "Consult For Africa <platform@consultforafrica.com>";
-const REPLY_TO = "hello@consultforafrica.com";
+// Send as hello@, the mailbox that carries CFA's record of what went out.
+// SMTP_FROM is the single source of truth; do not hardcode a sender here.
+const FROM = process.env.SMTP_FROM ?? "Consult For Africa <hello@consultforafrica.com>";
+const REPLY_TO = process.env.REPLY_TO_EMAIL ?? "hello@consultforafrica.com";
 
 const ORG = {
   name: "House of Refuge",
@@ -111,6 +117,15 @@ function signature() {
   <p style="margin:0;font-size:14px;color:#6B7280;">Founding Partner, Consult For Africa</p>`;
 }
 
+// Shown only with --resend, when an earlier invite went out from the wrong
+// sender and the password below replaces the one it carried.
+const SUPERSEDES = process.argv.includes("--resend")
+  ? `
+  <p style="margin:0 0 16px;font-size:14px;line-height:1.65;color:#6B7280;background:#F9FAFB;border-left:3px solid #D4A574;padding:12px 16px;">
+    If a note about this reached you earlier, please use the details below instead. They replace it.
+  </p>`
+  : "";
+
 const WHAT_IT_IS = `
   <p style="margin:0 0 16px;font-size:14px;line-height:1.65;color:#4B5563;">
     The assessment takes about 40 minutes. It covers behavioural style, values, emotional intelligence,
@@ -128,6 +143,7 @@ const PEOPLE: Person[] = [
     subject: "Your place on the House of Refuge leadership assessment",
     body: (firstName, email, password) => `
       <h1 style="margin:0 0 16px;font-size:20px;font-weight:700;color:#0F2744;">Dear ${firstName},</h1>
+      ${SUPERSEDES}
       <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#374151;">
         Pastor Tony Rapu has asked you to train the staff at House of Refuge, and we are glad to support
         that work. We are putting a structured leadership assessment behind it, so your sessions can start
@@ -153,6 +169,7 @@ const PEOPLE: Person[] = [
     subject: "Your access to the House of Refuge leadership assessment",
     body: (firstName, email, password) => `
       <h1 style="margin:0 0 16px;font-size:20px;font-weight:700;color:#0F2744;">Dear ${firstName},</h1>
+      ${SUPERSEDES}
       <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#374151;">
         We understand you are keeping an eye on the House of Refuge staff training on behalf of Pastor Tony
         Rapu's office. A structured leadership assessment sits behind that work, and your login gives you
@@ -273,7 +290,9 @@ async function main() {
         : { inviteEmailStatus: "FAILED", inviteEmailError: String(result.error).slice(0, 1000) },
     });
 
-    console.log(`       ${result.ok ? "invite sent" : `SEND FAILED: ${result.error}`}`);
+    console.log(
+      `       ${result.ok ? `invite accepted by ZeptoMail, message ${result.messageId ?? "?"} request ${result.requestId ?? "?"}` : `SEND FAILED: ${result.error}`}`
+    );
   }
 
   console.log(`\nStaff link to circulate: ${joinUrl}`);
