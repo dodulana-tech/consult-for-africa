@@ -7,10 +7,18 @@ import { z } from "zod";
 // No PII is collected; we store the raw form payload as JSON.
 
 const HAVEN_ENGAGEMENT_ID = "cmqazdnsx0002nzx3kfh8gop0";
-const ALLOWED = ["haven-safety-culture", "haven-patient-experience"] as const;
+const ALLOWED = [
+  "haven-safety-culture",
+  "haven-patient-experience",
+  // Founders' direction survey. Unlike the two above this is NOT anonymous:
+  // the respondent's name rides inside `responses` (and the optional
+  // top-level `respondent`), by design, so the board can compare instincts.
+  "haven-leadership-instinct",
+] as const;
 
 const bodySchema = z.object({
   survey: z.enum(ALLOWED),
+  respondent: z.string().max(120).optional(),
   submittedAt: z.string().optional(),
   responses: z.record(z.string(), z.any()),
 });
