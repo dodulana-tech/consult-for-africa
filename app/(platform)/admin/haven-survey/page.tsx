@@ -7,6 +7,16 @@ import {
   type SurveyMeta,
   type ScaleQuestion,
 } from "@/lib/haven-survey";
+import {
+  FOUNDER_ROSTER,
+  RUNGS,
+  CATS,
+  TENSIONS,
+  BELIEFS,
+  FOUNDER_OPEN_TEXT,
+  tensionScore,
+  groupSide,
+} from "@/lib/haven-founders";
 
 export const dynamic = "force-dynamic";
 
@@ -225,6 +235,324 @@ function CategoricalBlock({
 
 // ---- page ------------------------------------------------------------------
 
+// ---- founders' direction survey -------------------------------------------
+
+function FounderChip({ name, done }: { name: string; done: boolean }) {
+  return (
+    <div
+      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm"
+      style={{
+        background: done ? "#ecfdf5" : "#fff",
+        border: `1px solid ${done ? "#a7f3d0" : "#e5eaf0"}`,
+        color: done ? "#065f46" : "#94a3b8",
+      }}
+    >
+      <span
+        className="inline-flex items-center justify-center rounded-full text-[10px] font-bold"
+        style={{
+          width: 18, height: 18,
+          background: done ? "#059669" : "#e2e8f0",
+          color: done ? "#fff" : "#94a3b8",
+        }}
+      >
+        {done ? "✓" : "–"}
+      </span>
+      <span className={done ? "font-semibold" : ""}>{name}</span>
+    </div>
+  );
+}
+
+function AllocRow({
+  label, hint, own, others,
+}: { label: string; hint: string; own: number[]; others: number[] }) {
+  const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
+  const spread = own.length > 1 ? Math.max(...own) - Math.min(...own) : 0;
+  const ownAvg = avg(own);
+  const othersAvg = avg(others);
+  const wide = spread >= 25;
+  return (
+    <div className="py-3" style={{ borderBottom: "1px solid #eef2f6" }}>
+      <div className="flex items-baseline justify-between gap-4 mb-2">
+        <div>
+          <div className="text-sm font-semibold" style={{ color: "#0F2744" }}>{label}</div>
+          <div className="text-xs text-gray-400">{hint}</div>
+        </div>
+        <div className="text-right shrink-0">
+          <span className="text-sm font-bold tabular-nums" style={{ color: "#0B3C5D" }}>
+            ₦{ownAvg.toFixed(0)}
+          </span>
+          <span className="text-xs text-gray-400"> avg</span>
+          {wide && (
+            <div className="text-[10px] font-semibold" style={{ color: "#b45309" }}>
+              spread {spread}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] w-14 shrink-0 text-gray-400">theirs</span>
+        <div className="flex-1 h-2 rounded" style={{ background: "#eef2f6" }}>
+          <div className="h-2 rounded" style={{ width: `${Math.min(ownAvg, 100)}%`, background: "#0B3C5D" }} />
+        </div>
+        <span className="text-[10px] w-9 text-right tabular-nums text-gray-500">{ownAvg.toFixed(0)}</span>
+      </div>
+      <div className="flex items-center gap-2 mt-1">
+        <span className="text-[10px] w-14 shrink-0 text-gray-400">group</span>
+        <div className="flex-1 h-2 rounded" style={{ background: "#eef2f6" }}>
+          <div className="h-2 rounded" style={{ width: `${Math.min(othersAvg, 100)}%`, background: "#D4AF37" }} />
+        </div>
+        <span className="text-[10px] w-9 text-right tabular-nums text-gray-500">{othersAvg.toFixed(0)}</span>
+      </div>
+    </div>
+  );
+}
+
+function TensionRow({
+  a, b, scores,
+}: { a: string; b: string; scores: number[] }) {
+  const n = scores.length;
+  const aSide = scores.filter((s) => s < 0).length;
+  const bSide = scores.filter((s) => s > 0).length;
+  const mean = n ? scores.reduce((x, y) => x + y, 0) / n : 0;
+  const unanimous = n > 1 && (aSide === n || bSide === n);
+  const split = n > 1 && Math.abs(aSide - bSide) <= 1;
+  const pct = ((mean + 2) / 4) * 100;
+  return (
+    <div className="py-3" style={{ borderBottom: "1px solid #eef2f6" }}>
+      <div className="flex items-center justify-between gap-3 mb-1.5">
+        <span className="text-xs font-medium" style={{ color: "#0B3C5D" }}>{a}</span>
+        {unanimous && (
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded"
+                style={{ background: "#ecfdf5", color: "#065f46" }}>AGREED</span>
+        )}
+        {split && (
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded"
+                style={{ background: "#fef3c7", color: "#92400e" }}>SPLIT {aSide}–{bSide}</span>
+        )}
+        <span className="text-xs font-medium text-right" style={{ color: "#92400e" }}>{b}</span>
+      </div>
+      <div className="relative h-2 rounded" style={{ background: "linear-gradient(90deg,#dbeafe,#fef3c7)" }}>
+        <div
+          className="absolute rounded-full"
+          style={{
+            left: `calc(${pct}% - 5px)`, top: -2, width: 10, height: 12,
+            background: "#0F2744", border: "2px solid #fff",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function FoundersSection({
+  rows, latest,
+}: { rows: Payload[]; latest: Date | null }) {
+  const responded = rows
+    .map((r) => String(r.respondent ?? "").trim())
+    .filter(Boolean);
+  const outstanding = FOUNDER_ROSTER.filter(
+    (n) => !responded.some((r) => r.toLowerCase() === n.toLowerCase())
+  );
+  const count = rows.length;
+
+  const num = (p: Payload, k: string) => {
+    const v = Number(p[k]);
+    return Number.isFinite(v) ? v : 0;
+  };
+
+  return (
+    <section className="space-y-5">
+      <div>
+        <h2 className="text-xl font-bold" style={{ color: "#0F2744" }}>
+          Founders&rsquo; Direction Survey
+        </h2>
+        <p className="text-sm text-gray-500">
+          Named, not anonymous. Sets up the strategy session.
+        </p>
+      </div>
+
+      {/* who has filled it in */}
+      <div className="rounded-xl p-5" style={{ background: "#fff", border: "1px solid #e5eaf0" }}>
+        <div className="flex items-baseline justify-between mb-3">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Completion
+          </h3>
+          <span className="text-sm font-bold tabular-nums" style={{ color: count === 5 ? "#059669" : "#0B3C5D" }}>
+            {count} of 5
+          </span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+          {FOUNDER_ROSTER.map((n) => (
+            <FounderChip key={n} name={n} done={!outstanding.includes(n)} />
+          ))}
+        </div>
+        {outstanding.length > 0 && (
+          <p className="text-xs text-gray-500 mt-3">
+            Still to complete: {outstanding.join(", ")}.
+            {" "}The synthesis is only meaningful once at least three are in.
+          </p>
+        )}
+        {latest && (
+          <p className="text-xs text-gray-400 mt-2">
+            Last response {latest.toLocaleDateString("en-GB", {
+              day: "numeric", month: "short", year: "numeric",
+            })}
+          </p>
+        )}
+      </div>
+
+      {count === 0 ? (
+        <p className="text-sm text-gray-400">
+          No founder has completed it yet. Results appear here as they submit.
+        </p>
+      ) : (
+        <>
+          {/* ambition ladder */}
+          <div className="rounded-xl p-5" style={{ background: "#fff", border: "1px solid #e5eaf0" }}>
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">
+              Which rung should Haven aim for
+            </h3>
+            <div className="space-y-2">
+              {RUNGS.map((r) => {
+                const own = rows.filter((p) => String(p.rung) === r.value).length;
+                const guess = rows.filter((p) => String(p.rung_others) === r.value).length;
+                return (
+                  <div key={r.value} className="flex items-center gap-3">
+                    <span className="text-xs w-44 shrink-0" style={{ color: "#0F2744" }}>
+                      <b>{r.short}</b>
+                    </span>
+                    <div className="flex-1 flex items-center gap-1">
+                      {Array.from({ length: count }).map((_, i) => (
+                        <span key={i} className="h-4 flex-1 rounded-sm"
+                              style={{ background: i < own ? "#0B3C5D" : "#eef2f6" }} />
+                      ))}
+                    </div>
+                    <span className="text-[11px] w-24 text-right text-gray-500 tabular-nums">
+                      {own} own · {guess} guess
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-[11px] text-gray-400 mt-3">
+              &ldquo;Own&rdquo; is where each founder would aim. &ldquo;Guess&rdquo; is where they
+              think the others would aim. A gap between the two columns is a misread group.
+            </p>
+          </div>
+
+          {/* the two ₦100 splits */}
+          <div className="rounded-xl p-5" style={{ background: "#fff", border: "1px solid #e5eaf0" }}>
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+              Where the next ₦100 goes
+            </h3>
+            <p className="text-[11px] text-gray-400 mb-2">
+              Navy is their own split. Gold is how they think the group would split it.
+            </p>
+            {CATS.map((c) => (
+              <AllocRow
+                key={c.key}
+                label={c.label}
+                hint={c.hint}
+                own={rows.map((p) => num(p, `own_${c.key}`))}
+                others={rows.map((p) => num(p, `others_${c.key}`))}
+              />
+            ))}
+          </div>
+
+          {/* tensions */}
+          <div className="rounded-xl p-5" style={{ background: "#fff", border: "1px solid #e5eaf0" }}>
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+              The eight tensions
+            </h3>
+            <p className="text-[11px] text-gray-400 mb-2">
+              Marker is the group&rsquo;s centre of gravity. Agreed items are settled;
+              split items are the session agenda.
+            </p>
+            {TENSIONS.map((t) => (
+              <TensionRow
+                key={t.key}
+                a={t.a}
+                b={t.b}
+                scores={rows
+                  .map((p) => tensionScore(p[t.key]))
+                  .filter((s): s is number => s !== null)}
+              />
+            ))}
+          </div>
+
+          {/* perception gap */}
+          <div className="rounded-xl p-5" style={{ background: "#FBF6E6", border: "1px solid #e8dcb5" }}>
+            <h3 className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "#8a6d1f" }}>
+              The perception gap
+            </h3>
+            <p className="text-[11px] mb-3" style={{ color: "#7a6224" }}>
+              What each founder predicted the group believes, against where the group
+              actually landed. A mismatch means the group is managing an assumption
+              rather than a disagreement.
+            </p>
+            <div className="space-y-2">
+              {BELIEFS.map((b) => {
+                const actual = groupSide(
+                  rows.map((p) => tensionScore(p[b.tensionKey]))
+                      .filter((s): s is number => s !== null)
+                );
+                const predA = rows.filter((p) => p[b.key] === "a").length;
+                const predB = rows.filter((p) => p[b.key] === "b").length;
+                const predicted = predA === predB ? "split" : predA > predB ? "a" : "b";
+                const match = predicted === actual;
+                const word = (s: string) => (s === "a" ? b.a : s === "b" ? b.b : "no clear lean");
+                return (
+                  <div key={b.key} className="rounded-lg px-4 py-3 text-sm"
+                       style={{ background: "#fff", border: "1px solid #e8dcb5" }}>
+                    <div className="flex items-center justify-between gap-3">
+                      <span style={{ color: "#0F2744" }}>
+                        Predicted: <b>{word(predicted)}</b> ({predA}–{predB})
+                        {"  ·  "}
+                        Actual: <b>{word(actual)}</b>
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded shrink-0"
+                            style={match
+                              ? { background: "#ecfdf5", color: "#065f46" }
+                              : { background: "#fee2e2", color: "#991b1b" }}>
+                        {match ? "READ CORRECTLY" : "MISREAD"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* open text */}
+          {FOUNDER_OPEN_TEXT.map((f) => {
+            const answers = rows
+              .map((p) => ({ who: String(p.respondent ?? "—"), text: String(p[f.key] ?? "").trim() }))
+              .filter((a) => a.text.length > 1);
+            if (answers.length === 0) return null;
+            return (
+              <div key={f.key}>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">
+                  {f.label} · {answers.length}
+                </h4>
+                <div className="space-y-2">
+                  {answers.map((a, i) => (
+                    <div key={i} className="rounded-lg px-4 py-3 text-sm"
+                         style={{ background: "#fff", border: "1px solid #e5eaf0", color: "#374151" }}>
+                      <div className="text-[10px] font-bold uppercase tracking-wide mb-1"
+                           style={{ color: "#0B3C5D" }}>{a.who}</div>
+                      {a.text}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </>
+      )}
+    </section>
+  );
+}
+
 export default async function HavenSurveyPage() {
   const session = await auth();
   if (!session) redirect("/login");
@@ -242,21 +570,30 @@ export default async function HavenSurveyPage() {
   const total = responses.length;
   const latest = responses[0]?.createdAt ?? null;
 
+  const founderRows = responses
+    .filter((r) => r.survey === "haven-leadership-instinct")
+    .map((r) => (r.payload ?? {}) as Payload);
+  const founderLatest =
+    responses.find((r) => r.survey === "haven-leadership-instinct")?.createdAt ?? null;
+
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       <TopBar
         title="Haven Diagnostic Survey"
-        subtitle={`${total} anonymous response${total === 1 ? "" : "s"} on-platform`}
+        subtitle={`${total} response${total === 1 ? "" : "s"} on-platform · ${founderRows.length} of 5 founders`}
         backHref="/dashboard"
       />
 
       <div className="flex-1 overflow-y-auto p-6 space-y-10">
+        <FoundersSection rows={founderRows} latest={founderLatest} />
+
         {total === 0 && (
           <div
             className="rounded-xl p-8 text-center"
             style={{ background: "#fff", border: "1px dashed #cbd5e1", color: "#64748b" }}
           >
-            No survey responses yet. Submissions from the staff and patient forms will appear here.
+            No survey responses yet. Submissions from the founder, staff and patient
+            forms will appear here.
           </div>
         )}
 
