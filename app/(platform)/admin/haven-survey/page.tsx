@@ -345,8 +345,8 @@ function TensionRow({
 }
 
 function FoundersSection({
-  rows, latest,
-}: { rows: Payload[]; latest: Date | null }) {
+  rows, latest, superseded,
+}: { rows: Payload[]; latest: Date | null; superseded: number }) {
   const responded = rows
     .map((r) => String(r.respondent ?? "").trim())
     .filter(Boolean);
@@ -390,6 +390,12 @@ function FoundersSection({
           <p className="text-xs text-gray-500 mt-3">
             Still to complete: {outstanding.join(", ")}.
             {" "}The synthesis is only meaningful once at least three are in.
+          </p>
+        )}
+        {superseded > 0 && (
+          <p className="text-xs mt-2" style={{ color: "#92400e" }}>
+            {superseded} earlier submission{superseded === 1 ? " was" : "s were"} replaced by a
+            later one from the same founder. Only the most recent counts below.
           </p>
         )}
         {latest && (
@@ -570,9 +576,24 @@ export default async function HavenSurveyPage() {
   const total = responses.length;
   const latest = responses[0]?.createdAt ?? null;
 
+  // Founders can submit more than once; the form deliberately does not block a
+  // resubmission. Keep only the latest per person so a refill supersedes rather
+  // than double-counting them through every average below. `responses` is
+  // ordered newest first, so the first sighting of a name is the current one.
+  const seenFounders = new Set<string>();
   const founderRows = responses
     .filter((r) => r.survey === "haven-leadership-instinct")
-    .map((r) => (r.payload ?? {}) as Payload);
+    .map((r) => (r.payload ?? {}) as Payload)
+    .filter((p) => {
+      const who = String(p.respondent ?? "").trim().toLowerCase();
+      if (!who) return true; // unattributed: keep, cannot dedupe it
+      if (seenFounders.has(who)) return false;
+      seenFounders.add(who);
+      return true;
+    });
+  const founderSupersededCount =
+    responses.filter((r) => r.survey === "haven-leadership-instinct").length -
+    founderRows.length;
   const founderLatest =
     responses.find((r) => r.survey === "haven-leadership-instinct")?.createdAt ?? null;
 
@@ -585,7 +606,11 @@ export default async function HavenSurveyPage() {
       />
 
       <div className="flex-1 overflow-y-auto p-6 space-y-10">
-        <FoundersSection rows={founderRows} latest={founderLatest} />
+        <FoundersSection
+          rows={founderRows}
+          latest={founderLatest}
+          superseded={founderSupersededCount}
+        />
 
         {total === 0 && (
           <div
