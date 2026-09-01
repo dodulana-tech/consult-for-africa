@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Aesthetics Partnership &mdash; Positions Survey</title>
+<style>
+  :root{
+    --navy:#3B2A45; --deep:#291C31; --gold:#C79A73; --teal:#8A5E7E;
+    --ink:#2C2530; --muted:#8A8288; --line:#E3D3DE; --surface:#F6F1EA; --paper:#fff;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+    --serif:Georgia,"Times New Roman",serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#f2eef1;color:var(--ink);font-family:var(--sans);line-height:1.5;
+    -webkit-font-smoothing:antialiased;padding:0 0 80px}
+  .wrap{max-width:720px;margin:0 auto;padding:0 16px}
+
+  header.hero{background:linear-gradient(160deg,#4a3556,#241a2c);color:#fff;padding:34px 0 30px;margin-bottom:22px}
+  .hero .mark{font-size:11px;letter-spacing:.24em;font-weight:800;color:#e8dce6}
+  .hero .mark b{color:var(--gold)}
+  .hero h1{font-family:var(--serif);font-weight:400;font-size:26px;line-height:1.2;margin:16px 0 8px}
+  .hero p{color:#d6c4d2;font-size:14.5px;max-width:58ch}
+
+  .note{background:#fff;border-left:3px solid var(--gold);border-radius:0 8px 8px 0;
+    padding:14px 18px;font-size:13.5px;color:#4a4050;margin-bottom:22px}
+  .note b{color:var(--navy)}
+
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:22px 20px;margin-bottom:16px}
+  .sec-n{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:800}
+  .card h2{font-size:17px;color:var(--navy);margin:6px 0 4px;font-weight:700}
+  .card .lead{font-size:13.5px;color:var(--muted);margin-bottom:14px}
+
+  label.fld{display:block;font-size:13.5px;font-weight:600;color:var(--ink);margin:16px 0 6px}
+  label.fld .sub{display:block;font-weight:400;font-size:12.5px;color:var(--muted);margin-top:3px}
+  select,textarea,input[type=number],input[type=text]{width:100%;font-family:var(--sans);font-size:15px;
+    color:var(--ink);border:1px solid #d5c7d1;border-radius:8px;padding:11px 12px;background:#fff}
+  textarea{min-height:76px;resize:vertical}
+  select:focus,textarea:focus,input:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal)}
+
+  .choice{display:grid;gap:8px;margin-top:8px}
+  .choice label{display:flex;gap:10px;align-items:flex-start;border:1px solid #d5c7d1;border-radius:8px;
+    padding:11px 13px;cursor:pointer;font-size:13.5px;background:#fff}
+  .choice label:has(input:checked){border-color:var(--navy);background:#f6eef4;box-shadow:inset 0 0 0 1px var(--navy)}
+  .choice input{margin-top:3px;accent-color:var(--navy)}
+  .choice b{display:block;color:var(--navy);font-size:13.5px}
+  .choice small{color:var(--muted);font-size:12.5px}
+
+  .scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
+  .scale label{display:flex;flex-direction:column;align-items:center;gap:3px;border:1px solid #d5c7d1;
+    border-radius:8px;padding:10px 4px;cursor:pointer;font-size:11px;color:var(--muted)}
+  .scale label b{font-size:15px;color:var(--navy)}
+  .scale input{position:absolute;opacity:0;width:0;height:0}
+  .scale label:has(input:checked){border-color:var(--navy);background:#f6eef4;box-shadow:inset 0 0 0 1px var(--navy)}
+
+  .hide{display:none}
+  .err{display:none;background:#fdecec;border:1px solid #f3c0c0;color:#9b2226;border-radius:8px;
+    padding:12px 14px;font-size:13.5px;margin-bottom:14px}
+  button{background:var(--navy);color:#fff;border:0;border-radius:9px;padding:14px 22px;font-size:15px;
+    font-weight:700;cursor:pointer;width:100%;font-family:var(--sans)}
+  button:disabled{opacity:.6;cursor:default}
+  .thanks{display:none;background:#fff;border:1px solid var(--line);border-radius:12px;padding:28px 22px;text-align:center}
+  .thanks h2{font-family:var(--serif);font-weight:400;color:var(--navy);font-size:22px;margin-bottom:8px}
+  .thanks p{color:var(--muted);font-size:14px}
+  .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:18px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="mark">MEDBURY <b>&middot;</b> KP PLASTICS <b>&middot;</b> CONSULT FOR AFRICA</div>
+    <h1>The aesthetics partnership: your actual position</h1>
+    <p>Ten minutes. Answered privately, in writing, so that the numbers in the agreement are the
+       ones each of us can genuinely live with rather than the ones nobody wanted to be first to
+       say out loud.</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="note">
+    <b>Why this is not a group chat.</b> Several figures in the draft documents are ours, not
+    yours. This asks each principal the questions only they can answer. Answers go to Debo and are
+    used to revise the position paper. Nothing here binds anyone, and anything you would rather
+    discuss than type, say so in the last box.
+  </div>
+
+  <div class="err" id="err"></div>
+
+  <form id="survey">
+
+    <div class="card">
+      <div class="sec-n">Section 1</div>
+      <h2>Who is answering</h2>
+      <p class="lead">The rest of the form changes depending on your answer.</p>
+      <label class="fld">Your name and role
+        <select name="respondent" id="who">
+          <option value="">Select</option>
+          <option value="Dr Chinwe Kpaduwa|aesthetics-clinical-partner">Dr Chinwe Kpaduwa &mdash; clinical partner</option>
+          <option value="Dr Itunu Akinware|aesthetics-capital-partner">Dr Itunu Akinware &mdash; capital partner</option>
+          <option value="Dr Adebowale Odulana|aesthetics-operating-partner">Dr Adebowale Odulana &mdash; operating partner</option>
+        </select>
+      </label>
+    </div>
+
+    <!-- ============================== CLINICAL ============================== -->
+    <div class="card hide" data-role="aesthetics-clinical-partner">
+      <div class="sec-n">Section 2</div>
+      <h2>Time, honestly</h2>
+      <p class="lead">The single most important set of answers in this survey. Please give the
+         number you can sustain on a bad year, not a good one.</p>
+
+      <label class="fld">Visits to Lagos per year you can genuinely sustain
+        <input type="number" name="visits_per_year" min="0" max="24" step="1" placeholder="e.g. 4" />
+      </label>
+      <label class="fld">Working days per visit you can genuinely sustain
+        <input type="number" name="days_per_visit" min="1" max="60" step="1" placeholder="e.g. 10" />
+      </label>
+      <label class="fld">For how long can you hold that level?
+        <select name="commitment_years">
+          <option value="">Select</option>
+          <option>One year, then review</option>
+          <option>Two years</option>
+          <option>Three years</option>
+          <option>Five years or more</option>
+        </select>
+      </label>
+      <label class="fld">Which months are realistically impossible, and why
+        <span class="sub">Only the constraint, not the reason, if you would rather.</span>
+        <textarea name="impossible_months"></textarea>
+      </label>
+      <label class="fld">Remote clinical governance sessions per month you can sustain
+        <input type="number" name="remote_sessions" min="0" max="12" step="1" placeholder="e.g. 1" />
+      </label>
+      <label class="fld">Notice you could give if a visit had to move
+        <select name="notice_period">
+          <option value="">Select</option>
+          <option>More than eight weeks</option>
+          <option>Four to eight weeks</option>
+          <option>One to four weeks</option>
+          <option>Less than a week</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="card hide" data-role="aesthetics-clinical-partner">
+      <div class="sec-n">Section 3</div>
+      <h2>Post-operative cover</h2>
+      <p class="lead">The ASPS position statement on itinerant surgery (September 2024) makes the
+         operating surgeon responsible for post-operative care including complications. Haematoma
+         presents to day ten, infection between days three and fourteen. So a visit either covers
+         that window, or care transfers to a qualified surgeon with the patient's consent.</p>
+
+      <label class="fld">Which model do you want?</label>
+      <div class="choice">
+        <label><input type="radio" name="cover_model" value="A: I cover alone, longer visits" />
+          <span><b>A. I cover alone</b><small>Longer visits of roughly two weeks so I am present through the window myself.</small></span></label>
+        <label><input type="radio" name="cover_model" value="B: resident plastic surgeon takes transferred care" />
+          <span><b>B. A resident plastic surgeon in Lagos</b><small>I operate and co-manage, then transfer care with the patient's informed consent. Shorter visits become possible.</small></span></label>
+        <label><input type="radio" name="cover_model" value="C: no surgery in Lagos for now" />
+          <span><b>C. No surgery in Lagos for now</b><small>Non-surgical only until the model and the team are proven.</small></span></label>
+      </div>
+
+      <label class="fld">If a resident surgeon covers, what must be true of them before you would transfer a patient?
+        <textarea name="resident_surgeon_criteria"></textarea>
+      </label>
+      <label class="fld">Do you accept the ASPS itinerant surgery position as the governing standard for this venture?
+        <select name="asps_standard">
+          <option value="">Select</option>
+          <option>Yes, without qualification</option>
+          <option>Yes, with points to discuss</option>
+          <option>I want to read it first</option>
+          <option>No</option>
+        </select>
+      </label>
+      <label class="fld">Which procedures will you perform in Lagos?
+        <textarea name="procedures_yes"></textarea>
+      </label>
+      <label class="fld">Which will you not perform in Lagos, at least for now?
+        <textarea name="procedures_no"></textarea>
+      </label>
+    </div>
+
+    <div class="card hide" data-role="aesthetics-clinical-partner">
+      <div class="sec-n">Section 4</div>
+      <h2>Pay, equity and the brand</h2>
+
+      <label class="fld">How would you rather be rewarded?</label>
+      <div class="choice">
+        <label><input type="radio" name="pay_mix" value="Full market surgeon fee, less equity" />
+          <span><b>Full market fee for procedures</b><small>Paid properly for the work, correspondingly less equity.</small></span></label>
+        <label><input type="radio" name="pay_mix" value="Half market fee, more equity" />
+          <span><b>About half the market fee</b><small>The rest counts as your investment into the company.</small></span></label>
+        <label><input type="radio" name="pay_mix" value="No fee, maximum equity" />
+          <span><b>No fee for now, maximum equity</b><small>Everything goes into ownership.</small></span></label>
+      </div>
+
+      <label class="fld">What share of your equity are you comfortable earning over time rather than receiving on day one?
+        <span class="sub">Earned equity vests as you deliver. It is also the honest answer to the question of what keeps each of us committed.</span>
+        <select name="vesting_comfort">
+          <option value="">Select</option>
+          <option>None, all on day one</option>
+          <option>About a quarter</option>
+          <option>About half</option>
+          <option>About three quarters</option>
+          <option>All of it, earned as delivered</option>
+        </select>
+      </label>
+      <label class="fld">What would make you feel your name was being misused?
+        <textarea name="brand_misuse"></textarea>
+      </label>
+      <label class="fld">What do you need from Medbury that you have not yet asked for?
+        <textarea name="need_from_medbury"></textarea>
+      </label>
+    </div>
+
+    <!-- ============================== CAPITAL ============================== -->
+    <div class="card hide" data-role="aesthetics-capital-partner">
+      <div class="sec-n">Section 2</div>
+      <h2>Money, with a ceiling on it</h2>
+      <p class="lead">All figures in naira millions.</p>
+
+      <label class="fld">Maximum you will fund before the November review
+        <input type="number" name="funding_to_review" min="0" step="1" placeholder="e.g. 40" />
+      </label>
+      <label class="fld">Maximum you will fund in total, to sustainable trading
+        <input type="number" name="funding_total" min="0" step="1" placeholder="e.g. 250" />
+      </label>
+      <label class="fld">Fit-out and equipment you expect to invest in the base
+        <input type="number" name="fitout_equipment" min="0" step="1" placeholder="e.g. 150" />
+      </label>
+      <label class="fld">Clinic area you are allocating, in square metres
+        <input type="number" name="clinic_sqm" min="0" step="1" placeholder="e.g. 200" />
+      </label>
+
+      <label class="fld">How should the space be charged?</label>
+      <div class="choice">
+        <label><input type="radio" name="rent_basis" value="Full market rent" />
+          <span><b>Full market rent</b><small>Compensated, so it earns no equity.</small></span></label>
+        <label><input type="radio" name="rent_basis" value="Reduced rent plus revenue share" />
+          <span><b>Reduced rent plus a revenue share</b><small>The hybrid you proposed.</small></span></label>
+        <label><input type="radio" name="rent_basis" value="Waiver limited to investment recovery" />
+          <span><b>Waived, limited to recovering your investment</b><small>The waiver becomes a contribution and earns equity.</small></span></label>
+      </div>
+      <label class="fld">If waived or reduced, for how long and up to what naira amount?
+        <textarea name="waiver_limit"></textarea>
+      </label>
+      <label class="fld">Referrals per month you can actually commit from the group
+        <input type="number" name="referrals_per_month" min="0" step="1" placeholder="e.g. 25" />
+      </label>
+    </div>
+
+    <div class="card hide" data-role="aesthetics-capital-partner">
+      <div class="sec-n">Section 3</div>
+      <h2>Control and ownership</h2>
+
+      <label class="fld">Your minimum acceptable shareholding, per cent
+        <input type="number" name="min_holding" min="0" max="100" step="1" placeholder="e.g. 55" />
+      </label>
+      <label class="fld">On which decisions do you require a casting vote?
+        <span class="sub">Type any that apply: budget, pricing, appointments, contracts, premises, marketing spend, none.</span>
+        <textarea name="casting_vote_scope"></textarea>
+      </label>
+      <label class="fld">Are you content that clinical decisions stay with the Clinical Director alone?
+        <select name="clinical_autonomy">
+          <option value="">Select</option>
+          <option>Yes, entirely</option>
+          <option>Yes, with a right to be informed</option>
+          <option>No, the board should be able to overrule</option>
+        </select>
+      </label>
+      <label class="fld">On your capital, which do you want?</label>
+      <div class="choice">
+        <label><input type="radio" name="priority_return" value="Return of capital only" />
+          <span><b>Return of capital only</b><small>Your money back first, no stated return, full equity credit.</small></span></label>
+        <label><input type="radio" name="priority_return" value="Capital plus a stated return" />
+          <span><b>Capital plus a stated return</b><small>State the rate below.</small></span></label>
+      </div>
+      <label class="fld">If a stated return, what rate per annum?
+        <input type="text" name="priority_rate" placeholder="e.g. 15 per cent" />
+      </label>
+      <label class="fld">What share of the other parties' equity should vest over time rather than be granted on day one?
+        <select name="vesting_expectation">
+          <option value="">Select</option>
+          <option>None</option>
+          <option>About a quarter</option>
+          <option>About half</option>
+          <option>About three quarters</option>
+          <option>All of it</option>
+        </select>
+      </label>
+      <label class="fld">What would you do if the Clinical Director's registration takes eighteen months?
+        <textarea name="registration_delay"></textarea>
+      </label>
+    </div>
+
+    <!-- ============================== OPERATING ============================== -->
+    <div class="card hide" data-role="aesthetics-operating-partner">
+      <div class="sec-n">Section 2</div>
+      <h2>The operating position</h2>
+      <label class="fld">Full market operating fee you would charge a third party, per cent of revenue
+        <input type="number" name="market_fee" min="0" max="30" step="0.5" placeholder="e.g. 10" />
+      </label>
+      <label class="fld">Fee you propose to charge this company, per cent of revenue
+        <input type="number" name="proposed_fee" min="0" max="30" step="0.5" placeholder="e.g. 10" />
+      </label>
+      <label class="fld">Minimum acceptable shareholding, per cent
+        <input type="number" name="min_holding" min="0" max="100" step="1" placeholder="e.g. 10" />
+      </label>
+      <label class="fld">Founding milestones you will accept equity vesting against
+        <textarea name="milestones"></textarea>
+      </label>
+      <label class="fld">What would make this undeliverable for CFA?
+        <textarea name="undeliverable"></textarea>
+      </label>
+    </div>
+
+    <!-- ============================== SHARED ============================== -->
+    <div class="card hide" id="shared">
+      <div class="sec-n">Section 5</div>
+      <h2>The same four questions for all three of us</h2>
+      <p class="lead">These are compared side by side. That comparison is the point of the survey.</p>
+
+      <label class="fld">What does success look like at the November review?
+        <textarea name="success_november"></textarea>
+      </label>
+      <label class="fld">What would make you walk away from this?
+        <textarea name="walk_away"></textarea>
+      </label>
+      <label class="fld">How confident are you that this partnership is still running in three years?</label>
+      <div class="scale">
+        <label><input type="radio" name="confidence" value="1" /><b>1</b>Not at all</label>
+        <label><input type="radio" name="confidence" value="2" /><b>2</b></label>
+        <label><input type="radio" name="confidence" value="3" /><b>3</b></label>
+        <label><input type="radio" name="confidence" value="4" /><b>4</b></label>
+        <label><input type="radio" name="confidence" value="5" /><b>5</b>Certain</label>
+      </div>
+      <label class="fld">What is the one thing the other two could do that would most increase that confidence?
+        <textarea name="confidence_lever"></textarea>
+      </label>
+      <label class="fld">Anything you have not said in the group that should be on the table?
+        <span class="sub">This one is read by Debo only.</span>
+        <textarea name="unsaid"></textarea>
+      </label>
+    </div>
+
+    <div class="card hide" id="submitCard">
+      <button type="button" id="submitBtn">Submit my position</button>
+      <p class="foot">Private and confidential. Used to revise the position paper, not circulated verbatim.</p>
+    </div>
+  </form>
+
+  <div class="thanks" id="thanks">
+    <h2>Thank you.</h2>
+    <p>Your answers are with Debo. The position paper will be revised on them and recirculated.</p>
+  </div>
+</div>
+
+<script>
+const ENDPOINT = "/api/aesthetics/survey";
+const who = document.getElementById("who");
+
+function show(){
+  const [, role] = (who.value || "|").split("|");
+  document.querySelectorAll("[data-role]").forEach(el=>{
+    el.classList.toggle("hide", el.dataset.role !== role);
+  });
+  document.getElementById("shared").classList.toggle("hide", !role);
+  document.getElementById("submitCard").classList.toggle("hide", !role);
+}
+who.addEventListener("change", show);
+show();
+
+document.getElementById("submitBtn").addEventListener("click", async ()=>{
+  const err = document.getElementById("err");
+  const [name, role] = (who.value || "|").split("|");
+  if(!role){
+    err.style.display="block"; err.textContent="Please select who is answering.";
+    window.scrollTo({top:0,behavior:"smooth"}); return;
+  }
+
+  const data = {};
+  new FormData(document.getElementById("survey")).forEach((v,k)=>{
+    if(k === "respondent") return;
+    if(String(v).trim()) data[k]=v;
+  });
+
+  const problems = [];
+  if(!data.success_november) problems.push("say what success looks like in November");
+  if(!data.walk_away) problems.push("say what would make you walk away");
+  if(!data.confidence) problems.push("give a confidence score");
+  if(role === "aesthetics-clinical-partner"){
+    if(!data.visits_per_year || !data.days_per_visit) problems.push("give visits per year and days per visit");
+    if(!data.commitment_years) problems.push("say for how long you can hold that level");
+    if(!data.cover_model) problems.push("choose a post-operative cover model");
+  }
+  if(role === "aesthetics-capital-partner"){
+    if(!data.funding_total) problems.push("give a total funding ceiling");
+    if(!data.rent_basis) problems.push("choose how the space is charged");
+    if(!data.min_holding) problems.push("give your minimum acceptable shareholding");
+  }
+  if(problems.length){
+    err.style.display="block";
+    err.textContent = "Before submitting, please " + problems.join("; ") + ".";
+    window.scrollTo({top:0,behavior:"smooth"}); return;
+  }
+  err.style.display="none";
+
+  const btn=document.getElementById("submitBtn");
+  btn.disabled=true; btn.textContent="Submitting…";
+  try{
+    const r = await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({survey:role, respondent:name,
+        submittedAt:new Date().toISOString(), responses:data})});
+    if(!r.ok) throw new Error("bad");
+    document.getElementById("survey").style.display="none";
+    document.querySelector(".note").style.display="none";
+    document.getElementById("thanks").style.display="block";
+    window.scrollTo({top:0,behavior:"smooth"});
+  }catch(e){
+    btn.disabled=false; btn.textContent="Submit my position";
+    err.style.display="block"; err.textContent="Something went wrong. Please try again.";
+  }
+});
+</script>
+</body>
+</html>
