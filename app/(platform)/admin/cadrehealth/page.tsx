@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PushToOutreachButton } from "@/components/cadrehealth/AdminActions";
 import { RecoveryEmailButton } from "@/components/cadrehealth/RecoveryEmailButton";
 import { ReEngagementButton } from "@/components/cadrehealth/ReEngagementButton";
+import { SignupsTable } from "@/components/cadrehealth/SignupsTable";
 import {
   Users,
   ShieldCheck,
@@ -322,77 +323,22 @@ export default async function CadreHealthAdmin({
             </form>
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr
-                className="border-b border-gray-100/80 text-left"
-                style={{ background: "rgba(15,39,68,0.03)" }}
-              >
-                <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                  Name
-                </th>
-                <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                  Cadre
-                </th>
-                <th className="hidden px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 sm:table-cell">
-                  State
-                </th>
-                <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                  Status
-                </th>
-                <th className="hidden px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400 md:table-cell">
-                  Joined
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentSignups.map((p) => (
-                <tr
-                  key={p.id}
-                  className="border-b border-gray-50/80 transition-colors last:border-0 hover:bg-white/60"
-                >
-                  <td className="px-6 py-4">
-                    <Link
-                      href={`/admin/cadrehealth/${p.id}`}
-                      className="font-semibold hover:underline"
-                      style={{ color: "#0B3C5D" }}
-                    >
-                      {p.firstName} {p.lastName}
-                    </Link>
-                    <div className="mt-0.5 text-xs text-gray-400">{p.email}</div>
-                  </td>
-                  <td className="px-6 py-4 text-gray-600">
-                    {p.cadre.replace(/_/g, " ")}
-                  </td>
-                  <td className="hidden px-6 py-4 text-gray-600 sm:table-cell">
-                    {p.state || "N/A"}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        p.accountStatus === "VERIFIED"
-                          ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
-                          : p.accountStatus === "PENDING_REVIEW"
-                          ? "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
-                          : "bg-gray-100 text-gray-600 ring-1 ring-gray-200"
-                      }`}
-                    >
-                      {p.accountStatus.replace(/_/g, " ")}
-                    </span>
-                  </td>
-                  <td className="hidden px-6 py-4 text-gray-400 md:table-cell">
-                    {p.createdAt.toLocaleDateString("en-NG", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <SignupsTable
+          rows={recentSignups.map((p) => ({
+            id: p.id,
+            firstName: p.firstName,
+            lastName: p.lastName,
+            email: p.email,
+            cadre: p.cadre,
+            state: p.state,
+            accountStatus: p.accountStatus,
+            createdAt: p.createdAt.toLocaleDateString("en-NG", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            }),
+          }))}
+        />
 
         {/* Pagination */}
         {totalPages > 1 && (
