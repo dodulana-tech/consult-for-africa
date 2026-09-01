@@ -26,6 +26,7 @@ import { Prisma } from "@prisma/client";
 import { handler } from "@/lib/api-handler";
 import { sendCadreEmail } from "@/lib/cadreEmail";
 import { logAudit } from "@/lib/audit";
+import { headingFor } from "@/lib/cadreSalutation";
 
 const ALLOWED_ROLES = ["PARTNER", "ADMIN", "ASSOCIATE_DIRECTOR", "DIRECTOR"];
 const SEND_DELAY_MS = 250;
@@ -79,6 +80,7 @@ async function findReEngageCohort(limit: number, cooldownDays = COOLDOWN_DAYS) {
       firstName: true,
       lastName: true,
       email: true,
+      cadre: true,
       outreachRecord: { select: { id: true } },
     },
   });
@@ -168,8 +170,8 @@ export const POST = handler(async function POST(req: NextRequest) {
     try {
       await sendCadreEmail({
         to: p.email,
-        subject: "Your CadreHealth record is still held",
-        heading: `Dr ${p.lastName}, your record is still held`,
+        subject: "We wrote to you in May",
+        heading: headingFor(p, "your record is still held"),
         body: `We wrote to you earlier this year inviting you to claim your CadreHealth profile. It has not been claimed, and it is still held in your name.
 
 CadreHealth is where Nigerian specialists are visible to the hospitals, groups and programmes that are recruiting, whether you practise in Nigeria, abroad, or have stepped back from full-time clinical work. Holding a profile costs nothing.
