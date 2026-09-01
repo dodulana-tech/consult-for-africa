@@ -22,6 +22,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { handler } from "@/lib/api-handler";
 import { sendCadreEmail } from "@/lib/cadreEmail";
 import { logAudit } from "@/lib/audit";
@@ -36,16 +37,43 @@ const STUCK_OUTREACH_STATUSES = [
   "SMS_SENT",
 ] as const;
 
-async function findReEngageCohort() {
-  return prisma.cadreProfessional.findMany({
-    where: {
-      passwordHash: null,
-      lastLoginAt: null,
-      outreachRecord: {
-        is: { status: { in: [...STUCK_OUTREACH_STATUSES] } },
+// A send takes ~250ms, so an unbounded cohort of ~9.7k would run for 40 minutes
+// and be killed by the function timeout partway through, with no record of how
+// far it got. Batch it, and let the caller drain the queue over several runs.
+const DEFAULT_LIMIT = 300;
+const MAX_LIMIT = 500;
+
+// Anyone contacted inside this window is not due again. This is what makes the
+// route idempotent: a successful send stamps lastContactedAt, which drops that
+// person out of the cohort, so re-running resumes rather than re-sending.
+const COOLDOWN_DAYS = 30;
+
+// The 2026-06-13 loop left ~54 records with 33 to 38 attempts. Never touch them.
+const MAX_ATTEMPTS = 5;
+
+function cohortWhere(cooldownDays: number): Prisma.CadreProfessionalWhereInput {
+  return {
+    passwordHash: null,
+    lastLoginAt: null,
+    email: { not: "" },
+    outreachRecord: {
+      is: {
+        status: { in: [...STUCK_OUTREACH_STATUSES] },
+        contactAttempts: { lt: MAX_ATTEMPTS },
+        OR: [
+          { lastContactedAt: null },
+          { lastContactedAt: { lt: new Date(Date.now() - cooldownDays * 864e5) } },
+        ],
       },
     },
+  };
+}
+
+async function findReEngageCohort(limit: number, cooldownDays = COOLDOWN_DAYS) {
+  return prisma.cadreProfessional.findMany({
+    where: cohortWhere(cooldownDays),
     orderBy: { createdAt: "asc" },
+    take: limit,
     select: {
       id: true,
       firstName: true,
@@ -74,18 +102,51 @@ export const GET = handler(async function GET() {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const cohort = await findReEngageCohort();
-  return NextResponse.json({ reengageCount: cohort.length });
+  const [dueNow, everStuck, suppressed, overContacted] = await Promise.all([
+    prisma.cadreProfessional.count({ where: cohortWhere(COOLDOWN_DAYS) }),
+    prisma.cadreProfessional.count({ where: cohortWhere(0) }),
+    prisma.communicationSuppression.count(),
+    prisma.cadreOutreachRecord.count({ where: { contactAttempts: { gte: MAX_ATTEMPTS } } }),
+  ]);
+
+  return NextResponse.json({
+    dueNow,
+    everStuck,
+    suppressed,
+    overContacted,
+    batchSize: DEFAULT_LIMIT,
+    runsToDrain: Math.ceil(dueNow / DEFAULT_LIMIT),
+    cooldownDays: COOLDOWN_DAYS,
+  });
 });
 
-export const POST = handler(async function POST(_req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (!ALLOWED_ROLES.includes(session.user.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const cohort = await findReEngageCohort();
+  const { searchParams } = new URL(req.url);
+  const limit = Math.min(
+    Math.max(Number(searchParams.get("limit")) || DEFAULT_LIMIT, 1),
+    MAX_LIMIT,
+  );
+  const dryRun = searchParams.get("dryRun") === "1";
+
+  const cohort = await findReEngageCohort(limit);
+
+  if (dryRun) {
+    const remaining = await prisma.cadreProfessional.count({ where: cohortWhere(COOLDOWN_DAYS) });
+    return NextResponse.json({
+      ok: true,
+      dryRun: true,
+      wouldSend: cohort.length,
+      remainingAfterThisBatch: Math.max(remaining - cohort.length, 0),
+      sample: cohort.slice(0, 5).map((p) => ({ name: `${p.firstName} ${p.lastName}`, email: p.email })),
+    });
+  }
+
   if (cohort.length === 0) {
     return NextResponse.json({
       ok: true, sent: 0, failed: 0, skippedSuppressed: 0, total: 0, errorSample: [],
@@ -107,19 +168,21 @@ export const POST = handler(async function POST(_req: NextRequest) {
     try {
       await sendCadreEmail({
         to: p.email,
-        subject: "Apologies — please try claiming your profile again",
-        heading: `Dr ${p.lastName}, please try again`,
-        body: `Earlier this week we wrote inviting you to claim your CadreHealth profile. Some of you experienced an error during the activation step. The issue was on our side and is now resolved.
+        subject: "Your CadreHealth record is still held",
+        heading: `Dr ${p.lastName}, your record is still held`,
+        body: `We wrote to you earlier this year inviting you to claim your CadreHealth profile. It has not been claimed, and it is still held in your name.
 
-Your record is still held for you. Twenty minutes is all it takes to claim and update your profile. The first question is simply where you are in your career today, in Nigeria, abroad, or stepped back from full-time clinical work. The platform is built for all three.
+CadreHealth is where Nigerian specialists are visible to the hospitals, groups and programmes that are recruiting, whether you practise in Nigeria, abroad, or have stepped back from full-time clinical work. Holding a profile costs nothing.
 
-Apologies for the friction.
+Claiming takes about twenty minutes. The first question is simply where you are in your career today.
+
+If you would rather not hear from us again, the link at the foot of this email removes you in one click, and we will not write to you a third time.
 
 Dr Debo Odulana
 Founding Partner, Consult For Africa`,
         ctaText: "Claim your profile",
         ctaHref: claimUrl,
-        footer: "If you would prefer not to receive further messages, simply ignore this email.",
+        footer: "You are receiving this because your name appears on a Nigerian medical register. Unsubscribe to be removed permanently.",
       });
       sent++;
 
@@ -148,7 +211,7 @@ Founding Partner, Consult For Africa`,
             professionalId: p.id,
             direction: "OUTBOUND",
             channel: "EMAIL",
-            content: `[Email: cadrehealth_reengage_v1] Sent to ${p.email}`,
+            content: `[Email: cadrehealth_reengage_v2] Sent to ${p.email}`,
             deliveryStatus: "sent",
           },
         });
@@ -173,10 +236,19 @@ Founding Partner, Consult For Africa`,
     entityType: "CadreProfessional",
     entityId: "reengage-batch",
     entityName: `Re-engagement to ${cohort.length} emailed-but-never-claimed users`,
-    details: { cohortSize: cohort.length, sent, failed, skippedSuppressed },
+    details: { cohortSize: cohort.length, sent, failed, skippedSuppressed, limit },
   });
 
+  const remaining = await prisma.cadreProfessional.count({ where: cohortWhere(COOLDOWN_DAYS) });
+
   return NextResponse.json({
-    ok: true, sent, failed, skippedSuppressed, total: cohort.length, errorSample,
+    ok: true,
+    sent,
+    failed,
+    skippedSuppressed,
+    total: cohort.length,
+    remaining,
+    runsLeft: Math.ceil(remaining / limit),
+    errorSample,
   });
 });
