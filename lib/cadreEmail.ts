@@ -56,6 +56,8 @@ export async function sendCadreEmail({
   ctaText,
   ctaHref,
   footer,
+  footerLinkText,
+  footerLinkHref,
 }: {
   to: string;
   subject: string;
@@ -64,6 +66,9 @@ export async function sendCadreEmail({
   ctaText?: string;
   ctaHref?: string;
   footer?: string;
+  /** Optional link appended to the footer, e.g. an unsubscribe. */
+  footerLinkText?: string;
+  footerLinkHref?: string;
 }) {
   const html = layout(`
     <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#0B3C5D;">${esc(heading)}</h1>
@@ -74,8 +79,14 @@ export async function sendCadreEmail({
         : ""
     }
     ${
-      footer
-        ? `<p style="margin:20px 0 0;font-size:13px;line-height:1.5;color:#9CA3AF;">${esc(footer)}</p>`
+      footer || (footerLinkText && footerLinkHref)
+        ? `<p style="margin:20px 0 0;font-size:13px;line-height:1.5;color:#9CA3AF;">${
+            footer ? esc(footer) : ""
+          }${
+            footerLinkText && footerLinkHref
+              ? `${footer ? " " : ""}<a href="${esc(footerLinkHref)}" style="color:#9CA3AF;text-decoration:underline;">${esc(footerLinkText)}</a> to be removed permanently.`
+              : ""
+          }</p>`
         : ""
     }
   `);

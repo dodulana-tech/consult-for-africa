@@ -178,13 +178,15 @@ CadreHealth is where Nigerian specialists are visible to the hospitals, groups a
 
 Claiming takes about twenty minutes. The first question is simply where you are in your career today.
 
-If you would rather not hear from us again, the link at the foot of this email removes you in one click, and we will not write to you a third time.
+If you would rather not hear from us again, the link at the foot of this email removes you in one click, and we will not write to you again.
 
 Dr Debo Odulana
 Founding Partner, Consult For Africa`,
         ctaText: "Claim your profile",
         ctaHref: claimUrl,
-        footer: "You are receiving this because your name appears on a Nigerian medical register. Unsubscribe to be removed permanently.",
+        footer: "You are receiving this because your name appears on a Nigerian medical register.",
+        footerLinkText: "Unsubscribe",
+        footerLinkHref: `https://www.consultforafrica.com/oncadre/unsubscribe/${p.id}`,
       });
       sent++;
 
