@@ -1,101 +1,34 @@
 /**
  * POST /api/webhooks/zeptomail
  *
- * Receives delivery notifications from ZeptoMail (bounces, complaints,
- * unsubscribes) and writes them to CommunicationSuppression so the
- * cadre outreach senders skip the recipient on subsequent runs. Also
- * flips any matching CadreOutreachRecord to UNREACHABLE so the dashboard
- * funnel reflects reality.
+ * Receives delivery notifications from ZeptoMail (bounces and feedback-loop
+ * complaints) and writes them to CommunicationSuppression so the cadre
+ * outreach senders skip the recipient on subsequent runs. Also flips any
+ * matching CadreOutreachRecord to UNREACHABLE so the dashboard funnel
+ * reflects reality.
  *
  * Setup in the ZeptoMail dashboard:
- *   Settings -> Webhooks -> Add new webhook
+ *   Agents -> agent_1 -> Webhooks -> Add webhook
  *   URL:    https://www.consultforafrica.com/api/webhooks/zeptomail
- *   Events: Bounce, Hard Bounce, Soft Bounce, Spam, Complaint, Unsubscribe
- *   Secret: paste the value of ZEPTOMAIL_WEBHOOK_SECRET (optional but
- *           recommended; we verify it via the X-Webhook-Secret header)
+ *   Events: Soft bounces, Hard bounces, Feedback loop
+ *           (leave "Delivered" unchecked -- it fires on every send and we do
+ *           nothing with it)
+ *   Authorization headers:
+ *           key   X-Webhook-Secret
+ *           value the value of ZEPTOMAIL_WEBHOOK_SECRET
  *
- * The endpoint is intentionally permissive about payload shape -- we
- * extract the recipient email and event type from a few possible field
- * names so a future ZeptoMail schema tweak does not break suppression.
+ * The payload shape and its parsing live in lib/zeptomailWebhook.ts.
+ * Anything we cannot parse is logged in full so the shape can be corrected.
  *
- * Always returns 200 unless the secret check fails. Returning non-200
- * makes ZeptoMail retry forever and pollutes the log; we log internal
- * problems but acknowledge the webhook either way.
+ * Always returns 200 unless the secret check fails. Returning non-200 makes
+ * ZeptoMail retry forever and pollutes the log; we log internal problems but
+ * acknowledge the webhook either way.
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { handler } from "@/lib/api-handler";
-
-interface SuppressableEvent {
-  email: string;
-  reason: "BOUNCED" | "COMPLAINT" | "OPTED_OUT";
-}
-
-const HARD_SUPPRESS_EVENTS = new Set([
-  "bounce",
-  "hard_bounce",
-  "hardbounce",
-  "spam",
-  "complaint",
-  "unsubscribe",
-]);
-
-const SOFT_SUPPRESS_EVENTS = new Set([
-  "soft_bounce",
-  "softbounce",
-]);
-
-function reasonFromEvent(eventName: string): SuppressableEvent["reason"] | null {
-  const e = eventName.toLowerCase().replace(/[\s-]/g, "_");
-  if (e.includes("bounce") || HARD_SUPPRESS_EVENTS.has(e)) {
-    if (e.includes("soft") || SOFT_SUPPRESS_EVENTS.has(e)) return null; // soft bounces not auto-suppressed
-    return "BOUNCED";
-  }
-  if (e.includes("spam") || e.includes("complaint")) return "COMPLAINT";
-  if (e.includes("unsubscribe") || e.includes("opt_out") || e.includes("optout")) return "OPTED_OUT";
-  return null;
-}
-
-function extractEmail(payload: unknown): string | null {
-  if (!payload || typeof payload !== "object") return null;
-  const p = payload as Record<string, unknown>;
-
-  // Try common field names ZeptoMail / generic webhooks use.
-  const candidates = [
-    p.email,
-    p.email_address,
-    p.recipient,
-    p.mail_to,
-    p.to,
-    (p.event as Record<string, unknown> | undefined)?.email_address,
-    (p.event as Record<string, unknown> | undefined)?.email,
-    (p.data as Record<string, unknown> | undefined)?.email_address,
-    (p.data as Record<string, unknown> | undefined)?.email,
-  ];
-
-  for (const c of candidates) {
-    if (typeof c === "string" && c.includes("@")) return c.toLowerCase().trim();
-  }
-  return null;
-}
-
-function extractEventName(payload: unknown): string | null {
-  if (!payload || typeof payload !== "object") return null;
-  const p = payload as Record<string, unknown>;
-  const candidates = [
-    p.event_name,
-    p.event,
-    p.type,
-    p.bounce_type,
-    p.notification_type,
-    (p.event as Record<string, unknown> | undefined)?.type,
-  ];
-  for (const c of candidates) {
-    if (typeof c === "string") return c;
-  }
-  return null;
-}
+import { parseEvents, reasonFromEvent } from "@/lib/zeptomailWebhook";
 
 export const POST = handler(async function POST(req: NextRequest) {
   // Optional shared-secret check. ZeptoMail can be configured to send a
@@ -123,29 +56,22 @@ export const POST = handler(async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, ignored: "invalid body" });
   }
 
-  // ZeptoMail sometimes sends an array of events in `event_data` or
-  // `notifications`. Normalise to a list of single events.
-  const events: unknown[] = Array.isArray(payload)
-    ? payload
-    : Array.isArray((payload as Record<string, unknown>).event_data)
-      ? ((payload as Record<string, unknown>).event_data as unknown[])
-      : Array.isArray((payload as Record<string, unknown>).notifications)
-        ? ((payload as Record<string, unknown>).notifications as unknown[])
-        : [payload];
+  const events = parseEvents(payload);
+  if (!events.length) {
+    // Log the raw body: this is how we find out ZeptoMail changed the shape.
+    console.warn(
+      "[zeptomail-webhook] No events parsed from payload",
+      JSON.stringify(payload).slice(0, 2000),
+    );
+    return NextResponse.json({ ok: true, received: 0, suppressed: 0, marked: 0, ignored: 0 });
+  }
 
   const summary = { received: events.length, suppressed: 0, marked: 0, ignored: 0 };
 
-  for (const event of events) {
-    const email = extractEmail(event);
-    const eventName = extractEventName(event);
-    if (!email || !eventName) {
-      summary.ignored++;
-      continue;
-    }
-
+  for (const { email, eventName } of events) {
     const reason = reasonFromEvent(eventName);
     if (!reason) {
-      // Soft bounce or unrecognised event -- log but do not suppress.
+      // Soft bounce, delivery receipt or unrecognised event -- not suppressed.
       summary.ignored++;
       continue;
     }
