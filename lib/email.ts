@@ -94,6 +94,24 @@ async function send(to: string, subject: string, html: string) {
   }
 }
 
+/**
+ * Generic internal notification. Plain HTML, no layout wrapper, sent through the
+ * same ZeptoMail-first transport (with Zoho SMTP fallback and retry) as every
+ * other sender in this file. Use it for inbound form notifications to a CFA
+ * inbox. Reply-to is the standard REPLY_TO_EMAIL, so put the enquirer's address
+ * in the body as a mailto link.
+ */
+export async function notifyInternal(
+  to: string | string[],
+  subject: string,
+  html: string
+): Promise<void> {
+  const recipients = Array.isArray(to) ? to : [to];
+  for (const address of recipients) {
+    await send(address, subject, html);
+  }
+}
+
 // ─── Templates ────────────────────────────────────────────────────────────────
 
 function layout(content: string) {
