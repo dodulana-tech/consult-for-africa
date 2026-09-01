@@ -15,7 +15,8 @@ import { prisma } from "@/lib/prisma";
 import { UnsubscribeForm } from "./UnsubscribeForm";
 
 export const metadata = {
-  title: "Unsubscribe | CadreHealth | Consult For Africa",
+  // The root layout appends "| Consult For Africa" via its title template.
+  title: "Unsubscribe | CadreHealth",
   robots: { index: false, follow: false },
 };
 
