@@ -32,6 +32,15 @@ export default async function CadreDashboard({
 
   const cadreLabel = getCadreLabel(professional.cadre);
 
+  // Live roles on the public board. Counted for this member's own cadre so the
+  // number on the card is the number they will see when they land there.
+  const [openRolesInCadre, openRolesTotal] = await Promise.all([
+    prisma.cadreMandate.count({
+      where: { status: "OPEN", isPublished: true, cadre: professional.cadre },
+    }),
+    prisma.cadreMandate.count({ where: { status: "OPEN", isPublished: true } }),
+  ]);
+
   // CPD summary
   const cpdTotal = professional.cpdEntries.reduce(
     (sum, e) => sum + Number(e.points),
@@ -120,6 +129,19 @@ export default async function CadreDashboard({
 
       {/* Cards grid */}
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Open roles */}
+        <DashCard
+          title="Open Roles"
+          value={openRolesInCadre > 0 ? openRolesInCadre.toString() : openRolesTotal.toString()}
+          subtitle={
+            openRolesInCadre > 0
+              ? `Hiring in ${cadreLabel} now`
+              : `No ${cadreLabel} roles today, ${openRolesTotal} open in all`
+          }
+          href={openRolesInCadre > 0 ? `/oncadre/jobs?cadre=${professional.cadre}` : "/oncadre/jobs"}
+          accent="#0EA5E9"
+        />
+
         {/* Readiness score */}
         <DashCard
           title="Career Readiness"

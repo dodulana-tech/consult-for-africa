@@ -10,6 +10,7 @@ import NotificationBell from "@/components/cadrehealth/NotificationBell";
 
 const navItems = [
   { href: "/oncadre/dashboard", label: "Dashboard", icon: "home" },
+  { href: "/oncadre/jobs", label: "Jobs", icon: "jobs" },
   { href: "/oncadre/profile", label: "Profile", icon: "user" },
   { href: "/oncadre/salary-map", label: "Salary Map", icon: "salary" },
   { href: "/oncadre/explore", label: "Hospitals", icon: "hospital" },
@@ -116,13 +117,13 @@ export default async function OncadrePortalLayout({
           paddingBottom: "env(safe-area-inset-bottom)",
         }}
       >
-        <div className="flex" style={{ minHeight: "56px" }}>
+        <div className="flex overflow-x-auto" style={{ minHeight: "56px", scrollbarWidth: "none" }}>
           {activeNavItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="flex flex-1 flex-col items-center justify-center gap-1 py-2 text-gray-400 transition-colors duration-200 hover:text-[#0B3C5D]"
-              style={{ minHeight: "44px" }}
+              className="flex flex-none flex-col items-center justify-center gap-1 py-2 text-gray-400 transition-colors duration-200 hover:text-[#0B3C5D]"
+              style={{ minHeight: "44px", minWidth: "72px" }}
             >
               <NavIcon icon={item.icon} />
               <span className="text-[10px] font-medium leading-none">{item.label}</span>
@@ -236,6 +237,12 @@ function NavIcon({ icon }: { icon: string }) {
       return (
         <svg className={cls} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      );
+    case "jobs":
+      return (
+        <svg className={cls} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 21l-4.35-4.35M11 18a7 7 0 110-14 7 7 0 010 14z" />
         </svg>
       );
     case "applications":
