@@ -196,6 +196,13 @@ export default async function HospitalDeepDivePage({
     },
   });
 
+  // Give to get. The list page gates the same way; gating one and not the
+  // other would just move the freeloading one click deeper.
+  const myReviewCount = await prisma.cadreFacilityReview.count({
+    where: { professionalId: session.sub },
+  });
+  const hasContributed = myReviewCount > 0;
+
   // Related hospitals (same state or same type, excluding current)
   const relatedHospitals = await prisma.cadreFacility.findMany({
     where: {
@@ -425,7 +432,21 @@ export default async function HospitalDeepDivePage({
 
           {/* Right: Rating summary + CTAs */}
           <div className="flex flex-col items-start gap-4 lg:items-end">
-            {overallRating !== null ? (
+            {overallRating !== null && !hasContributed ? (
+              <div className="flex items-center gap-3">
+                <svg className="h-7 w-7" style={{ color: "rgba(255,255,255,0.5)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <div>
+                  <p className="text-sm font-medium text-white">
+                    {facility.totalReviews} review{facility.totalReviews !== 1 ? "s" : ""} held here
+                  </p>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>
+                    Review a hospital you have worked in to read them
+                  </p>
+                </div>
+              </div>
+            ) : overallRating !== null ? (
               <div className="flex items-center gap-4">
                 <div className="text-right">
                   <span className="text-4xl font-bold text-white">
@@ -505,7 +526,7 @@ export default async function HospitalDeepDivePage({
       {/* ================================================================== */}
       {/* B. RATING BREAKDOWN (12 dimensions)                                */}
       {/* ================================================================== */}
-      {overallRating !== null && (
+      {hasContributed && overallRating !== null && (
         <section
           className="rounded-2xl bg-white p-6 sm:p-8"
           style={{
@@ -817,7 +838,23 @@ export default async function HospitalDeepDivePage({
           )}
         </div>
 
-        {facility.reviews.length === 0 ? (
+        {!hasContributed && facility.reviews.length > 0 ? (
+          <div
+            className="mt-8 rounded-xl px-6 py-12 text-center"
+            style={{ border: "2px dashed #E8EBF0" }}
+          >
+            <svg className="mx-auto h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <p className="mt-3 text-base font-semibold text-gray-900">
+              {facility.reviews.length} colleague{facility.reviews.length !== 1 ? "s have" : " has"} written about this place
+            </p>
+            <p className="mx-auto mt-1 max-w-md text-sm text-gray-500">
+              Reviews are shared between the people who write them. Review any hospital
+              you have worked in and every score on CadreHealth opens up, here and everywhere else.
+            </p>
+          </div>
+        ) : facility.reviews.length === 0 ? (
           <div
             className="mt-8 rounded-xl px-6 py-12 text-center"
             style={{ border: "2px dashed #E8EBF0" }}

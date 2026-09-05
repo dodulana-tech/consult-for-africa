@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
-// PDFParse imported dynamically to avoid module-load crash on serverless
 import { generateUploadUrl, buildKey, getPublicUrl } from "@/lib/r2";
 import { handler } from "@/lib/api-handler";
 
@@ -122,38 +121,47 @@ export const POST = handler(async function POST(req: NextRequest) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    let extractedText = "";
+    const isPdf = file.type === "application/pdf";
 
-    try {
-      if (file.type === "application/pdf") {
-        const { PDFParse } = await import("pdf-parse");
-        const parser = new PDFParse({ data: new Uint8Array(buffer) });
-        const textResult = await parser.getText();
-        extractedText = textResult.text;
-        await parser.destroy();
-      } else {
-        // For DOCX, extract raw text from the XML
-        // A basic approach: DOCX is a zip file, we can extract text nodes
-        extractedText = buffer.toString("utf-8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    // PDFs go to Claude as documents rather than being parsed here. pdf-parse
+    // v2 runs pdfjs underneath and pdfjs wants the browser's DOMMatrix, which
+    // the Node runtime does not define, so every PDF upload died on
+    // "DOMMatrix is not defined". The same conclusion was already reached in
+    // lib/maarovaCircleScreening.ts.
+    let docxText = "";
+    if (!isPdf) {
+      // DOCX is a zip archive. The previous code read it as UTF-8 and stripped
+      // angle brackets, which yields binary noise, not text, and the noise was
+      // long enough to clear the length check and reach the model. mammoth was
+      // already a dependency and does this properly.
+      try {
+        const mammoth = await import("mammoth");
+        const result = await mammoth.extractRawText({ buffer });
+        docxText = result.value.replace(/\s+/g, " ").trim();
+      } catch (e) {
+        const reason = e instanceof Error ? e.message : String(e);
+        console.error("[cv-upload] DOCX extraction failed:", reason);
+        return NextResponse.json(
+          { error: `Could not read the file: ${reason}` },
+          { status: 422 }
+        );
       }
-    } catch (e) {
-      const reason = e instanceof Error ? e.message : String(e);
-      console.error("[cv-upload] text extraction failed:", reason);
-      return NextResponse.json(
-        { error: `Could not read the file: ${reason}` },
-        { status: 422 }
-      );
-    }
 
-    if (!extractedText || extractedText.trim().length < 50) {
-      return NextResponse.json(
-        { error: "Could not extract sufficient text from the file. Please ensure the document contains readable text." },
-        { status: 422 }
-      );
-    }
+      if (docxText.length < 50) {
+        return NextResponse.json(
+          { error: "Could not extract sufficient text from the file. Please ensure the document contains readable text." },
+          { status: 422 }
+        );
+      }
 
-    // Truncate to avoid token limits
-    const truncatedText = extractedText.slice(0, 15000);
+      // Say so rather than silently cutting the CV in half.
+      if (docxText.length > 200_000) {
+        return NextResponse.json(
+          { error: "That document is too long to read in one pass. Please upload a CV rather than a portfolio." },
+          { status: 413 }
+        );
+      }
+    }
 
     if (!process.env.ANTHROPIC_API_KEY) {
       console.error("[cv-upload] ANTHROPIC_API_KEY not set in runtime env");
@@ -172,7 +180,19 @@ export const POST = handler(async function POST(req: NextRequest) {
         messages: [
           {
             role: "user",
-            content: `Extract structured data from this healthcare CV:\n\n${truncatedText}`,
+            content: isPdf
+              ? [
+                  {
+                    type: "document" as const,
+                    source: {
+                      type: "base64" as const,
+                      media_type: "application/pdf" as const,
+                      data: buffer.toString("base64"),
+                    },
+                  },
+                  { type: "text" as const, text: "Extract structured data from this healthcare CV." },
+                ]
+              : `Extract structured data from this healthcare CV:\n\n${docxText}`,
           },
         ],
       });
