@@ -14,12 +14,19 @@ export const POST = handler(async function POST(req: NextRequest) {
 
     const body = await req.json();
 
+    // The client resolves "Other" free text into `role` before posting. Guard
+    // here too: a one-character role silently poisons the salary map's grouping.
+    const role = typeof body.role === "string" ? body.role.trim() : "";
+    if (role.length < 2 || role.length > 120) {
+      return NextResponse.json({ error: "Please give a job title of at least 2 characters" }, { status: 400 });
+    }
+
     const report = await prisma.cadreSalaryReport.create({
       data: {
         professionalId: session.sub,
         facilityId: body.facilityId || null,
         cadre: body.cadre,
-        role: body.role,
+        role,
         facilityType: body.facilityType || null,
         state: body.state,
         city: body.city || null,
