@@ -185,6 +185,13 @@ function fmtDateTime(d: string | null) {
   return new Intl.DateTimeFormat("en-NG", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(d));
 }
 
+/**
+ * Statuses the payments endpoint will accept a payment against. Mirrors
+ * payableStatuses in app/api/invoices/[id]/payments/route.ts: an invoice
+ * nobody has been sent should not have money recorded against it.
+ */
+const PAYABLE_STATUSES = ["SENT", "VIEWED", "PARTIALLY_PAID", "OVERDUE"];
+
 function nextActionForStatus(status: string) {
   switch (status) {
     case "DRAFT": return { label: "Send Invoice", icon: Send, action: "send" };
@@ -205,6 +212,8 @@ export default function InvoiceDetailPage() {
   const [invoice, setInvoice] = useState<InvoiceDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const [paymentForm, setPaymentForm] = useState({
     amount: "",
     paymentDate: new Date().toISOString().split("T")[0],
@@ -234,17 +243,17 @@ export default function InvoiceDetailPage() {
   useEffect(() => { fetchInvoice(); }, [fetchInvoice]);
 
   async function handleAction(action: string) {
+    setActionError(null);
     if (action === "record_payment") {
+      setPaymentError(null);
       setShowPaymentModal(true);
       return;
     }
     try {
-      if (action === "send" || action === "approve") {
-        // Send or approve+send via the send endpoint
-        await fetch(`/api/invoices/${id}/send`, { method: "POST" });
-      } else if (action === "remind") {
-        // For now, re-send the invoice as a reminder
-        await fetch(`/api/invoices/${id}/send`, { method: "POST" });
+      let res: Response | null = null;
+      if (action === "send" || action === "approve" || action === "remind") {
+        // Send, approve+send, and remind all go through the send endpoint.
+        res = await fetch(`/api/invoices/${id}/send`, { method: "POST" });
       } else {
         // Status transitions via PATCH
         const statusMap: Record<string, string> = {
@@ -252,21 +261,29 @@ export default function InvoiceDetailPage() {
         };
         const newStatus = statusMap[action];
         if (newStatus) {
-          await fetch(`/api/invoices/${id}`, {
+          res = await fetch(`/api/invoices/${id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ status: newStatus }),
           });
         }
       }
+      // A refused action used to leave the page unchanged and unexplained,
+      // which is indistinguishable from a dead button.
+      if (res && !res.ok) {
+        const data = await res.json().catch(() => null);
+        setActionError(data?.error ?? `That did not go through (${res.status}).`);
+        return;
+      }
       fetchInvoice();
     } catch {
-      // silently handle
+      setActionError("Network error. Please try again.");
     }
   }
 
   async function submitPayment() {
     setSubmitting(true);
+    setPaymentError(null);
     try {
       const res = await fetch(`/api/invoices/${id}/payments`, {
         method: "POST",
@@ -284,9 +301,12 @@ export default function InvoiceDetailPage() {
         setShowPaymentModal(false);
         setPaymentForm({ amount: "", paymentDate: new Date().toISOString().split("T")[0], paymentMethod: "bank_transfer", reference: "", bankName: "", notes: "" });
         fetchInvoice();
+      } else {
+        const data = await res.json().catch(() => null);
+        setPaymentError(data?.error ?? `Could not record the payment (${res.status}).`);
       }
     } catch {
-      // silently handle
+      setPaymentError("Network error. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -363,6 +383,20 @@ export default function InvoiceDetailPage() {
                   </button>
                 )}
               </div>
+
+              {actionError && (
+                <div className="mb-4 flex items-start gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-100">
+                  <AlertTriangle size={15} className="mt-0.5 shrink-0" />
+                  <span className="flex-1">{actionError}</span>
+                  <button
+                    onClick={() => setActionError(null)}
+                    className="text-red-400 hover:text-red-600"
+                    aria-label="Dismiss"
+                  >
+                    &times;
+                  </button>
+                </div>
+              )}
 
               {/* Invoice Card */}
               <div className="bg-white rounded-xl p-6 sm:p-8" style={{ border: "1px solid #e5eaf0" }}>
@@ -586,8 +620,14 @@ export default function InvoiceDetailPage() {
                     Send Invoice
                   </button>
                   <button
-                    onClick={() => setShowPaymentModal(true)}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-gray-50 transition-colors text-gray-700"
+                    onClick={() => { setPaymentError(null); setShowPaymentModal(true); }}
+                    disabled={!PAYABLE_STATUSES.includes(invoice.status)}
+                    title={
+                      PAYABLE_STATUSES.includes(invoice.status)
+                        ? "Record a payment against this invoice"
+                        : `Send the invoice before recording a payment against it. This one is ${invoice.status.replace(/_/g, " ").toLowerCase()}.`
+                    }
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-gray-50 transition-colors text-gray-700 disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:bg-transparent"
                   >
                     <CreditCard size={15} className="text-gray-400" />
                     Record Payment
@@ -726,9 +766,15 @@ export default function InvoiceDetailPage() {
                   />
                 </div>
               </div>
+              {paymentError && (
+                <div className="mx-6 mb-2 flex items-start gap-2 rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700 ring-1 ring-red-100">
+                  <AlertTriangle size={15} className="mt-0.5 shrink-0" />
+                  <span>{paymentError}</span>
+                </div>
+              )}
               <div className="flex justify-end gap-3 px-6 py-4" style={{ borderTop: "1px solid #e5eaf0" }}>
                 <button
-                  onClick={() => setShowPaymentModal(false)}
+                  onClick={() => { setShowPaymentModal(false); setPaymentError(null); }}
                   className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
                 >
                   Cancel
