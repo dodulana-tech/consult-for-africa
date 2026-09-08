@@ -19,6 +19,7 @@ const navItems = [
   { href: "/oncadre/career-report", label: "Assessment", icon: "assessment" },
   { href: "/oncadre/advisor", label: "Advisor", icon: "advisor" },
   { href: "/oncadre/mentorship/my", label: "Mentorship", icon: "mentorship" },
+  { href: "/oncadre/mezo", label: "Private Practice", icon: "practice" },
   { href: "/oncadre/my-applications", label: "Applications", icon: "applications" },
 ];
 
@@ -189,6 +190,12 @@ function NavIcon({ icon }: { icon: string }) {
       return (
         <svg className={cls} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
+        </svg>
+      );
+    case "practice":
+      return (
+        <svg className={cls} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 21h18M6 21V5a2 2 0 012-2h8a2 2 0 012 2v16M14 12h.01" />
         </svg>
       );
     case "user":

@@ -3911,6 +3911,7 @@ model CadreProfessional {
   notifications        CadreNotification[]
   subscription         CadreSubscription?
   coachingSessions     CadreCoachingSession[]
+  mezoInterest         CadreMezoInterest?
 
   // Profile analytics
   profileViews Int       @default(0)
@@ -4776,6 +4777,51 @@ model CadreCoachingSession {
 
   @@index([menteeId, status])
   @@index([mentorProfileId, status])
+}
+
+// ─── CadreHealth: Mezo private practice ──────────────────────────────────────
+
+// A member's answer to the Mezo private practice survey, and the state of the
+// Mezo place it unlocks.
+//
+// One row per professional: the survey can be retaken, and a retake replaces
+// the payload rather than adding a row, because what we want is their current
+// position, not a history of drafts. Mezo lives in its own codebase with its
+// own database, so everything we know about their account over there is
+// mirrored here in the mezo* columns and nowhere else.
+model CadreMezoInterest {
+  id             String            @id @default(cuid())
+  professionalId String            @unique
+  professional   CadreProfessional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+
+  // The full instrument, kept as one document so a question can be added or
+  // reworded without a migration. The columns below are lifted out of it for
+  // the admin view and for segmentation, and are always derived, never the
+  // source of truth.
+  payload Json
+
+  seesPrivatePatients String? // none | occasional | regular | own_practice
+  sessionalAppetite   String? // weekly | monthly | occasional | none
+  sessionBudget       String? // band for a four hour serviced session
+  billingPreference   String? // per_session | retainer | revenue_share | unsure
+  membershipBudget    String? // band for a monthly platform fee
+  consultationFee     String? // band they charge per private consultation
+  practiceCity        String?
+  startTimeline       String? // now | 1_3_months | 3_6_months | 6_12_months | exploring
+  teleconsultInterest Boolean @default(false)
+
+  // Mirror of the Mezo side. PENDING until the provisioning call returns.
+  mezoStatus        String    @default("PENDING") // PENDING | PROVISIONED | EXISTING | FAILED
+  mezoClaimUrl      String?
+  mezoProvisionedAt DateTime?
+  mezoError         String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([mezoStatus])
+  @@index([sessionalAppetite])
+  @@index([createdAt])
 }
 
 // ─── AGENT PLATFORM ──────────────────────────────────────────────────────────
