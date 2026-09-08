@@ -4,6 +4,17 @@ import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
 import { generateUploadUrl, buildKey, getPublicUrl } from "@/lib/r2";
 import { handler } from "@/lib/api-handler";
+import { extractPdfText, PDF_TEXT_LIMIT } from "@/lib/pdfText";
+
+// PDF text extraction needs Node, not the edge runtime. Nodejs is the default
+// for route handlers, but this one breaks in a way that is hard to read if it
+// ever changes, so it is stated.
+export const runtime = "nodejs";
+
+// Extract, then a Claude call, then R2 and DB writes. The default 10s cap is
+// too tight, and a scanned CV that Claude has to read off the page is slower
+// still.
+export const maxDuration = 60;
 
 const anthropic = new Anthropic();
 
@@ -123,44 +134,48 @@ export const POST = handler(async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const isPdf = file.type === "application/pdf";
 
-    // PDFs go to Claude as documents rather than being parsed here. pdf-parse
-    // v2 runs pdfjs underneath and pdfjs wants the browser's DOMMatrix, which
-    // the Node runtime does not define, so every PDF upload died on
-    // "DOMMatrix is not defined". The same conclusion was already reached in
-    // lib/maarovaCircleScreening.ts.
-    let docxText = "";
-    if (!isPdf) {
-      // DOCX is a zip archive. The previous code read it as UTF-8 and stripped
-      // angle brackets, which yields binary noise, not text, and the noise was
-      // long enough to clear the length check and reach the model. mammoth was
-      // already a dependency and does this properly.
-      try {
+    // Both formats are read here. See lib/pdfText.ts for why the PDF side does
+    // not use pdf-parse: it reaches pdfjs, which needs a canvas package the
+    // serverless bundle never carries, and dies on "DOMMatrix is not defined"
+    // before reading a byte. DOCX is a zip archive, so it needs mammoth rather
+    // than a UTF-8 read, which yields zip headers the model then tries to read
+    // a CV out of.
+    let cvText = "";
+    try {
+      if (isPdf) {
+        cvText = await extractPdfText(buffer);
+      } else {
         const mammoth = await import("mammoth");
         const result = await mammoth.extractRawText({ buffer });
-        docxText = result.value.replace(/\s+/g, " ").trim();
-      } catch (e) {
-        const reason = e instanceof Error ? e.message : String(e);
-        console.error("[cv-upload] DOCX extraction failed:", reason);
-        return NextResponse.json(
-          { error: `Could not read the file: ${reason}` },
-          { status: 422 }
-        );
+        cvText = result.value.replace(/\s+/g, " ").trim();
       }
+    } catch (e) {
+      const reason = e instanceof Error ? e.message : String(e);
+      console.error(`[cv-upload] ${isPdf ? "PDF" : "DOCX"} extraction failed:`, reason);
+      return NextResponse.json(
+        { error: `Could not read the file: ${reason}` },
+        { status: 422 }
+      );
+    }
 
-      if (docxText.length < 50) {
-        return NextResponse.json(
-          { error: "Could not extract sufficient text from the file. Please ensure the document contains readable text." },
-          { status: 422 }
-        );
-      }
+    // A PDF with no text layer is a scan or a photograph of a CV, which is
+    // common. Claude reads those off the page itself, so hand it the file
+    // rather than turning the professional away.
+    const sendAsDocument = isPdf && cvText.length < 50;
 
-      // Say so rather than silently cutting the CV in half.
-      if (docxText.length > 200_000) {
-        return NextResponse.json(
-          { error: "That document is too long to read in one pass. Please upload a CV rather than a portfolio." },
-          { status: 413 }
-        );
-      }
+    if (!sendAsDocument && cvText.length < 50) {
+      return NextResponse.json(
+        { error: "Could not extract sufficient text from the file. Please ensure the document contains readable text." },
+        { status: 422 }
+      );
+    }
+
+    // Say so rather than silently cutting the CV in half.
+    if (cvText.length > PDF_TEXT_LIMIT) {
+      return NextResponse.json(
+        { error: "That document is too long to read in one pass. Please upload a CV rather than a portfolio." },
+        { status: 413 }
+      );
     }
 
     if (!process.env.ANTHROPIC_API_KEY) {
@@ -180,7 +195,7 @@ export const POST = handler(async function POST(req: NextRequest) {
         messages: [
           {
             role: "user",
-            content: isPdf
+            content: sendAsDocument
               ? [
                   {
                     type: "document" as const,
@@ -192,7 +207,7 @@ export const POST = handler(async function POST(req: NextRequest) {
                   },
                   { type: "text" as const, text: "Extract structured data from this healthcare CV." },
                 ]
-              : `Extract structured data from this healthcare CV:\n\n${docxText}`,
+              : `Extract structured data from this healthcare CV:\n\n${cvText}`,
           },
         ],
       });
@@ -219,6 +234,34 @@ export const POST = handler(async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: `Could not parse extracted data: ${reason}` },
         { status: 500 }
+      );
+    }
+
+    // Well formed JSON with nothing in it is still a failed read. Without this
+    // the professional lands in an empty review form that says it worked.
+    const lists = [
+      parsed.qualifications,
+      parsed.workHistory,
+      parsed.credentials,
+      parsed.certifications,
+    ];
+    const foundSomething =
+      Boolean(parsed.fullName || parsed.email || parsed.phone || parsed.cadre) ||
+      lists.some((list) => Array.isArray(list) && list.length > 0);
+
+    if (!foundSomething) {
+      console.error("[cv-upload] extraction returned nothing usable", {
+        isPdf,
+        sendAsDocument,
+        textChars: cvText.length,
+      });
+      return NextResponse.json(
+        {
+          error: sendAsDocument
+            ? "We could not read anything from that PDF. It looks like a scan with no text in it. Please upload the version you exported from Word, or a DOCX."
+            : "We could not find any profile details in that document. Please check it is your CV and try again.",
+        },
+        { status: 422 }
       );
     }
 

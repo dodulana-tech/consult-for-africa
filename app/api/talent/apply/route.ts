@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
 import { handler } from "@/lib/api-handler";
 import { notifyAdmins } from "@/lib/admin-notify";
+import { extractPdfText } from "@/lib/pdfText";
 
 const anthropic = new Anthropic();
 
@@ -12,6 +13,11 @@ const ALLOWED_CV_HOSTS = new Set([
 ].filter(Boolean));
 
 const MAX_CV_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+
+// PDF extraction needs the Node runtime, and fetching plus parsing a CV
+// before the screening call can outrun the default ceiling.
+export const runtime = "nodejs";
+export const maxDuration = 60;
 
 export const POST = handler(async function POST(req: NextRequest) {
   const body = await req.json();
@@ -69,11 +75,16 @@ export const POST = handler(async function POST(req: NextRequest) {
                 console.warn("[talent/apply] CV buffer too large:", arrayBuf.byteLength);
               } else {
                 const buffer = Buffer.from(arrayBuf);
-                const { PDFParse } = await import("pdf-parse");
-                const parser = new PDFParse({ data: buffer });
-                const result = await parser.getText();
-                if (result.text) {
-                  extractedCvText = result.text;
+                // Same extractor the CV upload uses. pdf-parse reaches for
+                // browser globals that do not exist in the serverless runtime,
+                // so it threw here on every PDF. The catch below swallowed it,
+                // which is why nobody noticed: applications submitted fine and
+                // screening simply ran on a null CV.
+                const text = await extractPdfText(buffer);
+                if (text) {
+                  extractedCvText = text;
+                } else {
+                  console.warn("[talent/apply] CV has no text layer, screening without it");
                 }
               }
             }
