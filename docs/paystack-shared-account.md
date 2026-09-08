@@ -67,7 +67,7 @@ Must be `https`. A plain `http` entry is refused and logged rather than used. Ad
 Decided in [lib/paystack/router.ts](../lib/paystack/router.ts), in this order:
 
 1. **`metadata.product` names a configured target.** Forwarded there and nowhere else.
-2. **The event carries a marker this codebase owns** (`metadata.invoiceId`, `metadata.trackPurchaseId`, `metadata.type === "cadre_subscription"`). Handled here.
+2. **The event carries a marker this codebase owns** (`metadata.invoiceId`, `metadata.trackPurchaseId`, `metadata.type === "cadre_subscription"`, `metadata.type === "cadre_coaching_session"`). Handled here.
 3. **Nothing identifies an owner.** Some events genuinely carry no metadata, notably `subscription.disable`, `subscription.not_renew` and the `transfer.*` family. These are offered to everyone: local handlers run and filter themselves, and the event is fanned out to every configured target so each can decide for itself. Everyone verifies the same signature against the same key, so this is safe.
 
 ## When something fails

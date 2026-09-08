@@ -12,7 +12,8 @@
  *      and nowhere else. This is the convention every product should follow:
  *      set metadata.product on transaction.initialize.
  *   2. The event carries a marker this codebase recognises (invoiceId,
- *      trackPurchaseId, type=cadre_subscription), so handle it here.
+ *      trackPurchaseId, type=cadre_subscription, type=cadre_coaching_session),
+ *      so handle it here.
  *   3. Nothing identifies an owner. Events like subscription.disable and
  *      transfer.* carry no metadata at all, so run the local handlers, which
  *      filter themselves, and fan the event out to every external target so
@@ -24,6 +25,7 @@ import {
   handleTrackPurchase,
   handleInvoicePayment,
   handleCadreSubscription,
+  handleCoachingSession,
   type PaystackEvent,
 } from "@/lib/paystack/handlers";
 
@@ -51,7 +53,7 @@ export interface RouteOutcome {
 function hasInternalMarker(event: PaystackEvent): boolean {
   const m = event.data?.metadata;
   if (m?.invoiceId || m?.trackPurchaseId) return true;
-  if (m?.type === "cadre_subscription") return true;
+  if (m?.type === "cadre_subscription" || m?.type === "cadre_coaching_session") return true;
   return false;
 }
 
@@ -106,6 +108,10 @@ async function runInternal(event: PaystackEvent): Promise<void> {
     }
     if (event.data?.metadata?.type === "cadre_subscription") {
       await handleCadreSubscription(event);
+      return;
+    }
+    if (event.data?.metadata?.type === "cadre_coaching_session") {
+      await handleCoachingSession(event);
       return;
     }
     if (event.data?.metadata?.invoiceId) {

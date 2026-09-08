@@ -21,6 +21,9 @@ vi.mock("@/lib/paystack/handlers", () => ({
   handleCadreSubscription: async () => {
     handled.push("cadre");
   },
+  handleCoachingSession: async () => {
+    handled.push("coaching");
+  },
 }));
 
 const TARGETS = {
@@ -121,6 +124,23 @@ describe("paystack router", () => {
       "sig4"
     );
     expect(handled).toEqual(["cadre"]);
+  });
+
+  it("keeps a coaching session payment at home instead of offering it around", async () => {
+    // A mentee can close the tab at the OTP screen, so the webhook is the only
+    // thing that will ever mark that session paid.
+    const { routeEvent } = await importRouter();
+    const event = evt("charge.success", {
+      type: "cadre_coaching_session",
+      session_id: "cs_1",
+      professional_id: "p1",
+    });
+
+    const out = await routeEvent(event, JSON.stringify(event), "sig-coaching");
+
+    expect(out.status).toBe("HANDLED");
+    expect(handled).toEqual(["coaching"]);
+    expect(fetchCalls).toEqual([]);
   });
 
   it("offers an event with no owner to everyone, since subscription events carry no metadata", async () => {

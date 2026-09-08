@@ -1,6 +1,7 @@
 /**
  * Paystack event handlers for the products that live in this codebase:
- * client invoices, training track purchases, and CadreHealth subscriptions.
+ * client invoices, training track purchases, CadreHealth subscriptions and
+ * CadreHealth coaching sessions.
  *
  * Pulled out of the webhook route so a single front door can dispatch to them
  * (see app/api/paystack/webhook/route.ts) and so a replay can re-run one
@@ -12,6 +13,7 @@
  */
 import { prisma } from "@/lib/prisma";
 import { emailPaymentReceipt, emailTrackPurchaseConfirmation } from "@/lib/email";
+import { emailCadreProWelcome, emailCadreCoachingBooked } from "@/lib/cadreHealth/paymentEmails";
 import { Decimal } from "@prisma/client/runtime/library";
 import { InvoiceStatus } from "@prisma/client";
 
@@ -34,6 +36,7 @@ export interface PaystackEvent {
       trackId?: string;
       userId?: string;
       professional_id?: string;
+      session_id?: string;
       [key: string]: unknown;
     };
   };
@@ -213,6 +216,14 @@ export async function handleCadreSubscription(event: PaystackEvent): Promise<voi
     const periodEnd = new Date(now);
     periodEnd.setMonth(periodEnd.getMonth() + 1);
 
+    // Read before writing so a retry or a deliberate replay does not send a
+    // second welcome. The upsert itself is safely repeatable; the email is not.
+    const prior = await prisma.cadreSubscription.findUnique({
+      where: { professionalId },
+      select: { plan: true, status: true },
+    });
+    const alreadyPro = prior?.plan === "PRO" && prior.status === "ACTIVE";
+
     await prisma.cadreSubscription.upsert({
       where: { professionalId },
       update: {
@@ -235,6 +246,26 @@ export async function handleCadreSubscription(event: PaystackEvent): Promise<voi
         paystackCustomerCode: customer?.customer_code || undefined,
       },
     });
+
+    if (!alreadyPro) {
+      const professional = await prisma.cadreProfessional.findUnique({
+        where: { id: professionalId },
+        select: { email: true, firstName: true, lastName: true, cadre: true },
+      });
+      if (professional) {
+        // Failing to send must not fail the handler: the subscription is
+        // already active and retrying a bug rarely fixes it.
+        emailCadreProWelcome({
+          person: professional,
+          amountKobo: event.data.amount ?? 0,
+          reference: event.data.reference ?? "",
+          periodStart: now,
+          periodEnd,
+        }).catch((err) => {
+          console.error("[paystack] cadre pro welcome email failed:", err);
+        });
+      }
+    }
     return;
   }
 
@@ -249,4 +280,96 @@ export async function handleCadreSubscription(event: PaystackEvent): Promise<voi
       data: { status: "CANCELLED", cancelledAt: new Date() },
     });
   }
+}
+
+/* ── CadreHealth coaching sessions ────────────────────────────────────────── */
+
+/**
+ * A mentee paying for a coaching session.
+ *
+ * The callback page verifies the same reference when the browser comes back,
+ * so this handler is what covers the mentee who closes the tab at the OTP
+ * screen and never returns. Whichever arrives first marks the session paid and
+ * notifies the mentor; the other finds nothing left to do.
+ */
+export async function handleCoachingSession(event: PaystackEvent): Promise<void> {
+  const { data } = event;
+  if (data.metadata?.type !== "cadre_coaching_session") return;
+
+  // The reference is stored immediately after initialize, so it is the usual
+  // way back to the session. metadata.session_id covers the moment between
+  // those two writes, when the reference is not on the row yet.
+  const byRef = data.reference
+    ? await prisma.cadreCoachingSession.findUnique({ where: { paystackRef: data.reference } })
+    : null;
+  const coachingSession =
+    byRef ??
+    (data.metadata.session_id
+      ? await prisma.cadreCoachingSession.findUnique({ where: { id: data.metadata.session_id } })
+      : null);
+
+  if (!coachingSession) {
+    console.error(`[paystack] coaching session for ${data.reference} not found`);
+    return;
+  }
+
+  // The status is the idempotency key: a second delivery claims nothing, so
+  // the mentor is not notified twice.
+  const claimed = await prisma.cadreCoachingSession.updateMany({
+    where: { id: coachingSession.id, status: "PENDING_PAYMENT" },
+    data: {
+      status: "PAID",
+      paidAt: new Date(),
+      paystackRef: coachingSession.paystackRef ?? data.reference,
+    },
+  });
+  if (claimed.count === 0) return;
+
+  const mentorProfile = await prisma.cadreMentorProfile.findUnique({
+    where: { id: coachingSession.mentorProfileId },
+    select: {
+      professionalId: true,
+      professional: { select: { firstName: true, lastName: true } },
+    },
+  });
+  if (!mentorProfile) return;
+
+  await prisma.cadreNotification.create({
+    data: {
+      professionalId: mentorProfile.professionalId,
+      type: "SYSTEM",
+      title: "New coaching session booked",
+      message: `Someone has booked a paid coaching session with you on: ${coachingSession.topic}`,
+      link: "/oncadre/mentorship/my",
+    },
+  });
+
+  // The mentor gets a notification in the app. The mentee, who is the one who
+  // actually paid, previously got nothing at all.
+  const mentee = await prisma.cadreProfessional.findUnique({
+    where: { id: coachingSession.menteeId },
+    select: { email: true, firstName: true, lastName: true, cadre: true },
+  });
+  if (mentee) {
+    const mentorName = [
+      mentorProfile.professional.firstName,
+      mentorProfile.professional.lastName,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+
+    emailCadreCoachingBooked({
+      person: mentee,
+      mentorName: mentorName || "your mentor",
+      topic: coachingSession.topic,
+      amountKobo: data.amount ?? coachingSession.amountNGN * 100,
+      reference: data.reference ?? "",
+      durationMinutes: coachingSession.durationMinutes,
+    }).catch((err) => {
+      console.error("[paystack] coaching confirmation email failed:", err);
+    });
+  }
+
+  console.log(`[paystack] coaching session ${coachingSession.id} paid (${data.reference})`);
 }
