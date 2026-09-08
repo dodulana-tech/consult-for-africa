@@ -9,6 +9,7 @@ import CredentialRenewals from "@/components/cadrehealth/dashboard/CredentialRen
 import AskNuruCard from "@/components/cadrehealth/dashboard/AskNuruCard";
 import SalaryMapUnlock from "@/components/cadrehealth/dashboard/SalaryMapUnlock";
 import HospitalReviewUnlock from "@/components/cadrehealth/dashboard/HospitalReviewUnlock";
+import MezoPracticeCard from "@/components/cadrehealth/dashboard/MezoPracticeCard";
 
 export default async function CadreDashboard({
   searchParams,
@@ -25,6 +26,7 @@ export default async function CadreDashboard({
       credentials: { orderBy: { expiryDate: "asc" } },
       cpdEntries: { take: 5, orderBy: { dateCompleted: "desc" } },
       qualifications: { take: 5, orderBy: { createdAt: "desc" } },
+      mezoInterest: true,
     },
   });
 
@@ -104,6 +106,15 @@ export default async function CadreDashboard({
           </p>
         </div>
       </div>
+
+      {/* Private practice with Mezo. Sits above the next-best-action because it
+          is the only thing on this page offering a member something they
+          cannot already do somewhere else. */}
+      <MezoPracticeCard
+        eligible={professional.cadre === "MEDICINE" || professional.cadre === "DENTISTRY"}
+        answered={!!professional.mezoInterest}
+        claimUrl={professional.mezoInterest?.mezoClaimUrl ?? null}
+      />
 
       {/* Hero next-best-action */}
       <NextBestAction state={nbaState} />
