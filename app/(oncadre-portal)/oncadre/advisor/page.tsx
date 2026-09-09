@@ -23,15 +23,18 @@ export default async function AdvisorPage() {
   if (!professional) redirect("/oncadre/register");
 
   const [messages, allowance] = await Promise.all([
+    // Newest first so the take lands on the recent end of the conversation, and
+    // with an id tiebreak because the two rows of one exchange can share a
+    // createdAt. Reversed below into the order it happened.
     prisma.cadreAdvisorMessage.findMany({
       where: { professionalId: session.sub },
-      orderBy: { createdAt: "asc" },
-      take: 50,
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      take: 200,
     }),
     checkAIMessageAllowance(session.sub),
   ]);
 
-  const serializedMessages = messages.map((m) => ({
+  const serializedMessages = messages.reverse().map((m) => ({
     id: m.id,
     role: m.role,
     content: m.content,

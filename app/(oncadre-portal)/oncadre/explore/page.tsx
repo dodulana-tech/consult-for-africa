@@ -159,6 +159,10 @@ export default async function HospitalExplorerPage({
     }),
   ]);
 
+  // Give to get, the same bargain the salary map makes. 16 of 595 members have
+  // shared a salary behind that gate; 1 has written a review without one.
+  const hasContributed = userReviewCount > 0;
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -195,10 +199,14 @@ export default async function HospitalExplorerPage({
         </div>
         <div>
           <p className="text-sm font-semibold text-gray-900">
-            You have reviewed {userReviewCount} of {totalCount} facilities
+            {hasContributed
+              ? `You have reviewed ${userReviewCount} of ${totalCount} facilities`
+              : "Scores are unlocked by contributing one"}
           </p>
           <p className="text-xs text-gray-500">
-            Every review helps colleagues make better career decisions
+            {hasContributed
+              ? "Every review helps colleagues make better career decisions"
+              : "Review a hospital you have worked in and every score here opens up"}
           </p>
         </div>
         {userReviewCount > 0 && (
@@ -283,7 +291,26 @@ export default async function HospitalExplorerPage({
 
                 {/* Rating row */}
                 <div className="mb-4 flex items-center gap-3">
-                  {rating !== null ? (
+                  {rating !== null && !hasContributed ? (
+                    <>
+                      <span
+                        className="inline-flex items-center justify-center rounded-lg px-2.5 py-1.5"
+                        style={{ background: "rgba(11,60,93,0.06)" }}
+                      >
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                      </span>
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">
+                          {facility.totalReviews} review{facility.totalReviews !== 1 ? "s" : ""} from colleagues
+                        </p>
+                        <p className="mt-0.5 text-xs text-gray-400">
+                          Add yours to see the scores
+                        </p>
+                      </div>
+                    </>
+                  ) : rating !== null ? (
                     <>
                       <span
                         className="inline-flex items-center justify-center rounded-lg px-2.5 py-1 text-xl font-bold"
@@ -307,7 +334,7 @@ export default async function HospitalExplorerPage({
                 </div>
 
                 {/* Would recommend */}
-                {recommendPct !== null && facility.totalReviews >= 2 && (
+                {hasContributed && recommendPct !== null && facility.totalReviews >= 2 && (
                   <div className="mb-4 flex items-center gap-2">
                     <svg className="h-4 w-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
@@ -319,7 +346,7 @@ export default async function HospitalExplorerPage({
                 )}
 
                 {/* Top dimension mini-bars */}
-                {rating !== null && (
+                {hasContributed && rating !== null && (
                   <div className="space-y-2.5 pt-3" style={{ borderTop: "1px solid #E8EBF0" }}>
                     {TOP_DIMENSIONS.map((dim) => {
                       const val = facility[dim.key] ? Number(facility[dim.key]) : null;

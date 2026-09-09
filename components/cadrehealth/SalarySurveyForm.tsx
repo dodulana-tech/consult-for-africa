@@ -37,6 +37,7 @@ export default function SalarySurveyForm() {
   const [form, setForm] = useState({
     cadre: "",
     role: "",
+    roleOther: "",
     facilityType: "",
     facilityId: "",
     facilityName: "",
@@ -97,7 +98,7 @@ export default function SalarySurveyForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           cadre: form.cadre,
-          role: form.role,
+          role: form.role === "OTHER" ? form.roleOther.trim() : form.role,
           facilityType: form.facilityType,
           facilityId: form.facilityId || null,
           state: form.state,
@@ -211,7 +212,8 @@ export default function SalarySurveyForm() {
             {form.role === "OTHER" && (
               <input
                 type="text"
-                onChange={(e) => update({ role: e.target.value || "OTHER" })}
+                value={form.roleOther}
+                onChange={(e) => update({ roleOther: e.target.value })}
                 placeholder="Type your role"
                 className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-[#0B3C5D] focus:outline-none focus:ring-1 focus:ring-[#0B3C5D]"
               />
@@ -239,14 +241,14 @@ export default function SalarySurveyForm() {
 
           <div className="sm:col-span-2">
             <label className="mb-1.5 block text-sm font-medium text-gray-700">
-              Facility / hospital name
+              Organisation / facility / hospital name
             </label>
             <div className="relative">
               <input
                 type="text"
                 value={facilitySearch}
                 onChange={(e) => handleFacilitySearch(e.target.value)}
-                placeholder="Start typing to search (e.g. LUTH, Reddington, FMC...)"
+                placeholder="Start typing to search (e.g. LUTH, Reddington, FMC, McKinsey...)"
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-[#0B3C5D] focus:outline-none focus:ring-1 focus:ring-[#0B3C5D]"
               />
               {selectedFacility && (
@@ -501,7 +503,7 @@ export default function SalarySurveyForm() {
 
         <button
           type="submit"
-          disabled={loading || !form.cadre || !form.role || !form.facilityType || !form.state || !form.baseSalary}
+          disabled={loading || !form.cadre || !form.role || (form.role === "OTHER" && form.roleOther.trim().length < 2) || !form.facilityType || !form.state || !form.baseSalary}
           className="w-full rounded-lg bg-[#D4AF37] py-3 text-base font-semibold text-[#0B3C5D] transition hover:bg-[#C4A030] disabled:opacity-50"
         >
           {loading ? "Submitting..." : "Share my salary and unlock the map"}

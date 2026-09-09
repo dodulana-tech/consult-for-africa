@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
+import { handleCoachingSession } from "@/lib/paystack/handlers";
 import { handler } from "@/lib/api-handler";
 
 /**
  * POST /api/cadre/coaching/verify
  * Verify a coaching session payment after Paystack callback.
+ *
+ * The webhook confirms the same payment for the mentee who never comes back,
+ * so both doors lead to the one copy of the logic in lib/paystack/handlers.ts.
+ * Either may arrive first and the other then has nothing to do.
  */
 export const POST = handler(async function POST(req: NextRequest) {
   const session = await getCadreSession();
@@ -41,30 +46,17 @@ export const POST = handler(async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Session not found" }, { status: 404 });
   }
 
-  if (coachingSession.status !== "PENDING_PAYMENT") {
-    return NextResponse.json({ error: "Session already processed" }, { status: 400 });
+  // Paystack has confirmed the money either way. If the webhook got here
+  // first the session is already paid, and telling the mentee their payment
+  // failed because we were beaten to it would be a lie.
+  if (coachingSession.status === "PENDING_PAYMENT") {
+    await handleCoachingSession({ event: "charge.success", data: data.data });
   }
 
-  const updated = await prisma.cadreCoachingSession.update({
+  const updated = await prisma.cadreCoachingSession.findUnique({
     where: { id: coachingSession.id },
-    data: { status: "PAID", paidAt: new Date() },
-    include: {
-      mentorProfile: {
-        include: { professional: { select: { firstName: true, lastName: true } } },
-      },
-    },
+    select: { id: true, status: true },
   });
 
-  // Notify the mentor
-  await prisma.cadreNotification.create({
-    data: {
-      professionalId: updated.mentorProfile.professionalId,
-      type: "SYSTEM",
-      title: "New coaching session booked",
-      message: `Someone has booked a paid coaching session with you on: ${updated.topic}`,
-      link: "/oncadre/mentorship/my",
-    },
-  });
-
-  return NextResponse.json({ ok: true, session: { id: updated.id, status: updated.status } });
+  return NextResponse.json({ ok: true, session: updated });
 });

@@ -9,6 +9,25 @@ import { handler } from "@/lib/api-handler";
 
 const anthropic = new Anthropic();
 
+// How many past messages the advisor is given as context. The user and advisor
+// rows of one exchange count as two, so this is 30 exchanges: enough to hold a
+// whole intake conversation, where the advisor asks a numbered list of
+// questions and the answers arrive over several turns.
+const ADVISOR_CONTEXT_MESSAGES = 60;
+
+// How many past messages the chat window renders. Cheap, so it is generous.
+const ADVISOR_HISTORY_MESSAGES = 200;
+
+// Both rows of an exchange are written in one call and used to land on the same
+// createdAt, so ordering by time alone put some advisor replies before the
+// question they answered. New rows are stamped a millisecond apart on write;
+// the id tiebreak keeps rows written before that fix in the right order too,
+// because cuids from a single createMany increment in insertion order.
+const ADVISOR_ORDER_NEWEST_FIRST = [
+  { createdAt: "desc" as const },
+  { id: "desc" as const },
+];
+
 export const GET = handler(async function GET() {
   try {
     const session = await getCadreSession();
@@ -19,13 +38,15 @@ export const GET = handler(async function GET() {
     const [messages, allowance] = await Promise.all([
       prisma.cadreAdvisorMessage.findMany({
         where: { professionalId: session.sub },
-        orderBy: { createdAt: "asc" },
-        take: 50,
+        orderBy: ADVISOR_ORDER_NEWEST_FIRST,
+        take: ADVISOR_HISTORY_MESSAGES,
       }),
       checkAIMessageAllowance(session.sub),
     ]);
 
-    return NextResponse.json({ messages, subscription: allowance });
+    // Fetched newest first so the take lands on the recent end of the
+    // conversation, then reversed for display in the order it happened.
+    return NextResponse.json({ messages: messages.reverse(), subscription: allowance });
   } catch (error) {
     console.error("Advisor messages fetch error:", error);
     return NextResponse.json(
@@ -96,12 +117,15 @@ export const POST = handler(async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
-    // Load conversation history (last 20 messages)
-    const history = await prisma.cadreAdvisorMessage.findMany({
+    // Load the most recent slice of the conversation. Fetched newest first so
+    // the take lands on the recent end, then reversed back into the order it
+    // happened before it goes to the model.
+    const recentHistory = await prisma.cadreAdvisorMessage.findMany({
       where: { professionalId: session.sub },
-      orderBy: { createdAt: "asc" },
-      take: 20,
+      orderBy: ADVISOR_ORDER_NEWEST_FIRST,
+      take: ADVISOR_CONTEXT_MESSAGES,
     });
+    const history = recentHistory.reverse();
 
     const cadreLabel = getCadreLabel(professional.cadre);
 
@@ -139,10 +163,16 @@ export const POST = handler(async function POST(req: NextRequest) {
       }
     }
 
-    const systemPrompt = `You are a career advisor for CadreHealth, specializing in Nigerian healthcare careers. You are speaking with ${professional.firstName}, a ${cadreLabel}${professional.subSpecialty ? ` specializing in ${professional.subSpecialty}` : ""} with ${professional.yearsOfExperience || "unknown"} years of experience.
+    const systemPrompt = `You are a career advisor for CadreHealth, specializing in Nigerian healthcare careers. You are speaking with ${professional.firstName}.
 
-Profile summary:
+What their CadreHealth record currently says. Treat this as a record, not as fact. A lot of it was imported in bulk and never confirmed by the person, so any line of it can be wrong or years out of date:
 ${profileContext}${reportContext}
+
+How to use the record:
+- Do not state any of it back to them as something you know. If a detail changes the advice you are about to give, ask them to confirm it, or say what the record shows and ask whether that is still right
+- Cadre, sub-specialty and years of experience are the least reliable fields. Never open by telling them what they specialise in
+- If they correct anything, they are right and the record is wrong. Use their version for the rest of the conversation and do not bring the filed value back up
+- You cannot change their record from this conversation, so never say you have updated it. If something on file is wrong, tell them they can correct it in their profile settings
 
 Your role:
 - Give specific, actionable career advice tailored to their profile
@@ -155,12 +185,19 @@ Your role:
 - If they ask about something outside your expertise, acknowledge it honestly and redirect to what you can help with
 - Never use em dashes in your responses`;
 
-    // Build conversation messages for Claude
-    const conversationMessages: { role: "user" | "assistant"; content: string }[] =
-      history.map((m) => ({
+    // Build conversation messages for Claude. Blank rows are dropped, and the
+    // window has to open on a user turn, so trim any advisor reply left at the
+    // front by the cut.
+    const conversationMessages: Anthropic.MessageParam[] = history
+      .filter((m) => m.content.trim().length > 0)
+      .map((m) => ({
         role: m.role === "user" ? ("user" as const) : ("assistant" as const),
         content: m.content,
       }));
+
+    while (conversationMessages.length > 0 && conversationMessages[0].role !== "user") {
+      conversationMessages.shift();
+    }
 
     // Add the new message
     conversationMessages.push({ role: "user", content: message.trim() });
@@ -175,12 +212,16 @@ Your role:
     const advisorResponse =
       response.content[0].type === "text" ? response.content[0].text : "";
 
-    // Save both messages and increment counter
+    // Save both messages and increment counter. The two rows are stamped a
+    // millisecond apart so the question always sorts before the answer.
+    const askedAt = new Date();
+    const answeredAt = new Date(askedAt.getTime() + 1);
+
     await Promise.all([
       prisma.cadreAdvisorMessage.createMany({
         data: [
-          { professionalId: session.sub, role: "user", content: message.trim() },
-          { professionalId: session.sub, role: "advisor", content: advisorResponse },
+          { professionalId: session.sub, role: "user", content: message.trim(), createdAt: askedAt },
+          { professionalId: session.sub, role: "advisor", content: advisorResponse, createdAt: answeredAt },
         ],
       }),
       incrementAIMessageCount(session.sub),

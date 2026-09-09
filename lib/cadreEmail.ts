@@ -53,6 +53,7 @@ export async function sendCadreEmail({
   subject,
   heading,
   body,
+  details,
   ctaText,
   ctaHref,
   footer,
@@ -63,6 +64,8 @@ export async function sendCadreEmail({
   subject: string;
   heading: string;
   body: string;
+  /** Optional figures shown as a labelled block, e.g. a payment receipt. */
+  details?: { label: string; value: string }[];
   ctaText?: string;
   ctaHref?: string;
   footer?: string;
@@ -73,6 +76,19 @@ export async function sendCadreEmail({
   const html = layout(`
     <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#0B3C5D;">${esc(heading)}</h1>
     <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#374151;">${esc(body)}</p>
+    ${
+      details && details.length
+        ? `<table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;border:1px solid #E8EBF0;border-radius:8px;background:#F8F9FB;">
+            ${details
+              .map(
+                (d, i) =>
+                  `<tr><td style="padding:10px 16px;font-size:13px;color:#6B7280;${i ? "border-top:1px solid #E8EBF0;" : ""}">${esc(d.label)}</td>
+                   <td style="padding:10px 16px;font-size:13px;font-weight:600;color:#0B3C5D;text-align:right;${i ? "border-top:1px solid #E8EBF0;" : ""}">${esc(d.value)}</td></tr>`,
+              )
+              .join("")}
+          </table>`
+        : ""
+    }
     ${
       ctaText && ctaHref
         ? `<a href="${esc(ctaHref)}" style="display:inline-block;padding:12px 28px;background:#D4AF37;color:#06090f;font-weight:600;font-size:14px;text-decoration:none;border-radius:8px;">${esc(ctaText)}</a>`
