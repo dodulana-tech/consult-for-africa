@@ -161,7 +161,7 @@ export default function LeadDetailClient({ lead: initialLead }: { lead: LeadData
             {lead.inboundMessage && (
               <div className="mb-3">
                 <p className="text-xs font-semibold text-gray-500 mb-1">Inbound Message</p>
-                <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 rounded-lg p-3">{lead.inboundMessage}</p>
+                <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 rounded-lg p-3 whitespace-pre-wrap break-words">{lead.inboundMessage}</p>
               </div>
             )}
             {lead.maarovaStream && (
