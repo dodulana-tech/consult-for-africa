@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { handler } from "@/lib/api-handler";
+import { notifyInternal } from "@/lib/email";
 
 const schema = z.object({
   // 1 the role
@@ -59,8 +59,6 @@ const schema = z.object({
   notes: z.string().trim().optional().default(""),
   termsAccepted: z.boolean().refine((v) => v, "Terms must be accepted"),
 });
-
-const resend = new Resend(process.env.RESEND_API_KEY ?? "noop");
 
 function esc(s: unknown): string {
   return String(s ?? "")
@@ -141,7 +139,12 @@ export const POST = handler(async function POST(req: Request) {
 
   const inboundMessage = sections
     .map(([title, rows]) => {
-      const body = rows.filter(([, v]) => v).map(([k, v]) => `  ${k}: ${v}`).join("\n");
+      // Indent continuation lines too, so a multi-line answer stays visibly nested
+      // under its label instead of reading as a new section.
+      const body = rows
+        .filter(([, v]) => v)
+        .map(([k, v]) => `  ${k}: ${v.replace(/\n/g, "\n    ")}`)
+        .join("\n");
       return body ? `${title}\n${body}` : null;
     })
     .filter(Boolean)
@@ -173,6 +176,7 @@ export const POST = handler(async function POST(req: Request) {
       <p style="color:#6B7280;font-size:13px;margin:0 0 18px">${esc(d.organisation)}${d.businessUnit ? " / " + esc(d.businessUnit) : ""}</p>
       <div style="background:#FEF3E2;border-left:3px solid #B8763A;padding:10px 14px;margin-bottom:18px">
         <p style="margin:0;font-size:13px;color:#7A3F14"><strong>Action:</strong> raise the engagement invoice. The search opens on receipt of funds.</p>
+        <p style="margin:6px 0 0;font-size:12px;color:#7A3F14">Reply to <a href="mailto:${esc(d.email)}" style="color:#7A3F14">${esc(d.email)}</a>${d.billingEmail ? ` &nbsp;/&nbsp; invoice to <a href="mailto:${esc(d.billingEmail)}" style="color:#7A3F14">${esc(d.billingEmail)}</a>` : ""}</p>
       </div>
       ${sections
         .map(([title, rows]) => {
@@ -185,21 +189,17 @@ export const POST = handler(async function POST(req: Request) {
     </div>
   `;
 
-  if (process.env.RESEND_API_KEY) {
-    try {
-      await resend.emails.send({
-        from: "Consult For Africa <platform@consultforafrica.com>",
-        to: "hello@consultforafrica.com",
-        cc: "finance@consultforafrica.com",
-        replyTo: d.email,
-        subject: `Recruitment brief: ${d.roleTitle} (${d.organisation})`,
-        html,
-      });
-    } catch (err) {
-      console.error("[recruitment-brief] email send failed", err);
-    }
-  } else {
-    console.log("[recruitment-brief] RESEND not configured, skipping email");
+  // Notification goes through lib/email, which prefers the ZeptoMail HTTP API and
+  // falls back to Zoho SMTP. A send failure must not fail the request: the Lead is
+  // already persisted above, so the brief is never lost.
+  try {
+    await notifyInternal(
+      ["hello@consultforafrica.com", "finance@consultforafrica.com"],
+      `Recruitment brief: ${d.roleTitle} (${d.organisation})`,
+      html,
+    );
+  } catch (err) {
+    console.error("[recruitment-brief] notification failed", err);
   }
 
   return NextResponse.json({ success: true });
