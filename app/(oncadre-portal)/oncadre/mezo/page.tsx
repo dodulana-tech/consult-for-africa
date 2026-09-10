@@ -58,12 +58,12 @@ export default async function MezoPage() {
           </h1>
           <p className="mt-5 text-[16px] leading-relaxed" style={{ color: "rgba(255,255,255,0.72)" }}>
             {professional.yearsOfExperience
-              ? `You have spent ${professional.yearsOfExperience} years building a name that patients ask for. `
-              : "You have spent years building a name that patients ask for. "}
-            What you have not had is somewhere to see them, and the time to run the business of
-            seeing them. Mezo is a consulting room in a serviced facility, patients already
-            searching for your specialty, and someone else handling the bookings, the billing and
-            the HMO paperwork. You keep your post. You practise on your own terms.
+              ? `You have spent ${professional.yearsOfExperience} years building your reputation inside other people's institutions. `
+              : "You have spent your career building your reputation inside other people's institutions. "}
+            Mezo is where you build your own. A licensed specialist network with clinics, theatres,
+            wards and physio bays, a patient base already searching for your specialty, and the whole
+            revenue cycle behind it. You can consult, operate and admit under your own name from the
+            first week, without raising the capital a building takes.
           </p>
         </div>
       </div>
@@ -72,18 +72,18 @@ export default async function MezoPage() {
       <div className="grid gap-5 md:grid-cols-3">
         <Pillar
           icon={<DoorOpen className="h-5 w-5" style={{ color: TEAL }} />}
-          title="A room, not a lease"
-          body="Serviced consulting rooms taken by the session. No capital, no rent, no equipment to buy, and nothing sitting idle on the days you are not there."
+          title="Consult, operate, admit"
+          body="Clinics, day and main theatres, inpatient beds and physio bays, with the equipment and the clinical staff around them. A consultant can run a whole episode of care here, not just an outpatient list."
         />
         <Pillar
           icon={<Users className="h-5 w-5" style={{ color: TEAL }} />}
-          title="Patients already looking"
-          body="Your verified profile sits where patients search by specialty and city. Bookings arrive with the fee agreed before anyone walks through the door."
+          title="Patients, from day one"
+          body="A patient base already searching the network by specialty and city, arriving with the fee agreed. You build a book of your own patients from the first week instead of waiting years for word to travel."
         />
         <Pillar
           icon={<Wallet className="h-5 w-5" style={{ color: TEAL }} />}
-          title="Paid without chasing"
-          body="Fees are collected when the appointment is booked. HMO claims are tracked, and on the higher plans advanced at up to 80% before the HMO settles."
+          title="HMO panels you cannot reach alone"
+          body="Network HMO agreements, negotiated on the volume of everyone practising here rather than on yours. Accreditation handled, fees collected at booking, claims tracked, and up to 80% advanced before the HMO settles."
         />
       </div>
 

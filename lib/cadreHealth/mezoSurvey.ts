@@ -60,7 +60,35 @@ export const MEZO_SURVEY: MezoQuestion[] = [
   },
 
   {
-    section: "The room",
+    section: "The facilities",
+    id: "facilitiesNeeded",
+    prompt: "Which of these would you actually use?",
+    help: "Choose as many as apply. Clinics, theatres, beds and physio bays are all on the campus.",
+    type: "multi",
+    required: true,
+    options: [
+      { value: "consulting_room", label: "A consulting room" },
+      { value: "day_theatre", label: "A day theatre for minor procedures" },
+      { value: "main_theatre", label: "A main theatre" },
+      { value: "inpatient_beds", label: "Inpatient beds for my own admissions" },
+      { value: "physio", label: "Physiotherapy bays" },
+      { value: "imaging", label: "Imaging" },
+      { value: "lab", label: "Laboratory" },
+    ],
+  },
+  {
+    id: "theatreAppetite",
+    prompt: "If a theatre list were available to you, how often would you take one?",
+    type: "single",
+    required: true,
+    options: [
+      { value: "weekly", label: "Weekly or more often" },
+      { value: "monthly", label: "A few times a month" },
+      { value: "occasional", label: "Occasionally, for particular cases" },
+      { value: "not_applicable", label: "I do not operate" },
+    ],
+  },
+  {
     id: "sessionalAppetite",
     prompt:
       "If a fully serviced consulting room opened in your city, how often would you use it?",
@@ -234,6 +262,7 @@ export const MEZO_SURVEY: MezoQuestion[] = [
 export const MEZO_SUMMARY_FIELDS = [
   "seesPrivatePatients",
   "sessionalAppetite",
+  "theatreAppetite",
   "sessionBudget",
   "billingPreference",
   "membershipBudget",

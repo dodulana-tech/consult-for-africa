@@ -19,6 +19,8 @@ export const dynamic = "force-dynamic";
 // counted raw.
 
 const HEADLINE = [
+  "facilitiesNeeded",
+  "theatreAppetite",
   "sessionalAppetite",
   "sessionBudget",
   "billingPreference",
@@ -238,18 +240,37 @@ function Distribution({
   const question = MEZO_SURVEY.find((q) => q.id === questionId);
   if (!question?.options) return null;
 
+  // Multi-select answers arrive as arrays. Counting only strings silently
+  // rendered nothing for them, which hid three questions entirely.
   const counts = new Map<string, number>();
+  let respondents = 0;
   for (const r of rows) {
     const payload = r.payload as Record<string, unknown> | null;
     const value = payload?.[questionId];
-    if (typeof value === "string") counts.set(value, (counts.get(value) ?? 0) + 1);
+    if (typeof value === "string") {
+      counts.set(value, (counts.get(value) ?? 0) + 1);
+      respondents++;
+    } else if (Array.isArray(value)) {
+      const picked = value.filter((v): v is string => typeof v === "string");
+      if (picked.length === 0) continue;
+      for (const v of picked) counts.set(v, (counts.get(v) ?? 0) + 1);
+      respondents++;
+    }
   }
-  const answered = [...counts.values()].reduce((a, b) => a + b, 0);
-  if (answered === 0) return null;
+  if (respondents === 0) return null;
+
+  // Percentages run over respondents, not selections, so a multi-select reads
+  // as "62% of them want a theatre" rather than a share of total ticks.
+  const answered = respondents;
 
   return (
     <div className="rounded-xl border bg-white p-5">
       <p className="text-[13px] font-semibold text-[#0F2744]">{question.prompt}</p>
+      {question.type === "multi" && (
+        <p className="mt-0.5 text-[11px] text-gray-400">
+          Choose as many as apply, so these total more than 100%
+        </p>
+      )}
       <div className="mt-3 space-y-2">
         {question.options.map((o) => (
           <Bar

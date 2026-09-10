@@ -116,8 +116,9 @@ export default function MezoPracticeCard({
             Your own practice, without building one.
           </h3>
           <p className="mt-2 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.66)" }}>
-            A consulting room by the session, patients already searching for your specialty, and the
-            billing handled. Tell us what would actually work and your place opens.
+            Clinics, theatres, beds and physio bays, patients already searching for your specialty,
+            and HMO panels negotiated on the network's volume. Tell us what would actually work and
+            your place opens.
           </p>
           <span
             className="mt-5 inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
