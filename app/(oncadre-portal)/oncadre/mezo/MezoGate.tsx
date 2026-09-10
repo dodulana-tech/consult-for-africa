@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ArrowRight, CheckCircle2, Clock } from "lucide-react";
 import MezoSurveyForm from "./MezoSurveyForm";
+import { MEZO_SURVEY } from "@/lib/cadreHealth/mezoSurvey";
 
 const TEAL = "#0A7B6E";
 const NAVY = "#0B1F3A";
@@ -61,12 +62,16 @@ export default function MezoGate({
           Your answers are recorded
         </h2>
         <p className="mt-2 max-w-xl text-[15px] leading-relaxed" style={{ color: "#4B5563" }}>
-          Thank you. We are opening your Mezo place now and will email you the moment it is ready.
+          Thank you. We are opening your Mezo place and will email you the link as soon as it is ready.
           You do not need to do anything else, and you will not be asked these questions again.
         </p>
       </div>
     );
   }
+
+  // Counted from the instrument rather than written down, so the number can
+  // never drift from the form the way it did when a question was split in two.
+  const questionCount = MEZO_SURVEY.filter((q) => q.required).length;
 
   return (
     <div>
@@ -76,8 +81,8 @@ export default function MezoGate({
       <p className="mt-2 max-w-2xl text-[15px] leading-relaxed" style={{ color: "#4B5563" }}>
         Mezo is opening to a small number of CadreHealth consultants first. The cities, the room
         rates and the way you would pay for them are genuinely not settled yet, and we would rather
-        build them around what you would use than guess and be wrong. Fourteen questions, about four
-        minutes. Your place opens at the end of it.
+        build them around what you would use than guess and be wrong. {questionCount} questions, about
+        four minutes. Your place opens at the end of it.
       </p>
       <div className="mt-8">
         <MezoSurveyForm

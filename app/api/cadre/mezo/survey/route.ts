@@ -5,6 +5,7 @@ import { handler } from "@/lib/api-handler";
 import { validateMezoSurvey, MEZO_SUMMARY_FIELDS } from "@/lib/cadreHealth/mezoSurvey";
 import { provisionMezoDoctor, isMezoConfigured } from "@/lib/mezo/provision";
 import { surnameFor } from "@/lib/cadreSalutation";
+import { emailMezoClaim } from "@/lib/cadreHealth/mezoClaimEmail";
 
 /**
  * Mezo runs on the MDCN register, so a place can only be opened for someone
@@ -141,6 +142,23 @@ export const POST = handler(async function POST(req: NextRequest) {
       mezoError: result.reason ?? null,
     },
   });
+
+  if (result.claimUrl) {
+    // They can see the link on the page already. This is the copy they can
+    // find again next week, and the stamp keeps a later retry from sending a
+    // second one. Fire and forget: the place is open either way, and failing
+    // the request over an email would hide a success behind an error.
+    emailMezoClaim({ person: professional, claimUrl: result.claimUrl, delayed: false })
+      .then(() =>
+        prisma.cadreMezoInterest.update({
+          where: { id: interest.id },
+          data: { claimEmailSentAt: new Date() },
+        }),
+      )
+      .catch((err) => {
+        console.error(`[mezo] claim email failed for ${professional.id}:`, err);
+      });
+  }
 
   if (result.status === "FAILED") {
     console.error(`[mezo] provisioning failed for ${professional.id}: ${result.reason}`);

@@ -154,19 +154,37 @@ export const MEZO_SURVEY: MezoQuestion[] = [
       { value: "would_if_paid", label: "I would take more if settlement were reliable" },
     ],
   },
+  // Membership and take rate are asked separately on purpose. An earlier draft
+  // offered "I would rather pay a commission" as one of the monthly fee bands,
+  // which forced a choice between two things that are independent: a standing
+  // fee buys access, a take rate prices the transaction, and a real model can
+  // charge both, either or neither. Conflated, the answer to each was
+  // unreadable.
   {
     id: "membershipBudget",
     prompt:
-      "If your schedule, your bookings and your collections were all handled for you, what would that be worth each month?",
+      "Mezo can list you where patients search, run your schedule and chase your money. What would a standing monthly fee for that be worth, separately from anything you earn?",
     type: "single",
     required: true,
     options: [
-      { value: "none", label: "I would not pay a monthly fee" },
-      { value: "commission", label: "I would rather pay a commission on each booking" },
+      { value: "none", label: "I would not pay a standing monthly fee" },
       { value: "upto_5k", label: "Up to N5,000" },
       { value: "5_15k", label: "N5,000 to N15,000" },
       { value: "15_50k", label: "N15,000 to N50,000" },
       { value: "over_50k", label: "Over N50,000" },
+    ],
+  },
+  {
+    id: "takeRate",
+    prompt: "And on each consultation you are paid for, what would you accept Mezo taking?",
+    type: "single",
+    required: true,
+    options: [
+      { value: "nothing", label: "Nothing, a monthly fee should cover it" },
+      { value: "upto_5", label: "Up to 5%" },
+      { value: "5_10", label: "5 to 10%" },
+      { value: "10_20", label: "10 to 20%" },
+      { value: "flat_per_booking", label: "A flat fee per booking rather than a percentage" },
     ],
   },
 
@@ -219,6 +237,7 @@ export const MEZO_SUMMARY_FIELDS = [
   "sessionBudget",
   "billingPreference",
   "membershipBudget",
+  "takeRate",
   "consultationFee",
   "practiceCity",
   "startTimeline",

@@ -4804,7 +4804,8 @@ model CadreMezoInterest {
   sessionalAppetite   String? // weekly | monthly | occasional | none
   sessionBudget       String? // band for a four hour serviced session
   billingPreference   String? // per_session | retainer | revenue_share | unsure
-  membershipBudget    String? // band for a monthly platform fee
+  membershipBudget    String? // band for a standing monthly platform fee
+  takeRate            String? // what they would accept Mezo taking per consultation
   consultationFee     String? // band they charge per private consultation
   practiceCity        String?
   startTimeline       String? // now | 1_3_months | 3_6_months | 6_12_months | exploring
@@ -4815,6 +4816,9 @@ model CadreMezoInterest {
   mezoClaimUrl      String?
   mezoProvisionedAt DateTime?
   mezoError         String?   @db.Text
+  // Stamped when the claim link has been emailed, so a retry that finds the
+  // place already open does not send a second one.
+  claimEmailSentAt  DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

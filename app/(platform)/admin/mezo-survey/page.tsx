@@ -23,6 +23,7 @@ const HEADLINE = [
   "sessionBudget",
   "billingPreference",
   "membershipBudget",
+  "takeRate",
   "consultationFee",
   "weeklyPatients",
   "hmo",
