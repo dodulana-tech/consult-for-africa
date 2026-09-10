@@ -31,6 +31,8 @@ const HEADLINE = [
   "hmo",
   "startTimeline",
   "seesPrivatePatients",
+  "ownFacility",
+  "facilityIntoNetwork",
   "teleconsult",
 ] as const;
 

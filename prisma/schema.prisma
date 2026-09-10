@@ -4809,6 +4809,8 @@ model CadreMezoInterest {
   takeRate            String? // what they would accept Mezo taking per consultation
   consultationFee     String? // band they charge per private consultation
   practiceCity        String?
+  ownFacility         String? // do they already hold a clinic or hospital
+  facilityIntoNetwork String? // would they put it into the network
   startTimeline       String? // now | 1_3_months | 3_6_months | 6_12_months | exploring
   teleconsultInterest Boolean @default(false)
 

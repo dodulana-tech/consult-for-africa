@@ -216,6 +216,40 @@ export const MEZO_SURVEY: MezoQuestion[] = [
     ],
   },
 
+  // The supply-side questions, and the reason they are worth asking of a
+  // register of senior consultants. A doctor who already holds a clinic is not
+  // a tenant, they are a facility the network does not have to build, and Mezo
+  // already models that side: Facility, FacilityRoom, FacilityStaff and the
+  // facility admin role all exist. One yes here is worth many sessional rentals.
+  {
+    section: "What you already have",
+    id: "ownFacility",
+    prompt: "Do you have a facility of your own, or a share in one?",
+    type: "single",
+    required: true,
+    options: [
+      { value: "none", label: "No" },
+      { value: "consulting_rooms", label: "Yes, a clinic or consulting rooms" },
+      { value: "hospital", label: "Yes, a hospital or day case unit" },
+      { value: "share", label: "I hold a share in one" },
+      { value: "planning", label: "Not yet, but I am planning one" },
+    ],
+  },
+  {
+    id: "facilityIntoNetwork",
+    prompt:
+      "If you do, would you bring it into the network, so it carried the HMO agreements and other consultants could use it?",
+    help: "Answer not applicable if you do not have one.",
+    type: "single",
+    required: true,
+    options: [
+      { value: "yes", label: "Yes, that interests me" },
+      { value: "terms", label: "Possibly, depending on the terms" },
+      { value: "no", label: "No, I would keep it separate" },
+      { value: "na", label: "Not applicable" },
+    ],
+  },
+
   {
     section: "Practicalities",
     id: "practiceCity",
@@ -269,6 +303,8 @@ export const MEZO_SUMMARY_FIELDS = [
   "takeRate",
   "consultationFee",
   "practiceCity",
+  "ownFacility",
+  "facilityIntoNetwork",
   "startTimeline",
 ] as const;
 

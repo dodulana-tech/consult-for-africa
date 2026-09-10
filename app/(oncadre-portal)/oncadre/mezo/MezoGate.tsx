@@ -79,10 +79,12 @@ export default function MezoGate({
         Before we open a place for you
       </h2>
       <p className="mt-2 max-w-2xl text-[15px] leading-relaxed" style={{ color: "#4B5563" }}>
-        Mezo is opening to a small number of CadreHealth consultants first. The cities, the room
-        rates and the way you would pay for them are genuinely not settled yet, and we would rather
-        build them around what you would use than guess and be wrong. {questionCount} questions, about
-        four minutes. Your place opens at the end of it.
+        Mezo is opening to a small number of CadreHealth consultants first. The network is still
+        growing, so the cities, the rates and the way you would pay for them are genuinely not
+        settled, and we would rather build them around what you would use than guess and be wrong.
+        If you already hold a clinic or a hospital of your own, say so: bringing a facility into the
+        network is as much a part of this as practising in one. {questionCount} questions, about four
+        minutes. Your place opens at the end of it.
       </p>
       <div className="mt-8">
         <MezoSurveyForm
