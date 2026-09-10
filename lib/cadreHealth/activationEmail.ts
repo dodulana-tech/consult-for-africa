@@ -39,8 +39,18 @@ interface Recipient {
 function buildHTML(r: Recipient): string {
   const portalUrl = `${BASE_URL}/oncadre/portal/profile?utm_source=activation&utm_campaign=2026-w22`;
   const unsubscribeUrl = `${BASE_URL}/oncadre/unsubscribe/${r.id}`;
+  // The specialty is asserted nowhere in this email any more.
+  //
+  // It used to read "we know your specialty (Cardiology)". The value comes from
+  // a register import and four consultants replied to the May send to say it
+  // was not theirs, one of them adding "So I can't claim this profile as mine."
+  // Telling a nephrologist of twenty years that we have him down as a GP does
+  // not read as a small clerical error to him, it reads as a reason to stop.
+  //
+  // So the line now says what the record is rather than what he is, and invites
+  // the correction instead of waiting for the complaint.
   const specialtyLine = r.subSpecialty
-    ? `Right now we know your specialty (${esc(r.subSpecialty)}) and your contact details. That is enough to send you generic alerts. It is not enough to send you the right ones.`
+    ? `The register we drew on has you under ${esc(r.subSpecialty)}, which may or may not be right by now. That is enough to send you generic alerts and not enough to send you the right ones. Claiming your profile lets you correct it and tell us what you actually do.`
     : `Right now we know little more than your name and email. That is enough to send you generic alerts. It is not enough to send you the right ones.`;
 
   return `<!DOCTYPE html>
