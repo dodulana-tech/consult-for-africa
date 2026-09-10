@@ -53,8 +53,18 @@ export const PATCH = handler(async function PATCH(req: NextRequest) {
     if (lastName !== undefined) updateData.lastName = lastName.trim();
     if (phone !== undefined) updateData.phone = phone?.trim() || null;
     if (cadre !== undefined) updateData.cadre = cadre;
-    if (subSpecialty !== undefined)
+    if (subSpecialty !== undefined) {
       updateData.subSpecialty = subSpecialty?.trim() || null;
+      // A member who has opened this form has seen the specialty sitting in a
+      // select in front of them and saved it, so it is theirs now rather than
+      // the register's. The claim page stamps the same way.
+      //
+      // Without this, a doctor who claimed and then fixed the specialty here
+      // still counted as unconfirmed, so Mezo kept publishing the generic
+      // cadre instead of the correction they had just made, and the
+      // confirmation rate could never show the size of the import problem.
+      if (updateData.subSpecialty) updateData.specialtyConfirmedAt = new Date();
+    }
     if (yearsOfExperience !== undefined) {
       const parsed = yearsOfExperience != null && yearsOfExperience !== "" ? parseInt(yearsOfExperience) : NaN;
       updateData.yearsOfExperience = Number.isFinite(parsed) ? parsed : null;
