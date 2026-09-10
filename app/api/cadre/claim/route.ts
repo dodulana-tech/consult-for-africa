@@ -5,6 +5,7 @@ import crypto from "crypto";
 import { cookies } from "next/headers";
 import { handler } from "@/lib/api-handler";
 import { notifyAdmins } from "@/lib/admin-notify";
+import { getSubSpecialties } from "@/lib/cadreHealth/cadres";
 
 function hashPassword(password: string): string {
   const salt = crypto.randomBytes(32).toString("hex");
@@ -32,7 +33,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   }
 
   try {
-    const { professionalId, password } = await req.json();
+    const { professionalId, password, subSpecialty } = await req.json();
 
     if (!professionalId || !password) {
       return NextResponse.json(
@@ -69,10 +70,33 @@ export const POST = handler(async function POST(req: NextRequest) {
       where: { professionalId },
     });
 
+    // The claim page shows the specialty the register gave us and lets them
+    // correct it. Validated against the catalogue for their cadre rather than
+    // trusted, so a tampered form cannot write a 94th spelling of the same
+    // specialty into a field the whole platform reads.
+    //
+    // Stamped even when nothing changed: a member confirming the register was
+    // right is exactly as useful to know as one correcting it, and both are
+    // worth more than an import nobody has checked.
+    const specialtyUpdate: { subSpecialty?: string; specialtyConfirmedAt?: Date } = {};
+    if (typeof subSpecialty === "string" && subSpecialty.trim()) {
+      const proposed = subSpecialty.trim();
+      const allowed = getSubSpecialties(professional.cadre);
+      if (proposed === professional.subSpecialty || allowed.includes(proposed)) {
+        specialtyUpdate.subSpecialty = proposed;
+        specialtyUpdate.specialtyConfirmedAt = new Date();
+      } else {
+        console.warn(
+          `[cadre-claim] rejected specialty "${proposed}" for ${professionalId} (${professional.cadre})`,
+        );
+      }
+    }
+
     await prisma.cadreProfessional.update({
       where: { id: professionalId },
       data: {
         passwordHash,
+        ...specialtyUpdate,
         accountStatus: hasCredentials > 0 ? "PENDING_REVIEW" : "UNVERIFIED",
         // Claim implicitly logs the user in (we set the cadre_token cookie
         // below). Without this stamp, anyone who claims and then leaves

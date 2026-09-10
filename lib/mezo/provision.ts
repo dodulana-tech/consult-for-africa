@@ -45,6 +45,25 @@ interface MezoApiResult {
 /** How long we wait on Mezo before giving the member their page back. */
 const TIMEOUT_MS = 8000;
 
+/**
+ * The specialty safe to publish for someone.
+ *
+ * Mezo builds a public profile slug out of what we send here, so an
+ * unconfirmed register value becomes dr/<name>-cardiology-nigeria on the open
+ * web. Two doctors have already written in to say the register had them under
+ * the wrong specialty, so an import nobody has checked is not good enough to
+ * put a colleague's name next to. Until they confirm it themselves, send the
+ * cadre and let Mezo's own onboarding ask them.
+ */
+export function publishableSpecialty(p: {
+  subSpecialty: string | null;
+  cadre: string;
+  specialtyConfirmedAt: Date | null;
+}): string {
+  if (p.subSpecialty && p.specialtyConfirmedAt) return p.subSpecialty;
+  return p.cadre === "DENTISTRY" ? "Dentistry" : "Medicine";
+}
+
 export function isMezoConfigured(): boolean {
   return Boolean(process.env.MEZO_PARTNER_SECRET && process.env.MEZO_BASE_URL);
 }

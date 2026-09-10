@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { handler } from "@/lib/api-handler";
-import { provisionMezoDoctor, isMezoConfigured } from "@/lib/mezo/provision";
+import { provisionMezoDoctor, isMezoConfigured, publishableSpecialty } from "@/lib/mezo/provision";
 import { emailMezoClaim } from "@/lib/cadreHealth/mezoClaimEmail";
 import { surnameFor } from "@/lib/cadreSalutation";
 
@@ -55,6 +55,7 @@ export const POST = handler(async function POST(req: NextRequest) {
           subSpecialty: true,
           state: true,
           isDiaspora: true,
+          specialtyConfirmedAt: true,
           credentials: {
             where: { regulatoryBody: "MDCN" },
             select: { licenseNumber: true },
@@ -76,8 +77,8 @@ export const POST = handler(async function POST(req: NextRequest) {
       firstName: cleanFirstName(p.firstName),
       lastName: surnameFor(p.lastName) ?? p.lastName,
       phone: p.phone,
-      primarySpecialty: p.subSpecialty || (p.cadre === "DENTISTRY" ? "Dentistry" : "Medicine"),
-      subSpecialty: p.subSpecialty,
+      primarySpecialty: publishableSpecialty(p),
+      subSpecialty: p.specialtyConfirmedAt ? p.subSpecialty : null,
       state: p.state,
       isDiaspora: p.isDiaspora,
       mdcnFolioNumber: p.credentials[0]?.licenseNumber ?? null,

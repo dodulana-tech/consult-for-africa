@@ -3828,6 +3828,13 @@ model CadreProfessional {
   isDiaspora      Boolean @default(false)
   diasporaCountry String?
 
+  // Stamped when the member has confirmed or corrected the specialty on their
+  // own record. Register imports set subSpecialty for 99.9% of doctors and it
+  // is not always right, so an unstamped value is what a list said about
+  // someone, not what they say about themselves. Anything that publishes a
+  // specialty should check this first.
+  specialtyConfirmedAt DateTime?
+
   // Self-declared engagement segment (set on claim or by admin)
   practiceLocation      CadrePracticeLocation?
   practiceLocationSetAt DateTime?

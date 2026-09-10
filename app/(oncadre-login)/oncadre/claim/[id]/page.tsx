@@ -116,7 +116,11 @@ export default async function ClaimPage({ params }: Props) {
           </div>
 
           <div className="mt-6">
-            <ClaimForm professionalId={professional.id} />
+            <ClaimForm
+            professionalId={professional.id}
+            cadre={professional.cadre}
+            subSpecialty={professional.subSpecialty}
+          />
           </div>
         </div>
       </div>

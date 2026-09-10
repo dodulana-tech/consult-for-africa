@@ -3,7 +3,7 @@ import { getCadreSession } from "@/lib/cadreAuth";
 import { prisma } from "@/lib/prisma";
 import { handler } from "@/lib/api-handler";
 import { validateMezoSurvey, MEZO_SUMMARY_FIELDS } from "@/lib/cadreHealth/mezoSurvey";
-import { provisionMezoDoctor, isMezoConfigured } from "@/lib/mezo/provision";
+import { provisionMezoDoctor, isMezoConfigured, publishableSpecialty } from "@/lib/mezo/provision";
 import { surnameFor } from "@/lib/cadreSalutation";
 import { emailMezoClaim } from "@/lib/cadreHealth/mezoClaimEmail";
 
@@ -62,6 +62,7 @@ export const POST = handler(async function POST(req: NextRequest) {
       subSpecialty: true,
       state: true,
       isDiaspora: true,
+      specialtyConfirmedAt: true,
       credentials: {
         where: { regulatoryBody: "MDCN" },
         select: { licenseNumber: true },
@@ -126,8 +127,8 @@ export const POST = handler(async function POST(req: NextRequest) {
     firstName: cleanFirstName(professional.firstName),
     lastName: surnameFor(professional.lastName) ?? professional.lastName,
     phone: professional.phone,
-    primarySpecialty: professional.subSpecialty || labelForCadre(professional.cadre),
-    subSpecialty: professional.subSpecialty,
+    primarySpecialty: publishableSpecialty(professional),
+    subSpecialty: professional.specialtyConfirmedAt ? professional.subSpecialty : null,
     state: professional.state,
     isDiaspora: professional.isDiaspora,
     mdcnFolioNumber: professional.credentials[0]?.licenseNumber ?? null,
@@ -178,6 +179,3 @@ function cleanFirstName(firstName: string): string {
   return firstName.replace(/^\s*(dr|prof|professor|mr|mrs|ms|miss)\.?\s+/i, "").trim() || firstName;
 }
 
-function labelForCadre(cadre: string): string {
-  return cadre === "DENTISTRY" ? "Dentistry" : "Medicine";
-}

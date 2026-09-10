@@ -3,15 +3,23 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PasswordInput from "@/components/cadrehealth/PasswordInput";
+import { getSubSpecialties } from "@/lib/cadreHealth/cadres";
 
 interface Props {
   professionalId: string;
+  cadre: string;
+  subSpecialty: string | null;
 }
 
-export default function ClaimForm({ professionalId }: Props) {
+export default function ClaimForm({ professionalId, cadre, subSpecialty }: Props) {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  // The specialty came from a register import and is wrong often enough that
+  // doctors write in to say so before they will claim at all. Asking here
+  // costs one line and catches it before anything publishes it.
+  const [specialty, setSpecialty] = useState(subSpecialty ?? "");
+  const [editingSpecialty, setEditingSpecialty] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [errorRef, setErrorRef] = useState("");
@@ -32,7 +40,13 @@ export default function ClaimForm({ professionalId }: Props) {
       const res = await fetch("/api/cadre/claim", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ professionalId, password }),
+        body: JSON.stringify({
+          professionalId,
+          password,
+          // Sent whether or not it changed: confirming the register was right
+          // is as useful to know as correcting it.
+          subSpecialty: specialty || null,
+        }),
       });
 
       const data = await res.json();
@@ -64,6 +78,49 @@ export default function ClaimForm({ professionalId }: Props) {
               (ref: {errorRef})
             </span>
           )}
+        </div>
+      )}
+
+      {subSpecialty && (
+        <div className="rounded-lg border px-4 py-3" style={{ borderColor: "#E8EBF0", background: "#F9FAFB" }}>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+            Your record says
+          </p>
+          {editingSpecialty ? (
+            <select
+              value={specialty}
+              onChange={(e) => setSpecialty(e.target.value)}
+              className="mt-2 w-full rounded-lg border px-3 py-2 text-sm"
+              style={{ borderColor: "#E8EBF0" }}
+            >
+              {specialty && !getSubSpecialties(cadre).includes(specialty) && (
+                <option value={specialty}>{specialty}</option>
+              )}
+              {getSubSpecialties(cadre).map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <div className="mt-1 flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold" style={{ color: "#0B3C5D" }}>
+                {specialty}
+              </p>
+              <button
+                type="button"
+                onClick={() => setEditingSpecialty(true)}
+                className="shrink-0 text-xs font-semibold underline"
+                style={{ color: "#0B3C5D" }}
+              >
+                Not right? Change it
+              </button>
+            </div>
+          )}
+          <p className="mt-2 text-xs text-gray-500">
+            Taken from a public register, so it is sometimes wrong. Correct it here and nothing
+            carries the old one.
+          </p>
         </div>
       )}
 
