@@ -57,3 +57,40 @@ export function headingFor(
   if (surname && isDoctor) return `Dr ${surname}, ${rest}`;
   return rest.charAt(0).toUpperCase() + rest.slice(1);
 }
+
+/** Titles the register prepended to the given name before the import split it. */
+const TITLE_TOKENS = new Set([
+  "dr", "dr.", "prof", "prof.", "professor", "mr", "mr.", "mrs", "mrs.", "ms", "ms.",
+  "miss", "engr", "engr.", "pharm", "pharm.", "rev", "rev.", "chief", "alhaji", "alhaja",
+]);
+
+/**
+ * The given name to greet someone by, with any title the import welded on
+ * stripped off. "Dr Patric" becomes "Patric", which is his actual first name,
+ * so a friendly greeting is still available where a formal one is not.
+ * Returns null when nothing but a title or an initial is left.
+ */
+export function givenNameFor(firstName: string | null | undefined): string | null {
+  const tokens = (firstName ?? "").trim().split(/\s+/).filter(Boolean);
+  const name = tokens.find((t) => !TITLE_TOKENS.has(t.toLowerCase()));
+  if (!name) return null;
+  if (name.replace(/[^A-Za-z]/g, "").length < 2) return null;
+  return caseToken(name);
+}
+
+/**
+ * How to open an email to this person. Formal for doctors where the register
+ * gives us a surname, first name where it does not, impersonal where the row
+ * supports neither. Never invents a title.
+ */
+export function greetingFor(person: {
+  firstName?: string | null;
+  lastName?: string | null;
+  cadre?: string | null;
+}): string {
+  const surname = surnameFor(person.lastName);
+  if (surname && DOCTOR_CADRES.has(person.cadre ?? "")) return `Dr ${surname}`;
+  const given = givenNameFor(person.firstName);
+  if (given) return given;
+  return "there";
+}
