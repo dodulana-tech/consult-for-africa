@@ -406,7 +406,7 @@ def build():
     el.append(Spacer(1, 4))
     el.append(Paragraph(
         "A reference note, not a proposal and not a binding offer. Rates are assumptions to be "
-        "tested against live comparables, a quantity surveyor's take-off and Medbury's own trading "
+        "tested against live comparables and Medbury's own trading "
         "data. Companions: the commercial model, the two-page summary, and the fit-out and forecast "
         "note. FX USD/NGN 1,550.", SMALL))
 

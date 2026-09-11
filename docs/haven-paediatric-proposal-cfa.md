@@ -3,8 +3,8 @@
 ## Proposal for Operational Turnaround, Culture, and Growth
 ### Prepared by Consult for Africa for the Haven Paediatric Centre board and leadership
 
-Date: 11 June 2026
-For: Kabir Aregbesola, Dr Shakira Saliu (Aregbesola), Dr Odedina
+Date: 27 June 2026
+For: Mr Kabir Aregbesola, Mrs Abisodun Alli, Dr Shakirah Saliu, Dr Odedina, Mr Ogochukwu Odum
 From: Dr Debo Odulana, Founding Partner, Consult for Africa
 
 ---
@@ -13,19 +13,19 @@ From: Dr Debo Odulana, Founding Partner, Consult for Africa
 
 Haven Paediatric Centre was built to raise the standard of paediatric care in Nigeria. Fifteen months in, it is funding its own salaries, holding a steady patient base, and earning a real reputation in Ikeja. That is a genuine achievement for a young facility.
 
-Last month it also recorded its first patient mortality. A sick child could not be resuscitated because critical medication was missing from the crash cart. That is the reason leadership reached out, and it is the right reason. It is also the moment to be honest about what it signals.
+Leadership is now doing what the strongest operators do: looking hard at the systems beneath the surface before growth outpaces them. As Haven scales into more complex care, including neonatal intensive care, its clinical governance, its standards of work, and its financial discipline need to be deliberate rather than assumed. Putting that foundation in place now, while the facility is still young, is far easier than retrofitting it later.
 
 This proposal sets out how Consult for Africa would help, the shape of my own involvement, and exactly what it costs, at full transparency.
 
 ---
 
-## 2. The honest diagnosis: this is a culture problem, not a crash cart problem
+## 2. The honest diagnosis: culture is the multiplier
 
-It would be easy, and wrong, to treat the mortality as a one-off stockout. A crash cart is empty because no shift-level routine exists to check it, and that routine does not exist because the culture and incentives that produce that kind of discipline were never established. The missing drug is the symptom. The absent culture is the disease.
+It is tempting to treat operational improvement as a set of process fixes. In practice they rarely hold unless the culture, the standards of work, and the incentives beneath them are built first. Strong routines are what make safety and efficiency automatic, rather than dependent on individual diligence. Build that foundation, and the improvements above it stick.
 
 The same root cause shows up everywhere else in the business:
 
-- Nursing routines are not consistently established, which is a direct quality and safety risk.
+- Consistent, shift-level clinical routines are the backbone of reliable care, and formalising them is foundational, especially as the facility takes on more complex cases.
 - Margins are thin despite reasonable revenue, because there is no ownership culture pushing efficiency and yield.
 - Two of the items already sitting on the board's own decision list, the staff commission structure and the JDS and KPIs, are exactly the incentive and accountability tools that a strong culture runs on. The report is already pointing at the answer.
 
@@ -39,7 +39,7 @@ Before any audit, the fortnightly report already surfaces the levers. We lead wi
 
 **The cash problem is a working capital problem, not a profit problem.** Leadership feels there is "barely anything left" after salaries. The report shows why: roughly N4.2M sits in HMO receivables (Leadway and NEM alone are the whole balance), which is close to a full reporting period's revenue, and a further N2.77M sits in pharmacy stock. That is around N7M of working capital locked up. The money is not missing. It is on the shelf and in the HMO ledgers.
 
-**NICU is the growth engine and the clinical risk are the same initiative.** At a N3M deposit per admission against three beds, NICU is the single highest-yield lever in the building. It is also where the resuscitation risk concentrates. Haven cannot safely scale NICU admissions until the safety culture is established. Fix governance, then fill NICU safely, and the revenue follows. That is the through-line of the whole engagement.
+**NICU is the growth engine, and it rewards getting the basics right first.** At a N3M deposit per admission against three beds, NICU is the single highest-yield lever in the building. Scaling those admissions durably depends on putting the governance, standards, and team readiness in place first. Get that right, and the growth compounds. That is the through-line of the whole engagement.
 
 **The reporting layer is immature, and that is itself a finding.** The visit-type counts do not reconcile to total encounters, the receivables table does not foot, and a 201 percent pharmacy "profit" is actually a markup, not a margin. None of this is incompetence. It is the absence of a senior operator. You cannot manage what you cannot measure reliably.
 
@@ -51,9 +51,9 @@ I would structure this as a single board-led turnaround with five workstreams. T
 
 **Workstream 1. Diagnostic audit (4 weeks).** A detailed audit across clinical governance, operations and SOP adherence, finance and working capital, procurement and inventory, HMO contract economics, staffing, and the reporting layer. Two quick wins run in parallel from week one: a stocked, sealed, checklist-governed crash cart, and an immediate recovery push on the Leadway and NEM receivables.
 
-**Workstream 2. Culture, incentives, and clinical standards of work.** The spine of the engagement. Establish the shift-level routines whose absence caused the mortality, the nursing standards of work, and the safety-huddle cadence. Redesign incentives: the staff commission structure and the JDS and KPIs already awaiting board approval, aligned to quality and ownership rather than activity alone.
+**Workstream 2. Culture, incentives, and clinical standards of work.** The spine of the engagement. Establish the shift-level clinical routines, the nursing standards of work, and the safety-huddle cadence. Redesign incentives: the staff commission structure and the JDS and KPIs already awaiting board approval, aligned to quality and ownership rather than activity alone.
 
-**Workstream 3. Process reengineering and operations.** Reengineer procurement and inventory toward a vendor-managed model. My specific recommendation is to engage Medbury Pharma for vendor-managed inventory, which ends the stockouts that caused the death and lifts pharmacy margin at the same time. Build the receivables recovery process and a reliable management reporting layer.
+**Workstream 3. Process reengineering and operations.** Reengineer procurement and inventory toward a vendor-managed model. My specific recommendation is to engage Medbury Pharma for vendor-managed inventory, which keeps critical stock dependable and lifts pharmacy margin at the same time. Build the receivables recovery process and a reliable management reporting layer.
 
 **Workstream 4. Revenue and growth optimisation.** Internal growth (NICU activation, pricing review, pharmacy attach, HMO yield) and external growth (corporate tie-ups, school partnerships such as the Toddler Town relationship, and a referral pipeline).
 
@@ -97,12 +97,12 @@ The discount is a N6,800,000 concession, shown in full rather than buried in a l
 
 **Optional ongoing oversight (Workstream 5):** standard N1,000,000 per month, partner rate N600,000 per month, for up to two days per month of partner-level oversight. This is priced to senior-partner value and offered as an opt-in alongside the core project.
 
-**Payment schedule:** a mobilisation fee on signing, then the balance spread in equal monthly installments, so cost tracks delivery and is comfortably covered by the receivables and margin the early work unlocks.
+**Payment schedule:** a mobilisation fee on signing, then the balance spread in equal monthly instalments, so cost tracks delivery and is comfortably covered by the receivables and margin the early work unlocks.
 
 | Payment | When | Amount |
 |---|---|---|
 | Mobilisation (diagnostic audit) | On signing | N2,100,000 |
-| Monthly installment (x5) | Months 1 to 5 | N1,620,000 each |
+| Monthly instalment (x5) | Months 1 to 5 | N1,620,000 each |
 | **Core project total** | | **N10,200,000** |
 
 The optional oversight retainer, if taken up, is billed monthly and separately from the schedule above.

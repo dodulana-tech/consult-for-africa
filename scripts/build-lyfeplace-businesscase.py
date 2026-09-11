@@ -70,9 +70,9 @@ def style(name, **kw):
 EYEBROW = style("eyebrow", fontName="Helvetica-Bold", fontSize=8.0, leading=10.5,
                 textColor=GOLD, spaceAfter=2)
 H1 = style("h1", fontName="Helvetica-Bold", fontSize=13, leading=16.5, textColor=NAVY,
-           spaceBefore=6, spaceAfter=5)
+           spaceBefore=6, spaceAfter=5, keepWithNext=True)
 H2 = style("h2", fontName="Helvetica-Bold", fontSize=9.6, leading=12.5, textColor=TEAL,
-           spaceBefore=7, spaceAfter=3)
+           spaceBefore=7, spaceAfter=3, keepWithNext=True)
 P = style("p")
 LEDE = style("lede", fontSize=9.5, leading=13.4, textColor=HexColor("#374151"))
 SMALL = style("small", fontSize=7.3, leading=9.8, textColor=MUTED)
@@ -307,7 +307,7 @@ def build():
          ["Family, up to four", "1,500,000", "As above for the household, with paediatric cover"],
          ["Corporate, per head", "400,000", "Executive screen, occupational health, priority access"]],
         ["Package", "NGN a year", "What is included"], [116, 74, 277], aligns=["r", "l"]))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 03 THE MARKET ----------------
     sec(el, "03", "THE MARKET", "Who buys it, and what is evidenced.")
@@ -453,7 +453,7 @@ def build():
          ["Recovery, two monitored stations", "10.0", "7.0", "Equipment"],
          ["Theatre suite", "120.0", "84.0", ""]],
         ["Package", "As costed", "At 70%", "Nature"], [235, 66, 66, 100], total_row=True))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 06 THE RETURN ----------------
     sec(el, "06", "THE RETURN", "What comes out, at stabilisation.")
@@ -508,7 +508,7 @@ def build():
     el.append(Paragraph(
         "The conversion clinic licence is excluded from all three cases. If it proceeds it adds "
         "approximately NGN 60M a year and is the only contracted lease line in the model.", P))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 07 THE PATH ----------------
     sec(el, "07", "THE PATH", "How we get there, and what it costs to.")
@@ -563,7 +563,7 @@ def build():
         "Cash out during the ramp excludes rent, which is prepaid, and amortisation, which is not "
         "cash. Marketing runs at double the stabilised rate until the campus reaches 80% of base "
         "case, because demand has to be built before it can be served.", SMALL))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 08 THE RISKS ----------------
     sec(el, "08", "THE RISKS", "What could stop it.")
@@ -571,9 +571,9 @@ def build():
         [["Demand", "High", "Membership uptake and room fill carry most of the revenue and neither "
           "is evidenced", "Survey in the field. Ten founding members signed before fit-out "
           "completes would settle a quarter of it"],
-         ["Cost", "Medium", "Fit-out is the largest line and has not been measured",
-          "Quantity surveyor's take-off before commitment. The reduced column shows the downside "
-          "is manageable"],
+         ["Cost", "Medium", "Fit-out is the largest line and is built up by package rather than "
+          "measured", "Package prices tested against the market before commitment. The reduced "
+          "column shows the downside is manageable"],
          ["Concentration", "Medium", "The evening band and memberships together are a large share "
           "of revenue and rest on the same proposition", "If the survey finds evening demand thin, "
           "both fail together. Test them as one question, not two"],

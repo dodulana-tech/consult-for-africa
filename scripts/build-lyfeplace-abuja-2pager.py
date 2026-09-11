@@ -335,7 +335,7 @@ def build():
         "&nbsp; hello@consultforafrica.com", bg=NAVY, fg=white))
     el.append(Spacer(1, 3))
     el.append(Paragraph(
-        "Estimates, to be set against a quantity surveyor's take-off, a live electricity bill and "
+        "Estimates, to be set against a live electricity bill and "
         "Medbury Diagnostics' trading data. Not a binding offer, and not legal or tax advice. "
         "FX USD/NGN 1,550.", SMALL))
 

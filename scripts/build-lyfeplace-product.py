@@ -75,11 +75,11 @@ def style(name, **kw):
 
 
 EYEBROW = style("eyebrow", fontName="Helvetica-Bold", fontSize=8.2, leading=11,
-                textColor=GOLD, spaceAfter=2)
+                textColor=GOLD, spaceAfter=2, keepWithNext=True)
 H1 = style("h1", fontName="Helvetica-Bold", fontSize=13, leading=16.5, textColor=NAVY,
-           spaceBefore=6, spaceAfter=5)
+           spaceBefore=6, spaceAfter=5, keepWithNext=True)
 H2 = style("h2", fontName="Helvetica-Bold", fontSize=9.8, leading=12.8, textColor=TEAL,
-           spaceBefore=7, spaceAfter=3)
+           spaceBefore=7, spaceAfter=3, keepWithNext=True)
 P = style("p")
 LEDE = style("lede", fontSize=9.6, leading=13.6, textColor=HexColor("#374151"))
 SMALL = style("small", fontSize=7.4, leading=10, textColor=MUTED)
@@ -258,7 +258,7 @@ def build():
         "book the specialist, order the tests in advance and hold the thread. That is what a package "
         "buys that a consultation does not, and it is what routes the patient into the panel, the "
         "laboratory and the pharmacy rather than out of the building.", P))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # 04
     sec(el, "04", "LINE 3", "Aesthetics and day case, as the anchor.")
@@ -355,7 +355,7 @@ def build():
         "consulting room, next to X-ray</b>, so the check film, the cast and the review film all "
         "happen in one place. The cost is a few hundred thousand naira and it opens an entire "
         "specialty.", bg=ALERT, rule=RUST))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # 06
     sec(el, "06", "PRICING", "Three tariffs, one principle.")

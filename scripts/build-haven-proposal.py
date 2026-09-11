@@ -17,6 +17,7 @@ from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
+from reportlab.lib.utils import ImageReader
 from reportlab.platypus import (
     BaseDocTemplate,
     Frame,
@@ -118,6 +119,15 @@ def content_bg(c, doc):
     c.setFont("Helvetica", 8)
     c.drawString(MARGIN, 18, "Confidential  /  Prepared for the Haven Paediatric Centre board")
     c.drawRightString(PAGE_W - MARGIN, 18, "Page %d" % doc.page)
+    # logomark, top-right of each white content page
+    try:
+        _ic = ImageReader(str(DOCS / "c4a-icon.png"))
+        _iw, _ih = _ic.getSize()
+        _h = 22.0
+        _w = _h * _iw / _ih
+        c.drawImage(_ic, PAGE_W - MARGIN - _w, PAGE_H - 61, width=_w, height=_h, mask="auto")
+    except Exception:
+        pass
     c.restoreState()
 
 
@@ -169,8 +179,8 @@ def build():
         ParagraphStyle("cp", fontName="Helvetica", fontSize=11.5, leading=18, textColor=LIGHT)))
     el.append(Spacer(1, 30))
     for line in [
-        "Date:  11 June 2026",
-        "For:  Kabir Aregbesola, Dr Shakira Saliu (Aregbesola), Dr Odedina",
+        "Date:  27 June 2026",
+        "For:  Mr Kabir Aregbesola, Mrs Abisodun Alli, Dr Shakirah Saliu, Dr Odedina, Mr Ogochukwu Odum",
         "From:  Dr Debo Odulana, Founding Partner, Consult for Africa",
     ]:
         el.append(Paragraph(line, ParagraphStyle("cm", fontName="Helvetica", fontSize=10.5,
@@ -186,26 +196,28 @@ def build():
         "patient base, and earning a real reputation in Ikeja. That is a genuine "
         "achievement for a young facility.", LEDE))
     el.append(Paragraph(
-        "Last month it also recorded its first patient mortality. A sick child could not "
-        "be resuscitated because critical medication was missing from the crash cart. That "
-        "is the reason leadership reached out, and it is the right reason. It is also the "
-        "moment to be honest about what it signals.", P))
+        "Leadership is now doing what the strongest operators do: looking hard "
+        "at the systems beneath the surface before growth outpaces them. As Haven scales into "
+        "more complex care, including neonatal intensive care, its clinical governance, its "
+        "standards of work, and its financial discipline need to be deliberate rather than "
+        "assumed. Putting that foundation in place now, while the facility is still young, is "
+        "far easier than retrofitting it later.", P))
     el.append(Paragraph(
         "This proposal sets out how Consult for Africa would help, the shape of my own "
         "involvement, and exactly what it costs, at full transparency.", P))
 
     # ---------------- 2 ----------------
-    el.append(Paragraph("2.  The honest diagnosis: a culture problem, not a crash cart problem", H1))
+    el.append(Paragraph("2.  The honest diagnosis: culture is the multiplier", H1))
     el.append(card(
-        "A crash cart is empty because no shift-level routine exists to check it, and that "
-        "routine does not exist because the culture and incentives that produce that "
-        "discipline were never established. The missing drug is the symptom. The absent "
-        "culture is the disease.", bg=SURFACE, bold=True))
+        "It is tempting to treat operational improvement as a set of process fixes. In practice "
+        "they rarely hold unless the culture, the standards of work, and the incentives beneath "
+        "them are built first. Strong routines are what make safety and efficiency automatic, "
+        "rather than dependent on individual diligence.", bg=SURFACE, bold=True))
     el.append(Spacer(1, 4))
-    el.append(Paragraph("The same root cause shows up across the business:", P))
+    el.append(Paragraph("The same theme shows up across the business:", P))
     for b in [
-        "Nursing routines are not consistently established, which is a direct quality and "
-        "safety risk.",
+        "Consistent, shift-level clinical routines are the backbone of reliable care, and "
+        "formalising them is foundational as the facility takes on more complex cases.",
         "Margins are thin despite reasonable revenue, because there is no ownership culture "
         "pushing efficiency and yield.",
         "Two items already on the board's own decision list, the staff commission structure "
@@ -227,13 +239,12 @@ def build():
         "whole balance), close to a full period's revenue, and a further N2.77M sits in "
         "pharmacy stock. That is around N7M of working capital locked up. The money is not "
         "missing. It is on the shelf and in the HMO ledgers.", P))
-    el.append(Paragraph("NICU is the growth engine and the clinical risk, in one initiative.", H2))
+    el.append(Paragraph("NICU is the growth engine, and it rewards getting the basics right first.", H2))
     el.append(Paragraph(
         "At a N3M deposit per admission against three beds, NICU is the single highest-yield "
-        "lever in the building. It is also where the resuscitation risk concentrates. Haven "
-        "cannot safely scale NICU admissions until the safety culture is established. Fix "
-        "governance, then fill NICU safely, and the revenue follows. That is the through-line "
-        "of the whole engagement.", P))
+        "lever in the building. Scaling those admissions durably depends on putting the "
+        "governance, standards, and team readiness in place first. Get that right, and the "
+        "growth compounds. That is the through-line of the whole engagement.", P))
     el.append(Paragraph("The reporting layer is immature, and that is itself a finding.", H2))
     el.append(Paragraph(
         "The visit-type counts do not reconcile to total encounters, the receivables table "
@@ -253,14 +264,14 @@ def build():
          "reporting layer. Two quick wins run from week one: a checklist-governed crash cart, "
          "and an immediate recovery push on the Leadway and NEM receivables."),
         ("2.  Culture, incentives, and clinical standards of work",
-         "The spine of the engagement. Establish the shift-level routines whose absence caused "
-         "the mortality, the nursing standards of work, and the safety-huddle cadence. Redesign "
+         "The spine of the engagement. Establish the shift-level clinical routines, the nursing "
+         "standards of work, and the safety-huddle cadence. Redesign "
          "incentives: the commission structure and the JDS and KPIs already awaiting board "
          "approval, aligned to quality and ownership rather than activity alone."),
         ("3.  Process reengineering and operations",
          "Move procurement and inventory to a vendor-managed model. My specific recommendation "
-         "is to engage Medbury Pharma for vendor-managed inventory, which ends the stockouts "
-         "that caused the death and lifts pharmacy margin at once. Build the receivables "
+         "is to engage Medbury Pharma for vendor-managed inventory, which keeps critical stock "
+         "dependable and lifts pharmacy margin at the same time. Build the receivables "
          "recovery process and a reliable management reporting layer."),
         ("4.  Revenue and growth optimisation",
          "Internal growth (NICU activation, pricing review, pharmacy attach, HMO yield) and "
@@ -360,12 +371,12 @@ def build():
     el.append(Spacer(1, 6))
     el.append(Paragraph(
         "<b>Payment schedule:</b> a mobilisation fee on signing, then the balance spread in "
-        "equal monthly installments, so cost tracks delivery and is comfortably covered by the "
+        "equal monthly instalments, so cost tracks delivery and is comfortably covered by the "
         "receivables and margin the early work unlocks.", P))
     sched = [
         ["Payment", "When", "Amount"],
         ["Mobilisation (diagnostic audit)", "On signing", "N2,100,000"],
-        ["Monthly installment (x5)", "Months 1 to 5", "N1,620,000 each"],
+        ["Monthly instalment (x5)", "Months 1 to 5", "N1,620,000 each"],
         ["Core project total", "", "N10,200,000"],
     ]
     srows = []

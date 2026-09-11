@@ -9,7 +9,7 @@
 import nodemailer from "nodemailer";
 import { sendTransactionalEmail } from "@/lib/zeptomail";
 
-const recipient = process.argv[2] || "dodulana@gmail.com";
+const recipient = process.argv[2] || "debo.odulana@consultforafrica.com";
 
 async function main() {
   const usingZepto = !!process.env.ZEPTOMAIL_API_KEY;

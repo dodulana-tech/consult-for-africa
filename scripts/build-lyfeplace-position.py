@@ -278,7 +278,7 @@ def build():
     el.append(Paragraph(
         "Supersedes the earlier engagement note and summary, which carry figures since revised. "
         "Areas are measured from the as-built drawings and need confirming against the CAD. Fit-out "
-        "is built up by package and needs a quantity surveyor. Fill and membership assumptions are "
+        "is built up by package. Fill and membership assumptions are "
         "carried from the Lagos work and are what the survey exists to test. Not a binding offer.",
         SMALL))
 

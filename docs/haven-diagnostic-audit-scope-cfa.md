@@ -17,7 +17,7 @@ To establish, from evidence rather than impression, exactly where Haven stands a
 
 ## What we will examine
 
-- **Clinical governance and patient safety.** Incident review including the recent mortality, crash-cart and emergency-readiness standards, clinical protocols, NICU readiness, and the safety routines that should run every shift.
+- **Clinical governance and patient safety.** The incident and near-miss reporting system, crash-cart and emergency-readiness standards, clinical protocols, NICU readiness, and the shift-level safety routines that underpin reliable care.
 - **Culture, routines, and incentives.** How work actually gets done day to day, where nursing and operational routines break down, and whether the current and proposed incentive tools (the staff commission structure, JDS and KPIs) reward quality and ownership.
 - **Operations and SOP adherence.** Patient flow, customer service and booking, adherence to existing SOPs, and the gaps between what is documented and what happens.
 - **Finance and working capital.** Revenue mix and yield (private versus HMO), margins, the roughly N4.2M in HMO receivables, the roughly N2.77M in pharmacy stock, and where cash is locked.

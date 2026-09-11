@@ -63,9 +63,9 @@ async function main() {
     data: {
       name: CLIENT_NAME,
       type: "PRIVATE_MIDTIER",
-      primaryContact: "Kabir Aregbesola",
+      primaryContact: "Mr Kabir Aregbesola",
       email: "info@havenpaediatric.com", // TODO: confirm real contact email
-      phone: "+234 817 777 7753", // Kabir Aregbesola
+      phone: "+234 817 777 7753", // Mr Kabir Aregbesola
       address: "GRA Ikeja, Lagos, Nigeria",
       paymentTerms: 30,
       currency: "NGN",
@@ -73,11 +73,13 @@ async function main() {
       creditScore: 4,
       notes:
         "5-bed general paediatrics + 3-bed NICU facility in GRA Ikeja, ~15 months old. " +
-        "Owners: Dr Shakira Saliu (Aregbesola), Kabir Aregbesola, and Dr Odedina (consultant neonatologist). " +
+        "Owners: Mr Kabir Aregbesola, Mrs Abisodun Alli, Dr Shakirah Saliu, Dr Odedina (Medical Director), and Mr Ogochukwu Odum. " +
         "Debo invited to Haven's board from inception (board not yet formally constituted; he does not formally sit on it). " +
-        "First patient mortality recorded May 2026 (crash-cart " +
-        "medication unavailable during paediatric resuscitation). Leadership has requested CFA support on " +
-        "operational optimisation, culture, and growth.",
+        "Engaged CFA on operational optimisation, culture, and growth as the facility scales into more complex care including NICU. " +
+        "Proposal pack (board deck + full diagnostic-audit deck + proposal) sent to founders 27 June 2026; awaiting board go-ahead. " +
+        "[Internal context: a patient loss in May 2026 (a child referred in already critically ill) prompted the conversation; " +
+        "not attributable to the facility. All client-facing materials are framed forward, around building clinical governance " +
+        "and systems ahead of growth, and contain no reference to the incident.]",
     },
   });
 
@@ -89,10 +91,11 @@ async function main() {
       engagementManagerId: em.id,
       name: "Haven Paediatric Centre Operational Turnaround & Culture Build",
       description:
-        "Board-led operational turnaround for a 5+3 bed paediatric/NICU facility. The engaging insight: the " +
-        "facility's first mortality (crash-cart medication unavailable) was a symptom of an unestablished " +
-        "safety culture and unaligned incentives, not an isolated stockout. Scope, across five workstreams: " +
-        "(1) a detailed diagnostic audit; (2) culture, incentives and clinical standards of work, including " +
+        "Board-led operational turnaround for a 5+3 bed paediatric/NICU facility, scoped as the facility " +
+        "scales into more complex care. The engaging insight: culture, incentives and standards of work, not " +
+        "isolated process fixes, are the foundation that makes safe, efficient care self-sustaining. Scope, " +
+        "across five workstreams: (1) a detailed diagnostic audit; (2) culture, incentives and clinical " +
+        "standards of work, including " +
         "the staff commission structure and JDS/KPIs already on the board's decision list; (3) business " +
         "process reengineering and operations (procurement/vendor-managed inventory, receivables recovery, " +
         "management reporting); (4) revenue and growth optimisation (NICU activation, pricing review, " +
@@ -128,9 +131,11 @@ async function main() {
         "Clean fixed-fee + retainer only. No success fee, to keep related-party optics clean.",
       notes:
         "Related-party context: Debo has been invited to Haven's board (not yet formally constituted) and CFA " +
-        "would be a paid partner. Pricing and discount fully disclosed to all " +
-        "owners. Quick wins targeted in first fortnight: crash-cart standard + shift checklist, and recovery " +
-        "of ~N4.2M in HMO receivables (Leadway + NEM) that roughly equals a full period's revenue.",
+        "would be a paid partner. Pricing and discount fully disclosed to all owners. Proposal pack sent to " +
+        "founders 27 June 2026. Quick wins targeted in first fortnight: a proactive crash-cart standard + shift " +
+        "checklist, and recovery of ~N4.2M in HMO receivables (Leadway + NEM) that roughly equals a full " +
+        "period's revenue. Client-facing materials framed forward (build governance/systems ahead of growth); " +
+        "no reference to the May 2026 incident.",
     },
   });
   console.log(`Created engagement ${engagement.engagementCode ?? engagement.id}\n`);
@@ -159,10 +164,10 @@ async function main() {
       startDate: new Date("2026-07-01"),
       endDate: new Date("2026-10-31"),
       description:
-        "The spine of the engagement. Establish the safety culture and shift-level routines whose absence " +
-        "caused the mortality (crash-cart checks, nursing standards of work, immunisation follow-up discipline). " +
+        "The spine of the engagement. Establish the safety culture and shift-level clinical routines " +
+        "(crash-cart standard and checklist, nursing standards of work, immunisation follow-up discipline). " +
         "Redesign incentives: the staff commission structure and JDS/KPIs already awaiting board approval. " +
-        "Ownership culture is the root cause behind both the clinical lapse and the thin margins. Standard rate " +
+        "Ownership culture is the root cause behind both clinical reliability and the thin margins. Standard rate " +
         "N5,000,000; net N3,000,000.",
     },
     {
@@ -175,8 +180,8 @@ async function main() {
       description:
         "Reengineer core operations: procurement and vendor-managed inventory (recommend engaging Medbury " +
         "Pharma) to end stockouts and lift pharmacy margin; receivables recovery process for Leadway/NEM; a " +
-        "reliable management reporting layer. Stockouts that kill and stockouts that erode margin are the same " +
-        "broken process. Standard rate N4,000,000; net N2,400,000.",
+        "reliable management reporting layer. Reliable inventory keeps critical items available and protects " +
+        "margin at the same time. Standard rate N4,000,000; net N2,400,000.",
     },
     {
       name: "4. Revenue & Growth Optimisation",

@@ -1,0 +1,854 @@
+{
+  "generatedAt": "2026-08-18T11:02:16.654Z",
+  "surveys": [
+    {
+      "id": "haven-safety-culture",
+      "title": "Staff Safety & Culture",
+      "audience": "Haven staff (anonymous)",
+      "scaleMax": 5,
+      "count": 23,
+      "earliest": "2026-07-22T15:24:10.442Z",
+      "latest": "2026-08-06T08:49:29.036Z",
+      "positiveAvg": 3.9403264817807546,
+      "reverseAvg": 2.0007865772571654,
+      "scale": [
+        {
+          "key": "q1",
+          "text": "Staff in my area treat each other with respect.",
+          "section": "Your area & teamwork",
+          "reverse": false,
+          "n": 23,
+          "mean": 4.3478260869565215,
+          "dist": {
+            "1": 1,
+            "4": 11,
+            "5": 11
+          }
+        },
+        {
+          "key": "q2",
+          "text": "When the workload is heavy, we work together as a team to get it done.",
+          "section": "Your area & teamwork",
+          "reverse": false,
+          "n": 23,
+          "mean": 4.217391304347826,
+          "dist": {
+            "1": 1,
+            "4": 14,
+            "5": 8
+          }
+        },
+        {
+          "key": "q3",
+          "text": "In this area, people support one another.",
+          "section": "Your area & teamwork",
+          "reverse": false,
+          "n": 23,
+          "mean": 4.173913043478261,
+          "dist": {
+            "1": 1,
+            "4": 15,
+            "5": 7
+          }
+        },
+        {
+          "key": "q4",
+          "text": "During busy or difficult moments, we have the staff we need to handle the work.",
+          "section": "Your area & teamwork",
+          "reverse": false,
+          "n": 23,
+          "mean": 4,
+          "dist": {
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 14,
+            "5": 6
+          }
+        },
+        {
+          "key": "q5",
+          "text": "The work pace here is so high that it feels unsafe.",
+          "section": "Your area & teamwork",
+          "reverse": true,
+          "n": 23,
+          "mean": 1.7826086956521738,
+          "dist": {
+            "1": 8,
+            "2": 12,
+            "3": 3
+          }
+        },
+        {
+          "key": "q6",
+          "text": "Staff feel free to question the decisions or actions of those with more authority.",
+          "section": "Communication & openness",
+          "reverse": false,
+          "n": 21,
+          "mean": 3.3333333333333335,
+          "dist": {
+            "1": 1,
+            "2": 5,
+            "3": 2,
+            "4": 12,
+            "5": 1,
+            "NA": 2
+          }
+        },
+        {
+          "key": "q7",
+          "text": "Staff speak up if they see something that might negatively affect patient care.",
+          "section": "Communication & openness",
+          "reverse": false,
+          "n": 22,
+          "mean": 4.136363636363637,
+          "dist": {
+            "1": 1,
+            "4": 15,
+            "5": 6,
+            "NA": 1
+          }
+        },
+        {
+          "key": "q8",
+          "text": "Staff are afraid to ask questions when something does not seem right.",
+          "section": "Communication & openness",
+          "reverse": true,
+          "n": 23,
+          "mean": 2.1739130434782608,
+          "dist": {
+            "1": 6,
+            "2": 11,
+            "3": 3,
+            "4": 2,
+            "5": 1
+          }
+        },
+        {
+          "key": "q9",
+          "text": "When staff make an error, we talk about it so we can learn from it.",
+          "section": "Communication & openness",
+          "reverse": false,
+          "n": 22,
+          "mean": 4.2272727272727275,
+          "dist": {
+            "1": 1,
+            "4": 13,
+            "5": 8
+          }
+        },
+        {
+          "key": "q10",
+          "text": "We are told about changes to procedures and about mistakes that happen here.",
+          "section": "Communication & openness",
+          "reverse": false,
+          "n": 23,
+          "mean": 3.8260869565217392,
+          "dist": {
+            "1": 1,
+            "3": 4,
+            "4": 15,
+            "5": 3
+          }
+        },
+        {
+          "key": "q11",
+          "text": "Staff feel that their mistakes are held against them.",
+          "section": "Response to mistakes",
+          "reverse": true,
+          "n": 21,
+          "mean": 2.238095238095238,
+          "dist": {
+            "1": 2,
+            "2": 14,
+            "3": 3,
+            "4": 2,
+            "NA": 2
+          }
+        },
+        {
+          "key": "q12",
+          "text": "When an event is reported, it feels like the person is blamed, not the problem fixed.",
+          "section": "Response to mistakes",
+          "reverse": true,
+          "n": 22,
+          "mean": 2.409090909090909,
+          "dist": {
+            "1": 2,
+            "2": 13,
+            "3": 3,
+            "4": 4,
+            "NA": 1
+          }
+        },
+        {
+          "key": "q13",
+          "text": "When we make mistakes, we are treated fairly.",
+          "section": "Response to mistakes",
+          "reverse": false,
+          "n": 21,
+          "mean": 3.7142857142857144,
+          "dist": {
+            "2": 2,
+            "3": 4,
+            "4": 13,
+            "5": 2,
+            "NA": 2
+          }
+        },
+        {
+          "key": "q14",
+          "text": "Repeated problems are dealt with constructively, not just punished.",
+          "section": "Response to mistakes",
+          "reverse": false,
+          "n": 22,
+          "mean": 3.727272727272727,
+          "dist": {
+            "1": 1,
+            "2": 1,
+            "3": 5,
+            "4": 11,
+            "5": 4,
+            "NA": 1
+          }
+        },
+        {
+          "key": "q15",
+          "text": "When a mistake is caught before it reaches a patient, it is reported.",
+          "section": "Reporting & learning",
+          "reverse": false,
+          "n": 22,
+          "mean": 3.8636363636363638,
+          "dist": {
+            "2": 1,
+            "3": 2,
+            "4": 18,
+            "5": 1,
+            "NA": 1
+          }
+        },
+        {
+          "key": "q16",
+          "text": "When a mistake reaches a patient but causes no harm, it is reported.",
+          "section": "Reporting & learning",
+          "reverse": false,
+          "n": 22,
+          "mean": 3.9545454545454546,
+          "dist": {
+            "2": 1,
+            "3": 2,
+            "4": 16,
+            "5": 3,
+            "NA": 1
+          }
+        },
+        {
+          "key": "q17",
+          "text": "We are given feedback about changes made because of what gets reported.",
+          "section": "Reporting & learning",
+          "reverse": false,
+          "n": 21,
+          "mean": 3.761904761904762,
+          "dist": {
+            "1": 1,
+            "2": 1,
+            "3": 2,
+            "4": 15,
+            "5": 2,
+            "NA": 2
+          }
+        },
+        {
+          "key": "q18",
+          "text": "After a problem, this area actually changes how it works to prevent it recurring.",
+          "section": "Reporting & learning",
+          "reverse": false,
+          "n": 23,
+          "mean": 4,
+          "dist": {
+            "1": 1,
+            "3": 1,
+            "4": 17,
+            "5": 4
+          }
+        },
+        {
+          "key": "q19",
+          "text": "I know how to report a patient-safety concern here.",
+          "section": "Reporting & learning",
+          "reverse": false,
+          "n": 21,
+          "mean": 3.9523809523809526,
+          "dist": {
+            "1": 1,
+            "3": 2,
+            "4": 14,
+            "5": 4,
+            "NA": 1
+          }
+        },
+        {
+          "key": "q20",
+          "text": "My supervisor / matron seriously considers staff suggestions for improving safety.",
+          "section": "Management & supervisor support",
+          "reverse": false,
+          "n": 23,
+          "mean": 4,
+          "dist": {
+            "1": 1,
+            "3": 3,
+            "4": 13,
+            "5": 6
+          }
+        },
+        {
+          "key": "q21",
+          "text": "My supervisor / matron overlooks safety problems that happen over and over.",
+          "section": "Management & supervisor support",
+          "reverse": true,
+          "n": 23,
+          "mean": 1.8695652173913044,
+          "dist": {
+            "1": 7,
+            "2": 13,
+            "3": 2,
+            "4": 1
+          }
+        },
+        {
+          "key": "q22",
+          "text": "Management provides the resources (staff, equipment, drugs) needed to give safe care.",
+          "section": "Management & supervisor support",
+          "reverse": false,
+          "n": 23,
+          "mean": 3.652173913043478,
+          "dist": {
+            "1": 4,
+            "2": 1,
+            "3": 1,
+            "4": 10,
+            "5": 7
+          }
+        },
+        {
+          "key": "q23",
+          "text": "Management's actions show that patient safety is a top priority.",
+          "section": "Management & supervisor support",
+          "reverse": false,
+          "n": 22,
+          "mean": 4.2272727272727275,
+          "dist": {
+            "1": 1,
+            "3": 1,
+            "4": 11,
+            "5": 9,
+            "NA": 1
+          }
+        },
+        {
+          "key": "q24",
+          "text": "Management only seems interested in patient safety after something goes wrong.",
+          "section": "Management & supervisor support",
+          "reverse": true,
+          "n": 23,
+          "mean": 2.1739130434782608,
+          "dist": {
+            "1": 4,
+            "2": 13,
+            "3": 4,
+            "4": 2
+          }
+        },
+        {
+          "key": "q25",
+          "text": "Important patient-care information is shared clearly across shifts.",
+          "section": "Handovers between shifts",
+          "reverse": false,
+          "n": 22,
+          "mean": 4.2272727272727275,
+          "dist": {
+            "1": 1,
+            "4": 13,
+            "5": 8,
+            "NA": 1
+          }
+        },
+        {
+          "key": "q26",
+          "text": "Things fall between the cracks when patients are handed over between shifts or staff.",
+          "section": "Handovers between shifts",
+          "reverse": true,
+          "n": 20,
+          "mean": 1.9,
+          "dist": {
+            "1": 6,
+            "2": 12,
+            "4": 2,
+            "NA": 3
+          }
+        },
+        {
+          "key": "q27",
+          "text": "Shift changes are a risky time for patients here.",
+          "section": "Handovers between shifts",
+          "reverse": true,
+          "n": 22,
+          "mean": 1.6363636363636365,
+          "dist": {
+            "1": 8,
+            "2": 14,
+            "NA": 1
+          }
+        },
+        {
+          "key": "q28",
+          "text": "The crash cart / emergency tray is fully stocked and ready.",
+          "section": "Emergency readiness & routines",
+          "reverse": false,
+          "n": 20,
+          "mean": 4.35,
+          "dist": {
+            "3": 3,
+            "4": 7,
+            "5": 10,
+            "NA": 3
+          }
+        },
+        {
+          "key": "q29",
+          "text": "There is a routine, every shift, for checking emergency drugs and equipment.",
+          "section": "Emergency readiness & routines",
+          "reverse": false,
+          "n": 18,
+          "mean": 4.166666666666667,
+          "dist": {
+            "2": 1,
+            "3": 4,
+            "4": 4,
+            "5": 9,
+            "NA": 5
+          }
+        },
+        {
+          "key": "q30",
+          "text": "If a child needed emergency resuscitation right now, we would have what we need.",
+          "section": "Emergency readiness & routines",
+          "reverse": false,
+          "n": 20,
+          "mean": 4.45,
+          "dist": {
+            "2": 1,
+            "3": 1,
+            "4": 6,
+            "5": 12,
+            "NA": 3
+          }
+        },
+        {
+          "key": "q31",
+          "text": "Essential drugs or consumables are out of stock when we need them.",
+          "section": "Emergency readiness & routines",
+          "reverse": true,
+          "n": 17,
+          "mean": 1.8235294117647058,
+          "dist": {
+            "1": 9,
+            "2": 4,
+            "3": 3,
+            "5": 1,
+            "NA": 6
+          }
+        },
+        {
+          "key": "q32",
+          "text": "I have had recent resuscitation training (BLS / PALS / NRP) for the patients I care for.",
+          "section": "Emergency readiness (about you)",
+          "reverse": false,
+          "n": 20,
+          "mean": 2.8,
+          "dist": {
+            "1": 3,
+            "2": 6,
+            "3": 5,
+            "4": 4,
+            "5": 2,
+            "NA": 1
+          }
+        },
+        {
+          "key": "q33",
+          "text": "I understand clearly what I am responsible for and what good performance looks like in my role.",
+          "section": "Fairness, incentives & ownership",
+          "reverse": false,
+          "n": 23,
+          "mean": 4.3478260869565215,
+          "dist": {
+            "1": 1,
+            "3": 1,
+            "4": 9,
+            "5": 12
+          }
+        },
+        {
+          "key": "q34",
+          "text": "The way pay, commission or rewards work here is fair and clear.",
+          "section": "Fairness, incentives & ownership",
+          "reverse": false,
+          "n": 18,
+          "mean": 2.9444444444444446,
+          "dist": {
+            "1": 2,
+            "2": 4,
+            "3": 5,
+            "4": 7,
+            "NA": 4
+          }
+        },
+        {
+          "key": "q35",
+          "text": "The rewards and recognition here encourage good, safe, careful work, not just speed or volume.",
+          "section": "Fairness, incentives & ownership",
+          "reverse": false,
+          "n": 20,
+          "mean": 3.35,
+          "dist": {
+            "1": 2,
+            "2": 3,
+            "3": 4,
+            "4": 8,
+            "5": 3,
+            "NA": 3
+          }
+        },
+        {
+          "key": "q36",
+          "text": "I feel a sense of ownership for how well Haven runs, not just my own tasks.",
+          "section": "Fairness, incentives & ownership",
+          "reverse": false,
+          "n": 21,
+          "mean": 3.9523809523809526,
+          "dist": {
+            "2": 1,
+            "3": 3,
+            "4": 13,
+            "5": 4,
+            "NA": 2
+          }
+        },
+        {
+          "key": "rec_care",
+          "text": "I would recommend Haven as a place to receive care.",
+          "section": "Recommendation",
+          "reverse": false,
+          "n": 23,
+          "mean": 4.478260869565218,
+          "dist": {
+            "1": 1,
+            "4": 8,
+            "5": 14
+          }
+        },
+        {
+          "key": "rec_work",
+          "text": "I would recommend Haven as a place to work.",
+          "section": "Recommendation",
+          "reverse": false,
+          "n": 23,
+          "mean": 4.086956521739131,
+          "dist": {
+            "1": 1,
+            "3": 4,
+            "4": 9,
+            "5": 9
+          }
+        }
+      ],
+      "categorical": [
+        {
+          "key": "grade",
+          "label": "Overall grade on patient safety",
+          "options": [
+            "Excellent",
+            "Very good",
+            "Acceptable",
+            "Poor",
+            "Failing"
+          ],
+          "counts": {
+            "Excellent": 15,
+            "Very good": 7,
+            "Acceptable": 1
+          },
+          "answered": 23
+        },
+        {
+          "key": "area",
+          "label": "Primary area",
+          "options": [
+            "Nursing",
+            "Medical / Clinical",
+            "Pharmacy",
+            "Front desk / Customer service",
+            "Admin / Accounts",
+            "Operations",
+            "Other"
+          ],
+          "counts": {
+            "Medical / Clinical": 4,
+            "Front desk / Customer service": 1,
+            "Other": 2,
+            "Nursing": 3,
+            "Pharmacy": 2,
+            "Admin / Accounts": 2
+          },
+          "answered": 14
+        },
+        {
+          "key": "tenure",
+          "label": "Time at Haven",
+          "options": [
+            "Under 6 months",
+            "6–12 months",
+            "1–2 years",
+            "2 years or more"
+          ],
+          "counts": {
+            "6–12 months": 6,
+            "Under 6 months": 6,
+            "1–2 years": 4
+          },
+          "answered": 16
+        }
+      ],
+      "openText": [
+        {
+          "key": "open_safe",
+          "label": "One thing that would make Haven safer for patients",
+          "answers": [
+            "Honestly we have most of what patients need to stay safe both seasoned manpower and material resources for their care   . The rest of it is in Gods hands fr. We really do our best and one day it’ll be enough",
+            "A bigger place not that what we have is not working for us, but we are growing bigger",
+            "Prompt and seamless service delivery,\nReduction in waiting time are of great essence.",
+            "Ensure adequate staffing and provide all staff with the equipment, training, and resources needed to deliver safe, high-quality patient care.",
+            "So far, my obeservation of patient experience at haven is amazing. But adding feeding to the bill will be fine especially for those who have an infection and there doubt about hygiene.",
+            "More bed spaces for patient care.\nA tele health patient cent-red care for patients who can’t be physically present in the hospital.\nEssentials like microwave, freezers are needed for inpatient. \nPatient caregivers complain a lot of the stair cases, they ask for elevator.\nThe general ward gets flooded when it rains.",
+            "Timely response to patient",
+            "Improve the communication system, especially that of the inpatient",
+            "Employ more manpower,",
+            "Employ more staffs",
+            "Provision of essential consumable everytime",
+            "Providing adequate pharmaceutical care services for optimal therapeutic outcomes , that is timely, safe, effective,  efficient and patient centered",
+            "Nil"
+          ]
+        },
+        {
+          "key": "open_work",
+          "label": "One thing that would make Haven a better place to work",
+          "answers": [
+            "Working at Haven has been a major boost for my career ngl. If I’m to chip in something it’ll be health insurance for staff and then any of the goodies the management’s already working on.",
+            "Better staff benefits.",
+            "Structure and benefits, I understand that Haven is young but employees have a sense of belonging when they know that there is a future for them. E.g Pension plan, health insurance etc.",
+            "Rhe management knows best.",
+            "Improve staff welfare by offering fair pay, recognizing employees' efforts, ensuring open communication, and creating a supportive and respectful work environment.",
+            "Hmmm. So far, everything is awesome but i would suggest a staff welfare plan/package like lunch daily while on duty.",
+            "Staffs care i.e health insurance, pensions and safety is not into consideration. \nStaff training especially clinical staffs on PALS, BLS,HIPPA.\nMonthly rewards(forms of encouragement) from management to staffs \nTeam bonding activities, maybe monthly within Haven staff.",
+            "Good communication among staff",
+            "Fair recognition\nFair and timely salary increament\nImprove staff welfare\nNo talking to staff Impolitely",
+            "Team work",
+            "Working as a team and family",
+            "Team work",
+            "Adopting  a seamless process in operations , fostering a culture of safety, effective teamwork,  communication , collaboration and professionalism.",
+            "Nil"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "haven-patient-experience",
+      "title": "Patient & Parent Experience",
+      "audience": "Haven parents / patients (anonymous)",
+      "scaleMax": 5,
+      "count": 16,
+      "earliest": "2026-08-04T11:57:50.166Z",
+      "latest": "2026-08-14T11:06:06.869Z",
+      "positiveAvg": 4.595833333333333,
+      "reverseAvg": null,
+      "scale": [
+        {
+          "key": "q1",
+          "text": "It was easy to book and be seen at Haven.",
+          "section": "Getting seen",
+          "reverse": false,
+          "n": 16,
+          "mean": 4.875,
+          "dist": {
+            "4": 2,
+            "5": 14
+          }
+        },
+        {
+          "key": "q2",
+          "text": "I did not wait too long to be attended to.",
+          "section": "Getting seen",
+          "reverse": false,
+          "n": 16,
+          "mean": 4.3125,
+          "dist": {
+            "2": 3,
+            "4": 2,
+            "5": 11
+          }
+        },
+        {
+          "key": "q3",
+          "text": "Staff treated me and my child with respect and kindness.",
+          "section": "The team & how they treated us",
+          "reverse": false,
+          "n": 16,
+          "mean": 4.8125,
+          "dist": {
+            "4": 3,
+            "5": 13
+          }
+        },
+        {
+          "key": "q4",
+          "text": "The doctor or nurse explained my child's care in a way I understood.",
+          "section": "The team & how they treated us",
+          "reverse": false,
+          "n": 16,
+          "mean": 4.5625,
+          "dist": {
+            "2": 1,
+            "4": 4,
+            "5": 11
+          }
+        },
+        {
+          "key": "q5",
+          "text": "I felt listened to, and able to ask questions.",
+          "section": "The team & how they treated us",
+          "reverse": false,
+          "n": 16,
+          "mean": 4.625,
+          "dist": {
+            "2": 1,
+            "4": 3,
+            "5": 12
+          }
+        },
+        {
+          "key": "q6",
+          "text": "I always knew what was happening with my child's care.",
+          "section": "The team & how they treated us",
+          "reverse": false,
+          "n": 15,
+          "mean": 4.333333333333333,
+          "dist": {
+            "3": 2,
+            "4": 6,
+            "5": 7
+          }
+        },
+        {
+          "key": "q7",
+          "text": "The facility was clean and comfortable.",
+          "section": "Safety & the place",
+          "reverse": false,
+          "n": 16,
+          "mean": 4.875,
+          "dist": {
+            "4": 2,
+            "5": 14
+          }
+        },
+        {
+          "key": "q8",
+          "text": "I felt my child was safe and well cared for here.",
+          "section": "Safety & the place",
+          "reverse": false,
+          "n": 16,
+          "mean": 4.75,
+          "dist": {
+            "4": 4,
+            "5": 12
+          }
+        },
+        {
+          "key": "q9",
+          "text": "I had confidence in the medical team.",
+          "section": "Safety & the place",
+          "reverse": false,
+          "n": 16,
+          "mean": 4.8125,
+          "dist": {
+            "4": 3,
+            "5": 13
+          }
+        },
+        {
+          "key": "q10",
+          "text": "Charges and payments were explained to me clearly.",
+          "section": "Cost",
+          "reverse": false,
+          "n": 15,
+          "mean": 4,
+          "dist": {
+            "1": 1,
+            "3": 2,
+            "4": 7,
+            "5": 5
+          }
+        }
+      ],
+      "categorical": [
+        {
+          "key": "overall",
+          "label": "Overall experience",
+          "options": [
+            "Excellent",
+            "Very good",
+            "Good",
+            "Fair",
+            "Poor"
+          ],
+          "counts": {
+            "Very good": 5,
+            "Excellent": 8,
+            "Good": 3
+          },
+          "answered": 16
+        },
+        {
+          "key": "recommend",
+          "label": "Would recommend Haven to other parents",
+          "options": [
+            "Definitely",
+            "Probably",
+            "Not sure",
+            "Probably not",
+            "No"
+          ],
+          "counts": {
+            "Definitely": 13,
+            "Probably": 2
+          },
+          "answered": 15
+        }
+      ],
+      "openText": [
+        {
+          "key": "open_better",
+          "label": "One thing we could do better",
+          "answers": [
+            "Access to online results for my child. Or it be sent via email",
+            "Overall everything was good",
+            "Virtual consultation shouldn’t require payment as long the patient is registered at the hospital. Not everything requires bringing the kid(s) to the hospital. Pity those of us who stay very very far",
+            "I hope cost of medications when using hmo can be clearly stated...hmo complained and send us list of items that were costed by the organization however we were surprise by such cost but we cared less because our child health was a priority at such period....I think there is a gap of information on cost of medication administer to patients and bills sent to hmo for payment...",
+            "The service was efficient and it is a great place.",
+            "At least 2 to 3 doctors on sit"
+          ]
+        }
+      ]
+    }
+  ]
+}

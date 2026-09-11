@@ -1007,8 +1007,8 @@ def build():
         "&nbsp; hello@consultforafrica.com", bg=NAVY, fg=white))
     el.append(Spacer(1, 4))
     el.append(Paragraph(
-        "Figures are estimates before tax, to be set against a quantity surveyor's take-off, live "
-        "session comparables and Medbury Diagnostics' own trading data. Not a binding offer, and "
+        "Figures are estimates before tax, to be set against live session comparables and "
+        "Medbury Diagnostics' own trading data. Not a binding offer, and "
         "not legal or tax advice. Companions: the commercial model, the two-page summary, the "
         "fit-out and forecast note, and the rate and area assumptions. FX USD/NGN 1,550.", SMALL))
 

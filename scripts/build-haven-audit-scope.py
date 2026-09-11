@@ -16,6 +16,7 @@ from reportlab.lib.colors import HexColor, white
 from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.utils import ImageReader
 from reportlab.platypus import (
     BaseDocTemplate,
     Frame,
@@ -78,6 +79,15 @@ def furniture(c, doc):
     c.setFont("Helvetica", 8)
     c.drawString(MARGIN, 18, "Confidential  /  Prepared for the Haven Paediatric Centre board")
     c.drawRightString(PAGE_W - MARGIN, 18, "Page %d" % doc.page)
+    # logomark, top-right of each white content page
+    try:
+        _ic = ImageReader(str(DOCS / "c4a-icon.png"))
+        _iw, _ih = _ic.getSize()
+        _h = 22.0
+        _w = _h * _iw / _ih
+        c.drawImage(_ic, PAGE_W - MARGIN - _w, PAGE_H - 61, width=_w, height=_h, mask="auto")
+    except Exception:
+        pass
     c.restoreState()
 
 
@@ -142,9 +152,9 @@ def build():
     # ---- what we examine ----
     el.append(Paragraph("What we will examine", H1))
     el.extend(bullets([
-        "<b>Clinical governance and patient safety.</b> Incident review including the recent "
-        "mortality, crash-cart and emergency readiness, clinical protocols, NICU readiness, and "
-        "the safety routines that should run every shift.",
+        "<b>Clinical governance and patient safety.</b> The incident and near-miss reporting "
+        "system, crash-cart and emergency readiness, clinical protocols, NICU readiness, and "
+        "the shift-level safety routines that underpin reliable care.",
         "<b>Culture, routines, and incentives.</b> How work actually gets done, where nursing "
         "and operational routines break down, and whether the commission structure, JDS and KPIs "
         "reward quality and ownership.",

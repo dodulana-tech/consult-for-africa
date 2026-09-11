@@ -7,7 +7,7 @@
  *
  * Usage:
  *   npx tsx scripts/send-osiris-nephrology.ts                                  # dry-run, lists recipients
- *   npx tsx scripts/send-osiris-nephrology.ts --limit 1 --to dodulana@gmail.com --apply  # self-test
+ *   npx tsx scripts/send-osiris-nephrology.ts --limit 1 --to debo.odulana@consultforafrica.com --apply  # self-test
  *   npx tsx scripts/send-osiris-nephrology.ts --apply                          # full batch
  */
 import { PrismaClient } from "@prisma/client";

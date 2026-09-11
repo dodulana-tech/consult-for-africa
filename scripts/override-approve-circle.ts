@@ -55,7 +55,7 @@ async function main() {
 
   // Pick a reviewer for the audit field. Prefer Debo, else any DIRECTOR.
   const reviewer =
-    (await prisma.user.findFirst({ where: { email: "dodulana@gmail.com" } })) ??
+    (await prisma.user.findFirst({ where: { email: "debo.odulana@consultforafrica.com" } })) ??
     (await prisma.user.findFirst({ where: { role: "DIRECTOR" } }));
   if (!reviewer) {
     console.error("No reviewer User found.");

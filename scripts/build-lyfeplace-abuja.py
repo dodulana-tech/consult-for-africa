@@ -87,11 +87,11 @@ def style(name, **kw):
 
 
 EYEBROW = style("eyebrow", fontName="Helvetica-Bold", fontSize=9, leading=12,
-                textColor=GOLD, spaceAfter=3)
+                textColor=GOLD, spaceAfter=3, keepWithNext=True)
 H1 = style("h1", fontName="Helvetica-Bold", fontSize=15, leading=19, textColor=NAVY,
-           spaceBefore=12, spaceAfter=8)
+           spaceBefore=12, spaceAfter=8, keepWithNext=True)
 H2 = style("h2", fontName="Helvetica-Bold", fontSize=11.5, leading=15, textColor=TEAL,
-           spaceBefore=10, spaceAfter=4)
+           spaceBefore=10, spaceAfter=4, keepWithNext=True)
 P = style("p")
 LEDE = style("lede", fontSize=11, leading=16.5, textColor=HexColor("#374151"))
 SMALL = style("small", fontSize=8.5, leading=12, textColor=MUTED)
@@ -323,7 +323,7 @@ def build():
          ["Head lease term", "2 years", "Must be 5 plus 5 before fit-out capital is released"]],
         ["Item", "Currently assumed", "Corrected"],
         [124, 118, 261], aligns=["r", "l"]))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 02 WHAT WE ARE BUILDING ----------------
     sec(el, "02", "THE MODEL", "The address, not the practice.")
@@ -373,7 +373,7 @@ def build():
         "in advance and the head rent is paid in advance. Sixty founding Abuja memberships at a "
         "blended NGN 2.2M is NGN 132M, which covers the NGN 115M of rent and fees outright. "
         "Presell the membership, then pay the landlord.", bg=PANEL))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 03 THE BUILDING ----------------
     sec(el, "03", "THE BUILDING", "It is roughly half the size the tenant-mix deck assumes.")
@@ -408,7 +408,7 @@ def build():
         "different buildings, and neither of them is this one.",
         "Every per sqm figure in the deck needs re-basing on 520 sqm.",
     ])
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 04 CAPITAL ----------------
     sec(el, "04", "CAPITAL", "What it actually costs.")
@@ -459,7 +459,7 @@ def build():
         "Achievable, but it removes the entire margin of safety. Over a five plus five it is "
         "NGN 28M a year, which the campus carries comfortably.",
         bg=ALERT, rule=HexColor("#B8763A")))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 04b POWER ----------------
     sec(el, "05", "POWER AND HOURS", "Longer hours are the whole business case.")
@@ -503,7 +503,7 @@ def build():
         "not the array, because evenings cannot run on solar. Security and lit parking to 21:00. "
         "And halve the service intervals on the split units, since fourteen hours over six days is "
         "double the duty cycle they are specified for.", bg=PANEL))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 06 TENANCY STACK ----------------
     sec(el, "06", "THE TENANCY STACK", "Who sits where, and what they pay.")
@@ -554,7 +554,7 @@ def build():
         "empty room earns nothing. With pharmacy and diagnostics treated as facility, <b>56% of the "
         "building is facility and 44% is let</b>, which is what a fully serviced campus looks like "
         "and why the rate per let sqm has to be high.", P))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 07 ALAMEDA ----------------
     sec(el, "07", "ALAMEDA", "One blended charge, and a hard capacity constraint.")
@@ -629,7 +629,7 @@ def build():
         "generate pre-operative workups, so Alameda's diagnostic attach rate is higher than any "
         "other user on the campus. There is room to move on the facility charge in exchange for "
         "binding first call. There is no room to move on first call.", P))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 08 INVESTMENT CASE ----------------
     sec(el, "08", "THE INVESTMENT CASE", "Break-even before a session is sold.")
@@ -715,7 +715,7 @@ def build():
         "The downside case halves the assumed sessional fill and cuts capture by 40%, and the "
         "project still returns. That is the margin of safety, and it comes from the fixed leases "
         "carrying the cost base on their own.", P))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 09 THE JV ----------------
     sec(el, "09", "THE JOINT VENTURE", "What must change before signature.")
@@ -783,7 +783,7 @@ def build():
         "mechanism and no audit right anywhere in its twenty-three pages. Whatever commercial "
         "position Medbury takes on that, the absence should be a deliberate decision rather than "
         "an oversight.", bg=ALERT, rule=HexColor("#B8763A")))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 10 CONDITIONS PRECEDENT ----------------
     sec(el, "10", "CONDITIONS AND RISK", "What has to be true before money moves.")
@@ -814,7 +814,7 @@ def build():
           "Part of Phase 1"]],
         ["Condition", "What it is", "When"],
         [110, 268, 125], aligns=["l", "l"]))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 11 VERIFY ----------------
     sec(el, "11", "SENSE CHECK", "What in this note is measured, and what is estimated.")
@@ -855,7 +855,7 @@ def build():
         "run drives in, and average treatment invoice by speciality. If they will not give you the "
         "last two, that itself tells you what they expect to convert, and the charge should be "
         "priced to stand alone without any conversion upside.", P))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 12 NEXT ----------------
     sec(el, "12", "NEXT", "Four conversations, in this order.")

@@ -36,10 +36,7 @@ from reportlab.platypus import (
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "docs" / "haven-survey-results-cfa.pdf"
-DEFAULT_JSON = Path(
-    "/private/tmp/claude-502/-Users-debo-consult-for-africa/"
-    "987b23aa-2323-49bf-8457-6019fa7d4aeb/scratchpad/analysis.json"
-)
+DEFAULT_JSON = ROOT / "docs" / "data" / "haven-survey-analysis.json"
 
 # ---- brand palette (source: docs/brand-guide-cfa.pdf) ----------------------
 NAVY = HexColor("#0B3C5D")
@@ -171,7 +168,20 @@ def eyebrow(text, note=""):
 
 
 # ---- builders --------------------------------------------------------------
-def build_cover_band(story, safety):
+def part_title(story, number, title, blurb):
+    story += hr()
+    story.append(Paragraph(f"PART {number}", S["eyebrow"]))
+    story.append(Spacer(1, 2))
+    story.append(Paragraph(title, S["h"]))
+    story.append(Spacer(1, 4))
+    story.append(Paragraph(blurb, S["body"]))
+    story.append(Spacer(1, 10))
+
+
+def build_cover_band(story, staff, patient):
+    span = sorted(
+        [d for d in (staff["earliest"], staff["latest"], patient["earliest"], patient["latest"]) if d]
+    )
     band = Table(
         [[Paragraph('CONSULT FOR <font color="#D4AF37">AFRICA</font>',
                     p("m", fontName="Helvetica-Bold", fontSize=8, textColor=white))],
@@ -179,9 +189,10 @@ def build_cover_band(story, safety):
          [Paragraph("Diagnostic Audit: Survey Results", p("t2", fontName="Times-Roman", fontSize=15, textColor=HexColor("#c3d3de"), leading=18))],
          [Spacer(1, 6)],
          [Paragraph(
-             f'<b>{safety["count"]}</b> anonymous staff responses &nbsp;·&nbsp; '
-             f'Fieldwork <b>{fmt_date(safety["earliest"])} – {fmt_date(safety["latest"])}</b> &nbsp;·&nbsp; '
-             f'Scale <b>1–5</b> &nbsp;·&nbsp; Prepared by <b>Consult for Africa</b>',
+             f'<b>{patient["count"]}</b> caregiver responses &nbsp;·&nbsp; '
+             f'<b>{staff["count"]}</b> staff responses &nbsp;·&nbsp; both anonymous &nbsp;·&nbsp; '
+             f'Fieldwork <b>{fmt_date(span[0])} to {fmt_date(span[-1])}</b> &nbsp;·&nbsp; '
+             f'Scale <b>1 to 5</b> &nbsp;·&nbsp; Prepared by <b>Consult for Africa</b>',
              p("mt", fontSize=8, textColor=HexColor("#aebfca"), leading=12))]],
         colWidths=[CONTENT_W],
     )
@@ -196,7 +207,7 @@ def build_cover_band(story, safety):
     story.append(Spacer(1, 14))
 
 
-def build_cards(story, safety, grade, rec_care):
+def build_cards(story, specs):
     def card(label, value, hint):
         return Table(
             [[Paragraph(label.upper(), S["cardl"])],
@@ -204,12 +215,7 @@ def build_cards(story, safety, grade, rec_care):
              [Paragraph(hint, S["cardh"])]],
             colWidths=[(CONTENT_W - 3 * 8) / 4],
         )
-    cards = [
-        card("Responses", str(safety["count"]), "Staff, anonymous"),
-        card("Safety grade", f'{grade["rows"][0]["count"]} <font size=11 color="#64748B">/{grade["answered"]}</font>', "rated Excellent"),
-        card("Positive items avg", f'{safety["positiveAvg"]:.2f} <font size=11 color="#64748B">/5</font>', "mean of positive items"),
-        card("Recommend care", f'{rec_care["mean"]:.2f} <font size=11 color="#64748B">/5</font>', "place to receive care"),
-    ]
+    cards = [card(*s) for s in specs]
     row = Table([cards], colWidths=[CONTENT_W / 4] * 4)
     row.setStyle(TableStyle([
         ("BOX", (0, 0), (0, 0), 0.6, LINE), ("BOX", (1, 0), (1, 0), 0.6, LINE),
@@ -221,9 +227,10 @@ def build_cards(story, safety, grade, rec_care):
     story.append(row)
 
 
-def build_grade_chart(story, grade):
-    story += hr()
-    story.append(eyebrow("OVERALL GRADE ON PATIENT SAFETY"))
+def build_grade_chart(story, grade, title="OVERALL GRADE ON PATIENT SAFETY", rule=True):
+    if rule:
+        story += hr()
+    story.append(eyebrow(title))
     story.append(Spacer(1, 8))
     gcolors = ["#10B981", "#84CC16", "#FCD34D", "#F59E0B", "#EF4444"]
     rows = []
@@ -297,27 +304,10 @@ def build_findings(story, safety):
     story.append(two)
 
 
-def build_narrative(story, safety):
-    def m(key):
-        return next(s["mean"] for s in safety["scale"] if s["key"] == key)
+def build_narrative(story, paras, title="WHAT THE NUMBERS SAY"):
     story += hr()
-    story.append(eyebrow("WHAT THE NUMBERS SAY"))
+    story.append(eyebrow(title))
     story.append(Spacer(1, 6))
-    paras = [
-        "<b>Culture and safety read strongly.</b> Every respondent graded patient safety Acceptable "
-        "or better, with 16 of 17 at Very good or Excellent. Teamwork, handovers, error-learning and "
-        "management commitment to safety all sit above 4.0, and the reverse-worded risk items (unsafe "
-        "pace, risky handovers, supervisors overlooking problems) all sit low, which is the good result.",
-        f"<b>Three edges are worth management attention.</b> Pay clarity ({m('q34'):.2f}) and reward "
-        f"fairness ({m('q35'):.2f}) are the softest scores. Recent resuscitation training ({m('q32'):.2f}) "
-        "is a live gap for a paediatric centre and shows in the comments. And a minority feel blamed "
-        "rather than supported after an incident (the just-culture item is the weakest of the reverse "
-        "set), worth watching so reporting stays open.",
-        "<b>The free text is consistent.</b> Two themes dominate: more staffing / manpower for patient "
-        "safety, and staff welfare (health insurance, pension, fair and timely pay, recognition, "
-        "clinical training) for a better place to work. Facility and communication asks (bed spaces, "
-        "inpatient comms, lift, ward flooding) appear as a secondary cluster.",
-    ]
     inner = [[Paragraph(t, S["body"])] for t in paras]
     box = Table(inner, colWidths=[CONTENT_W - 24])
     box.setStyle(TableStyle([
@@ -427,46 +417,159 @@ def build_comments(story, safety):
             story.append(Spacer(1, 5))
 
 
-def build_method(story, safety):
+def build_method(story, staff, patient):
     story += hr()
+    latest = max(d for d in (staff["latest"], patient["latest"]) if d)
     txt = (
-        f'<b>Method.</b> Anonymous on-platform survey, {safety["count"]} staff responses collected '
-        f'{fmt_date(safety["earliest"])}–{fmt_date(safety["latest"])}. Scale items run 1 (strongly '
-        "disagree / never) to 5 (strongly agree / always); “N/A · Don't know” is excluded "
-        "from the mean. <b>n</b> is the number of scored answers per item. <b>(rev)</b>-tagged items are "
-        "negatively worded, so a lower score is the good result; colour is set on that basis and they are "
-        "excluded from the positive-items average. Distribution bars run red (1) to green (5). No patient "
-        "or parent responses had been submitted at the time of this report. Prepared by Consult for Africa "
-        f'for Haven Paediatric Centre; figures reflect responses as at {fmt_date(safety["latest"])}.'
+        f'<b>Method.</b> Two anonymous on-platform surveys. {patient["count"]} caregiver responses '
+        f'collected {fmt_date(patient["earliest"])} to {fmt_date(patient["latest"])}, and '
+        f'{staff["count"]} staff responses collected {fmt_date(staff["earliest"])} to '
+        f'{fmt_date(staff["latest"])}. Scale items run 1 (strongly disagree or never) to 5 (strongly '
+        "agree or always); “N/A, don't know” is excluded from the mean. <b>n</b> is the number of scored "
+        "answers per item. <b>(rev)</b>-tagged items are negatively worded, so a lower score is the good "
+        "result; colour is set on that basis and they are excluded from the positive-items average. "
+        "Distribution bars run red (1) to green (5). Both instruments are self-selecting and anonymous, "
+        "so they measure the views of those who chose to respond rather than of the whole population. "
+        "Free-text comments are reproduced verbatim, including original spelling. Prepared by Consult "
+        f'for Africa for Haven Paediatric Centre; figures reflect responses as at {fmt_date(latest)}.'
     )
     story.append(Paragraph(txt, S["foot"]))
+
+
+def normalise(survey):
+    """Expand categorical counts into ordered label/count rows."""
+    for c in survey["categorical"]:
+        c["rows"] = [{"label": opt.replace("–", " to "), "count": c["counts"].get(opt, 0)}
+                     for opt in c["options"]]
+    return survey
+
+
+def cat(survey, key):
+    return next(c for c in survey["categorical"] if c["key"] == key)
+
+
+def item(survey, key):
+    return next(s for s in survey["scale"] if s["key"] == key)
 
 
 def main():
     src = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_JSON
     data = json.loads(src.read_text())
-    safety = next(s for s in data["surveys"] if s["id"] == "haven-safety-culture")
-    grade = next(c for c in safety["categorical"] if c["key"] == "grade")
-    rec_care = next(s for s in safety["scale"] if s["key"] == "rec_care")
+    staff = normalise(next(s for s in data["surveys"] if s["id"] == "haven-safety-culture"))
+    patient = normalise(next(s for s in data["surveys"] if s["id"] == "haven-patient-experience"))
+
+    grade = cat(staff, "grade")
+    overall = cat(patient, "overall")
+    recommend = cat(patient, "recommend")
+    top_grade = grade["rows"][0]["count"] + grade["rows"][1]["count"]
+    definitely = recommend["rows"][0]["count"]
+    excellent = overall["rows"][0]["count"]
+
+    def sm(k):
+        return item(staff, k)["mean"]
+
+    def pm(k):
+        return item(patient, k)["mean"]
 
     doc = BaseDocTemplate(
         str(OUT), pagesize=A4,
         leftMargin=MARGIN, rightMargin=MARGIN, topMargin=MARGIN, bottomMargin=18 * mm,
-        title="Haven Paediatric Centre — Survey Results", author="Consult for Africa",
+        title="Haven Paediatric Centre - Survey Results", author="Consult for Africa",
     )
     frame = Frame(MARGIN, 18 * mm, CONTENT_W, PAGE_H - MARGIN - 18 * mm, id="main")
     doc.addPageTemplates([PageTemplate(id="main", frames=[frame], onPage=draw_header_footer)])
 
     story = []
-    build_cover_band(story, safety)
-    build_cards(story, safety, grade, rec_care)
+    build_cover_band(story, staff, patient)
+    build_cards(story, [
+        ("Caregiver rating", f'{patient["positiveAvg"]:.2f} <font size=11 color="#64748B">/5</font>',
+         "mean, all items"),
+        ("Would recommend",
+         f'{definitely} <font size=11 color="#64748B">/{recommend["answered"]}</font>',
+         "definitely, to other parents"),
+        ("Staff rating", f'{staff["positiveAvg"]:.2f} <font size=11 color="#64748B">/5</font>',
+         "mean of positive items"),
+        ("Safety graded", f'{top_grade} <font size=11 color="#64748B">/{grade["answered"]}</font>',
+         "very good or excellent"),
+    ])
+
+    # ---------------- PART 1: caregivers ----------------
+    part_title(
+        story, "ONE", "What families say",
+        f'{patient["count"]} parents and caregivers responded anonymously between '
+        f'{fmt_date(patient["earliest"])} and {fmt_date(patient["latest"])}. This is the first time '
+        "patient voice has been measured at Haven, and it is the strongest result in the diagnostic.")
+    build_grade_chart(story, overall, "OVERALL EXPERIENCE", rule=False)
+    story.append(Spacer(1, 10))
+    build_grade_chart(story, recommend, "WOULD RECOMMEND HAVEN TO OTHER PARENTS", rule=False)
+    build_findings(story, patient)
+    build_narrative(story, [
+        f"<b>The result is unambiguous.</b> The mean across all ten items is "
+        f"{patient['positiveAvg']:.2f} of 5, every respondent rated their overall experience Good or "
+        f"better, {excellent} of {overall['answered']} rated it Excellent, and {definitely} of "
+        f"{recommend['answered']} would definitely recommend Haven to other parents. Cleanliness "
+        f"({pm('q7'):.2f}), ease of access ({pm('q1'):.2f}), confidence in the medical team "
+        f"({pm('q9'):.2f}) and being treated with kindness ({pm('q3'):.2f}) are the strongest signals.",
+        f"<b>Three softer edges, and they are all about information.</b> Clarity of charges and "
+        f"payments ({pm('q10'):.2f}) is the lowest item in the instrument. Knowing what is happening "
+        f"with the child's care ({pm('q6'):.2f}) and waiting time ({pm('q2'):.2f}) follow. None is a "
+        "failing score. All three are communication rather than clinical, which makes them "
+        "inexpensive to fix.",
+        "<b>The comments ask for access, not for better care.</b> Remote consultation for families "
+        "who travel long distances, electronic access to results, clearer information on the cost of "
+        "medicines billed to health plans, and more doctors on site. Every one of these is a request "
+        "to make an experience they already rate highly easier to reach.",
+    ], title="WHAT FAMILIES ARE TELLING US")
+    build_results(story, patient)
+    build_comments(story, patient)
+
+    # ---------------- PART 2: staff ----------------
+    part_title(
+        story, "TWO", "What staff say",
+        f'{staff["count"]} staff responded anonymously between {fmt_date(staff["earliest"])} and '
+        f'{fmt_date(staff["latest"])}, across nine sections adapted from a recognised hospital '
+        "safety-culture instrument. Read alongside Part One, it shows an organisation whose people "
+        "are producing an excellent patient experience without the systems that should be supporting "
+        "them.")
+    build_cards(story, [
+        ("Responses", str(staff["count"]), "Staff, anonymous"),
+        ("Safety grade",
+         f'{grade["rows"][0]["count"]} <font size=11 color="#64748B">/{grade["answered"]}</font>',
+         "rated Excellent"),
+        ("Positive items avg", f'{staff["positiveAvg"]:.2f} <font size=11 color="#64748B">/5</font>',
+         "mean of positive items"),
+        ("Recommend care", f'{sm("rec_care"):.2f} <font size=11 color="#64748B">/5</font>',
+         "place to receive care"),
+    ])
     build_grade_chart(story, grade)
-    build_findings(story, safety)
-    build_narrative(story, safety)
-    build_results(story, safety)
-    build_demographics(story, safety)
-    build_comments(story, safety)
-    build_method(story, safety)
+    build_findings(story, staff)
+    build_narrative(story, [
+        f"<b>Safety and teamwork read strongly.</b> Every respondent graded patient safety Acceptable "
+        f"or better and {top_grade} of {grade['answered']} graded it Very good or Excellent. Teamwork "
+        f"({sm('q1'):.2f}), handovers ({sm('q25'):.2f}), learning from error ({sm('q9'):.2f}) and "
+        f"management commitment to safety ({sm('q23'):.2f}) all sit at or above 4.2, and the "
+        "reverse-worded risk items sit low, which is the good result.",
+        f"<b>The soft edges are all about the deal, not the work.</b> Pay and reward fairness "
+        f"({sm('q34'):.2f}) is the weakest positive item in the instrument, recognition "
+        f"({sm('q35'):.2f}) is close behind, and freedom to question those with more authority "
+        f"({sm('q6'):.2f}) shows that voice is conditional. Resuscitation training currency "
+        f"({sm('q32'):.2f}) is the single lowest score and is a clinical exposure rather than a "
+        "welfare one.",
+        f"<b>The reverse items point at just culture.</b> Feeling blamed rather than helped after "
+        f"reporting an event ({sm('q12'):.2f}) is the weakest of the reverse set. Set against a "
+        "documented absence of any incident register, it is the edge most worth protecting, because "
+        "an organisation that reports openly is far harder to build than one that records formally.",
+        "<b>The free text is remarkably consistent.</b> Two themes dominate: more staffing for "
+        "patient safety, and staff welfare, meaning health insurance, pension, fair and timely pay, "
+        "recognition and clinical training, for a better place to work. Facility asks form a "
+        "secondary cluster: bed spaces, inpatient communication, lift access, and ward flooding. "
+        "Almost every critical comment is prefaced with warmth about the place.",
+    ])
+    build_results(story, staff)
+    build_demographics(story, staff)
+    build_comments(story, staff)
+
+    build_method(story, staff, patient)
 
     doc.build(story)
     print(f"wrote {OUT.relative_to(ROOT)}  ({OUT.stat().st_size // 1024} KB)")

@@ -54,3 +54,7 @@ docs/*-DRAFT.md
 # Local design-sync tooling
 .design-sync/
 .ds-sync/
+
+# Erasure working files and audit log: contain data-subject details, never commit
+scratchpad/
+scripts/out/

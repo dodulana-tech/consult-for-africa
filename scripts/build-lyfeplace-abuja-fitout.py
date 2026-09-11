@@ -355,10 +355,7 @@ def build():
     el.append(Spacer(1, 6))
     el.append(Paragraph("Before this is used to commit capital", H2))
     el.append(tbl(
-        [["A quantity surveyor's take-off", "This is still the largest line in the project and the "
-                                            "least verified. Every figure here is built up by "
-                                            "package, not measured"],
-         ["An electrical load assessment", "Incoming supply capacity and main board rating against "
+        [["An electrical load assessment", "Incoming supply capacity and main board rating against "
                                            "a 38kW average and 55kW peak"],
          ["A condition survey", "Roof, ceilings, wiring age, borehole and storage. Confirms or "
                                 "removes the assumptions this note rests on"],

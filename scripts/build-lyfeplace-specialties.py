@@ -73,11 +73,11 @@ def style(name, **kw):
 
 
 EYEBROW = style("eyebrow", fontName="Helvetica-Bold", fontSize=8.4, leading=11,
-                textColor=GOLD, spaceAfter=2)
+                textColor=GOLD, spaceAfter=2, keepWithNext=True)
 H1 = style("h1", fontName="Helvetica-Bold", fontSize=13.5, leading=17, textColor=NAVY,
-           spaceBefore=7, spaceAfter=5)
+           spaceBefore=7, spaceAfter=5, keepWithNext=True)
 H2 = style("h2", fontName="Helvetica-Bold", fontSize=10, leading=13, textColor=TEAL,
-           spaceBefore=8, spaceAfter=3)
+           spaceBefore=8, spaceAfter=3, keepWithNext=True)
 P = style("p")
 LEDE = style("lede", fontSize=9.8, leading=14, textColor=HexColor("#374151"))
 SMALL = style("small", fontSize=7.6, leading=10.2, textColor=MUTED)
@@ -300,7 +300,7 @@ def build():
         ["Specialty", "Tier 1  treatment room", "Tier 2  local anaesthesia",
          "Tier 3  theatre only"],
         [92, 125, 132, 118], aligns=["l", "l", "l"]))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 03 ----------------
     sec(el, "03", "CONSULTING AND DIAGNOSTIC SPECIALTIES", "Twelve more that need no procedure room.")
@@ -364,7 +364,7 @@ def build():
          ["8", "Psychology and physiotherapy", "Complete the surgical pathway and stop referral "
           "leakage"]],
         ["", "Specialty", "Why in this order"], [18, 148, 301], aligns=["l", "l"]))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     # ---------------- 06 ----------------
     sec(el, "06", "WHAT THIS FACILITY CANNOT DO", "Stated plainly, so nobody is sold a promise.")
@@ -446,7 +446,7 @@ def build():
         "One item to confirm rather than assume: FCT health facility registration will need to "
         "reflect sedation capability, and there may be specific conditions attached. Worth "
         "establishing before the equipment is ordered.", P))
-    el.append(PageBreak())
+    el.append(Spacer(1, 12))
 
     sec(el, "08", "WHAT THE THEATRE OBLIGES", "Governance, before the first list.")
     el.append(Paragraph(
