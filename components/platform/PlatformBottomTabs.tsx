@@ -7,7 +7,7 @@ import {
   Clock,
   ListChecks,
   Video,
-  TrendingUp,
+  Handshake,
   Menu,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -23,9 +23,9 @@ export default function PlatformBottomTabs() {
   // or timesheets, so the default tabs would be four dead ends on mobile.
   const tabs = isOfficeRole(session?.user?.role)
     ? [
-        { label: "Tasks", href: "/tasks", icon: ListChecks },
-        { label: "Meetings", href: "/meetings", icon: Video },
-        { label: "Pipeline", href: "/pipeline", icon: TrendingUp },
+        { label: "Desk", href: "/desk", icon: ListChecks },
+        { label: "Chasing", href: "/commitments", icon: Handshake },
+        { label: "Diary", href: "/meetings", icon: Video },
         { label: "More", href: "#", icon: Menu, action: openDrawer },
       ]
     : [

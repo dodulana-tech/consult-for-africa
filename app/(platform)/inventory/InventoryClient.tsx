@@ -168,7 +168,12 @@ function Assets() {
       ) : assets.length === 0 ? (
         <div className="text-center py-16 rounded-xl border bg-white" style={{ borderColor: "#e5eaf0" }}>
           <Laptop size={24} className="mx-auto mb-3" style={{ color: "#CBD5E1" }} />
-          <p className="text-sm text-gray-500">Nothing on the register yet.</p>
+          <p className="text-sm font-medium text-gray-900">Nothing on the register yet.</p>
+          <p className="text-sm mt-2 max-w-md mx-auto" style={{ color: "#64748B" }}>
+            Anything the firm owns and lends out belongs here: laptops, phones, monitors,
+            furniture. Give each one a tag, then issue it to whoever has it. A first count is
+            worth far more than a perfect one, so start with what is in front of you.
+          </p>
         </div>
       ) : (
         <div className="space-y-2">{assets.map((a) => <AssetCard key={a.id} a={a} people={people} onChange={load} />)}</div>
@@ -361,7 +366,12 @@ function Supplies() {
       ) : items.length === 0 ? (
         <div className="text-center py-16 rounded-xl border bg-white" style={{ borderColor: "#e5eaf0" }}>
           <Boxes size={24} className="mx-auto mb-3" style={{ color: "#CBD5E1" }} />
-          <p className="text-sm text-gray-500">Nothing counted yet.</p>
+          <p className="text-sm font-medium text-gray-900">Nothing counted yet.</p>
+          <p className="text-sm mt-2 max-w-md mx-auto" style={{ color: "#64748B" }}>
+            Things you count rather than track one by one: paper, toner, water, stationery.
+            Set a reorder level on each and this page warns you before you run out, which is the
+            whole point. Running out on the morning of a board meeting is the failure it prevents.
+          </p>
         </div>
       ) : (
         <div className="space-y-2">{items.map((i) => <StockCard key={i.id} i={i} onChange={load} />)}</div>

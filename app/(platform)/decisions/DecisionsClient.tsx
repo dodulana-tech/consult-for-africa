@@ -141,7 +141,13 @@ export default function DecisionsClient({ currentUserId }: { currentUserId: stri
         ) : decisions.length === 0 ? (
           <div className="text-center py-16 rounded-xl border bg-white" style={{ borderColor: "#e5eaf0" }}>
             <Gavel size={24} className="mx-auto mb-3" style={{ color: "#CBD5E1" }} />
-            <p className="text-sm text-gray-500">Nothing waiting.</p>
+            <p className="text-sm font-medium text-gray-900">Nothing waiting.</p>
+            <p className="text-sm mt-2 max-w-md mx-auto" style={{ color: "#64748B" }}>
+              This is where a question that needs one person&apos;s answer gets teed up so it can be
+              settled without a meeting. You write the background, the options and what you would
+              do; they pick. If you find yourself chasing someone for an answer over WhatsApp,
+              raise it here instead.
+            </p>
           </div>
         ) : (
           decisions.map((d) => (

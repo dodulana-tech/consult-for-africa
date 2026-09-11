@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import {
@@ -45,7 +46,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import type { LucideIcon } from "lucide-react";
 import { useNavStore } from "@/lib/stores/navigation";
-import { EM_AND_ABOVE, OFFICE_ROLES } from "@/lib/constants";
+import { EM_AND_ABOVE, OFFICE_ROLES, isOfficeRole } from "@/lib/constants";
 
 interface NavItem {
   label: string;
@@ -78,6 +79,79 @@ const EM_PLUS = [...EM_AND_ABOVE];
 const OFFICE = [...OFFICE_ROLES];
 const STAFF_AND_OFFICE = [...STAFF_ROLES, ...OFFICE];
 const EM_PLUS_AND_OFFICE = [...EM_PLUS, ...OFFICE];
+// The office sees OFFICE_NAV instead of the sections below, so these two
+// remain only for the roles that still read the software-shaped nav.
+
+/**
+ * The Office of the Founding Partner gets its own nav.
+ *
+ * The main one is grouped by what the software is (Pipeline, Team, Operations,
+ * Marketing), which tells somebody new nothing about what they are supposed to
+ * do. Applying it to the office produced nineteen links across seven headings,
+ * four of which held a single item, for a person hired on the assumption that
+ * nothing is obvious yet.
+ *
+ * This is grouped by whose move it is, the same axis as the desk: yours now,
+ * waiting on other people, waiting on a date, waiting on nobody. Four headings,
+ * and every surface lands in exactly one of them.
+ *
+ * The delivery group is held back until they are actually staffed on something.
+ * They keep the access either way; it just stops being noise on day one.
+ */
+const OFFICE_NAV: NavSection[] = [
+  {
+    title: "",
+    items: [
+      { label: "My desk",        href: "/desk",           icon: ListChecks },
+    ],
+  },
+  {
+    title: "Mine",
+    items: [
+      { label: "Tasks",          href: "/tasks",          icon: ClipboardList },
+      { label: "Campaigns",      href: "/campaigns",      icon: Megaphone },
+    ],
+  },
+  {
+    title: "Chasing",
+    items: [
+      { label: "Commitments",    href: "/commitments",    icon: Handshake },
+      { label: "Decisions",      href: "/decisions",      icon: Gavel },
+      { label: "Pipeline",       href: "/pipeline",       icon: TrendingUp },
+      { label: "Communications", href: "/communications", icon: MessageSquare },
+      { label: "Invoices",       href: "/finance/invoices", icon: FileText, roles: ["EXECUTIVE_ASSISTANT"] },
+    ],
+  },
+  {
+    title: "Diary",
+    items: [
+      { label: "Meetings",       href: "/meetings",       icon: Video },
+      { label: "Rhythm",         href: "/rhythm",         icon: CalendarClock },
+    ],
+  },
+  {
+    title: "Reference",
+    items: [
+      { label: "Knowledge",      href: "/knowledge",      icon: BookOpen },
+      { label: "Asset Library",  href: "/knowledge/library", icon: FileSearch },
+      { label: "Inventory",      href: "/inventory",      icon: Package },
+      { label: "Nuru",           href: "/ai",             icon: Sparkles },
+    ],
+  },
+];
+
+/** Shown to the office only once they are staffed on a piece of client work. */
+const OFFICE_DELIVERY_NAV: NavSection[] = [
+  {
+    title: "Client work",
+    items: [
+      { label: "Projects",       href: "/projects",       icon: Briefcase },
+      { label: "Deliverables",   href: "/deliverables",   icon: FileCheck },
+      { label: "Time",           href: "/timesheets",     icon: Clock },
+      { label: "Tools",          href: "/tools",          icon: Wrench },
+    ],
+  },
+];
 
 const NAV_SECTIONS: NavSection[] = [
   {
@@ -221,6 +295,24 @@ export default function Sidebar() {
   const email = session?.user?.email ?? "";
   const { drawerOpen: mobileOpen, closeDrawer: closeMobile } = useNavStore();
 
+  // The office gets a nav grouped by whose move it is, and the client work
+  // group only once they have actually been staffed on something.
+  const isOffice = isOfficeRole(role);
+  const [deliveryWork, setDeliveryWork] = useState(false);
+  useEffect(() => {
+    if (!isOffice) return;
+    let cancelled = false;
+    fetch("/api/me/surfaces")
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled) setDeliveryWork(!!d.deliveryWork); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [isOffice]);
+
+  const sections = isOffice
+    ? [...OFFICE_NAV, ...(deliveryWork ? OFFICE_DELIVERY_NAV : [])]
+    : NAV_SECTIONS;
+
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === href;
     if (href === "/pipeline") {
@@ -253,7 +345,7 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-3 overflow-y-auto">
-        {NAV_SECTIONS.map((section, sectionIndex) => {
+        {sections.map((section, sectionIndex) => {
           if (section.roles && !section.roles.includes(role)) return null;
 
           // An item may narrow its section further, so a shared section never

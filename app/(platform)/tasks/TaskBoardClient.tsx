@@ -319,7 +319,13 @@ export default function TaskBoardClient({ currentUserId, canAssign, canSeeAll }:
         ) : tasks.length === 0 ? (
           <div className="text-center py-16 rounded-xl border bg-white" style={{ borderColor: "#e5eaf0" }}>
             <ClipboardList size={26} className="mx-auto mb-3" style={{ color: "#CBD5E1" }} />
-            <p className="text-sm text-gray-500">Nothing on this desk.</p>
+            <p className="text-sm font-medium text-gray-900">Nothing on this desk.</p>
+            <p className="text-sm mt-2 max-w-md mx-auto" style={{ color: "#64748B" }}>
+              Every task here arrives with a brief explaining why it matters and a definition of
+              done setting out what finished looks like, so you never have to guess what was meant.
+              If you are ever unsure, mark it blocked and say why. That is normal, and it goes
+              straight to the person who gave you the work.
+            </p>
           </div>
         ) : (
           <div className="space-y-6">

@@ -166,7 +166,13 @@ export default function CommitmentsClient({ currentUserId }: { currentUserId: st
         ) : commitments.length === 0 ? (
           <div className="text-center py-16 rounded-xl border bg-white" style={{ borderColor: "#e5eaf0" }}>
             <Handshake size={24} className="mx-auto mb-3" style={{ color: "#CBD5E1" }} />
-            <p className="text-sm text-gray-500">Nothing on the register. Meetings with action items are the fastest way to fill it.</p>
+            <p className="text-sm font-medium text-gray-900">Nothing on the register.</p>
+            <p className="text-sm mt-2 max-w-md mx-auto" style={{ color: "#64748B" }}>
+              A commitment is a promise somebody made. Usually they do not work here, which is
+              exactly why it gets forgotten. Write down what was promised, who owes it and by when,
+              and this page will tell you when to chase. The fastest way to start is the action
+              items from the last meeting you sat in.
+            </p>
           </div>
         ) : (
           <>

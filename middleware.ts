@@ -1,12 +1,12 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
-const PLATFORM_ROUTES = ["/dashboard", "/projects", "/deliverables", "/consultants", "/clients", "/timesheets", "/settings", "/proposals", "/ai", "/admin", "/founder", "/talent", "/meetings", "/communications", "/tasks", "/brief", "/commitments", "/decisions", "/rhythm", "/inventory"];
+const PLATFORM_ROUTES = ["/dashboard", "/projects", "/deliverables", "/consultants", "/clients", "/timesheets", "/settings", "/proposals", "/ai", "/admin", "/founder", "/talent", "/meetings", "/communications", "/tasks", "/desk", "/brief", "/commitments", "/decisions", "/rhythm", "/inventory"];
 // Roles whose day starts somewhere other than the dashboard.
 const LANDING_BY_ROLE: Record<string, string> = {
   ACADEMY_LEARNER: "/academy",
-  EXECUTIVE_ASSISTANT: "/tasks",
-  ADMINISTRATIVE_ASSISTANT: "/tasks",
+  EXECUTIVE_ASSISTANT: "/desk",
+  ADMINISTRATIVE_ASSISTANT: "/desk",
 };
 const AUTH_ROUTES = ["/login"];
 const ONBOARDING_ROUTE = "/onboarding";
