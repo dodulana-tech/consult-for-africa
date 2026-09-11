@@ -18,11 +18,16 @@ interface Row {
   action: string;
 }
 
+interface Person { id: string; name: string; role: string }
+
 interface Desk {
   generatedAt: string;
+  subject: Person & { viewingSelf: boolean };
+  canViewOthers: boolean;
   yoursNow: Row[];
   waitingOnOthers: Row[];
   scheduled: Row[];
+  headline: Record<string, number>;
 }
 
 const URGENCY: Record<string, { border: string; text: string; label: string }> = {
@@ -46,19 +51,27 @@ function when(iso: string | null): string {
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
-export default function DeskClient({ firstName }: { firstName: string }) {
+export default function DeskClient({ firstName, currentUserId }: { firstName: string; currentUserId: string }) {
   const [desk, setDesk] = useState<Desk | null>(null);
   const [loading, setLoading] = useState(true);
+  const [forUserId, setForUserId] = useState(currentUserId);
+  const [people, setPeople] = useState<Person[]>([]);
 
   const load = useCallback(() => {
-    return fetch("/api/desk")
+    return fetch(`/api/desk?forUserId=${forUserId}`)
       .then((r) => r.json())
       .then((d) => setDesk(d.yoursNow ? d : null))
       .catch(() => setDesk(null))
       .finally(() => setLoading(false));
-  }, []);
+  }, [forUserId]);
 
   useEffect(() => { void load(); }, [load]);
+
+  // Only fetched for people who can open somebody else's desk.
+  useEffect(() => {
+    if (!desk?.canViewOthers) return;
+    fetch("/api/tasks/people").then((r) => r.json()).then((d) => setPeople(d.people ?? [])).catch(() => {});
+  }, [desk?.canViewOthers]);
 
   if (loading) {
     return (
@@ -77,10 +90,40 @@ export default function DeskClient({ firstName }: { firstName: string }) {
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-8">
+        {desk.canViewOthers && people.length > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold" style={{ color: "#94A3B8" }}>Desk of</span>
+            <select
+              value={forUserId}
+              onChange={(e) => { setForUserId(e.target.value); setLoading(true); }}
+              className="rounded-lg border px-3 py-1.5 text-sm"
+              style={{ borderColor: "#e5eaf0" }}
+            >
+              {people.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.id === currentUserId ? `${p.name} (you)` : p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {!nothingAtAll && (
+          <div className="grid grid-cols-3 gap-3">
+            <Stat n={desk.headline.yoursNow} label="yours now" sub={desk.headline.late ? `${desk.headline.late} late` : ""} tone={desk.headline.late ? "#DC2626" : "#0F2744"} />
+            <Stat n={desk.headline.waiting} label="on other people" sub={desk.headline.toChase ? `${desk.headline.toChase} to chase` : ""} tone={desk.headline.blocked ? "#DC2626" : "#0F2744"} />
+            <Stat n={desk.headline.scheduled} label="coming up" sub="" tone="#0F2744" />
+          </div>
+        )}
+
         {nothingAtAll ? (
           <div className="rounded-xl border bg-white p-8 text-center" style={{ borderColor: "#e5eaf0" }}>
             <CheckCircle2 size={26} className="mx-auto mb-3" style={{ color: "#10B981" }} />
-            <p className="text-sm font-medium text-gray-900">Nothing is waiting on you{firstName ? `, ${firstName}` : ""}.</p>
+            <p className="text-sm font-medium text-gray-900">
+              {desk.subject.viewingSelf
+                ? `Nothing is waiting on you${firstName ? `, ${firstName}` : ""}.`
+                : `Nothing is waiting on ${desk.subject.name}.`}
+            </p>
             <p className="text-sm mt-2 max-w-md mx-auto" style={{ color: "#64748B" }}>
               This page fills itself from your tasks, the promises you are chasing and your diary.
               When work comes to you it appears at the top, with a brief explaining why it matters.
@@ -172,6 +215,16 @@ function Bucket({
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+function Stat({ n, label, sub, tone }: { n: number; label: string; sub: string; tone: string }) {
+  return (
+    <div className="rounded-xl border bg-white p-4" style={{ borderColor: "#e5eaf0" }}>
+      <p className="text-2xl font-bold" style={{ color: n > 0 ? tone : "#CBD5E1" }}>{n}</p>
+      <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>{label}</p>
+      {sub && <p className="text-[11px] mt-0.5" style={{ color: "#DC2626" }}>{sub}</p>}
     </div>
   );
 }

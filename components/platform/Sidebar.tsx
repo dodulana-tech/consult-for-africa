@@ -157,7 +157,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: "Office",
     items: [
-      { label: "Brief",          href: "/brief",          icon: Newspaper },
+      { label: "My desk",        href: "/desk",           icon: Newspaper },
       { label: "Tasks",          href: "/tasks",          icon: ListChecks },
       { label: "Commitments",    href: "/commitments",    icon: Handshake },
       { label: "Decisions",      href: "/decisions",      icon: Gavel },

@@ -14,8 +14,8 @@ export default async function DeskPage() {
   const firstName = (session.user.name ?? "").split(" ")[0];
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
-      <TopBar title="My desk" subtitle="Work down the list. When it is empty, you are done." />
-      <DeskClient firstName={firstName} />
+      <TopBar title="My desk" subtitle="Whose move is it. Work down the list." />
+      <DeskClient firstName={firstName} currentUserId={session.user.id} />
     </div>
   );
 }
