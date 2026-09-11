@@ -108,9 +108,17 @@ export const POST = handler(async function POST(req: NextRequest) {
     .map((p: { email?: string }) => p.email)
     .filter(Boolean);
 
-  // Create Google Meet
+  // Create Google Meet.
+  //
+  // A failure here used to be swallowed with a console line and the meeting was
+  // saved anyway. That produced a meeting with no join link, no calendar entry,
+  // no invitations to anybody and no Nuru bot, and nothing told the organiser.
+  // Both meetings ever created on this platform came out that way and it went
+  // unnoticed for months. The record is still saved, because losing what someone
+  // typed is its own failure, but the caller is now told plainly.
   let meetLink = "";
   let calendarEventId = "";
+  let googleWarning: string | null = null;
   try {
     const googleResult = await createGoogleMeetMeeting({
       title: title.trim(),
@@ -122,8 +130,12 @@ export const POST = handler(async function POST(req: NextRequest) {
     meetLink = googleResult.meetLink;
     calendarEventId = googleResult.calendarEventId;
   } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
     console.error("[meetings] Google Meet creation failed:", err);
-    // Continue without Google Meet - meeting still gets created in DB
+    googleWarning =
+      detail.includes("invalid_grant") || detail.includes("Missing Google OAuth2 credentials")
+        ? "Google Calendar is not connected, so this meeting has no join link and no invitations were sent. Re-authorise Google, then add the link to the meeting."
+        : "The Google Meet link could not be created, so no invitations were sent. The meeting has been saved and you can add a link to it.";
   }
 
   // Create meeting in database
@@ -190,5 +202,13 @@ export const POST = handler(async function POST(req: NextRequest) {
     );
   }
 
-  return Response.json({ meeting }, { status: 201 });
+  return Response.json(
+    {
+      meeting,
+      // Present only when something the organiser needs to know about failed.
+      ...(googleWarning ? { warning: googleWarning } : {}),
+      invitesSent: !!meetLink,
+    },
+    { status: 201 },
+  );
 });

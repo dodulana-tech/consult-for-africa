@@ -241,6 +241,22 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
               </div>
             )}
 
+            {/* No link is not the same as no notice. A meeting whose Google Meet
+                link failed also sent no invitations, and the absence of a button
+                is not something an organiser reads as a problem. */}
+            {!meeting.meetLink && meeting.status !== "CANCELLED" && (
+              <div className="rounded-xl p-4" style={{ background: "#FFFBEB", border: "1px solid #FDE68A" }}>
+                <h3 className="text-xs font-semibold uppercase mb-1" style={{ color: "#92400E" }}>
+                  No join link
+                </h3>
+                <p className="text-sm" style={{ color: "#78350F" }}>
+                  Google Calendar did not create a link for this meeting, which also means
+                  no invitations went out. Nobody has been told about it. Reconnect Google
+                  and book it again, or send the participants a link yourself.
+                </p>
+              </div>
+            )}
+
             {/* Description */}
             {meeting.description && (
               <div className="bg-white rounded-xl border p-4" style={{ borderColor: "#e5eaf0" }}>

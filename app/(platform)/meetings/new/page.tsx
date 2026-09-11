@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, Trash2 } from "lucide-react";
+import Link from "next/link";
 
 const MEETING_TYPES = [
   { value: "DISCOVERY_CALL", label: "Discovery Call" },
@@ -51,6 +52,7 @@ function NewMeetingForm() {
   const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [warning, setWarning] = useState<{ message: string; meetingId: string } | null>(null);
 
   // Load projects for linking
   useEffect(() => {
@@ -126,6 +128,13 @@ function NewMeetingForm() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to create meeting");
+      // A meeting with no Google Meet link also sent no invitations, so the
+      // organiser has to be told before they walk away assuming it is booked.
+      // Hold the redirect rather than flashing a banner they will never see.
+      if (data.warning) {
+        setWarning({ message: data.warning, meetingId: data.meeting.id });
+        return;
+      }
       router.push(`/meetings/${data.meeting.id}`);
     } catch (err) {
       console.error("Meeting creation failed:", err);
@@ -160,6 +169,20 @@ function NewMeetingForm() {
 
         {error && (
           <div className="p-3 rounded-lg bg-red-50 text-red-700 text-sm mb-4">{error}</div>
+        )}
+
+        {warning && (
+          <div className="p-4 rounded-xl mb-4" style={{ background: "#FFFBEB", border: "1px solid #FDE68A" }}>
+            <p className="text-sm font-semibold" style={{ color: "#92400E" }}>Saved, but not booked</p>
+            <p className="text-sm mt-1" style={{ color: "#78350F" }}>{warning.message}</p>
+            <Link
+              href={`/meetings/${warning.meetingId}`}
+              className="inline-block mt-3 px-4 py-2 rounded-lg text-sm font-medium text-white"
+              style={{ background: "#B45309" }}
+            >
+              Open the meeting
+            </Link>
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
