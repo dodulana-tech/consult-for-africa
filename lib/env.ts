@@ -56,8 +56,10 @@ const serverSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   GOOGLE_REFRESH_TOKEN: z.string().optional(),
-  GOOGLE_SERVICE_ACCOUNT_KEY: z.string().optional(),
-  GOOGLE_CALENDAR_IMPERSONATE_EMAIL: z.string().email().optional(),
+  // Calendar access is OAuth2 with a refresh token, see lib/google.ts. A service
+  // account with domain-wide delegation was sketched here once and abandoned:
+  // it needs Google Workspace on the domain and our mail is on Zoho. The two
+  // variables it needed were never anything but placeholders.
 
   // ── Deepgram (transcription) ───────────────────────────────────────────────
   DEEPGRAM_API_KEY: z.string().optional(),
