@@ -2,8 +2,12 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
+import { OFFICE_ROLES } from "@/lib/constants";
 
 const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
+// Sees the whole list and can book one in. Converting to a client is a separate
+// endpoint and stays elevated, so no deal terms pass through here.
+const SEES_ALL = [...ELEVATED, ...OFFICE_ROLES];
 
 /**
  * GET /api/discovery-calls
@@ -13,7 +17,7 @@ export const GET = handler(async function GET() {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const isElevated = ELEVATED.includes(session.user.role);
+  const isElevated = SEES_ALL.includes(session.user.role);
   const where = isElevated ? {} : { conductedById: session.user.id };
 
   const calls = await prisma.discoveryCall.findMany({
@@ -36,7 +40,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canCreate = [...ELEVATED, "ENGAGEMENT_MANAGER"].includes(session.user.role);
+  const canCreate = [...SEES_ALL, "ENGAGEMENT_MANAGER"].includes(session.user.role);
   if (!canCreate) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();

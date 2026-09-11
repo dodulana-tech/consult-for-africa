@@ -5,24 +5,36 @@ import {
   Briefcase,
   FileCheck,
   Clock,
+  ListChecks,
+  Video,
+  TrendingUp,
   Menu,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import BottomTabBar from "@/components/shared/BottomTabBar";
 import { useNavStore } from "@/lib/stores/navigation";
+import { isOfficeRole } from "@/lib/constants";
 
 export default function PlatformBottomTabs() {
   const openDrawer = useNavStore((s) => s.openDrawer);
+  const { data: session } = useSession();
 
-  return (
-    <BottomTabBar
-      portalId="platform"
-      tabs={[
+  // The Office of the Founding Partner has no dashboard, projects, deliverables
+  // or timesheets, so the default tabs would be four dead ends on mobile.
+  const tabs = isOfficeRole(session?.user?.role)
+    ? [
+        { label: "Tasks", href: "/tasks", icon: ListChecks },
+        { label: "Meetings", href: "/meetings", icon: Video },
+        { label: "Pipeline", href: "/pipeline", icon: TrendingUp },
+        { label: "More", href: "#", icon: Menu, action: openDrawer },
+      ]
+    : [
         { label: "Home", href: "/dashboard", icon: LayoutDashboard },
         { label: "Projects", href: "/projects", icon: Briefcase },
         { label: "Tasks", href: "/deliverables", icon: FileCheck },
         { label: "Time", href: "/timesheets", icon: Clock },
         { label: "More", href: "#", icon: Menu, action: openDrawer },
-      ]}
-    />
-  );
+      ];
+
+  return <BottomTabBar portalId="platform" tabs={tabs} />;
 }

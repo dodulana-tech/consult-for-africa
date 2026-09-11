@@ -64,6 +64,8 @@ interface Props {
   }>;
   stats: { activeLeads: number; activeDiscovery: number; activeProposals: number; openStaffing: number; pendingExpansions: number };
   isElevated: boolean;
+  /** Office of the Founding Partner: leads, discovery calls and proposals only. */
+  isOffice?: boolean;
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string }> = {
@@ -105,16 +107,22 @@ function Badge({ status }: { status: string }) {
   );
 }
 
-export default function PipelineClient({ leads, discoveryCalls, proposals, staffingRequests, expansionRequests, stats, isElevated }: Props) {
+export default function PipelineClient({ leads, discoveryCalls, proposals, staffingRequests, expansionRequests, stats, isElevated, isOffice = false }: Props) {
   const [tab, setTab] = useState<Tab>("leads");
 
-  const tabs: { key: Tab; label: string; count: number }[] = [
+  const allTabs: { key: Tab; label: string; count: number }[] = [
     { key: "leads", label: "Leads", count: stats.activeLeads },
     { key: "discovery", label: "Discovery Calls", count: stats.activeDiscovery },
     { key: "proposals", label: "Proposals", count: stats.activeProposals },
     { key: "staffing", label: "Staffing Needs", count: stats.openStaffing },
     { key: "expansions", label: "Expansions", count: stats.pendingExpansions },
   ];
+
+  // Staffing and expansions are consultant resourcing and deal terms. The office
+  // works the front of the pipeline, not those.
+  const tabs = isOffice
+    ? allTabs.filter((t) => ["leads", "discovery", "proposals"].includes(t.key))
+    : allTabs;
 
   return (
     <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">

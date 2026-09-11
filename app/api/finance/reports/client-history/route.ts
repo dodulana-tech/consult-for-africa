@@ -2,10 +2,18 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
+import { EM_AND_ABOVE } from "@/lib/constants";
 
 export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+  // Margins, revenue and ageing carry commercial detail the office is not
+  // granted. This matches the Finance section in the sidebar, which has always
+  // been EM and above.
+  if (!EM_AND_ABOVE.includes(session.user.role as typeof EM_AND_ABOVE[number])) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const clientId = req.nextUrl.searchParams.get("clientId");
   if (!clientId) return Response.json({ error: "clientId required" }, { status: 400 });

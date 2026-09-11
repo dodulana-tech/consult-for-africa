@@ -3,12 +3,16 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import TopBar from "@/components/platform/TopBar";
 import PipelineClient from "./PipelineClient";
+import { PIPELINE_ROLES, isOfficeRole } from "@/lib/constants";
 
 export default async function PipelinePage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const isElevated = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  // The office works leads, discovery calls and proposals. The tabs they are
+  // not granted are dropped in PipelineClient.
+  const isOffice = isOfficeRole(session.user.role);
+  const isElevated = PIPELINE_ROLES.includes(session.user.role as typeof PIPELINE_ROLES[number]);
 
   const [leads, discoveryCalls, proposals, staffingRequests, expansionRequests] = await Promise.all([
     isElevated
@@ -91,6 +95,7 @@ export default async function PipelinePage() {
         expansionRequests={JSON.parse(JSON.stringify(expansionRequests))}
         stats={stats}
         isElevated={isElevated}
+        isOffice={isOffice}
       />
     </div>
   );

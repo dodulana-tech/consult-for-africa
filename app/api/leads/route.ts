@@ -2,8 +2,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
+import { PIPELINE_ROLES } from "@/lib/constants";
 
-const ELEVATED = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
+// Includes the two office roles: leads are a surface they work for hygiene
+// and chasing. Converting a lead is elsewhere and stays elevated.
+const ELEVATED: readonly string[] = PIPELINE_ROLES;
 
 /**
  * GET /api/leads

@@ -7,6 +7,7 @@ import {
 } from "@/lib/nuru-bot/orchestrator";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
+import { MEETING_ORGANIZER_ROLES } from "@/lib/constants";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -41,7 +42,8 @@ export const POST = handler(async function POST(req: NextRequest, ctx: Ctx) {
   }
 
   // Only organizer or elevated roles can trigger Nuru
-  const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
+  // Bot control is an organiser right.
+  const ELEVATED: readonly string[] = MEETING_ORGANIZER_ROLES;
   if (meeting.organizerId !== session.user.id && !ELEVATED.includes(session.user.role)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }

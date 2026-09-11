@@ -19,6 +19,10 @@ export const GET = handler(async function GET() {
           intern: { select: { id: true, name: true, email: true } },
           engagement: { select: { id: true, name: true } },
           supervisor: { select: { id: true, name: true } },
+          evaluations: {
+            orderBy: { createdAt: "desc" },
+            include: { evaluator: { select: { id: true, name: true } } },
+          },
           _count: { select: { evaluations: true } },
         },
       },

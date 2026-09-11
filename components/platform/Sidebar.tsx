@@ -27,6 +27,12 @@ import {
   GraduationCap,
   Radio,
   ClipboardList,
+  ListChecks,
+  Newspaper,
+  Handshake,
+  Gavel,
+  CalendarClock,
+  Package,
   Video,
   X,
   FileText,
@@ -39,11 +45,13 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import type { LucideIcon } from "lucide-react";
 import { useNavStore } from "@/lib/stores/navigation";
+import { EM_AND_ABOVE, OFFICE_ROLES } from "@/lib/constants";
 
 interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
+  roles?: string[]; // if set, narrows the section's roles for this item alone
 }
 
 interface NavSection {
@@ -57,10 +65,33 @@ interface NavSection {
 // EM sees: Above + Clients, Pipeline, Consultants, Talent
 // DIRECTOR+ sees: Above + Admin section
 // ACADEMY_LEARNER sees: Academy only (+ Settings/Sign out in bottom)
+// Office of the Founding Partner (EA, Administrative Assistant) sees the office
+// surfaces (Brief, Tasks, Commitments, Decisions, Rhythm, Inventory) plus the
+// working surfaces, because everybody at C4A carries client work: Dashboard,
+// Projects, Deliverables, Meetings, Pipeline, Communications, Campaigns,
+// Knowledge, Nuru, Tools, Time. Finance stays the Executive Assistant alone and
+// read only. Admin stays Partner and above. Where a section is shared, an item
+// they should not see still carries its own roles array.
 
 const STAFF_ROLES = ["CONSULTANT", "ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
+const EM_PLUS = [...EM_AND_ABOVE];
+const OFFICE = [...OFFICE_ROLES];
+const STAFF_AND_OFFICE = [...STAFF_ROLES, ...OFFICE];
+const EM_PLUS_AND_OFFICE = [...EM_PLUS, ...OFFICE];
 
 const NAV_SECTIONS: NavSection[] = [
+  {
+    title: "Office",
+    items: [
+      { label: "Brief",          href: "/brief",          icon: Newspaper },
+      { label: "Tasks",          href: "/tasks",          icon: ListChecks },
+      { label: "Commitments",    href: "/commitments",    icon: Handshake },
+      { label: "Decisions",      href: "/decisions",      icon: Gavel },
+      { label: "Rhythm",         href: "/rhythm",         icon: CalendarClock },
+      { label: "Inventory",      href: "/inventory",      icon: Package },
+    ],
+    roles: EM_PLUS_AND_OFFICE,
+  },
   {
     title: "",
     items: [
@@ -69,15 +100,15 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Deliverables",   href: "/deliverables",   icon: FileCheck },
       { label: "Meetings",       href: "/meetings",       icon: Video },
     ],
-    roles: STAFF_ROLES,
+    roles: STAFF_AND_OFFICE,
   },
   {
     title: "Pipeline",
     items: [
       { label: "Pipeline",       href: "/pipeline",       icon: TrendingUp },
-      { label: "Clients",        href: "/clients",        icon: Building2 },
+      { label: "Clients",        href: "/clients",        icon: Building2, roles: EM_PLUS },
     ],
-    roles: ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"],
+    roles: EM_PLUS_AND_OFFICE,
   },
   {
     title: "opportunities",
@@ -96,11 +127,11 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: "Team",
     items: [
-      { label: "Consultants",    href: "/consultants",    icon: Users },
-      { label: "Talent",         href: "/talent",         icon: UserPlus },
+      { label: "Consultants",    href: "/consultants",    icon: Users,    roles: EM_PLUS },
+      { label: "Talent",         href: "/talent",         icon: UserPlus, roles: EM_PLUS },
       { label: "Communications", href: "/communications", icon: MessageSquare },
     ],
-    roles: ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"],
+    roles: EM_PLUS_AND_OFFICE,
   },
   {
     title: "Operations",
@@ -111,14 +142,14 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Nuru",           href: "/ai",             icon: Sparkles },
       { label: "Tools",          href: "/tools",          icon: Wrench },
     ],
-    roles: STAFF_ROLES,
+    roles: STAFF_AND_OFFICE,
   },
   {
     title: "Marketing",
     items: [
       { label: "Campaigns",      href: "/campaigns",      icon: Megaphone },
     ],
-    roles: ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"],
+    roles: EM_PLUS_AND_OFFICE,
   },
   {
     title: "Learning",
@@ -156,15 +187,18 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Finance",
     items: [
       { label: "Invoices",        href: "/finance/invoices",  icon: FileText },
-      { label: "Reports",         href: "/finance/reports",   icon: BarChart3 },
+      { label: "Reports",         href: "/finance/reports",   icon: BarChart3, roles: EM_PLUS },
     ],
-    roles: ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"],
+    // Executive Assistant only, and read only: invoice and payment status for
+    // chasing. The Administrative Assistant gets no finance surface at all.
+    roles: [...EM_PLUS, "EXECUTIVE_ASSISTANT"],
   },
   {
     title: "Admin",
     items: [
       { label: "Users",          href: "/admin/users",    icon: ShieldCheck },
       { label: "Onboarding",     href: "/admin/onboarding", icon: ClipboardList },
+      { label: "Interns",        href: "/admin/interns",  icon: GraduationCap },
       { label: "Assessments",    href: "/admin/assessments", icon: FileSearch },
       { label: "Outreach",       href: "/admin/outreach", icon: Share2 },
       { label: "Referrals",      href: "/admin/referrals", icon: Share2 },
@@ -219,18 +253,23 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-3 overflow-y-auto">
-        {NAV_SECTIONS.map((section) => {
+        {NAV_SECTIONS.map((section, sectionIndex) => {
           if (section.roles && !section.roles.includes(role)) return null;
 
+          // An item may narrow its section further, so a shared section never
+          // hands over the items this role was not granted.
+          const items = section.items.filter((item) => !item.roles || item.roles.includes(role));
+          if (items.length === 0) return null;
+
           return (
-            <div key={section.title || "main"} className="mb-1">
+            <div key={`${section.title}-${sectionIndex}`} className="mb-1">
               {section.title && section.title !== "opportunities" && (
                 <p className="px-3 pt-4 pb-1.5 text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#94A3B8" }}>
                   {section.title}
                 </p>
               )}
               <div className="space-y-0.5">
-                {section.items.map(({ label, href, icon: Icon }) => {
+                {items.map(({ label, href, icon: Icon }) => {
                   const active = isActive(href);
                   return (
                     <Link

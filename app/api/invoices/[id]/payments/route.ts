@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { emailPaymentReceived } from "@/lib/email";
 import { handler } from "@/lib/api-handler";
+import { FINANCE_READ_ROLES } from "@/lib/constants";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -12,7 +13,9 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canView = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  // Payment status is the other half of chasing. Recording a payment, below,
+  // is not part of the grant.
+  const canView = FINANCE_READ_ROLES.includes(session.user.role as typeof FINANCE_READ_ROLES[number]);
   if (!canView) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
@@ -27,7 +30,7 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
   });
   if (!invoice) return Response.json({ error: "Not found" }, { status: 404 });
 
-  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN", "EXECUTIVE_ASSISTANT"].includes(session.user.role);
   if (!isElevated) {
     if (!invoice.engagement || invoice.engagement.engagementManagerId !== session.user.id) {
       return Response.json({ error: "Forbidden" }, { status: 403 });

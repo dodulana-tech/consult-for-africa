@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import type { TimeEntryStatus } from "@prisma/client";
 import { handler } from "@/lib/api-handler";
+import { OFFICE_ROLES } from "@/lib/constants";
 
 export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
@@ -54,7 +55,9 @@ export const POST = handler(async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const canLog = ["CONSULTANT", "ENGAGEMENT_MANAGER"].includes(session.user.role);
+  // The office carries client work too, so its time is billable like anyone
+  // else's and has to be loggable.
+  const canLog = ["CONSULTANT", "ENGAGEMENT_MANAGER", ...OFFICE_ROLES].includes(session.user.role);
   if (!canLog) return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { assignmentId, date, description, hours: inputHours, periodMonth, periodYear, trackId: inputTrackId } = await req.json();

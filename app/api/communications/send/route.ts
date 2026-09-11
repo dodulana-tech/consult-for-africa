@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { handler } from "@/lib/api-handler";
 import { logAudit } from "@/lib/audit";
-import { isCommsElevated } from "@/lib/communications";
+import { canSendComms, isCommsElevated } from "@/lib/communications";
 import {
   sendOutboundEmail,
   buildMessageId,
@@ -46,6 +46,14 @@ export const POST = handler(async function POST(req: NextRequest) {
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!isCommsElevated(session.user.role)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+  // Logging a communication and making one are different grants. The
+  // Administrative Assistant prepares the send and hands it up.
+  if (!canSendComms(session.user.role)) {
+    return Response.json(
+      { error: "Send preparation only. Hand this to the Executive Assistant to send." },
+      { status: 403 },
+    );
   }
 
   const body = await req.json();

@@ -2,8 +2,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
+import { OFFICE_ROLES } from "@/lib/constants";
 
-const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
+// The office works this record for hygiene and chasing. The convert endpoint,
+// which is where deal terms live, is a separate file and stays elevated.
+const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN", ...OFFICE_ROLES];
 
 /**
  * GET /api/discovery-calls/[id]

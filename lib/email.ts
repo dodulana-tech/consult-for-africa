@@ -360,6 +360,8 @@ export async function sendInvite(
     Partner: "As a Partner, you will have full visibility into firm performance, client relationships, financial metrics, and strategic planning tools.",
     Admin: "As an Administrator, you will have full access to manage users, configure the platform, and oversee all operations.",
     "Academy Learner": "As an Academy Learner, you have access to C4A's training tracks, certifications, and learning resources to build your healthcare consulting capabilities.",
+    "Executive Assistant": "You run the office of the Founding Partner: the diary, the inbox, meeting preparation and minutes, and the follow-up across the pipeline. Your platform home is the task board, where work comes to you with a written brief and a definition of done, and where you assign and review the work you delegate onward.",
+    "Administrative Assistant": "Your platform home is the task board. Every task you are given carries a brief explaining why it matters and a definition of done setting out what finished looks like, so nothing depends on you having to guess. If something is unclear or you are stuck, mark the task blocked and say why. That is a normal part of the work, it goes straight to the person who assigned it, and it is always better to raise it early than to let a deadline pass.",
   };
 
   const intro = roleIntro[roleLabel] ?? "You now have access to project management, collaboration tools, and knowledge resources.";
@@ -2201,6 +2203,178 @@ export async function emailMaarovaOnboardReminder({
       <p style="margin:14px 0 0;font-size:12px;color:#9CA3AF;line-height:1.5;">
         Best,<br/>The Maarova team<br/>Consult For Africa
       </p>
+    `)
+  );
+}
+
+// ─── Delegation task board ────────────────────────────────────────────────────
+
+function taskRows({
+  dueDate,
+  checkInAt,
+  estimatedMinutes,
+}: {
+  dueDate?: Date | null;
+  checkInAt?: Date | null;
+  estimatedMinutes?: number | null;
+}): [string, string][] {
+  const fmt = (d: Date) =>
+    d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  const rows: [string, string][] = [];
+  if (dueDate) rows.push(["Due", fmt(dueDate)]);
+  if (checkInAt) rows.push(["Check in with your assigner", fmt(checkInAt)]);
+  if (estimatedMinutes) {
+    const h = Math.floor(estimatedMinutes / 60);
+    const m = estimatedMinutes % 60;
+    rows.push(["Estimate", h ? `${h}h${m ? ` ${m}m` : ""}` : `${m}m`]);
+  }
+  return rows;
+}
+
+export async function emailTaskAssigned({
+  assigneeEmail,
+  assigneeName,
+  assignerName,
+  title,
+  brief,
+  definitionOfDone,
+  dueDate,
+  checkInAt,
+  estimatedMinutes,
+  taskId,
+}: {
+  assigneeEmail: string;
+  assigneeName: string;
+  assignerName: string;
+  title: string;
+  brief: string;
+  definitionOfDone: string;
+  dueDate?: Date | null;
+  checkInAt?: Date | null;
+  estimatedMinutes?: number | null;
+  taskId: string;
+}) {
+  await send(
+    assigneeEmail,
+    `New task: ${title}`,
+    layout(`
+      ${h1(title)}
+      ${p(`Hi ${assigneeName}, ${assignerName} has assigned you a task.`)}
+      ${infoTable(taskRows({ dueDate, checkInAt, estimatedMinutes }))}
+      ${p(`Why this matters: ${brief}`)}
+      ${p(`Done looks like: ${definitionOfDone}`)}
+      ${p("If you get stuck, mark the task blocked and say why. That raises it to the person who assigned it without you having to interrupt anyone.")}
+      ${btn("Open the task", `${BASE_URL}/tasks/${taskId}`)}
+    `)
+  );
+}
+
+export async function emailTaskBlocked({
+  assignerEmail,
+  assignerName,
+  assigneeName,
+  title,
+  blockedReason,
+  taskId,
+}: {
+  assignerEmail: string;
+  assignerName: string;
+  assigneeName: string;
+  title: string;
+  blockedReason: string;
+  taskId: string;
+}) {
+  await send(
+    assignerEmail,
+    `Blocked: ${title}`,
+    layout(`
+      ${h1("A task you assigned is blocked")}
+      ${p(`Hi ${assignerName}, ${assigneeName} has marked this task blocked and is waiting on you.`)}
+      ${infoTable([["Task", title], ["Blocked by", assigneeName]])}
+      ${p(`What is in the way: ${blockedReason}`)}
+      ${btn("Unblock it", `${BASE_URL}/tasks/${taskId}`, "#EF4444")}
+    `)
+  );
+}
+
+export async function emailTaskSubmitted({
+  assignerEmail,
+  assignerName,
+  assigneeName,
+  title,
+  taskId,
+}: {
+  assignerEmail: string;
+  assignerName: string;
+  assigneeName: string;
+  title: string;
+  taskId: string;
+}) {
+  await send(
+    assignerEmail,
+    `Ready for review: ${title}`,
+    layout(`
+      ${h1("A task is ready for your review")}
+      ${p(`Hi ${assignerName}, ${assigneeName} has submitted this task.`)}
+      ${infoTable([["Task", title], ["Submitted by", assigneeName]])}
+      ${p("If it needs more work, send it back with a written note rather than redoing it yourself. The note is what makes the correction reusable.")}
+      ${btn("Review it", `${BASE_URL}/tasks/${taskId}`)}
+    `)
+  );
+}
+
+export async function emailTaskChangesRequested({
+  assigneeEmail,
+  assigneeName,
+  assignerName,
+  title,
+  reviewNote,
+  taskId,
+}: {
+  assigneeEmail: string;
+  assigneeName: string;
+  assignerName: string;
+  title: string;
+  reviewNote: string;
+  taskId: string;
+}) {
+  await send(
+    assigneeEmail,
+    `Changes requested: ${title}`,
+    layout(`
+      ${h1("Changes requested")}
+      ${p(`Hi ${assigneeName}, ${assignerName} has reviewed this task and asked for changes.`)}
+      ${infoTable([["Task", title], ["Reviewed by", assignerName]])}
+      ${p(`What to change: ${reviewNote}`)}
+      ${btn("Pick it back up", `${BASE_URL}/tasks/${taskId}`, "#F59E0B")}
+    `)
+  );
+}
+
+export async function emailTaskApproved({
+  assigneeEmail,
+  assigneeName,
+  assignerName,
+  title,
+  reviewNote,
+  taskId,
+}: {
+  assigneeEmail: string;
+  assigneeName: string;
+  assignerName: string;
+  title: string;
+  reviewNote?: string | null;
+  taskId: string;
+}) {
+  await send(
+    assigneeEmail,
+    `Signed off: ${title}`,
+    layout(`
+      ${h1("Signed off")}
+      ${p(`Hi ${assigneeName}, ${assignerName} has accepted this task as done.`)}
+      ${infoTable([["Task", title], ["Signed off by", assignerName]])}
+      ${reviewNote ? p(`Note: ${reviewNote}`) : ""}
+      ${btn("View the task", `${BASE_URL}/tasks/${taskId}`, "#10B981")}
     `)
   );
 }

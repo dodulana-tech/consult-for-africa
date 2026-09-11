@@ -1,11 +1,12 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { COMMS_ROLES } from "@/lib/constants";
 import TopBar from "@/components/platform/TopBar";
 import ComposeClient from "./ComposeClient";
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED_ROLES = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
+const ALLOWED_ROLES: readonly string[] = COMMS_ROLES;
 
 export default async function ComposePage() {
   const session = await auth();

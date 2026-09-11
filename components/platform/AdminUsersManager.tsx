@@ -25,6 +25,8 @@ const ROLES = [
   { value: "DIRECTOR", label: "Director" },
   { value: "PARTNER", label: "Partner" },
   { value: "ADMIN", label: "Admin" },
+  { value: "EXECUTIVE_ASSISTANT", label: "Executive Assistant" },
+  { value: "ADMINISTRATIVE_ASSISTANT", label: "Administrative Assistant" },
 ];
 
 const ROLE_COLORS: Record<string, string> = {
@@ -34,6 +36,9 @@ const ROLE_COLORS: Record<string, string> = {
   DIRECTOR: "#7C3AED",
   PARTNER: "#D97706",
   ADMIN: "#DC2626",
+  // Office of the Founding Partner. Teal, so neither reads as Admin red at a glance.
+  EXECUTIVE_ASSISTANT: "#0F766E",
+  ADMINISTRATIVE_ASSISTANT: "#0E7490",
 };
 
 const inputClass = "w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#0F2744]";

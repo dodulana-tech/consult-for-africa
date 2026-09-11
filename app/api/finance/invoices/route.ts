@@ -50,7 +50,9 @@ export const GET = handler(async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  // Read only, and only for chasing. Creating and editing an invoice is the
+  // POST below, which stays with EM and above.
+  const isElevated = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN", "EXECUTIVE_ASSISTANT"].includes(session.user.role);
   const isEM = session.user.role === "ENGAGEMENT_MANAGER";
   if (!isElevated && !isEM) return Response.json({ error: "Forbidden" }, { status: 403 });
 

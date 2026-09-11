@@ -2,11 +2,12 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
+import { PIPELINE_ROLES } from "@/lib/constants";
 
 /**
  * GET /api/leads/[id]
  */
-const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN", "ENGAGEMENT_MANAGER"];
+const ELEVATED: readonly string[] = PIPELINE_ROLES;
 
 export const GET = handler(async function GET(
   _req: NextRequest,

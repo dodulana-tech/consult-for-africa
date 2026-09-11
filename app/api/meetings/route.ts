@@ -5,8 +5,12 @@ import { sendMeetingInvite } from "@/lib/email";
 import { dispatchScheduleJob } from "@/lib/nuru-bot/dispatch";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
+import { MEETING_VIEW_ALL_ROLES } from "@/lib/constants";
 
-const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
+// Who sees every meeting rather than only their own. The office runs the diary,
+// so both roles see all of it. What they may then do to a meeting differs, and
+// that is enforced in [id]/route.ts.
+const ELEVATED: readonly string[] = MEETING_VIEW_ALL_ROLES;
 
 /**
  * GET /api/meetings

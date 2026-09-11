@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { COMMS_SEND_ROLES } from "@/lib/constants";
 import type {
   CommunicationSubjectType,
   CommunicationType,
@@ -18,10 +19,22 @@ export const COMMS_ELEVATED_ROLES = [
   "DIRECTOR",
   "PARTNER",
   "ADMIN",
+  // Office of the Founding Partner. Logging calls and emails and setting next
+  // actions is the job. Sending is gated separately, see canSendComms.
+  "EXECUTIVE_ASSISTANT",
+  "ADMINISTRATIVE_ASSISTANT",
 ] as const;
 
 export function isCommsElevated(role: string | undefined): boolean {
   return COMMS_ELEVATED_ROLES.includes(role as typeof COMMS_ELEVATED_ROLES[number]);
+}
+
+/**
+ * Who may actually press send. The Administrative Assistant prepares a send and
+ * hands it up; she does not make one.
+ */
+export function canSendComms(role: string | undefined): boolean {
+  return COMMS_SEND_ROLES.includes(role as typeof COMMS_SEND_ROLES[number]);
 }
 
 /**

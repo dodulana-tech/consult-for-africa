@@ -1,12 +1,13 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { COMMS_ROLES } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import TopBar from "@/components/platform/TopBar";
 import CommunicationsInbox from "@/components/platform/communications/CommunicationsInbox";
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED_ROLES = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
+const ALLOWED_ROLES: readonly string[] = COMMS_ROLES;
 
 export default async function CommunicationsPage({
   searchParams,

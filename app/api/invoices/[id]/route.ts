@@ -42,7 +42,9 @@ export const GET = handler(async function GET(req: NextRequest, { params }: Ctx)
   const session = await auth();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const isElevated = ELEVATED_ROLES.includes(session.user.role as typeof ELEVATED_ROLES[number]);
+  // The Executive Assistant reads an invoice to chase it. Every write path
+  // below is EM_AND_ABOVE, so reading is all she gets.
+  const isElevated = [...ELEVATED_ROLES, "EXECUTIVE_ASSISTANT"].includes(session.user.role);
   const isEM = session.user.role === "ENGAGEMENT_MANAGER";
   if (!isElevated && !isEM) return Response.json({ error: "Forbidden" }, { status: 403 });
 

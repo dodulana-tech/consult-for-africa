@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { PIPELINE_ROLES } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import TopBar from "@/components/platform/TopBar";
 import Link from "next/link";
@@ -16,7 +17,7 @@ export default async function DiscoveryCallsPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const canAccess = ["ENGAGEMENT_MANAGER", "ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"].includes(session.user.role);
+  const canAccess = PIPELINE_ROLES.includes(session.user.role as typeof PIPELINE_ROLES[number]);
   if (!canAccess) redirect("/dashboard");
 
   const calls = await prisma.discoveryCall.findMany({

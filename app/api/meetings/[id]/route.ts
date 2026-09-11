@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { updateGoogleMeetMeeting, cancelGoogleMeetMeeting } from "@/lib/google";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
+import { MEETING_ORGANIZER_ROLES } from "@/lib/constants";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -51,14 +52,27 @@ export const PATCH = handler(async function PATCH(req: NextRequest, ctx: Ctx) {
     return Response.json({ error: "Meeting not found" }, { status: 404 });
   }
 
-  // Only organizer or elevated roles can edit
-  const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
+  // Only organizer or elevated roles can edit. The Executive Assistant holds
+  // organiser rights outright; the Administrative Assistant does not, so she is
+  // held to the meeting she scheduled.
+  const ELEVATED: readonly string[] = MEETING_ORGANIZER_ROLES;
   if (existing.organizerId !== session.user.id && !ELEVATED.includes(session.user.role)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const body = await req.json();
   const { title, description, scheduledAt, durationMinutes, status } = body;
+
+  // Scheduling and minutes, not organiser rights: she can write the meeting up,
+  // she cannot move it or call it off.
+  if (session.user.role === "ADMINISTRATIVE_ASSISTANT") {
+    if (scheduledAt || status === "CANCELLED") {
+      return Response.json(
+        { error: "Rescheduling and cancelling sit with the Executive Assistant." },
+        { status: 403 },
+      );
+    }
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data: any = {};
@@ -124,8 +138,11 @@ export const DELETE = handler(async function DELETE(_req: NextRequest, ctx: Ctx)
     return Response.json({ error: "Meeting not found" }, { status: 404 });
   }
 
-  const ELEVATED = ["ASSOCIATE_DIRECTOR", "DIRECTOR", "PARTNER", "ADMIN"];
-  if (existing.organizerId !== session.user.id && !ELEVATED.includes(session.user.role)) {
+  const ELEVATED: readonly string[] = MEETING_ORGANIZER_ROLES;
+  if (
+    session.user.role === "ADMINISTRATIVE_ASSISTANT" ||
+    (existing.organizerId !== session.user.id && !ELEVATED.includes(session.user.role))
+  ) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 

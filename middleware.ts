@@ -1,7 +1,13 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
-const PLATFORM_ROUTES = ["/dashboard", "/projects", "/deliverables", "/consultants", "/clients", "/timesheets", "/settings", "/proposals", "/ai", "/admin", "/founder", "/talent", "/meetings", "/communications"];
+const PLATFORM_ROUTES = ["/dashboard", "/projects", "/deliverables", "/consultants", "/clients", "/timesheets", "/settings", "/proposals", "/ai", "/admin", "/founder", "/talent", "/meetings", "/communications", "/tasks", "/brief", "/commitments", "/decisions", "/rhythm", "/inventory"];
+// Roles whose day starts somewhere other than the dashboard.
+const LANDING_BY_ROLE: Record<string, string> = {
+  ACADEMY_LEARNER: "/academy",
+  EXECUTIVE_ASSISTANT: "/tasks",
+  ADMINISTRATIVE_ASSISTANT: "/tasks",
+};
 const AUTH_ROUTES = ["/login"];
 const ONBOARDING_ROUTE = "/onboarding";
 const ONBOARDING_COMPLETE_STATUSES = ["ACTIVE", "ASSESSMENT_COMPLETE", "REVIEW"];
@@ -17,9 +23,10 @@ export default auth((req) => {
   }
 
   if (isAuthRoute && isLoggedIn) {
-    // Academy Learners go straight to Academy, not Dashboard
-    const role = session?.user?.role;
-    const dest = role === "ACADEMY_LEARNER" ? "/academy" : "/dashboard";
+    // Academy Learners land in Academy and the Office of the Founding Partner
+    // lands on their task board. Neither has a dashboard to go to.
+    const role = session?.user?.role ?? "";
+    const dest = LANDING_BY_ROLE[role] ?? "/dashboard";
     return NextResponse.redirect(new URL(dest, nextUrl));
   }
 
