@@ -102,7 +102,11 @@ async function main() {
   }
   if (row && !row.ipHash) bad("row has no ipHash");
 
-  // 5. THE IMPORTANT ONE: the object must not be readable without a signature
+  // 5. THE IMPORTANT ONE: can the bucket serve this object to the open internet?
+  //
+  // This is a property of the bucket, not of our route. Every other upload flow
+  // in the app relies on that public domain by design, so a failure here is an
+  // infrastructure finding to put in front of a human, not a bug in this code.
   const publicBase = (process.env.R2_PUBLIC_URL ?? "").replace(/\/$/, "");
   if (!publicBase) {
     console.log("  note  R2_PUBLIC_URL is unset here, so the public-read check is skipped");
@@ -110,9 +114,18 @@ async function main() {
     const probe = await fetch(`${publicBase}/${storageKey}`).catch(() => null);
     if (probe && probe.ok) {
       const body = await probe.text().catch(() => "");
+      const keySegment = storageKey.split("/").pop() ?? "";
+      const entropyBits = Math.round((keySegment.split(".")[0]?.length ?? 0) * 6);
       bad(
-        `THE DOCUMENT IS PUBLICLY READABLE at ${publicBase}/${storageKey} ` +
-          `(HTTP ${probe.status}, ${body.length} bytes). Do not send the link.`
+        `THE BUCKET SERVES THIS OBJECT PUBLICLY.\n` +
+          `        ${publicBase}/${storageKey}\n` +
+          `        returned HTTP ${probe.status} with ${body.length} bytes to an unauthenticated request.\n` +
+          `        This is the bucket's r2.dev public domain, not anything this route hands out,\n` +
+          `        and it affects every file in cfa-uploads including CVs and deliverables.\n` +
+          `        Mitigation in place: the key carries roughly ${entropyBits} bits of randomness and no\n` +
+          `        filename, so it cannot be enumerated or guessed. That is defence in depth.\n` +
+          `        The fix is to disable the public r2.dev domain on the bucket, or to move audit\n` +
+          `        uploads to a bucket that has none. Until then the key is the only control.`
       );
     } else {
       ok(`not publicly readable (HTTP ${probe ? probe.status : "no response"} on the public domain)`);
@@ -136,8 +149,12 @@ async function main() {
   const { count } = await prisma.auditUpload.deleteMany({ where: { storageKey } });
   ok(`${count} seed row deleted`);
 
-  const left = await prisma.auditUpload.count({ where: { engagement: "osteon" } });
-  console.log(`\nReal Osteon uploads in the table: ${left}`);
+  try {
+    const left = await prisma.auditUpload.count({ where: { engagement: "osteon" } });
+    console.log(`\nReal Osteon uploads in the table: ${left}`);
+  } catch {
+    console.log("\n(could not count remaining rows; the checks above still stand)");
+  }
   console.log(failures ? `\n${failures} check(s) FAILED.` : "\nAll checks passed.");
   process.exit(failures ? 1 : 0);
 }

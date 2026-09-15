@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
-import { generateUploadUrl, buildKey } from "@/lib/r2";
+import { generateUploadUrl } from "@/lib/r2";
 import { notifyInternal } from "@/lib/email";
 import { z } from "zod";
 
@@ -17,6 +17,14 @@ import { z } from "zod";
 // public link when R2_PUBLIC_URL is configured, which it is, so it is
 // deliberately not used here. Reading a file back goes through a short-lived
 // presigned GET behind platform auth, in app/api/osteon-audit/upload/[id].
+//
+// That is not sufficient on its own. scripts/verify-osteon-upload.ts proved the
+// cfa-uploads bucket serves objects over its public r2.dev domain to anyone who
+// knows the key, which is how every other upload flow in this app is designed
+// to work. Until that domain is turned off, the key is the only thing standing
+// between a client's bank statement and the open internet, so audit keys are
+// 256 bits of randomness with no filename in them rather than the shared
+// buildKey, whose 48-bit id sits next to a descriptive filename.
 
 const ENGAGEMENT = "osteon";
 const FOLDER = "documents";
@@ -109,6 +117,17 @@ const recordSchema = z.object({
   note: z.string().max(2000).optional(),
 });
 
+/**
+ * An unguessable key. No filename, because "bank-statements-jan-jun.pdf" in a
+ * URL describes the contents to anyone who sees it, and 256 bits because the
+ * bucket is publicly readable to anyone holding the key.
+ */
+function auditKey(section: string, filename: string): string {
+  const ext = filename.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") ?? "";
+  const rand = randomBytes(32).toString("base64url");
+  return `${FOLDER}/osteon-audit/${section}/${rand}${ext ? `.${ext}` : ""}`;
+}
+
 /** POST: presign a direct browser upload. */
 export async function POST(req: NextRequest) {
   const ip = clientIp(req);
@@ -141,7 +160,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const storageKey = buildKey(`${FOLDER}/osteon-audit/${section}`, filename);
+  const storageKey = auditKey(section, filename);
   try {
     const uploadUrl = await generateUploadUrl(storageKey, resolved, 900, fileSize);
     // Deliberately no readable URL in this response.
