@@ -274,7 +274,8 @@ For arthroplasty this is the difference between a good outcome and a catastrophe
 - Website analytics for the last 12 months, and who controls the site
 - Social accounts, follower counts, and who posts
 - Every marketing spend of the last 24 months, and what it produced
-- Referral log: which doctors, physiotherapists and clinics have sent you a patient in the last 24 months, and how many each
+- Referral log, if one exists. If it does not, do not build one, because we will reconstruct it from your clinic notes and registration forms, where the referring doctor is usually recorded even when nobody keeps a register
+- Any list you already hold of doctors and physiotherapists you know, in any form, including a WhatsApp group or a phone contact list
 - What a referring doctor receives back after they refer, and how long it takes
 - Any teaching, meeting, case discussion or event you run or attend that puts you in front of referrers
 - Enquiries from abroad, and what happens to them

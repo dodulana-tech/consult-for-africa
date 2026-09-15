@@ -227,6 +227,7 @@ const PATIENT: SurveyMeta = {
       "Nothing, I was ready", "Other"],
   }],
   open: [
+    { key: "referrer_name", label: "Who sent them, named by the patient" },
     { key: "open_best", label: "The best thing about the experience" },
     { key: "open_improve", label: "The one thing we should do better" },
   ],
@@ -291,6 +292,16 @@ const REFERRER: SurveyMeta = {
         "Over 12 million", "I genuinely do not know"],
     },
     {
+      key: "trend", label: "How their referring has changed in two years", options: [
+        "I refer more than I used to", "About the same", "I refer less than I used to",
+        "I used to refer and I stopped", "I have never referred to him"],
+    },
+    {
+      key: "intro_consent", label: "May we name them when approaching the colleagues they suggested", options: [
+        "Yes, you may use my name", "Please do not use my name",
+        "I would rather forward it to them myself"],
+    },
+    {
       key: "consent", label: "Attribution consent", options: [
         "Yes, my name may be attached to what I said", "Report my answers, but without my name",
         "Share the substance with Dr Bola but keep my identity with Consult for Africa only"],
@@ -321,6 +332,13 @@ const REFERRER: SurveyMeta = {
     },
   ],
   open: [
+    { key: "open_stopped", label: "Why their referring dropped, or stopped" },
+    { key: "refer_name_1", label: "Colleague they suggest we speak to (1)" },
+    { key: "refer_contact_1", label: "Contact for colleague 1" },
+    { key: "refer_name_2", label: "Colleague they suggest we speak to (2)" },
+    { key: "refer_contact_2", label: "Contact for colleague 2" },
+    { key: "refer_name_3", label: "Colleague they suggest we speak to (3)" },
+    { key: "refer_contact_3", label: "Contact for colleague 3" },
     { key: "biggest_change", label: "The single biggest change" },
     { key: "open_where", label: "Where their orthopaedic patients actually end up" },
     { key: "open_abroad", label: "What they tell a patient asking about going abroad" },

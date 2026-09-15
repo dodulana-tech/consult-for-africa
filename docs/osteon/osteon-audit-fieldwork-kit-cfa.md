@@ -192,6 +192,8 @@ Record for each case: total quoted, total collected, implant cost, days from quo
 
 **Cash.** Today's takings so far, against the till or the record, against the receipt book.
 
+**Referrer harvest, and this one is a deliverable rather than a check.** Osteon has no referrer list, so we build it on the day. Work back through the registration forms and first-clinic notes for the last 24 months and pull out every named referring doctor, physiotherapist or clinic, with the date and the patient count. A practice almost always records "referred by" on the front sheet even when nobody keeps a register, so the list exists as scattered ink rather than as a document. Add to it the names patients give us in the patient survey, and the names each referrer nominates in theirs. Deduplicate, then segment by whether the last referral was recent, fading or over a year old, because the doctor who stopped is the most valuable conversation available and he is invisible without this exercise. Photograph or transcribe on site; nothing identifiable about the patient leaves with us, only the referrer's name.
+
 ---
 
 ## Interview guides
@@ -283,7 +285,7 @@ Thirty to forty minutes each. Open with the standard opener. Let silences run.
 - Photographs of the autoclave plate, one week of cycle logs, the emergency trolley, the implant store, the theatre, and the sterilisation flow
 - The implant stock count sheet
 - A written list, handed to the point of contact before we go, of every document still outstanding with a date against each
-- Confirmed contact details for the referrer survey
+- The harvested referrer list, deduplicated, with last-referral dates
 - Agreement on when we come back for a theatre list if we did not see one
 
 *Consult for Africa  /  Internal working document  /  Not for circulation to the client*

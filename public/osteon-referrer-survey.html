@@ -78,6 +78,9 @@
       <p>The questions are about your practice and your patients, not about him, and the least
       useful thing you could do is be polite. If referring to him has been frustrating, or if you
       do not refer to him at all, those are the answers we most need.</p>
+      <p>This reached you because a colleague passed it on, not from any list, and there is a
+      question at the end asking who else we should speak to. Please forward it to anyone who
+      sees these patients, including colleagues who have never sent him a case.</p>
       <p>Six minutes. Nothing is sold to you at the end of it, and we will send you what colleagues
       said if you would like to see it.</p>
       <div class="sign">Dr Debo Odulana, Founding Partner, Consult for Africa</div>
@@ -163,6 +166,12 @@ document.getElementById("survey").innerHTML = `
   <div class="q"><div class="qt">I am confident about what my patient will be charged before I send them.</div>${scaleRow("r_price", AGREE, "Never referred")}</div>
   <div class="q"><div class="qt">I would be comfortable sending him a complicated case, or one that had already gone wrong elsewhere.</div>${scaleRow("r_complex", AGREE, "Never referred")}</div>
   <div class="q"><div class="qt">The patient stays mine. I do not worry about losing them.</div>${scaleRow("r_ownership", AGREE, "Never referred")}</div>
+  <div class="q"><div class="qt">Has your referring to him changed over the last two years?</div>
+    ${radios("trend", ["I refer more than I used to","About the same",
+      "I refer less than I used to","I used to refer and I stopped",
+      "I have never referred to him"])}</div>
+  <div class="field"><label class="lbl">If it has dropped, or you stopped, what changed? This is the most useful answer on the form and it will not be held against anyone.</label>
+    <textarea name="open_stopped"></textarea></div>
 
   <h2 class="section"><span class="n">5</span>What would actually change your referring</h2>
   <div class="q"><div class="qt">Choose everything that would make a real difference. Then pick the single biggest below.</div>
@@ -203,7 +212,18 @@ document.getElementById("survey").innerHTML = `
   <div class="field"><label class="lbl">Anything else you would want said, including anything critical:</label>
     <textarea name="open_other"></textarea></div>
 
-  <h2 class="section"><span class="n">9</span>How we may use your answers</h2>
+  <h2 class="section"><span class="n">9</span>Who else should we be asking?
+    <span class="hint">We are reaching colleagues through other colleagues rather than from a list, so this question is how the next person gets asked. Name anyone who sees these patients, whether or not they have ever referred to Dr Bola.</span></h2>
+  ${[1,2,3].map(i => `
+    <div class="field"><label class="lbl">Colleague ${i}</label>
+      <input type="text" name="refer_name_${i}" placeholder="Name and specialty"></div>
+    <div class="field"><input type="text" name="refer_contact_${i}" placeholder="Phone or email, if you have it to hand"></div>
+  `).join("")}
+  <div class="q"><div class="qt">May we say that you suggested we speak to them?</div>
+    ${radios("intro_consent", ["Yes, you may use my name","Please do not use my name",
+      "I would rather forward it to them myself"])}</div>
+
+  <h2 class="section"><span class="n">10</span>How we may use your answers</h2>
   <div class="q"><div class="qt">May we attribute your answers to you when we report back?</div>
     ${radios("consent", ["Yes, my name may be attached to what I said",
       "Report my answers, but without my name",

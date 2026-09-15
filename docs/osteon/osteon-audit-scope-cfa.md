@@ -98,10 +98,12 @@ Facility registration and the category registered under, practitioner licences, 
 |---|---|---|---|---|
 | Staff and safety culture | Everyone who works at Osteon, clinical and non-clinical | 8 minutes | Yes | How the place actually runs, what routines survive a busy day, whether people can speak up |
 | Patient experience | Patients seen or operated on in the last 12 months | 5 minutes | Yes | Access, communication, the money conversation, recovery, and whether they would send someone |
-| Referring doctor | Every doctor, physiotherapist and clinic that has referred, and a shortlist who could | 6 minutes | Attributed, with consent | The growth constraint. What referrers want, what they get back today, and what would make them send more |
+| Referring doctor | Colleagues who refer, colleagues who used to, and colleagues who could | 6 minutes | Attributed, with consent | The growth constraint. What referrers want, what they get back today, and what would make them send more |
 | Leadership direction | You and up to five of your senior people | 10 minutes | Attributed | Where each of you thinks the business should go, and where you disagree without knowing it |
 
 The referrer survey is the one I care most about. The positioning we agreed depends on a referral pipeline, and to my knowledge nobody has ever asked those doctors directly what they need from you. Their answers will shape the referrer engine more than anything we could infer.
+
+It also solves a problem rather than waiting on one. You do not have a referrer list, which is itself a finding, so the survey is built to produce that list instead of requiring it. It travels by forwarding, every respondent is asked to name up to three colleagues we should speak to next, and it asks each of them directly whether their referring to you has risen, fallen or stopped. In parallel we take referrer names out of your clinic notes and out of the patient survey, where patients tell us who sent them even when nobody wrote it down. By the end of the audit you own a referrer list you have never had, segmented by who is growing, who is fading and who has gone.
 
 ---
 
@@ -126,7 +128,7 @@ If a theatre list is running on a day other than Thursday, tell us and we will c
 - **The nine priority items** in the information request, before Thursday
 - **A note to your team** ahead of the visit saying we are coming, why, and that this is not about individuals. It lands better from you than from us
 - **Access on the day** to records, the theatre, the sterile room and the implant store, and thirty minutes each with the people listed above
-- **Your referrer list**, so the survey goes to real names rather than a guess
+- **To forward the referrer survey** into your own networks, in your own name, rather than a list. We build the list as we go, from your clinic notes, from what patients tell us, and from each colleague naming the next
 - **Permission to look at real patient records** on site, under confidentiality, for the ten-case trace. Nothing identifiable leaves the building
 
 ---
