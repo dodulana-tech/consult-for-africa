@@ -35,6 +35,10 @@
     {
       "path": "/api/cron/operating-rhythm",
       "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron/credential-health",
+      "schedule": "0 6 * * *"
     }
   ]
 }
