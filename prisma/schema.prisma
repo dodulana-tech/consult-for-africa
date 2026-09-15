@@ -6351,3 +6351,34 @@ model IleWaitlistEntry {
   @@index([referredByCode])
   @@index([createdAt])
 }
+
+// ─── Audit document uploads ───────────────────────────────────────────────────
+// A client's team answering an information request, uploading straight from the
+// engagement page rather than through a shared drive. Generic across engagements
+// because every diagnostic audit needs the same thing.
+//
+// The R2 object is never exposed by a public URL: the upload route hands back a
+// presigned PUT and the key only, and reading one back goes through a short-lived
+// presigned GET behind platform auth. These are bank statements and case logs.
+
+model AuditUpload {
+  id         String @id @default(cuid())
+  engagement String // "osteon"
+  section    String // the information-request letter, "A".."R", or "other"
+
+  filename    String
+  storageKey  String @unique
+  contentType String
+  sizeBytes   Int
+
+  // Whoever was at the keyboard, as they typed it. Not authenticated, so it is
+  // a courtesy label for us, never an identity claim.
+  uploadedBy String?
+  note       String? @db.Text
+
+  ipHash    String?
+  createdAt DateTime @default(now())
+
+  @@index([engagement, section])
+  @@index([engagement, createdAt])
+}

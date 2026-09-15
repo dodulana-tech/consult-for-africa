@@ -21,6 +21,7 @@ Outputs, all under docs/osteon/:
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -390,3 +391,19 @@ if __name__ == "__main__":
             "",
             "Thank you for trusting us with your care."],
            BASE_URL + "/osteon-patient-survey.html")
+
+    PUBLISHED = [
+        "osteon-audit-scope-cfa.pdf",
+        "osteon-audit-information-request-cfa.pdf",
+        "osteon-staff-survey-cfa.pdf",
+        "osteon-patient-survey-cfa.pdf",
+        "osteon-referrer-survey-cfa.pdf",
+        "osteon-leadership-survey-cfa.pdf",
+        "osteon-staff-survey-poster-cfa.pdf",
+        "osteon-patient-survey-poster-cfa.pdf",
+    ]
+    web = OUT.parents[1] / "public" / "osteon"
+    web.mkdir(parents=True, exist_ok=True)
+    for name in PUBLISHED:
+        shutil.copyfile(OUT / name, web / name)
+    print("published %d PDFs to %s" % (len(PUBLISHED), web))

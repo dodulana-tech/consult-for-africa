@@ -8,6 +8,12 @@ import {
   type SurveyMeta,
   type ScaleQuestion,
 } from "@/lib/osteon-survey";
+import {
+  OSTEON_ENGAGEMENT,
+  PRIORITY_NINE,
+  REQUEST_SECTIONS,
+  sectionLabel,
+} from "@/lib/osteon-audit";
 
 export const dynamic = "force-dynamic";
 
@@ -335,6 +341,113 @@ function SurveySection({ meta, rows, latest }: { meta: SurveyMeta; rows: Payload
   );
 }
 
+
+// ---- documents received ----------------------------------------------------
+
+type UploadRow = {
+  id: string;
+  section: string;
+  filename: string;
+  sizeBytes: number;
+  uploadedBy: string | null;
+  note: string | null;
+  createdAt: Date;
+};
+
+const prettySize = (b: number) =>
+  b < 1024 * 1024 ? `${Math.max(1, Math.round(b / 1024))} KB` : `${(b / 1024 / 1024).toFixed(1)} MB`;
+
+function UploadsSection({ rows }: { rows: UploadRow[] }) {
+  const bySection = new Map<string, UploadRow[]>();
+  for (const r of rows) {
+    const list = bySection.get(r.section) ?? [];
+    list.push(r);
+    bySection.set(r.section, list);
+  }
+  // Which lettered sections have produced nothing at all. The nine priority
+  // items map onto sections too, so a silent section is a chase list entry.
+  const silent = REQUEST_SECTIONS.filter((s) => !bySection.has(s.key));
+  const prioritySections = [...new Set(PRIORITY_NINE.map((p) => p.section))];
+  const prioritySilent = prioritySections.filter((k) => !bySection.has(k) && !bySection.has("priority"));
+
+  return (
+    <section style={{ ...CARD, padding: 22 }} className="space-y-5">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-bold" style={{ color: "#0B3C5D" }}>Documents received</h2>
+          <p className="text-sm" style={{ color: "#6B7280" }}>
+            Uploaded from{" "}
+            <a href="/OsteonProject" className="underline" style={{ color: "#1F7A8C" }}>/OsteonProject</a>.
+            Click a file to open it; the link is presigned and expires in five minutes.
+          </p>
+        </div>
+        <div className="text-right shrink-0">
+          <div className="text-2xl font-bold" style={{ color: rows.length ? "#0B3C5D" : "#94a3b8" }}>{rows.length}</div>
+          <div className="text-xs" style={{ color: "#6B7280" }}>
+            {rows.length ? `last ${rows[0].createdAt.toLocaleDateString("en-GB")}` : "nothing yet"}
+          </div>
+        </div>
+      </div>
+
+      {prioritySilent.length > 0 && (
+        <div
+          className="text-sm"
+          style={{ background: "#FDF3E3", borderLeft: "3px solid #D4AF37", padding: "10px 14px", color: "#7a5b1f" }}
+        >
+          <b>Still nothing against the priority nine</b> for section
+          {prioritySilent.length === 1 ? " " : "s "}
+          {prioritySilent.join(", ")}. Those are the ones that turn a tour into an audit.
+        </div>
+      )}
+
+      {rows.length === 0 && (
+        <p className="text-sm" style={{ color: "#94a3b8" }}>
+          Nothing uploaded yet. Files appear here the moment one lands, and an email goes out too.
+        </p>
+      )}
+
+      {rows.length > 0 && (
+        <div className="space-y-4">
+          {[...bySection.entries()].map(([key, files]) => (
+            <div key={key}>
+              <h4 className="text-sm font-semibold mb-1" style={{ color: "#0B3C5D" }}>
+                {sectionLabel(key)}{" "}
+                <span className="font-normal" style={{ color: "#6B7280" }}>({files.length})</span>
+              </h4>
+              <table className="w-full text-sm">
+                <tbody>
+                  {files.map((f) => (
+                    <tr key={f.id} style={{ borderTop: "1px solid #f1f5f9" }}>
+                      <td className="py-1.5 pr-3">
+                        <a href={`/api/osteon-audit/upload/${f.id}`} className="underline" style={{ color: "#1F7A8C" }}>
+                          {f.filename}
+                        </a>
+                        {f.note && (
+                          <span className="ml-2 text-xs" style={{ color: "#6B7280" }}>&ldquo;{f.note}&rdquo;</span>
+                        )}
+                      </td>
+                      <td className="py-1.5 w-24 text-right text-xs" style={{ color: "#6B7280" }}>{prettySize(f.sizeBytes)}</td>
+                      <td className="py-1.5 pl-3 w-40 text-right text-xs" style={{ color: "#6B7280" }}>
+                        {f.uploadedBy || "unnamed"} &middot; {f.createdAt.toLocaleDateString("en-GB")}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {silent.length > 0 && (
+        <p className="text-xs" style={{ color: "#6B7280" }}>
+          <b>No documents yet against:</b> {silent.map((s) => s.key).join(", ")}.
+        </p>
+      )}
+    </section>
+  );
+}
+
 // ---- page ------------------------------------------------------------------
 
 export default async function OsteonSurveyPage() {
@@ -344,6 +457,14 @@ export default async function OsteonSurveyPage() {
   if (!allowed) redirect("/dashboard");
 
   const ids = OSTEON_SURVEYS.map((s) => s.id);
+  const uploads = await prisma.auditUpload.findMany({
+    where: { engagement: OSTEON_ENGAGEMENT },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true, section: true, filename: true, sizeBytes: true,
+      uploadedBy: true, note: true, createdAt: true,
+    },
+  });
   const responses = await prisma.auditSurveyResponse.findMany({
     where: { survey: { in: ids } },
     orderBy: { createdAt: "desc" },
@@ -354,10 +475,11 @@ export default async function OsteonSurveyPage() {
     <div className="flex flex-col flex-1 overflow-hidden">
       <TopBar
         title="Osteon Clinics Audit Surveys"
-        subtitle={`${responses.length} response${responses.length === 1 ? "" : "s"} across four instruments`}
+        subtitle={`${responses.length} response${responses.length === 1 ? "" : "s"} across four instruments \u00b7 ${uploads.length} document${uploads.length === 1 ? "" : "s"} in`}
         backHref="/dashboard"
       />
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <UploadsSection rows={uploads} />
         {OSTEON_SURVEYS.map((meta) => {
           const mine = responses.filter((r) => r.survey === meta.id);
           // An attributed respondent may refill; keep only their latest so a
