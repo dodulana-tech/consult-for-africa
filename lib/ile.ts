@@ -3,22 +3,48 @@ import { randomBytes, createHash } from "crypto";
 /**
  * ilé shared constants and helpers.
  *
- * ilé is a residential eldercare business. The home is the core. Care in the
- * family's own home is what we can deliver today, and it is also how the home
- * gets filled, so the waiting list carries both kinds of family and keeps them
- * distinguishable.
+ * ilé is a residential eldercare business built for the Nigerian diaspora. Home
+ * care is the front door: it earns trust from week one and builds the care
+ * relationship long before a residential place is needed. The residence is the
+ * destination, reserved ahead so demand is proven with committed money before
+ * capacity is built. The family portal is the trust layer between the two.
  */
 
+/**
+ * Traced from the ilé product and delivery brief, July 2026, by sampling the
+ * rendered pages rather than eyeballing them. Deep green carries the brand,
+ * amber is the single action colour, and the grounds are warm rather than
+ * white. This is deliberately NOT the Consult for Africa navy and gold: ilé is
+ * its own company and should not look like its adviser's stationery.
+ */
 export const ILE_BRAND = {
-  navy: "#0B3C5D",
-  deepNavy: "#081521",
-  gold: "#D4AF37",
-  teal: "#1F7A8C",
-  cream: "#FBF6E6",
-  light: "#C9D6E0",
-  ink: "#1F2937",
-  muted: "#6B7280",
+  green: "#0F7C63",
+  greenDeep: "#0B5E4B",
+  greenSoft: "#61A796",
+  greenTint: "#E3EDE7",
+  amber: "#E9A23B",
+  amberDeep: "#5A3F14",
+  amberTint: "#F7EBD7",
+  ink: "#20302A",
+  body: "#46524C",
+  muted: "#6E7B74",
+  ground: "#FCFBF8",
+  groundWarm: "#FAF6EE",
+  groundDeep: "#F4EDE1",
+  line: "#E7E0D2",
 } as const;
+
+/**
+ * Indicative prices from the product brief. Sponsors abroad are billed in
+ * dollars and local families in naira, on one monthly invoice, which is both
+ * frictionless for the payer and a natural hedge as the naira moves.
+ */
+export const ILE_PRICING = [
+  { service: "Nurse check-in", usd: "$30", unit: "per visit" },
+  { service: "Physiotherapy", usd: "$35", unit: "per session" },
+  { service: "Doctor visit", usd: "$60", unit: "per visit" },
+  { service: "Live-in caregiver", usd: "from $340", unit: "per month" },
+] as const;
 
 /** Early joiners are offered founding-family status. This is that cohort size. */
 export const FOUNDING_FAMILY_LIMIT = 100;

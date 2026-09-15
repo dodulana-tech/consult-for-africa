@@ -10,9 +10,9 @@ import {
   URGENCY_LABELS,
 } from "@/lib/ile";
 
-const NAVY = ILE_BRAND.navy;
-const GOLD = ILE_BRAND.gold;
-const TEAL = ILE_BRAND.teal;
+const INK = ILE_BRAND.ink;
+const AMBER = ILE_BRAND.amber;
+const GREEN = ILE_BRAND.green;
 const BORDER = "#E2DCCB";
 
 type Relationship = keyof typeof RELATIONSHIP_LABELS;
@@ -132,18 +132,18 @@ export default function WaitlistForm({ referredByCode }: { referredByCode: strin
     return (
       <div
         className="rounded-2xl p-8 sm:p-10"
-        style={{ background: ILE_BRAND.cream, border: `1px solid #E8DFBF` }}
+        style={{ background: ILE_BRAND.groundWarm, border: `1px solid #E7E0D2` }}
       >
         <div
           className="flex h-11 w-11 items-center justify-center rounded-full"
           style={{ background: "rgba(212,175,55,0.22)" }}
         >
-          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke={GOLD} strokeWidth={2.5}>
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke={AMBER} strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
 
-        <h3 className="mt-6 text-xl font-bold" style={{ color: NAVY }}>
+        <h3 className="mt-6 text-xl font-bold" style={{ color: INK }}>
           {result.alreadyOnList ? "You are already on the list" : "You are on the list"}
         </h3>
 
@@ -154,15 +154,15 @@ export default function WaitlistForm({ referredByCode }: { referredByCode: strin
         </p>
 
         {result.foundingFamily && !result.alreadyOnList && (
-          <p className="mt-4 font-semibold leading-relaxed" style={{ color: NAVY }}>
+          <p className="mt-4 font-semibold leading-relaxed" style={{ color: INK }}>
             You joined early enough to be a founding family, so you keep first call when
             places open, a free first assessment and the founding rate.
           </p>
         )}
 
         {result.shareUrl && (
-          <div className="mt-8 border-t pt-7" style={{ borderColor: "#E8DFBF" }}>
-            <h4 className="text-sm font-bold" style={{ color: NAVY }}>
+          <div className="mt-8 border-t pt-7" style={{ borderColor: "#E7E0D2" }}>
+            <h4 className="text-sm font-bold" style={{ color: INK }}>
               If you know another family carrying this
             </h4>
             <p className="mt-2.5 text-sm leading-relaxed">
@@ -175,13 +175,13 @@ export default function WaitlistForm({ referredByCode }: { referredByCode: strin
                 value={result.shareUrl}
                 onFocus={(e) => e.currentTarget.select()}
                 className="flex-1 rounded-xl border bg-white p-3 text-sm"
-                style={{ borderColor: BORDER, color: TEAL }}
+                style={{ borderColor: BORDER, color: GREEN }}
               />
               <button
                 type="button"
                 onClick={copyShare}
                 className="rounded-xl px-6 py-3 text-sm font-semibold transition hover:opacity-90"
-                style={{ background: NAVY, color: "#FFFFFF" }}
+                style={{ background: INK, color: "#FFFFFF" }}
               >
                 {copied ? "Copied" : "Copy link"}
               </button>
@@ -373,7 +373,7 @@ export default function WaitlistForm({ referredByCode }: { referredByCode: strin
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
           className="mt-1 h-4 w-4 shrink-0 rounded"
-          style={{ accentColor: GOLD }}
+          style={{ accentColor: AMBER }}
         />
         <span className="text-sm leading-relaxed" style={{ color: "#4B5563" }}>
           {ILE_CONSENT_TEXT}
@@ -393,9 +393,9 @@ export default function WaitlistForm({ referredByCode }: { referredByCode: strin
         type="submit"
         disabled={submitting}
         className="mt-7 w-full rounded-xl py-4 text-sm font-semibold transition hover:opacity-90 disabled:opacity-50"
-        style={{ background: GOLD, color: NAVY }}
+        style={{ background: AMBER, color: INK }}
       >
-        {submitting ? "Adding you to the list..." : "Join the waiting list"}
+        {submitting ? "Sending..." : "Join the founding families"}
       </button>
 
       <p className="mt-4 text-center text-[11px] leading-relaxed" style={{ color: "#9CA3AF" }}>
@@ -419,7 +419,7 @@ function Field({
   return (
     <label className="block">
       <span className="mb-2 block text-xs font-bold uppercase tracking-wider" style={{ color: "#4B5563" }}>
-        {label} {required && <span style={{ color: GOLD }}>*</span>}
+        {label} {required && <span style={{ color: AMBER }}>*</span>}
       </span>
       {hint && (
         <span className="mb-2 block text-xs" style={{ color: "#9CA3AF" }}>
@@ -447,7 +447,7 @@ function Group({
   return (
     <fieldset className={className}>
       <legend className="mb-2 block text-xs font-bold uppercase tracking-wider" style={{ color: "#4B5563" }}>
-        {label} {required && <span style={{ color: GOLD }}>*</span>}
+        {label} {required && <span style={{ color: AMBER }}>*</span>}
       </legend>
       {hint && (
         <p className="mb-3 text-xs" style={{ color: "#9CA3AF" }}>
@@ -477,7 +477,7 @@ function Choice({
       aria-pressed={checked}
       className="flex items-start gap-3 rounded-xl border p-3.5 text-left text-sm transition"
       style={{
-        borderColor: checked ? GOLD : BORDER,
+        borderColor: checked ? AMBER : BORDER,
         background: checked ? "rgba(212,175,55,0.10)" : "#FFFFFF",
       }}
     >
@@ -485,17 +485,17 @@ function Choice({
         className="mt-[3px] flex h-4 w-4 shrink-0 items-center justify-center border"
         style={{
           borderRadius: multi ? 4 : 999,
-          borderColor: checked ? GOLD : "#CBD5E1",
-          background: checked ? GOLD : "#FFFFFF",
+          borderColor: checked ? AMBER : "#CBD5E1",
+          background: checked ? AMBER : "#FFFFFF",
         }}
       >
         {checked && (
-          <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke={NAVY} strokeWidth={4}>
+          <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke={INK} strokeWidth={4}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         )}
       </span>
-      <span style={{ color: checked ? NAVY : "#4B5563" }}>{label}</span>
+      <span style={{ color: checked ? INK : "#4B5563" }}>{label}</span>
     </button>
   );
 }

@@ -35,14 +35,14 @@ function ileLayout(content: string, preheader: string): string {
   <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
     <tr><td align="center">
       <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:14px;border:1px solid #E4DFD0;overflow:hidden;">
-        <tr><td style="background:${ILE_BRAND.navy};padding:26px 32px;">
+        <tr><td style="background:${ILE_BRAND.ink};padding:26px 32px;">
           <div style="color:#ffffff;font-weight:700;font-size:26px;line-height:1;">il&eacute;</div>
-          <div style="color:${ILE_BRAND.gold};font-weight:700;font-size:9px;letter-spacing:0.14em;margin-top:7px;">CARE FOR OUR PARENTS</div>
+          <div style="color:${ILE_BRAND.amber};font-weight:700;font-size:9px;letter-spacing:0.14em;margin-top:7px;">CARE FOR OUR PARENTS</div>
         </td></tr>
-        <tr><td style="height:3px;background:${ILE_BRAND.gold};"></td></tr>
+        <tr><td style="height:3px;background:${ILE_BRAND.amber};"></td></tr>
         <tr><td style="padding:32px;color:${ILE_BRAND.ink};font-size:15px;line-height:1.65;">${content}</td></tr>
         <tr><td style="padding:18px 32px;background:#FBF9F3;border-top:1px solid #E4DFD0;color:${ILE_BRAND.muted};font-size:11px;line-height:1.6;">
-          il&eacute; &middot; Lagos, Nigeria &middot; <a href="mailto:${ILE_CONTACT_EMAIL}" style="color:${ILE_BRAND.teal};text-decoration:none;">${ILE_CONTACT_EMAIL}</a><br>
+          il&eacute; &middot; Lagos, Nigeria &middot; <a href="mailto:${ILE_CONTACT_EMAIL}" style="color:${ILE_BRAND.green};text-decoration:none;">${ILE_CONTACT_EMAIL}</a><br>
           You are receiving this because you asked to join the il&eacute; waiting list. Reply to this email at any time and we will remove your details.
         </td></tr>
       </table>
@@ -74,9 +74,9 @@ export async function emailIleWaitlistConfirmation(
   const urgent = input.urgency === "NOW" || input.urgency === "WITHIN_3_MONTHS";
 
   const founding = input.foundingFamily
-    ? `<table width="100%" cellpadding="0" cellspacing="0" style="margin:22px 0;background:${ILE_BRAND.cream};border-left:4px solid ${ILE_BRAND.gold};border-radius:6px;">
+    ? `<table width="100%" cellpadding="0" cellspacing="0" style="margin:22px 0;background:${ILE_BRAND.groundWarm};border-left:4px solid ${ILE_BRAND.amber};border-radius:6px;">
          <tr><td style="padding:16px 18px;">
-           <div style="font-weight:700;color:${ILE_BRAND.navy};font-size:14px;">You are a founding family</div>
+           <div style="font-weight:700;color:${ILE_BRAND.ink};font-size:14px;">You are a founding family</div>
            <div style="font-size:14px;color:${ILE_BRAND.ink};margin-top:6px;line-height:1.6;">
              You joined early, so you keep founding-family standing: first call when places open, a free first assessment, and the founding rate held for you when you start.
            </div>
@@ -92,16 +92,16 @@ export async function emailIleWaitlistConfirmation(
     <p style="margin:0 0 16px;">Dear ${esc(firstName)},</p>
     <p style="margin:0 0 16px;">Thank you. You are on the il&eacute; list, and we are glad you found us.</p>
     ${founding}
-    <p style="margin:0 0 10px;font-weight:700;color:${ILE_BRAND.navy};">Where things stand, plainly</p>
+    <p style="margin:0 0 10px;font-weight:700;color:${ILE_BRAND.ink};">Where things stand, plainly</p>
     <p style="margin:0 0 16px;">We are building a residential home in Lagos for older people who need real care, run to a clinical standard and staffed by people who are trained, supervised and paid properly. It is not open yet, and we will not open it until it is registered and inspected. That is the whole point of doing this properly.</p>
     <p style="margin:0 0 16px;">In the meantime we provide care in your family's own home: nursing visits, personal care, help after a hospital stay, and company for someone who is mostly alone. If that is what you need now, we can usually start sooner than you would expect.</p>
     ${next}
-    <p style="margin:0 0 10px;font-weight:700;color:${ILE_BRAND.navy};">If you know another family in this position</p>
+    <p style="margin:0 0 10px;font-weight:700;color:${ILE_BRAND.ink};">If you know another family in this position</p>
     <p style="margin:0 0 8px;">Most people carrying this find it lonely and find it late. Sending this to one person who needs it is the kindest thing you can do with it.</p>
-    <p style="margin:0 0 6px;"><a href="${esc(input.shareUrl)}" style="color:${ILE_BRAND.teal};text-decoration:none;font-weight:600;">${esc(input.shareUrl)}</a></p>
-    <p style="margin:0 0 22px;font-size:13px;color:${ILE_BRAND.muted};">Your code is <strong style="color:${ILE_BRAND.navy};letter-spacing:0.08em;">${esc(input.referralCode)}</strong>.</p>
+    <p style="margin:0 0 6px;"><a href="${esc(input.shareUrl)}" style="color:${ILE_BRAND.green};text-decoration:none;font-weight:600;">${esc(input.shareUrl)}</a></p>
+    <p style="margin:0 0 22px;font-size:13px;color:${ILE_BRAND.muted};">Your code is <strong style="color:${ILE_BRAND.ink};letter-spacing:0.08em;">${esc(input.referralCode)}</strong>.</p>
     <p style="margin:0 0 6px;">Warm regards,</p>
-    <p style="margin:0 0 2px;font-weight:700;color:${ILE_BRAND.navy};">The il&eacute; team</p>
+    <p style="margin:0 0 2px;font-weight:700;color:${ILE_BRAND.ink};">The il&eacute; team</p>
     <p style="margin:0;font-size:13px;color:${ILE_BRAND.muted};">Lagos</p>
   `;
 
@@ -155,14 +155,14 @@ export async function emailIleWaitlistInternal(
   const html = `
     <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#111827;">
       <p style="margin:0 0 4px;font-size:13px;color:#6B7280;">ilé waiting list, entry #${input.position}</p>
-      <h2 style="margin:0 0 14px;font-size:19px;color:${ILE_BRAND.navy};">
+      <h2 style="margin:0 0 14px;font-size:19px;color:${ILE_BRAND.ink};">
         ${esc(input.fullName)}
-        <span style="font-size:12px;font-weight:600;color:${input.basedOutsideNigeria ? ILE_BRAND.teal : ILE_BRAND.muted};">&nbsp;${segment}</span>
+        <span style="font-size:12px;font-weight:600;color:${input.basedOutsideNigeria ? ILE_BRAND.green : ILE_BRAND.muted};">&nbsp;${segment}</span>
         ${urgent ? `<span style="font-size:12px;font-weight:700;color:#B45309;">&nbsp;URGENT</span>` : ""}
       </h2>
       <table cellpadding="0" cellspacing="0">
-        ${row("Email", `<a href="mailto:${esc(input.email)}" style="color:${ILE_BRAND.teal};">${esc(input.email)}</a>`)}
-        ${input.phone ? row("Phone", `<a href="tel:${esc(input.phone)}" style="color:${ILE_BRAND.teal};">${esc(input.phone)}</a>`) : ""}
+        ${row("Email", `<a href="mailto:${esc(input.email)}" style="color:${ILE_BRAND.green};">${esc(input.email)}</a>`)}
+        ${input.phone ? row("Phone", `<a href="tel:${esc(input.phone)}" style="color:${ILE_BRAND.green};">${esc(input.phone)}</a>`) : ""}
         ${row("Care is for", esc(RELATIONSHIP_LABELS[input.relationship]))}
         ${row("Based", input.basedOutsideNigeria ? esc(input.basedCountry ?? "outside Nigeria") : "In Nigeria")}
         ${row("Care needed in", esc(input.careCity ?? "not given"))}
@@ -174,7 +174,7 @@ export async function emailIleWaitlistInternal(
       </table>
       ${
         input.notes
-          ? `<div style="margin-top:16px;padding:12px 14px;background:#FBF9F3;border-left:3px solid ${ILE_BRAND.gold};border-radius:4px;">
+          ? `<div style="margin-top:16px;padding:12px 14px;background:#FBF9F3;border-left:3px solid ${ILE_BRAND.amber};border-radius:4px;">
                <div style="font-size:11px;color:#6B7280;margin-bottom:4px;">In their words</div>
                <div style="font-size:13px;line-height:1.6;white-space:pre-wrap;">${esc(input.notes)}</div>
              </div>`

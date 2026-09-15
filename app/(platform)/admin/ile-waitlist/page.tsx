@@ -72,7 +72,7 @@ export default async function IleWaitlistAdminPage() {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: ILE_BRAND.navy }}>
+          <h1 className="text-2xl font-bold" style={{ color: ILE_BRAND.ink }}>
             ilé waiting list
           </h1>
           <p className="mt-1 text-sm text-gray-500">
@@ -92,15 +92,15 @@ export default async function IleWaitlistAdminPage() {
       {/* Headline numbers */}
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <Stat label="On the list" value={String(total)} />
-        <Stat label="Diaspora" value={`${diaspora}`} sub={pct(diaspora)} accent={ILE_BRAND.teal} />
+        <Stat label="Diaspora" value={`${diaspora}`} sub={pct(diaspora)} accent={ILE_BRAND.green} />
         <Stat
           label="Want a place in the home"
           value={`${residential}`}
           sub={pct(residential)}
-          accent={ILE_BRAND.navy}
+          accent={ILE_BRAND.ink}
         />
         <Stat label="Urgent" value={`${urgent}`} sub={pct(urgent)} accent="#B45309" />
-        <Stat label="Came by referral" value={`${referred}`} sub={pct(referred)} accent={ILE_BRAND.gold} />
+        <Stat label="Came by referral" value={`${referred}`} sub={pct(referred)} accent={ILE_BRAND.amber} />
       </div>
 
       {topCities.length > 0 && (
@@ -116,7 +116,7 @@ export default async function IleWaitlistAdminPage() {
                 style={{ background: "#F1F5F9", color: "#334155" }}
               >
                 <span className="capitalize">{city}</span>
-                <span className="ml-1.5 font-bold" style={{ color: ILE_BRAND.navy }}>
+                <span className="ml-1.5 font-bold" style={{ color: ILE_BRAND.ink }}>
                   {count}
                 </span>
               </span>
@@ -130,7 +130,7 @@ export default async function IleWaitlistAdminPage() {
         <div className="mt-6 rounded-xl border bg-white p-12 text-center">
           <p className="text-sm text-gray-500">
             Nobody has joined yet. The list is live at{" "}
-            <a href="/ile" className="font-medium underline" style={{ color: ILE_BRAND.teal }}>
+            <a href="/ile" className="font-medium underline" style={{ color: ILE_BRAND.green }}>
               /ile
             </a>
             .
@@ -160,7 +160,7 @@ export default async function IleWaitlistAdminPage() {
                       <a
                         href={`mailto:${e.email}`}
                         className="text-xs underline"
-                        style={{ color: ILE_BRAND.teal }}
+                        style={{ color: ILE_BRAND.green }}
                       >
                         {e.email}
                       </a>
@@ -184,7 +184,7 @@ export default async function IleWaitlistAdminPage() {
                     <td className="px-4 py-4">
                       <div
                         className="text-xs font-bold"
-                        style={{ color: e.basedOutsideNigeria ? ILE_BRAND.teal : "#6B7280" }}
+                        style={{ color: e.basedOutsideNigeria ? ILE_BRAND.green : "#6B7280" }}
                       >
                         {e.basedOutsideNigeria ? "DIASPORA" : "LOCAL"}
                       </div>
@@ -206,7 +206,7 @@ export default async function IleWaitlistAdminPage() {
                         style={{
                           color:
                             e.interest === "RESIDENTIAL" || e.interest === "BOTH"
-                              ? ILE_BRAND.navy
+                              ? ILE_BRAND.ink
                               : "#6B7280",
                         }}
                       >
@@ -226,7 +226,7 @@ export default async function IleWaitlistAdminPage() {
                         </ul>
                       )}
                       {e.notes && (
-                        <p className="mt-2 max-w-xs border-l-2 pl-2 text-xs italic text-gray-500" style={{ borderColor: ILE_BRAND.gold }}>
+                        <p className="mt-2 max-w-xs border-l-2 pl-2 text-xs italic text-gray-500" style={{ borderColor: ILE_BRAND.amber }}>
                           {e.notes.length > 180 ? `${e.notes.slice(0, 180)}...` : e.notes}
                         </p>
                       )}
