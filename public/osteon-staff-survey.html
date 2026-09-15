@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Osteon Clinics — Staff Survey</title>
+<style>
+  :root{
+    --navy:#0B3C5D; --deep:#081521; --gold:#D4AF37; --teal:#1F7A8C;
+    --body:#1F2937; --muted:#6B7280; --surface:#F1F5F9; --line:#E2E8F0;
+    --cream:#FBF6E6; --white:#fff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:var(--body);background:#eef2f6;line-height:1.5;font-size:16px}
+  .wrap{max-width:720px;margin:0 auto;padding:0 16px 64px}
+  header.top{background:var(--navy);color:#fff;padding:22px 0 20px;border-bottom:3px solid var(--gold)}
+  header.top .wrap{padding-top:0;padding-bottom:0}
+  .eyebrow{color:var(--gold);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+  header.top h1{font-size:22px;margin:6px 0 2px;line-height:1.2}
+  header.top p{margin:0;color:#C9D6E0;font-size:14px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0;
+        box-shadow:0 1px 2px rgba(8,21,33,.04)}
+  .privacy{background:var(--cream);border-left:4px solid var(--gold)}
+  .privacy strong{color:var(--navy)}
+  .scalekey{background:var(--surface);border-left:4px solid var(--teal);font-size:14px}
+  .scalekey b{color:var(--navy)}
+  h2.section{font-size:16px;color:var(--navy);margin:26px 2px 8px;padding-top:6px;
+             border-top:1px solid var(--line)}
+  h2.section .n{color:var(--teal);font-weight:800;margin-right:8px}
+  h2.section .hint{font-weight:400;color:var(--muted);font-size:13px;display:block;margin-top:2px}
+  .q{padding:14px 0;border-bottom:1px solid var(--line)}
+  .q:last-child{border-bottom:0}
+  .q .qt{font-size:15px;margin-bottom:10px}
+  .q .qt .num{color:var(--muted);font-weight:700;margin-right:6px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opts label{flex:1 1 auto;min-width:56px;text-align:center;border:1px solid var(--line);
+     border-radius:9px;padding:9px 6px;font-size:13px;cursor:pointer;background:#fff;user-select:none}
+  .opts.five label{min-width:0}
+  .opts input{position:absolute;opacity:0;width:0;height:0}
+  .opts label:hover{border-color:var(--teal)}
+  .opts label.na{color:var(--muted);flex-basis:100%;min-width:100%;margin-top:2px}
+  .opts label:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy)}
+  .opts label:has(input:checked) .sub{color:#C9D6E0}
+  .opts .big{display:block;font-weight:800;font-size:15px;line-height:1}
+  .opts .sub{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+  textarea,select{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);
+     border-radius:9px;background:#fff;color:var(--body)}
+  textarea{min-height:74px;resize:vertical}
+  .field{margin:12px 0}
+  .field label.lbl{display:block;font-size:14px;margin-bottom:6px}
+  .grades{display:flex;flex-wrap:wrap;gap:8px}
+  .grades label{flex:1 1 auto;text-align:center;border:1px solid var(--line);border-radius:9px;
+     padding:10px 6px;font-size:13px;cursor:pointer}
+  .grades label:has(input:checked){background:var(--gold);border-color:var(--gold);color:var(--deep);font-weight:700}
+  .progress{position:sticky;top:0;z-index:5;background:#eef2f6;padding:10px 0}
+  .bar{height:8px;background:var(--line);border-radius:20px;overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width .25s}
+  .bar-t{font-size:12px;color:var(--muted);margin:6px 2px 0}
+  button.submit{width:100%;background:var(--navy);color:#fff;border:0;border-radius:11px;
+     padding:16px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px}
+  button.submit:disabled{opacity:.6;cursor:not-allowed}
+  .foot{color:var(--muted);font-size:12px;text-align:center;margin-top:22px}
+  .thanks{display:none;text-align:center;padding:40px 10px}
+  .thanks h2{color:var(--navy)}
+  .thanks .check{width:56px;height:56px;border-radius:50%;background:var(--cream);color:var(--gold);
+     display:inline-flex;align-items:center;justify-content:center;font-size:30px;border:2px solid var(--gold)}
+  .err{background:#fdecec;border-left:4px solid #c0392b;color:#7a2f2f;font-size:14px;display:none}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Consult for Africa &middot; Confidential</div>
+    <h1>Osteon Clinics &mdash; Staff Survey</h1>
+    <p>Anonymous &middot; about 10 minutes &middot; your honest voice shapes what changes here</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="form">
+    <div class="card privacy">
+      <strong>Your answers are anonymous.</strong> They go to Consult for Africa, not to Dr Bola or
+      to anyone who manages you, and they are reported only as grouped totals. We never report
+      anything in a way that could identify who said it. There are no right answers, and nothing
+      here is a test of you. Honesty is the whole point.
+    </div>
+    <div class="card scalekey">
+      For most questions, choose how much you agree, or how often it happens, from <b>1</b> to
+      <b>5</b>. Every question also has <b>N/A &middot; Don't know</b>, and you should use it freely
+      if a question is about a part of the clinic you do not work in.
+    </div>
+
+    <div class="progress">
+      <div class="bar"><i id="barfill"></i></div>
+      <div class="bar-t"><span id="answered">0</span> of <span id="total">0</span> answered</div>
+    </div>
+
+    <div class="card err" id="err"></div>
+    <form id="survey" novalidate></form>
+
+    <button class="submit" id="submitBtn" type="button">Submit my answers</button>
+    <div class="foot">Consult for Africa &middot; hello@consultforafrica.com &middot; consultforafrica.com</div>
+  </div>
+
+  <div class="thanks card" id="thanks">
+    <div class="check">&#10003;</div>
+    <h2>Thank you.</h2>
+    <p>Your answers are in, and they are anonymous. Every honest response makes the plan we give
+       Osteon sharper and fairer. You can close this page.</p>
+  </div>
+</div>
+
+<script>
+const ENDPOINT = "/api/osteon-audit/responses";
+
+const AGREE = [["1","Strongly disagree"],["2","Disagree"],["3","Neither"],["4","Agree"],["5","Strongly agree"]];
+const FREQ  = [["1","Never"],["2","Rarely"],["3","Sometimes"],["4","Most times"],["5","Always"]];
+
+// [section title, scale ("a" agree | "f" frequency), items, optional hint]
+const SECTIONS = [
+  ["Your team and how the work gets done","a",[
+    "People here treat each other with respect.",
+    "When the day is heavy, we pull together to get the work done.",
+    "We have enough people on duty to do the work safely.",
+    "The pace of work here is so high that it feels unsafe."
+  ]],
+  ["Speaking up","a",[
+    "I can question a decision made by someone more senior without it being held against me.",
+    "If I saw something that could harm a patient, I would say so immediately.",
+    "Staff here are afraid to ask questions when something does not seem right.",
+    "When somebody raises a concern, something is actually done about it.",
+    "I know who to go to when something is wrong."
+  ]],
+  ["When something goes wrong","a",[
+    "When a mistake happens here, we talk about it so that we can learn from it.",
+    "People here feel their mistakes are held against them.",
+    "We are told when something has gone wrong, and what changed because of it."
+  ]],
+  ["Theatre and procedures","f",
+   ["The operating list starts at the time it was meant to start.",
+    "Everything needed for a case is ready before the patient comes into theatre.",
+    "A safety check is done out loud before the first cut, with the whole team listening.",
+    "Antibiotics are given at the right time before the incision.",
+    "The implant details are written into the patient's record before the patient leaves theatre.",
+    "Movement in and out of theatre during a case is kept to a minimum."],
+   "If you do not work in theatre, please answer N/A."],
+  ["Instruments and sterility","f",
+   ["I am confident that every instrument set opened here is properly sterile.",
+    "The sterilisation records are completed for every load.",
+    "Loan kits arrive in time to be properly processed before the list.",
+    "Hand hygiene happens as it should, by everybody, including the most senior people."],
+   "If this is not part of your work, please answer N/A."],
+  ["Equipment and supplies","f",[
+    "The equipment I need is working when I need it.",
+    "We run short of something we need for a patient.",
+    "Emergency equipment is checked and ready to use."
+  ]],
+  ["Cover, and how decisions get made","a",[
+    "When Dr Bola is operating elsewhere, it is clear who is in charge here.",
+    "I can get a senior clinical decision quickly when I need one.",
+    "The rota gives me enough notice to plan my life.",
+    "I have had the training I need to do my job properly.",
+    "New people are properly shown how things are done here."
+  ]],
+  ["How the place is run","a",[
+    "I understand where this clinic is trying to get to.",
+    "Decisions here are made and explained clearly.",
+    "Someone would notice if I did my job especially well.",
+    "I am paid fairly for the work I do.",
+    "I have what I need to give patients a good experience."
+  ]],
+  ["Patients","a",[
+    "Patients here are treated with kindness.",
+    "Patients understand what they are paying for before they pay it.",
+    "Patients get their questions answered before they agree to surgery."
+  ]]
+];
+
+const form = document.getElementById("survey");
+let idx = 0;
+const scaleItems = [];
+
+SECTIONS.forEach((sec, si) => {
+  const h = document.createElement("h2"); h.className = "section";
+  h.innerHTML = '<span class="n">' + (si + 1) + '</span>' + sec[0] +
+    (sec[3] ? '<span class="hint">' + sec[3] + '</span>' : '');
+  form.appendChild(h);
+  const scale = sec[1] === "f" ? FREQ : AGREE;
+  sec[2].forEach(text => {
+    idx++;
+    const name = "q" + idx;
+    scaleItems.push(name);
+    const q = document.createElement("div"); q.className = "q";
+    let opts = '';
+    scale.forEach(o => {
+      opts += '<label><input type="radio" name="' + name + '" value="' + o[0] + '">'
+            + '<span class="big">' + o[0] + '</span><span class="sub">' + o[1] + '</span></label>';
+    });
+    opts += '<label class="na"><input type="radio" name="' + name + '" value="NA">N/A &middot; Don\'t know</label>';
+    q.innerHTML = '<div class="qt"><span class="num">' + idx + '.</span>' + text + '</div>'
+                + '<div class="opts five">' + opts + '</div>';
+    form.appendChild(q);
+  });
+});
+
+const scaleRow = (name) => '<div class="opts five">' +
+  AGREE.map(o => '<label><input type="radio" name="' + name + '" value="' + o[0] + '"><span class="big">' +
+    o[0] + '</span><span class="sub">' + o[1] + '</span></label>').join("") +
+  '<label class="na"><input type="radio" name="' + name + '" value="NA">N/A</label></div>';
+
+const tail = document.createElement("div");
+tail.innerHTML = `
+  <h2 class="section"><span class="n">10</span>Overall</h2>
+  <div class="q"><div class="qt">Overall, how safe do you think patients are here?</div>
+    <div class="grades">
+      ${["Excellent","Very good","Acceptable","Poor","Failing"].map(g =>
+        '<label><input type="radio" name="grade" value="' + g + '">' + g + '</label>').join("")}
+    </div>
+  </div>
+  <div class="q field"><label class="lbl">I would be happy for a member of my own family to be treated here.</label>
+    ${scaleRow("rec_care")}</div>
+  <div class="q field"><label class="lbl">I would recommend Osteon as a place to work.</label>
+    ${scaleRow("rec_work")}</div>
+  <div class="q field"><label class="lbl">I expect to still be working here in a year.</label>
+    ${scaleRow("stay")}</div>
+
+  <h2 class="section"><span class="n">11</span>A little about you
+    <span class="hint">Optional. It helps us group answers, and it is never used to identify you.</span></h2>
+  <div class="field"><label class="lbl">Where you mostly work</label>
+    <select name="area"><option value="">Prefer not to say</option>
+      <option>Theatre and recovery</option><option>Nursing and ward</option>
+      <option>Medical and clinical</option><option>Sterile services</option>
+      <option>Physiotherapy</option><option>Front desk and patient coordination</option>
+      <option>Accounts and admin</option><option>Imaging</option>
+      <option>Support and housekeeping</option><option>Other</option></select></div>
+  <div class="field"><label class="lbl">How long you have worked at Osteon</label>
+    <select name="tenure"><option value="">Prefer not to say</option>
+      <option>Under 6 months</option><option>6 to 12 months</option>
+      <option>1 to 2 years</option><option>2 years or more</option></select></div>
+  <div class="field"><label class="lbl">Do you also work somewhere else?</label>
+    <select name="elsewhere"><option value="">Prefer not to say</option>
+      <option>No, only here</option><option>Yes, one other place</option>
+      <option>Yes, more than one other place</option></select></div>
+
+  <h2 class="section"><span class="n">12</span>Three open questions
+    <span class="hint">Optional, and the most useful part of the survey.</span></h2>
+  <div class="field"><label class="lbl">The one thing that would make Osteon safer for patients:</label>
+    <textarea name="open_safe"></textarea></div>
+  <div class="field"><label class="lbl">The one thing that would make Osteon a better place to work:</label>
+    <textarea name="open_work"></textarea></div>
+  <div class="field"><label class="lbl">Something that happens here that a visitor would never notice, but that you think we should know:</label>
+    <textarea name="open_hidden"></textarea></div>
+`;
+form.appendChild(tail);
+
+document.getElementById("total").textContent = scaleItems.length;
+function updateProgress(){
+  let n = 0;
+  scaleItems.forEach(name => { if (form.querySelector('input[name="' + name + '"]:checked')) n++; });
+  document.getElementById("answered").textContent = n;
+  document.getElementById("barfill").style.width = (n / scaleItems.length * 100) + "%";
+}
+form.addEventListener("change", updateProgress);
+
+document.getElementById("submitBtn").addEventListener("click", async () => {
+  const data = {};
+  new FormData(form).forEach((v, k) => { data[k] = v; });
+  const answered = scaleItems.filter(n => data[n]).length;
+  const err = document.getElementById("err");
+  if (answered < scaleItems.length * 0.6) {
+    err.style.display = "block";
+    err.textContent = "Please answer a few more questions before submitting. Your responses are most useful when the survey is mostly complete, and N/A counts as an answer.";
+    window.scrollTo({top:0,behavior:"smooth"}); return;
+  }
+  err.style.display = "none";
+  const payload = { survey:"osteon-staff-culture", submittedAt:new Date().toISOString(), responses:data };
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true; btn.textContent = "Submitting...";
+  try {
+    const r = await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    if (!r.ok) throw new Error("bad status");
+    document.getElementById("form").style.display = "none";
+    document.getElementById("thanks").style.display = "block";
+    window.scrollTo({top:0,behavior:"smooth"});
+  } catch (e) {
+    btn.disabled = false; btn.textContent = "Submit my answers";
+    err.style.display = "block";
+    err.textContent = "Something went wrong sending your answers. Please try again in a moment.";
+  }
+});
+</script>
+</body>
+</html>

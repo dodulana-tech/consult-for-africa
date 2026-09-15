@@ -1,0 +1,400 @@
+// Metadata mirror of the four public Osteon Clinics audit forms. The source of
+// truth for question wording is the static forms themselves:
+//
+//   public/osteon-staff-survey.html      -> "osteon-staff-culture"
+//   public/osteon-patient-survey.html    -> "osteon-patient-experience"
+//   public/osteon-referrer-survey.html   -> "osteon-referrer"
+//   public/osteon-leadership-survey.html -> "osteon-leadership-direction"
+//
+// Keep this in sync if those forms change. Submitted values are strings
+// ("1".."5" for scale items, "NA" for not applicable, plain text for open
+// fields, arrays of strings for multi-select), and constant-sum splits arrive
+// as numeric strings that add to 100.
+
+export type ScaleQuestion = {
+  key: string;
+  text: string;
+  section: string;
+  /** A lower score is the good result here. Never silently rescored. */
+  reverse?: boolean;
+  /** Which 1-5 wording the form shows. Defaults to agreement. */
+  scale?: "agree" | "frequency";
+};
+
+export type CategoricalField = { key: string; label: string; options: string[] };
+export type MultiField = { key: string; label: string; options: string[] };
+export type OpenField = { key: string; label: string };
+export type SplitItem = { key: string; label: string };
+
+export type SurveyMeta = {
+  id: string;
+  title: string;
+  audience: string;
+  anonymous: boolean;
+  formPath: string;
+  /** The standing preamble, reprinted at the top of the paper instrument. */
+  intro: string;
+  questions: ScaleQuestion[];
+  categorical: CategoricalField[];
+  multi: MultiField[];
+  open: OpenField[];
+  splits: { label: string; items: SplitItem[] }[];
+  tensions: { key: string; a: string; b: string }[];
+};
+
+const empty = { questions: [], categorical: [], multi: [], open: [], splits: [], tensions: [] };
+
+// ---------------------------------------------------------------------------
+// 1. Staff and safety culture. q1..q38 in section order.
+// ---------------------------------------------------------------------------
+
+const S_TEAM = "Your team and how the work gets done";
+const S_SPEAK = "Speaking up";
+const S_WRONG = "When something goes wrong";
+const S_THEATRE = "Theatre and procedures";
+const S_STERILE = "Instruments and sterility";
+const S_KIT = "Equipment and supplies";
+const S_COVER = "Cover, and how decisions get made";
+const S_RUN = "How the place is run";
+const S_PATIENTS = "Patients";
+
+const STAFF_QUESTIONS: ScaleQuestion[] = [
+  { key: "q1", section: S_TEAM, text: "People here treat each other with respect." },
+  { key: "q2", section: S_TEAM, text: "When the day is heavy, we pull together to get the work done." },
+  { key: "q3", section: S_TEAM, text: "We have enough people on duty to do the work safely." },
+  { key: "q4", section: S_TEAM, text: "The pace of work here is so high that it feels unsafe.", reverse: true },
+
+  { key: "q5", section: S_SPEAK, text: "I can question a decision made by someone more senior without it being held against me." },
+  { key: "q6", section: S_SPEAK, text: "If I saw something that could harm a patient, I would say so immediately." },
+  { key: "q7", section: S_SPEAK, text: "Staff here are afraid to ask questions when something does not seem right.", reverse: true },
+  { key: "q8", section: S_SPEAK, text: "When somebody raises a concern, something is actually done about it." },
+  { key: "q9", section: S_SPEAK, text: "I know who to go to when something is wrong." },
+
+  { key: "q10", section: S_WRONG, text: "When a mistake happens here, we talk about it so that we can learn from it." },
+  { key: "q11", section: S_WRONG, text: "People here feel their mistakes are held against them.", reverse: true },
+  { key: "q12", section: S_WRONG, text: "We are told when something has gone wrong, and what changed because of it." },
+
+  { key: "q13", section: S_THEATRE, text: "The operating list starts at the time it was meant to start.", scale: "frequency" },
+  { key: "q14", section: S_THEATRE, text: "Everything needed for a case is ready before the patient comes into theatre.", scale: "frequency" },
+  { key: "q15", section: S_THEATRE, text: "A safety check is done out loud before the first cut, with the whole team listening.", scale: "frequency" },
+  { key: "q16", section: S_THEATRE, text: "Antibiotics are given at the right time before the incision.", scale: "frequency" },
+  { key: "q17", section: S_THEATRE, text: "The implant details are written into the patient's record before the patient leaves theatre.", scale: "frequency" },
+  { key: "q18", section: S_THEATRE, text: "Movement in and out of theatre during a case is kept to a minimum.", scale: "frequency" },
+
+  { key: "q19", section: S_STERILE, text: "I am confident that every instrument set opened here is properly sterile.", scale: "frequency" },
+  { key: "q20", section: S_STERILE, text: "The sterilisation records are completed for every load.", scale: "frequency" },
+  { key: "q21", section: S_STERILE, text: "Loan kits arrive in time to be properly processed before the list.", scale: "frequency" },
+  { key: "q22", section: S_STERILE, text: "Hand hygiene happens as it should, by everybody, including the most senior people.", scale: "frequency" },
+
+  { key: "q23", section: S_KIT, text: "The equipment I need is working when I need it.", scale: "frequency" },
+  { key: "q24", section: S_KIT, text: "We run short of something we need for a patient.", reverse: true, scale: "frequency" },
+  { key: "q25", section: S_KIT, text: "Emergency equipment is checked and ready to use.", scale: "frequency" },
+
+  { key: "q26", section: S_COVER, text: "When Dr Bola is operating elsewhere, it is clear who is in charge here." },
+  { key: "q27", section: S_COVER, text: "I can get a senior clinical decision quickly when I need one." },
+  { key: "q28", section: S_COVER, text: "The rota gives me enough notice to plan my life." },
+  { key: "q29", section: S_COVER, text: "I have had the training I need to do my job properly." },
+  { key: "q30", section: S_COVER, text: "New people are properly shown how things are done here." },
+
+  { key: "q31", section: S_RUN, text: "I understand where this clinic is trying to get to." },
+  { key: "q32", section: S_RUN, text: "Decisions here are made and explained clearly." },
+  { key: "q33", section: S_RUN, text: "Someone would notice if I did my job especially well." },
+  { key: "q34", section: S_RUN, text: "I am paid fairly for the work I do." },
+  { key: "q35", section: S_RUN, text: "I have what I need to give patients a good experience." },
+
+  { key: "q36", section: S_PATIENTS, text: "Patients here are treated with kindness." },
+  { key: "q37", section: S_PATIENTS, text: "Patients understand what they are paying for before they pay it." },
+  { key: "q38", section: S_PATIENTS, text: "Patients get their questions answered before they agree to surgery." },
+
+  { key: "rec_care", section: "Overall", text: "I would be happy for a member of my own family to be treated here." },
+  { key: "rec_work", section: "Overall", text: "I would recommend Osteon as a place to work." },
+  { key: "stay", section: "Overall", text: "I expect to still be working here in a year." },
+];
+
+const STAFF: SurveyMeta = {
+  ...empty,
+  id: "osteon-staff-culture",
+  intro: "Your answers are anonymous. They go to Consult for Africa, not to Dr Bola or to anyone who manages you, and they are reported only as grouped totals. There are no right answers, and nothing here is a test of you. Use N/A freely where a question is about a part of the clinic you do not work in.",
+  title: "Staff and safety culture",
+  audience: "Everyone who works at Osteon",
+  anonymous: true,
+  formPath: "/osteon-staff-survey.html",
+  questions: STAFF_QUESTIONS,
+  categorical: [
+    { key: "grade", label: "Overall, how safe are patients here", options: ["Excellent", "Very good", "Acceptable", "Poor", "Failing"] },
+    {
+      key: "area", label: "Where they mostly work", options: [
+        "Theatre and recovery", "Nursing and ward", "Medical and clinical", "Sterile services",
+        "Physiotherapy", "Front desk and patient coordination", "Accounts and admin", "Imaging",
+        "Support and housekeeping", "Other"],
+    },
+    { key: "tenure", label: "Time at Osteon", options: ["Under 6 months", "6 to 12 months", "1 to 2 years", "2 years or more"] },
+    { key: "elsewhere", label: "Also works elsewhere", options: ["No, only here", "Yes, one other place", "Yes, more than one other place"] },
+  ],
+  open: [
+    { key: "open_safe", label: "The one thing that would make Osteon safer for patients" },
+    { key: "open_work", label: "The one thing that would make Osteon a better place to work" },
+    { key: "open_hidden", label: "Something a visitor would never notice" },
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// 2. Patient experience. q1..q18.
+// ---------------------------------------------------------------------------
+
+const P_SEEN = "Getting seen";
+const P_TEAM = "The doctor and the team";
+const P_COST = "The cost";
+const P_OP = "If you had an operation";
+const P_NOW = "How you are now";
+
+const PATIENT_QUESTIONS: ScaleQuestion[] = [
+  { key: "q1", section: P_SEEN, text: "It was easy to reach the clinic and to find it." },
+  { key: "q2", section: P_SEEN, text: "I was seen close to the time I was given." },
+  { key: "q3", section: P_SEEN, text: "The clinic was clean and comfortable." },
+
+  { key: "q4", section: P_TEAM, text: "My condition was explained to me in a way I understood." },
+  { key: "q5", section: P_TEAM, text: "I was told what my choices were, including not having surgery." },
+  { key: "q6", section: P_TEAM, text: "The risks were explained to me honestly." },
+  { key: "q7", section: P_TEAM, text: "I was treated with respect and kindness by everybody." },
+  { key: "q8", section: P_TEAM, text: "I could ask questions without feeling rushed." },
+
+  { key: "q9", section: P_COST, text: "I was told what it would cost before I had to decide." },
+  { key: "q10", section: P_COST, text: "The final amount was what I had been told it would be." },
+  { key: "q11", section: P_COST, text: "What I paid felt fair for what I received." },
+
+  { key: "q12", section: P_OP, text: "I knew what would happen on the day of surgery." },
+  { key: "q13", section: P_OP, text: "My pain was well controlled afterwards." },
+  { key: "q14", section: P_OP, text: "I knew who to call once I got home." },
+  { key: "q15", section: P_OP, text: "I was given clear instructions for my recovery." },
+  { key: "q16", section: P_OP, text: "Physiotherapy was arranged, and it helped." },
+
+  { key: "q17", section: P_NOW, text: "I can do the things I hoped I would be able to do." },
+  { key: "q18", section: P_NOW, text: "Knowing what I know now, I would do it again." },
+];
+
+const PATIENT: SurveyMeta = {
+  ...empty,
+  id: "osteon-patient-experience",
+  intro: "This survey is anonymous, so we do not ask your name and nobody can tell which answers are yours. Please be honest, including about anything that disappointed you. That is how it becomes useful.",
+  title: "Patient experience",
+  audience: "Patients seen or operated on in the last 12 months",
+  anonymous: true,
+  formPath: "/osteon-patient-survey.html",
+  questions: PATIENT_QUESTIONS,
+  categorical: [
+    {
+      key: "pay_source", label: "How the treatment was paid for", options: [
+        "My own money", "Family here in Nigeria", "Family living abroad", "HMO or health insurance",
+        "My employer", "A loan or instalments", "Still owing some of it", "Prefer not to say"],
+    },
+    {
+      key: "abroad", label: "Considered treatment outside Nigeria", options: [
+        "It never crossed my mind", "I thought about it", "I looked into it seriously",
+        "I had already started arranging it", "I had treatment abroad before coming here"],
+    },
+    {
+      key: "decide_time", label: "Time from first visit to deciding", options: [
+        "Same day", "Within two weeks", "About a month", "Two to three months",
+        "More than three months", "I have not gone ahead yet"],
+    },
+    { key: "now", label: "Compared with before treatment", options: ["Much better", "Better", "About the same", "Worse", "Much worse", "Too early to say"] },
+    { key: "recommend", label: "Would recommend Dr Bola", options: ["Definitely", "Probably", "Not sure", "Probably not", "Definitely not"] },
+    {
+      key: "asked", label: "Has anyone asked them since", options: [
+        "Yes, and I recommended Dr Bola", "Yes, and I was not sure what to say",
+        "Yes, and I did not recommend him", "Nobody has asked"],
+    },
+    {
+      key: "treatment", label: "What they were treated for", options: [
+        "Knee replacement", "Hip replacement", "A redo of a previous joint replacement",
+        "A joint infection", "A fracture or injury", "Keyhole surgery on a joint",
+        "Another operation", "Seen in clinic, no operation", "Injections, casting or dressings"],
+    },
+    { key: "when", label: "When", options: ["In the last 3 months", "3 to 6 months ago", "6 to 12 months ago", "More than a year ago"] },
+    { key: "where", label: "Where treated", options: ["Osteon Clinics, Amuwo Odofin", "Cedarcrest", "Diamed", "Somewhere else", "I am not sure"] },
+    {
+      key: "found_us", label: "How they first heard of Dr Bola", options: [
+        "Another doctor sent me", "A physiotherapist sent me", "A friend or family member",
+        "A former patient of his", "I searched online", "Social media",
+        "I met him at a hospital", "Other"],
+    },
+  ],
+  multi: [{
+    key: "almost_stopped", label: "What almost stopped them going ahead", options: [
+      "The cost", "Fear of the surgery itself", "I wanted another opinion", "My family were not sure",
+      "I was waiting to raise the money", "Travel or distance", "I was not sure it would work",
+      "Nothing, I was ready", "Other"],
+  }],
+  open: [
+    { key: "open_best", label: "The best thing about the experience" },
+    { key: "open_improve", label: "The one thing we should do better" },
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// 3. Referring doctors. Attributed with consent.
+// ---------------------------------------------------------------------------
+
+const R_EXP = "Referring to Dr Bola";
+const R_INT = "Would you take part";
+
+const REFERRER: SurveyMeta = {
+  ...empty,
+  id: "osteon-referrer",
+  intro: "Consult for Africa is working with Dr Bolarinwa Akinola on how his service should be built over the next two years. Rather than design it around what we think referring doctors want, we are asking you directly. The questions are about your practice and your patients, and the least useful thing you could do is be polite.",
+  title: "Referring doctors",
+  audience: "Doctors, physiotherapists and clinics that refer, and a shortlist who could",
+  anonymous: false,
+  formPath: "/osteon-referrer-survey.html",
+  questions: [
+    { key: "r_clarity", section: R_EXP, text: "I am clear about what his particular expertise is." },
+    { key: "r_speed", section: R_EXP, text: "My patients are seen quickly when I refer them." },
+    { key: "r_letter", section: R_EXP, text: "I hear back about what happened to my patient." },
+    { key: "r_letter_speed", section: R_EXP, text: "I hear back quickly enough for it to be useful to me." },
+    { key: "r_satisfied", section: R_EXP, text: "My patients come back satisfied with how they were treated." },
+    { key: "r_price", section: R_EXP, text: "I am confident about what my patient will be charged before I send them." },
+    { key: "r_complex", section: R_EXP, text: "I would be comfortable sending him a complicated or redo case." },
+    { key: "r_ownership", section: R_EXP, text: "The patient stays mine. I do not worry about losing them." },
+    { key: "i_mdt", section: R_INT, text: "A monthly meeting where difficult cases are discussed." },
+    { key: "i_teaching", section: R_INT, text: "Teaching or hands-on sessions." },
+    { key: "i_portal", section: R_INT, text: "An online way to refer and follow a patient." },
+    { key: "i_joint_clinic", section: R_INT, text: "A joint clinic at your own practice." },
+  ],
+  splits: [{
+    label: "What decides where a patient is sent (100 points)", items: [
+      { key: "split_skill", label: "The surgeon's skill and record with difficult cases" },
+      { key: "split_cost", label: "What it will cost my patient" },
+      { key: "split_speed", label: "How quickly my patient will be seen and treated" },
+      { key: "split_letter", label: "Whether the patient comes back to me, with a letter" },
+      { key: "split_facility", label: "The facility: theatre, sterility, aftercare" },
+      { key: "split_convenience", label: "Convenience and location for the patient" },
+    ],
+  }],
+  categorical: [
+    {
+      key: "know_him", label: "How they know Dr Bola", options: [
+        "I have referred patients to him", "I know him but have not referred", "I know of him only",
+        "I have not come across him before", "We trained or worked together"],
+    },
+    { key: "volume", label: "Hip or knee patients seen per month", options: ["None", "1 to 2", "3 to 5", "6 to 10", "More than 10"] },
+    { key: "abroad_count", label: "Patients who travelled abroad in two years", options: ["None that I know of", "One or two", "Three to five", "More than five"] },
+    {
+      key: "main_barrier", label: "Main reason a patient does not have the surgery", options: [
+        "They cannot afford it", "They are afraid of the surgery",
+        "They do not trust the result they will get here", "They do not believe it is necessary yet",
+        "They cannot get a timely appointment", "They are waiting to travel abroad", "Something else"],
+    },
+    {
+      key: "price_belief", label: "What they believe a private joint replacement costs", options: [
+        "Under 3 million naira", "3 to 5 million", "5 to 8 million", "8 to 12 million",
+        "Over 12 million", "I genuinely do not know"],
+    },
+    {
+      key: "consent", label: "Attribution consent", options: [
+        "Yes, my name may be attached to what I said", "Report my answers, but without my name",
+        "Share the substance with Dr Bola but keep my identity with Consult for Africa only"],
+    },
+    { key: "wants_findings", label: "Wants the findings", options: ["Yes, please send it", "No thank you"] },
+  ],
+  multi: [
+    {
+      key: "what_happens", label: "What usually happens to those patients", options: [
+        "I manage them myself for as long as I can", "I refer to a named orthopaedic surgeon",
+        "I refer to a hospital rather than a person", "I send them for physiotherapy and review",
+        "They go abroad", "They do nothing, usually because of cost",
+        "I am not sure what happens to them"],
+    },
+    {
+      key: "would_change", label: "What would make them refer more", options: [
+        "A clear, fixed price my patient can plan around",
+        "An instalment or financing option for my patients",
+        "A letter back to me within a week, guaranteed",
+        "A direct number that reaches the surgeon himself",
+        "Being able to discuss a case with him before I refer",
+        "A regular case discussion meeting I could join",
+        "Published outcome figures I could show my patient",
+        "A clinic where he sees patients at my own practice",
+        "Being able to follow my patient's progress online",
+        "Shorter waiting time to be seen",
+        "Nothing, I already refer everything I can"],
+    },
+  ],
+  open: [
+    { key: "biggest_change", label: "The single biggest change" },
+    { key: "open_where", label: "Where their orthopaedic patients actually end up" },
+    { key: "open_abroad", label: "What they tell a patient asking about going abroad" },
+    { key: "open_ideal", label: "What a genuinely good service would give them" },
+    { key: "open_other", label: "Anything else" },
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// 4. Leadership direction. Attributed by design.
+// ---------------------------------------------------------------------------
+
+const LEADERSHIP: SurveyMeta = {
+  ...empty,
+  id: "osteon-leadership-direction",
+  intro: "This one is not anonymous, and that is deliberate. Its whole value is in seeing where you agree with each other without knowing it, and where you quietly disagree. Answer as you actually think, not as you think the group thinks.",
+  title: "Leadership direction",
+  audience: "Dr Bola and the senior people at Osteon",
+  anonymous: false,
+  formPath: "/osteon-leadership-survey.html",
+  questions: [
+    { key: "b_capacity", section: "Beliefs", text: "We could safely do considerably more surgery than we do today, with what we already have." },
+    { key: "b_cost", section: "Beliefs", text: "We know what a case actually costs us, implants included." },
+    { key: "b_publish", section: "Beliefs", text: "Our results are good enough that I would be comfortable publishing them." },
+    { key: "b_absence", section: "Beliefs", text: "If Dr Bola could not work for three months, this business would be fine." },
+    { key: "b_afford", section: "Beliefs", text: "Our patients can comfortably afford what we charge." },
+    { key: "b_leak", section: "Beliefs", text: "We lose patients we could have treated, and we do not know how many." },
+    { key: "b_recall", section: "Beliefs", text: "If an implant were recalled tomorrow, we could find every patient who has one." },
+  ],
+  splits: [
+    {
+      label: "Where the growth comes from (100 points)", items: [
+        { key: "g_convert", label: "Converting more of the patients who already walk through our door" },
+        { key: "g_referral", label: "More referrals from other doctors" },
+        { key: "g_visiting", label: "More cases at the hospitals Dr Bola visits" },
+        { key: "g_surgeons", label: "Other surgeons working under the Osteon name" },
+        { key: "g_services", label: "Adding services: physiotherapy, imaging, non-surgical treatment" },
+        { key: "g_diaspora", label: "Patients from abroad, or paid for by family abroad" },
+      ],
+    },
+    {
+      label: "What is holding the business back (100 points)", items: [
+        { key: "c_location", label: "Where the clinic is" },
+        { key: "c_price", label: "What patients have to pay" },
+        { key: "c_referral", label: "Not enough doctors referring" },
+        { key: "c_bola", label: "Dr Bola's own time and availability" },
+        { key: "c_facility", label: "The facility itself: theatre, equipment, beds" },
+        { key: "c_team", label: "The team, and how the clinic is run day to day" },
+        { key: "c_brand", label: "Not enough people knowing who he is" },
+      ],
+    },
+  ],
+  tensions: [
+    { key: "t_price", a: "Grow volume by charging less", b: "Hold the price and grow on reputation" },
+    { key: "t_system", a: "Keep the important things in Dr Bola's own hands", b: "Build a system that other people can run" },
+    { key: "t_site", a: "Put money into the Amuwo Odofin site", b: "Put money into a presence somewhere else" },
+    { key: "t_casemix", a: "Take every case that comes", b: "Concentrate on complex and redo work" },
+    { key: "t_payer", a: "Chase HMO and corporate contracts", b: "Stay with self pay and family abroad" },
+    { key: "t_spend", a: "Spend on reaching patients directly", b: "Spend on relationships with referring doctors" },
+    { key: "t_pace", a: "Move now and fix the gaps as we go", b: "Get the systems right before growing" },
+    { key: "t_legacy", a: "Osteon is Dr Bola's practice", b: "Osteon should become an institution that outlives him" },
+  ],
+  open: [
+    { key: "open_change", label: "The one thing they would change tomorrow" },
+    { key: "open_unsaid", label: "What the audit will find that nobody says out loud" },
+    { key: "open_success", label: "What success looks like in two years" },
+  ],
+};
+
+export const OSTEON_SURVEYS: SurveyMeta[] = [STAFF, PATIENT, REFERRER, LEADERSHIP];
+
+/** A tension answer of 1..5, where 1 is fully side A and 5 fully side B. */
+export function tensionSide(mean: number): "A" | "B" | "Split" {
+  if (mean <= 2.4) return "A";
+  if (mean >= 3.6) return "B";
+  return "Split";
+}

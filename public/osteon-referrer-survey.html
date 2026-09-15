@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Referring Colleagues — Orthopaedic Referral Study</title>
+<style>
+  :root{--navy:#0B3C5D;--deep:#081521;--gold:#D4AF37;--teal:#1F7A8C;--body:#1F2937;
+        --muted:#6B7280;--surface:#F1F5F9;--line:#E2E8F0;--cream:#FBF6E6}
+  *{box-sizing:border-box}html,body{margin:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:var(--body);background:#eef2f6;line-height:1.55;font-size:16px}
+  .wrap{max-width:700px;margin:0 auto;padding:0 16px 64px}
+  header.top{background:var(--navy);color:#fff;padding:22px 0 20px;border-bottom:3px solid var(--gold)}
+  header.top .wrap{padding-bottom:0}
+  .eyebrow{color:var(--gold);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+  header.top h1{font-size:22px;margin:6px 0 2px;line-height:1.25}
+  header.top p{margin:0;color:#C9D6E0;font-size:14px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+  .intro{background:var(--cream);border-left:4px solid var(--gold)}
+  .intro strong{color:var(--navy)}
+  .intro .sign{margin-top:10px;font-size:14px;color:var(--navy);font-weight:700}
+  h2.section{font-size:16px;color:var(--navy);margin:26px 2px 8px;padding-top:6px;border-top:1px solid var(--line)}
+  h2.section .n{color:var(--teal);font-weight:800;margin-right:8px}
+  h2.section .hint{display:block;font-weight:400;color:var(--muted);font-size:13px;margin-top:3px}
+  .q{padding:14px 0;border-bottom:1px solid var(--line)}.q:last-child{border-bottom:0}
+  .q .qt{font-size:15px;margin-bottom:10px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opts label{flex:1 1 auto;min-width:0;text-align:center;border:1px solid var(--line);border-radius:9px;
+     padding:9px 6px;font-size:13px;cursor:pointer;background:#fff}
+  .opts input{position:absolute;opacity:0;width:0;height:0}
+  .opts label:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy)}
+  .opts label:has(input:checked) .sub{color:#C9D6E0}
+  .opts .big{display:block;font-weight:800;font-size:15px;line-height:1}
+  .opts .sub{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+  .opts label.na{flex-basis:100%;color:var(--muted)}
+  .checks label{display:block;border:1px solid var(--line);border-radius:10px;padding:11px 12px;
+     margin-bottom:7px;cursor:pointer;font-size:15px}
+  .checks label:has(input:checked){background:var(--surface);border-color:var(--teal)}
+  .checks input{margin-right:9px}
+  .split{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+  .split .lab{flex:1;font-size:14px}
+  .split input{width:78px;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;text-align:right}
+  .splittot{margin-top:10px;font-weight:700;font-size:14px}
+  .splittot.bad{color:#b3261e}.splittot.good{color:var(--teal)}
+  input[type=text],input[type=email],input[type=tel],textarea,select{
+     width:100%;font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+  textarea{min-height:78px;resize:vertical}
+  .field{margin:12px 0}.field label.lbl{display:block;font-size:14px;margin-bottom:6px}
+  .req{color:#b3261e}
+  button.submit{width:100%;background:var(--navy);color:#fff;border:0;border-radius:11px;padding:16px;
+     font-size:17px;font-weight:700;cursor:pointer;margin-top:10px}
+  button.submit:disabled{opacity:.6}
+  .foot{color:var(--muted);font-size:12px;text-align:center;margin-top:20px}
+  .thanks{display:none;text-align:center;padding:44px 10px}
+  .thanks .check{width:60px;height:60px;border-radius:50%;background:var(--cream);color:var(--gold);
+     display:inline-flex;align-items:center;justify-content:center;font-size:32px;border:2px solid var(--gold)}
+  .thanks h2{color:var(--navy)}
+  .err{background:#fdecec;border-left:4px solid #c0392b;color:#7a2f2f;font-size:14px;display:none}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="eyebrow">Consult for Africa &middot; Confidential</div>
+  <h1>What colleagues need from an orthopaedic service</h1>
+  <p>Six minutes &middot; a small group of referring doctors &middot; your answers shape what gets built</p>
+</div></header>
+
+<div class="wrap">
+  <div id="form">
+    <div class="card intro">
+      <strong>We are writing to a small group of colleagues who see musculoskeletal problems in
+      their practice.</strong>
+      <p>Consult for Africa is working with Dr Bolarinwa Akinola, the hip and knee surgeon at
+      Osteon Clinics, on how his service should be built over the next two years. Rather than
+      design it around what we think referring doctors want, we are asking you directly.</p>
+      <p>The questions are about your practice and your patients, not about him, and the least
+      useful thing you could do is be polite. If referring to him has been frustrating, or if you
+      do not refer to him at all, those are the answers we most need.</p>
+      <p>Six minutes. Nothing is sold to you at the end of it, and we will send you what colleagues
+      said if you would like to see it.</p>
+      <div class="sign">Dr Debo Odulana, Founding Partner, Consult for Africa</div>
+    </div>
+    <div class="card err" id="err"></div>
+    <form id="survey" novalidate></form>
+    <button class="submit" id="submitBtn" type="button">Submit my answers</button>
+    <div class="foot">Consult for Africa &middot; hello@consultforafrica.com &middot; consultforafrica.com</div>
+  </div>
+  <div class="thanks card" id="thanks">
+    <div class="check">&#10003;</div><h2>Thank you.</h2>
+    <p>Your answers are in. They will shape what gets built, and we will come back to you with
+       what colleagues collectively said.</p>
+  </div>
+</div>
+
+<script>
+const ENDPOINT = "/api/osteon-audit/responses";
+const AGREE = [["1","Strongly disagree"],["2","Disagree"],["3","Neither"],["4","Agree"],["5","Strongly agree"]];
+const INTEREST = [["1","No interest"],["2","Slight"],["3","Some"],["4","Real interest"],["5","I would join now"]];
+
+const radios = (name, list) => '<div class="checks">' + list.map(o =>
+  '<label><input type="radio" name="' + name + '" value="' + o + '">' + o + '</label>').join("") + '</div>';
+const boxes = (name, list) => '<div class="checks">' + list.map(o =>
+  '<label><input type="checkbox" name="' + name + '" value="' + o + '">' + o + '</label>').join("") + '</div>';
+const scaleRow = (name, scale, na) => '<div class="opts">' +
+  scale.map(o => '<label><input type="radio" name="' + name + '" value="' + o[0] + '"><span class="big">' +
+    o[0] + '</span><span class="sub">' + o[1] + '</span></label>').join("") +
+  (na ? '<label class="na"><input type="radio" name="' + name + '" value="NA">' + na + '</label>' : '') + '</div>';
+
+const SPLIT = [
+  ["split_skill","The surgeon's skill, and their record with difficult cases"],
+  ["split_cost","What it will cost my patient"],
+  ["split_speed","How quickly my patient will be seen and treated"],
+  ["split_letter","Whether the patient comes back to me, with a letter"],
+  ["split_facility","The facility itself: theatre, sterility, aftercare"],
+  ["split_convenience","Convenience and location for the patient"]
+];
+
+document.getElementById("survey").innerHTML = `
+  <h2 class="section"><span class="n">1</span>About you
+    <span class="hint">We ask for your name because a referring doctor's view is only actionable if we know whose it is. You can still choose to be reported anonymously, at the end.</span></h2>
+  <div class="field"><label class="lbl">Your name <span class="req">*</span></label>
+    <input type="text" name="respondent" placeholder="Dr ..."></div>
+  <div class="field"><label class="lbl">Your specialty or area of practice</label>
+    <input type="text" name="specialty" placeholder="Family medicine, physiotherapy, rheumatology, general practice, ..."></div>
+  <div class="field"><label class="lbl">Where you practise</label>
+    <input type="text" name="practice" placeholder="Practice or hospital, and the area"></div>
+  <div class="field"><label class="lbl">Email, if you would like the findings</label>
+    <input type="email" name="email" placeholder="optional"></div>
+  <div class="q"><div class="qt">How do you know Dr Bola?</div>
+    ${radios("know_him", ["I have referred patients to him","I know him but have not referred",
+      "I know of him only","I have not come across him before","We trained or worked together"])}</div>
+
+  <h2 class="section"><span class="n">2</span>Your patients</h2>
+  <div class="q"><div class="qt">Roughly how many patients do you see in a month with a hip or knee problem that may eventually need a joint replacement?</div>
+    ${radios("volume", ["None","1 to 2","3 to 5","6 to 10","More than 10"])}</div>
+  <div class="q"><div class="qt">What usually happens to those patients? Choose as many as apply.</div>
+    ${boxes("what_happens", ["I manage them myself for as long as I can",
+      "I refer to a named orthopaedic surgeon","I refer to a hospital rather than a person",
+      "I send them for physiotherapy and review","They go abroad",
+      "They do nothing, usually because of cost","I am not sure what happens to them"])}</div>
+  <div class="q"><div class="qt">In the last two years, roughly how many of your patients have travelled abroad for joint surgery?</div>
+    ${radios("abroad_count", ["None that I know of","One or two","Three to five","More than five"])}</div>
+  <div class="field"><label class="lbl">Where do your orthopaedic patients actually end up, in practice? Names are useful here.</label>
+    <textarea name="open_where"></textarea></div>
+
+  <h2 class="section"><span class="n">3</span>What decides where you send a patient
+    <span class="hint">Divide 100 points across these six, giving more to what weighs most heavily on you. It is the single most useful question here.</span></h2>
+  <div id="splitbox">
+    ${SPLIT.map(s => '<div class="split"><div class="lab">' + s[1] +
+      '</div><input type="number" min="0" max="100" name="' + s[0] + '" value="0"></div>').join("")}
+    <div class="splittot" id="splittot">Total: 0 of 100</div>
+  </div>
+
+  <h2 class="section"><span class="n">4</span>Referring to Dr Bola
+    <span class="hint">If you have never referred a patient to him, answer "Never referred" on each of these.</span></h2>
+  <div class="q"><div class="qt">I am clear about what his particular expertise is.</div>${scaleRow("r_clarity", AGREE, "Never referred")}</div>
+  <div class="q"><div class="qt">My patients are seen quickly when I refer them.</div>${scaleRow("r_speed", AGREE, "Never referred")}</div>
+  <div class="q"><div class="qt">I hear back about what happened to my patient.</div>${scaleRow("r_letter", AGREE, "Never referred")}</div>
+  <div class="q"><div class="qt">I hear back quickly enough for it to be useful to me.</div>${scaleRow("r_letter_speed", AGREE, "Never referred")}</div>
+  <div class="q"><div class="qt">My patients come back satisfied with how they were treated.</div>${scaleRow("r_satisfied", AGREE, "Never referred")}</div>
+  <div class="q"><div class="qt">I am confident about what my patient will be charged before I send them.</div>${scaleRow("r_price", AGREE, "Never referred")}</div>
+  <div class="q"><div class="qt">I would be comfortable sending him a complicated case, or one that had already gone wrong elsewhere.</div>${scaleRow("r_complex", AGREE, "Never referred")}</div>
+  <div class="q"><div class="qt">The patient stays mine. I do not worry about losing them.</div>${scaleRow("r_ownership", AGREE, "Never referred")}</div>
+
+  <h2 class="section"><span class="n">5</span>What would actually change your referring</h2>
+  <div class="q"><div class="qt">Choose everything that would make a real difference. Then pick the single biggest below.</div>
+    ${boxes("would_change", ["A clear, fixed price my patient can plan around",
+      "An instalment or financing option for my patients",
+      "A letter back to me within a week, guaranteed",
+      "A direct number that reaches the surgeon himself",
+      "Being able to discuss a case with him before I refer",
+      "A regular case discussion meeting I could join",
+      "Published outcome figures I could show my patient",
+      "A clinic where he sees patients at my own practice",
+      "Being able to follow my patient's progress online",
+      "Shorter waiting time to be seen",
+      "Nothing, I already refer everything I can"])}</div>
+  <div class="field"><label class="lbl">Of those, the single biggest:</label>
+    <input type="text" name="biggest_change"></div>
+
+  <h2 class="section"><span class="n">6</span>Would you take part in any of this?</h2>
+  <div class="q"><div class="qt">A monthly meeting where difficult cases are discussed by a group of doctors.</div>${scaleRow("i_mdt", INTEREST)}</div>
+  <div class="q"><div class="qt">Teaching or hands-on sessions on managing hip and knee problems.</div>${scaleRow("i_teaching", INTEREST)}</div>
+  <div class="q"><div class="qt">An online way to refer a patient and follow what happens to them.</div>${scaleRow("i_portal", INTEREST)}</div>
+  <div class="q"><div class="qt">A joint clinic at your own practice, once or twice a month.</div>${scaleRow("i_joint_clinic", INTEREST)}</div>
+
+  <h2 class="section"><span class="n">7</span>Cost, which is usually the real obstacle</h2>
+  <div class="q"><div class="qt">In your experience, the main reason a patient who needs a joint replacement does not have one:</div>
+    ${radios("main_barrier", ["They cannot afford it","They are afraid of the surgery",
+      "They do not trust the result they will get here","They do not believe it is necessary yet",
+      "They cannot get a timely appointment","They are waiting to travel abroad","Something else"])}</div>
+  <div class="q"><div class="qt">What do you believe a private joint replacement costs in Lagos today?</div>
+    ${radios("price_belief", ["Under 3 million naira","3 to 5 million","5 to 8 million",
+      "8 to 12 million","Over 12 million","I genuinely do not know"])}</div>
+  <div class="field"><label class="lbl">What do you say to a patient who asks whether they should go abroad?</label>
+    <textarea name="open_abroad"></textarea></div>
+
+  <h2 class="section"><span class="n">8</span>Two open questions</h2>
+  <div class="field"><label class="lbl">What would a genuinely good orthopaedic service give you that nobody currently does?</label>
+    <textarea name="open_ideal"></textarea></div>
+  <div class="field"><label class="lbl">Anything else you would want said, including anything critical:</label>
+    <textarea name="open_other"></textarea></div>
+
+  <h2 class="section"><span class="n">9</span>How we may use your answers</h2>
+  <div class="q"><div class="qt">May we attribute your answers to you when we report back?</div>
+    ${radios("consent", ["Yes, my name may be attached to what I said",
+      "Report my answers, but without my name",
+      "Share the substance with Dr Bola but keep my identity with Consult for Africa only"])}</div>
+  <div class="q"><div class="qt">Would you like a summary of what colleagues said?</div>
+    ${radios("wants_findings", ["Yes, please send it","No thank you"])}</div>
+`;
+
+const form = document.getElementById("survey");
+function updateSplit(){
+  let t = 0;
+  SPLIT.forEach(s => { t += Number(form.querySelector('[name="' + s[0] + '"]').value || 0); });
+  const el = document.getElementById("splittot");
+  el.textContent = "Total: " + t + " of 100";
+  el.className = "splittot " + (t === 100 ? "good" : "bad");
+  return t;
+}
+form.addEventListener("input", updateSplit);
+updateSplit();
+
+document.getElementById("submitBtn").addEventListener("click", async () => {
+  const data = {};
+  new FormData(form).forEach((v, k) => {
+    if (k === "what_happens" || k === "would_change") { (data[k] = data[k] || []).push(v); }
+    else { data[k] = v; }
+  });
+  const err = document.getElementById("err");
+  const fail = (msg) => { err.style.display = "block"; err.textContent = msg; window.scrollTo({top:0,behavior:"smooth"}); };
+  if (!String(data.respondent || "").trim()) return fail("Please give us your name. It is the one field we need.");
+  const total = updateSplit();
+  if (total !== 100) return fail("The six factors in section 3 need to add up to exactly 100. They currently add to " + total + ".");
+  err.style.display = "none";
+  const payload = { survey:"osteon-referrer", respondent:data.respondent,
+                    submittedAt:new Date().toISOString(), responses:data };
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true; btn.textContent = "Submitting...";
+  try {
+    const r = await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    if (!r.ok) throw new Error("bad status");
+    document.getElementById("form").style.display = "none";
+    document.getElementById("thanks").style.display = "block";
+    window.scrollTo({top:0,behavior:"smooth"});
+  } catch (e) {
+    btn.disabled = false; btn.textContent = "Submit my answers";
+    fail("Something went wrong sending your answers. Please try again in a moment.");
+  }
+});
+</script>
+</body>
+</html>
