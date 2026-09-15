@@ -1,15 +1,26 @@
 Photography for the ilé prototype.
 
-All frames are from Pexels and carry the Pexels License: free to use
-commercially, no attribution required, no permission needed. They are
-placeholders for a commissioned shoot, not final brand assets.
+All frames are from Pexels under the Pexels License: free to use commercially,
+no attribution required. They are placeholders for a commissioned shoot, not
+final brand assets.
 
-  father-portrait.jpg       pexels.com/photo/19355372
-  mother-portrait.jpg       pexels.com/photo/11488978
-  family-lagos.jpg          pexels.com/photo/28561599
-  family-yoruba.jpg         pexels.com/photo/38600702   (Lagos, Nigeria)
-  daughter-and-mother.jpg   pexels.com/photo/13917189
-  elder-man.jpg             pexels.com/photo/30208144
-  elder-woman-joy.jpg       pexels.com/photo/36838818
+Provenance is only as good as the photographer's caption. Frames whose caption
+names Nigeria are marked VERIFIED; the rest are West African in appearance but
+unconfirmed, and should be replaced at the shoot.
+
+  IN USE
+  daughter-and-mother.jpg   pexels/20285987   Nigerian mother and adult daughter
+  mother-portrait.jpg       pexels/38909240   VERIFIED Lagos, Nigeria
+  family-yoruba.jpg         pexels/38600702   VERIFIED Lagos, Nigeria, Yoruba dress
+  father-portrait.jpg       pexels/19355372   unconfirmed origin
+
+  AVAILABLE, NOT CURRENTLY PLACED
+  family-lagos.jpg          pexels/28561599   unconfirmed origin
+  elder-man.jpg             pexels/30208144   unconfirmed origin
+  elder-woman-joy.jpg       pexels/36838818   unconfirmed origin
+
+REMOVED 2026-09-15: pexels/13917189 was captioned Addis Ababa, Ethiopia and
+should never have been used on a Nigerian brand. pexels/11488978 had no stated
+origin and read as East African.
 
 Sourced 2026-09-15.

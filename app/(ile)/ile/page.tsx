@@ -149,12 +149,9 @@ function Hero({ remaining }: { remaining: number }) {
     >
       <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-5 py-14 md:grid-cols-[1.02fr_1fr] md:px-8 md:py-24">
         <div>
-          <span
-            className="inline-block rounded-full px-3.5 py-1.5 text-[12px] font-medium"
-            style={{ background: "rgba(255,255,255,0.75)", color: C.green, border: `1px solid ${C.line}` }}
-          >
+          <p className="text-[13px] font-medium" style={{ color: C.green }}>
             Lagos care, built for families abroad
-          </span>
+          </p>
 
           <h1
             className="mt-6 text-[42px] leading-[1.04] md:text-[62px]"
@@ -169,7 +166,10 @@ function Hero({ remaining }: { remaining: number }) {
 
           <p className="mt-6 max-w-lg text-[17px] leading-relaxed" style={{ color: C.body }}>
             Vetted nurses, physiotherapists and doctors for your parents in Nigeria, plus premium
-            residential care. You see every visit, every day, from wherever you are.
+            residential care.
+            <span className="mt-2 block">
+              You see every visit, every day, from wherever you are.
+            </span>
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -305,9 +305,9 @@ function Distance() {
         <div className="overflow-hidden rounded-[22px]">
           <Image
             src="/ile/daughter-and-mother.jpg"
-            alt="An adult daughter with her mother"
-            width={1400}
-            height={2061}
+            alt="A Nigerian woman with her adult daughter"
+            width={1100}
+            height={1650}
             className="h-[380px] w-full object-cover md:h-[500px]"
           />
         </div>
@@ -586,10 +586,10 @@ function Founding({ remaining }: { remaining: number }) {
         </div>
         <div className="overflow-hidden rounded-[22px]">
           <Image
-            src="/ile/family-lagos.jpg"
-            alt="A Lagos family together at home across three generations"
+            src="/ile/family-yoruba.jpg"
+            alt="A family in Yoruba dress, photographed in Lagos"
             width={1400}
-            height={933}
+            height={1050}
             className="h-[330px] w-full object-cover md:h-[430px]"
           />
         </div>
