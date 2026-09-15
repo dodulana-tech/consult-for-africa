@@ -114,8 +114,11 @@ async function main() {
     const probe = await fetch(`${publicBase}/${storageKey}`).catch(() => null);
     if (probe && probe.ok) {
       const body = await probe.text().catch(() => "");
-      const keySegment = storageKey.split("/").pop() ?? "";
-      const entropyBits = Math.round((keySegment.split(".")[0]?.length ?? 0) * 6);
+      // Count only the random segment. An earlier version of this line counted
+      // the filename as entropy and reported 204 bits for a key that had 48.
+      const stem = (storageKey.split("/").pop() ?? "").split(".")[0] ?? "";
+      const random = /^[A-Za-z0-9_-]{43,}$/.test(stem) ? stem : stem.split("-")[0] ?? "";
+      const entropyBits = Math.round(random.length * 6);
       bad(
         `THE BUCKET SERVES THIS OBJECT PUBLICLY.\n` +
           `        ${publicBase}/${storageKey}\n` +
