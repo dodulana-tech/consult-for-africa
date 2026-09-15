@@ -1,0 +1,658 @@
+<title>Solace Healthcare Abuja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#FCFAF4; --surface:#FFFFFF; --surface2:#F5F3EB; --ink:#1B2621; --muted:#5E6B64;
+  --rule:#DEE3DD; --rule-soft:#EAEEE8; --head:#0F3D2E; --bar:#0F3D2E; --bar-ink:#F6F1E1;
+  --gold:#96790F; --gold-line:#C9A227; --teal:#2F6F5E;
+  --warn:#FAF0DC; --good:#E9F1EB; --bad:#F7E6DF;
+  --pass:#2F6F5E; --thin:#96790F; --fail:#A4442A;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#0E1310; --surface:#151C18; --surface2:#1B241E; --ink:#E6EDE7; --muted:#94A39A;
+  --rule:#27322C; --rule-soft:#1E2722; --head:#CFE3D6; --bar:#0B2B20; --bar-ink:#EBE3CC;
+  --gold:#D9B44A; --gold-line:#B4931F; --teal:#77BBA1;
+  --warn:#2A2216; --good:#15231B; --bad:#2B1A15;
+  --pass:#77BBA1; --thin:#D9B44A; --fail:#D98468;
+}}
+:root[data-theme="dark"]{
+  --bg:#0E1310; --surface:#151C18; --surface2:#1B241E; --ink:#E6EDE7; --muted:#94A39A;
+  --rule:#27322C; --rule-soft:#1E2722; --head:#CFE3D6; --bar:#0B2B20; --bar-ink:#EBE3CC;
+  --gold:#D9B44A; --gold-line:#B4931F; --teal:#77BBA1;
+  --warn:#2A2216; --good:#15231B; --bad:#2B1A15;
+  --pass:#77BBA1; --thin:#D9B44A; --fail:#D98468;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);margin:0;
+  font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+  font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.eyebrow,.num,th,.chip,.masthead,.statk,nav{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+.masthead{background:var(--bar);color:var(--bar-ink);border-bottom:3px solid var(--gold-line)}
+.masthead .in{max-width:1180px;margin:0 auto;padding:14px 28px;display:flex;flex-wrap:wrap;
+  gap:14px;justify-content:space-between;align-items:baseline;font-size:12.5px;
+  letter-spacing:.09em;text-transform:uppercase;font-weight:600}
+.masthead .in span{opacity:.78;letter-spacing:.06em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px 96px;display:grid;gap:0 52px;
+  grid-template-columns:1fr}
+@media(min-width:1080px){.wrap{grid-template-columns:186px minmax(0,1fr)}}
+nav.index{display:none}
+@media(min-width:1080px){nav.index{display:block;position:sticky;top:26px;align-self:start;
+  padding-top:56px;max-height:calc(100vh - 52px);overflow-y:auto}}
+nav.index p{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  margin:0 0 12px;font-weight:600}
+nav.index a{display:flex;gap:10px;text-decoration:none;color:var(--muted);font-size:12.5px;
+  padding:3px 0;line-height:1.35}
+nav.index a b{color:var(--gold);font-variant-numeric:tabular-nums;font-weight:600;min-width:18px}
+nav.index a:hover,nav.index a:focus-visible{color:var(--ink)}
+main{min-width:0;padding-top:52px}
+.title{font-size:clamp(30px,4.6vw,46px);line-height:1.06;margin:0 0 14px;color:var(--head);
+  font-weight:700;letter-spacing:-.02em;text-wrap:balance;max-width:19ch}
+.sub{font-size:19px;color:var(--gold);font-style:italic;margin:0 0 40px;max-width:56ch}
+.letter{border-top:2px solid var(--gold-line);border-bottom:1px solid var(--rule);
+  padding:26px 0 22px;margin-bottom:16px}
+.letter .to{font-family:Archivo,sans-serif;font-weight:700;font-size:14.5px;color:var(--head);
+  margin:0 0 18px;letter-spacing:.01em}
+.letter p{max-width:66ch}
+.sig{font-family:Archivo,sans-serif;font-weight:700;color:var(--head);margin:26px 0 0;font-size:15px}
+.sig span{display:block;font-weight:500;font-size:12.5px;color:var(--muted);letter-spacing:.04em}
+.sec{padding:46px 0 6px;border-top:1px solid var(--rule-soft)}
+.sec:first-of-type{border-top:none}
+.sec-head{display:flex;gap:18px;align-items:flex-start;margin-bottom:20px}
+.num{font-size:12px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums;
+  padding-top:7px;letter-spacing:.06em}
+.eyebrow{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);
+  margin:0 0 4px;font-weight:600}
+h2{font-size:clamp(21px,2.5vw,27px);line-height:1.18;margin:0;color:var(--head);font-weight:700;
+  letter-spacing:-.015em;text-wrap:balance}
+.lede{margin:8px 0 0;color:var(--muted);font-size:16px;font-style:italic;max-width:54ch}
+h3{font-family:Archivo,sans-serif;font-size:13px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--teal);margin:34px 0 12px;font-weight:600}
+p{margin:0 0 14px;max-width:70ch}
+.note{font-size:13.5px;color:var(--muted);line-height:1.5;max-width:78ch}
+.list{margin:0 0 16px;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px}
+.list.tight{gap:7px}
+.list li{position:relative;padding-left:20px;max-width:70ch}
+.list li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:7px;
+  background:var(--gold-line)}
+.card{background:var(--surface2);border-left:3px solid var(--gold-line);padding:17px 20px;
+  margin:22px 0;font-size:16px;line-height:1.56}
+.card.good{background:var(--good);border-left-color:var(--teal)}
+.card.warn{background:var(--warn);border-left-color:var(--gold-line)}
+.card p{margin:0 0 10px;max-width:66ch}.card p:last-child{margin:0}
+.tw{overflow-x:auto;margin:18px 0 8px;border-top:2px solid var(--head)}
+table{border-collapse:collapse;width:100%;font-size:14px;
+  font-family:Archivo,"Helvetica Neue",sans-serif;line-height:1.42}
+.tw.wide table{min-width:720px}
+th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;
+  color:var(--muted);padding:9px 12px 9px 0;border-bottom:1px solid var(--rule);vertical-align:bottom}
+td{padding:10px 12px 10px 0;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+th:last-child,td:last-child{padding-right:0}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:13px;white-space:nowrap}
+tr.foot td{border-top:2px solid var(--gold-line);border-bottom:none;font-weight:600;
+  background:var(--surface2)}
+tbody tr:hover td{background:var(--surface2)}
+tr.foot:hover td{background:var(--surface2)}
+.chip{display:inline-block;font-size:10.5px;letter-spacing:.1em;font-weight:700;padding:2px 8px;
+  border:1px solid currentColor}
+.chip.pass{color:var(--pass)}.chip.thin{color:var(--thin)}.chip.fail{color:var(--fail)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:1px;
+  background:var(--rule);border:1px solid var(--rule);margin:26px 0 8px}
+.stat{background:var(--surface);padding:16px 18px}
+.statv{font-family:"IBM Plex Mono",monospace;font-size:25px;font-weight:500;color:var(--head);
+  letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.statk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+  margin-top:7px;font-weight:600;line-height:1.35}
+.foot-rule{margin-top:56px;border-top:2px solid var(--gold-line);padding-top:18px;
+  font-size:12.5px;color:var(--muted);letter-spacing:.04em;
+  font-family:Archivo,sans-serif;display:flex;flex-wrap:wrap;gap:6px 22px}
+a{color:var(--gold)}
+:focus-visible{outline:2px solid var(--gold-line);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<div class="masthead"><div class="in"><div>Solace Healthcare <span>&nbsp;/&nbsp; Games Village, Abuja</span></div><div><span>Private and confidential &nbsp;/&nbsp; Prepared for Dr Oby Clems-Anunwa &nbsp;/&nbsp; 14 September 2026</span></div></div></div>
+<div class="wrap"><nav class="index" aria-label="Sections"><p>Contents</p><a href="#s00"><b>00</b><span>The answer</span></a><a href="#s01"><b>01</b><span>The site</span></a><a href="#s02"><b>02</b><span>The market</span></a><a href="#s03"><b>03</b><span>The strategy</span></a><a href="#s04"><b>04</b><span>The service mix</span></a><a href="#s05"><b>05</b><span>The payors</span></a><a href="#s06"><b>06</b><span>The three phases</span></a><a href="#s07"><b>07</b><span>The money</span></a><a href="#s08"><b>08</b><span>Working capital</span></a><a href="#s09"><b>09</b><span>What breaks it</span></a><a href="#s10"><b>10</b><span>The critical path</span></a><a href="#s11"><b>11</b><span>Outsourcing</span></a><a href="#s12"><b>12</b><span>The consultant question</span></a><a href="#s13"><b>13</b><span>How this fails</span></a><a href="#s14"><b>14</b><span>What we would do</span></a><a href="#s15"><b>15</b><span>What it costs</span></a><a href="#s16"><b>16</b><span>If you want us to run it</span></a><a href="#s17"><b>17</b><span>The first ninety days</span></a><a href="#s18"><b>18</b><span>If we only had a page</span></a><a href="#sA"><b>A</b><span>Appendix</span></a><a href="#sB"><b>B</b><span>Appendix</span></a></nav><main>
+<h1 class="title">Five apartments, three phases, two years</h1>
+<p class="sub">Whether this site can carry a NGN 400 million a month healthcare business, what it would take, and what we would do with you.</p>
+<div class="letter"><p class="to">Dr Oby Clems-Anunwa, Promoter, Solace Healthcare</p>
+<p>Dr Oby, you asked whether five converted apartments near Games Village can become a healthcare business turning over NGN 400 million a month within two years. The answer is yes, in month 24.</p>
+<p>A few things I want to put plainly before the detail.</p>
+<p>The target is reachable, but not from this site alone. The five units on their own reach NGN 380 million in month 24 and do not cross NGN 400 million until month 28. A second diagnostic and clinic site, opened in month 22, closes the gap. It sits in Phase 3 on the plan. It has to be committed in Phase 1, because the lease and the fit-out take eight months.</p>
+<p>Revenue is the wrong thing to manage here. About a fifth of what you are aiming at is cancer drug pass-through, and it earns roughly half what a scan earns on the same naira. I would hold you to NGN 86 million of monthly earnings at month 24 rather than to the revenue figure.</p>
+<p>The number that catches people is working capital. At that run rate you are carrying about NGN 594 million of it, nearly all of it money owed to you. You buy the drugs for cash and bill payors who take between 38 and 135 days. Section 08 deals with it and nothing else.</p>
+<p>We stressed this ten ways. Demand can disappoint quite badly and the business survives. Two of the ten destroy value and both are construction. You can be 26 per cent over budget. You can be eight months late. You cannot be both.</p>
+<p>One caution on the site. The last residential conversion we ran in Abuja came back from the measured survey 34 per cent larger than the brief, and all of the extra was corridor, so the cost moved and the revenue did not. Until your five units are measured, every figure in here is an estimate, ours included. That survey costs about NGN 14 million and I would spend it before anything else.</p>
+<p>One correction to make early, because the pitch depends on it. The African Medical Centre of Excellence is under twenty minutes from your site and it does the whole cancer pathway properly, radiotherapy included. Do not build an argument that says nobody in Abuja does. Build the one underneath it. AMCE was priced against Chennai and Istanbul, which is the right position for them and leaves most of your catchment standing outside it.</p>
+<p>Last thing. You are a consultant family physician at a federal hospital. That will be read as a source of referrals. I read it as two advantages that are hard to buy. Cancer care here fails at the two ends family medicine owns, the front door where the diagnosis comes too late and afterwards where people are sent home with nothing, and neither of those is what a flagship centre wants to run. And you know how cancer drugs are actually sourced and priced in this country, which decides whether a private service can be affordable at all.</p>
+<p class="sig">Debo Odulana<span>Founding Partner, Consult for Africa</span></p></div>
+<section class="sec" id="s00"><div class="sec-head"><span class="num">00</span><div><p class="eyebrow">The answer</p><h2>Yes, in month 24, on three conditions.</h2></div></div>
+<div class="stats">
+<div class="stat"><div class="statv">NGN 402 m</div><div class="statk">Revenue, month 24</div></div>
+<div class="stat"><div class="statv">NGN 86 m</div><div class="statk">Monthly earnings, month 24</div></div>
+<div class="stat"><div class="statv">21%</div><div class="statk">Earnings margin</div></div>
+<div class="stat"><div class="statv">NGN 2.91 bn</div><div class="statk">Peak funding, month 23</div></div>
+<div class="stat"><div class="statv">32%</div><div class="statk">Return over seven years</div></div>
+<div class="stat"><div class="statv">Month 49</div><div class="statk">Capital back</div></div>
+</div>
+<p class="note">Seven year monthly model, no terminal value counted, at a 25 per cent naira hurdle.</p>
+<div class="tw wide"><table>
+<thead><tr><th class="">Question</th><th class="">Answer</th><th class="">Why</th></tr></thead><tbody>
+<tr><td class="">Can the site reach NGN 400m a month inside two years?</td><td class="">Yes, in month 24</td><td class="">Only with the second site opened in month 22. Without it, month 28.</td></tr>
+<tr><td class="">Is it worth doing?</td><td class="">Yes</td><td class="">32 per cent over seven years, NGN 537 m of value at a 25 per cent naira hurdle.</td></tr>
+<tr><td class="">What does it cost to build?</td><td class="">NGN 2.62 bn</td><td class="">Across three phases, from the survey to the second site.</td></tr>
+<tr><td class="">What do you actually need to fund?</td><td class="">NGN 2.91 bn</td><td class="">Peaking in month 23. The extra NGN 292 m over the build cost is working capital.</td></tr>
+<tr><td class="">When does the money come back?</td><td class="">Month 49</td><td class="">A six to seven year asset. Anyone selling you a three year payback on a cancer service is not counting the drugs.</td></tr>
+<tr><td class="">What earns the most?</td><td class="">The theatre</td><td class="">Day surgery is the largest single source of profit. Oncology is the largest source of revenue. They are not the same thing.</td></tr>
+<tr><td class="">Who are you competing with?</td><td class="">Nobody directly</td><td class="">AMCE is twenty minutes away and holds the top of this market. You take the people who cannot reach their prices, and you refer complexity up to them.</td></tr>
+<tr><td class="">What breaks it?</td><td class="">The conversion</td><td class="">Not demand. Two of ten stress cases destroy value and both are construction.</td></tr>
+<tr><td class="">What has to be decided now?</td><td class="">The second site</td><td class="">A Phase 3 asset that has to be committed in Phase 1, because the lease, the licence and the fit-out take eight months.</td></tr>
+</tbody></table></div>
+<aside class="card plain"><p><b>Three conditions.</b> Commit to the second site in Phase 1, not in Phase 3. Pre-fund systemic therapy from the first patient. Do not break ground until change of use is granted and the conversion is on a fixed price. Everything else in here is detail.</p></aside>
+</section>
+<section class="sec" id="s01"><div class="sec-head"><span class="num">01</span><div><p class="eyebrow">The site</p><h2>What five apartments will become.</h2></div></div>
+<p>We have assumed 5 units, 1,150 sqm gross, 782 sqm net of circulation and plant. Those are planning figures and they are the weakest numbers in this document. Everything below is written to be re-run the week the survey lands.</p>
+<div class="tw wide"><table>
+<thead><tr><th class="">Unit</th><th class="">Becomes</th><th class="">What goes in it</th><th class="">When</th></tr></thead><tbody>
+<tr><td class="">A</td><td class="">Front of house and clinics</td><td class="">Reception, triage, nine consulting rooms, family medicine and visiting specialist sessions</td><td class="">Phase 1</td></tr>
+<tr><td class="">B</td><td class="">Diagnostics</td><td class="">Laboratory and phlebotomy on the ground floor, imaging in a purpose-shielded ground bay, reporting above</td><td class="">Phase 1</td></tr>
+<tr><td class="">C</td><td class="">Cancer day unit</td><td class="">Fourteen infusion chairs, two private bays, compounding clean room and isolator, oncology clinics, counselling</td><td class="">Phase 1</td></tr>
+<tr><td class="">D</td><td class="">Procedures</td><td class="">Theatre one and endoscopy, recovery bays, sterile services. Theatre two and high dependency follow in Phase 2</td><td class="">Phase 1 and 2</td></tr>
+<tr><td class="">E</td><td class="">Living with it, and support</td><td class="">Rehabilitation gymnasium, palliative day space, home care base, pharmacy, administration, plant</td><td class="">Phase 1 and 2</td></tr>
+</tbody></table></div>
+<h3>Six things residential geometry will do to you</h3>
+<ul class="list">
+<li><b>Corridors.</b> A residential corridor runs 900mm to 1.2m. A trolley needs 1.5m and a bed needs 2.1m with room to turn. Widening one means moving walls that are holding the floor above up. It is the largest single cost in the conversion and it earns you nothing.</li>
+<li><b>Stairs.</b> A residential staircase will not take a stretcher. Anything above ground floor that a patient cannot walk out of needs a lift, and a lift in a finished building needs an external shaft on its own foundation. We have carried NGN 104 m for it. That is why the beds are a Phase 2 item and not a Phase 1 one.</li>
+<li><b>Slabs.</b> A residential floor is designed for roughly 1.5 to 2.0 kN per square metre. A computed tomography gantry is a concentrated load and wants a ground bay, usually thickened. I do not know what your slab will take, and neither does anybody else until it is tested. If the answer is no, the scanner goes off site and the plan loses about NGN 29 million a month of its best margin revenue.</li>
+<li><b>Drainage.</b> Bedrooms become consulting rooms easily. They do not become theatres. Theatre, sterile services and the compounding room need falls, dirty utility, and clean and dirty flows kept apart.</li>
+<li><b>Power.</b> A residential three-phase service will not carry imaging, theatre and chillers together. Own transformer, synchronised generation, uninterruptible supply on the scanner. NGN 96 m.</li>
+<li><b>Change of use.</b> Not a building problem. Your certificate of occupancy almost certainly says residential, development control has to agree otherwise, and neighbours in a residential estate are entitled to be heard. It is the longest item in the programme and it is lodged in week one.</li>
+</ul>
+<p>One practical thing this week. Ask whoever built the units for the as-built drawings and the structural calculations. If they do not exist, we should know that now rather than in month four.</p>
+<aside class="card good"><p>Five houses give you daylight, domestic scale, gardens and privacy that a purpose-built hospital block cannot buy at any price. For somebody sitting through four hours of chemotherapy, and for the relative sitting with them, that is worth more than a grand lobby. Do not spend money making this look like a hospital.</p></aside>
+</section>
+<section class="sec" id="s02"><div class="sec-head"><span class="num">02</span><div><p class="eyebrow">The market</p><h2>The catchment is good. The gap is in cancer.</h2></div></div>
+<p>Games Village, Apo, Apo Legislative Quarters, Gudu, Durumi, Lokogoma, Gaduwa, Kaura and Wuye. Salaried households, heavily weighted to the federal civil service and the legislature, largely insured through employer schemes, and accustomed to paying out of pocket for speed when the scheme is slow. The Central Business District and National Hospital are a short drive north.</p>
+<div class="tw wide"><table>
+<thead><tr><th class="">Segment</th><th class="">Who is in it</th><th class="">What it means for you</th></tr></thead><tbody>
+<tr><td class="">General and multi-specialty</td><td class="">Cedarcrest, Kelina, Zenith Medical and Kidney Centre, Nisa Premier, Garki Hospital, Nizamiye, Primus, Alliance</td><td class="">The cluster is well served. Do not compete here.</td></tr>
+<tr><td class="">Public anchors</td><td class="">National Hospital Abuja, the FCTA district hospitals</td><td class="">The source of the consultant body, and of the referrals that matter.</td></tr>
+<tr><td class="">Diagnostics</td><td class="">Clina-Lancet, Synlab, Afriglobal, Me Cure, Union Diagnostics</td><td class="">Strong on tests, absent on the pathway that turns a test into a decision.</td></tr>
+<tr><td class="">Cancer care</td><td class="">The African Medical Centre of Excellence, under twenty minutes away, plus a small number of private day units and the public radiotherapy capacity at National Hospital</td><td class="">AMCE has taken the top of this market and taken it properly. The opening is underneath them, not against them.</td></tr>
+</tbody></table></div>
+<p class="note">Treat the third column as our hypothesis, not as fact. Competitor positions move, and the first six weeks of work is to verify this on the ground rather than to assume it.</p>
+<h3>The gap, which is not the one you will be offered</h3>
+<p>There is a version of this pitch that says nobody in Abuja does cancer care end to end. It is not true and you should not use it. The African Medical Centre of Excellence sits under twenty minutes from your site, it is backed by Afreximbank, and it was built to do exactly that, including the radiotherapy you cannot put on this plot. It is a serious institution and it is not going anywhere.</p>
+<p>The real gap is underneath it. AMCE was built to stop Nigerians flying to India and Turkey, which means it is priced against Chennai and Istanbul rather than against Abuja. That is the correct position for them. It also leaves a very large number of people standing outside it.</p>
+<p>Those people are your market. A household in Apo or Lokogoma with an employer scheme that caps oncology, a salary, some savings, and a relative abroad who can send something but not everything. Today they assemble their care across three or four places, or they start a treatment plan and stop when the money does. A woman who finds a breast lump will typically spend between four and ten weeks and visit three separate places before anybody tells her what it is, and by then the disease has often moved a stage. Nobody in this city is organised around her.</p>
+<p>There is a second gap and it has nothing to do with price. A quaternary centre is not a front door. Screening, family medicine, survivorship follow-up and home palliative care are not what a flagship does well, and not what it wants its capacity used for. Those are the two ends of the journey, and they are the ends you own by training.</p>
+<h3>Where you would price, and why you can sit there</h3>
+<p>Price the diagnostic pathway and standard systemic therapy at roughly half the flagship tariff. We would price-shop AMCE and two others properly in the first six weeks and set the exact ratio then. Half is the working number, and the tariff behind Section 04 is already built at that level, so nothing in this model depends on charging flagship prices.</p>
+<ul class="list">
+<li>Your capital base. NGN 2.62 billion across three phases, against a purpose-built quaternary hospital. Financing and depreciation per patient episode is a different order of number.</li>
+<li>No beds at all in Phase 1, and twenty of them in Phase 2 rather than hundreds. Beds carry night nursing, catering and twenty four hour everything. Day case work does not.</li>
+<li>A visiting consultant panel paid per session and per case, instead of a salaried quaternary establishment.</li>
+<li>Reporting, the reference laboratory and the scanner itself on managed contracts, so your fixed cost per study stays low while volume is still building.</li>
+<li>Drug sourcing, which is the next section and the largest of these.</li>
+<li>No radiotherapy, no transplant and no quaternary surgery to carry. You refer those up, and you should.</li>
+</ul>
+<aside class="card good"><p>Do not position this against AMCE. Position it underneath them, and alongside them. They will have patients who need systemic therapy closer to home, follow-up, rehabilitation and palliative care, and none of that is what a flagship wants its theatres and bunkers used for. A referral relationship running both ways is worth more to you than a rivalry, and it is available precisely because you are not trying to take their work.</p></aside>
+</section>
+<section class="sec" id="s03"><div class="sec-head"><span class="num">03</span><div><p class="eyebrow">The strategy</p><h2>Own the whole journey.</h2></div></div>
+<div class="tw wide"><table>
+<thead><tr><th class="">Stage</th><th class="">What it is</th><th class="">Who owns it in Abuja today</th><th class="">Who owns it at Solace</th></tr></thead><tbody>
+<tr><td class="">The front door</td><td class="">Where the symptom is first seen</td><td class="">A general practice, late</td><td class="">Family medicine, screening, corporate schemes</td></tr>
+<tr><td class="">The answer</td><td class="">Imaging, biopsy, pathology, a named diagnosis</td><td class="">Three sites and four to ten weeks, or the flagship at flagship prices</td><td class="">One site, 48 hours, a plan in seven days</td></tr>
+<tr><td class="">The treatment</td><td class="">Surgery, systemic therapy, radiotherapy</td><td class="">AMCE for those who can pay it, otherwise a hospital that does not know the patient</td><td class="">Day unit and theatre at half the tariff, one record</td></tr>
+<tr><td class="">Living with it</td><td class="">Rehabilitation, lymphoedema, nutrition, mental health</td><td class="">Largely absent at any price</td><td class="">Rehabilitation and survivorship built in from Phase 1</td></tr>
+<tr><td class="">Going home</td><td class="">Palliative care, pain control, family support</td><td class="">The patient is discharged and disappears</td><td class="">Home based care with a controlled drug licence</td></tr>
+</tbody></table></div>
+<h3>The promise</h3>
+<aside class="card plain"><p><b>A diagnosis in 48 hours. A plan in seven days.</b></p><p>Published, measured and reported every month. It is the thing every referring doctor in this city wants and cannot get. It is also the only claim a new facility can make honestly on day one, because it depends on how you are organised rather than on how long you have been open.</p></aside>
+<h3>Why you are the right promoter, which is not the reason people will give you</h3>
+<p>You will be told your value is referrals from colleagues at National Hospital. That is true and it is the smaller half of it.</p>
+<p>Family medicine is the only specialty trained to hold a whole person over time rather than one organ at one moment. What fails in Nigerian cancer care is not a shortage of oncologists. It is that nobody owns the patient in between the specialists. A cancer service with a family medicine front door and a home care back door is a different thing from a hospital that treats cancer, and it is harder for a specialist-founded competitor to copy than a machine is.</p>
+<h3>Your second advantage, which may be worth more than the first</h3>
+<p>You know how cancer drugs are actually sourced and priced in this country. A private facility starting cold buys from whichever distributor quotes it. You know which regimens sit on manufacturer access programmes, which biosimilars are quality assured and accepted here, what the federal schemes cover and how a patient is actually enrolled onto them, and roughly what a cycle should cost before anybody marks it up.</p>
+<p>Drugs are about two thirds of the cost of your largest revenue line, which is why this matters more than it sounds. If access programme sourcing lands and that ratio moves from 66 to 60 per cent, month 24 earnings go from NGN 86 m to NGN 91 m, the margin goes from 21 to 23 per cent, and the seven year value rises by NGN 188 m. Nobody else opening a cancer service in Abuja this year starts with that knowledge, and it is what makes a price position at half the flagship tariff something you can hold rather than something you announce.</p>
+<aside class="card warn"><p>One line to draw now, and to draw in writing. Nothing procured under a public institution's programme moves to a private facility. The advantage here is knowing the pathways and enrolling your own patients onto them directly. It is not access to anybody else's stock. Put that in the conflict of interest policy in Section 12 alongside the referral rules, and put it there before anybody has to ask you about it.</p></aside>
+<h3>On new buildings</h3>
+<p>You are right that people like new facilities. Newness is worth nine to twelve months and then it is gone, and what is left is whether you answered the phone.</p>
+<ul class="list">
+<li>Publish your time to appointment, time to result and time to treatment every month, and put them on the wall in reception. Nobody else in Abuja will.</li>
+<li>Give every patient one named person who owns their journey, whose number the family has, and who is measured on whether anybody got lost. It is cheap and hardly anyone buys it.</li>
+<li>Daylight, a chair a relative can sit in, a garden, food, wifi. Your building gives you this for nothing.</li>
+</ul>
+</section>
+<section class="sec" id="s04"><div class="sec-head"><span class="num">04</span><div><p class="eyebrow">The service mix</p><h2>Ten lines, and which of them actually pay.</h2></div></div>
+<div class="tw wide"><table>
+<thead><tr><th class="">Service line</th><th class="r">Opens</th><th class="r">At maturity</th><th class="r">Month 24</th><th class="r">Share of revenue</th><th class="r">Margin after direct cost</th><th class="r">Share of profit</th></tr></thead><tbody>
+<tr><td class="">Oncology day therapy</td><td class="r">9</td><td class="r">121.5</td><td class="r">87.6</td><td class="r">22%</td><td class="r">34%</td><td class="r">14%</td></tr>
+<tr><td class="">Radiology and imaging</td><td class="r">9</td><td class="r">68.4</td><td class="r">54.7</td><td class="r">14%</td><td class="r">66%</td><td class="r">17%</td></tr>
+<tr><td class="">Laboratory and pathology</td><td class="r">9</td><td class="r">56.3</td><td class="r">43.9</td><td class="r">11%</td><td class="r">54%</td><td class="r">11%</td></tr>
+<tr><td class="">Day surgery, endoscopy, interventions</td><td class="r">10</td><td class="r">99.8</td><td class="r">66.5</td><td class="r">17%</td><td class="r">58%</td><td class="r">18%</td></tr>
+<tr><td class="">Family medicine, clinics, corporate</td><td class="r">9</td><td class="r">61.4</td><td class="r">52.3</td><td class="r">13%</td><td class="r">62%</td><td class="r">15%</td></tr>
+<tr><td class="">Pharmacy and retail</td><td class="r">9</td><td class="r">24.0</td><td class="r">19.7</td><td class="r">5%</td><td class="r">28%</td><td class="r">3%</td></tr>
+<tr><td class="">Rehabilitation and physiotherapy</td><td class="r">11</td><td class="r">16.8</td><td class="r">11.3</td><td class="r">3%</td><td class="r">60%</td><td class="r">3%</td></tr>
+<tr><td class="">Palliative and home based care</td><td class="r">12</td><td class="r">15.4</td><td class="r">9.3</td><td class="r">2%</td><td class="r">52%</td><td class="r">2%</td></tr>
+<tr><td class="">Inpatient, day-of-surgery and HDU</td><td class="r">17</td><td class="r">57.8</td><td class="r">34.8</td><td class="r">9%</td><td class="r">56%</td><td class="r">9%</td></tr>
+<tr><td class="">Diagnostic and clinic spoke</td><td class="r">22</td><td class="r">58.0</td><td class="r">21.8</td><td class="r">5%</td><td class="r">60%</td><td class="r">6%</td></tr>
+<tr class="foot"><td class="">Total</td><td class="r"></td><td class="r">579.4</td><td class="r">401.7</td><td class="r">100%</td><td class="r">52%</td><td class="r">100%</td></tr>
+</tbody></table></div>
+<p class="note">Revenue in NGN millions a month. Maturity is what the line earns once the ramp is complete, which for most lines is around month 36.</p>
+<p>Read the last two columns together. Oncology is 22 per cent of the revenue and 14 per cent of the profit. Radiology is 14 per cent of the revenue and 17 per cent of the profit, the same relationship the other way round, and day surgery is the largest single source of profit in the plan. The cancer service is what brings people to you and what the place will be known for. The theatre and the scanner are what pay for the building.</p>
+<h3>What each line assumes</h3>
+<div class="tw wide"><table>
+<thead><tr><th class="">Line</th><th class="">Volume assumption</th><th class="">Note</th></tr></thead><tbody>
+<tr><td class="">Oncology day therapy</td><td class="">85 patients on active treatment each month</td><td class="">NGN 1.43m blended per patient-month across cytotoxic, targeted and supportive</td></tr>
+<tr><td class="">Radiology and imaging</td><td class="">9 CT, 24 ultrasound, 16 plain film, 9 breast studies a day</td><td class="">26 trading days, contrast-weighted pricing</td></tr>
+<tr><td class="">Laboratory and pathology</td><td class="">135 tests a day plus 110 histopathology cases a month</td><td class="">STAT and routine in house, molecular and immunohistochemistry sent out</td></tr>
+<tr><td class="">Day surgery, endoscopy, interventions</td><td class="">80 theatre cases, 105 endoscopies, 70 access procedures a month</td><td class="">two lists a day once the second theatre opens</td></tr>
+<tr><td class="">Family medicine, clinics, corporate</td><td class="">85 clinic visits a day plus 6,500 retained lives</td><td class="">the promoter's own practice is the opening base</td></tr>
+<tr><td class="">Pharmacy and retail</td><td class="">outpatient dispensing attached to clinic and day case volume</td><td class="">excludes oncology drugs, which sit in the oncology line</td></tr>
+<tr><td class="">Rehabilitation and physiotherapy</td><td class="">38 sessions a day</td><td class="">oncology rehabilitation, lymphoedema, post-surgical and musculoskeletal</td></tr>
+<tr><td class="">Palliative and home based care</td><td class="">48 households on an active package</td><td class="">requires a controlled drug licence, which is a phase one filing</td></tr>
+<tr><td class="">Inpatient, day-of-surgery and HDU</td><td class="">20 beds at 55 per cent occupancy</td><td class="">three of them high dependency, four ring-fenced for palliative admissions</td></tr>
+<tr><td class="">Diagnostic and clinic spoke</td><td class="">a leased second site feeding the hub</td><td class="">imaging, phlebotomy and clinics only, no theatre, no beds</td></tr>
+</tbody></table></div>
+</section>
+<section class="sec" id="s05"><div class="sec-head"><span class="num">05</span><div><p class="eyebrow">The payors</p><h2>Who pays, and how long they take.</h2></div></div>
+<div class="tw wide"><table>
+<thead><tr><th class="">Payor</th><th class="r">Share</th><th class="r">Days to cash</th><th class="r">NGN m at month 24</th><th class="">What it is and what it is for</th></tr></thead><tbody>
+<tr><td class="">Out of pocket and family funded, including diaspora</td><td class="r">44%</td><td class="r">0</td><td class="r">176.8</td><td class="">Cancer care in Nigeria is largely self-funded, and a large share of that is funded by family abroad. Collect from them in their own currency.</td></tr>
+<tr><td class="">Corporate self-funded, retainers, missions</td><td class="r">21%</td><td class="r">38</td><td class="r">84.4</td><td class="">Corporate schemes, mission and embassy accounts, retainers. Predictable and the quiet win. Family medicine sells these.</td></tr>
+<tr><td class="">Private health maintenance organisations</td><td class="r">21%</td><td class="r">82</td><td class="r">84.4</td><td class="">Most private plans cap or exclude systemic cancer therapy. Useful for clinics, imaging and day surgery. Dangerous if it grows.</td></tr>
+<tr><td class="">NHIA formal sector, Cancer Health Fund, vulnerable group fund</td><td class="r">10%</td><td class="r">135</td><td class="r">40.2</td><td class="">Formal sector lives, the Cancer Health Fund and the vulnerable group fund. Real money, slow money. Budget it as slow.</td></tr>
+<tr><td class="">Charity, manufacturer access programmes, non-governmental</td><td class="r">4%</td><td class="r">60</td><td class="r">16.1</td><td class="">Manufacturer access programmes and charitable funds. Small, and they lock referrals.</td></tr>
+<tr class="foot"><td class="">Blended</td><td class="r">100%</td><td class="r">41</td><td class="r">401.7</td><td class="">Days to cash, weighted by share.</td></tr>
+</tbody></table></div>
+<h3>Six rules I would write into the operating model on day one</h3>
+<ul class="list">
+<li><b>Systemic cancer therapy is pre-authorised and pre-funded before cycle one. No exceptions and no goodwill starts.</b> This one rule protects your largest revenue line and most of your cash cycle. It will feel hard the first time you enforce it on somebody you know. Enforce it anyway.</li>
+<li>Do not chase scheme volume to look busy. If the health maintenance organisation share drifts from 21 to 40 per cent your returns barely move, but your peak funding requirement rises by NGN 183 million. It will not show up in any month's profit. It shows up as a call for cash nobody planned for.</li>
+<li>Build the foreign currency rail early. A great deal of cancer treatment in this country is paid for by a son or a daughter abroad, and a compliant way for them to pay in sterling or dollars turns an 82 day receivable into a same day one.</li>
+<li>Get onto the manufacturer access programmes in Phase 1, before you need them. They lower the price the patient sees and they cost you nothing but paperwork.</li>
+<li>Apply for Cancer Health Fund designation. Do not spend the money until it arrives.</li>
+<li>Weekly claims cycle, seven day submission, and a hard stop on new elective work for any payor past ninety days. Put the stop in the contract at signature. It is unenforceable once they are already late.</li>
+</ul>
+</section>
+<section class="sec" id="s06"><div class="sec-head"><span class="num">06</span><div><p class="eyebrow">The three phases</p><h2>What opens when, and the decision inside each phase.</h2></div></div>
+<div class="tw wide"><table>
+<thead><tr><th class="">Phase</th><th class="">When</th><th class="">What it is</th><th class="">What opens</th><th class="r">Capex NGN m</th><th class="r">Revenue at close</th></tr></thead><tbody>
+<tr><td class="">Phase 1</td><td class="">Months 1 to 9</td><td class="">Day case and ambulatory</td><td class="">Clinics, laboratory, imaging, cancer day unit, theatre one, endoscopy, rehabilitation, palliative day service and home care</td><td class="r">1,521</td><td class="r">191</td></tr>
+<tr><td class="">Phase 2</td><td class="">Months 10 to 17</td><td class="">Inpatient, at half capacity</td><td class="">Twenty beds including three high dependency and four ring-fenced for palliative admissions, theatre two, bed lift and stretcher-capable circulation</td><td class="r">648</td><td class="r">315</td></tr>
+<tr><td class="">Phase 3</td><td class="">Months 18 to 27</td><td class="">Centre of excellence, and the second site</td><td class="">Accreditation, outcomes registry, tumour board with external faculty, training post recognition, trials capability, and a leased diagnostic and clinic spoke</td><td class="r">448</td><td class="r">402</td></tr>
+</tbody></table></div>
+<h3>The decision inside each phase</h3>
+<ul class="list">
+<li><b>Phase 1 is a licensing race.</b> The fit-out will finish before the consents do unless the consents start first. Change of use, radiation authorisation and the controlled drug licence all go in inside the first ninety days, including the drug licence for a palliative service that does not open until month 12. Palliative care without morphine is not palliative care, and that permit is slow.</li>
+<li><b>Phase 2 is a circulation problem, not a bed problem.</b> The beds are easy. The lift, the shaft and the corridor widths are the project. Design them in Phase 1 even though you build them in Phase 2. Retrofitting a shaft into a finished building costs about twice what designing it in costs.</li>
+<li><b>Phase 3 contains the decision you have to take first.</b> The second site takes eight months from decision to opening, so a month 22 opening is a month 14 decision at the latest and the search starts in Phase 1. It is worth NGN 414 million of value for NGN 286 million of capital, and it is what puts NGN 400 million a month inside two years rather than four months outside.</li>
+</ul>
+<aside class="card good"><p><b>On the centre of excellence.</b> It is not a building and you cannot buy it. It is four things: published outcomes, a tumour board that senior people want to attend, accreditation an insurer recognises, and a training post the postgraduate college has approved. The last of those is the strongest consultant magnet in Nigerian medicine and hardly anyone in the private sector goes after it.</p><p><b>And on radiotherapy, since you will be asked.</b> Do not put a linear accelerator on this site. A bunker needs two to three metres of concrete, deep excavation and a nuclear regulatory licence, and a converted residential plot will not carry it. Partner for radiotherapy in Phase 3 and put the bunker on a second site later, if at all.</p></aside>
+</section>
+<section class="sec" id="s07"><div class="sec-head"><span class="num">07</span><div><p class="eyebrow">The money</p><h2>Seven years, monthly, with no terminal value counted.</h2></div></div>
+<div class="tw wide"><table>
+<thead><tr><th class=""></th><th class="r">Revenue</th><th class="r">Earnings before interest, tax and depreciation</th><th class="r">Margin</th><th class="r">Capital spend</th><th class="r">Cumulative cash</th></tr></thead><tbody>
+<tr><td class="">Year 1</td><td class="r">527</td><td class="r">-116</td><td class="r">-22%</td><td class="r">1,691</td><td class="r">-2,324</td></tr>
+<tr><td class="">Year 2</td><td class="r">3,792</td><td class="r">769</td><td class="r">20%</td><td class="r">925</td><td class="r">-2,897</td></tr>
+<tr><td class="">Year 3</td><td class="r">5,400</td><td class="r">1,350</td><td class="r">25%</td><td class="r">0</td><td class="r">-1,679</td></tr>
+<tr><td class="">Year 4</td><td class="r">5,935</td><td class="r">1,636</td><td class="r">28%</td><td class="r">0</td><td class="r">-86</td></tr>
+<tr><td class="">Year 5</td><td class="r">6,189</td><td class="r">1,771</td><td class="r">29%</td><td class="r">0</td><td class="r">1,661</td></tr>
+<tr><td class="">Year 6</td><td class="r">6,341</td><td class="r">1,850</td><td class="r">29%</td><td class="r">0</td><td class="r">3,496</td></tr>
+<tr><td class="">Year 7</td><td class="r">6,442</td><td class="r">1,903</td><td class="r">30%</td><td class="r">0</td><td class="r">5,389</td></tr>
+</tbody></table></div>
+<p class="note">NGN millions. Earnings are before the cost of any borrowing and before tax. Capital allowances on NGN 2.62 bn of spend will shelter tax well into year three, and a pioneer status application is worth making.</p>
+<h3>Month 24, line by line</h3>
+<div class="tw"><table>
+<thead><tr><th class="">Month 24</th><th class="r">NGN m</th><th class=""></th></tr></thead><tbody>
+<tr><td class="">Revenue</td><td class="r">401.7</td><td class="">The number you asked for.</td></tr>
+<tr><td class="">Direct clinical cost</td><td class="r">(191.5)</td><td class="">Drugs, consumables, reagents, reporting fees, procedure-linked staff cost.</td></tr>
+<tr><td class="">Contribution</td><td class="r">210.2</td><td class="">52 per cent. This is the number to manage.</td></tr>
+<tr><td class="">Fixed operating cost</td><td class="r">(124.0)</td><td class="">Establishment, power, estate, service contracts, marketing, insurance, administration.</td></tr>
+<tr class="foot"><td class="">Earnings</td><td class="r">86.2</td><td class="">21 per cent margin, annualising at about NGN 1,035 m.</td></tr>
+</tbody></table></div>
+<h3>What you have to fund, which is not the same as what you spend</h3>
+<div class="tw"><table>
+<thead><tr><th class=""></th><th class="r">NGN m</th></tr></thead><tbody>
+<tr><td class="">Capital spend across all three phases</td><td class="r">2,616</td></tr>
+<tr><td class="">Losses before the site trades profitably</td><td class="r">148</td></tr>
+<tr><td class="">Working capital at its peak</td><td class="r">797</td></tr>
+<tr><td class="">Our fees across 27 months</td><td class="r">361</td></tr>
+<tr class="foot"><td class="">Peak funding requirement, month 23</td><td class="r">2,909</td></tr>
+</tbody></table></div>
+<p class="note">The lines above do not sum to the total, because revenue offsets some of them as they occur. The total is taken from the monthly cash model, which is the only place this number is reliable.</p>
+<aside class="card warn"><p><b>The headline build cost is NGN 2.62 billion. The money you have to have available is NGN 2.91 billion.</b> The gap of NGN 292 million is working capital, and it is the number that catches promoters, because no equipment quotation ever mentions it. Raise against the peak, not against the build.</p></aside>
+</section>
+<section class="sec" id="s08"><div class="sec-head"><span class="num">08</span><div><p class="eyebrow">Working capital</p><h2>The number that is larger than your scanner.</h2></div></div>
+<p>At month 24 you are carrying NGN 594 million of working capital, of which NGN 543 million is money owed to you. You will have bought the cancer drugs for cash, or on thirty days, and billed them to payors who take between 38 and 135 days. Nothing about this appears in a profit statement. It appears as a bank balance that never recovers.</p>
+<div class="tw"><table>
+<thead><tr><th class=""></th><th class="r">NGN m</th><th class=""></th></tr></thead><tbody>
+<tr><td class="">Money owed to you</td><td class="r">543</td><td class="">41 days of revenue, weighted by payor</td></tr>
+<tr><td class="">Stock held</td><td class="r">214</td><td class="">34 days, and it is expensive stock</td></tr>
+<tr><td class="">Money you owe suppliers</td><td class="r">(164)</td><td class="">26 days, which is what the drug trade gives</td></tr>
+<tr class="foot"><td class="">Net working capital at month 24</td><td class="r">594</td><td class=""></td></tr>
+</tbody></table></div>
+<h3>Six levers, and what each releases</h3>
+<div class="tw wide"><table>
+<thead><tr><th class="">Lever</th><th class="">What it releases</th><th class="">How it works</th></tr></thead><tbody>
+<tr><td class="">Managed equipment service on the scanner</td><td class="">About NGN 320m of capital</td><td class="">A vendor places the machine and takes a share of each scan. You give up margin per study and you keep the cash. At this stage of the business that is the right trade.</td></tr>
+<tr><td class="">Reagent rental on the laboratory</td><td class="">About NGN 95m</td><td class="">The analyser arrives against a reagent commitment rather than a purchase order. Standard, and every major supplier will do it.</td></tr>
+<tr><td class="">Consignment stock on high cost biologics</td><td class="">About NGN 120m</td><td class="">The distributor keeps title until the drug goes into the patient. Harder to negotiate, worth the effort, and easier once you have twelve months of volume to show.</td></tr>
+<tr><td class="">Pre-funding systemic therapy</td><td class="">Holds days to cash at plan</td><td class="">The discipline rule from Section 05. It is worth more than all the financing you could raise.</td></tr>
+<tr><td class="">Foreign currency collection from families abroad</td><td class="">Converts 82 days to same day</td><td class="">On the share of oncology paid from overseas, which is not small.</td></tr>
+<tr><td class="">Weekly claims cycle and a ninety day stop</td><td class="">Protects against drift</td><td class="">Contractual, agreed at signature, enforced without discussion.</td></tr>
+</tbody></table></div>
+</section>
+<section class="sec" id="s09"><div class="sec-head"><span class="num">09</span><div><p class="eyebrow">What breaks it</p><h2>Ten ways this goes wrong. Two of them matter.</h2></div></div>
+<div class="tw wide"><table>
+<thead><tr><th class="">Case</th><th class="r">Revenue m24</th><th class="r">Earnings m24</th><th class="r">Value</th><th class="r">Peak funding</th><th class="r">NGN 400m in month</th><th class="">Verdict</th></tr></thead><tbody>
+<tr><td class="">Base case</td><td class="r">402</td><td class="r">86</td><td class="r">537</td><td class="r">2,909</td><td class="r">24</td><td class=""><span class="chip pass">PASS</span></td></tr>
+<tr><td class="">Oncology reaches 55 patients a month, not 85</td><td class="r">371</td><td class="r">76</td><td class="r">208</td><td class="r">2,975</td><td class="r">28</td><td class=""><span class="chip thin">THIN</span></td></tr>
+<tr><td class="">Payors drift to 40 per cent HMO, cash takes 55 days</td><td class="r">402</td><td class="r">86</td><td class="r">360</td><td class="r">3,092</td><td class="r">24</td><td class=""><span class="chip pass">PASS</span></td></tr>
+<tr><td class="">Conversion 25 per cent over and three months late</td><td class="r">354</td><td class="r">78</td><td class="r">-161</td><td class="r">3,610</td><td class="r">27</td><td class=""><span class="chip fail">FAIL</span></td></tr>
+<tr><td class="">The second site is never built</td><td class="r">380</td><td class="r">73</td><td class="r">123</td><td class="r">2,742</td><td class="r">28</td><td class=""><span class="chip thin">THIN</span></td></tr>
+<tr><td class="">The second site opens at 60 per cent of plan</td><td class="r">393</td><td class="r">81</td><td class="r">295</td><td class="r">2,906</td><td class="r">25</td><td class=""><span class="chip pass">PASS</span></td></tr>
+<tr><td class="">The slab fails, no computed tomography on site</td><td class="r">378</td><td class="r">71</td><td class="r">29</td><td class="r">3,056</td><td class="r">27</td><td class=""><span class="chip thin">THIN</span></td></tr>
+<tr><td class="">The flagship opens a lower tier and takes a quarter of oncology</td><td class="r">380</td><td class="r">79</td><td class="r">304</td><td class="r">2,956</td><td class="r">27</td><td class=""><span class="chip pass">PASS</span></td></tr>
+<tr><td class="">The flagship hires two of your anchor surgeons</td><td class="r">378</td><td class="r">73</td><td class="r">86</td><td class="r">3,006</td><td class="r">27</td><td class=""><span class="chip thin">THIN</span></td></tr>
+<tr><td class="">Oncology short and payors drift together</td><td class="r">371</td><td class="r">76</td><td class="r">44</td><td class="r">3,147</td><td class="r">28</td><td class=""><span class="chip thin">THIN</span></td></tr>
+<tr><td class="">Those two, and no second site</td><td class="r">349</td><td class="r">63</td><td class="r">-356</td><td class="r">2,887</td><td class="r">37</td><td class=""><span class="chip fail">FAIL</span></td></tr>
+</tbody></table></div>
+<p class="note">Value is net present value in NGN millions at a 25 per cent naira hurdle over seven years, with no terminal value. PASS is comfortably positive, THIN is positive but not by enough to be worth the trouble, FAIL destroys value.</p>
+<h3>How much room you actually have</h3>
+<div class="tw wide"><table>
+<thead><tr><th class="">Assumption</th><th class="">Breaks even at</th><th class="">Comment</th></tr></thead><tbody>
+<tr><td class="">Conversion cost</td><td class="">26 per cent over budget</td><td class="">Real, and thinner than it looks once a delay is stacked on top of it</td></tr>
+<tr><td class="">Programme schedule</td><td class="">8 months late</td><td class="">Generous, because the ramp is slow anyway</td></tr>
+<tr><td class="">Days to cash</td><td class="">84 days, against 41 planned</td><td class="">Very wide. Payor drift is a funding problem, not a returns problem</td></tr>
+<tr><td class="">Oncology volume</td><td class="">36 patients a month, against 85 planned</td><td class="">Wide. You would have to miss by more than half</td></tr>
+<tr><td class="">Theatre volume</td><td class="">47 cases a month, against 80 planned</td><td class="">Tighter, because the theatre carries the profit</td></tr>
+</tbody></table></div>
+<aside class="card warn"><p>Demand can disappoint quite badly and this still works. Construction cannot. You can be 26 per cent over budget, or eight months late, and survive either one on its own. The case that destroys value is both at once, and that is the ordinary way a Nigerian conversion goes wrong. It is why the survey, the design and a fixed price conversion contract come before everything else, and most of the reason Phase 0 exists.</p></aside>
+</section>
+<section class="sec" id="s10"><div class="sec-head"><span class="num">10</span><div><p class="eyebrow">The critical path</p><h2>The consents, and when each one is lodged.</h2></div></div>
+<div class="tw wide"><table>
+<thead><tr><th class="">Consent</th><th class="">Who grants it</th><th class="">Lodge by</th><th class="">What it blocks</th></tr></thead><tbody>
+<tr><td class="">Change of use, residential to health institution</td><td class="">Development control, AMMC and the FCDA</td><td class="">Week 1</td><td class="">Everything. Nothing is safe to build until this is granted</td></tr>
+<tr><td class="">Private health facility registration and annual licence</td><td class="">FCT Health and Human Services Secretariat</td><td class="">Month 3</td><td class="">Opening. Separate categories for the hospital, the diagnostic centre and the laboratory</td></tr>
+<tr><td class="">Radiation authorisation: siting, shielding design, source</td><td class="">Nigerian Nuclear Regulatory Authority</td><td class="">At design, month 2</td><td class="">All imaging. Shielding is designed in, never retrofitted</td></tr>
+<tr><td class="">Pharmacy premises and cytotoxic compounding unit</td><td class="">Pharmacists Council of Nigeria</td><td class="">Month 3</td><td class="">The cancer day unit. A superintendent pharmacist is a condition, not a preference</td></tr>
+<tr><td class="">Controlled drug licence for opioid analgesia</td><td class="">Federal Ministry of Health and the drug enforcement agency</td><td class="">Month 3</td><td class="">Palliative care, which opens in month 12. Slow, so lodge it nine months early</td></tr>
+<tr><td class="">Laboratory registration</td><td class="">Medical Laboratory Science Council of Nigeria</td><td class="">Month 4</td><td class="">The laboratory, and any accreditation an insurer will recognise</td></tr>
+<tr><td class="">Practitioner registration and practising licences</td><td class="">Medical and Dental Council of Nigeria</td><td class="">Month 5</td><td class="">Every doctor on the panel, checked at credentialing and again annually</td></tr>
+<tr><td class="">Provider accreditation</td><td class="">NHIA, then each scheme separately</td><td class="">Month 6</td><td class="">Insured revenue. Each health maintenance organisation panel is its own application</td></tr>
+<tr><td class="">Data controller registration and a data protection officer</td><td class="">Nigeria Data Protection Commission</td><td class="">Month 5</td><td class="">Lawful processing. A health facility is a controller of major importance under the 2023 Act, and this is routinely missed</td></tr>
+<tr><td class="">Fire safety, environmental consent, licensed clinical waste contractor</td><td class="">FCT authorities</td><td class="">Month 6</td><td class="">Occupation and inspection</td></tr>
+<tr><td class="">Corporate: companies registry, tax registrations, pension and statutory schemes</td><td class="">CAC, FIRS, FCT-IRS</td><td class="">Week 2</td><td class="">Contracting, banking and payroll</td></tr>
+</tbody></table></div>
+<aside class="card plain"><p><b>Three of these are routinely discovered late, and all three are expensive.</b> Change of use, because people assume a title deed settles it. Radiation shielding, because it is treated as a supplier's problem rather than a design input. The opioid licence, because the palliative service is not opening for a year and it does not feel urgent in month three. It is.</p></aside>
+</section>
+<section class="sec" id="s11"><div class="sec-head"><span class="num">11</span><div><p class="eyebrow">Outsourcing</p><h2>You were right to want it. Here is where the line sits.</h2></div></div>
+<aside class="card plain"><p>Outsource anything that is a cost centre with a mature supplier market and a service level you can measure. Keep anything that is a source of referral, of margin, or of reputation. Most people get this backwards and outsource the things patients can feel.</p></aside>
+<h3>Outsource</h3>
+<div class="tw wide"><table>
+<thead><tr><th class="">What</th><th class="">Why it is safe to let go</th></tr></thead><tbody>
+<tr><td class="">Reference laboratory, molecular and immunohistochemistry</td><td class="">Keep a rapid laboratory in house for anything that changes today's decision. Send the rest out and mark it up.</td></tr>
+<tr><td class="">Radiology reporting</td><td class="">Sub-specialty and overnight reporting, including from consultants abroad. You keep the scanner and the patient. Somebody else keeps the rota problem.</td></tr>
+<tr><td class="">Imaging equipment itself</td><td class="">A managed service or concession puts the scanner in without the capital. This is the single largest cash saving available to you.</td></tr>
+<tr><td class="">Estate, security, cleaning, laundry, catering, clinical waste</td><td class="">Mature market, clear service levels. Buy clinical grade cleaning specifically, not general office cleaning.</td></tr>
+<tr><td class="">Records system and software</td><td class="">Buy it, do not build it. There is no prize for owning code.</td></tr>
+<tr><td class="">Payroll, non-clinical human resources, locum supply</td><td class="">Administrative load with no clinical consequence.</td></tr>
+<tr><td class="">Biomedical engineering and medical gases</td><td class="">Contract with response times written in.</td></tr>
+<tr><td class="">Ambulance and retrieval beyond your own vehicle</td><td class="">Partner rather than own a fleet.</td></tr>
+<tr><td class="">Claims chasing labour</td><td class="">On a collection fee. Outsource the chasing. Never outsource the decision about who to chase.</td></tr>
+</tbody></table></div>
+<h3>Keep, whatever the saving looks like</h3>
+<div class="tw wide"><table>
+<thead><tr><th class="">What</th><th class="">Why</th></tr></thead><tbody>
+<tr><td class="">The patient record, the booking system and the data</td><td class="">Whoever holds the record holds the relationship. This is the asset.</td></tr>
+<tr><td class="">The consultant relationships and the credentialing</td><td class="">This is the business. It cannot be delegated to an agency.</td></tr>
+<tr><td class="">The tumour board and every treatment decision</td><td class="">Your clinical reputation is made here and it is the only thing competitors cannot buy.</td></tr>
+<tr><td class="">Control of the revenue cycle</td><td class="">Outsource the labour if you like. Keep the pricing, the payor selection and the write-off authority.</td></tr>
+<tr><td class="">Sterile services for your own theatre</td><td class="">Small footprint, and a day case list dies when instruments arrive late.</td></tr>
+<tr><td class="">The care coordinator</td><td class="">The one role that delivers the 48 hour promise. Never a contractor.</td></tr>
+</tbody></table></div>
+</section>
+<section class="sec" id="s12"><div class="sec-head"><span class="num">12</span><div><p class="eyebrow">The consultant question</p><h2>Your colleagues are the asset and the trap.</h2></div></div>
+<p>Your access to the consultant body at National Hospital gives you a specialist roster on day one without a full-time salary bill. It is worth more than any equipment on your list. It is also the most common way a doctor-owned Nigerian hospital destroys itself, and the mechanism is always the same: equity given as thanks.</p>
+<div class="tw wide"><table>
+<thead><tr><th class="">Tier</th><th class="">Who</th><th class="">How it is structured</th></tr></thead><tbody>
+<tr><td class="">The owners</td><td class="">You and at most two to four aligned partners</td><td class="">A proper shareholders' agreement. Reserved matters, drag and tag, pre-emption, vesting on anyone who is also working in the business, and a fair valuation mechanism on exit. Small enough that decisions can be made in a room.</td></tr>
+<tr><td class="">The panel</td><td class="">As wide as you can credential</td><td class="">Not shareholders. Paid properly on a published tariff, per session or per case, with an attendance commitment, a credentialing file, and privileges reviewed every year. Wide, generous, and entirely separate from ownership.</td></tr>
+<tr><td class="">The founding scheme</td><td class="">A capped pool, 8 to 12 per cent, earned not given</td><td class="">Allocated annually against measurable contribution: cases performed, sessions kept, tumour board attendance, patients referred. Reviewed each year. It rewards behaviour that continues rather than enthusiasm that was present at the beginning.</td></tr>
+</tbody></table></div>
+<h3>The conflict of interest policy, written before the first patient</h3>
+<p>You hold a public appointment and you will have an interest in a private facility. That is lawful and it is ordinary. It becomes a problem only when it is undocumented. Write the policy now, while it is theoretical and nobody is defensive about it.</p>
+<ul class="list tight">
+<li>Every referring clinician with an ownership interest discloses it to the patient, in writing, and the disclosure goes in the record.</li>
+<li>Patient choice is offered and documented. Always a named alternative, never a gesture.</li>
+<li>No payment, no commission and no benefit in kind for a referral. Ever, and from anyone.</li>
+<li>Panel appointments are made on credentials by a committee, not by the promoter alone.</li>
+<li>Nothing procured under a public institution's programme, at any price, moves to this facility. Enrol your own patients onto access programmes directly, in Solace's name.</li>
+<li>The policy is published on the wall and on the website, which protects you far better than keeping it in a drawer does.</li>
+</ul>
+<aside class="card warn"><p><b>Say the hard part out loud now.</b> Several of the colleagues who help you open this will expect equity, and some will expect it without having done anything measurable. The kindest moment to explain the founding scheme is before anyone has assumed otherwise. The cruellest is at the first valuation.</p></aside>
+</section>
+<section class="sec" id="s13"><div class="sec-head"><span class="num">13</span><div><p class="eyebrow">How this fails</p><h2>Five ways. I have watched all of them.</h2></div></div>
+<div class="tw wide"><table>
+<thead><tr><th class="">Failure mode</th><th class="">What it looks like</th><th class="">What prevents it</th></tr></thead><tbody>
+<tr><td class="">Building before consenting</td><td class="">Work starts because the site is there and the contractor is available. Change of use is refused, or granted with conditions that force a redesign of work already done.</td><td class="">Lodge in week one. Do not mobilise a contractor before it is granted.</td></tr>
+<tr><td class="">Buying equipment before designing the service</td><td class="">A scanner is bought because a good price appeared, and then sited where it cannot be serviced, shielded or fed with clean power.</td><td class="">Service model first, room data sheets second, purchase orders third. In that order, without exception.</td></tr>
+<tr><td class="">Equity as a thank you</td><td class="">Twenty well-meaning colleagues hold five per cent each. Nobody is accountable, nobody can be removed, and the first hard decision cannot be taken.</td><td class="">Two tiers. A small owner group and a wide paid panel. Section 12.</td></tr>
+<tr><td class="">Chasing insured volume to look busy</td><td class="">The waiting room fills, the revenue line rises, and the bank balance falls for eleven straight months.</td><td class="">Pre-fund systemic therapy, cap the scheme share, and stop new elective work at ninety days.</td></tr>
+<tr><td class="">The founder as clinician and chief executive at once</td><td class="">The clinic fills because the promoter is good at medicine. The business does not get run, because nobody is running it.</td><td class="">Hire a chief operating officer before opening, not after the first crisis. You are the clinical leader and the face. That is a full job.</td></tr>
+</tbody></table></div>
+</section>
+<section class="sec" id="s14"><div class="sec-head"><span class="num">14</span><div><p class="eyebrow">What we would do</p><h2>Twenty one workstreams over 27 months.</h2></div></div>
+<p>We build and run health businesses in Nigeria. We have converted a residential building into a clinical one in this city, structured medical joint ventures and shareholder agreements, taken facilities through licensing, built payor and tariff strategies, and recruited consultants, including from the diaspora. This is the work we do most of.</p>
+<h3>Phase 0: mobilisation and the bankable case <span style='color:var(--muted);letter-spacing:.04em'>&nbsp;Weeks 1 to 12</span></h3>
+<div class="tw"><table>
+<thead><tr><th class="">Workstream</th><th class="r">Days</th><th class="r">NGN m</th></tr></thead><tbody>
+<tr><td class="">Measured survey, technical feasibility and conversion strategy</td><td class="r">47</td><td class="r">14.1</td></tr>
+<tr><td class="">Catchment, demand and competitor mapping</td><td class="r">39</td><td class="r">9.7</td></tr>
+<tr><td class="">Service model and clinical pathway design</td><td class="r">41</td><td class="r">14.7</td></tr>
+<tr><td class="">Payor strategy, tariff architecture and revenue cycle design</td><td class="r">40</td><td class="r">12.5</td></tr>
+<tr><td class="">Financial model, funding plan and investment case</td><td class="r">40</td><td class="r">12.2</td></tr>
+<tr><td class="">Regulatory critical path and consents lodged</td><td class="r">34</td><td class="r">10.3</td></tr>
+<tr><td class="">Corporate structure, shareholders' agreement, consultant panel</td><td class="r">30</td><td class="r">12.1</td></tr>
+<tr class="foot"><td class="">Total</td><td class="r">271</td><td class="r">85.5</td></tr>
+</tbody></table></div>
+<h3>Phase 1: delivering the day case facility <span style='color:var(--muted);letter-spacing:.04em'>&nbsp;Months 3 to 11</span></h3>
+<div class="tw"><table>
+<thead><tr><th class="">Workstream</th><th class="r">Days</th><th class="r">NGN m</th></tr></thead><tbody>
+<tr><td class="">Design management and technical delivery oversight</td><td class="r">108</td><td class="r">31.1</td></tr>
+<tr><td class="">Procurement, managed equipment negotiation, vendor contracting</td><td class="r">90</td><td class="r">25.6</td></tr>
+<tr><td class="">Licensing, accreditation and radiation authorisation</td><td class="r">72</td><td class="r">20.4</td></tr>
+<tr><td class="">Clinical and management recruitment, credentialing, privileges</td><td class="r">83</td><td class="r">25.3</td></tr>
+<tr><td class="">Payor contracting and revenue cycle build</td><td class="r">71</td><td class="r">20.8</td></tr>
+<tr><td class="">Commissioning, systems, policies and opening readiness</td><td class="r">66</td><td class="r">20.2</td></tr>
+<tr class="foot"><td class="">Total</td><td class="r">490</td><td class="r">143.4</td></tr>
+</tbody></table></div>
+<h3>Phase 2: opening inpatient capacity <span style='color:var(--muted);letter-spacing:.04em'>&nbsp;Months 10 to 18</span></h3>
+<div class="tw"><table>
+<thead><tr><th class="">Workstream</th><th class="r">Days</th><th class="r">NGN m</th></tr></thead><tbody>
+<tr><td class="">Inpatient design, vertical circulation and ward delivery</td><td class="r">77</td><td class="r">22.3</td></tr>
+<tr><td class="">Theatre two, sterile services and perioperative model</td><td class="r">68</td><td class="r">19.4</td></tr>
+<tr><td class="">Workforce step-up, rostering and night cover</td><td class="r">75</td><td class="r">21.9</td></tr>
+<tr><td class="">Working capital control and payor performance management</td><td class="r">102</td><td class="r">30.5</td></tr>
+<tr class="foot"><td class="">Total</td><td class="r">322</td><td class="r">94.1</td></tr>
+</tbody></table></div>
+<h3>Phase 3: centre of excellence and the second site <span style='color:var(--muted);letter-spacing:.04em'>&nbsp;Months 18 to 27</span></h3>
+<div class="tw"><table>
+<thead><tr><th class="">Workstream</th><th class="r">Days</th><th class="r">NGN m</th></tr></thead><tbody>
+<tr><td class="">Centre of excellence strategy and accreditation programme</td><td class="r">74</td><td class="r">24.1</td></tr>
+<tr><td class="">Second site: siting, lease, fit-out and opening</td><td class="r">70</td><td class="r">21.3</td></tr>
+<tr><td class="">Outcomes registry, tumour board and training post accreditation</td><td class="r">54</td><td class="r">17.6</td></tr>
+<tr><td class="">Group structure, capital raise and investor readiness</td><td class="r">44</td><td class="r">14.9</td></tr>
+<tr class="foot"><td class="">Total</td><td class="r">242</td><td class="r">77.8</td></tr>
+</tbody></table></div>
+<h3>What each phase actually produces</h3>
+<div class="tw wide"><table>
+<thead><tr><th class="">Phase</th><th class="">What you have at the end of it</th></tr></thead><tbody>
+<tr><td class="">Phase 0</td><td class="">A measured survey and a structural verdict on the scanner bay. A verified catchment and competitor map. A clinical service model with room data sheets. A tariff and payor strategy. A monthly financial model you own. Consents lodged. A shareholders' agreement and a consultant panel structure.</td></tr>
+<tr><td class="">Phase 1</td><td class="">Design managed to tender and to a fixed price. Equipment procured, with managed service negotiated where it saves capital. Licences granted. The clinical and management team recruited, credentialed and inducted. Payor contracts signed and a revenue cycle that works on day one. A commissioned, licensed, open facility.</td></tr>
+<tr><td class="">Phase 2</td><td class="">Inpatient and theatre two delivered. The workforce stepped up for night and weekend cover. Working capital and payor performance under weekly management, which is the phase where most facilities quietly lose control of it.</td></tr>
+<tr><td class="">Phase 3</td><td class="">Accreditation achieved. An outcomes registry and a tumour board that people attend. A training post application lodged with the postgraduate college. The second site sited, leased, fitted and open. A group structure and an investment case, if you decide to raise.</td></tr>
+</tbody></table></div>
+</section>
+<section class="sec" id="s15"><div class="sec-head"><span class="num">15</span><div><p class="eyebrow">What it costs</p><h2>Resourced days at our published rates.</h2></div></div>
+<p>We price setup and delivery work as the time it actually takes, at published rates, rather than as a percentage of what you spend. You can see the effort, and if a workstream is deprioritised it comes straight off the fee.</p>
+<div class="tw"><table>
+<thead><tr><th class="">Grade</th><th class="r">Days</th><th class="r">Day rate NGN m</th><th class="r">NGN m</th></tr></thead><tbody>
+<tr><td class="">Partner</td><td class="r">112</td><td class="r">0.750</td><td class="r">84.0</td></tr>
+<tr><td class="">Principal</td><td class="r">259</td><td class="r">0.450</td><td class="r">116.5</td></tr>
+<tr><td class="">Senior consultant</td><td class="r">339</td><td class="r">0.300</td><td class="r">101.7</td></tr>
+<tr><td class="">Consultant</td><td class="r">355</td><td class="r">0.190</td><td class="r">67.5</td></tr>
+<tr><td class="">Analyst</td><td class="r">260</td><td class="r">0.120</td><td class="r">31.2</td></tr>
+<tr class="foot"><td class="">Total</td><td class="r">1325</td><td class="r"></td><td class="r">400.9</td></tr>
+</tbody></table></div>
+<div class="tw wide"><table>
+<thead><tr><th class=""></th><th class="r">At rate card NGN m</th><th class="r">Programme rate NGN m</th><th class="">When</th></tr></thead><tbody>
+<tr><td class="">Phase 0: mobilisation and the bankable case</td><td class="r">85.5</td><td class="r">77.0</td><td class="">Weeks 1 to 12</td></tr>
+<tr><td class="">Phase 1: delivering the day case facility</td><td class="r">143.4</td><td class="r">129.1</td><td class="">Months 3 to 11</td></tr>
+<tr><td class="">Phase 2: opening inpatient capacity</td><td class="r">94.1</td><td class="r">84.7</td><td class="">Months 10 to 18</td></tr>
+<tr><td class="">Phase 3: centre of excellence and second site</td><td class="r">77.8</td><td class="r">70.0</td><td class="">Months 18 to 27</td></tr>
+<tr class="foot"><td class="">Total across 27 months</td><td class="r">400.9</td><td class="r">360.8</td><td class="">1325 resourced days</td></tr>
+</tbody></table></div>
+<h3>How it is paid, and what is not in it</h3>
+<ul class="list">
+<li><b>One programme rate of 10 per cent</b> because these are one continuous mandate rather than four separate engagements. It is applied above.</li>
+<li><b>Mobilisation of NGN 25 million on signature</b>, non-refundable and credited in full against Phase 0.</li>
+<li><b>Billed monthly against timesheets and capped at the figures above</b>, so you never pay for a day that was not worked.</li>
+<li><b>Third party consultants pass through at cost with no mark-up.</b> Architect, structural and services engineers, quantity surveyor, radiation physicist. We will not earn on their invoices.</li>
+<li><b>Travel and disbursements at cost</b>, agreed in advance above NGN 500,000.</li>
+<li><b>What is not in this fee:</b> running the business once it opens. Twenty-seven months of setup can sensibly be billed by the day. Operating a hospital for seven years cannot. That sits on a separate arrangement, and it is in the next section so that you can approve the setup programme without reopening it.</li>
+</ul>
+</section>
+<section class="sec" id="s16"><div class="sec-head"><span class="num">16</span><div><p class="eyebrow">If you want us to run it</p><h2>A separate decision, and one you can take later.</h2></div></div>
+<p>Everything before this section assumes you build your own management team and we advise you. The alternative is that we build it and then run it for you, which is a different mandate with a different fee. You do not have to decide now. You should know the shape of it before you commit to the programme, because it changes what we recruit in Phase 1.</p>
+<div class="tw wide"><table>
+<thead><tr><th class="">What</th><th class="">Basis</th><th class="">Why it is on that basis</th></tr></thead><tbody>
+<tr><td class="">Delivery</td><td class="">NGN 90m fixed, 25 on signature and the balance over 36 trading months</td><td class="">Paid for the programme, not for the size of your building.</td></tr>
+<tr><td class="">Capital efficiency share</td><td class="">20 per cent of cash saved against an independently benchmarked budget, capped at NGN 60m</td><td class="">The one fee line where we are paid to spend less of your money.</td></tr>
+<tr><td class="">Establishment</td><td class="">NGN 22m per licensed entity plus NGN 6m on each licence granted</td><td class="">Three entities are likely: the hospital, the laboratory, the home care service.</td></tr>
+<tr><td class="">Management</td><td class="">9 per cent of contribution, floor NGN 12m a month, plus 20 per cent of earnings above a 22 per cent margin</td><td class="">On contribution, not revenue, because a third of your revenue is drug pass-through.</td></tr>
+<tr><td class="">Equity</td><td class="">12 per cent of the operating company</td><td class="">Only on the build and operate track.</td></tr>
+</tbody></table></div>
+<aside class="card good"><p>The management fee sits on contribution rather than on revenue for a reason. A fifth of your revenue is drug pass-through earning a fraction of what the rest of the business earns. A percentage of revenue would pay us most for the line that makes you least, and it would rise every time a drug price did. A percentage of contribution pays us for the value of what we actually manage. It happens to cost you less in the years when drug prices run.</p></aside>
+<h3>Recruitment, whichever track you choose</h3>
+<p>We source, assess, credential and place clinical and management staff through our own workforce channel, including consultants abroad and retired senior clinicians who will take sessional and visiting work. Charged separately from the programme fee.</p>
+<div class="tw"><table>
+<thead><tr><th class="">Role</th><th class="">Fee</th><th class="">Minimum</th></tr></thead><tbody>
+<tr><td class="">Consultant and clinical lead</td><td class="">22 per cent of first year total cost</td><td class="">Floor NGN 3.2m</td></tr>
+<tr><td class="">Senior management</td><td class="">22 per cent of first year total cost</td><td class="">Floor NGN 2.8m</td></tr>
+<tr><td class="">Nursing, scientific and allied</td><td class="">18 per cent of first year total cost</td><td class="">Floor NGN 850k</td></tr>
+<tr><td class="">Diaspora and emeritus placement</td><td class="">22 per cent, plus mobilisation at cost</td><td class="">Floor NGN 3.8m</td></tr>
+</tbody></table></div>
+</section>
+<section class="sec" id="s17"><div class="sec-head"><span class="num">17</span><div><p class="eyebrow">The first ninety days</p><h2>What happens if you say yes this month.</h2></div></div>
+<div class="tw wide"><table>
+<thead><tr><th class="">When</th><th class="">What happens</th><th class="">Who</th></tr></thead><tbody>
+<tr><td class="">Weeks 1 to 2</td><td class="">Change of use lodged. Companies registry and tax registrations filed. Measured survey instructed. Structural engineer on site.</td><td class="">You, our partner, a surveyor, a structural engineer</td></tr>
+<tr><td class="">Weeks 2 to 4</td><td class="">Measured survey returned and the whole model re-run against real geometry. Structural verdict on the scanner bay. Catchment and competitor fieldwork begins.</td><td class="">Our team, your architect</td></tr>
+<tr><td class="">Weeks 4 to 7</td><td class="">Clinical service model agreed with you, room by room. Room data sheets issued to design. Radiation authorisation pre-submission with shielding design.</td><td class="">You, oncology and surgical advisers, our clinical lead</td></tr>
+<tr><td class="">Weeks 6 to 9</td><td class="">Tariff built and payor strategy agreed. First conversations with schemes, corporates and manufacturer access programmes. Consultant panel structure drafted.</td><td class="">Our commercial team, you</td></tr>
+<tr><td class="">Weeks 8 to 11</td><td class="">Shareholders' agreement and the founding consultant scheme drafted and discussed with the people it affects, before anybody has assumed anything.</td><td class="">You, your lawyer, our partner</td></tr>
+<tr><td class="">Weeks 10 to 12</td><td class="">Financial model handed over in your hands, not ours. Funding plan and lender or investor pack. Design to tender. Phase 1 decision taken on real numbers.</td><td class="">Everyone</td></tr>
+</tbody></table></div>
+<aside class="card plain"><p>At the end of ninety days you can stop. You will hold a measured survey, a structural verdict, a verified market, a service model, a tariff, a funding plan, lodged consents and a financial model you can run yourself. If the survey comes back badly, or the consent looks difficult, that is the cheapest place to find it out. Phase 0 is built to stand on its own, and I would rather you had that option than committed to twenty-seven months on an estimate.</p></aside>
+</section>
+<section class="sec" id="s18"><div class="sec-head"><span class="num">18</span><div><p class="eyebrow">If we only had a page</p><h2></h2></div></div>
+<p>You have five houses on a good plot, in a catchment full of insured salaried households who are used to paying for speed, in a city where cancer care is slow and fragmented. That is a better starting position than most of what we are shown.</p>
+<p>The answer to your question is yes. NGN 400 million a month arrives in month 24, with about NGN 86 million of monthly earnings under it, on a 21 per cent margin. Over seven years it returns 32 per cent with no terminal value counted. You will need NGN 2.91 billion available, peaking in month 23, and about NGN 292 million of that is working capital rather than building.</p>
+<p>Three decisions carry most of the outcome. Commit to the second site in Phase 1. Pre-fund systemic therapy from the first patient. Do not start construction until the change of use is granted and the conversion is on a fixed price.</p>
+<p>The strategy is not a hospital. It is the whole cancer journey in one place, close to home, with a family medicine front door and a home care back door, and a published promise about time that nobody else in this city will make.</p>
+<p>What we would do is measure the building before anyone believes a number, lodge the consents in week one, design the service before you buy a machine, settle the ownership before your colleagues assume anything, and then deliver it with you, phase by phase.</p>
+<p>We would like to do it. Ninety days is enough to know whether it is real.</p>
+<p class="sig">Debo Odulana<span>Founding Partner, Consult for Africa</span></p>
+</section>
+<section class="sec" id="sA"><div class="sec-head"><span class="num">A</span><div><p class="eyebrow">Appendix</p><h2>Capital spend, item by item.</h2></div></div>
+<h3>Phase 0: survey, design and consents</h3>
+<div class="tw"><table>
+<thead><tr><th class="">Item</th><th class="r">NGN m</th></tr></thead><tbody>
+<tr><td class="">Measured survey, structural and services investigation</td><td class="r">14.0</td></tr>
+<tr><td class="">Change of use, planning and development control</td><td class="r">16.0</td></tr>
+<tr><td class="">Architecture and engineering, design to tender</td><td class="r">32.0</td></tr>
+<tr><td class="">Corporate formation, shareholders' agreement, legal</td><td class="r">16.0</td></tr>
+<tr class="foot"><td class="">Total</td><td class="r">78.0</td></tr>
+</tbody></table></div>
+<h3>Phase 1: the day case facility</h3>
+<div class="tw"><table>
+<thead><tr><th class="">Item</th><th class="r">NGN m</th></tr></thead><tbody>
+<tr><td class="">Conversion, structure and clinical fit-out, 760 sqm</td><td class="r">326.8</td></tr>
+<tr><td class="">Power: transformer, synchronised generation, uninterruptible supply, solar</td><td class="r">96.0</td></tr>
+<tr><td class="">Ventilation, medical gas, water treatment</td><td class="r">78.0</td></tr>
+<tr><td class="">Radiology equipment, computed tomography taken on managed service</td><td class="r">148.0</td></tr>
+<tr><td class="">Radiology rooms, shielding and regulatory authorisation</td><td class="r">38.0</td></tr>
+<tr><td class="">Laboratory, reagent rental deposits and histopathology</td><td class="r">54.0</td></tr>
+<tr><td class="">Oncology day unit, 14 chairs, compounding isolator and clean room</td><td class="r">162.0</td></tr>
+<tr><td class="">Theatre one, endoscopy suite and sterile services</td><td class="r">296.0</td></tr>
+<tr><td class="">Rehabilitation gymnasium</td><td class="r">34.0</td></tr>
+<tr><td class="">Records system, network, furniture, security, signage</td><td class="r">112.0</td></tr>
+<tr><td class="">Ambulance</td><td class="r">46.0</td></tr>
+<tr><td class="">Commissioning, licences, radiation authority, staff training</td><td class="r">52.0</td></tr>
+<tr class="foot"><td class="">Total</td><td class="r">1,442.8</td></tr>
+</tbody></table></div>
+<h3>Phase 2: inpatient capacity</h3>
+<div class="tw"><table>
+<thead><tr><th class="">Item</th><th class="r">NGN m</th></tr></thead><tbody>
+<tr><td class="">Conversion of the remaining 390 sqm</td><td class="r">167.7</td></tr>
+<tr><td class="">Bed lift, external shaft and supporting structure</td><td class="r">104.0</td></tr>
+<tr><td class="">Ward fit-out, 20 beds including three high dependency</td><td class="r">188.0</td></tr>
+<tr><td class="">Theatre two</td><td class="r">142.0</td></tr>
+<tr><td class="">Oxygen plant, services upgrade, additional sterile capacity</td><td class="r">46.0</td></tr>
+<tr class="foot"><td class="">Total</td><td class="r">647.7</td></tr>
+</tbody></table></div>
+<h3>Phase 3: centre of excellence and the second site</h3>
+<div class="tw"><table>
+<thead><tr><th class="">Item</th><th class="r">NGN m</th></tr></thead><tbody>
+<tr><td class="">Second site: lease premium, fit-out, imaging and clinics</td><td class="r">286.0</td></tr>
+<tr><td class="">Centre of excellence: accreditation, registry, tumour board, trials unit</td><td class="r">118.0</td></tr>
+<tr><td class="">Reporting platform and remote multidisciplinary team capability</td><td class="r">44.0</td></tr>
+<tr class="foot"><td class="">Total</td><td class="r">448.0</td></tr>
+</tbody></table></div>
+<div class="tw"><table>
+<thead><tr><th class=""></th><th class="r">NGN m</th></tr></thead><tbody>
+<tr><td class="">All phases</td><td class="r">2,616.5</td></tr>
+<tr class="foot"><td class="">Peak funding requirement, month 23</td><td class="r">2,908.9</td></tr>
+</tbody></table></div>
+</section>
+<section class="sec" id="sB"><div class="sec-head"><span class="num">B</span><div><p class="eyebrow">Appendix</p><h2>The assumptions, and how confident we are in each.</h2></div></div>
+<div class="tw wide"><table>
+<thead><tr><th class="">Assumption</th><th class="">What we used</th><th class="">Confidence</th><th class="">Note</th></tr></thead><tbody>
+<tr><td class="">Gross floor area</td><td class="">1,150 sqm across 5 units</td><td class="">Low</td><td class="">Planning figure. A measured survey supersedes it and has moved by a third before</td></tr>
+<tr><td class="">Net to gross</td><td class="">68 per cent</td><td class="">Low</td><td class="">Conversions lose more to circulation than new build does</td></tr>
+<tr><td class="">Conversion cost</td><td class="">About NGN 430,000 a square metre</td><td class="">Medium</td><td class="">Clinical grade with structural work. Firms up at tender</td></tr>
+<tr><td class="">Oncology patients on treatment</td><td class="">85 a month at maturity</td><td class="">Medium</td><td class="">Breaks even at 36. The judgement is referral capture, not clinical capacity</td></tr>
+<tr><td class="">Blended revenue per oncology patient</td><td class="">NGN 1.43m a month</td><td class="">Medium</td><td class="">Very sensitive to the share on biologics and to the exchange rate</td></tr>
+<tr><td class="">Theatre volume</td><td class="">80 cases a month at maturity</td><td class="">Medium</td><td class="">Depends entirely on how well the consultant panel is built</td></tr>
+<tr><td class="">Days to cash</td><td class="">41 days blended</td><td class="">Medium</td><td class="">Follows directly from the payor mix, which is a choice you make</td></tr>
+<tr><td class="">Payor mix</td><td class="">44 per cent out of pocket</td><td class="">Medium</td><td class="">Reflects that most schemes cap or exclude systemic cancer therapy</td></tr>
+<tr><td class="">Ramp speed</td><td class="">Half of steady state in 3 to 9 months by line</td><td class="">Medium</td><td class="">Oncology is the slowest because it is built on trust</td></tr>
+<tr><td class="">Second site revenue</td><td class="">NGN 58m a month at maturity</td><td class="">Medium</td><td class="">Imaging, phlebotomy and clinics only. No theatre and no beds</td></tr>
+<tr><td class="">Fixed operating cost</td><td class="">NGN 118 m a month at full operation</td><td class="">Medium</td><td class="">Detailed below. Assumes you employ your own management team</td></tr>
+<tr><td class="">Tax</td><td class="">Sheltered by capital allowances into year three</td><td class="">Medium</td><td class="">A pioneer status application is worth making and is not assumed here</td></tr>
+<tr><td class="">Terminal value</td><td class="">None counted</td><td class="">High</td><td class="">Everything above is earned inside seven years</td></tr>
+</tbody></table></div>
+<h3>Fixed operating cost at full operation</h3>
+<div class="tw"><table>
+<thead><tr><th class=""></th><th class="r">NGN m</th></tr></thead><tbody>
+<tr><td class="">Salaried clinical and scientific establishment</td><td class="r">58.0</td></tr>
+<tr><td class="">Power, fuel and hybrid generation</td><td class="r">14.0</td></tr>
+<tr><td class="">Estate, security, cleaning, waste and laundry</td><td class="r">9.0</td></tr>
+<tr><td class="">Equipment service contracts and biomedical engineering</td><td class="r">7.0</td></tr>
+<tr><td class="">Marketing, business development and referral programme</td><td class="r">9.0</td></tr>
+<tr><td class="">Indirect consumables</td><td class="r">4.0</td></tr>
+<tr><td class="">Records system, connectivity and telephony</td><td class="r">3.5</td></tr>
+<tr><td class="">Insurance and professional indemnity</td><td class="r">3.0</td></tr>
+<tr><td class="">Professional, regulatory and audit</td><td class="r">2.5</td></tr>
+<tr><td class="">Facility leadership and administration</td><td class="r">8.0</td></tr>
+<tr class="foot"><td class="">Total a month</td><td class="r">118.0</td></tr>
+</tbody></table></div>
+<p>Every figure in this document is produced by a single monthly model. If one assumption changes, the whole document changes with it, which is how we would like to work with you: you tell us what you believe, and we show you what it does to the answer within a day.</p>
+</section>
+<div class="foot-rule"><span>Debo Odulana</span><span>Consult for Africa</span><span>+234 913 813 8553</span><span>hello@consultforafrica.com</span></div>
+</main></div>
