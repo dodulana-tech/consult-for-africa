@@ -22,6 +22,9 @@ export default function robots(): MetadataRoute.Robots {
           "/partner/",
           "/agent-portal/",
           "/client-portal/",
+          // ilé is live for the founders to test but is not launched.
+          // Remove this when the waiting list opens publicly.
+          "/ile",
         ],
       },
     ],

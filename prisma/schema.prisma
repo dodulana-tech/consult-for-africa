@@ -6250,3 +6250,104 @@ model AuditSurveyResponse {
   @@index([survey])
   @@index([createdAt])
 }
+
+// ─── ilé: residential eldercare, and care at home ─────────────────────────────
+// The waiting list is the occupancy plan for the home. Every field below exists
+// because it segments that list: diaspora vs local decides the sales motion,
+// urgency and care need decide who is contacted first, and interest tells us
+// who is waiting for a bed rather than a visit.
+
+enum IleRelationship {
+  PARENT
+  GRANDPARENT
+  SPOUSE
+  OTHER_RELATIVE
+  SELF
+  PROFESSIONAL // a clinician or social worker referring a family
+}
+
+enum IleInterest {
+  RESIDENTIAL // waiting for a place in the home
+  HOME_CARE // wants care in their own home now
+  BOTH
+  UNDECIDED
+}
+
+enum IleCareNeed {
+  COMPANIONSHIP
+  PERSONAL_CARE
+  SKILLED_NURSING
+  DEMENTIA_SUPPORT
+  POST_HOSPITAL
+  END_OF_LIFE
+  NOT_SURE
+}
+
+enum IleUrgency {
+  NOW
+  WITHIN_3_MONTHS
+  WITHIN_6_MONTHS
+  PLANNING_AHEAD
+}
+
+enum IleWaitlistStatus {
+  NEW
+  CONTACTED
+  ASSESSED
+  PILOT_CLIENT
+  RESIDENT
+  NOT_PROCEEDING
+}
+
+model IleWaitlistEntry {
+  id String @id @default(cuid())
+
+  // Who is asking. Usually an adult child, often not the person needing care.
+  fullName     String
+  email        String          @unique
+  phone        String?
+  relationship IleRelationship
+
+  // Where the enquirer is, and where the care is actually needed. These are
+  // frequently different people in different countries, which is the whole
+  // diaspora proposition, so they are stored separately.
+  basedOutsideNigeria Boolean @default(false)
+  basedCountry        String?
+  careCity            String?
+
+  // What they need, and when
+  interest  IleInterest   @default(UNDECIDED)
+  careNeeds IleCareNeed[]
+  urgency   IleUrgency
+  notes     String?       @db.Text
+
+  // Founding family status and the referral loop. Both are pre-launch demand
+  // mechanics: early joiners are offered something real, and referral is the
+  // cheapest demand this business will ever get.
+  foundingFamily Boolean @default(false)
+  referralCode   String  @unique
+  referredByCode String?
+
+  // Nigeria Data Protection Act 2023. Consent is recorded with the exact wording
+  // that was consented to, so the lawful basis is provable later. The IP is
+  // hashed rather than stored, since the raw address is not needed for anything.
+  consentedAt DateTime
+  consentText String   @db.Text
+  sourcePath  String?
+  ipHash      String?
+
+  // Pipeline
+  status        IleWaitlistStatus @default(NEW)
+  contactedAt   DateTime?
+  internalNotes String?           @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([interest])
+  @@index([urgency])
+  @@index([basedOutsideNigeria])
+  @@index([referredByCode])
+  @@index([createdAt])
+}

@@ -392,6 +392,27 @@ DIAGRAMS = {
             ],
         }],
     },
+    "core-bridge": lambda: {
+        "label": "ilé residential eldercare", "kind": "hold", "note": "the core",
+        "children": [
+            {"label": "Home healthcare", "kind": "services", "note": "cash and pipeline",
+             "children": [_op("Nursing visits"), _op("Personal care"), _op("Complex care")]},
+            {"label": "Virtual consultations", "kind": "services", "note": "reach and margin",
+             "children": [_op("GP and specialist"), _op("Remote monitoring")]},
+            {"label": "Care coordination", "kind": "services", "note": "the trust layer",
+             "children": [_op("Assessment and plans"), _op("Family reporting")]},
+        ],
+    },
+    "propco-opco": lambda: {
+        "label": "Kemi's holding company", "kind": "hold",
+        "children": [
+            {"label": "Property company", "kind": "subhold", "note": "100% Kemi",
+             "children": [_op("The home, Lagos"), _op("Later homes")]},
+            {"label": "ilé operating company", "kind": "services", "note": "51 / 34 / 10 / 5",
+             "children": [_op("Residential care"), _op("Home healthcare"),
+                          _op("Virtual consultations")]},
+        ],
+    },
     "service-map": lambda: {
         "label": "ilé care at home", "kind": "hold",
         "children": [
@@ -406,6 +427,9 @@ DIAGRAMS = {
 }
 
 ROLLOUT_PHASES = ["Foundations", "Lagos pilot", "Scale & diaspora", "Multi-city & residential"]
+
+ILE_PATH_PHASES = ["Bridge live, site search", "Secure, licence and fit",
+                   "The home opens", "Fill, then repeat"]
 
 CAP_SEGMENTS = [
     ("Kemi (via HoldCo)", 51, NAVY, white),
@@ -423,7 +447,9 @@ def diagram_flowables(key, caption, width):
         els.append(OwnershipBar(CAP_SEGMENTS, width))
     elif key == "rollout":
         els.append(PhaseStrip(ROLLOUT_PHASES, width))
-    elif key == "service-map":
+    elif key == "ile-path":
+        els.append(PhaseStrip(ILE_PATH_PHASES, width))
+    elif key in ("service-map", "core-bridge", "propco-opco"):
         els.append(OrgChart(DIAGRAMS[key](), width, box_h=30, v_gap=22, font=7.2))
     else:
         els.append(OrgChart(DIAGRAMS[key](), width))
@@ -486,7 +512,9 @@ def parse(md_text):
                 ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
                 ("LINEBELOW", (0, 1), (-1, -1), 0.4, HexColor("#E5E7EB")),
             ]))
-            flow += [Spacer(1, 4), t, Spacer(1, 8)]
+            # keep a table whole where it fits, so a page break never orphans
+            # a single row under a repeated header
+            flow += [Spacer(1, 4), KeepTogether(t), Spacer(1, 8)]
             continue
 
         # blockquote (callout)
@@ -623,7 +651,8 @@ def render(src, out, doc_title, title_html, subtitle, kicker,
            prepared_for="Kemi Balogun",
            prepared_by="Debo Odulana, Founding Partner, Consult for Africa",
            status="Private and confidential. Advisory, not a legal or tax opinion.",
-           footer="Consult for Africa   /   Private and confidential   /   Prepared for Kemi Balogun"):
+           footer="Consult for Africa   /   Private and confidential   /   Prepared for Kemi Balogun",
+           date="July 2026", eyebrow="AN ADVISORY NOTE"):
     doc = BaseDocTemplate(
         str(out), pagesize=A4,
         leftMargin=MARGIN, rightMargin=MARGIN, topMargin=44, bottomMargin=42,
@@ -639,7 +668,7 @@ def render(src, out, doc_title, title_html, subtitle, kicker,
     el = []
     # ---- COVER ----
     el.append(Spacer(1, 20))
-    el.append(Paragraph("AN ADVISORY NOTE",
+    el.append(Paragraph(eyebrow,
                         ParagraphStyle("ceyebrow", fontName="Helvetica-Bold", fontSize=10,
                                        leading=13, textColor=GOLD, spaceAfter=12)))
     el.append(Paragraph(title_html,
@@ -653,7 +682,7 @@ def render(src, out, doc_title, title_html, subtitle, kicker,
     for label, value in [
         ("PREPARED FOR", prepared_for),
         ("PREPARED BY", prepared_by),
-        ("DATE", "July 2026"),
+        ("DATE", date),
         ("STATUS", status),
     ]:
         el.append(Paragraph(label, ParagraphStyle("clbl", fontName="Helvetica-Bold",
@@ -710,7 +739,31 @@ def render_onepager(src, out, doc_title):
     print(f"wrote {out}")
 
 
-def build():
+def build(only=None):
+    def want(name):
+        return only is None or only in name
+
+    if want("ile-founders-next-steps"):
+        render(
+            DOCS / "ile-founders-next-steps-cfa.md",
+            DOCS / "ile-founders-next-steps-cfa.pdf",
+            "ilé - Next Steps for the Founders",
+            "What happens<br/>next",
+            "Residential eldercare is the core of ilé, and home healthcare and virtual "
+            "consultations are the businesses that carry us to it. The next steps for all "
+            "three founders, with owners and dates, and a platform built in six weeks.",
+            "ilé founders' next steps",
+            prepared_for="Kemi Balogun",
+            prepared_by="Debo Odulana, Founding Partner, Consult for Africa",
+            status="Private and confidential. A working brief for the founders, "
+                   "not a legal or tax opinion.",
+            footer="Consult for Africa   /   Private and confidential   /   ilé founders' brief",
+            date="14 September 2026",
+            eyebrow="A FOUNDERS' BRIEF",
+        )
+    if only == "ile-founders-next-steps":
+        return
+
     render(
         DOCS / "kemi-balogun-group-structuring-cfa.md",
         DOCS / "kemi-balogun-group-structuring-cfa.pdf",
@@ -763,4 +816,5 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    import sys
+    build(sys.argv[1] if len(sys.argv) > 1 else None)
