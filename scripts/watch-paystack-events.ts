@@ -12,9 +12,13 @@
  * By default it reports every row in the table, then everything new. Pass
  * --since-start to ignore history and report only what arrives from now on.
  *
- * One line per event. Failures are never silent: a status of FAILED or PARTIAL
- * is called out, and so is a database that stops answering, because a quiet
- * watcher and a quiet webhook look identical from the outside.
+ * One line per event, carrying its status, so a FAILED or PARTIAL routing is
+ * visible as it happens.
+ *
+ * Connectivity trouble is reported as nothing at all. That is deliberate, and
+ * it is a trade: a watch that has quietly died looks exactly like a quiet
+ * webhook. Confirm independently when it matters, by querying the table or by
+ * checking /api/health in production.
  */
 import { PrismaClient } from "@prisma/client";
 
@@ -49,8 +53,6 @@ function line(r: {
 async function main() {
   const sinceStart = process.argv.includes("--since-start");
   let cursor = sinceStart ? new Date() : new Date(0);
-  let consecutiveErrors = 0;
-  let warnedAboutErrors = false;
 
   console.log(
     `watching PaystackWebhookEvent${sinceStart ? " for new events" : ", including anything already recorded"}`
@@ -74,12 +76,6 @@ async function main() {
         },
       });
 
-      if (consecutiveErrors > 0 && warnedAboutErrors) {
-        console.log("database is answering again, watch resumed");
-        warnedAboutErrors = false;
-      }
-      consecutiveErrors = 0;
-
       if (rows.length > BURST_LIMIT) {
         // Do not turn a busy minute into a wall of notifications.
         const bad = rows.filter((r) => r.status === "FAILED" || r.status === "PARTIAL");
@@ -92,16 +88,25 @@ async function main() {
       }
 
       if (rows.length) cursor = rows[rows.length - 1].createdAt;
-    } catch (err) {
-      consecutiveErrors++;
-      // Speak up once rather than every cycle, but do speak up: silence here
-      // would be indistinguishable from no payments arriving.
-      if (consecutiveErrors === 3 && !warnedAboutErrors) {
-        warnedAboutErrors = true;
-        console.log(
-          `WATCH DEGRADED: cannot read PaystackWebhookEvent (${err instanceof Error ? err.message.slice(0, 160) : "unknown"})`
-        );
-      }
+
+      // Hand the connection back between polls rather than holding one idle
+      // across the sleep, matching how the serverless webhook talks to the
+      // same pooler. This did not cure the dropouts seen from one machine, so
+      // do not read it as the fix for those; it is just the better manners.
+      await prisma.$disconnect().catch(() => {});
+    } catch {
+      // Deliberately silent. This machine's connectivity drops for minutes at
+      // a time while production reaches the same database in 25ms, so
+      // reporting it would describe the local network rather than anything
+      // about payments. Nothing is lost by staying quiet: the cursor only
+      // moves on a successful read, so events written during an outage are
+      // picked up on the next one that works.
+      //
+      // The cost of this choice, chosen knowingly: if the watch dies for a
+      // real reason, it dies quietly, and silence looks the same as no
+      // payments arriving. Confirm independently when it matters, either by
+      // querying the table directly or via /api/health in production.
+      await prisma.$disconnect().catch(() => {});
     }
 
     await new Promise((r) => setTimeout(r, POLL_MS));
