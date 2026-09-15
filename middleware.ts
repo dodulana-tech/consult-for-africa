@@ -12,9 +12,21 @@ const AUTH_ROUTES = ["/login"];
 const ONBOARDING_ROUTE = "/onboarding";
 const ONBOARDING_COMPLETE_STATUSES = ["ACTIVE", "ASSESSMENT_COMPLETE", "REVIEW"];
 
+// A client project page whose link gets typed into phones and pasted out of
+// WhatsApp. Route paths are case sensitive, so the near-misses need catching,
+// and it has to be done here rather than in next.config: redirect `source`
+// matching is case insensitive there, which sends the canonical path to itself.
+const CASE_FORGIVING = new Map<string, string>([["/osteonproject", "/OsteonProject"]]);
+
 export default auth((req) => {
   const { nextUrl, auth: session } = req;
   const isLoggedIn = !!session;
+
+  const canonical = CASE_FORGIVING.get(nextUrl.pathname.toLowerCase().replace(/-/g, ""));
+  if (canonical && nextUrl.pathname !== canonical) {
+    return NextResponse.redirect(new URL(canonical, nextUrl));
+  }
+
   const isPlatformRoute = PLATFORM_ROUTES.some((r) => nextUrl.pathname === r || nextUrl.pathname.startsWith(r + "/"));
   const isAuthRoute = AUTH_ROUTES.some((r) => nextUrl.pathname === r || nextUrl.pathname.startsWith(r + "/"));
 

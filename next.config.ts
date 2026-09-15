@@ -46,16 +46,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  async redirects() {
-    return [
-      // Route paths are case sensitive, and this link gets typed into phones
-      // and pasted out of WhatsApp, so catch the forms people actually use.
-      { source: "/osteonproject", destination: "/OsteonProject", permanent: false },
-      { source: "/osteon-project", destination: "/OsteonProject", permanent: false },
-      { source: "/Osteonproject", destination: "/OsteonProject", permanent: false },
-      { source: "/osteonProject", destination: "/OsteonProject", permanent: false },
-    ];
-  },
 };
 
 export default nextConfig;
