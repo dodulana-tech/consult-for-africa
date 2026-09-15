@@ -669,7 +669,9 @@ function buildOnlyYou(p: DigestRecipient, ctx: WeekContext): CadreDigestContent[
     return {
       kind: "MANDATE",
       label: "Open for your cadre",
-      headline: mandate.title,
+      // Phrased as a sentence, because this headline becomes the subject line
+      // and a bare mandate title makes a nonsense one: "Pharmacist".
+      headline: `${mandate.title} is open`,
       detail: [mandate.facility, mandate.city].filter(Boolean).join(", ") || "Details inside.",
       ctaLabel: "See the brief",
       href: `/oncadre/mandates/${mandate.id}`,
