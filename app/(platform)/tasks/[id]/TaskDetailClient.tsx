@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   CalendarClock,
@@ -17,6 +18,8 @@ import { parseApiError } from "@/lib/parse-api-error";
 import {
   STATUS_LABELS,
   STATUS_STYLES,
+  isSettled,
+  linkedSection,
   formatDate,
   formatMinutes,
   isOverdue,
@@ -70,7 +73,11 @@ export default function TaskDetailClient({
   currentUserId: string;
   canAssign: boolean;
 }) {
+  const router = useRouter();
   const [task, setTask] = useState<TaskDetail | null>(null);
+  // What just happened, so the page confirms the move instead of only
+  // offering the next one.
+  const [justMoved, setJustMoved] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -121,6 +128,14 @@ export default function TaskDetailClient({
       setTask(d.task);
       setPending(null);
       setNote("");
+      setJustMoved(to);
+      // "Every task that has a section on the platform should lead me directly
+      // to it after clicking the start it button." Starting work should put
+      // her in the place the work happens.
+      if (to === "IN_PROGRESS") {
+        const section = linkedSection(d.task.linkedEntityType, d.task.linkedEntityId);
+        if (section) router.push(section.href);
+      }
     } finally {
       setSaving(false);
     }
@@ -164,6 +179,16 @@ export default function TaskDetailClient({
   }
 
   const s = STATUS_STYLES[task.status];
+  const settled = isSettled(task.status);
+  const settledTone =
+    task.status === "DONE" ? { bg: "#ECFDF5", border: "#A7F3D0", text: "#065F46" }
+    : task.status === "BLOCKED" ? { bg: "#FEF2F2", border: "#FECACA", text: "#991B1B" }
+    : task.status === "CANCELLED" ? { bg: "#F8FAFC", border: "#E2E8F0", text: "#475569" }
+    : { bg: "#EFF6FF", border: "#BFDBFE", text: "#1E40AF" };
+  const section = linkedSection(task.linkedEntityType, task.linkedEntityId);
+  const primary = primaryFor(task.status, task.viewer.party, task.viewer.canTransitionTo);
+  const secondary = task.viewer.canTransitionTo.filter((t) => t !== primary);
+  const settledMessage = settledCopy(task, justMoved);
   const overdue = isOverdue(task.dueDate, task.status);
   const isAssignee = task.assignee.id === currentUserId;
   const overrun =
@@ -222,6 +247,22 @@ export default function TaskDetailClient({
           )}
         </div>
 
+        {/* Where the work happens. Present on the task itself, not only after
+            clicking start, so it is reachable whenever she comes back to it. */}
+        {section && task.status !== "DONE" && task.status !== "CANCELLED" && (
+          <Link
+            href={section.href}
+            className="flex items-center justify-between gap-3 rounded-xl border bg-white px-5 py-4 hover:shadow-sm transition-shadow"
+            style={{ borderColor: "#e5eaf0" }}
+          >
+            <span>
+              <span className="text-sm font-semibold text-gray-900">Open {section.label}</span>
+              <span className="block text-xs mt-0.5" style={{ color: "#94A3B8" }}>This is where this task gets done.</span>
+            </span>
+            <ChevronRight size={16} style={{ color: "#0F2744" }} />
+          </Link>
+        )}
+
         {/* Brief and definition of done */}
         <Panel title="Why this matters" body={task.brief} />
         <Panel title="Done looks like" body={task.definitionOfDone} accent="#10B981" />
@@ -279,26 +320,54 @@ export default function TaskDetailClient({
           </div>
         )}
 
-        {/* Actions */}
-        {!pending && task.viewer.canTransitionTo.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {task.viewer.canTransitionTo.map((to) => (
+        {/* What just happened. A settled task says so rather than offering the
+            next button as though the move never landed. */}
+        {!pending && settled && (
+          <div className="rounded-xl p-4" style={{ background: settledTone.bg, border: `1px solid ${settledTone.border}` }}>
+            <div className="flex items-start gap-2">
+              {task.status === "DONE" ? <CheckCircle2 size={16} style={{ color: settledTone.text, marginTop: 1 }} />
+                : task.status === "BLOCKED" ? <OctagonX size={16} style={{ color: settledTone.text, marginTop: 1 }} />
+                : <Send size={16} style={{ color: settledTone.text, marginTop: 1 }} />}
+              <div>
+                <p className="text-sm font-semibold" style={{ color: settledTone.text }}>{settledMessage.title}</p>
+                <p className="text-sm mt-0.5" style={{ color: settledTone.text, opacity: 0.85 }}>{settledMessage.detail}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* One obvious next move, with the rest demoted to quiet links so they
+            never read as "that did not work, try again". */}
+        {!pending && (primary || secondary.length > 0) && (
+          <div className="flex flex-wrap items-center gap-3">
+            {primary && (
+              <button
+                onClick={() => move(primary)}
+                disabled={saving}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
+                style={actionStyle(primary)}
+              >
+                {primary === "SUBMITTED" ? <Send size={14} /> : primary === "DONE" ? <CheckCircle2 size={14} /> : <ChevronRight size={14} />}
+                {ACTION_LABELS[primary] ?? STATUS_LABELS[primary]}
+              </button>
+            )}
+            {secondary.map((to) => (
               <button
                 key={to}
                 onClick={() => move(to)}
                 disabled={saving}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
-                style={actionStyle(to)}
+                className="text-sm font-medium underline underline-offset-2 disabled:opacity-50"
+                style={{ color: to === "BLOCKED" ? "#B91C1C" : to === "CANCELLED" ? "#94A3B8" : "#64748B" }}
               >
-                {to === "BLOCKED" ? <OctagonX size={14} /> : to === "SUBMITTED" ? <Send size={14} /> : to === "DONE" ? <CheckCircle2 size={14} /> : <ChevronRight size={14} />}
                 {ACTION_LABELS[to] ?? STATUS_LABELS[to]}
               </button>
             ))}
           </div>
         )}
 
-        {/* Time actually taken */}
-        {isAssignee && ["SUBMITTED", "DONE", "IN_PROGRESS", "CHANGES_REQUESTED"].includes(task.status) && (
+        {/* Time actually taken. Once recorded it is a fact in the header, so the
+            box comes down rather than sitting there inviting a second answer. */}
+        {isAssignee && !task.actualMinutes && ["SUBMITTED", "DONE", "IN_PROGRESS", "CHANGES_REQUESTED"].includes(task.status) && (
           <ActualMinutes current={task.actualMinutes} saving={saving} onSave={(m) => patch({ actualMinutes: m })} />
         )}
 
@@ -403,6 +472,65 @@ export default function TaskDetailClient({
       </div>
     </div>
   );
+}
+
+/**
+ * One obvious next move per state. Everything else is still available, just not
+ * competing with it. Abigail's report was that after submitting she saw "Start
+ * it" again and read it as the submit having failed.
+ */
+function primaryFor(status: string, party: string, available: string[]): string | null {
+  const isAssignee = party === "ASSIGNEE" || party === "BOTH";
+  const isAssigner = party === "ASSIGNER" || party === "BOTH";
+  const pick = (t: string) => (available.includes(t) ? t : null);
+  if (isAssignee) {
+    if (status === "ASSIGNED") return pick("IN_PROGRESS");
+    if (status === "IN_PROGRESS") return pick("SUBMITTED");
+    if (status === "CHANGES_REQUESTED") return pick("IN_PROGRESS");
+  }
+  if (isAssigner) {
+    if (status === "SUBMITTED") return pick("DONE");
+    if (status === "BLOCKED") return pick("IN_PROGRESS");
+  }
+  return null;
+}
+
+/** Says what happened and who holds it now, from the reader's side of the desk. */
+function settledCopy(
+  task: TaskDetail,
+  justMoved: string | null,
+): { title: string; detail: string } {
+  const mine = task.viewer.party === "ASSIGNEE" || task.viewer.party === "BOTH";
+  const fresh = justMoved === task.status;
+  switch (task.status) {
+    case "SUBMITTED":
+      return mine
+        ? {
+            title: fresh ? "Submitted." : "Submitted and waiting.",
+            detail: `${task.assigner.name} has it now and will either sign it off or send it back with a note. Nothing further is needed from you.`,
+          }
+        : {
+            title: `${task.assignee.name} submitted this.`,
+            detail: "It is waiting on your review.",
+          };
+    case "BLOCKED":
+      return mine
+        ? {
+            title: fresh ? "Marked blocked." : "Blocked.",
+            detail: `${task.assigner.name} has been told what is in the way and will come back to you. You do not need to chase it, and this does not count against you.`,
+          }
+        : {
+            title: `${task.assignee.name} is stuck.`,
+            detail: "They are waiting on you to clear what is in the way.",
+          };
+    case "DONE":
+      return {
+        title: "Signed off.",
+        detail: `${task.assigner.name} accepted this as done.`,
+      };
+    default:
+      return { title: "Cancelled.", detail: "No further work is needed on this." };
+  }
 }
 
 function actionStyle(to: string): React.CSSProperties {

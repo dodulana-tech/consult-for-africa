@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Handshake, Loader2, Phone, Plus, X } from "lucide-react";
 import { parseApiError } from "@/lib/parse-api-error";
+import RowMenu from "@/components/platform/RowMenu";
 import type { TaskPerson } from "../tasks/taskUi";
 
 interface Commitment {
@@ -202,32 +203,99 @@ function Group({ title, rows, onChange, alert }: { title: string; rows: Commitme
 
 function Card({ c, onChange, alert }: { c: Commitment; onChange: () => void; alert?: boolean }) {
   const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({
+    what: c.what,
+    owedByName: c.owedByUser?.name ?? c.owedByName ?? "",
+    dueDate: c.dueDate ? c.dueDate.slice(0, 10) : "",
+    note: c.note ?? "",
+  });
+  const [err, setErr] = useState("");
   const s = STATUS_STYLES[c.status];
   const who = c.owedByUser?.name ?? c.owedByName ?? "someone";
   const open = ["OPEN", "CHASED"].includes(c.status);
 
   async function patch(body: Record<string, unknown>) {
     setBusy(true);
+    setErr("");
     try {
-      await fetch(`/api/commitments/${c.id}`, {
+      const res = await fetch(`/api/commitments/${c.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
+      if (!res.ok) { setErr(await parseApiError(res, "Could not save that.")); return false; }
       onChange();
+      return true;
     } finally {
       setBusy(false);
     }
+  }
+
+  async function remove() {
+    const res = await fetch(`/api/commitments/${c.id}`, { method: "DELETE" });
+    if (!res.ok) { setErr(await parseApiError(res, "Could not delete that.")); return; }
+    onChange();
+  }
+
+  if (editing) {
+    return (
+      <div className="rounded-xl border bg-white p-4 space-y-3" style={{ borderColor: "#e5eaf0" }}>
+        <textarea className={inputClass} style={inputStyle} rows={2} value={draft.what}
+          onChange={(e) => setDraft((d) => ({ ...d, what: e.target.value }))} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <label className="block text-[11px] font-semibold text-gray-500 mb-1">Who owes it</label>
+            <input className={inputClass} style={inputStyle} value={draft.owedByName}
+              disabled={!!c.owedByUser}
+              onChange={(e) => setDraft((d) => ({ ...d, owedByName: e.target.value }))} />
+          </div>
+          <div>
+            <label className="block text-[11px] font-semibold text-gray-500 mb-1">By when</label>
+            <input type="date" className={inputClass} style={inputStyle} value={draft.dueDate}
+              onChange={(e) => setDraft((d) => ({ ...d, dueDate: e.target.value }))} />
+          </div>
+        </div>
+        <input className={inputClass} style={inputStyle} placeholder="Context" value={draft.note}
+          onChange={(e) => setDraft((d) => ({ ...d, note: e.target.value }))} />
+        {err && <p className="text-sm" style={{ color: "#DC2626" }}>{err}</p>}
+        <div className="flex gap-2">
+          <button
+            disabled={busy || !draft.what.trim()}
+            onClick={async () => {
+              const ok = await patch({
+                what: draft.what.trim(),
+                ...(c.owedByUser ? {} : { owedByName: draft.owedByName.trim() || null }),
+                dueDate: draft.dueDate || null,
+                note: draft.note.trim() || null,
+              });
+              if (ok) setEditing(false);
+            }}
+            className="px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50"
+            style={{ background: "#0F2744" }}
+          >
+            {busy ? "Saving" : "Save"}
+          </button>
+          <button onClick={() => { setEditing(false); setErr(""); }}
+            className="px-4 py-2 rounded-lg text-sm font-medium border"
+            style={{ borderColor: "#e5eaf0", color: "#64748B" }}>Cancel</button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="rounded-xl border bg-white p-4" style={{ borderColor: alert ? "#FCA5A5" : "#e5eaf0" }}>
       <div className="flex items-start justify-between gap-3">
         <p className="text-sm font-medium text-gray-900">{c.what}</p>
-        <span className="shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full" style={{ background: s.bg, color: s.text }}>
-          {c.status}
-        </span>
+        <div className="flex items-center gap-1 shrink-0">
+          <span className="text-[10px] font-semibold px-2 py-1 rounded-full" style={{ background: s.bg, color: s.text }}>
+            {c.status}
+          </span>
+          <RowMenu onEdit={() => setEditing(true)} onDelete={remove} disabled={busy} />
+        </div>
       </div>
+      {err && <p className="text-xs mt-2" style={{ color: "#DC2626" }}>{err}</p>}
 
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[11px]" style={{ color: "#94A3B8" }}>
         <span className="font-medium" style={{ color: "#475569" }}>{who}</span>

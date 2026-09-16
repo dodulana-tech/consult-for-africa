@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Video, Calendar, Clock, Users, ExternalLink, Copy, Check,
+  Video, Calendar, Clock, Users, ExternalLink, Copy, Check, X, Plus, Pencil,
   FileText, ListChecks, AlertCircle, Sparkles,
 } from "lucide-react";
 
@@ -59,6 +59,13 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   NO_SHOW: { bg: "#F3F4F6", text: "#6B7280" },
 };
 
+/** Date input wants local wall-clock time, not an ISO string in UTC. */
+function toLocalInput(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export default function MeetingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
@@ -66,6 +73,11 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState("");
+  const [addingPerson, setAddingPerson] = useState(false);
+  const [newPerson, setNewPerson] = useState({ name: "", email: "", role: "" });
 
   useEffect(() => {
     fetch(`/api/meetings/${id}`)
@@ -90,6 +102,24 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
       router.push("/meetings");
     } catch {
       setCancelling(false);
+    }
+  }
+
+  async function patchMeeting(body: Record<string, unknown>): Promise<boolean> {
+    setSaving(true);
+    setErr("");
+    try {
+      const res = await fetch(`/api/meetings/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) { setErr(data.error ?? "Could not save that."); return false; }
+      if (data.meeting) setMeeting(data.meeting);
+      return true;
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -194,6 +224,15 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
             )}
             {meeting.status === "SCHEDULED" && (
               <button
+                onClick={() => setEditing((v) => !v)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border"
+                style={{ borderColor: "#e5eaf0", color: "#0F2744" }}
+              >
+                <Pencil className="w-3.5 h-3.5" /> {editing ? "Close" : "Edit"}
+              </button>
+            )}
+            {meeting.status === "SCHEDULED" && (
+              <button
                 onClick={handleCancel}
                 disabled={cancelling}
                 className="px-3 py-2 rounded-lg text-sm font-medium text-red-600 border border-red-200 hover:bg-red-50"
@@ -207,6 +246,85 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main content */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Change the meeting rather than cancelling and rebooking it.
+                Everything here syncs back to the calendar entry. */}
+            {editing && (
+              <div className="bg-white rounded-xl border p-4 space-y-3" style={{ borderColor: "#e5eaf0" }}>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase">Edit meeting</h3>
+                <input
+                  className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
+                  style={{ borderColor: "#e5eaf0" }}
+                  defaultValue={meeting.title}
+                  id="m-title"
+                  placeholder="Title"
+                />
+                <textarea
+                  className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
+                  style={{ borderColor: "#e5eaf0" }}
+                  rows={3}
+                  defaultValue={meeting.description ?? ""}
+                  id="m-desc"
+                  placeholder="What it is for, and the minutes afterwards"
+                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-gray-500 mb-1">Starts</label>
+                    <input
+                      type="datetime-local"
+                      className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
+                      style={{ borderColor: "#e5eaf0" }}
+                      defaultValue={toLocalInput(meeting.scheduledAt)}
+                      id="m-start"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-gray-500 mb-1">Minutes</label>
+                    <input
+                      type="number"
+                      min={15}
+                      step={15}
+                      className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
+                      style={{ borderColor: "#e5eaf0" }}
+                      defaultValue={Math.max(
+                        15,
+                        Math.round((new Date(meeting.scheduledEndAt).getTime() - new Date(meeting.scheduledAt).getTime()) / 60000),
+                      )}
+                      id="m-dur"
+                    />
+                  </div>
+                </div>
+                {err && <p className="text-sm" style={{ color: "#DC2626" }}>{err}</p>}
+                <div className="flex gap-2">
+                  <button
+                    disabled={saving}
+                    onClick={async () => {
+                      const title = (document.getElementById("m-title") as HTMLInputElement)?.value.trim();
+                      const description = (document.getElementById("m-desc") as HTMLTextAreaElement)?.value;
+                      const start = (document.getElementById("m-start") as HTMLInputElement)?.value;
+                      const dur = Number((document.getElementById("m-dur") as HTMLInputElement)?.value);
+                      const ok = await patchMeeting({
+                        ...(title ? { title } : {}),
+                        description,
+                        ...(start ? { scheduledAt: new Date(start).toISOString() } : {}),
+                        ...(Number.isFinite(dur) && dur > 0 ? { durationMinutes: dur } : {}),
+                      });
+                      if (ok) setEditing(false);
+                    }}
+                    className="px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50"
+                    style={{ background: "#0F2744" }}
+                  >
+                    {saving ? "Saving" : "Save changes"}
+                  </button>
+                  <button onClick={() => { setEditing(false); setErr(""); }}
+                    className="px-4 py-2 rounded-lg text-sm font-medium border"
+                    style={{ borderColor: "#e5eaf0", color: "#64748B" }}>Cancel</button>
+                </div>
+                <p className="text-[11px]" style={{ color: "#94A3B8" }}>
+                  Moving the time re-sends the calendar invitation to everyone going.
+                </p>
+              </div>
+            )}
+
             {/* Meet Link */}
             {meeting.meetLink && (
               <div className="bg-white rounded-xl border p-4" style={{ borderColor: "#e5eaf0" }}>
@@ -401,9 +519,75 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
                     {p.attended && (
                       <Check className="w-4 h-4 text-green-500 shrink-0" />
                     )}
+                    <button
+                      onClick={async () => { await patchMeeting({ removeParticipantIds: [p.id] }); }}
+                      disabled={saving}
+                      title={`Remove ${p.name}`}
+                      className="shrink-0 p-1 rounded hover:bg-red-50 disabled:opacity-40"
+                      style={{ color: "#CBD5E1" }}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 ))}
               </div>
+
+              {/* Somebody left off the original invite should not mean cancelling
+                  and rebooking the whole meeting. */}
+              {addingPerson ? (
+                <div className="mt-3 pt-3 space-y-2" style={{ borderTop: "1px solid #f1f5f9" }}>
+                  <input
+                    className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
+                    style={{ borderColor: "#e5eaf0" }}
+                    placeholder="Name"
+                    value={newPerson.name}
+                    onChange={(e) => setNewPerson((v) => ({ ...v, name: e.target.value }))}
+                  />
+                  <input
+                    className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
+                    style={{ borderColor: "#e5eaf0" }}
+                    placeholder="Email"
+                    type="email"
+                    value={newPerson.email}
+                    onChange={(e) => setNewPerson((v) => ({ ...v, email: e.target.value }))}
+                  />
+                  <input
+                    className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#0F2744]"
+                    style={{ borderColor: "#e5eaf0" }}
+                    placeholder="Role (optional)"
+                    value={newPerson.role}
+                    onChange={(e) => setNewPerson((v) => ({ ...v, role: e.target.value }))}
+                  />
+                  <p className="text-[11px]" style={{ color: "#94A3B8" }}>
+                    They get the invitation and the calendar entry updates. Nobody already going is emailed again.
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      disabled={saving || !newPerson.name.trim() || !newPerson.email.trim()}
+                      onClick={async () => {
+                        const ok = await patchMeeting({ addParticipants: [newPerson] });
+                        if (ok) { setNewPerson({ name: "", email: "", role: "" }); setAddingPerson(false); }
+                      }}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium text-white disabled:opacity-50"
+                      style={{ background: "#0F2744" }}
+                    >
+                      {saving ? "Adding" : "Add and invite"}
+                    </button>
+                    <button onClick={() => { setAddingPerson(false); setErr(""); }}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium border"
+                      style={{ borderColor: "#e5eaf0", color: "#64748B" }}>Cancel</button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setAddingPerson(true)}
+                  className="mt-3 flex items-center gap-1.5 text-sm font-medium"
+                  style={{ color: "#0F2744" }}
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add someone
+                </button>
+              )}
+              {err && <p className="text-xs mt-2" style={{ color: "#DC2626" }}>{err}</p>}
             </div>
 
             {/* Nuru Status */}

@@ -57,7 +57,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   const {
     source, organizationName, contactName, contactEmail, contactPhone,
     contactRole, organizationType, country, city,
-    knownPainPoints, serviceLineHook, estimatedSize,
+    knownPainPoints, serviceLineHook, serviceLineHooks, estimatedSize,
     outreachStrategy, existingClientId,
   } = body;
 
@@ -78,7 +78,11 @@ export const POST = handler(async function POST(req: NextRequest) {
       country: country?.trim() || null,
       city: city?.trim() || null,
       knownPainPoints: Array.isArray(knownPainPoints) ? knownPainPoints : [],
-      serviceLineHook: serviceLineHook || null,
+      // serviceLineHook stays populated with the first selection so any reader
+      // that has not moved to the array still shows something true.
+      serviceLineHooks: Array.isArray(serviceLineHooks) ? serviceLineHooks.filter(Boolean) : [],
+      serviceLineHook:
+        (Array.isArray(serviceLineHooks) && serviceLineHooks.filter(Boolean)[0]) || serviceLineHook || null,
       estimatedSize: estimatedSize || null,
       outreachStrategy: outreachStrategy?.trim() || null,
       existingClientId: existingClientId || null,

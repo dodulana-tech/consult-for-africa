@@ -84,3 +84,47 @@ export interface TaskRow {
   assigner: TaskPerson;
   _count?: { subtasks: number };
 }
+
+/**
+ * Where a task's work actually happens.
+ *
+ * Abigail's feedback: "Every task that has a section on the platform should
+ * lead me directly to it after clicking the start it button." A brief tells
+ * you what to do; it should also take you to where you do it.
+ *
+ * An id is optional. Without one this points at the section index, which is
+ * right for "count the inventory" and wrong for nothing.
+ */
+const LINKED_SECTIONS: Record<string, { label: string; path: string; itemPath?: (id: string) => string }> = {
+  INVENTORY: { label: "inventory", path: "/inventory" },
+  COMMITMENT: { label: "the commitment register", path: "/commitments" },
+  DECISION: { label: "decisions", path: "/decisions" },
+  PIPELINE: { label: "the pipeline", path: "/pipeline" },
+  LEAD: { label: "the lead", path: "/pipeline", itemPath: (id) => `/leads/${id}` },
+  DISCOVERY_CALL: { label: "the discovery call", path: "/discovery-calls", itemPath: (id) => `/discovery-calls/${id}` },
+  MEETING: { label: "meetings", path: "/meetings", itemPath: (id) => `/meetings/${id}` },
+  COMMUNICATION: { label: "communications", path: "/communications" },
+  INVOICE: { label: "invoices", path: "/finance/invoices", itemPath: (id) => `/finance/invoices/${id}` },
+  RHYTHM: { label: "the rhythm", path: "/rhythm" },
+  KNOWLEDGE: { label: "the knowledge base", path: "/knowledge" },
+  PROPOSAL: { label: "proposals", path: "/proposals" },
+};
+
+export function linkedSection(
+  type: string | null | undefined,
+  id: string | null | undefined,
+): { href: string; label: string } | null {
+  if (!type) return null;
+  const s = LINKED_SECTIONS[type.toUpperCase()];
+  if (!s) return null;
+  return { href: id && s.itemPath ? s.itemPath(id) : s.path, label: s.label };
+}
+
+/**
+ * Statuses where the assignee has made their move and is waiting on somebody
+ * else. The page should say so plainly rather than offering the next button as
+ * though nothing happened.
+ */
+export function isSettled(status: string): boolean {
+  return ["SUBMITTED", "BLOCKED", "DONE", "CANCELLED"].includes(status);
+}

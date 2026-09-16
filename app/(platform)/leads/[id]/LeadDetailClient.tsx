@@ -26,6 +26,7 @@ interface LeadData {
   competitorPresence: string | null;
   estimatedSize: string | null;
   serviceLineHook: string | null;
+  serviceLineHooks?: string[];
   outreachAttempts: Array<{ date: string; channel: string; notes: string; response: string | null; loggedBy: string }> | null;
   outreachStrategy: string | null;
   qualificationScore: string | null;
@@ -313,10 +314,16 @@ export default function LeadDetailClient({ lead: initialLead }: { lead: LeadData
                   </div>
                 )}
 
-                {lead.serviceLineHook && (
+                {(lead.serviceLineHooks?.length || lead.serviceLineHook) && (
                   <div>
-                    <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Service Line</p>
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-700">{lead.serviceLineHook}</span>
+                    <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Service Line{(lead.serviceLineHooks?.length ?? 0) > 1 ? "s" : ""}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(lead.serviceLineHooks?.length ? lead.serviceLineHooks : [lead.serviceLineHook!]).map((sl) => (
+                        <span key={sl} className="text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-700">{sl}</span>
+                      ))}
+                    </div>
                   </div>
                 )}
 

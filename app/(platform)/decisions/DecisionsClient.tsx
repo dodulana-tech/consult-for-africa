@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { CheckCircle2, Clock, Gavel, Loader2, Plus, X } from "lucide-react";
 import { parseApiError } from "@/lib/parse-api-error";
+import RowMenu from "@/components/platform/RowMenu";
 import type { TaskPerson } from "../tasks/taskUi";
 
 interface Decision {
@@ -151,7 +152,7 @@ export default function DecisionsClient({ currentUserId }: { currentUserId: stri
           </div>
         ) : (
           decisions.map((d) => (
-            <DecisionCard key={d.id} decision={d} isPrincipal={d.forUser.id === currentUserId} onChange={load} />
+            <DecisionCard key={d.id} decision={d} isPrincipal={d.forUser.id === currentUserId} isRaiser={d.raisedBy.id === currentUserId} onChange={load} />
           ))
         )}
       </div>
@@ -168,11 +169,21 @@ function Tab({ label, active, onClick }: { label: string; active: boolean; onCli
   );
 }
 
-function DecisionCard({ decision, isPrincipal, onChange }: { decision: Decision; isPrincipal: boolean; onChange: () => void }) {
+function DecisionCard({ decision, isPrincipal, isRaiser, onChange }: { decision: Decision; isPrincipal: boolean; isRaiser: boolean; onChange: () => void }) {
   const [outcome, setOutcome] = useState(decision.outcome ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const s = STATUS_STYLES[decision.status];
+
+  // Only while it is still pending. Once it has been answered, the answer is
+  // the record of what was decided and why, and that is the point of keeping it.
+  const canRemove = isRaiser && decision.status === "PENDING";
+
+  async function remove() {
+    const res = await fetch(`/api/decisions/${decision.id}`, { method: "DELETE" });
+    if (!res.ok) { setError(await parseApiError(res, "Could not remove that.")); return; }
+    onChange();
+  }
 
   async function decide(status: string) {
     setSaving(true);
@@ -200,9 +211,12 @@ function DecisionCard({ decision, isPrincipal, onChange }: { decision: Decision;
             {decision.dueBy ? ` · needed by ${fmt(decision.dueBy)}` : ""}
           </p>
         </div>
-        <span className="shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full" style={{ background: s.bg, color: s.text }}>
-          {decision.status}
-        </span>
+        <div className="flex items-center gap-1 shrink-0">
+          <span className="text-[10px] font-semibold px-2 py-1 rounded-full" style={{ background: s.bg, color: s.text }}>
+            {decision.status}
+          </span>
+          {canRemove && <RowMenu onDelete={remove} deleteLabel="Withdraw it" confirmLabel="Withdraw" />}
+        </div>
       </div>
 
       <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{decision.background}</p>

@@ -1179,7 +1179,11 @@ model Lead {
   recentNews         String?  @db.Text
   competitorPresence String?  @db.Text // who else is consulting for them
   estimatedSize      String? // SMALL, MEDIUM, LARGE, ENTERPRISE
-  serviceLineHook    String? // which C4A service line is the angle
+  serviceLineHook    String? // first of serviceLineHooks, kept so older readers keep working
+  /// A client can want more than one thing. Added alongside the single field
+  /// rather than replacing it, because changing the column type in place would
+  /// drop the data and break any deploy still running the previous build.
+  serviceLineHooks   String[]
 
   // Outreach tracking
   outreachAttempts Json? // [{date, channel, notes, response}]

@@ -38,7 +38,7 @@ export default function NewLeadPage() {
   const [form, setForm] = useState({
     organizationName: "", contactName: "", contactEmail: "", contactPhone: "",
     contactRole: "", organizationType: "", country: "Nigeria", city: "",
-    serviceLineHook: "", estimatedSize: "", outreachStrategy: "",
+    serviceLineHooks: [] as string[], estimatedSize: "", outreachStrategy: "",
     knownPainPoints: "",
   });
   const [saving, setSaving] = useState(false);
@@ -169,11 +169,36 @@ export default function NewLeadPage() {
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Service Line Hook</label>
-                  <select value={form.serviceLineHook} onChange={(e) => setForm((p) => ({ ...p, serviceLineHook: e.target.value }))} className={inputClass} style={inputStyle}>
-                    <option value="">Which C4A service fits?</option>
-                    {SERVICE_LINES.map((sl) => <option key={sl} value={sl}>{sl}</option>)}
-                  </select>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Which C4A services fit? <span className="font-normal text-gray-400">Pick as many as apply</span>
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {SERVICE_LINES.map((sl) => {
+                      const on = form.serviceLineHooks.includes(sl);
+                      return (
+                        <button
+                          key={sl}
+                          type="button"
+                          onClick={() =>
+                            setForm((p) => ({
+                              ...p,
+                              serviceLineHooks: on
+                                ? p.serviceLineHooks.filter((x) => x !== sl)
+                                : [...p.serviceLineHooks, sl],
+                            }))
+                          }
+                          className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-left transition-colors"
+                          style={{
+                            background: on ? "#0F2744" : "#fff",
+                            color: on ? "#fff" : "#64748B",
+                            border: `1px solid ${on ? "#0F2744" : "#e5eaf0"}`,
+                          }}
+                        >
+                          {sl}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Estimated Size</label>

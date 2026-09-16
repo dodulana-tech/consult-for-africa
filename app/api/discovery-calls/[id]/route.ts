@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
+import { logAudit } from "@/lib/audit";
 import { OFFICE_ROLES } from "@/lib/constants";
 
 // The office works this record for hygiene and chasing. The convert endpoint,
@@ -106,4 +107,57 @@ export const PATCH = handler(async function PATCH(
   });
 
   return Response.json({ call: updated });
+});
+
+/**
+ * DELETE /api/discovery-calls/[id]
+ *
+ * For one booked in error. A call that happened and went nowhere is status
+ * CANCELLED or NO_SHOW: what was said on it is the firm's memory of that
+ * prospect, and it outlives the deal.
+ */
+export const DELETE = handler(async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const session = await auth();
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { id } = await params;
+  const call = await prisma.discoveryCall.findUnique({
+    where: { id },
+    select: {
+      id: true, organizationName: true, status: true, conductedById: true,
+      convertedToClientId: true, rawNotes: true, aiSummary: true,
+    },
+  });
+  if (!call) return Response.json({ error: "Not found" }, { status: 404 });
+
+  if (!ELEVATED.includes(session.user.role) && call.conductedById !== session.user.id) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  if (call.convertedToClientId) {
+    return Response.json(
+      { error: "This call became a client. Deleting it would break the client's history." },
+      { status: 409 },
+    );
+  }
+  if (call.status === "COMPLETED" || call.rawNotes?.trim() || call.aiSummary?.trim()) {
+    return Response.json(
+      { error: "This call has notes on it. Set it to CANCELLED instead, so what was said survives." },
+      { status: 409 },
+    );
+  }
+
+  await prisma.discoveryCall.delete({ where: { id } });
+  await logAudit({
+    userId: session.user.id,
+    action: "DELETE",
+    entityType: "DiscoveryCall",
+    entityId: id,
+    entityName: call.organizationName,
+  });
+
+  return Response.json({ ok: true });
 });

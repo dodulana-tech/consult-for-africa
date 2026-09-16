@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import RowMenu from "@/components/platform/RowMenu";
 import { formatEnumLabel } from "@/lib/utils";
 
 type Tab = "leads" | "discovery" | "proposals" | "staffing" | "expansions";
@@ -109,6 +111,20 @@ function Badge({ status }: { status: string }) {
 
 export default function PipelineClient({ leads, discoveryCalls, proposals, staffingRequests, expansionRequests, stats, isElevated, isOffice = false }: Props) {
   const [tab, setTab] = useState<Tab>("leads");
+  const router = useRouter();
+  const [rowError, setRowError] = useState("");
+
+  // The server component owns this data, so a refresh is what redraws the list.
+  async function removeRow(kind: "leads" | "discovery-calls" | "proposals", id: string) {
+    setRowError("");
+    const res = await fetch(`/api/${kind}/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      setRowError(d.error ?? "Could not delete that.");
+      return;
+    }
+    router.refresh();
+  }
 
   const allTabs: { key: Tab; label: string; count: number }[] = [
     { key: "leads", label: "Leads", count: stats.activeLeads },
@@ -140,6 +156,12 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
           </button>
         ))}
       </div>
+
+      {rowError && (
+        <div className="mb-3 rounded-lg px-3 py-2 text-sm" style={{ background: "#FEF2F2", color: "#991B1B" }}>
+          {rowError}
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex items-center gap-1 mb-4 border-b overflow-x-auto" style={{ borderColor: "#e5eaf0" }}>
@@ -205,6 +227,7 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
                   <th className="px-4 py-3 hidden md:table-cell">Service Line</th>
                   <th className="px-4 py-3">Owner</th>
                   <th className="px-4 py-3">Date</th>
+                  <th className="px-4 py-3 w-10"></th>
                 </tr>
               </thead>
               <tbody>
@@ -235,6 +258,12 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
                     <td className="px-4 py-3 text-xs text-gray-500">{lead.assignedTo?.name ?? <span className="text-gray-300">Unassigned</span>}</td>
                     <td className="px-4 py-3 text-xs text-gray-400">
                       {new Date(lead.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                    </td>
+                    <td className="px-4 py-3">
+                      <RowMenu
+                        onEdit={() => router.push(`/leads/${lead.id}`)}
+                        onDelete={() => removeRow("leads", lead.id)}
+                      />
                     </td>
                   </tr>
                 ))}
@@ -267,6 +296,7 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3 hidden md:table-cell">Service Lines</th>
                   <th className="px-4 py-3">Date</th>
+                  <th className="px-4 py-3 w-10"></th>
                 </tr>
               </thead>
               <tbody>
@@ -294,6 +324,12 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
                     <td className="px-4 py-3 text-xs text-gray-400">
                       {new Date(call.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                     </td>
+                    <td className="px-4 py-3">
+                      <RowMenu
+                        onEdit={() => router.push(`/discovery-calls/${call.id}`)}
+                        onDelete={() => removeRow("discovery-calls", call.id)}
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -320,6 +356,7 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3 hidden md:table-cell">Budget</th>
                   <th className="px-4 py-3">Date</th>
+                  <th className="px-4 py-3 w-10"></th>
                 </tr>
               </thead>
               <tbody>
@@ -335,6 +372,12 @@ export default function PipelineClient({ leads, discoveryCalls, proposals, staff
                     <td className="px-4 py-3 hidden md:table-cell text-xs text-gray-500">{p.budgetRange ?? "-"}</td>
                     <td className="px-4 py-3 text-xs text-gray-400">
                       {new Date(p.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                    </td>
+                    <td className="px-4 py-3">
+                      <RowMenu
+                        onEdit={() => router.push(`/proposals/${p.id}`)}
+                        onDelete={() => removeRow("proposals", p.id)}
+                      />
                     </td>
                   </tr>
                 ))}

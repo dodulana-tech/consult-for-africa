@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { handler } from "@/lib/api-handler";
+import { logAudit } from "@/lib/audit";
 import { PIPELINE_ROLES } from "@/lib/constants";
 
 /**
@@ -88,7 +89,13 @@ export const PATCH = handler(async function PATCH(
   if (body.recentNews !== undefined) updateData.recentNews = body.recentNews;
   if (body.competitorPresence !== undefined) updateData.competitorPresence = body.competitorPresence;
   if (body.estimatedSize !== undefined) updateData.estimatedSize = body.estimatedSize;
-  if (body.serviceLineHook !== undefined) updateData.serviceLineHook = body.serviceLineHook;
+  if (body.serviceLineHooks !== undefined) {
+    const list = Array.isArray(body.serviceLineHooks) ? body.serviceLineHooks.filter(Boolean) : [];
+    updateData.serviceLineHooks = list;
+    updateData.serviceLineHook = list[0] ?? null;
+  } else if (body.serviceLineHook !== undefined) {
+    updateData.serviceLineHook = body.serviceLineHook;
+  }
 
   // Outreach
   if (body.outreachStrategy !== undefined) updateData.outreachStrategy = body.outreachStrategy;
@@ -112,4 +119,62 @@ export const PATCH = handler(async function PATCH(
   });
 
   return Response.json({ lead: JSON.parse(JSON.stringify(updated)) });
+});
+
+/**
+ * DELETE /api/leads/[id]
+ *
+ * For a duplicate or a lead entered in error, which is data hygiene and part of
+ * the office's job. Not for a lead that went nowhere: that is status LOST, and
+ * the reason it was lost is worth more than the row is worth deleting.
+ *
+ * Refused outright once anything hangs off it, because deleting the lead would
+ * orphan the discovery call and the proposal that came from it.
+ */
+export const DELETE = handler(async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const session = await auth();
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { id } = await params;
+  const lead = await prisma.lead.findUnique({
+    where: { id },
+    select: {
+      id: true, organizationName: true, status: true, assignedToId: true, convertedToClientId: true,
+      _count: { select: { discoveryCalls: true, referrals: true } },
+    },
+  });
+  if (!lead) return Response.json({ error: "Not found" }, { status: 404 });
+
+  if (!ELEVATED.includes(session.user.role) && lead.assignedToId !== session.user.id) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  if (lead.convertedToClientId || lead.status === "CONVERTED") {
+    return Response.json(
+      { error: "This lead became a client. Deleting it would break the client's history." },
+      { status: 409 },
+    );
+  }
+  if (lead._count.discoveryCalls > 0 || lead._count.referrals > 0) {
+    return Response.json(
+      {
+        error: `This lead has ${lead._count.discoveryCalls} discovery call(s) and ${lead._count.referrals} referral(s) attached. Mark it LOST with a reason instead, so the history survives.`,
+      },
+      { status: 409 },
+    );
+  }
+
+  await prisma.lead.delete({ where: { id } });
+  await logAudit({
+    userId: session.user.id,
+    action: "DELETE",
+    entityType: "Lead",
+    entityId: id,
+    entityName: lead.organizationName,
+  });
+
+  return Response.json({ ok: true });
 });

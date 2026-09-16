@@ -94,3 +94,46 @@ export const PATCH = handler(async function PATCH(req: NextRequest, ctx: { param
 
   return Response.json({ decision: JSON.parse(JSON.stringify(decision)) });
 });
+
+/**
+ * DELETE /api/decisions/[id]
+ *
+ * For a decision raised in error. Only the person who raised it, and only while
+ * it is still pending: once the principal has answered, the answer is a record
+ * of what was decided and why, which is the whole point of keeping them.
+ */
+export const DELETE = handler(async function DELETE(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  const session = await auth();
+  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (!canUseOfficeDesk(session.user.role)) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { id } = await ctx.params;
+  const existing = await prisma.decision.findUnique({
+    where: { id },
+    select: { id: true, title: true, raisedById: true, status: true },
+  });
+  if (!existing) return Response.json({ error: "Decision not found" }, { status: 404 });
+
+  if (existing.raisedById !== session.user.id) {
+    return Response.json({ error: "Only the person who raised it can remove it." }, { status: 403 });
+  }
+  if (existing.status !== "PENDING") {
+    return Response.json(
+      { error: "This has already been answered. A decision that was taken stays on the record." },
+      { status: 409 },
+    );
+  }
+
+  await prisma.decision.delete({ where: { id } });
+  await logAudit({
+    userId: session.user.id,
+    action: "DELETE",
+    entityType: "Decision",
+    entityId: id,
+    entityName: existing.title,
+  });
+
+  return Response.json({ ok: true });
+});
