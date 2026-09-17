@@ -1,13 +1,18 @@
 /**
- * Email the Haven Paediatric Centre INSTALMENT invoice to the client.
+ * Chase the outstanding Haven Paediatric Centre INSTALMENT invoice.
  *
  *   To:  kabir@aurorahills.co
- *   Cc:  usman.g@aurorahills.co
+ *   Cc:  the other four founders, plus Usman for the records
  *   Attachment: docs/haven-invoice-instalment-1-cfa.pdf  (CFA-HAV-2026-002)
  *
  * Instalment 1 of 3 (N2,500,000) against the agreed N9,300,000 engagement.
  * This is not a second engagement invoice — it requests the monthly
- * instalment now due under CFA-HAV-2026-001, so nothing is double-counted.
+ * instalment due under CFA-HAV-2026-001, so nothing is double-counted.
+ *
+ * The invoice first went to Kabir and Usman from send-haven-strategy.ts,
+ * alongside the growth strategy documents. Payment was due by 25 August
+ * and has not been recorded, so this re-sends it as a follow-up and puts
+ * the position in front of the whole board.
  *
  * Preview without sending:
  *   npx ts-node --transpile-only scripts/send-haven-invoice-instalment.ts --dry-run
@@ -35,21 +40,29 @@ for (const f of [".env", ".env.local"]) {
 const DRY_RUN = process.argv.includes("--dry-run");
 
 const TO = "kabir@aurorahills.co";
-const CC = "usman.g@aurorahills.co";
-const SUBJECT = "Invoice CFA-HAV-2026-002: Haven engagement, instalment 1 of 3";
+// The remaining four of the five founders (roster: lib/haven-founders.ts),
+// then Usman, who has been copied on the billing throughout.
+const CC = [
+  "abisodunalli@yahoo.com",  // Mrs Abisodun Alli
+  "shakirahsaliu@gmail.com", // Dr Shakirah Saliu
+  "gbajoodedina@gmail.com",  // Dr Odedina
+  "odumogo@gmail.com",       // Mr Ogochukwu Odum
+  "usman.g@aurorahills.co",  // Usman, for his records
+];
+const SUBJECT = "Outstanding: invoice CFA-HAV-2026-002, payment due 25 August";
 const PDF = path.resolve(process.cwd(), "docs/haven-invoice-instalment-1-cfa.pdf");
 
 const TEXT = `Dear Kabir,
 
-I hope you and the team are well.
+A follow-up on invoice CFA-HAV-2026-002, attached again here: N2,500,000, the first of the three monthly instalments under the Haven engagement. Payment was due by 25 August, and we have not seen it come through, so it now stands more than three weeks past due.
 
-Please find attached invoice CFA-HAV-2026-002 for N2,500,000, the first of the three monthly instalments under the Haven engagement. It sits against the original invoice CFA-HAV-2026-001 rather than adding to it, so the agreed total remains N9,300,000: the mobilisation fee of N1,800,000 received on 7 July, then three instalments of N2,500,000.
+To be clear on the arithmetic, this sits against the original engagement invoice CFA-HAV-2026-001 rather than adding to it. The agreed total remains N9,300,000: the mobilisation fee of N1,800,000, received on 7 July, then three instalments of N2,500,000. The two that follow fall due on 23 September and 22 October, the first of those next week.
 
-This instalment fell due on 25 August. The remaining two follow on 23 September and 22 October, and the attached invoice sets out the full schedule alongside the payment details (Zenith Bank, account 1312352157, Consult for Africa Management Services Limited), with CFA-HAV-2026-002 as the reference.
+Payment details are on the invoice: Zenith Bank, account 1312352157, Consult for Africa Management Services Limited, with CFA-HAV-2026-002 as the reference.
 
-If a different split of the remaining balance would sit more easily with Haven's cash position, say the word and we will restructure it. I would rather the schedule follow the reality than the other way round.
+If the schedule as drawn does not suit Haven's cash position, I would far rather restructure it than let it drift. Tell me what works and we will redraw it.
 
-We have copied Usman for his records. Any questions at all, I am a call away.
+I have copied the founders and Usman so that the position is visible to everyone carrying it. Any questions at all, I am a call away.
 
 Warm regards,
 Debo
@@ -68,7 +81,7 @@ async function main() {
   const from = process.env.SMTP_FROM ?? "Consult for Africa <hello@consultforafrica.com>";
   const replyTo = process.env.REPLY_TO_EMAIL ?? "hello@consultforafrica.com";
 
-  console.log(`${DRY_RUN ? "DRY RUN — nothing will be sent" : "Sending instalment invoice..."}\n  From:    ${from}\n  To:      ${TO}\n  Cc:      ${CC}\n  Subject: ${SUBJECT}\n  Att:     ${path.basename(PDF)}\n`);
+  console.log(`${DRY_RUN ? "DRY RUN — nothing will be sent" : "Sending instalment invoice..."}\n  From:    ${from}\n  To:      ${TO}\n  Cc:      ${CC.join(", ")}\n  Subject: ${SUBJECT}\n  Att:     ${path.basename(PDF)}\n`);
 
   if (DRY_RUN) {
     console.log(TEXT);
