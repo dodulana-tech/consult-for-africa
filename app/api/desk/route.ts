@@ -193,11 +193,20 @@ export const GET = handler(async function GET(req: NextRequest) {
   }
 
   for (const t of toReview) {
+    // Work that has been sitting should look worse the longer it sits. Blocking
+    // raises itself to the assigner the same day; waiting used to raise nothing
+    // at all, so submitted work sat for days while the assignee read the silence
+    // as approval.
+    const waited = t.submittedAt ? Math.floor((now.getTime() - t.submittedAt.getTime()) / 86400000) : 0;
     yoursNow.push({
       kind: "REVIEW", id: t.id, title: t.title,
-      detail: `${t.assignee.name} submitted this and it is waiting.`,
+      detail:
+        waited >= 2
+          ? `${t.assignee.name} submitted this ${waited} days ago and has heard nothing.`
+          : `${t.assignee.name} submitted this and it is waiting.`,
       href: `/tasks/${t.id}`, date: t.submittedAt?.toISOString() ?? null,
-      urgency: "TODAY", action: "Review it",
+      urgency: waited >= 2 ? "OVERDUE" : waited >= 1 ? "SOON" : "TODAY",
+      action: "Review it",
     });
   }
 

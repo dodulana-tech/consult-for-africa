@@ -7,6 +7,7 @@ import {
   CalendarClock,
   CheckCircle2,
   ChevronRight,
+  HelpCircle,
   Loader2,
   OctagonX,
   Pencil,
@@ -37,7 +38,20 @@ interface Subtask {
   assigner: TaskPerson;
 }
 
+interface Question {
+  id: string;
+  question: string;
+  answer: string | null;
+  answeredAt: string | null;
+  createdAt: string;
+  askedBy: TaskPerson;
+  answeredBy: TaskPerson | null;
+}
+
 interface TaskDetail extends TaskRow {
+  workedExample: string | null;
+  questions: Question[];
+  evidence: { summary: string; empty: boolean } | null;
   parentTask: { id: string; title: string; assignee: TaskPerson; assigner: TaskPerson } | null;
   subtasks: Subtask[];
   subtaskRollup: { total: number; done: number; blocked: number; byStatus: Record<string, number> };
@@ -85,6 +99,8 @@ export default function TaskDetailClient({
   const [note, setNote] = useState("");
   const [editing, setEditing] = useState(false);
   const [breakingDown, setBreakingDown] = useState(false);
+  const [asking, setAsking] = useState(false);
+  const [questionText, setQuestionText] = useState("");
 
   const load = useCallback(() => {
     fetch(`/api/tasks/${taskId}`)
@@ -266,6 +282,9 @@ export default function TaskDetailClient({
         {/* Brief and definition of done */}
         <Panel title="Why this matters" body={task.brief} />
         <Panel title="Done looks like" body={task.definitionOfDone} accent="#10B981" />
+        {task.workedExample && (
+          <Panel title="One that is already right" body={task.workedExample} accent="#6366F1" />
+        )}
 
         {task.status === "BLOCKED" && task.blockedReason && (
           <Panel title="What is in the way" body={task.blockedReason} accent="#EF4444" />
@@ -276,6 +295,29 @@ export default function TaskDetailClient({
             body={task.reviewNote}
             accent={task.status === "DONE" ? "#10B981" : "#F97316"}
           />
+        )}
+
+        {task.evidence && (
+          <div
+            className="rounded-xl p-4"
+            style={{
+              background: task.evidence.empty ? "#FFFBEB" : "#F8FAFC",
+              border: `1px solid ${task.evidence.empty ? "#FDE68A" : "#e5eaf0"}`,
+            }}
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-widest mb-1"
+              style={{ color: task.evidence.empty ? "#92400E" : "#94A3B8" }}>
+              Before you sign this off
+            </p>
+            <p className="text-sm" style={{ color: task.evidence.empty ? "#78350F" : "#475569" }}>
+              {task.evidence.summary}
+            </p>
+            {task.evidence.empty && (
+              <p className="text-xs mt-2" style={{ color: "#92400E" }}>
+                That may be fine. It may also mean the work went somewhere other than the platform, or that the brief was not clear about where it should land. Worth asking before it becomes the habit.
+              </p>
+            )}
+          </div>
         )}
 
         {error && (
@@ -369,6 +411,92 @@ export default function TaskDetailClient({
             box comes down rather than sitting there inviting a second answer. */}
         {isAssignee && !task.actualMinutes && ["SUBMITTED", "DONE", "IN_PROGRESS", "CHANGES_REQUESTED"].includes(task.status) && (
           <ActualMinutes current={task.actualMinutes} saving={saving} onSave={(m) => patch({ actualMinutes: m })} />
+        )}
+
+        {/* Questions. Not blocking: the work carries on while the answer comes. */}
+        {task.viewer.party !== "NONE" && !["DONE", "CANCELLED"].includes(task.status) && (
+          <div className="rounded-xl border bg-white p-5" style={{ borderColor: "#e5eaf0" }}>
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-sm font-semibold text-gray-900">Questions</p>
+              {task.questions.length > 0 && (
+                <p className="text-xs" style={{ color: "#94A3B8" }}>
+                  {task.questions.filter((q) => !q.answeredAt).length} unanswered
+                </p>
+              )}
+            </div>
+            <p className="text-xs mb-3" style={{ color: "#94A3B8" }}>
+              For when you are still going but unsure what was meant. This is not the same as being stuck, and it does not stop the clock.
+            </p>
+
+            {task.questions.length > 0 && (
+              <div className="space-y-3 mb-4">
+                {task.questions.map((q) => (
+                  <QuestionRow
+                    key={q.id}
+                    q={q}
+                    taskId={taskId}
+                    currentUserId={currentUserId}
+                    onAnswered={load}
+                  />
+                ))}
+              </div>
+            )}
+
+            {asking ? (
+              <div className="space-y-2">
+                <textarea
+                  className={inputClass}
+                  style={inputStyle}
+                  rows={3}
+                  autoFocus
+                  placeholder="What is not clear?"
+                  value={questionText}
+                  onChange={(e) => setQuestionText(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <button
+                    disabled={saving || !questionText.trim()}
+                    onClick={async () => {
+                      setSaving(true);
+                      setError("");
+                      try {
+                        const res = await fetch(`/api/tasks/${taskId}/questions`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ question: questionText }),
+                        });
+                        if (!res.ok) { setError(await parseApiError(res, "Could not send that.")); return; }
+                        setQuestionText("");
+                        setAsking(false);
+                        load();
+                      } finally {
+                        setSaving(false);
+                      }
+                    }}
+                    className="px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50"
+                    style={{ background: "#0F2744" }}
+                  >
+                    {saving ? "Sending" : "Ask it"}
+                  </button>
+                  <button
+                    onClick={() => { setAsking(false); setQuestionText(""); }}
+                    className="px-4 py-2 rounded-lg text-sm font-medium border"
+                    style={{ borderColor: "#e5eaf0", color: "#64748B" }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setAsking(true)}
+                className="flex items-center gap-2 text-sm font-medium"
+                style={{ color: "#0F2744" }}
+              >
+                <HelpCircle size={14} /> Ask a question
+              </button>
+            )}
+          </div>
         )}
 
         {/* Sub-tasks */}
@@ -533,6 +661,81 @@ function settledCopy(
   }
 }
 
+function QuestionRow({
+  q,
+  taskId,
+  currentUserId,
+  onAnswered,
+}: {
+  q: Question;
+  taskId: string;
+  currentUserId: string;
+  onAnswered: () => void;
+}) {
+  const [answer, setAnswer] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState("");
+  // You cannot answer your own question, which would record nothing anybody needed.
+  const canAnswer = !q.answeredAt && q.askedBy.id !== currentUserId;
+
+  return (
+    <div className="rounded-lg p-3" style={{ background: "#F8FAFC", border: "1px solid #f1f5f9" }}>
+      <p className="text-sm text-gray-800 whitespace-pre-wrap">{q.question}</p>
+      <p className="text-[11px] mt-1" style={{ color: "#94A3B8" }}>
+        {q.askedBy.name} · {new Date(q.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+      </p>
+
+      {q.answeredAt && q.answer && (
+        <div className="mt-2 pl-3" style={{ borderLeft: "2px solid #10B981" }}>
+          <p className="text-sm text-gray-800 whitespace-pre-wrap">{q.answer}</p>
+          <p className="text-[11px] mt-1" style={{ color: "#94A3B8" }}>{q.answeredBy?.name ?? "Answered"}</p>
+        </div>
+      )}
+
+      {canAnswer && (
+        <div className="mt-2 space-y-2">
+          <textarea
+            className={inputClass}
+            style={inputStyle}
+            rows={2}
+            placeholder="Answer it"
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+          />
+          {err && <p className="text-xs" style={{ color: "#DC2626" }}>{err}</p>}
+          <button
+            disabled={saving || !answer.trim()}
+            onClick={async () => {
+              setSaving(true);
+              setErr("");
+              try {
+                const res = await fetch(`/api/tasks/${taskId}/questions/${q.id}`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ answer }),
+                });
+                if (!res.ok) { setErr(await parseApiError(res, "Could not save that.")); return; }
+                setAnswer("");
+                onAnswered();
+              } finally {
+                setSaving(false);
+              }
+            }}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium text-white disabled:opacity-50"
+            style={{ background: "#0F2744" }}
+          >
+            {saving ? "Sending" : "Send the answer"}
+          </button>
+        </div>
+      )}
+
+      {!q.answeredAt && !canAnswer && (
+        <p className="text-[11px] mt-2" style={{ color: "#94A3B8" }}>Waiting for an answer.</p>
+      )}
+    </div>
+  );
+}
+
 function actionStyle(to: string): React.CSSProperties {
   if (to === "BLOCKED") return { background: "#fff", color: "#991B1B", border: "1px solid #FCA5A5" };
   if (to === "CHANGES_REQUESTED") return { background: "#fff", color: "#9A3412", border: "1px solid #FDBA74" };
@@ -615,6 +818,7 @@ function SubtaskForm({
     assigneeId: "",
     brief: "",
     definitionOfDone: "",
+    workedExample: "",
     dueDate: "",
     checkInAt: "",
     estimatedMinutes: "",
@@ -692,6 +896,14 @@ function SubtaskForm({
         onChange={(e) => set("definitionOfDone", e.target.value)}
         required
       />
+      <textarea
+        className={inputClass}
+        style={inputStyle}
+        rows={2}
+        placeholder="One that is already right (a link, or what a finished one contains)"
+        value={form.workedExample}
+        onChange={(e) => set("workedExample", e.target.value)}
+      />
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         <input type="date" className={inputClass} style={inputStyle} value={form.dueDate} onChange={(e) => set("dueDate", e.target.value)} />
         <input type="date" className={inputClass} style={inputStyle} value={form.checkInAt} onChange={(e) => set("checkInAt", e.target.value)} />
@@ -725,6 +937,7 @@ function EditForm({
     title: task.title,
     brief: task.brief,
     definitionOfDone: task.definitionOfDone,
+    workedExample: task.workedExample ?? "",
     dueDate: task.dueDate ? task.dueDate.slice(0, 10) : "",
     checkInAt: task.checkInAt ? task.checkInAt.slice(0, 10) : "",
     estimatedMinutes: task.estimatedMinutes ? String(task.estimatedMinutes) : "",
@@ -736,6 +949,7 @@ function EditForm({
       <input className={inputClass} style={inputStyle} value={form.title} onChange={(e) => set("title", e.target.value)} />
       <textarea className={inputClass} style={inputStyle} rows={3} value={form.brief} onChange={(e) => set("brief", e.target.value)} />
       <textarea className={inputClass} style={inputStyle} rows={3} value={form.definitionOfDone} onChange={(e) => set("definitionOfDone", e.target.value)} />
+      <textarea className={inputClass} style={inputStyle} rows={2} placeholder="One that is already right" value={form.workedExample} onChange={(e) => set("workedExample", e.target.value)} />
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         <div>
           <label className="block text-[11px] font-semibold text-gray-500 mb-1">Due</label>

@@ -35,6 +35,10 @@
     {
       "path": "/api/cron/operating-rhythm",
       "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron/review-nudge",
+      "schedule": "30 7 * * 1-5"
     }
   ]
 }

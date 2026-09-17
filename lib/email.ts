@@ -2378,3 +2378,108 @@ export async function emailTaskApproved({
     `)
   );
 }
+
+/**
+ * A question is not a block. It goes to the assigner the same way, but it says
+ * plainly that the work is still moving, so nobody treats it as a stoppage.
+ */
+export async function emailTaskQuestion({
+  assignerEmail,
+  assignerName,
+  askerName,
+  title,
+  question,
+  taskId,
+}: {
+  assignerEmail: string;
+  assignerName: string;
+  askerName: string;
+  title: string;
+  question: string;
+  taskId: string;
+}) {
+  await send(
+    assignerEmail,
+    `Question on: ${title}`,
+    layout(`
+      ${h1("A question, not a blocker")}
+      ${p(`Hi ${assignerName}, ${askerName} has a question about this task and is carrying on in the meantime.`)}
+      ${infoTable([["Task", title], ["Asked by", askerName]])}
+      ${p(`"${question}"`)}
+      ${p("Answering it now is cheaper than reviewing the wrong thing later.")}
+      ${btn("Answer it", `${BASE_URL}/tasks/${taskId}`)}
+    `)
+  );
+}
+
+export async function emailTaskQuestionAnswered({
+  askerEmail,
+  askerName,
+  answererName,
+  title,
+  question,
+  answer,
+  taskId,
+}: {
+  askerEmail: string;
+  askerName: string;
+  answererName: string;
+  title: string;
+  question: string;
+  answer: string;
+  taskId: string;
+}) {
+  await send(
+    askerEmail,
+    `Answered: ${title}`,
+    layout(`
+      ${h1("Your question has been answered")}
+      ${p(`Hi ${askerName}, ${answererName} has come back to you.`)}
+      ${infoTable([["Task", title]])}
+      ${p(`You asked: "${question}"`)}
+      ${p(`Answer: ${answer}`)}
+      ${btn("Back to the task", `${BASE_URL}/tasks/${taskId}`)}
+    `)
+  );
+}
+
+/**
+ * Submitted work that nobody has looked at. Blocking raises itself to the
+ * assigner immediately; waiting did not, so work sat for days with the assignee
+ * assuming silence meant it was fine.
+ */
+export async function emailReviewsWaiting({
+  reviewerEmail,
+  reviewerName,
+  items,
+}: {
+  reviewerEmail: string;
+  reviewerName: string;
+  items: { title: string; assigneeName: string; daysWaiting: number; taskId: string }[];
+}) {
+  const oldest = Math.max(...items.map((i) => i.daysWaiting));
+  const rows = items
+    .map(
+      (i) =>
+        `<tr><td style="padding:8px 12px;font-size:13px;border-bottom:1px solid #F3F4F6;">
+           <a href="${BASE_URL}/tasks/${esc(i.taskId)}" style="color:#0F2744;font-weight:600;text-decoration:none;">${esc(i.title)}</a>
+           <span style="color:#6B7280;"> · ${esc(i.assigneeName)}</span>
+         </td>
+         <td style="padding:8px 12px;font-size:13px;font-weight:700;color:${i.daysWaiting >= 3 ? "#B91C1C" : "#92400E"};border-bottom:1px solid #F3F4F6;white-space:nowrap;">
+           ${i.daysWaiting} day${i.daysWaiting === 1 ? "" : "s"}
+         </td></tr>`,
+    )
+    .join("");
+
+  await send(
+    reviewerEmail,
+    `${items.length} piece${items.length === 1 ? "" : "s"} of work waiting on you${oldest >= 3 ? `, oldest ${oldest} days` : ""}`,
+    layout(`
+      ${h1("Work is waiting on your review")}
+      ${p(`Hi ${reviewerName}, ${items.length} submitted task${items.length === 1 ? " has" : "s have"} been sitting unreviewed. Until you look, the person who sent it cannot tell whether it was right, and the next one will repeat whatever they got wrong.`)}
+      <table style="width:100%;border-collapse:collapse;border:1px solid #E5E7EB;border-radius:8px;margin:16px 0;">${rows}</table>
+      ${p("Sending it back with a written note is not a rebuke. It is the only way the correction becomes reusable.")}
+      ${btn("Open your desk", `${BASE_URL}/desk`)}
+    `)
+  );
+}

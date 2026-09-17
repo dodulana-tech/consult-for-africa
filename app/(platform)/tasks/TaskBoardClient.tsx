@@ -42,6 +42,7 @@ const EMPTY_FORM = {
   assigneeId: "",
   brief: "",
   definitionOfDone: "",
+  workedExample: "",
   dueDate: "",
   checkInAt: "",
   estimatedMinutes: "",
@@ -256,6 +257,21 @@ export default function TaskBoardClient({ currentUserId, canAssign, canSeeAll }:
                 value={form.definitionOfDone}
                 onChange={(e) => setField("definitionOfDone", e.target.value)}
                 required
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+                One that is already right{" "}
+                <span className="font-normal text-gray-400">A link or a description. Leave it out only if they have done this before.</span>
+              </label>
+              <textarea
+                className={inputClass}
+                style={inputStyle}
+                rows={2}
+                value={form.workedExample}
+                onChange={(e) => setField("workedExample", e.target.value)}
+                placeholder="Link to last month's version, or describe what a finished one contains"
               />
             </div>
 

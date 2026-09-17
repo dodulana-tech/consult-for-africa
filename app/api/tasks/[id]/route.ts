@@ -18,6 +18,7 @@ import {
   partyFor,
   validateTransition,
 } from "@/lib/tasks";
+import { evidenceFor } from "@/lib/taskEvidence";
 import type { Prisma, TaskStatus } from "@prisma/client";
 
 const PERSON = { select: { id: true, name: true, email: true, role: true } };
@@ -27,6 +28,7 @@ const TASK_SELECT = {
   title: true,
   brief: true,
   definitionOfDone: true,
+  workedExample: true,
   status: true,
   dueDate: true,
   checkInAt: true,
@@ -44,6 +46,13 @@ const TASK_SELECT = {
   assignee: PERSON,
   assigner: PERSON,
   parentTask: { select: { id: true, title: true, assignee: PERSON, assigner: PERSON } },
+  questions: {
+    select: {
+      id: true, question: true, answer: true, answeredAt: true, createdAt: true,
+      askedBy: PERSON, answeredBy: PERSON,
+    },
+    orderBy: { createdAt: "asc" },
+  },
   subtasks: {
     select: {
       id: true,
@@ -116,7 +125,15 @@ export const GET = handler(async function GET(_req: NextRequest, ctx: { params: 
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  return Response.json({ task: JSON.parse(JSON.stringify(shape(task, session.user.id, session.user.role))) });
+  const shaped = shape(task, session.user.id, session.user.role);
+  // Only the reviewer needs it, and only while there is something to judge.
+  const isReviewer = shaped.viewer.party === "ASSIGNER" || shaped.viewer.party === "BOTH";
+  const evidence =
+    isReviewer && ["SUBMITTED", "CHANGES_REQUESTED", "DONE"].includes(task.status)
+      ? await evidenceFor({ linkedEntityType: task.linkedEntityType, createdAt: task.createdAt, assigneeId: task.assignee.id })
+      : null;
+
+  return Response.json({ task: JSON.parse(JSON.stringify({ ...shaped, evidence })) });
 });
 
 /**
@@ -167,6 +184,7 @@ export const PATCH = handler(async function PATCH(req: NextRequest, ctx: { param
       }
       data.definitionOfDone = body.definitionOfDone.trim();
     }
+    if ("workedExample" in body) data.workedExample = body.workedExample?.trim() || null;
     if ("dueDate" in body) data.dueDate = body.dueDate ? new Date(body.dueDate) : null;
     if ("checkInAt" in body) data.checkInAt = body.checkInAt ? new Date(body.checkInAt) : null;
     if ("estimatedMinutes" in body) {
