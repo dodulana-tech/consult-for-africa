@@ -59,6 +59,35 @@ export function askForWeek(weekKey: string): CadreDigestAsk {
   return ASK_CYCLE[isoWeekNumber(weekKey) % ASK_CYCLE.length];
 }
 
+/**
+ * Mezo runs on the MDCN register, so a place can only be opened for someone
+ * MDCN could plausibly hold. Asking a nurse whether she would see private
+ * patients, then landing her on "not yet open to your cadre", is worse than not
+ * asking. Every other ask applies to everybody.
+ */
+const MEZO_ASK_CADRES = new Set(["MEDICINE", "DENTISTRY"]);
+
+function askApplies(ask: CadreDigestAsk, cadre: string): boolean {
+  if (ask === "MEZO_INTEREST") return MEZO_ASK_CADRES.has(cadre);
+  return true;
+}
+
+/**
+ * The week's ask, or the next one in the cycle that this person can actually
+ * answer. The shared countdown only holds for the week's own ask, so a
+ * substituted one drops it rather than quoting a milestone it is not counting
+ * towards.
+ */
+export function askForPerson(weekAsk: CadreDigestAsk, cadre: string): CadreDigestAsk {
+  if (askApplies(weekAsk, cadre)) return weekAsk;
+  const start = ASK_CYCLE.indexOf(weekAsk);
+  for (let n = 1; n <= ASK_CYCLE.length; n++) {
+    const candidate = ASK_CYCLE[(start + n) % ASK_CYCLE.length];
+    if (askApplies(candidate, cadre)) return candidate;
+  }
+  return weekAsk;
+}
+
 /** The next round number worth counting towards. Turns a total into a target. */
 function nextMilestone(have: number, step: number): number {
   return Math.max(step, (Math.floor(have / step) + 1) * step);
@@ -702,15 +731,29 @@ function buildOnlyYou(p: DigestRecipient, ctx: WeekContext): CadreDigestContent[
 
 /** Slot 2. One ask, with the yield attached so it reads as a countdown. */
 function buildAsk(p: DigestRecipient, ctx: WeekContext): CadreDigestContent["ask"] {
-  const done = ctx.alreadyAnswered.has(p.id);
+  const tidy = (a: CadreDigestContent["ask"]): CadreDigestContent["ask"] => ({
+    ...a,
+    detail: a.detail.replace(/\s+/g, " ").trim(),
+  });
+  return tidy(buildAskInner(p, ctx));
+}
+
+function buildAskInner(p: DigestRecipient, ctx: WeekContext): CadreDigestContent["ask"] {
+  const ask = askForPerson(ctx.ask, p.cadre);
+  const substituted = ask !== ctx.ask;
+  // alreadyAnswered and progress are both keyed to the week's own ask, so
+  // neither means anything for a substituted one.
+  const done = substituted ? false : ctx.alreadyAnswered.has(p.id);
   const { have, target, noun } = ctx.progress;
   const remaining = Math.max(0, target - have);
-  const countdown = `${have} ${noun} so far. ${remaining} more and the next milestone opens.`;
+  const countdown = substituted
+    ? ""
+    : `${have} ${noun} so far. ${remaining} more and the next milestone opens.`;
 
-  switch (ctx.ask) {
+  switch (ask) {
     case "SALARY":
       return {
-        ask: ctx.ask,
+        ask,
         label: done ? "You already did this" : "This week's ask",
         headline: done ? "Your number is in the map" : "What do you actually take home?",
         detail: done
@@ -722,7 +765,7 @@ function buildAsk(p: DigestRecipient, ctx: WeekContext): CadreDigestContent["ask
       };
     case "FACILITY_REVIEW":
       return {
-        ask: ctx.ask,
+        ask,
         label: done ? "You already did this" : "This week's ask",
         headline: done ? "Your review is live" : "Review a hospital you have worked in",
         detail: done
@@ -734,7 +777,7 @@ function buildAsk(p: DigestRecipient, ctx: WeekContext): CadreDigestContent["ask
       };
     case "MEZO_INTEREST":
       return {
-        ask: ctx.ask,
+        ask,
         label: done ? "You already did this" : "This week's ask",
         headline: done ? "We have your answers on private practice" : "Would you see private patients if the room was handled?",
         detail: done
@@ -746,7 +789,7 @@ function buildAsk(p: DigestRecipient, ctx: WeekContext): CadreDigestContent["ask
       };
     case "CONFIRM_SPECIALTY":
       return {
-        ask: ctx.ask,
+        ask,
         label: done ? "You already did this" : "This week's ask",
         headline: done ? "Your specialty is confirmed" : `Is ${p.subSpecialty ?? "your specialty"} right?`,
         detail: done
@@ -758,7 +801,7 @@ function buildAsk(p: DigestRecipient, ctx: WeekContext): CadreDigestContent["ask
       };
     case "REFER_COLLEAGUE":
       return {
-        ask: ctx.ask,
+        ask,
         label: done ? "You already did this" : "This week's ask",
         headline: done ? "Thank you for the introduction" : "Bring one colleague",
         detail: done
@@ -770,7 +813,7 @@ function buildAsk(p: DigestRecipient, ctx: WeekContext): CadreDigestContent["ask
       };
     case "SHOWCASE_CONSENT":
       return {
-        ask: ctx.ask,
+        ask,
         label: done ? "You already did this" : "This week's ask",
         headline: done ? "You are in the running to be featured" : "May we feature you?",
         detail: done
@@ -795,6 +838,11 @@ function buildAsk(p: DigestRecipient, ctx: WeekContext): CadreDigestContent["ask
  */
 function buildMedipark(p: DigestRecipient, ctx: WeekContext): CadreDigestContent["medipark"] {
   if (ctx.mediparkAnswered.has(p.email.toLowerCase())) return null;
+  // Both ask a consultant whether they would practise somewhere we would build
+  // and run for them. Put side by side in one email they compete, split the
+  // response and read as two teams who have not spoken. On a Mezo week the
+  // week's own ask wins.
+  if (ctx.ask === "MEZO_INTEREST") return null;
   return {
     headline: "What would a premium medical park need to be worth your practice?",
     detail:
@@ -906,6 +954,11 @@ function block(
  * looking for a way out, and the next click after that is the spam button. Put
  * the link back when the preferences page is there to receive it.
  */
+/** Headlines are sometimes questions. Do not staple a full stop onto one. */
+function endSentence(text: string): string {
+  return /[.?!]$/.test(text.trim()) ? text.trim() : `${text.trim()}.`;
+}
+
 export function renderDigestHtml(
   d: CadreDigestContent,
   baseUrl: string,
@@ -942,8 +995,8 @@ export function renderDigestHtml(
   }
 
   const textLines = [
-    `${d.onlyYou.label.toUpperCase()}: ${d.onlyYou.headline}. ${d.onlyYou.detail} ${abs(baseUrl, d.onlyYou.href)}`,
-    `${d.ask.label.toUpperCase()}: ${d.ask.headline}. ${d.ask.detail} ${abs(baseUrl, d.ask.href)}`,
+    `${d.onlyYou.label.toUpperCase()}: ${endSentence(d.onlyYou.headline)} ${d.onlyYou.detail} ${abs(baseUrl, d.onlyYou.href)}`,
+    `${d.ask.label.toUpperCase()}: ${endSentence(d.ask.headline)} ${d.ask.detail} ${abs(baseUrl, d.ask.href)}`,
     ...(d.medipark ? [`HELP US DESIGN IT: ${d.medipark.headline} ${d.medipark.detail} ${abs(baseUrl, d.medipark.href)}`] : []),
     ...(d.catalyst ? [`DFC CATALYST SERIES: ${d.catalyst.headline}. ${d.catalyst.detail} ${abs(baseUrl, d.catalyst.href)}`] : []),
     `${d.prize.headline}. ${d.prize.detail} ${abs(baseUrl, d.prize.href)}`,
