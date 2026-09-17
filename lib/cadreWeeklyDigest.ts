@@ -248,6 +248,8 @@ const AWARD_VALID_DAYS = 30;
 export async function allocateWeeklyAwards(
   weekKey: string,
   now: Date,
+  /** Dry run: work out who would win, and write nothing. */
+  dryRun = false,
 ): Promise<Map<string, DigestAward>> {
   const since = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
@@ -329,6 +331,13 @@ export async function allocateWeeklyAwards(
   const expiresAt = new Date(now.getTime() + AWARD_VALID_DAYS * 24 * 60 * 60 * 1000);
   for (const [professionalId, { earnedFor }] of ranked.slice(0, AWARDS_PER_WEEK - awards.size)) {
     const claimToken = randomBytes(24).toString("base64url");
+    // A dry run works out who would win and writes nothing, so previewing a
+    // week does not burn that week's five nor hand out claim tokens nobody
+    // was told about.
+    if (dryRun) {
+      awards.set(professionalId, { claimToken, expiresAt, earnedFor });
+      continue;
+    }
     try {
       await prisma.cadreMaarovaAward.create({
         data: { professionalId, weekKey, earnedFor, claimToken, expiresAt },
@@ -353,6 +362,8 @@ function median(values: number[]): number {
 export async function buildWeekContext(
   recipients: DigestRecipient[],
   now: Date = new Date(),
+  /** Dry run: compute everything, write nothing. */
+  dryRun = false,
 ): Promise<WeekContext> {
   const weekKey = weekKeyFor(now);
   const ask = askForWeek(weekKey);
@@ -428,7 +439,7 @@ export async function buildWeekContext(
   const [alreadyAnswered, showcase, awards, mediparkAnswered] = await Promise.all([
     whoHasAnswered(ask, recipientIds),
     pickShowcase(now, nationalByCadre),
-    allocateWeeklyAwards(weekKey, now),
+    allocateWeeklyAwards(weekKey, now, dryRun),
     // Who has already answered the Medipark survey, so nobody is asked twice.
     // Only respondents who opted in on Q16 left an email, so a fully anonymous
     // response cannot be matched and that person will see the ask again. That
@@ -698,7 +709,13 @@ function buildOnlyYou(p: DigestRecipient, ctx: WeekContext): CadreDigestContent[
     return {
       kind: "MANDATE",
       label: "Open for your cadre",
-      headline: mandate.title,
+      // This headline becomes the subject line. A bare mandate title makes a
+      // nonsense one: four pharmacists were about to receive an email titled
+      // "Pharmacist". Phrase it as a sentence, and do not repeat the word when
+      // the title already reads as one.
+      headline: /\b(open|wanted|needed|hiring|vacan)/i.test(mandate.title)
+        ? mandate.title
+        : `${mandate.title} role is open`,
       detail: [mandate.facility, mandate.city].filter(Boolean).join(", ") || "Details inside.",
       ctaLabel: "See the brief",
       href: `/oncadre/mandates/${mandate.id}`,

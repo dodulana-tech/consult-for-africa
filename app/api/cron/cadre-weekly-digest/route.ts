@@ -36,6 +36,7 @@ import {
   type WeekContext,
 } from "@/lib/cadreWeeklyDigest";
 import { sendOutboundEmail, buildMessageId } from "@/lib/communications-send";
+import { sendDigestPreview } from "@/lib/cadreDigestPreview";
 import { computeRetentionExpiry, defaultLawfulBasis } from "@/lib/communications-retention";
 
 /** Vercel's ceiling for this function. The run must finish well inside it. */
@@ -141,12 +142,30 @@ async function run(req: NextRequest): Promise<Response> {
   }
 
   const startedAt = new Date();
+  // A dry run assembles the identical week, for the identical people, and puts
+  // one preview in front of a human instead of 901 emails in front of members.
+  // `sendAt` lets Thursday's preview show Friday's week rather than today's.
+  const { searchParams } = req.nextUrl;
+  const dryRun = searchParams.get("dryRun") === "1";
+  // Thursday's preview and Friday's send fall in the same ISO week, so a
+  // preview shows the real week without being told. sendAt is only for checking
+  // a different week by hand, and a value that will not parse is ignored rather
+  // than silently previewing 1970.
+  const sendAtParam = searchParams.get("sendAt");
+  const parsed = sendAtParam ? new Date(sendAtParam) : null;
+  const asOf = parsed && !Number.isNaN(parsed.getTime()) ? parsed : startedAt;
   const recipients = await getDigestRecipients();
 
   // Everything expensive happens once, before anybody is mailed: the week's
   // ask and its countdown, the salary bands, the showcase, and the allocation
   // of this week's five awards. Per recipient it is then pure assembly.
-  const ctx = await buildWeekContext(recipients, startedAt);
+  const ctx = await buildWeekContext(recipients, asOf, dryRun);
+
+  if (dryRun) {
+    const preview = await sendDigestPreview(recipients, ctx, BASE_URL);
+    return Response.json({ ok: true, dryRun: true, sentToMembers: 0, ...preview, durationMs: Date.now() - startedAt.getTime() });
+  }
+
   const senderId = await getSystemSenderId();
 
   let sentCount = 0;
@@ -197,6 +216,7 @@ async function run(req: NextRequest): Promise<Response> {
     failures: failures.slice(0, 20),
   });
 }
+
 
 let cachedSenderId: string | null = null;
 async function getSystemSenderId(): Promise<string> {
