@@ -119,9 +119,15 @@ export default function TaskDetailClient({
     if (!task) return;
     // Blocking and sending back both depend on a written note, so ask for it
     // before the move rather than letting the status land bare.
-    if ((to === "BLOCKED" || to === "CHANGES_REQUESTED") && pending !== to) {
+    //
+    // Signing off asks too, though it does not insist. Five tasks were signed
+    // off in the first week with not one note written, which is the loop
+    // running hollow: the assignee learns that the work was acceptable and
+    // nothing about why. Forcing a note would only produce "ok", so the field
+    // is offered, pre-focused, and skippable.
+    if ((to === "BLOCKED" || to === "CHANGES_REQUESTED" || to === "DONE") && pending !== to) {
       setPending(to);
-      setNote(to === "BLOCKED" ? task.blockedReason ?? "" : task.reviewNote ?? "");
+      setNote(to === "BLOCKED" ? task.blockedReason ?? "" : to === "DONE" ? "" : task.reviewNote ?? "");
       return;
     }
     setSaving(true);
@@ -332,7 +338,9 @@ export default function TaskDetailClient({
             <label className="block text-xs font-semibold text-gray-600">
               {pending === "BLOCKED"
                 ? "What is in the way? This goes to your assigner, not to the whole firm."
-                : "What needs to change? Write it so the correction is reusable."}
+                : pending === "DONE"
+                  ? "What did they get right, or what would you do differently next time? One line they can carry into the next one."
+                  : "What needs to change? Write it so the correction is reusable."}
             </label>
             <textarea
               className={inputClass}
@@ -345,11 +353,11 @@ export default function TaskDetailClient({
             <div className="flex gap-2">
               <button
                 onClick={() => move(pending)}
-                disabled={saving || !note.trim()}
+                disabled={saving || (pending !== "DONE" && !note.trim())}
                 className="px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50"
-                style={{ background: pending === "BLOCKED" ? "#EF4444" : "#F97316" }}
+                style={{ background: pending === "BLOCKED" ? "#EF4444" : pending === "DONE" ? "#10B981" : "#F97316" }}
               >
-                {saving ? "Saving" : ACTION_LABELS[pending]}
+                {saving ? "Saving" : pending === "DONE" && !note.trim() ? "Sign it off without a note" : ACTION_LABELS[pending]}
               </button>
               <button
                 onClick={() => { setPending(null); setNote(""); }}
