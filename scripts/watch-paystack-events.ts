@@ -94,12 +94,22 @@ async function main() {
       if (rows.length) cursor = rows[rows.length - 1].createdAt;
     } catch (err) {
       consecutiveErrors++;
-      // Speak up once rather than every cycle, but do speak up: silence here
-      // would be indistinguishable from no payments arriving.
-      if (consecutiveErrors === 3 && !warnedAboutErrors) {
+      // Reaching this database blips now and then, and the watch rides that
+      // out without losing anything: the cursor only moves on a successful
+      // read, so whatever arrived during an outage is picked up afterwards.
+      // So stay quiet through a blip and speak up only once it has lasted
+      // long enough to mean something, roughly three minutes. Silence still
+      // has to be earned, though: an outage that persists is indistinguishable
+      // from no payments arriving, and that is worth interrupting for.
+      //
+      // Prisma puts the useful part of its message last, so report the tail
+      // rather than the boilerplate preamble.
+      if (consecutiveErrors === 10 && !warnedAboutErrors) {
         warnedAboutErrors = true;
+        const msg = err instanceof Error ? err.message.trim() : "unknown";
+        const detail = msg.split("\n").filter(Boolean).pop() ?? msg;
         console.log(
-          `WATCH DEGRADED: cannot read PaystackWebhookEvent (${err instanceof Error ? err.message.slice(0, 160) : "unknown"})`
+          `WATCH DEGRADED: cannot read PaystackWebhookEvent for ${Math.round((consecutiveErrors * POLL_MS) / 1000)}s (${detail.slice(0, 200)})`
         );
       }
     }
