@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Dennis Ashley Medical Clinic — Your Experience</title>
+<style>
+  :root{--navy:#0B3C5D;--gold:#D4AF37;--teal:#1F7A8C;--body:#1F2937;--muted:#6B7280;
+        --surface:#F1F5F9;--line:#E2E8F0;--cream:#FBF6E6}
+  *{box-sizing:border-box}html,body{margin:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:var(--body);background:#eef2f6;line-height:1.5;font-size:17px}
+  .wrap{max-width:640px;margin:0 auto;padding:0 16px 60px}
+  header.top{background:var(--navy);color:#fff;padding:22px 0 20px;border-bottom:3px solid var(--gold)}
+  header.top .wrap{padding-bottom:0}
+  .eyebrow{color:var(--gold);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+  header.top h1{font-size:22px;margin:6px 0 2px}header.top p{margin:0;color:#C9D6E0;font-size:15px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:16px 0}
+  .intro{background:var(--cream);border-left:4px solid var(--gold)}.intro strong{color:var(--navy)}
+  h2.section{font-size:16px;color:var(--navy);margin:24px 2px 6px;padding-top:6px;border-top:1px solid var(--line)}
+  h2.section .hint{display:block;font-weight:400;color:var(--muted);font-size:13px;margin-top:2px}
+  .q{padding:14px 0;border-bottom:1px solid var(--line)}.q:last-child{border-bottom:0}
+  .q .qt{font-size:16px;margin-bottom:10px}
+  .opts{display:flex;gap:8px}
+  .opts label{flex:1;text-align:center;border:1px solid var(--line);border-radius:10px;padding:12px 4px;
+     cursor:pointer;background:#fff;font-size:13px}
+  .opts input{position:absolute;opacity:0;width:0;height:0}
+  .opts label:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy)}
+  .opts .emoji{display:block;font-size:22px;line-height:1;margin-bottom:3px}
+  .opts label.na{flex:0 0 100%;margin-top:6px;color:var(--muted);font-size:13px}
+  .grades{display:flex;flex-wrap:wrap;gap:8px}
+  .grades label{flex:1 1 30%;text-align:center;border:1px solid var(--line);border-radius:10px;padding:12px 6px;cursor:pointer;font-size:14px}
+  .grades label:has(input:checked){background:var(--gold);border-color:var(--gold);color:#081521;font-weight:700}
+  .checks label{display:block;border:1px solid var(--line);border-radius:10px;padding:11px 12px;
+     margin-bottom:7px;cursor:pointer;font-size:15px}
+  .checks label:has(input:checked){background:var(--surface);border-color:var(--teal)}
+  .checks input{margin-right:9px}
+  textarea,select,input[type=text]{width:100%;font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:10px}
+  textarea{min-height:80px}
+  .field{margin:12px 0}.field label.lbl{display:block;font-size:15px;margin-bottom:6px}
+  button.submit{width:100%;background:var(--navy);color:#fff;border:0;border-radius:11px;padding:16px;
+     font-size:17px;font-weight:700;cursor:pointer;margin-top:10px}
+  button.submit:disabled{opacity:.6}
+  .foot{color:var(--muted);font-size:12px;text-align:center;margin-top:20px}
+  .thanks{display:none;text-align:center;padding:44px 10px}
+  .thanks .check{width:60px;height:60px;border-radius:50%;background:var(--cream);color:var(--gold);
+     display:inline-flex;align-items:center;justify-content:center;font-size:32px;border:2px solid var(--gold)}
+  .thanks h2{color:var(--navy)}
+  .err{background:#fdecec;border-left:4px solid #c0392b;color:#7a2f2f;font-size:14px;display:none}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="eyebrow">Dennis Ashley Medical Clinic &amp; Endoscopy Suites</div>
+  <h1>How was your experience?</h1>
+  <p>Anonymous &middot; about 5 minutes &middot; it helps us look after patients better</p>
+</div></header>
+
+<div class="wrap">
+  <div id="form">
+    <div class="card intro">
+      <strong>Thank you for trusting us with your care.</strong> This short survey is anonymous, so
+      we do not ask your name and nobody can tell which answers are yours. Whether you came in for a
+      consultation, a health check or an endoscopy, please be honest, including about anything that
+      disappointed you. That is how it becomes useful.
+    </div>
+    <div class="card err" id="err"></div>
+    <form id="survey" novalidate></form>
+    <button class="submit" id="submitBtn" type="button">Submit</button>
+    <div class="foot">Run by Consult for Africa on behalf of Dennis Ashley Medical Clinic &amp; Endoscopy Suites &middot; consultforafrica.com</div>
+  </div>
+  <div class="thanks card" id="thanks">
+    <div class="check">&#10003;</div><h2>Thank you.</h2>
+    <p>Your answers are in, and they are anonymous. Thank you for helping us look after patients
+       better. You can close this page.</p>
+  </div>
+</div>
+
+<script>
+const ENDPOINT = "/api/dennis-ashley-audit/responses";
+const SCALE = [["1","\u{1F61F}"],["2","\u{1F641}"],["3","\u{1F610}"],["4","\u{1F642}"],["5","\u{1F600}"]];
+const MULTI = ["almost_stopped","services_used"];
+
+// [section title, items, hint, allowNA]
+const SECTIONS = [
+  ["Getting an appointment", [
+    "It was easy to book an appointment at a time that suited me.",
+    "Reaching the clinic by phone, WhatsApp or online was easy.",
+    "I was seen close to the time I was given."
+  ]],
+  ["Reception and waiting", [
+    "The reception team made me feel welcome and looked after.",
+    "The clinic was clean, calm and comfortable.",
+    "My privacy was respected at the front desk and while I waited."
+  ]],
+  ["The consultation", [
+    "The doctor listened carefully to what I came in with.",
+    "My condition or my results were explained in a way I understood.",
+    "I was told what my choices were, and what each one would involve.",
+    "I could ask questions without feeling rushed.",
+    "I was treated with respect and kindness by everybody."
+  ]],
+  ["The cost and your HMO", [
+    "I was told what it would cost before I had to decide.",
+    "If I used an HMO or insurance, the cover was sorted out smoothly for me.",
+    "The final amount was what I had been told it would be.",
+    "What I paid felt fair for what I received."
+  ], "These questions matter. Money and cover decide whether people come back, and few clinics ask about them honestly. Choose Not applicable if a question does not fit how you paid.", true],
+  ["If you had an endoscopy", [
+    "The instructions for preparing for my procedure were clear and easy to follow.",
+    "What would happen during the procedure was explained to me beforehand.",
+    "I felt comfortable and cared for during the procedure.",
+    "The sedation was handled well and I felt safe throughout.",
+    "My results were explained clearly, and I knew what the next steps were."
+  ], "This is about a gastroscopy or a colonoscopy in the endoscopy suites. If you did not have a procedure like this, choose Not applicable on each one.", true],
+  ["If you came for a health check or wellness package", [
+    "The health check covered what I expected it to.",
+    "My results were explained in a way that helped me act on them.",
+    "It felt like the visit was about my long-term health, not just today."
+  ], "If you did not come for a health check or wellness package, choose Not applicable on each one.", true],
+  ["How you feel about your care", [
+    "I feel genuinely looked after by this clinic.",
+    "Knowing what I know now, I would choose Dennis Ashley again."
+  ]]
+];
+
+const form = document.getElementById("survey");
+let idx = 0; const scaleItems = [];
+
+SECTIONS.forEach((sec, si) => {
+  const h = document.createElement("h2"); h.className = "section";
+  h.innerHTML = sec[0] + (sec[2] ? '<span class="hint">' + sec[2] + '</span>' : '');
+  form.appendChild(h);
+  sec[1].forEach(text => {
+    idx++; const name = "q" + idx; scaleItems.push(name);
+    const q = document.createElement("div"); q.className = "q";
+    let opts = SCALE.map(o =>
+      '<label><input type="radio" name="' + name + '" value="' + o[0] + '">' +
+      '<span class="emoji">' + o[1] + '</span>' + o[0] + '</label>').join("");
+    if (sec[3]) opts += '<label class="na"><input type="radio" name="' + name + '" value="NA">Not applicable</label>';
+    q.innerHTML = '<div class="qt">' + text + '</div><div class="opts">' + opts + '</div>';
+    form.appendChild(q);
+  });
+});
+
+const radios = (name, list) => '<div class="checks">' + list.map(o =>
+  '<label><input type="radio" name="' + name + '" value="' + o + '">' + o + '</label>').join("") + '</div>';
+const boxes = (name, list) => '<div class="checks">' + list.map(o =>
+  '<label><input type="checkbox" name="' + name + '" value="' + o + '">' + o + '</label>').join("") + '</div>';
+
+const tail = document.createElement("div");
+tail.innerHTML = `
+  <h2 class="section">Paying for it</h2>
+  <div class="q"><div class="qt">How was your care paid for?</div>
+    ${radios("pay_source", ["My own money","Family here in Nigeria","Family living abroad",
+      "HMO or health insurance","My employer or a corporate plan","A loan or instalments",
+      "Still owing some of it","Prefer not to say"])}</div>
+  <div class="q"><div class="qt">If you used an HMO or insurer, which one was it?</div>
+    ${radios("which_hmo", ["Leadway Health","AXA Mansard","Avon HMO","Hygeia HMO","Reliance HMO",
+      "Clearline HMO","Redcare / Fidelity","ProHealth HMO","Novo Health Africa",
+      "Another HMO on the panel","I did not use an HMO","Prefer not to say"])}</div>
+  <div class="q"><div class="qt">Did you consider having this done outside Nigeria?</div>
+    ${radios("abroad", ["It never crossed my mind","I thought about it",
+      "I looked into it seriously","I usually go abroad for this","I have had this done abroad before"])}</div>
+  <div class="q"><div class="qt">Did anything almost stop you from coming or going ahead? Choose as many as apply.</div>
+    ${boxes("almost_stopped", ["The cost","I was not sure it was necessary","Fear of the procedure itself",
+      "Sorting out my HMO or cover","Travel or distance","I could not get a convenient time",
+      "Worry about privacy","Nothing, I was ready","Other"])}</div>
+
+  <h2 class="section">Overall</h2>
+  <div class="q"><div class="qt">Since coming to Dennis Ashley, how well looked after does your health feel?</div>
+    <div class="grades">${["Much better","Better","About the same","Worse","Much worse","Too early to say"].map(g =>
+      '<label><input type="radio" name="now" value="' + g + '">' + g + '</label>').join("")}</div></div>
+  <div class="q"><div class="qt">Would you recommend Dennis Ashley to a friend or a member of your family?</div>
+    <div class="grades">${["Definitely","Probably","Not sure","Probably not","Definitely not"].map(g =>
+      '<label><input type="radio" name="recommend" value="' + g + '">' + g + '</label>').join("")}</div></div>
+  <div class="q"><div class="qt">Has anyone asked you about the clinic since your visit?</div>
+    ${radios("asked", ["Yes, and I recommended it","Yes, but I was not sure what to say",
+      "Yes, and I did not recommend it","Nobody has asked"])}</div>
+
+  <h2 class="section">A little about your visit
+    <span class="hint">Optional. It helps us group the answers, and it cannot identify you.</span></h2>
+  <div class="q"><div class="qt">Which of these did you use? Choose as many as apply.</div>
+    ${boxes("services_used", ["General or specialist consultation","A health check or wellness package",
+      "Gastroscopy (upper endoscopy)","Colonoscopy","Laboratory tests","Vaccination or travel health",
+      "Corporate or employee health","Pharmacy","Other"])}</div>
+  <div class="field"><label class="lbl">What did you mainly come for?</label>
+    <select name="reason"><option value="">Prefer not to say</option>
+      <option>General or specialist consultation</option>
+      <option>A health check or wellness package</option>
+      <option>An endoscopy (gastroscopy or colonoscopy)</option>
+      <option>A follow-up visit</option>
+      <option>Corporate or employee health</option>
+      <option>Vaccination or travel health</option>
+      <option>Something else</option></select></div>
+  <div class="field"><label class="lbl">When was your visit?</label>
+    <select name="when"><option value="">Prefer not to say</option>
+      <option>In the last 3 months</option><option>3 to 6 months ago</option>
+      <option>6 to 12 months ago</option><option>More than a year ago</option></select></div>
+  <div class="field"><label class="lbl">How often have you been to Dennis Ashley?</label>
+    <select name="visits"><option value="">Prefer not to say</option>
+      <option>This was my first visit</option><option>I have been a few times</option>
+      <option>I come here regularly for my care</option></select></div>
+  <div class="field"><label class="lbl">How did you first hear about Dennis Ashley?</label>
+    <select name="found_us"><option value="">Prefer not to say</option>
+      <option>Another doctor sent me</option><option>My HMO or insurer</option>
+      <option>My employer</option><option>A friend or family member</option>
+      <option>A former patient</option><option>I searched online</option>
+      <option>Social media</option><option>I live or work nearby</option>
+      <option>Other</option></select></div>
+  <div class="field"><label class="lbl">If a doctor or clinic sent you here, what is their name and where do they practise?</label>
+    <input type="text" name="referrer_name" placeholder="Optional. It lets us thank them properly.">
+  </div>
+
+  <h2 class="section">Two last questions <span class="hint">Optional, and the most useful part.</span></h2>
+  <div class="field"><label class="lbl">The best thing about your experience:</label>
+    <textarea name="open_best"></textarea></div>
+  <div class="field"><label class="lbl">The one thing we should do better:</label>
+    <textarea name="open_improve"></textarea></div>
+`;
+form.appendChild(tail);
+
+document.getElementById("submitBtn").addEventListener("click", async () => {
+  const data = {};
+  const fd = new FormData(form);
+  fd.forEach((v, k) => {
+    if (MULTI.includes(k)) { (data[k] = data[k] || []).push(v); }
+    else { data[k] = v; }
+  });
+  const answered = scaleItems.filter(n => data[n]).length;
+  const err = document.getElementById("err");
+  if (answered < 5) {
+    err.style.display = "block";
+    err.textContent = "Please answer a few more questions before submitting.";
+    window.scrollTo({top:0,behavior:"smooth"}); return;
+  }
+  err.style.display = "none";
+  const payload = { survey:"dennis-ashley-patient-experience", submittedAt:new Date().toISOString(), responses:data };
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true; btn.textContent = "Submitting...";
+  try {
+    const r = await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    if (!r.ok) throw new Error("bad status");
+    document.getElementById("form").style.display = "none";
+    document.getElementById("thanks").style.display = "block";
+    window.scrollTo({top:0,behavior:"smooth"});
+  } catch (e) {
+    btn.disabled = false; btn.textContent = "Submit";
+    err.style.display = "block";
+    err.textContent = "Something went wrong sending your answers. Please try again in a moment.";
+  }
+});
+</script>
+</body>
+</html>
