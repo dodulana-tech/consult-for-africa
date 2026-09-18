@@ -18,6 +18,7 @@ from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.utils import ImageReader
+from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.platypus import (
     BaseDocTemplate,
     Frame,
@@ -79,21 +80,57 @@ def inline(text: str) -> str:
     return text
 
 
+# The cell's left plus right padding, per render_table's TableStyle.
+_CELL_PAD = 16.0
+
+
+def _widest_word(cells, bold):
+    """Width in points of the widest unbreakable word in a column."""
+    font = "Helvetica-Bold" if bold else "Helvetica"
+    widest = 0.0
+    for c in cells:
+        for w in c.split():
+            widest = max(widest, stringWidth(w, font, 9))
+    return widest
+
+
 def col_widths(rows):
-    """Size columns from their content, so a narrow index column stays narrow."""
+    """Size columns from their content, so a narrow index column stays narrow.
+
+    Mean cell length sets the share. A column is then never squeezed below its
+    longest single word, because reportlab will otherwise break mid-word and
+    render something like "Unite / d Stat / es" down a starved first column.
+    """
     n = len(rows[0])
-    # longest word sets the floor, mean length sets the share
-    weight = []
+    weight, longest_word = [], []
     for j in range(n):
-        lens = [len(re.sub(r"[*`]", "", r[j])) for r in rows if j < len(r)]
+        cells = [re.sub(r"[*`]", "", r[j]) for r in rows if j < len(r)]
+        lens = [len(c) for c in cells]
         body_len = sum(lens[1:]) / max(1, len(lens) - 1)
         weight.append(max(float(lens[0]), body_len, 4.0))
+        # column 0 renders bold, per render_table
+        longest_word.append(_widest_word(cells, bold=(j == 0)))
     total = sum(weight)
-    share = [w / total for w in weight]
-    # nothing narrower than 7 per cent or wider than 60
-    share = [min(0.60, max(0.07, s)) for s in share]
+    share = [min(0.60, max(0.07, w / total)) for w in weight]
     total = sum(share)
-    return [AVAIL * s / total for s in share]
+    widths = [AVAIL * s / total for s in share]
+
+    # floors: one column may not claim more than 45 per cent on this account,
+    # and all the floors together may not claim the whole row
+    floors = [min(AVAIL * 0.45, lw + _CELL_PAD) for lw in longest_word]
+    if sum(floors) > AVAIL * 0.95:
+        k = AVAIL * 0.95 / sum(floors)
+        floors = [f * k for f in floors]
+
+    widths = [max(w, f) for w, f in zip(widths, floors)]
+    over = sum(widths) - AVAIL
+    if over > 0:
+        slack = [w - f for w, f in zip(widths, floors)]
+        if sum(slack) > 0:
+            widths = [w - over * sl / sum(slack) for w, sl in zip(widths, slack)]
+        else:
+            widths = [w * AVAIL / sum(widths) for w in widths]
+    return widths
 
 
 def make_page_furniture(header_label: str, footer_label: str):

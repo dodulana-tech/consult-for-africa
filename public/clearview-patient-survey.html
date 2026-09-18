@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Clearview &mdash; Your experience of Clearview</title>
+<style>
+  :root{
+    --navy:#0B3C5D; --deep:#081521; --gold:#D4AF37; --teal:#1F7A8C;
+    --body:#1F2937; --muted:#6B7280; --surface:#F1F5F9; --line:#E2E8F0;
+    --cream:#FBF6E6; --white:#fff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:var(--body);background:#eef2f6;line-height:1.5;font-size:16px}
+  .wrap{max-width:720px;margin:0 auto;padding:0 16px 64px}
+  header.top{background:var(--navy);color:#fff;padding:22px 0 20px;border-bottom:3px solid var(--gold)}
+  header.top .wrap{padding-top:0;padding-bottom:0}
+  .eyebrow{color:var(--gold);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+  header.top h1{font-size:22px;margin:6px 0 2px;line-height:1.2}
+  header.top p{margin:0;color:#C9D6E0;font-size:14px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0;
+        box-shadow:0 1px 2px rgba(8,21,33,.04)}
+  .privacy{background:var(--cream);border-left:4px solid var(--gold)}
+  .privacy strong{color:var(--navy)}
+  .scalekey{background:var(--surface);border-left:4px solid var(--teal);font-size:14px}
+  .scalekey b{color:var(--navy)}
+  h2.section{font-size:16px;color:var(--navy);margin:26px 2px 8px;padding-top:6px;
+             border-top:1px solid var(--line)}
+  h2.section .n{color:var(--teal);font-weight:800;margin-right:8px}
+  h2.section .hint{font-weight:400;color:var(--muted);font-size:13px;display:block;margin-top:2px}
+  .q{padding:14px 0;border-bottom:1px solid var(--line)}
+  .q:last-child{border-bottom:0}
+  .q .qt{font-size:15px;margin-bottom:10px}
+  .q .qt .num{color:var(--muted);font-weight:700;margin-right:6px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opts label{flex:1 1 auto;min-width:56px;text-align:center;border:1px solid var(--line);
+     border-radius:9px;padding:9px 6px;font-size:13px;cursor:pointer;background:#fff;user-select:none}
+  .opts.five label{min-width:0}
+  .opts input{position:absolute;opacity:0;width:0;height:0}
+  .opts label:hover{border-color:var(--teal)}
+  .opts label.na{color:var(--muted);flex-basis:100%;min-width:100%;margin-top:2px}
+  .opts label:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy)}
+  .opts label:has(input:checked) .sub{color:#C9D6E0}
+  .opts .big{display:block;font-weight:800;font-size:15px;line-height:1}
+  .opts .sub{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+  textarea,select,input[type=text]{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);
+     border-radius:9px;background:#fff;color:var(--body)}
+  textarea{min-height:74px;resize:vertical}
+  .field{margin:12px 0}
+  .field label.lbl{display:block;font-size:14px;margin-bottom:6px}
+  .progress{position:sticky;top:0;z-index:5;background:#eef2f6;padding:10px 0}
+  .bar{height:8px;background:var(--line);border-radius:20px;overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width .25s}
+  .bar-t{font-size:12px;color:var(--muted);margin:6px 2px 0}
+  button.submit{width:100%;background:var(--navy);color:#fff;border:0;border-radius:11px;
+     padding:16px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px}
+  button.submit:disabled{opacity:.6;cursor:not-allowed}
+  .foot{color:var(--muted);font-size:12px;text-align:center;margin-top:22px}
+  .thanks{display:none;text-align:center;padding:40px 10px}
+  .thanks h2{color:var(--navy)}
+  .thanks .check{width:56px;height:56px;border-radius:50%;background:var(--cream);color:var(--gold);
+     display:inline-flex;align-items:center;justify-content:center;font-size:30px;border:2px solid var(--gold)}
+  .err{background:#fdecec;border-left:4px solid #c0392b;color:#7a2f2f;font-size:14px;display:none}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Consult for Africa &middot; Confidential</div>
+    <h1>Clearview &mdash; Your experience of Clearview</h1>
+    <p>Anonymous &middot; about 8 minutes</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="form-wrap">
+    <div class="card privacy"><strong>Your answers are anonymous.</strong> Thank you for doing this. Your answers are anonymous. They go to Consult for Africa, who are advising Clearview, and not to the clinic or to anyone who treated you. They are reported only as grouped totals, so nothing you write can be traced back to you. There are no right answers. We know some of these questions touch on a hard time, so please skip anything you would rather not answer.</div>
+    <div class="card scalekey">
+      For most questions, choose how much you agree from <b>1</b> to <b>5</b>. Every question also
+      has <b>N/A &middot; Do not know</b>, and you should use it freely where a question does not
+      apply to you.
+    </div>
+    <div class="card err" id="err"></div>
+
+    <div class="progress">
+      <div class="bar"><i id="barfill"></i></div>
+      <div class="bar-t"><span id="answered">0</span> of <span id="total">0</span> answered</div>
+    </div>
+
+    <form id="form">
+
+
+  <h2 class="section"><span class="n">01</span>Finding Clearview</h2>
+  <div class="card">
+      <div class="q">
+        <div class="qt"><span class="num">1.</span>It was easy to get a first appointment.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q1" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q1" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q1" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q1" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q1" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q1" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">2.</span>Reaching Clearview by telephone or message was easy.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q2" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q2" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q2" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q2" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q2" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q2" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">3.</span>I got a reply quickly when I first made contact.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q3" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q3" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q3" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q3" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q3" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q3" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+  </div>
+
+  <h2 class="section"><span class="n">02</span>Deciding to go ahead</h2>
+  <div class="card">
+      <div class="q">
+        <div class="qt"><span class="num">4.</span>I was given a clear written price before I had to decide.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q4" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q4" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q4" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q4" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q4" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q4" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">5.</span>I understood exactly what was included and what was not.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q5" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q5" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q5" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q5" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q5" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q5" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">6.</span>Nobody rushed me into starting before I was ready.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q6" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q6" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q6" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q6" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q6" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q6" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">7.</span>I was told honestly what my own chances were.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q7" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q7" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q7" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q7" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q7" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q7" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">8.</span>I felt I was being sold a treatment rather than advised.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q8" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q8" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q8" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q8" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q8" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q8" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+  </div>
+
+  <h2 class="section"><span class="n">03</span>The cost</h2>
+  <div class="card">
+      <div class="q">
+        <div class="qt"><span class="num">9.</span>The way payment was structured made it manageable for us.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q9" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q9" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q9" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q9" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q9" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q9" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">10.</span>The final amount was what I had been told it would be.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q10" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q10" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q10" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q10" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q10" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q10" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">11.</span>I was told in advance about the costs of medication on top of the cycle.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q11" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q11" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q11" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q11" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q11" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q11" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+  </div>
+
+  <h2 class="section"><span class="n">04</span>Your treatment</h2>
+  <div class="card">
+      <div class="q">
+        <div class="qt"><span class="num">12.</span>I always knew who to call when I had a question.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q12" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q12" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q12" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q12" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q12" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q12" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">13.</span>The same people looked after me throughout.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q13" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q13" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q13" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q13" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q13" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q13" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">14.</span>I was treated with kindness and respect by everybody.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q14" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q14" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q14" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q14" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q14" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q14" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">15.</span>My privacy was respected.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q15" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q15" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q15" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q15" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q15" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q15" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">16.</span>Appointments happened close to the time I was given.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q16" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q16" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q16" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q16" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q16" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q16" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+  </div>
+
+  <h2 class="section"><span class="n">05</span>Being told things</h2>
+  <div class="card">
+      <div class="q">
+        <div class="qt"><span class="num">17.</span>My results were explained in a way I understood.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q17" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q17" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q17" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q17" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q17" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q17" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">18.</span>When something did not work, it was explained to me with care.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q18" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q18" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q18" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q18" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q18" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q18" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">19.</span>I understood what my options were at each stage.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q19" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q19" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q19" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q19" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q19" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q19" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+  </div>
+
+  <h2 class="section"><span class="n">06</span>If you became pregnant</h2>
+  <div class="card">
+      <div class="q">
+        <div class="qt"><span class="num">20.</span>I was clear about who would look after my pregnancy.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q20" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q20" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q20" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q20" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q20" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q20" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">21.</span>Moving from fertility care to pregnancy care felt looked after rather than abrupt.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q21" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q21" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q21" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q21" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q21" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q21" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">22.</span>I was offered the option of continuing my care at Clearview Hospital.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q22" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q22" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q22" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q22" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q22" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q22" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+  </div>
+
+  <h2 class="section"><span class="n">07</span>Looking back</h2>
+  <div class="card">
+      <div class="q">
+        <div class="qt"><span class="num">23.</span>I feel genuinely cared for by this clinic.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q23" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q23" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q23" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q23" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q23" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q23" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">24.</span>I would come back to Clearview if we wanted another child.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q24" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q24" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q24" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q24" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q24" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q24" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">25.</span>I would recommend Clearview to a friend going through this.</div>
+        <div class="opts five">
+        <label><input type="radio" name="q25" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="q25" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="q25" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="q25" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="q25" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="q25" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+  </div>
+
+  <h2 class="section"><span class="n">08</span>A little about you
+    <span class="hint">So we can read the answers properly. Never used to identify anybody.</span></h2>
+  <div class="card">
+    <div class="field"><label class="lbl">Where do you live?</label>
+      <select name="where"><option value="">Please choose</option>
+        <option>Lekki, Victoria Island or Ikoyi</option>
+        <option>Mainland Lagos</option>
+        <option>Elsewhere in Lagos State</option>
+        <option>Another Nigerian state</option>
+        <option>Another West African country</option>
+        <option>Outside Africa</option>
+        <option>Prefer not to say</option>
+      </select></div>
+    <div class="field"><label class="lbl">How did you first hear about Clearview?</label>
+      <select name="found"><option value="">Please choose</option>
+        <option>Dr Ajayi was already my doctor</option>
+        <option>Another doctor referred me</option>
+        <option>A friend or family member</option>
+        <option>Instagram or Facebook</option>
+        <option>Google or the website</option>
+        <option>I saw the building</option>
+        <option>Other</option>
+      </select></div>
+    <div class="field"><label class="lbl">How many clinics did you seriously consider?</label>
+      <select name="shopped"><option value="">Please choose</option>
+        <option>Only Clearview</option>
+        <option>Two</option>
+        <option>Three</option>
+        <option>More than three</option>
+      </select></div>
+    <div class="field"><label class="lbl">Did you consider having treatment outside Nigeria?</label>
+      <select name="abroad"><option value="">Please choose</option>
+        <option>No</option>
+        <option>I thought about it</option>
+        <option>Yes, and I got prices</option>
+        <option>Yes, and I did a cycle abroad</option>
+      </select></div>
+    <div class="field"><label class="lbl">From first contacting Clearview to starting treatment, how long?</label>
+      <select name="howlong"><option value="">Please choose</option>
+        <option>Under a month</option>
+        <option>One to three months</option>
+        <option>Three to six months</option>
+        <option>Six to twelve months</option>
+        <option>More than a year</option>
+        <option>I have not started yet</option>
+      </select></div>
+    <div class="field"><label class="lbl">How many treatment cycles have you had at Clearview?</label>
+      <select name="cycles"><option value="">Please choose</option>
+        <option>None yet</option>
+        <option>One</option>
+        <option>Two</option>
+        <option>Three</option>
+        <option>More than three</option>
+      </select></div>
+    <div class="field"><label class="lbl">Has treatment at Clearview led to a pregnancy?</label>
+      <select name="outcome"><option value="">Please choose</option>
+        <option>Yes, and we have our baby</option>
+        <option>Yes, but we lost the pregnancy</option>
+        <option>I am pregnant now</option>
+        <option>Not yet</option>
+        <option>Prefer not to say</option>
+      </select></div>
+    <div class="field"><label class="lbl">If you had a baby, where did you deliver?</label>
+      <select name="delivered"><option value="">Please choose</option>
+        <option>Clearview Hospital</option>
+        <option>Another hospital in Lagos</option>
+        <option>Outside Lagos</option>
+        <option>Outside Nigeria</option>
+        <option>Does not apply</option>
+        <option>Prefer not to say</option>
+      </select></div>
+    <div class="field"><label class="lbl">Do you have embryos stored at Clearview?</label>
+      <select name="frozen"><option value="">Please choose</option>
+        <option>Yes</option>
+        <option>No</option>
+        <option>I do not know</option>
+      </select></div>
+  </div>
+
+  <h2 class="section"><span class="n">09</span>In your own words
+    <span class="hint">Optional, and usually the most useful part of the survey.</span></h2>
+  <div class="card">
+    <div class="field"><label class="lbl">What nearly stopped you going ahead with treatment at Clearview?</label>
+      <textarea name="open_nearly"></textarea></div>
+    <div class="field"><label class="lbl">What did Clearview do better than you expected?</label>
+      <textarea name="open_better"></textarea></div>
+    <div class="field"><label class="lbl">If you could change one thing about the experience, what would it be?</label>
+      <textarea name="open_change"></textarea></div>
+  </div>
+    </form>
+
+    <button class="submit" id="submitBtn">Submit my answers</button>
+    <p class="foot">Consult for Africa &middot; hello@consultforafrica.com &middot; consultforafrica.com</p>
+  </div>
+
+  <div class="thanks" id="thanks">
+    <div class="check">&#10003;</div>
+    <h2>Thank you</h2>
+    <p>Your answers are in, and they genuinely make a difference to what we recommend.</p>
+    <p class="foot">Consult for Africa</p>
+  </div>
+</div>
+
+<script>
+const ENDPOINT = "/api/clearview-audit/responses";
+const SURVEY = "clearview-patient";
+const form = document.getElementById("form");
+const scaleItems = ["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11","q12","q13","q14","q15","q16","q17","q18","q19","q20","q21","q22","q23","q24","q25"];
+
+document.getElementById("total").textContent = scaleItems.length;
+function updateProgress(){
+  let n = 0;
+  scaleItems.forEach(function(name){
+    if (form.querySelector('input[name="' + name + '"]:checked')) n++;
+  });
+  document.getElementById("answered").textContent = n;
+  document.getElementById("barfill").style.width = (n / scaleItems.length * 100) + "%";
+}
+form.addEventListener("change", updateProgress);
+
+document.getElementById("submitBtn").addEventListener("click", async function(){
+  const data = {};
+  new FormData(form).forEach(function(v, k){ data[k] = v; });
+  const respondent = data.respondent || undefined;
+  delete data.respondent;
+  const answered = scaleItems.filter(function(n){ return data[n]; }).length;
+  const err = document.getElementById("err");
+  if (answered < scaleItems.length * 0.6) {
+    err.style.display = "block";
+    err.textContent = "Please answer a few more questions before submitting. Your answers are most useful when the survey is mostly complete, and N/A counts as an answer.";
+    window.scrollTo({top:0,behavior:"smooth"}); return;
+  }
+  err.style.display = "none";
+  const payload = { survey: SURVEY, respondent: respondent, submittedAt: new Date().toISOString(), responses: data };
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true; btn.textContent = "Submitting...";
+  try {
+    const r = await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    if (!r.ok) throw new Error("bad status");
+    document.getElementById("form-wrap").style.display = "none";
+    document.getElementById("thanks").style.display = "block";
+    window.scrollTo({top:0,behavior:"smooth"});
+  } catch (e) {
+    btn.disabled = false; btn.textContent = "Submit my answers";
+    err.style.display = "block";
+    err.textContent = "Something went wrong sending your answers. Please try again in a moment.";
+  }
+});
+</script>
+</body>
+</html>
