@@ -57,8 +57,12 @@ The same event can arrive more than once: Paystack retries on any non-2xx, and w
 Add it to `PAYSTACK_FORWARD_TARGETS` in the CFA Vercel project, Production:
 
 ```
-PAYSTACK_FORWARD_TARGETS={"mezo":"https://mezo.example/api/paystack/webhook","cureva":"https://cureva.example/api/webhooks/paystack","osibil":"https://osibil.example/api/paystack"}
+PAYSTACK_FORWARD_TARGETS={"mezo":"https://mezohealth.com/api/webhooks/paystack"}
 ```
+
+Mezo is wired up and is the worked example: it stamps `product: "mezo"` centrally in `initializeTransaction`, so no call site can forget, and its webhook acknowledges and drops anything addressed to another product before claiming an idempotency key. Cureva and Osibil are not configured yet.
+
+Give the **canonical** host, the one that does not redirect. Mezo answers on the apex and redirects `www` to it; CFA is the other way round. A redirect on a POST is not something to rely on.
 
 Must be `https`. A plain `http` entry is refused and logged rather than used. Adding a product is an env change and a redeploy, not a code change.
 
