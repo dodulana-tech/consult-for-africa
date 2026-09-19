@@ -204,6 +204,29 @@ export async function handleInvoicePayment(event: PaystackEvent): Promise<void> 
 
 /* ── CadreHealth subscriptions ────────────────────────────────────────────── */
 
+/** List price of the CadreHealth PRO plan, in whole Naira. Used only as a
+ *  fallback when an event arrives without an amount. */
+export const PRO_PRICE_NGN = 1500;
+
+/**
+ * What to record as the subscription amount, in whole Naira.
+ *
+ * Paystack reports kobo, and what lands can differ from the list price: a bank
+ * transfer carries fees, so the first PRO subscriber paid NGN 1,522.85 against
+ * a list price of 1,500. Record what was actually charged, since the alternative
+ * is a constant that cannot be reconciled against Paystack settlements. The
+ * column is whole Naira, so kobo is lost to rounding either way.
+ *
+ * Falls back to the list price only when the event carries no usable amount,
+ * which is the case for events that are not themselves a charge.
+ */
+export function subscriptionAmountNGN(amountKobo: unknown): number {
+  if (typeof amountKobo !== "number" || !Number.isFinite(amountKobo) || amountKobo <= 0) {
+    return PRO_PRICE_NGN;
+  }
+  return Math.round(amountKobo / 100);
+}
+
 export async function handleCadreSubscription(event: PaystackEvent): Promise<void> {
   if (event.event === "charge.success") {
     const { metadata, customer } = event.data;
@@ -215,6 +238,8 @@ export async function handleCadreSubscription(event: PaystackEvent): Promise<voi
     const now = new Date();
     const periodEnd = new Date(now);
     periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+    const chargedNGN = subscriptionAmountNGN(event.data.amount);
 
     // Read before writing so a retry or a deliberate replay does not send a
     // second welcome. The upsert itself is safely repeatable; the email is not.
@@ -229,7 +254,7 @@ export async function handleCadreSubscription(event: PaystackEvent): Promise<voi
       update: {
         plan: "PRO",
         status: "ACTIVE",
-        amountNGN: 1500,
+        amountNGN: chargedNGN,
         currentPeriodStart: now,
         currentPeriodEnd: periodEnd,
         aiMessagesThisMonth: 0,
@@ -240,7 +265,7 @@ export async function handleCadreSubscription(event: PaystackEvent): Promise<voi
         professionalId,
         plan: "PRO",
         status: "ACTIVE",
-        amountNGN: 1500,
+        amountNGN: chargedNGN,
         currentPeriodStart: now,
         currentPeriodEnd: periodEnd,
         paystackCustomerCode: customer?.customer_code || undefined,
