@@ -6,7 +6,7 @@ import { emailMezoClaim } from "@/lib/cadreHealth/mezoClaimEmail";
 import { surnameFor } from "@/lib/cadreSalutation";
 
 /**
- * POST /api/cron/mezo-provision-retry
+ * POST or GET /api/cron/mezo-provision-retry
  *
  * Opens the Mezo places that could not be opened when the member answered.
  *
@@ -22,8 +22,17 @@ import { surnameFor } from "@/lib/cadreSalutation";
  * announces it has failed, so sending is keyed on claimEmailSentAt rather than
  * on having just provisioned. A run that provisions nothing still catches up
  * on unsent mail.
+ *
+ * Both verbs, because Vercel fires scheduled crons as GET. Exporting POST
+ * alone meant the schedule hit a 405 every hour from the day this merged, so
+ * none of the above had ever run once: four members were left holding an open
+ * Mezo place that nothing had told them about. The crons in here that do work
+ * all export both.
  */
-export const POST = handler(async function POST(req: NextRequest) {
+export const POST = handler(async function POST(req: NextRequest) { return run(req); });
+export const GET = handler(async function GET(req: NextRequest) { return run(req); });
+
+async function run(req: NextRequest): Promise<Response> {
   const authHeader = req.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
@@ -134,7 +143,7 @@ export const POST = handler(async function POST(req: NextRequest) {
   }
 
   return Response.json({ considered: stuck.length, opened, stillFailing, emailed });
-});
+}
 
 function cleanFirstName(firstName: string): string {
   return firstName.replace(/^\s*(dr|prof|professor|mr|mrs|ms|miss)\.?\s+/i, "").trim() || firstName;
