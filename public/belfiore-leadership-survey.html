@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Belfiore &middot; The view from the top</title>
+<style>
+  :root{
+    --navy:#0B3C5D; --deep:#081521; --gold:#D4AF37; --teal:#1F7A8C;
+    --body:#1F2937; --muted:#6B7280; --surface:#F1F5F9; --line:#E2E8F0;
+    --cream:#FBF6E6; --white:#fff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:var(--body);background:#eef2f6;line-height:1.5;font-size:16px}
+  .wrap{max-width:720px;margin:0 auto;padding:0 16px 64px}
+  header.top{background:var(--navy);color:#fff;padding:22px 0 20px;border-bottom:3px solid var(--gold)}
+  header.top .wrap{padding-top:0;padding-bottom:0}
+  .eyebrow{color:var(--gold);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+  header.top h1{font-size:22px;margin:6px 0 2px;line-height:1.2}
+  header.top p{margin:0;color:#C9D6E0;font-size:14px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0;
+        box-shadow:0 1px 2px rgba(8,21,33,.04)}
+  .privacy{background:var(--cream);border-left:4px solid var(--gold)}
+  .privacy strong{color:var(--navy)}
+  .scalekey{background:var(--surface);border-left:4px solid var(--teal);font-size:14px}
+  .scalekey b{color:var(--navy)}
+  h2.section{font-size:16px;color:var(--navy);margin:26px 2px 8px;padding-top:6px;
+             border-top:1px solid var(--line)}
+  h2.section .n{color:var(--teal);font-weight:800;margin-right:8px}
+  h2.section .hint{font-weight:400;color:var(--muted);font-size:13px;display:block;margin-top:2px}
+  .q{padding:14px 0;border-bottom:1px solid var(--line)}
+  .q:last-child{border-bottom:0}
+  .q .qt{font-size:15px;margin-bottom:10px}
+  .q .qt .num{color:var(--muted);font-weight:700;margin-right:6px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opts label{flex:1 1 auto;min-width:56px;text-align:center;border:1px solid var(--line);
+     border-radius:9px;padding:9px 6px;font-size:13px;cursor:pointer;background:#fff;user-select:none}
+  .opts.five label{min-width:0}
+  .opts input{position:absolute;opacity:0;width:0;height:0}
+  .opts label:hover{border-color:var(--teal)}
+  .opts label.na{color:var(--muted);flex-basis:100%;min-width:100%;margin-top:2px}
+  .opts label:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy)}
+  .opts label:has(input:checked) .sub{color:#C9D6E0}
+  .opts .big{display:block;font-weight:800;font-size:15px;line-height:1}
+  .opts .sub{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+  textarea,select,input[type=text]{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);
+     border-radius:9px;background:#fff;color:var(--body)}
+  textarea{min-height:74px;resize:vertical}
+  .field{margin:12px 0}
+  .field label.lbl{display:block;font-size:14px;margin-bottom:6px}
+  .progress{position:sticky;top:0;z-index:5;background:#eef2f6;padding:10px 0}
+  .bar{height:8px;background:var(--line);border-radius:20px;overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width .25s}
+  .bar-t{font-size:12px;color:var(--muted);margin:6px 2px 0}
+  button.submit{width:100%;background:var(--navy);color:#fff;border:0;border-radius:11px;
+     padding:16px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px}
+  button.submit:disabled{opacity:.6;cursor:not-allowed}
+  .foot{color:var(--muted);font-size:12px;text-align:center;margin-top:22px}
+  .thanks{display:none;text-align:center;padding:40px 10px}
+  .thanks h2{color:var(--navy)}
+  .thanks .check{width:56px;height:56px;border-radius:50%;background:var(--cream);color:var(--gold);
+     display:inline-flex;align-items:center;justify-content:center;font-size:30px;border:2px solid var(--gold)}
+  .checks{display:flex;flex-wrap:wrap;gap:8px}
+  .checks .chk{flex:1 1 210px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;
+     font-size:13.5px;cursor:pointer;background:#fff;user-select:none;display:flex;align-items:center;gap:8px}
+  .checks .chk:hover{border-color:var(--teal)}
+  .checks .chk:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy)}
+  .err{background:#fdecec;border-left:4px solid #c0392b;color:#7a2f2f;font-size:14px;display:none}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Consult for Africa &middot; Confidential</div>
+    <h1>Belfiore &middot; The view from the top</h1>
+    <p>Attributed &middot; About 6 minutes</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="form-wrap">
+    <div class="card privacy"><strong>This survey is attributed.</strong> This one is attributed, because the value is in seeing where the senior team agrees and where it does not. Answer as you believe things actually are today, not as you intend them to be.</div>
+    <div class="card scalekey">
+      For most questions, choose how much you agree from <b>1</b> to <b>5</b>. Every question also
+      has <b>N/A &middot; Do not know</b>, and you should use it freely where a question does not
+      apply to you.
+    </div>
+    <div class="card err" id="err"></div>
+
+    <div class="progress">
+      <div class="bar"><i id="barfill"></i></div>
+      <div class="bar-t"><span id="answered">0</span> of <span id="total">0</span> answered</div>
+    </div>
+
+    <form id="form">
+  <div class="card">
+    <div class="field"><label class="lbl"><b>Your name</b>, so we know whose view this is.</label>
+      <input type="text" name="respondent" placeholder="Dr ..." /></div>
+  </div>
+
+  <h2 class="section"><span class="n">01</span>What good looks like here</h2>
+  <div class="card">
+      <div class="q">
+        <div class="qt"><span class="num">1.</span>We have a written standard for how clients are to be handled.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_std_written" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_std_written" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_std_written" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_std_written" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_std_written" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_std_written" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">2.</span>Every client-facing person could tell you what that standard is.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_std_known" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_std_known" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_std_known" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_std_known" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_std_known" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_std_known" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">3.</span>Our team has been properly trained for the job we actually ask them to do.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_std_trained" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_std_trained" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_std_trained" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_std_trained" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_std_trained" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_std_trained" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">4.</span>Our team has the authority to resolve a small problem without coming to me.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_std_authority" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_std_authority" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_std_authority" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_std_authority" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_std_authority" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_std_authority" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">5.</span>Our team represents Belfiore the way I would represent it myself.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_std_represent" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_std_represent" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_std_represent" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_std_represent" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_std_represent" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_std_represent" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+  </div>
+
+  <h2 class="section"><span class="n">02</span>Doing the job day to day</h2>
+  <div class="card">
+      <div class="q">
+        <div class="qt"><span class="num">6.</span>I know how quickly our enquiries are answered.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_enc_speed" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_enc_speed" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_enc_speed" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_enc_speed" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_enc_speed" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_enc_speed" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">7.</span>I know what proportion of enquiries turn into booked appointments.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_enc_convert" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_enc_convert" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_enc_convert" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_enc_convert" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_enc_convert" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_enc_convert" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">8.</span>The team is sized correctly for the volume of enquiries we get.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_enc_capacity" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_enc_capacity" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_enc_capacity" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_enc_capacity" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_enc_capacity" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_enc_capacity" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">9.</span>Our systems let the team do the job well rather than getting in the way.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_enc_systems" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_enc_systems" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_enc_systems" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_enc_systems" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_enc_systems" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_enc_systems" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">10.</span>I would be comfortable listening back to any call we took this week.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_enc_listen" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_enc_listen" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_enc_listen" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_enc_listen" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_enc_listen" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_enc_listen" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+  </div>
+
+  <h2 class="section"><span class="n">03</span>When it is difficult</h2>
+  <div class="card">
+      <div class="q">
+        <div class="qt"><span class="num">11.</span>Complaints reach me reliably rather than by accident.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_dif_reach" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_dif_reach" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_dif_reach" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_dif_reach" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_dif_reach" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_dif_reach" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">12.</span>We have a method for handling a client who is unhappy with a result.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_dif_method" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_dif_method" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_dif_method" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_dif_method" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_dif_method" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_dif_method" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">13.</span>Every complaint is recorded somewhere I could review it.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_dif_record" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_dif_record" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_dif_record" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_dif_record" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_dif_record" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_dif_record" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">14.</span>We would handle a public complaint on social media well.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_dif_public" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_dif_public" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_dif_public" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_dif_public" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_dif_public" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_dif_public" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+  </div>
+
+  <h2 class="section"><span class="n">04</span>The client who is not in the room</h2>
+  <div class="card">
+      <div class="q">
+        <div class="qt"><span class="num">15.</span>We follow up with every client after their treatment.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_fol_after" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_fol_after" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_fol_after" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_fol_after" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_fol_after" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_fol_after" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">16.</span>We know which clients are due to return, and we act on it.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_fol_recall" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_fol_recall" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_fol_recall" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_fol_recall" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_fol_recall" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_fol_recall" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">17.</span>We systematically get back in touch with clients we have not seen in a while.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_fol_dormant" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_fol_dormant" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_fol_dormant" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_fol_dormant" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_fol_dormant" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_fol_dormant" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">18.</span>I know how much of our revenue comes from returning clients.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_fol_revenue" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_fol_revenue" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_fol_revenue" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_fol_revenue" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_fol_revenue" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_fol_revenue" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+  </div>
+
+  <h2 class="section"><span class="n">05</span>How we know it is working</h2>
+  <div class="card">
+      <div class="q">
+        <div class="qt"><span class="num">19.</span>We measure client experience in a way I actually trust.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_sys_measure" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_sys_measure" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_sys_measure" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_sys_measure" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_sys_measure" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_sys_measure" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">20.</span>Client experience is a standing item at our management meetings.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_sys_agenda" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_sys_agenda" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_sys_agenda" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_sys_agenda" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_sys_agenda" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_sys_agenda" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">21.</span>Somebody independently checks how our enquiries are handled.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_sys_audit" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_sys_audit" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_sys_audit" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_sys_audit" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_sys_audit" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_sys_audit" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">22.</span>One named person owns client experience at Belfiore.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_sys_owner" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_sys_owner" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_sys_owner" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_sys_owner" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_sys_owner" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_sys_owner" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qt"><span class="num">23.</span>Managers coach the team on client handling, rather than only correcting mistakes.</div>
+        <div class="opts five">
+        <label><input type="radio" name="l_sys_coach" value="1"><span class="big">1</span><span class="sub">Strongly disagree</span></label>
+        <label><input type="radio" name="l_sys_coach" value="2"><span class="big">2</span><span class="sub">Disagree</span></label>
+        <label><input type="radio" name="l_sys_coach" value="3"><span class="big">3</span><span class="sub">Neither</span></label>
+        <label><input type="radio" name="l_sys_coach" value="4"><span class="big">4</span><span class="sub">Agree</span></label>
+        <label><input type="radio" name="l_sys_coach" value="5"><span class="big">5</span><span class="sub">Strongly agree</span></label>
+        <label class="na"><input type="radio" name="l_sys_coach" value="NA">N/A &middot; Do not know</label>
+        </div>
+      </div>
+  </div>
+
+  <h2 class="section"><span class="n">06</span>A little about you
+    <span class="hint">So we can read the answers properly. Never used to identify anybody.</span></h2>
+  <div class="card">
+    <div class="field"><label class="lbl">Your role</label>
+      <select name="l_role"><option value="">Please choose</option>
+        <option>Managing Director or Chief Executive</option>
+        <option>Clinical lead</option>
+        <option>Operations or practice manager</option>
+        <option>Marketing lead</option>
+        <option>Finance</option>
+        <option>Other senior role</option>
+      </select></div>
+    <div class="field"><label class="lbl">How many people deal with clients at the front desk or in bookings?</label>
+      <select name="l_headcount"><option value="">Please choose</option>
+        <option>One</option>
+        <option>Two</option>
+        <option>Three</option>
+        <option>Four or five</option>
+        <option>More than five</option>
+      </select></div>
+    <div class="field"><label class="lbl">Roughly how many client enquiries does Belfiore receive in a week?</label>
+      <select name="l_weekly"><option value="">Please choose</option>
+        <option>Fewer than 20</option>
+        <option>20 to 50</option>
+        <option>51 to 100</option>
+        <option>More than 100</option>
+        <option>We do not know</option>
+      </select></div>
+    <div class="field"><label class="lbl">Do you know your enquiry to booking conversion rate?</label>
+      <select name="l_conversion"><option value="">Please choose</option>
+        <option>Yes, we measure it</option>
+        <option>We estimate it</option>
+        <option>No, we do not know it</option>
+      </select></div>
+
+  </div>
+
+  <h2 class="section"><span class="n">07</span>In your own words
+    <span class="hint">Optional, and usually the most useful part of the survey.</span></h2>
+  <div class="card">
+    <div class="field"><label class="lbl">What about the way clients are handled keeps you up at night?</label>
+      <textarea name="l_o_worry"></textarea></div>
+    <div class="field"><label class="lbl">Describe the best client experience Belfiore has delivered.</label>
+      <textarea name="l_o_best"></textarea></div>
+    <div class="field"><label class="lbl">Describe the worst, and what it cost.</label>
+      <textarea name="l_o_worst"></textarea></div>
+    <div class="field"><label class="lbl">Six months from now, what will tell you that this programme worked?</label>
+      <textarea name="l_o_success"></textarea></div>
+  </div>
+    </form>
+
+    <button class="submit" id="submitBtn">Submit my answers</button>
+    <p class="foot">Consult for Africa &middot; hello@consultforafrica.com &middot; consultforafrica.com</p>
+  </div>
+
+  <div class="thanks" id="thanks">
+    <div class="check">&#10003;</div>
+    <h2>Thank you</h2>
+    <p>Your answers are in, and they genuinely make a difference to what we recommend.</p>
+    <p class="foot">Consult for Africa</p>
+  </div>
+</div>
+
+<script>
+const ENDPOINT = "/api/belfiore-audit/responses";
+const SURVEY = "belfiore-leadership";
+const form = document.getElementById("form");
+const scaleItems = ["l_std_written","l_std_known","l_std_trained","l_std_authority","l_std_represent","l_enc_speed","l_enc_convert","l_enc_capacity","l_enc_systems","l_enc_listen","l_dif_reach","l_dif_method","l_dif_record","l_dif_public","l_fol_after","l_fol_recall","l_fol_dormant","l_fol_revenue","l_sys_measure","l_sys_agenda","l_sys_audit","l_sys_owner","l_sys_coach"];
+
+document.getElementById("total").textContent = scaleItems.length;
+function updateProgress(){
+  let n = 0;
+  scaleItems.forEach(function(name){
+    if (form.querySelector('input[name="' + name + '"]:checked')) n++;
+  });
+  document.getElementById("answered").textContent = n;
+  document.getElementById("barfill").style.width = (n / scaleItems.length * 100) + "%";
+}
+form.addEventListener("change", updateProgress);
+
+document.getElementById("submitBtn").addEventListener("click", async function(){
+  const data = {};
+  const multiKeys = [];
+  new FormData(form).forEach(function(v, k){
+    if (multiKeys.indexOf(k) !== -1) { (data[k] = data[k] || []).push(v); }
+    else { data[k] = v; }
+  });
+  const respondent = data.respondent || undefined;
+  delete data.respondent;
+  const answered = scaleItems.filter(function(n){ return data[n]; }).length;
+  const err = document.getElementById("err");
+  if (answered < scaleItems.length * 0.6) {
+    err.style.display = "block";
+    err.textContent = "Please answer a few more questions before submitting. Your answers are most useful when the survey is mostly complete, and N/A counts as an answer.";
+    window.scrollTo({top:0,behavior:"smooth"}); return;
+  }
+  err.style.display = "none";
+  const payload = { survey: SURVEY, respondent: respondent, submittedAt: new Date().toISOString(), responses: data };
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true; btn.textContent = "Submitting...";
+  try {
+    const r = await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    if (!r.ok) throw new Error("bad status");
+    document.getElementById("form-wrap").style.display = "none";
+    document.getElementById("thanks").style.display = "block";
+    window.scrollTo({top:0,behavior:"smooth"});
+  } catch (e) {
+    btn.disabled = false; btn.textContent = "Submit my answers";
+    err.style.display = "block";
+    err.textContent = "Something went wrong sending your answers. Please try again in a moment.";
+  }
+});
+</script>
+</body>
+</html>
