@@ -13,6 +13,7 @@
  * indemnity stay Mezo's job and the doctor's.
  */
 import crypto from "crypto";
+import type { Prisma } from "@prisma/client";
 
 export type MezoProvisionStatus = "PROVISIONED" | "EXISTING" | "FAILED";
 
@@ -150,4 +151,114 @@ function toPayload(input: MezoProvisionInput) {
     isDiaspora: input.isDiaspora ?? false,
     mdcnFolioNumber: input.mdcnFolioNumber || undefined,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Batch provisioning.
+//
+// The one-at-a-time call above is right for the survey, where a member is
+// waiting on the page. Seeding the register is the other shape: hundreds of
+// rows, nobody waiting, and Mezo's endpoint already takes up to 200 at a time.
+//
+// /api/cron/mezo-backfill goes through here. scripts/mezo-backfill-registered
+// predates it and still carries its own copy of the batching, the signing and
+// the payload mapping; it should be moved onto these before it is next edited,
+// or the two will drift on what gets sent to Mezo.
+// ---------------------------------------------------------------------------
+
+/** Mezo's endpoint caps a request at 200. Stay under it with room to spare. */
+export const MEZO_BATCH_SIZE = 100;
+
+/** Mezo opens an account per row inside one transaction, so give it room. */
+const BATCH_TIMEOUT_MS = 120_000;
+
+export interface MezoBatchResult {
+  externalId: string;
+  status: "created" | "existing" | "skipped";
+  claimUrl?: string;
+  reason?: string;
+}
+
+/**
+ * The register import put titles in the first name field, so "Dr Francis" is a
+ * common value. Mezo matches against MDCN, which holds the name and not the
+ * honorific.
+ */
+export function cleanFirstName(firstName: string): string {
+  return firstName.replace(/^\s*(dr|prof|professor|mr|mrs|ms|miss)\.?\s+/i, "").trim() || firstName;
+}
+
+/** The columns a backfill needs. Exported so the cohort query cannot drift.
+ *  `satisfies` rather than `as const`: it checks the shape against Prisma's
+ *  select type while keeping the literal, which is what lets findMany infer
+ *  the narrowed row instead of handing back the whole model. */
+export const MEZO_COHORT_SELECT = {
+  id: true,
+  email: true,
+  phone: true,
+  firstName: true,
+  lastName: true,
+  cadre: true,
+  subSpecialty: true,
+  state: true,
+  isDiaspora: true,
+  specialtyConfirmedAt: true,
+  credentials: {
+    where: { regulatoryBody: "MDCN" },
+    select: { licenseNumber: true },
+    take: 1,
+  },
+} satisfies Prisma.CadreProfessionalSelect;
+
+export type MezoCohortRow = Prisma.CadreProfessionalGetPayload<{
+  select: typeof MEZO_COHORT_SELECT;
+}>;
+
+/** One cohort row to the payload Mezo expects. */
+export function toMezoPayload(
+  p: MezoCohortRow,
+  surname: (s: string) => string | null,
+) {
+  return {
+    externalId: p.id,
+    email: p.email,
+    firstName: cleanFirstName(p.firstName),
+    lastName: surname(p.lastName) ?? p.lastName,
+    phone: p.phone,
+    primarySpecialty: publishableSpecialty(p),
+    subSpecialty: p.specialtyConfirmedAt ? p.subSpecialty : null,
+    state: p.state,
+    isDiaspora: p.isDiaspora,
+    mdcnFolioNumber: p.credentials[0]?.licenseNumber ?? null,
+  };
+}
+
+/**
+ * Send one batch to Mezo. Throws on transport or a non-2xx, because the caller
+ * decides whether a failed batch is fatal or simply re-run: the endpoint is
+ * idempotent on email, so retrying costs nothing and loses nothing.
+ */
+export async function provisionMezoBatch(batch: unknown[]): Promise<MezoBatchResult[]> {
+  const secret = process.env.MEZO_PARTNER_SECRET;
+  const baseUrl = process.env.MEZO_BASE_URL;
+  if (!secret || !baseUrl) throw new Error("Mezo handoff is not configured");
+
+  // Signed over the exact string sent. Serialise once and send that same
+  // string: re-serialising would change the bytes and the signature would not
+  // verify on the far side.
+  const body = JSON.stringify({ professionals: batch });
+  const signature = crypto.createHmac("sha256", secret).update(body).digest("hex");
+
+  const res = await fetch(`${baseUrl.replace(/\/$/, "")}/api/partners/cadrehealth/provision`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-cfa-signature": signature },
+    body,
+    signal: AbortSignal.timeout(BATCH_TIMEOUT_MS),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Mezo returned ${res.status}: ${(await res.text().catch(() => "")).slice(0, 200)}`);
+  }
+  const data = (await res.json()) as { results?: MezoBatchResult[] };
+  return data.results ?? [];
 }
