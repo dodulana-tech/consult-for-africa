@@ -19,6 +19,8 @@ const RHYTHM: Array<{
   title: string; brief: string; definitionOfDone: string;
   cadence: RecurrenceCadence; dayOfWeek?: number; dayOfMonth?: number; monthOfYear?: number;
   leadTimeDays: number; checkInOffsetDays?: number; estimatedMinutes: number; toPrincipal?: boolean;
+  /// Where the work happens, copied onto every occurrence this generates.
+  linkedEntityType?: string;
 }> = [
   {
     title: "Partner meeting pack",
@@ -59,6 +61,7 @@ const RHYTHM: Array<{
     definitionOfDone:
       "An evaluation recorded against the open rotation with all five scores, at least one strength and one area for development written in specifics rather than adjectives, and a promotion recommendation where it is earned. The conversation happens before the form is filled, not after.",
     cadence: "MONTHLY", dayOfMonth: 28, leadTimeDays: 5, estimatedMinutes: 60, toPrincipal: true,
+    linkedEntityType: "INTERN_ROTATION",
   },
 ];
 
@@ -135,6 +138,7 @@ async function main() {
         leadTimeDays: r.leadTimeDays,
         checkInOffsetDays: r.checkInOffsetDays ?? null,
         estimatedMinutes: r.estimatedMinutes,
+        linkedEntityType: r.linkedEntityType ?? null,
       },
     });
     rhythmsAdded++;
