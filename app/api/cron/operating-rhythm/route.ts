@@ -73,6 +73,8 @@ async function run(req: NextRequest): Promise<Response> {
         checkInAt,
         estimatedMinutes: r.estimatedMinutes,
         recurringTaskId: r.id,
+        linkedEntityType: r.linkedEntityType,
+        linkedEntityId: r.linkedEntityId,
       },
       select: { id: true, title: true, brief: true, definitionOfDone: true, dueDate: true, checkInAt: true, estimatedMinutes: true },
     });

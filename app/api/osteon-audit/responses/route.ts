@@ -16,6 +16,11 @@ import { notifyInternal } from "@/lib/email";
 // answer is only actionable if we know which referrer gave it and the
 // leadership instrument exists to compare named views against each other.
 
+// The platform engagement these responses belong to, so a submission shows up
+// against the client rather than floating unattached. Created by
+// scripts/create-osteon-engagement.ts.
+const OSTEON_ENGAGEMENT_ID = "cmuedemiu0002fowkes7seohj";
+
 const ALLOWED = [
   "osteon-staff-culture",
   "osteon-patient-experience",
@@ -64,6 +69,7 @@ export async function POST(req: NextRequest) {
     await prisma.auditSurveyResponse.create({
       data: {
         survey: parsed.data.survey,
+        engagementId: OSTEON_ENGAGEMENT_ID,
         payload: parsed.data.responses,
         userAgent: req.headers.get("user-agent")?.slice(0, 300) ?? null,
       },

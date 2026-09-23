@@ -108,6 +108,10 @@ const LINKED_SECTIONS: Record<string, { label: string; path: string; itemPath?: 
   RHYTHM: { label: "the rhythm", path: "/rhythm" },
   KNOWLEDGE: { label: "the knowledge base", path: "/knowledge" },
   PROPOSAL: { label: "proposals", path: "/proposals" },
+  // The monthly evaluation is recorded against a rotation inside the intern
+  // programme. Without this entry the task said what to do and offered no way
+  // to go and do it.
+  INTERN_ROTATION: { label: "the evaluation", path: "/admin/interns", itemPath: () => "/admin/interns" },
 };
 
 export function linkedSection(

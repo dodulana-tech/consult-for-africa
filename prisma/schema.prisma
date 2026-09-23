@@ -3053,6 +3053,12 @@ model RecurringTask {
   checkInOffsetDays Int?
   estimatedMinutes  Int?
 
+  /// Where the work happens, copied onto every task this template generates.
+  /// A recurring brief that names a section but cannot reach it sends the
+  /// assignee hunting through the sidebar once a month, every month.
+  linkedEntityType String?
+  linkedEntityId   String?
+
   active           Boolean   @default(true)
   /// The occurrence date most recently generated, so a run is never duplicated
   /// and a gap is detectable.
